@@ -1,0 +1,11 @@
+{
+  "Home": {
+    "title": "Bem-vindo à FluencyLab School"
+  },
+  "Auth": {
+    "signin": "Entrar",
+    "email": "E-mail",
+    "password": "Senha",
+    "submit": "Entrar"
+  }
+}

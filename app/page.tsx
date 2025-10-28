@@ -1,9 +1,5 @@
-import { BubbleBackground } from "@/components/ui/shadcn-io/bubble-background";
+import { redirect } from "next/navigation";
 
-export default function Hero() {
-  return (
-    <BubbleBackground interactive={true}>
-      <div className="relative z-10 min-h-screen"></div>
-    </BubbleBackground>
-  );
+export default function RootRedirect() {
+  redirect("/pt");
 }
