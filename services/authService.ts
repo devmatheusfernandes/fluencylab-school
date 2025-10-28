@@ -1,14 +1,9 @@
 // services/authService.ts
 
-import {
-  signInWithEmailAndPassword,
-  //sendEmailVerification,
-  User as FirebaseUser,
-} from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase/config";
 import { adminDb, adminAuth } from "@/lib/firebase/admin";
 import { User } from "@/types/users/users";
-import { UserRoles } from "@/types/users/userRoles";
 import { TwoFactorService } from "./twoFactorService";
 
 const twoFactorService = new TwoFactorService();

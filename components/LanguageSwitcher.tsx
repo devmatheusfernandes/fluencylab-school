@@ -14,11 +14,7 @@ import {
 import { Button } from "./ui/button";
 import { ChevronsUpDown, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const languages = [
-  { value: "en", label: "English" },
-  { value: "pt", label: "Português" },
-];
+import { languages } from "@/types/languages";
 
 export default function LanguageSwitcher() {
   const locale = useLocale();

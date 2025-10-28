@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { ThemeProvider } from "@/context/ThemeContext";
 import AuthProvider from "@/components/auth/AuthProvider";
 import { Quicksand } from "next/font/google";
 import { Toaster } from "sonner";
+import { ThemeProvider } from "@/context/ThemeProvider";
 
 const quicksand = Quicksand({
   subsets: ["latin"],
@@ -25,7 +25,14 @@ export default function RootLayout({
     <html lang="en">
       <body className={quicksand.className}>
         <AuthProvider>
-          <ThemeProvider>{children}</ThemeProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
         </AuthProvider>
         <Toaster />
       </body>
