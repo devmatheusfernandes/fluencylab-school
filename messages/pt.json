@@ -16,7 +16,18 @@
     "internalError": "Erro interno. Tente novamente.",
     "backAriaLabel": "Voltar para a página inicial",
     "contactPrompt": "Você não tem ID de aluno e senha?",
-    "contactLink": "Fale conosco"
+    "contactLink": "Fale conosco",
+    "twoFactorTitle": "Verificação em Duas Etapas",
+    "twoFactorSubtitle": "Digite o código de 6 dígitos do seu aplicativo autenticador.",
+    "signingInAs": "Fazendo login como:",
+    "verifyButton": "Verificar",
+    "verifying": "Verificando...",
+    "useDifferentAccount": "Usar uma conta diferente",
+    "twoFactorLoadingTitle": "Carregando...",
+    "twoFactorLoadingSubtitle": "Preparando verificação em duas etapas",
+    "twoFactorInvalid": "Código 2FA inválido. Tente novamente.",
+    "twoFactorRequired": "Código 2FA é obrigatório. Digite o código.",
+    "unauthorized": "Não autorizado. Faça login novamente."
   },
   "Theme": {
     "toggle": "Alternar tema",

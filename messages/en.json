@@ -16,7 +16,18 @@
     "internalError": "Internal error. Try again.",
     "backAriaLabel": "Back to landing page",
     "contactPrompt": "You don't have a Student ID and Password?",
-    "contactLink": "Contact Us"
+    "contactLink": "Contact Us",
+    "twoFactorTitle": "Two-Factor Verification",
+    "twoFactorSubtitle": "Enter the 6-digit code from your authenticator app.",
+    "signingInAs": "Signing in as:",
+    "verifyButton": "Verify",
+    "verifying": "Verifying...",
+    "useDifferentAccount": "Use a different account",
+    "twoFactorLoadingTitle": "Loading...",
+    "twoFactorLoadingSubtitle": "Preparing two-factor verification",
+    "twoFactorInvalid": "Invalid 2FA code. Try again.",
+    "twoFactorRequired": "2FA code is required. Enter the code.",
+    "unauthorized": "Unauthorized. Please sign in again."
   },
   "Theme": {
     "toggle": "Toggle theme",
