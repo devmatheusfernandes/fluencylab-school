@@ -4,8 +4,24 @@
   },
   "Auth": {
     "signin": "Entrar",
+    "signinTitle": "Login",
+    "description": "Informe suas credenciais para acessar a plataforma.",
     "email": "E-mail",
+    "studentIdPlaceholder": "Digite seu ID de aluno",
     "password": "Senha",
-    "submit": "Entrar"
+    "passwordPlaceholder": "Digite sua senha",
+    "submit": "Entrar",
+    "loading": "Aguarde...",
+    "invalidCredentials": "Credenciais inválidas.",
+    "internalError": "Erro interno. Tente novamente.",
+    "backAriaLabel": "Voltar para a página inicial",
+    "contactPrompt": "Você não tem ID de aluno e senha?",
+    "contactLink": "Fale conosco"
+  },
+  "Theme": {
+    "toggle": "Alternar tema",
+    "light": "Claro",
+    "dark": "Escuro",
+    "system": "Sistema"
   }
 }

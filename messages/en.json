@@ -4,8 +4,24 @@
   },
   "Auth": {
     "signin": "Sign in",
+    "signinTitle": "Login",
+    "description": "Enter your credentials to access the platform.",
     "email": "Email",
+    "studentIdPlaceholder": "Enter your student ID",
     "password": "Password",
-    "submit": "Sign in"
+    "passwordPlaceholder": "Enter your password",
+    "submit": "Sign in",
+    "loading": "Please wait...",
+    "invalidCredentials": "Invalid credentials.",
+    "internalError": "Internal error. Try again.",
+    "backAriaLabel": "Back to landing page",
+    "contactPrompt": "You don't have a Student ID and Password?",
+    "contactLink": "Contact Us"
+  },
+  "Theme": {
+    "toggle": "Toggle theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
   }
 }
