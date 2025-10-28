@@ -1,0 +1,14 @@
+imports:
+import { NextIntlClientProvider, useLocale } from "next-intl";
+
+use:
+const locale = useLocale();
+<NextIntlClientProvider messages={messages} locale={locale}>
+
+const t = messages?.Auth ?? {};
+
+inside the code:
+<p>
+    {t.messageReference}
+</p>
+
