@@ -1,7 +1,56 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-
 @custom-variant dark (&:is(.dark *));
+
+.sidebar-base {
+  @apply bg-slate-200 dark:bg-slate-950;
+}
+
+.container-base {
+  @apply bg-slate-400/30 dark:bg-slate-900;
+}
+
+.subcontainer-base {
+  @apply bg-slate-400/20 dark:bg-slate-800;
+}
+
+/* 
+CARDS SÃO COMPONENTES QUE FICAM DENTRO DE SUBCONTAINERS QUE PODEM FUNCIONAR COMO: 
+- CARDS NORMAIS COM GRAFICOS E INFORMAÇOES
+- ITENS DENTRO DE SUBCONTAINERS
+*/
+
+.card-base {
+  @apply duration-150 ease-in-out transition-all rounded-lg 
+        border border-slate-200/50 dark:border-slate-700/50 
+        bg-white/15 dark:bg-slate-900/35  
+        hover:border-slate-300 dark:hover:border-slate-600;
+}
+
+.skeleton-base {
+  @apply bg-linear-to-r from-slate-400/60 via-slate-400/30 to-slate-400/60
+         dark:from-slate-700 dark:via-slate-600/90 dark:to-slate-700
+         bg-size-[200%_2%] animate-shimmer;
+}
+
+.skeleton-sub {
+  @apply bg-linear-to-r from-white/20 via-slate-300/30 to-white/20
+         dark:from-slate-800 dark:via-slate-700/60 dark:to-slate-800
+         bg-size-[200%_50%] animate-shimmer;
+}
+
+
+.input-base {
+  @apply duration-150 ease-in-out transition-all rounded-lg 
+        border border-slate-200/50 dark:border-slate-700/50 
+        bg-white/20 dark:bg-slate-900/35 
+        hover:border-slate-500/30 dark:hover:border-slate-600
+        placeholder:text-gray-500 dark:placeholder:text-gray-400 
+        hover:bg-white/5 dark:hover:bg-gray-800 
+        focus:bg-white/25 dark:focus:bg-gray-800 
+        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/20 dark:focus-visible:ring-blue-400/20 
+        disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-50 dark:disabled:bg-gray-900 ;
+}
 
 @theme  {
   --color-background: var(--background);
@@ -41,6 +90,17 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  /* Animation definitions */
+  --animate-shimmer: shimmer 5.5s ease-in-out infinite;
+  @keyframes shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
 }
 
 :root {
@@ -116,6 +176,15 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
   }
   body {
     @apply bg-background text-foreground;
