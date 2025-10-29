@@ -6,6 +6,7 @@ import { NextIntlClientProvider, useLocale } from "next-intl";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { BackButton } from "@/components/ui/back-button";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import BackgroundLogin from "@/public/images/login/background";
@@ -127,7 +128,15 @@ export function SignInClient({ messages }: SignInClientProps) {
                     className="w-full"
                     size="lg"
                   >
-                    {isLoading ? t.loading : t.submit}
+                    {isLoading ? (
+                      <>
+                        <Spinner aria-hidden="true" />
+                        <span className="sr-only">{t.loading}</span>
+                        {t.loading}
+                      </>
+                    ) : (
+                      t.submit
+                    )}
                   </Button>
 
                   {localError && (
