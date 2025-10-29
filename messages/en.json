@@ -34,5 +34,23 @@
     "light": "Light",
     "dark": "Dark",
     "system": "System"
+  },
+  "Sidebar": {
+    "menu": "Menu",
+    "notifications": "Notifications"
+  },
+  "SidebarItems": {
+    "myProfile": "My Profile",
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "finances": "Finances",
+    "courses": "Courses",
+    "documents": "Documents",
+    "students": "Students",
+    "mySchedule": "My Schedule",
+    "settings": "Settings",
+    "notebook": "Notebook",
+    "practice": "Practice",
+    "calendar": "Calendar"
   }
 }

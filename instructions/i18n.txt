@@ -1,14 +1,145 @@
+Guia oficial de i18n (next-intl) da aplicação
+
+1) Estrutura de mensagens e idiomas
+- Pastas e arquivos: '@/messages/en.json' e '@/messages/pt.json'
+- Cada arquivo é um JSON com seções por recurso (ex.: 'Auth', 'Theme', 'Sidebar', 'SidebarItems')
+- Convenção de chaves: lowerCamelCase (ex.: signinTitle, twoFactorSubtitle)
+- Fallback padrão: 'en'
+
+2) Provider global de i18n
+- O provider da app está em 'app/[locale]/layout.tsx' e deve envolver TODO o conteúdo com NextIntlClientProvider:
 imports:
-import { NextIntlClientProvider, useLocale } from "next-intl";
+  import { NextIntlClientProvider } from "next-intl";
+  import { getMessages } from "next-intl/server";
 
-use:
-const locale = useLocale();
-<NextIntlClientProvider messages={messages} locale={locale}>
+uso:
+  export default async function LocaleLayout({ children, params }: { children: React.ReactNode; params: Promise<{locale: string}>; }) {
+    const { locale } = await params;
+    const messages = await getMessages();
 
-const t = messages?.Auth ?? {};
+    return (
+      <NextIntlClientProvider locale={locale} messages={messages}>
+        {children}
+      </NextIntlClientProvider>
+    );
+  }
 
-inside the code:
-<p>
-    {t.messageReference}
-</p>
+- Importante: as páginas e componentes dentro de 'app/[locale]/...' não precisam recriar o provider, apenas usá-lo (veja seção 4).
 
+3) Carregamento de mensagens por request (server)
+- O arquivo 'src/i18n/request.ts' define o fallback e o carregamento automático:
+imports:
+  import { getRequestConfig } from "next-intl/server";
+
+uso:
+  export default getRequestConfig(async ({ locale }) => {
+    const resolved = locale ?? "en";
+    return {
+      locale: resolved,
+      messages: (await import(`../../messages/${resolved}.json`)).default,
+    };
+  });
+
+- Se adicionar um novo locale (ex.: 'es'), crie 'messages/es.json' e a troca de idioma funcionará pela URL: '/es/...'
+
+4) Uso em páginas e componentes
+- Páginas server (em 'app/[locale]/...'):
+  - Recebem 'params' com '{ locale }' e podem importar mensagens da pasta '@/messages', mas preferencialmente dependem do provider global
+  - Exemplo (signin):
+    import { SignInClient } from "./SignInClient";
+
+    export default async function SignInPage({ params }: { params: Promise<{ locale: string }> }) {
+      const { locale } = await params;
+      const messages = (await import(`../../../../messages/${locale}.json`)).default as Record<string, Record<string, string>>;
+      return <SignInClient messages={messages} />;
+    }
+
+- Componentes client:
+  - Para ler o idioma atual: 'const locale = useLocale();'
+  - Para acessar mensagens no componente: receba 'messages' via props OU use 'useMessages()' quando o provider estiver ativo no layout
+  - Exemplo mínimo:
+    imports:
+      import { NextIntlClientProvider, useLocale } from "next-intl";
+
+    uso:
+      const locale = useLocale();
+      <NextIntlClientProvider messages={messages} locale={locale}>
+        {/* seu conteúdo */}
+      </NextIntlClientProvider>
+
+    // Dentro do JSX:
+      const t = messages?.Auth ?? {};
+      <p>{t.messageReference}</p>
+
+5) Padrão para traduzir o Sidebar
+- Config dos itens: 'config/sidebarItems.tsx'
+- Cada item deve ter 'labelKey' apontando para a chave em 'messages.SidebarItems'
+  Exemplo:
+    {
+      href: "/hub/plataforma/profile",
+      label: "Meu Perfil", // fallback local
+      labelKey: "myProfile", // chave em SidebarItems
+      icon: <UserCircle className="w-6 h-6" />
+    }
+
+- No 'app/[locale]/hub/layout.tsx', mapeie os itens com 'useMessages()':
+  const messages = useMessages();
+  const tSidebarItems = (messages?.SidebarItems ?? {}) as Record<string, string>;
+
+  const items = rawItems.map((it) => ({
+    ...it,
+    label: it.labelKey ? tSidebarItems[it.labelKey] ?? it.label : it.label
+  }));
+
+- Labels móveis do Drawer:
+  - Use 'messages.Sidebar.menu' e 'messages.Sidebar.notifications'
+  - Tenha as chaves em todos os 'messages/*.json'
+
+6) Convenções de mensagens (exemplos)
+- messages/en.json:
+  {
+    "Auth": { "signinTitle": "Login", ... },
+    "Theme": { "toggle": "Toggle theme", ... },
+    "Sidebar": { "menu": "Menu", "notifications": "Notifications" },
+    "SidebarItems": {
+      "myProfile": "My Profile",
+      "dashboard": "Dashboard",
+      "users": "Users",
+      ...
+    }
+  }
+
+- messages/pt.json:
+  {
+    "Auth": { "signinTitle": "Login", ... },
+    "Theme": { "toggle": "Alternar tema", ... },
+    "Sidebar": { "menu": "Menu", "notifications": "Notificações" },
+    "SidebarItems": {
+      "myProfile": "Meu Perfil",
+      "dashboard": "Painel",
+      "users": "Usuários",
+      .
+    }
+  }
+
+7) LanguageSwitcher
+- Ao trocar o idioma, o componente deve atualizar o pathname para o novo prefixo '/{locale}/...'
+- Se a URL muda e nada é traduzido:
+  - Confirme se está dentro de 'app/[locale]/...' (o provider só existe ali)
+  - Confirme que 'src/i18n/request.ts' usa o 'locale' corretamente (fallback 'en' é só quando não há locale)
+  - Confirme que suas chaves existem em TODOS os arquivos de mensagens
+
+8) Passos para adicionar novos textos traduzidos
+- Escolha o namespace correto (ex.: 'Auth', 'Sidebar', 'SidebarItems')
+- Adicione a chave nos dois arquivos: 'messages/en.json' e 'messages/pt.json'
+- Se for label de Sidebar: adicione 'labelKey' no item em 'config/sidebarItems.tsx' e use o mapeamento em 'hub/layout.tsx'
+- Renderize usando 'useMessages()' ou passando 'messages' ao componente
+- Teste trocando a URL '/pt/...', '/en/...' e pelo LanguageSwitcher
+
+9) Troubleshooting quando trocar a URL não altera o idioma
+- Verifique: a rota tem o prefixo de locale (ex.: '/pt/hub/...')?
+- O provider em 'app/[locale]/layout.tsx' está envolvendo as páginas?
+- O componente usa 'useMessages()' ou recebe 'messages' via props?
+- As chaves existem em ambos 'messages/en.json' e 'messages/pt.json'?
+- O 'src/i18n/request.ts' está usando 'locale ?? "en"' apenas como fallback quando não há locale?
+- Se for Sidebar: confirme 'labelKey' e o mapeamento no 'hub/layout.tsx'

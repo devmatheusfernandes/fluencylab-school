@@ -34,5 +34,23 @@
     "light": "Claro",
     "dark": "Escuro",
     "system": "Sistema"
+  },
+  "Sidebar": {
+    "menu": "Menu",
+    "notifications": "Notificações"
+  },
+  "SidebarItems": {
+    "myProfile": "Meu Perfil",
+    "dashboard": "Painel",
+    "users": "Usuários",
+    "finances": "Financeiro",
+    "courses": "Cursos",
+    "documents": "Documentos",
+    "students": "Alunos",
+    "mySchedule": "Minha Agenda",
+    "settings": "Configurações",
+    "notebook": "Caderno",
+    "practice": "Prática",
+    "calendar": "Calendário"
   }
 }

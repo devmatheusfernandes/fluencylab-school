@@ -14,6 +14,7 @@ import {
 } from "../NotificationCard/NotificationCard";
 import { signOut } from "next-auth/react";
 import { ArrowDown, ArrowUp, ClosedCaption } from "lucide-react";
+import { useMessages } from "next-intl";
 
 // --- Type Definitions ---
 export interface SubItem {
@@ -25,6 +26,8 @@ export interface SubItem {
 export interface SidebarItemType {
   href: string;
   label: string;
+  // Optional translation key to resolve label via messages
+  labelKey?: string;
   icon?: React.ReactNode;
   subItems?: SubItem[];
 }
@@ -188,6 +191,7 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
   onClearAllNotifications,
 }) => {
   const pathname = usePathname();
+  const tSidebar = (useMessages()?.Sidebar ?? {}) as Record<string, string>;
   const [openSection, setOpenSection] = React.useState<string | null>(null);
   const [activeTab, setActiveTab] = React.useState<"menu" | "notifications">(
     "menu"
@@ -232,7 +236,9 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
         <div className="px-4 py-3">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-semibold text-foreground">
-              {activeTab === "menu" ? "Menu" : "Notificações"}
+              {activeTab === "menu"
+                ? tSidebar.menu ?? "Menu"
+                : tSidebar.notifications ?? "Notificações"}
             </h2>
             <button
               onClick={onClose}
@@ -251,13 +257,13 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
           <button
             onClick={() => setActiveTab("menu")}
             className={twMerge(
-              "flex-1 py-3 px-4 text-sm font-medium transition-colors relative",
+            "flex-1 py-3 px-4 text-sm font-medium transition-colors relative",
               activeTab === "menu"
                 ? "text-primary"
                 : "text-muted-foreground hover:text-red-500"
             )}
           >
-            Menu
+            {tSidebar.menu ?? "Menu"}
             {activeTab === "menu" && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
             )}
@@ -271,7 +277,7 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
-            <span>Notificações</span>
+            <span>{tSidebar.notifications ?? "Notificações"}</span>
             {unreadCount > 0 && (
               <NotificationBadge
                 count={unreadCount}

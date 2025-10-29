@@ -8,9 +8,11 @@ import SidebarWrapper from "@/components/shared/Sidebar/SidebarWrapper";
 import { useEffect, useState } from "react";
 import { sidebarItemsByRole } from "@/config/sidebarItems";
 import { Container } from "@/components/ui/container";
+import { useMessages } from "next-intl";
 
 export default function HubLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const messages = useMessages();
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -28,7 +30,14 @@ export default function HubLayout({ children }: { children: React.ReactNode }) {
   if (loading) return null;
 
   const userRole = session?.user?.role || UserRoles.STUDENT;
-  const items = sidebarItemsByRole[userRole] || [];
+  const rawItems = sidebarItemsByRole[userRole] || [];
+
+  // Translate labels using messages
+  const tSidebarItems = (messages?.SidebarItems ?? {}) as Record<string, string>;
+  const items = rawItems.map((it) => ({
+    ...it,
+    label: it.labelKey ? tSidebarItems[it.labelKey] ?? it.label : it.label,
+  }));
 
   // Define o caminho base onde queremos esconder a sidebar e header
   const hideLayoutElements =
