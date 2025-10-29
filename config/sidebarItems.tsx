@@ -19,37 +19,37 @@ import {
 // Define os links para cada papel
 const adminItems: SidebarItemType[] = [
   {
-    href: "/hub/plataforma/profile",
+    href: "/hub/profile",
     label: "Meu Perfil",
     labelKey: "myProfile",
     icon: <UserCircle className="w-6 h-6" />,
   },
   {
-    href: "/hub/plataforma/dashboard",
+    href: "/hub/dashboard",
     label: "Painel",
     labelKey: "dashboard",
     icon: <Layers className="w-6 h-6" />,
   },
   {
-    href: "/hub/plataforma/users",
+    href: "/hub/users",
     label: "Usuários",
     labelKey: "users",
     icon: <Users className="w-6 h-6" />,
   },
   {
-    href: "/hub/plataforma/finances",
+    href: "/hub/finances",
     label: "Financeiro",
     labelKey: "finances",
     icon: <DollarSign className="w-6 h-6" />,
   },
   {
-    href: "/hub/plataforma/courses",
+    href: "/hub/courses",
     label: "Cursos",
     labelKey: "courses",
     icon: <Video className="w-6 h-6" />,
   },
   {
-    href: "/hub/plataforma/documents",
+    href: "/hub/documents",
     label: "Documentos",
     labelKey: "documents",
     icon: <FileText className="w-6 h-6" />,
@@ -58,19 +58,19 @@ const adminItems: SidebarItemType[] = [
 
 const teacherItems: SidebarItemType[] = [
   {
-    href: "/hub/plataforma/teacher/meus-alunos",
+    href: "/hub/teacher/meus-alunos",
     label: "Alunos",
     labelKey: "students",
     icon: <Users className="w-6 h-6" />,
   },
   {
-    href: "/hub/plataforma/teacher/calendario",
+    href: "/hub/teacher/calendario",
     label: "Minha Agenda",
     labelKey: "mySchedule",
     icon: <Calendar className="w-6 h-6" />,
   },
   {
-    href: "/hub/plataforma/settings",
+    href: "/hub/settings",
     label: "Configurações",
     labelKey: "settings",
     icon: <Settings className="w-6 h-6" />,
@@ -79,37 +79,37 @@ const teacherItems: SidebarItemType[] = [
 
 const studentItems: SidebarItemType[] = [
   {
-    href: "/hub/plataforma/student/meu-perfil",
+    href: "/hub/student/meu-perfil",
     label: "Meu Perfil",
     labelKey: "myProfile",
     icon: <Home className="w-6 h-6" />,
   },
   {
-    href: "/hub/plataforma/student/caderno",
+    href: "/hub/student/caderno",
     label: "Caderno",
     labelKey: "notebook",
     icon: <BookOpen className="w-6 h-6" />,
   },
   {
-    href: "/hub/plataforma/student/pratica",
+    href: "/hub/student/pratica",
     label: "Prática",
     labelKey: "practice",
     icon: <Gamepad2 className="w-6 h-6" />,
   },
   {
-    href: "/hub/plataforma/student/my-class",
+    href: "/hub/student/my-class",
     label: "Calendário",
     labelKey: "calendar",
     icon: <Calendar className="w-6 h-6" />,
   },
   {
-    href: "/hub/plataforma/courses",
+    href: "/hub/courses",
     label: "Cursos",
     labelKey: "courses",
     icon: <Monitor className="w-6 h-6" />,
   },
   {
-    href: "/hub/plataforma/settings",
+    href: "/hub/settings",
     label: "Configurações",
     labelKey: "settings",
     icon: <Settings className="w-6 h-6" />,
