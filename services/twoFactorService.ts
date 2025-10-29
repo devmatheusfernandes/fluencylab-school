@@ -141,3 +141,5 @@ export class TwoFactorService {
     return userData.twoFactorSecret || null;
   }
 }
+
+export const twoFactorService = new TwoFactorService();

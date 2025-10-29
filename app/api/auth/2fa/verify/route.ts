@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { TwoFactorService } from '@/services/twoFactorService';
+import { twoFactorService } from '@/services/twoFactorService';
 import { adminDb } from '@/lib/firebase/admin';
 
-const twoFactorService = new TwoFactorService();
+// Usar singleton para consistência e testabilidade
 
 export async function POST(request: Request) {
   try {

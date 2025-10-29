@@ -1,29 +1,34 @@
-Repository Functions and Utilities
+# Repository — Functions and Utilities
 
-This document lists exported functions, classes, and singletons from the `repositories` directory to help reuse existing logic and avoid duplication.
+Este documento lista funções, classes e singletons exportados do diretório `repositories` para facilitar a reutilização de lógica e evitar duplicação.
 
-Index (central utilities)
-- File: `repositories/index.ts`
-- Exports singletons: `userRepository`, `userAdminRepository`, `classRepository`, `classTemplateRepository`, `availabilityRepository`, `paymentRepository`, `placementRepository`, `contractRepository`, `vacationRepository`, `announcementRepository`, `achievementRepository`
-- Legacy aliases: `legacyUserRepository`, `legacyClassTemplateRepository` (aliases to centralized instances)
+## Index (central utilities)
+
+- Arquivo: `repositories/index.ts`
+- Singletons exportados: `userRepository`, `userAdminRepository`, `classRepository`, `classTemplateRepository`, `availabilityRepository`, `paymentRepository`, `placementRepository`, `contractRepository`, `vacationRepository`, `announcementRepository`, `achievementRepository`
+- Aliases legados: `legacyUserRepository`, `legacyClassTemplateRepository` (aliases para instâncias centralizadas)
 - Types: `RepositoryInstances`
-- Utilities:
-  - `getAllRepositories(): RepositoryInstances` – returns all singleton instances
-  - `validateRepositoryInstances(): boolean` – checks initialization of singletons
+- Utilitários:
+  - `getAllRepositories(): RepositoryInstances` – retorna todas as instâncias singleton
+  - `validateRepositoryInstances(): boolean` – verifica a inicialização dos singletons
 
-UserRepository
-- File: `repositories/userRepository.ts`
-- Class: `UserRepository`
+## UserRepository
+
+- Arquivo: `repositories/userRepository.ts`
+- Classe: `UserRepository`
+- Métodos:
   - `findById(id: string): Promise<User | null>`
   - `findByEmail(email: string): Promise<User | null>`
   - `update(userId: string, data: Partial<User>): Promise<void>`
-- Singleton (in index.ts): `userRepository`
+- Singleton (em `index.ts`): `userRepository`
 
-UserAdminRepository
-- File: `repositories/user.admin.repository.ts`
-- Utility function:
+## UserAdminRepository
+
+- Arquivo: `repositories/user.admin.repository.ts`
+- Função utilitária:
   - `getUserById_Admin(userId: string): Promise<User | null>`
-- Class: `UserAdminRepository`
+- Classe: `UserAdminRepository`
+- Métodos:
   - `findUsersByRole(role: string): Promise<User[]>`
   - `findUserById(userId: string): Promise<User | null>`
   - `findUsersByIds(userIds: string[]): Promise<User[]>`
@@ -34,9 +39,11 @@ UserAdminRepository
   - `countActiveTeachers(): Promise<number>`
   - `create(userData: Partial<User>): Promise<string>`
 
-ClassRepository
-- File: `repositories/classRepository.ts`
-- Class: `ClassRepository`
+## ClassRepository
+
+- Arquivo: `repositories/classRepository.ts`
+- Classe: `ClassRepository`
+- Métodos:
   - `createWithTransaction(transaction: FirebaseFirestore.Transaction, classData: Omit<StudentClass, 'id'>): string`
   - `findClassesByTeacherId(teacherId: string): Promise<StudentClass[]>`
   - `findFutureClassesByTeacherId(teacherId: string): Promise<StudentClass[]>`
@@ -60,17 +67,21 @@ ClassRepository
   - `updateClassesBySchedule(studentId: string, day: string, hour: string, newTeacherId: string): Promise<void>`
   - `update(classId: string, data: Partial<StudentClass>): Promise<void>`
 
-ClassTemplateRepository
-- File: `repositories/ClassTemplateRepository.ts`
-- Class: `ClassTemplateRepository`
+## ClassTemplateRepository
+
+- Arquivo: `repositories/ClassTemplateRepository.ts`
+- Classe: `ClassTemplateRepository`
+- Métodos:
   - `get(studentId: string): Promise<ClassTemplate | null>`
   - `upsert(studentId: string, templateData: ClassTemplate): Promise<void>`
   - `delete(studentId: string): Promise<void>`
-- Singleton (in index.ts): `classTemplateRepository`
+- Singleton (em `index.ts`): `classTemplateRepository`
 
-AvailabilityRepository
-- File: `repositories/availabilityRepository.ts`
-- Class: `AvailabilityRepository`
+## AvailabilityRepository
+
+- Arquivo: `repositories/availabilityRepository.ts`
+- Classe: `AvailabilityRepository`
+- Métodos:
   - `create(slotData: Omit<AvailabilitySlot, 'id'>): Promise<AvailabilitySlot>`
   - `findById(slotId: string): Promise<AvailabilitySlot | null>`
   - `findByTeacherId(teacherId: string): Promise<AvailabilitySlot[]>`
@@ -81,31 +92,39 @@ AvailabilityRepository
   - `createExceptionWithTransaction(transaction: Transaction, slotId: string, teacherId: string, exceptionDate: Date): void`
   - `findAndDeleteException(originalSlotId: string, exceptionDate: Date): Promise<void>`
 
-PaymentRepository
-- File: `repositories/paymentRepository.ts`
-- Class: `PaymentRepository`
+## PaymentRepository
+
+- Arquivo: `repositories/paymentRepository.ts`
+- Classe: `PaymentRepository`
+- Métodos:
   - `findByUserId(userId: string): Promise<Payment[]>`
 
-PlacementRepository
-- File: `repositories/placementRepository.ts`
-- Class: `PlacementRepository`
+## PlacementRepository
+
+- Arquivo: `repositories/placementRepository.ts`
+- Classe: `PlacementRepository`
+- Métodos:
   - `getPlacementTestsByUserId(userId: string): Promise<PlacementTest[]>`
   - `subscribeToPlacementTests(userId: string, callback: (tests: PlacementTest[]) => void): () => void`
-- Singleton (in index.ts): `placementRepository`
+- Singleton (em `index.ts`): `placementRepository`
 
-VacationRepository
-- File: `repositories/VacationRepository.ts`
-- Class: `VacationRepository`
+## VacationRepository
+
+- Arquivo: `repositories/VacationRepository.ts`
+- Classe: `VacationRepository`
+- Métodos:
   - `create(vacationData: Omit<Vacation, 'id'>): Promise<Vacation>`
   - `createWithTransaction(transaction: Transaction, vacationData: Omit<Vacation, 'id'>): void`
   - `findByTeacherAndYear(teacherId: string, year: number): Promise<Vacation[]>`
   - `findAllByTeacherId(teacherId: string): Promise<Vacation[]>`
   - `delete(vacationId: string): Promise<void>`
-- Singleton (in index.ts): `vacationRepository`
+- Singleton (em `index.ts`): `vacationRepository`
 
-AnnouncementRepository
-- File: `repositories/announcementRepository.ts`
-- Class: `AnnouncementRepository`
+## AnnouncementRepository
+
+- Arquivo: `repositories/announcementRepository.ts`
+- Classe: `AnnouncementRepository`
+- Métodos:
   - `create(announcement: Omit<Announcement, 'id' | 'createdAt' | 'readBy'>): Promise<Announcement>`
   - `findAll(): Promise<Announcement[]>`
   - `findById(id: string): Promise<Announcement | null>`
@@ -115,16 +134,20 @@ AnnouncementRepository
   - `getAnnouncementsForUser(userId: string, userRole: UserRoles): Promise<Announcement[]>`
   - `getUnreadCountForUser(userId: string, userRole: UserRoles): Promise<number>`
 
-AchievementRepository
-- File: `repositories/achievementRepository.ts`
-- Class: `AchievementRepository`
+## AchievementRepository
+
+- Arquivo: `repositories/achievementRepository.ts`
+- Classe: `AchievementRepository`
+- Métodos:
   - `getStudentAchievements(studentId: string): Promise<StudentAchievement[]>`
   - `updateStudentAchievements(studentId: string, achievements: StudentAchievement[]): Promise<void>`
   - `addStudentAchievement(studentId: string, achievement: StudentAchievement): Promise<void>`
 
-ContractRepository
-- File: `repositories/contractRepository.ts`
-- Class: `ContractRepository`
+## ContractRepository
+
+- Arquivo: `repositories/contractRepository.ts`
+- Classe: `ContractRepository`
+- Métodos:
   - `getContractStatus(userId: string): Promise<ContractStatus | null>`
   - `getContractLog(userId: string, logId: string): Promise<ContractLog | null>`
   - `createContractLog(userId: string, contractData: Omit<ContractLog, 'logID'>): Promise<string>`
@@ -141,9 +164,10 @@ ContractRepository
   - `createCancellationLog(userId: string, cancellationData: { cancelledBy: string; cancellationReason: string; isAdminCancellation: boolean; }): Promise<string>`
   - `getUserRenewalHistory(userId: string): Promise<any[]>`
   - `getUserCancellationHistory(userId: string): Promise<any[]>`
-- Singleton (in index.ts): `contractRepository`
+- Singleton (em `index.ts`): `contractRepository`
 
-Usage Tips
-- Prefer importing singletons from `repositories/index.ts` to avoid duplicate instances.
-- When performing batched or transactional writes, use repository methods that accept `Transaction` to maintain consistency.
-- For client-side realtime subscriptions, rely on methods that explicitly use client SDKs (e.g., `PlacementRepository.subscribeToPlacementTests`).
+## Usage Tips
+
+- Prefira importar singletons de `repositories/index.ts` para evitar instâncias duplicadas.
+- Ao realizar escritas em lote ou transacionais, utilize métodos que aceitem `Transaction` para manter consistência.
+- Para assinaturas em tempo real no cliente, use métodos que explicitamente utilizem SDKs client (ex.: `PlacementRepository.subscribeToPlacementTests`).

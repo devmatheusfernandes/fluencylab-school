@@ -4,9 +4,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase/config";
 import { adminDb, adminAuth } from "@/lib/firebase/admin";
 import { User } from "@/types/users/users";
-import { TwoFactorService } from "./twoFactorService";
-
-const twoFactorService = new TwoFactorService();
+import { twoFactorService } from "./twoFactorService";
 
 export class AuthService {
   /**
@@ -260,3 +258,5 @@ export class AuthService {
     }
   }
 }
+
+export const authService = new AuthService();
