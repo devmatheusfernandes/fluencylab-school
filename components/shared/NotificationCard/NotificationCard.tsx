@@ -327,7 +327,7 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
       <div className={twMerge("w-full flex justify-center", className)}>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="relative p-2 rounded-lg hover:bg-surface-hover transition-colors"
+          className="relative p-2 rounded-lg hover:bg-primary/30 hover:text-primary transition-colors"
         >
           <Bell className="w-5 h-5 text-paragraph" />
           {unreadCount > 0 && <NotificationBadge count={unreadCount} />}
@@ -353,8 +353,8 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Bell className="w-4 h-4 text-paragraph" />
-            <h3 className="text-sm font-medium text-title">Notificações</h3>
+            <Bell className="w-4 h-4" />
+            <h3 className="text-sm font-medium">Notificações</h3>
             {unreadCount > 0 && (
               <NotificationBadge
                 count={unreadCount}
@@ -416,8 +416,8 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Bell className="w-4 h-4 text-paragraph" />
-          <h3 className="text-sm font-medium text-title">Notificações</h3>
+          <Bell className="w-4 h-4 text-primary" />
+          <h3 className="text-sm font-medium">Notificações</h3>
           {unreadCount > 0 && (
             <NotificationBadge
               count={unreadCount}

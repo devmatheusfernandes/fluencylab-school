@@ -5,7 +5,7 @@ import { twMerge } from "tailwind-merge";
 import { UserRoles } from "@/types/users/userRoles";
 import { roleLabels, capitalizeFirstLetter } from "@/utils/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LogIn } from "lucide-react";
+import { LogIn, LogOut } from "lucide-react";
 
 export interface UserData {
   name: string;
@@ -51,7 +51,7 @@ const UserCard: React.FC<UserCardProps> = ({
         {onLogout && (
           <button
             onClick={onLogout}
-            className="p-2 rounded-lg bg-danger/20 text-danger hover:text-danger-light transition-colors"
+            className="p-2.5 rounded-sm bg-destructive/20 text-destructive hover:text-destructive transition-colors"
             title="Sair"
           >
             <LogIn className="w-4 h-4" />
@@ -87,10 +87,10 @@ const UserCard: React.FC<UserCardProps> = ({
       {onLogout && (
         <button
           onClick={onLogout}
-          className="p-2 rounded-lg bg-danger/10 hover:bg-danger/20 text-danger hover:text-danger-light transition-all duration-300 ease-in-out"
+          className="p-2.5 rounded-sm bg-destructive/10 hover:bg-destructive/20 text-destructive hover:text-destructive transition-all duration-300 ease-in-out"
           title="Sair"
         >
-          <LogIn className="w-4 h-4" />
+          <LogOut className="w-4 h-4" />
         </button>
       )}
     </div>

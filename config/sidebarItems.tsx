@@ -14,6 +14,7 @@ import {
   Gamepad2,
   Monitor,
   UserCircle,
+  UserStar,
 } from "lucide-react";
 
 // Define os links para cada papel
@@ -58,7 +59,13 @@ const adminItems: SidebarItemType[] = [
 
 const teacherItems: SidebarItemType[] = [
   {
-    href: "/hub/teacher/meus-alunos",
+    href: "/[locale]/hub/teacher/my-profile",
+    label: "Meu Perfil",
+    labelKey: "myProfile",
+    icon: <UserStar className="w-6 h-6" />,
+  },
+  {
+    href: "/[locale]/hub/teacher/my-students",
     label: "Alunos",
     labelKey: "students",
     icon: <Users className="w-6 h-6" />,
@@ -122,3 +129,36 @@ export const sidebarItemsByRole: Record<string, SidebarItemType[]> = {
   [UserRoles.TEACHER]: teacherItems,
   [UserRoles.STUDENT]: studentItems,
 };
+
+// Helper to build locale-aware hrefs
+function buildHrefWithLocale(href: string, locale: string): string {
+  if (!href) return href;
+  // Replace explicit [locale] placeholder when present
+  if (href.startsWith("/[locale]")) {
+    return href.replace("/[locale]", `/${locale}`);
+  }
+  // Prefix root-based paths with locale
+  if (href.startsWith("/")) {
+    return `/${locale}${href}`;
+  }
+  // Leave relative or external URLs untouched
+  return href;
+}
+
+// Public API: get items by role with locale-aware hrefs
+export function getSidebarItemsByRole(
+  role: UserRoles | string,
+  locale: string
+): SidebarItemType[] {
+  const raw = sidebarItemsByRole[role] || [];
+  return raw.map((it) => ({
+    ...it,
+    href: buildHrefWithLocale(it.href, locale),
+    subItems: it.subItems
+      ? it.subItems.map((sub) => ({
+          ...sub,
+          href: buildHrefWithLocale(sub.href, locale),
+        }))
+      : undefined,
+  }));
+}

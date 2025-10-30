@@ -13,7 +13,7 @@ import {
   Notification,
 } from "../NotificationCard/NotificationCard";
 import { signOut } from "next-auth/react";
-import { ArrowDown, ArrowUp, ClosedCaption } from "lucide-react";
+import { ArrowDown, ArrowDownFromLine, ArrowUp, LogOut } from "lucide-react";
 import { useMessages } from "next-intl";
 
 // --- Type Definitions ---
@@ -110,7 +110,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ item, isCollapsed }) => {
       href={item.href}
       className={twMerge(
         "flex items-center h-12 px-3 py-3 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/15 transition-all ease-in-out duration-300",
-        isActive && "bg-primary/20 text-primary-foreground font-semibold",
+        isActive && "bg-primary/30 text-primary font-semibold",
         isCollapsed && "justify-center px-3"
       )}
     >
@@ -147,11 +147,11 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({
       className={twMerge(
         "relative flex items-center justify-center transition-colors duration-200",
         isActive
-          ? "bg-primary/20 rounded-full px-4 py-2 gap-2"
+          ? "bg-primary/15 rounded-full px-4 py-2 gap-2"
           : "p-2 text-muted-foreground hover:text-primary"
       )}
     >
-      <div className="w-6 h-6 flex items-center justify-center">
+      <div className="w-6 h-6 flex items-center justify-center text-primary">
         {item.icon}
       </div>
       {isActive && (
@@ -215,7 +215,7 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
       {/* Backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 md:hidden"
+          className="fixed inset-0 bg-slate-500/20 backdrop-blur-sm z-99 md:hidden"
           onClick={onClose}
         />
       )}
@@ -223,7 +223,7 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
       {/* Bottom Drawer */}
       <div
         className={twMerge(
-          "fixed bottom-0 left-0 right-0 bg-card rounded-t-2xl border-t border-border z-50 md:hidden transition-transform duration-300 ease-out",
+          "fixed bottom-0 left-0 right-0 bg-background rounded-t-2xl z-199 md:hidden transition-transform duration-300 ease-out",
           isOpen ? "translate-y-0" : "translate-y-full"
         )}
       >
@@ -237,14 +237,14 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-semibold text-foreground">
               {activeTab === "menu"
-                ? tSidebar.menu ?? "Menu"
-                : tSidebar.notifications ?? "Notificações"}
+                ? (tSidebar.menu ?? "Menu")
+                : (tSidebar.notifications ?? "Notificações")}
             </h2>
             <button
               onClick={onClose}
               className="p-2 rounded-lg hover:bg-muted transition-colors"
             >
-              <ClosedCaption className="w-5 h-5 text-muted-foreground" />
+              <ArrowDownFromLine className="w-5 h-5" />
             </button>
           </div>
           {user && activeTab === "menu" && (
@@ -257,7 +257,7 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
           <button
             onClick={() => setActiveTab("menu")}
             className={twMerge(
-            "flex-1 py-3 px-4 text-sm font-medium transition-colors relative",
+              "flex-1 py-3 px-4 text-sm font-medium transition-colors relative",
               activeTab === "menu"
                 ? "text-primary"
                 : "text-muted-foreground hover:text-red-500"
@@ -434,7 +434,6 @@ const Sidebar: React.FC<SidebarProps> = ({
             onLogout={handleLogout}
           />
         )}
-
         {/* Navigation */}
         <nav
           className={twMerge(
@@ -451,7 +450,6 @@ const Sidebar: React.FC<SidebarProps> = ({
             />
           ))}
         </nav>
-
         {/* Notifications at bottom */}
         <div
           className={twMerge(
@@ -469,10 +467,19 @@ const Sidebar: React.FC<SidebarProps> = ({
             isOpen={false}
           />
         </div>
+        {handleLogout && isCollapsed && (
+          <button
+            onClick={handleLogout}
+            className="p-2.5 rounded-sm bg-destructive/10 hover:bg-destructive/20 text-destructive hover:text-destructive transition-all duration-300 ease-in-out"
+            title="Sair"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
+        )}
       </aside>
 
       {/* Mobile Bottom Navbar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border px-4 py-3 z-50">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-slate-300 dark:bg-slate-950 border-t border-primary px-4 py-2 z-50">
         <div className="flex items-center justify-between">
           {items
             .filter((item) => !item.subItems)

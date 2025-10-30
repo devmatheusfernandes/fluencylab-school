@@ -1,4 +1,3 @@
-import React from "react";
 import Link from "next/link";
 import { useMessages } from "next-intl";
 import { SubContainer } from "../ui/sub-container";
@@ -31,7 +30,7 @@ export default function StudentCard({ student }: StudentCardProps) {
 
       // Check if the date is valid
       if (isNaN(classDate.getTime())) {
-        return tStudentCard.invalidDate || "Data inválida";
+        return tStudentCard.invalidDate;
       }
 
       const today = new Date();
@@ -42,23 +41,23 @@ export default function StudentCard({ student }: StudentCardProps) {
       if (classDate.toDateString() === today.toDateString()) {
         const hours = classDate.getHours().toString().padStart(2, "0");
         const minutes = classDate.getMinutes().toString().padStart(2, "0");
-        return `${tStudentCard.classToday || "Aula hoje às"} ${hours}:${minutes}`;
+        return `${tStudentCard.classToday} ${hours}:${minutes}`;
       }
 
       // Check if it's tomorrow
       if (classDate.toDateString() === tomorrow.toDateString()) {
-        return tStudentCard.classTomorrow || "Aula amanhã";
+        return tStudentCard.classTomorrow;
       }
 
       // Format as day of week + date
       const days = [
-        tStudentCard.sunday || "Domingo",
-        tStudentCard.monday || "Segunda",
-        tStudentCard.tuesday || "Terça",
-        tStudentCard.wednesday || "Quarta",
-        tStudentCard.thursday || "Quinta",
-        tStudentCard.friday || "Sexta",
-        tStudentCard.saturday || "Sábado",
+        tStudentCard.sunday,
+        tStudentCard.monday,
+        tStudentCard.tuesday,
+        tStudentCard.wednesday,
+        tStudentCard.thursday,
+        tStudentCard.friday,
+        tStudentCard.saturday,
       ];
       const dayName = days[classDate.getDay()];
       const day = classDate.getDate();
@@ -66,17 +65,17 @@ export default function StudentCard({ student }: StudentCardProps) {
       const hours = classDate.getHours().toString().padStart(2, "0");
       const minutes = classDate.getMinutes().toString().padStart(2, "0");
 
-      return `${dayName} ${tStudentCard.dayAt || "dia"} ${day}/${month} ${tStudentCard.at || "às"} ${hours}:${minutes}`;
+      return `${dayName} ${tStudentCard.dayAt} ${day}/${month} ${tStudentCard.at} ${hours}:${minutes}`;
     } catch (error) {
       console.error("Error formatting date:", error);
-      return tStudentCard.invalidDate || "Data inválida";
+      return tStudentCard.invalidDate;
     }
   };
 
   return (
-    <SubContainer className="card-base">
+    <SubContainer>
       <Link
-        href={`/hub/plataforma/teacher/meus-alunos/${student.id}`}
+        href={`/hub/teacher/my-students/${student.id}`}
         className="flex items-center space-x-4"
       >
         <Avatar size="xl">
@@ -85,7 +84,9 @@ export default function StudentCard({ student }: StudentCardProps) {
         </Avatar>
 
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-lg truncate text-foreground">{student.name}</h3>
+          <h3 className="font-bold text-lg truncate text-foreground">
+            {student.name}
+          </h3>
           <p className="text-muted-foreground text-sm truncate">
             {student.email}
           </p>

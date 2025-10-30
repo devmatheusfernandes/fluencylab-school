@@ -20,7 +20,6 @@ function getInitials(name: string | undefined | null): string {
   return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
 }
 
-// --- Main Avatar Component (Root) ---
 const Avatar = React.forwardRef<
   React.ComponentRef<typeof AvatarPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root> & {
@@ -166,7 +165,7 @@ const AvatarFallback = React.forwardRef<
     <AvatarPrimitive.Fallback
       ref={ref}
       className={twMerge(
-        "capitalize flex h-full w-full items-center justify-center rounded-2xl bg-container/80 text-subtitle border-2 border-container/50 font-semibold",
+        "capitalize flex h-full w-full items-center justify-center rounded-2xl bg-foreground/10 text-white border-2 border-foreground/10 font-semibold",
         textSizeClasses[size],
         className
       )}

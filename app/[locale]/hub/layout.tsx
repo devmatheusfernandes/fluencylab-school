@@ -6,13 +6,14 @@ import HubHeader from "@/components/shared/Breadcrum/HubHeader";
 import { SidebarProvider } from "@/context/SidebarContext";
 import SidebarWrapper from "@/components/shared/Sidebar/SidebarWrapper";
 import { useEffect, useState } from "react";
-import { sidebarItemsByRole } from "@/config/sidebarItems";
+import { getSidebarItemsByRole } from "@/config/sidebarItems";
 import { Container } from "@/components/ui/container";
-import { useMessages } from "next-intl";
+import { useLocale, useMessages } from "next-intl";
 
 export default function HubLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const messages = useMessages();
+  const locale = useLocale();
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -30,19 +31,22 @@ export default function HubLayout({ children }: { children: React.ReactNode }) {
   if (loading) return null;
 
   const userRole = session?.user?.role || UserRoles.STUDENT;
-  const rawItems = sidebarItemsByRole[userRole] || [];
+  const rawItems = getSidebarItemsByRole(userRole, locale);
 
   // Translate labels using messages
-  const tSidebarItems = (messages?.SidebarItems ?? {}) as Record<string, string>;
+  const tSidebarItems = (messages?.SidebarItems ?? {}) as Record<
+    string,
+    string
+  >;
   const items = rawItems.map((it) => ({
     ...it,
-    label: it.labelKey ? tSidebarItems[it.labelKey] ?? it.label : it.label,
+    label: it.labelKey ? (tSidebarItems[it.labelKey] ?? it.label) : it.label,
   }));
 
   // Define o caminho base onde queremos esconder a sidebar e header
   const hideLayoutElements =
-    pathname?.startsWith("/hub/plataforma/teacher/meus-alunos/") &&
-    pathname?.includes("/caderno/");
+    pathname?.startsWith("/hub/teacher/my-students/") &&
+    pathname?.includes("/notebook/");
 
   // Se estivermos na página do caderno, não renderiza sidebar nem header
   if (hideLayoutElements) {
@@ -64,7 +68,7 @@ export default function HubLayout({ children }: { children: React.ReactNode }) {
           <div className="sticky top-0 z-20">
             <HubHeader />
           </div>
-          <div className="container-base flex flex-1 flex-col sm:hidden p-1">
+          <div className="flex bg-white/20 dark:bg-slate-900 flex-1 flex-col sm:hidden p-1">
             {children}
           </div>
           <Container className="flex-1 flex-col hidden sm:flex">

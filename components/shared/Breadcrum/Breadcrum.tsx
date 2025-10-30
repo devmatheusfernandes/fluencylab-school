@@ -1,6 +1,7 @@
 "use client";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
-import { HamburgerIcon } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Sidebar } from "lucide-react";
 import * as React from "react";
 import { twMerge } from "tailwind-merge";
 
@@ -29,18 +30,19 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>(
         ref={ref}
         aria-label="Breadcrumb"
         className={twMerge(
-          "flex items-center justify-between w-full text-sm container-base rounded-none sm:rounded-t-lg py-1 px-3",
-          className
+          "flex items-center justify-between w-full text-sm bg-slate-400/30 dark:bg-slate-900 rounded-none sm:rounded-t-lg py-1 px-3",
+          className,
+          useIsMobile() && "bg-slate-300 dark:bg-slate-950"
         )}
       >
-        {onToggleSidebar && (
-          <HamburgerIcon
-            className="hidden sm:block text-primary dark:text-secondary hover:text-secondary-hover duration-300 ease-in-out transition-all cursor-pointer w-6.5 h-6.5"
+        {onToggleSidebar && !useIsMobile() && (
+          <Sidebar
+            className="text-primary hover:text-secondary duration-300 ease-in-out transition-all cursor-pointer w-6.5 h-6.5"
             onClick={onToggleSidebar}
           />
         )}
         <span
-          className="font-semibold text-md text-paragraph"
+          className="font-semibold text-md text-foreground"
           aria-current="page"
         >
           {currentItem.label}

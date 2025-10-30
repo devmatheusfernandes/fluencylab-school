@@ -6,6 +6,7 @@ import { SearchBar } from "@/components/ui/search-bar";
 import { Container } from "@/components/ui/container";
 import { Spinner } from "@/components/ui/spinner";
 import StudentCard from "@/components/teacher/student-card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface StudentWithNextClass {
   id: string;
@@ -71,7 +72,7 @@ export default function MeusAlunos() {
   }
 
   return (
-    <Container className="p-3">
+    <div className="mx-1 sm:mx-0">
       {/* Search Bar */}
       <SearchBar
         placeholder="Procure seus alunos..."
@@ -83,7 +84,9 @@ export default function MeusAlunos() {
       <div className="flex-1 py-3">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {loading ? (
-            Array.from({ length: 6 }).map((_, index) => <Spinner key={index} />)
+            Array.from({ length: 6 }).map((_, index) => (
+              <Skeleton key={index} className="bg-white/10! h-40" />
+            ))
           ) : filteredStudents.length > 0 ? (
             filteredStudents.map((student) => (
               <StudentCard key={student.id} student={student} />
@@ -93,6 +96,6 @@ export default function MeusAlunos() {
           )}
         </div>
       </div>
-    </Container>
+    </div>
   );
 }
