@@ -3,10 +3,10 @@
 import { z } from "zod";
 
 /**
- * Schema de validação para environment variables
- * Define tipos, validações e valores padrão
+ * Schemas de validação para environment variables
+ * Separam variáveis de servidor e cliente para evitar validação indevida no browser
  */
-const envSchema = z.object({
+const serverEnvSchema = z.object({
   // Node Environment
   NODE_ENV: z
     .enum(["development", "production", "test"])
@@ -76,10 +76,39 @@ const envSchema = z.object({
     .default("http://localhost:3000"),
 });
 
+// Schema mínimo para o cliente: apenas variáveis NEXT_PUBLIC
+const clientEnvSchema = z.object({
+  NEXT_PUBLIC_FIREBASE_API_KEY: z
+    .string()
+    .min(1, "NEXT_PUBLIC_FIREBASE_API_KEY é obrigatório"),
+  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: z
+    .string()
+    .min(1, "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN é obrigatório"),
+  NEXT_PUBLIC_FIREBASE_PROJECT_ID: z
+    .string()
+    .min(1, "NEXT_PUBLIC_FIREBASE_PROJECT_ID é obrigatório"),
+  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: z
+    .string()
+    .min(1, "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET é obrigatório"),
+  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: z
+    .string()
+    .min(1, "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID é obrigatório"),
+  NEXT_PUBLIC_FIREBASE_APP_ID: z
+    .string()
+    .min(1, "NEXT_PUBLIC_FIREBASE_APP_ID é obrigatório"),
+  NEXT_PUBLIC_APP_URL: z
+    .string()
+    .url("NEXT_PUBLIC_APP_URL deve ser uma URL válida")
+    .default("http://localhost:3000"),
+});
+
 /**
  * Tipo inferido do schema de environment variables
  */
-export type EnvConfig = z.infer<typeof envSchema>;
+export type ServerEnvConfig = z.infer<typeof serverEnvSchema>;
+export type ClientEnvConfig = z.infer<typeof clientEnvSchema>;
+// União/interseção para manter compatibilidade de tipos nas chamadas existentes
+export type EnvConfig = ServerEnvConfig & ClientEnvConfig;
 
 /**
  * Configuração validada das environment variables
@@ -97,7 +126,30 @@ export function validateEnv(): EnvConfig {
   }
 
   try {
-    validatedEnv = envSchema.parse(process.env);
+    const isServer = typeof window === "undefined";
+    const schema = isServer ? serverEnvSchema : clientEnvSchema;
+
+    // Important: In the browser, Next.js replaces `process.env.NEXT_PUBLIC_*`
+    // at build time, but `process.env` itself is not populated.
+    // So we must construct the client env explicitly using direct references.
+    const envToValidate = isServer
+      ? process.env
+      : {
+          NEXT_PUBLIC_FIREBASE_API_KEY:
+            process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN:
+            process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID:
+            process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET:
+            process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID:
+            process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+          NEXT_PUBLIC_FIREBASE_APP_ID: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+          NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+        } as Record<string, string | undefined>;
+
+    validatedEnv = schema.parse(envToValidate) as EnvConfig;
     return validatedEnv;
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -132,6 +184,11 @@ export function getEnv<K extends keyof EnvConfig>(key: K): EnvConfig[K] {
  * @returns Lista de variáveis ausentes
  */
 export function checkCriticalEnvVars(): string[] {
+  // Apenas no servidor faz sentido verificar variáveis críticas
+  if (typeof window !== "undefined") {
+    return [];
+  }
+
   const criticalVars = [
     "NEXTAUTH_SECRET",
     "FIREBASE_ADMIN_PROJECT_ID",
@@ -232,8 +289,9 @@ export function debugEnvVars(): void {
   }
 
   console.log("🐛 Debug Environment Variables:");
-
-  const schema = envSchema.shape;
+  const schema = (
+    typeof window === "undefined" ? serverEnvSchema : clientEnvSchema
+  ).shape;
   Object.keys(schema).forEach((key) => {
     const value = process.env[key];
     const status = value ? "✅" : "❌";
@@ -248,7 +306,7 @@ export function debugEnvVars(): void {
   });
 }
 
-// Auto-validação em produção
-if (process.env.NODE_ENV === "production") {
+// Auto-validação em produção (apenas servidor)
+if (typeof window === "undefined" && process.env.NODE_ENV === "production") {
   runFullValidation();
 }

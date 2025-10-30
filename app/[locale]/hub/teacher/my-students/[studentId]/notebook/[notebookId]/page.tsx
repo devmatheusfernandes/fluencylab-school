@@ -29,8 +29,9 @@ interface Notebook {
 }
 
 export default function VisualizarCaderno() {
-  const { alunoId, notebookId } = useParams();
+  const { studentId, notebookId } = useParams();
   const { data: session } = useSession();
+  const alunoId = studentId as string;
 
   const [notebook, setNotebook] = useState<Notebook | null>(null);
   const [loading, setLoading] = useState(true);
@@ -119,12 +120,9 @@ export default function VisualizarCaderno() {
             console.log("Fetched content is already saved, skipping...");
           }
 
-          if (ydocRef.current) {
-            ydocRef.current
-              .getText("content")
-              .delete(0, ydocRef.current.getText("content").length);
-            ydocRef.current.getText("content").insert(0, fetchedContent);
-          }
+          // Em modo colaboração, o conteúdo inicial agora é definido
+          // pelo próprio editor quando vazio. Removemos manipulação direta
+          // do Y.Doc para evitar conflitos de tipos com o Collaboration.
 
           setContent(fetchedContent);
         }

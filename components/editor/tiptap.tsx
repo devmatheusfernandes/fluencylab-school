@@ -110,8 +110,8 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
       debouncedSave(html);
     },
     onCreate: ({ editor }) => {
-      // Define o conteúdo inicial apenas se não estiver usando colaboração
-      if (!ydoc && content && content !== "<p></p>") {
+      // Define o conteúdo inicial, inclusive em modo colaboração, apenas se o editor estiver vazio
+      if (content && content !== "<p></p>" && editor.isEmpty) {
         editor.commands.setContent(content);
         lastSavedContentRef.current = content;
       }
