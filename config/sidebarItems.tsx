@@ -77,7 +77,7 @@ const teacherItems: SidebarItemType[] = [
     icon: <Calendar className="w-6 h-6" />,
   },
   {
-    href: "/hub/settings",
+    href: "/hub/teacher/settings",
     label: "Configurações",
     labelKey: "settings",
     icon: <Settings className="w-6 h-6" />,

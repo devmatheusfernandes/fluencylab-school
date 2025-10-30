@@ -23,7 +23,7 @@ CARDS SÃO COMPONENTES QUE FICAM DENTRO DE SUBCONTAINERS QUE PODEM FUNCIONAR COM
 .card-base {
   @apply duration-150 ease-in-out transition-all rounded-lg 
         border border-slate-200/50 dark:border-slate-700/50 
-        bg-white/15 dark:bg-slate-900/35  
+        bg-slate-300/50 dark:bg-slate-950/40  
         hover:border-slate-300 dark:hover:border-slate-600;
 }
 

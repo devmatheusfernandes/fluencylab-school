@@ -3,8 +3,6 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { NoResults } from "@/components/ui/no-results";
 import { SearchBar } from "@/components/ui/search-bar";
-import { Container } from "@/components/ui/container";
-import { Spinner } from "@/components/ui/spinner";
 import StudentCard from "@/components/teacher/student-card";
 import { Skeleton } from "@/components/ui/skeleton";
 
