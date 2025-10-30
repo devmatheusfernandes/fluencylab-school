@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { NoResults } from "@/components/ui/no-results";
 import { SearchBar } from "@/components/ui/search-bar";

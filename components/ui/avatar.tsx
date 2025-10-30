@@ -166,7 +166,7 @@ const AvatarFallback = React.forwardRef<
     <AvatarPrimitive.Fallback
       ref={ref}
       className={twMerge(
-        "capitalize flex h-full w-full items-center justify-center rounded-2xl bg-container/80 text-subtitle border-1 border-container/50 font-semibold",
+        "capitalize flex h-full w-full items-center justify-center rounded-2xl bg-container/80 text-subtitle border-2 border-container/50 font-semibold",
         textSizeClasses[size],
         className
       )}

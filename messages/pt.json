@@ -52,5 +52,20 @@
     "notebook": "Caderno",
     "practice": "Prática",
     "calendar": "Calendário"
+  },
+  "StudentCard": {
+    "invalidDate": "Data inválida",
+    "classToday": "Aula hoje às",
+    "classTomorrow": "Aula amanhã",
+    "sunday": "Domingo",
+    "monday": "Segunda",
+    "tuesday": "Terça",
+    "wednesday": "Quarta",
+    "thursday": "Quinta",
+    "friday": "Sexta",
+    "saturday": "Sábado",
+    "dayAt": "dia",
+    "at": "às",
+    "noScheduledClasses": "Sem aulas agendadas"
   }
 }
