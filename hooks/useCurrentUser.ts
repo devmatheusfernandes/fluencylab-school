@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useSession } from "next-auth/react";
 import { UserPermission } from "@/types/users/userPermissions";
@@ -18,12 +18,12 @@ export const useCurrentUser = () => {
   useEffect(() => {
     const fetchFullUser = async () => {
       // Apenas busca o perfil se a sessão estiver autenticada
-      if (status === 'authenticated') {
+      if (status === "authenticated") {
         setIsLoadingUser(true);
         try {
-          const response = await fetch('/api/users/me');
+          const response = await fetch("/api/users/me");
           if (!response.ok) {
-            throw new Error('Falha ao buscar o perfil completo do utilizador.');
+            throw new Error("Falha ao buscar o perfil completo do utilizador.");
           }
           const userProfile: FullUserDetails = await response.json();
           // Atualiza o estado com o perfil completo do banco de dados
@@ -33,9 +33,9 @@ export const useCurrentUser = () => {
           // Em caso de erro, usa os dados da sessão como fallback para evitar que a UI quebre
           setCurrentUser(session.user as FullUserDetails);
         } finally {
-            setIsLoadingUser(false);
+          setIsLoadingUser(false);
         }
-      } else if (status !== 'loading') {
+      } else if (status !== "loading") {
         // Se não estiver autenticado nem a carregar, limpa o utilizador
         setCurrentUser(null);
         setIsLoadingUser(false);
@@ -49,8 +49,8 @@ export const useCurrentUser = () => {
     // Retorna o utilizador completo do Firestore
     user: currentUser,
     // O status geral de carregamento considera tanto a sessão quanto a busca do perfil
-    isLoading: status === 'loading' || isLoadingUser,
-    isAuthenticated: status === 'authenticated',
+    isLoading: status === "loading" || isLoadingUser,
+    isAuthenticated: status === "authenticated",
   };
 };
 
@@ -63,6 +63,6 @@ export const useCan = (permission: UserPermission): boolean => {
   if (!isAuthenticated || !user?.permissions) {
     return false;
   }
-  
+
   return user.permissions.includes(permission);
 };
