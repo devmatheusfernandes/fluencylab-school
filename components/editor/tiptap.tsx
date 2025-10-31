@@ -11,11 +11,15 @@ import Highlight from "@tiptap/extension-highlight";
 import Link from "@tiptap/extension-link";
 import Collaboration from "@tiptap/extension-collaboration";
 import * as Y from "yjs";
-// import TiptapToolbar from "../TiptapToolbar";
+import { ImageUploadNode } from "@/components/tiptap-node/image-upload-node";
+import { Image } from "@tiptap/extension-image";
+import { MAX_FILE_SIZE, handleImageUpload } from "@/lib/tiptap-utils";
+import Toolbar from "./toolbar/toolbar";
+import { TaskList, TaskItem } from "@tiptap/extension-list";
 
 interface TiptapEditorProps {
   content: string;
-  onSave: (content: string) => Promise<void>;
+  onSave: (content: string) => void;
   placeholder?: string;
   autoSaveDelay?: number;
   className?: string;
@@ -80,6 +84,16 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
       Highlight.configure({
         multicolor: true,
       }),
+      Image,
+      ImageUploadNode.configure({
+        accept: "image/*",
+        maxSize: MAX_FILE_SIZE,
+        limit: 3,
+        upload: handleImageUpload,
+        onError: (error: any) => console.error("Upload failed:", error),
+      }),
+      TaskList,
+      TaskItem.configure({ nested: true }),
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
@@ -151,7 +165,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
 
   return (
     <div className={`overflow-hidden bg-white dark:bg-gray-950 ${className}`}>
-      {/* <TiptapToolbar editor={editor} /> */}
+      <Toolbar editor={editor} />
       <div className="relative">
         <EditorContent
           editor={editor}

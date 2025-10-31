@@ -83,7 +83,7 @@ export default function MeusAlunos() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {loading ? (
             Array.from({ length: 6 }).map((_, index) => (
-              <Skeleton key={index} className="bg-white/10! h-40" />
+              <Skeleton key={index} className="h-40" />
             ))
           ) : filteredStudents.length > 0 ? (
             filteredStudents.map((student) => (

@@ -45,7 +45,7 @@ export default function HubLayout({ children }: { children: React.ReactNode }) {
 
   // Define o caminho base onde queremos esconder a sidebar e header
   const hideLayoutElements =
-    pathname?.startsWith("/hub/teacher/my-students/") &&
+    pathname?.startsWith(`/${locale}/hub/teacher/my-students/`) &&
     pathname?.includes("/notebook/");
 
   // Se estivermos na página do caderno, não renderiza sidebar nem header

@@ -3,6 +3,7 @@ import { useMessages } from "next-intl";
 import { SubContainer } from "../ui/sub-container";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Calendar } from "lucide-react";
+import { Card } from "../ui/card";
 
 interface StudentWithNextClass {
   id: string;
@@ -73,7 +74,7 @@ export default function StudentCard({ student }: StudentCardProps) {
   };
 
   return (
-    <SubContainer>
+    <Card>
       <Link
         href={`/hub/teacher/my-students/${student.id}`}
         className="flex items-center space-x-4"
@@ -106,6 +107,6 @@ export default function StudentCard({ student }: StudentCardProps) {
           )}
         </div>
       </Link>
-    </SubContainer>
+    </Card>
   );
 }
