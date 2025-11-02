@@ -16,6 +16,8 @@ import { Image } from "@tiptap/extension-image";
 import { MAX_FILE_SIZE, handleImageUpload } from "@/lib/tiptap-utils";
 import Toolbar from "./toolbar/toolbar";
 import { TaskList, TaskItem } from "@tiptap/extension-list";
+import { useIsMobile } from "@/hooks/use-mobile";
+import BottomToolbar from "./toolbar/bottom-toolbar";
 
 interface TiptapEditorProps {
   content: string;
@@ -37,6 +39,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastSavedContentRef = useRef<string>(content);
   const isSavingRef = useRef<boolean>(false);
+  const isMobile = useIsMobile();
 
   const debouncedSave = useCallback(
     async (newContent: string) => {
@@ -165,7 +168,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
 
   return (
     <div className={`overflow-hidden bg-white dark:bg-gray-950 ${className}`}>
-      <Toolbar editor={editor} />
+      {!isMobile && <Toolbar editor={editor} />}
       <div className="relative">
         <EditorContent
           editor={editor}
@@ -177,6 +180,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
           </div>
         )}
       </div>
+      {isMobile && <BottomToolbar editor={editor} />}
     </div>
   );
 };

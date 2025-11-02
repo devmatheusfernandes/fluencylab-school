@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/tiptap-ui-primitive/button";
 
 interface ListGroupProps {
   editor: Editor;
@@ -45,22 +46,22 @@ const ListGroup: React.FC<ListGroupProps> = ({ editor }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button
-          className={`
-            p-2 rounded-lg transition-all duration-200 flex items-center gap-1
-            ${
-              editor.isActive("bulletList") ||
-              editor.isActive("orderedList") ||
-              editor.isActive("taskList")
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-foreground hover:bg-accent hover:text-accent-foreground"
-            }
-          `}
-          title="Listas"
+        <Button
+          type="button"
+          data-style="ghost"
+          data-active-state={
+            editor.isActive("bulletList") ||
+            editor.isActive("orderedList") ||
+            editor.isActive("taskList")
+              ? "on"
+              : "off"
+          }
+          role="button"
+          tooltip="Listas"
+          className="tiptap-button"
         >
-          <List size={18} />
-          <ChevronDown size={14} />
-        </button>
+          <List size={18} className="tiptap-button-text" />
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-52">
         {lists.map((list) => (

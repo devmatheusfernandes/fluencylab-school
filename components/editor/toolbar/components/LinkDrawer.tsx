@@ -12,6 +12,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
+import { Button as TiptapButton } from "@/components/tiptap-ui-primitive/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -80,21 +81,17 @@ const LinkDrawer: React.FC<LinkDrawerProps> = ({ editor }) => {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <button
+        <TiptapButton
           onClick={handleOpen}
-          className={`
-            p-2 rounded-lg transition-all duration-200 
-            ${
-              editor.isActive("link")
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-foreground hover:bg-accent hover:text-accent-foreground"
-            }
-            active:scale-95
-          `}
-          title="Adicionar link (Ctrl+K)"
+          type="button"
+          data-style="ghost"
+          data-active-state={editor.isActive("link") ? "on" : "off"}
+          role="button"
+          tooltip="Adicionar link (Ctrl+K)"
+          className="tiptap-button"
         >
-          <Link size={18} />
-        </button>
+          <Link size={18} className="tiptap-button-text" />
+        </TiptapButton>
       </DrawerTrigger>
       <DrawerContent>
         <div className="mx-auto w-full max-w-sm">

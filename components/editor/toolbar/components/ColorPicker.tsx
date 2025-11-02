@@ -7,6 +7,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/tiptap-ui-primitive/button";
 
 interface ColorPickerProps {
   editor: Editor;
@@ -39,11 +40,15 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ editor }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button
-          className="p-2 rounded-lg transition-all duration-200 text-foreground hover:bg-accent hover:text-accent-foreground relative"
-          title="Cor do texto"
+        <Button
+          type="button"
+          data-style="ghost"
+          data-active-state="off"
+          role="button"
+          tooltip="Cor do texto"
+          className="tiptap-button relative"
         >
-          <Palette size={18} />
+          <Palette size={18} className="tiptap-button-text" />
           {editor.getAttributes("textStyle").color && (
             <div
               className="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-background"
@@ -52,7 +57,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ editor }) => {
               }}
             />
           )}
-        </button>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-64 p-3">
         <div className="space-y-3">

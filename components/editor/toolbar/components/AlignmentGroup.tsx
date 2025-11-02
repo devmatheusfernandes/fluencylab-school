@@ -13,6 +13,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/tiptap-ui-primitive/button";
 
 interface AlignmentGroupProps {
   editor: Editor;
@@ -58,12 +59,16 @@ const AlignmentGroup: React.FC<AlignmentGroupProps> = ({ editor }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button
-          className="p-2 rounded-lg transition-all duration-200 text-foreground hover:bg-accent hover:text-accent-foreground"
-          title="Alinhamento"
+        <Button
+          type="button"
+          data-style="ghost"
+          data-active-state="off"
+          role="button"
+          tooltip="Alinhamento"
+          className="tiptap-button"
         >
           {currentAlignment.icon}
-        </button>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-52">
         {alignments.map((alignment) => (

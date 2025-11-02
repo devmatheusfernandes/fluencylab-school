@@ -1,7 +1,7 @@
 import React from "react";
 import { Editor } from "@tiptap/react";
 import { Undo, Redo } from "lucide-react";
-import ToolbarButton from "./ToolbarButton";
+import { Button } from "@/components/tiptap-ui-primitive/button";
 
 interface HistoryGroupProps {
   editor: Editor;
@@ -9,21 +9,31 @@ interface HistoryGroupProps {
 
 const HistoryGroup: React.FC<HistoryGroupProps> = ({ editor }) => (
   <div className="flex gap-1">
-    {/* <ToolbarButton
+    <Button
       onClick={() => editor.chain().focus().undo().run()}
+      type="button"
+      data-style="ghost"
+      data-active-state="off"
+      role="button"
+      tooltip="Desfazer (Ctrl+Z)"
+      className="tiptap-button"
       disabled={!editor.can().undo()}
-      title="Desfazer (Ctrl+Z)"
     >
-      <Undo size={18} />
-    </ToolbarButton>
+      <Undo size={18} className="tiptap-button-text" />
+    </Button>
 
-    <ToolbarButton
+    <Button
       onClick={() => editor.chain().focus().redo().run()}
+      type="button"
+      data-style="ghost"
+      data-active-state="off"
+      role="button"
+      tooltip="Refazer (Ctrl+Y)"
+      className="tiptap-button"
       disabled={!editor.can().redo()}
-      title="Refazer (Ctrl+Y)"
     >
-      <Redo size={18} />
-    </ToolbarButton> */}
+      <Redo size={18} className="tiptap-button-text" />
+    </Button>
   </div>
 );
 

@@ -14,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/tiptap-ui-primitive/button";
 
 interface HeadingSelectorProps {
   editor: Editor;
@@ -56,16 +57,19 @@ const HeadingSelector: React.FC<HeadingSelectorProps> = ({ editor }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button
-          className="px-3 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 text-foreground hover:bg-accent hover:text-accent-foreground"
-          title="Estilo do texto"
+        <Button
+          type="button"
+          data-style="ghost"
+          data-active-state="off"
+          role="button"
+          tooltip="Estilo do texto"
+          className="tiptap-button px-3 py-2 flex items-center gap-2"
         >
           {currentHeading.icon}
           <span className="text-sm font-medium hidden sm:inline">
             {currentHeading.label}
           </span>
-          <ChevronDown size={16} />
-        </button>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-56">
         {headings.map((heading) => (

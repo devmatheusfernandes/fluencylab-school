@@ -1,37 +1,51 @@
 import React from "react";
 import { Editor } from "@tiptap/react";
 import { Bold, Italic, Code } from "lucide-react";
-import ToolbarButton from "./ToolbarButton";
+import { Button } from "@/components/tiptap-ui-primitive/button";
 
 interface TextFormattingGroupProps {
   editor: Editor;
 }
 
-const TextFormattingGroup: React.FC<TextFormattingGroupProps> = ({ editor }) => (
+const TextFormattingGroup: React.FC<TextFormattingGroupProps> = ({
+  editor,
+}) => (
   <div className="flex gap-1">
-    <ToolbarButton
+    <Button
       onClick={() => editor.chain().focus().toggleBold().run()}
-      isActive={editor.isActive("bold")}
-      title="Negrito (Ctrl+B)"
+      type="button"
+      data-style="ghost"
+      data-active-state={editor.isActive("bold") ? "on" : "off"}
+      role="button"
+      tooltip="Negrito (Ctrl+B)"
+      className="tiptap-button"
     >
-      <Bold size={18} />
-    </ToolbarButton>
+      <Bold size={18} className="tiptap-button-text" />
+    </Button>
 
-    <ToolbarButton
+    <Button
       onClick={() => editor.chain().focus().toggleItalic().run()}
-      isActive={editor.isActive("italic")}
-      title="Itálico (Ctrl+I)"
+      type="button"
+      data-style="ghost"
+      data-active-state={editor.isActive("italic") ? "on" : "off"}
+      role="button"
+      tooltip="Itálico (Ctrl+I)"
+      className="tiptap-button"
     >
-      <Italic size={18} />
-    </ToolbarButton>
+      <Italic size={18} className="tiptap-button-text" />
+    </Button>
 
-    <ToolbarButton
+    <Button
       onClick={() => editor.chain().focus().toggleCode().run()}
-      isActive={editor.isActive("code")}
-      title="Código (Ctrl+E)"
+      type="button"
+      data-style="ghost"
+      data-active-state={editor.isActive("code") ? "on" : "off"}
+      role="button"
+      tooltip="Código (Ctrl+E)"
+      className="tiptap-button"
     >
-      <Code size={18} />
-    </ToolbarButton>
+      <Code size={18} className="tiptap-button-text" />
+    </Button>
   </div>
 );
 
