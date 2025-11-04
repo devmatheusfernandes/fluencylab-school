@@ -18,6 +18,7 @@ import Toolbar from "./toolbar/toolbar";
 import { TaskList, TaskItem } from "@tiptap/extension-list";
 import { useIsMobile } from "@/hooks/use-mobile";
 import BottomToolbar from "./toolbar/bottom-toolbar";
+import QuestionsExtension from "@/components/editor/extensions/Question/QuestionsExtension";
 
 interface TiptapEditorProps {
   content: string;
@@ -72,6 +73,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
 
   const editor = useEditor({
     extensions: [
+      QuestionsExtension,
       StarterKit.configure({
         heading: {
           levels: [1, 2, 3, 4, 5, 6],

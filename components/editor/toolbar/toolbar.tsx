@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Editor } from "@tiptap/react";
 import {
   Divider,
@@ -14,8 +14,9 @@ import {
 } from "./components";
 import { ImageUploadButton } from "@/components/tiptap-ui/image-upload-button";
 import { ColorHighlightPopover } from "@/components/tiptap-ui/color-highlight-popover";
-
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { Button } from "@/components/ui/button";
+import { HelpCircle } from "lucide-react";
 
 import "@/components/tiptap-node/code-block-node/code-block-node.scss";
 import "@/components/tiptap-node/list-node/list-node.scss";
@@ -24,6 +25,7 @@ import "@/components/tiptap-node/heading-node/heading-node.scss";
 import "@/components/tiptap-node/blockquote-node/blockquote-node.scss";
 import "@/components/tiptap-node/image-node/image-node.scss";
 import "@/components/tiptap-node/image-upload-node/image-upload-node.scss";
+import ToolbarToolsSheet from "./tools";
 
 interface ToolbarProps {
   editor: Editor | null;
@@ -33,7 +35,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
   if (!editor) {
     return null;
   }
-
+  const [isQuestionsOpen, setIsQuestionsOpen] = useState(false);
   return (
     <div className="sticky top-0 z-10 border-b border-border bg-background shadow-sm">
       <div className="p-2">
@@ -78,6 +80,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
           {/* Espaço direito - Placeholder para futuros botões */}
           <div className="flex items-center gap-1 min-w-0">
             <ThemeSwitcher />
+            <ToolbarToolsSheet />
           </div>
         </div>
       </div>
