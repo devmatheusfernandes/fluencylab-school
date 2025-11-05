@@ -10,15 +10,19 @@ import Color from "@tiptap/extension-color";
 import Highlight from "@tiptap/extension-highlight";
 import Link from "@tiptap/extension-link";
 import Collaboration from "@tiptap/extension-collaboration";
+import CollaborationCaret from "@tiptap/extension-collaboration-caret";
+
 import * as Y from "yjs";
 import { ImageUploadNode } from "@/components/tiptap-node/image-upload-node";
 import { Image } from "@tiptap/extension-image";
 import { MAX_FILE_SIZE, handleImageUpload } from "@/lib/tiptap-utils";
+import Placeholder from "@tiptap/extension-placeholder";
 import Toolbar from "./toolbar/toolbar";
 import { TaskList, TaskItem } from "@tiptap/extension-list";
 import { useIsMobile } from "@/hooks/use-mobile";
 import BottomToolbar from "./toolbar/bottom-toolbar";
 import QuestionsExtension from "@/components/editor/extensions/Question/QuestionsExtension";
+import { Spinner } from "../ui/spinner";
 
 interface TiptapEditorProps {
   content: string;
@@ -27,6 +31,7 @@ interface TiptapEditorProps {
   autoSaveDelay?: number;
   className?: string;
   ydoc?: Y.Doc | null;
+  provider?: any | null;
 }
 
 const TiptapEditor: React.FC<TiptapEditorProps> = ({
@@ -36,6 +41,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   autoSaveDelay = 2000,
   className = "",
   ydoc = null,
+  provider = null,
 }) => {
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastSavedContentRef = useRef<string>(content);
@@ -58,7 +64,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         ) {
           try {
             isSavingRef.current = true;
-            await onSave(newContent);
+            onSave(newContent);
             lastSavedContentRef.current = newContent;
           } catch (error) {
             console.error("Erro ao salvar automaticamente:", error);
@@ -74,6 +80,25 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   const editor = useEditor({
     extensions: [
       QuestionsExtension,
+      Placeholder.configure({
+        placeholder: ({ node }) => {
+          const headingPlaceholders: { [key: number]: string } = {
+            1: "Coloque um título...",
+            2: "Coloque um subtítulo...",
+            3: "/",
+            4: "/",
+            5: "/",
+            6: "/",
+          };
+          if (node.type.name === "heading") {
+            return headingPlaceholders[node.attrs.level];
+          }
+          if (node.type.name === "paragraph") {
+            return "O que vamos aprender...";
+          }
+          return "/";
+        },
+      }),
       StarterKit.configure({
         heading: {
           levels: [1, 2, 3, 4, 5, 6],
@@ -103,7 +128,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         openOnClick: false,
         HTMLAttributes: {
           class:
-            "text-blue-500 dark:text-blue-400 underline hover:text-blue-600 dark:hover:text-blue-300",
+            "text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300",
         },
       }),
       // Add collaboration extension when ydoc is provided
@@ -113,6 +138,18 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
               document: ydoc,
               field: "content",
             }),
+            // Collaboration carets (presence) when provider is available
+            ...(provider
+              ? [
+                  CollaborationCaret.configure({
+                    provider,
+                    user: {
+                      name: "Cyndi Lauper",
+                      color: "#f783ac",
+                    },
+                  }),
+                ]
+              : []),
           ]
         : []),
     ],
@@ -121,7 +158,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-strong:text-gray-900 dark:prose-strong:text-gray-100 prose-em:text-gray-700 dark:prose-em:text-gray-300 prose-blockquote:text-gray-600 dark:prose-blockquote:text-gray-400 prose-blockquote:border-gray-300 dark:prose-blockquote:border-gray-600 prose-code:text-gray-900 dark:prose-code:text-gray-100 prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-pre:bg-gray-100 dark:prose-pre:bg-gray-800 prose-ol:text-gray-700 dark:prose-ol:text-gray-300 prose-ul:text-gray-700 dark:prose-ul:text-gray-300 prose-li:text-gray-700 dark:prose-li:text-gray-300 min-h-[300px] p-4",
+          "sm:px-[25vw] px-[1vw] prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-strong:text-gray-900 dark:prose-strong:text-gray-100 prose-em:text-gray-700 dark:prose-em:text-gray-300 prose-blockquote:text-gray-600 dark:prose-blockquote:text-gray-400 prose-blockquote:border-gray-300 dark:prose-blockquote:border-gray-600 prose-code:text-gray-900 dark:prose-code:text-gray-100 prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-pre:bg-gray-100 dark:prose-pre:bg-gray-800 prose-ol:text-gray-700 dark:prose-ol:text-gray-300 prose-ul:text-gray-700 dark:prose-ul:text-gray-300 prose-li:text-gray-700 dark:prose-li:text-gray-300 min-h-[300px] p-4",
       },
     },
     onUpdate: ({ editor }) => {
@@ -160,27 +197,17 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   }, []);
 
   if (!editor) {
-    return (
-      <div className="animate-pulse">
-        <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded-t-lg"></div>
-        <div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-b-lg"></div>
-      </div>
-    );
+    return <Spinner />;
   }
 
   return (
-    <div className={`overflow-hidden bg-white dark:bg-gray-950 ${className}`}>
+    <div className={`overflow-hidden bg-white dark:bg-black ${className}`}>
       {!isMobile && <Toolbar editor={editor} />}
       <div className="relative">
         <EditorContent
           editor={editor}
           className="min-h-[300px] max-h-[600px] overflow-y-auto"
         />
-        {editor.isEmpty && (
-          <div className="absolute top-4 left-4 text-gray-400 dark:text-gray-500 pointer-events-none">
-            {placeholder}
-          </div>
-        )}
       </div>
       {isMobile && <BottomToolbar editor={editor} />}
     </div>

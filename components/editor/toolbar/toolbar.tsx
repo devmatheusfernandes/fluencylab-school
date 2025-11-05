@@ -15,8 +15,6 @@ import {
 import { ImageUploadButton } from "@/components/tiptap-ui/image-upload-button";
 import { ColorHighlightPopover } from "@/components/tiptap-ui/color-highlight-popover";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
-import { Button } from "@/components/ui/button";
-import { HelpCircle } from "lucide-react";
 
 import "@/components/tiptap-node/code-block-node/code-block-node.scss";
 import "@/components/tiptap-node/list-node/list-node.scss";
@@ -26,6 +24,7 @@ import "@/components/tiptap-node/blockquote-node/blockquote-node.scss";
 import "@/components/tiptap-node/image-node/image-node.scss";
 import "@/components/tiptap-node/image-upload-node/image-upload-node.scss";
 import ToolbarToolsSheet from "./tools";
+import { BackButton } from "@/components/ui/back-button";
 
 interface ToolbarProps {
   editor: Editor | null;
@@ -42,7 +41,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
         <div className="flex items-center justify-between gap-4">
           {/* Espaço esquerdo - Placeholder para futuros botões */}
           <div className="flex items-center gap-1 min-w-0">
-            {/* Adicione botões personalizados aqui */}
+            <BackButton />
           </div>
 
           {/* Botões centralizados */}
@@ -53,13 +52,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
             <Divider />
             <AlignmentGroup editor={editor} />
             <Divider />
-            {/* <ListDropdownMenu
-              editor={editor}
-              types={["bulletList", "orderedList", "taskList"]}
-              hideWhenUnavailable={true}
-              portal={false}
-              onOpenChange={(isOpen) => console.log("Dropdown opened:", isOpen)}
-            /> */}
             <ListGroup editor={editor} />
             <Divider />
             <ColorPicker editor={editor} />

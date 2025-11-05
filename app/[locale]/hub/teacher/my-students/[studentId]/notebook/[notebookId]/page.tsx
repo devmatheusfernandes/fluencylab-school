@@ -324,6 +324,7 @@ export default function VisualizarCaderno() {
         placeholder="Comece a escrever o conteúdo do caderno..."
         className="min-h-screen"
         ydoc={ydocRef.current}
+        provider={provider}
       />
     </motion.div>
   );

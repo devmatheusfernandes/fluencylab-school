@@ -1,9 +1,13 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { useMemo, useState } from "react"
-import { Search as SearchIcon, Wrench as WrenchIcon, ChevronDown } from "lucide-react"
-import * as Accordion from "@radix-ui/react-accordion"
+import * as React from "react";
+import { useMemo, useState } from "react";
+import {
+  Search as SearchIcon,
+  Wrench as WrenchIcon,
+  ChevronDown,
+} from "lucide-react";
+import * as Accordion from "@radix-ui/react-accordion";
 
 import {
   Sheet,
@@ -12,26 +16,26 @@ import {
   SheetHeader,
   SheetTitle,
   SheetDescription,
-} from "@/components/ui/sheet"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
-import { Card } from "@/components/ui/card"
+} from "@/components/ui/sheet";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 
 type ToolItem = {
-  id: string
-  label: string
-  description: string
-  keywords?: string[]
-}
+  id: string;
+  label: string;
+  description: string;
+  keywords?: string[];
+};
 
 type ToolCategory = {
-  id: string
-  label: string
-  description: string
-  items: ToolItem[]
-}
+  id: string;
+  label: string;
+  description: string;
+  items: ToolItem[];
+};
 
 const TOOL_CATEGORIES: ToolCategory[] = [
   {
@@ -155,36 +159,33 @@ const TOOL_CATEGORIES: ToolCategory[] = [
       {
         id: "exercise",
         label: "Inserir exercício",
-        description:
-          "Adiciona um bloco de exercício com enunciado e resposta.",
+        description: "Adiciona um bloco de exercício com enunciado e resposta.",
         keywords: ["atividade", "prática"],
       },
       {
         id: "video",
         label: "Inserir vídeo",
-        description:
-          "Embute um vídeo hospedado (YouTube/Vimeo) com controles.",
+        description: "Embute um vídeo hospedado (YouTube/Vimeo) com controles.",
         keywords: ["media", "aula"],
       },
       {
         id: "question",
         label: "Inserir pergunta",
-        description:
-          "Cria uma pergunta objetiva ou discursiva para avaliação.",
+        description: "Cria uma pergunta objetiva ou discursiva para avaliação.",
         keywords: ["quiz", "avaliação"],
       },
     ],
   },
-]
+];
 
 export type ToolbarToolsSheetProps = {
-  onSelectTool?: (toolId: string) => void
-  onOpenDialog?: (toolId: string) => void
-  triggerLabel?: string
-  side?: "top" | "right" | "bottom" | "left"
-  className?: string
-  modalTools?: string[]
-}
+  onSelectTool?: (toolId: string) => void;
+  onOpenDialog?: (toolId: string) => void;
+  triggerLabel?: string;
+  side?: "top" | "right" | "bottom" | "left";
+  className?: string;
+  modalTools?: string[];
+};
 
 export function ToolbarToolsSheet({
   onSelectTool,
@@ -194,51 +195,50 @@ export function ToolbarToolsSheet({
   className,
   modalTools = ["exercise", "video", "question"],
 }: ToolbarToolsSheetProps) {
-  const [query, setQuery] = useState("")
+  const [query, setQuery] = useState("");
 
   const filteredCategories = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    if (!q) return TOOL_CATEGORIES
+    const q = query.trim().toLowerCase();
+    if (!q) return TOOL_CATEGORIES;
     return TOOL_CATEGORIES.map((cat) => ({
       ...cat,
       items: cat.items.filter((item) => {
-        const inLabel = item.label.toLowerCase().includes(q)
+        const inLabel = item.label.toLowerCase().includes(q);
         const inKeywords = (item.keywords || []).some((k) =>
           k.toLowerCase().includes(q)
-        )
-        const inDescription = item.description.toLowerCase().includes(q)
-        return inLabel || inKeywords || inDescription
+        );
+        const inDescription = item.description.toLowerCase().includes(q);
+        return inLabel || inKeywords || inDescription;
       }),
-    })).filter((cat) => cat.items.length > 0)
-  }, [query])
+    })).filter((cat) => cat.items.length > 0);
+  }, [query]);
 
   const handleSelect = (toolId: string) => {
     try {
-      onSelectTool?.(toolId)
+      onSelectTool?.(toolId);
     } catch (e) {
       // silencioso: consumidores podem lançar ao tratar seleção
     }
-  }
+  };
 
   const handleOpenDialog = (toolId: string) => {
     try {
-      onOpenDialog?.(toolId)
+      onOpenDialog?.(toolId);
     } catch (e) {
       // silencioso: consumidores podem lançar ao abrir modal
     }
-  }
+  };
 
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" size="sm" className={className}>
-          <WrenchIcon className="mr-2 size-4" />
-          {triggerLabel}
+        <Button variant="outline" className={className}>
+          <WrenchIcon />
         </Button>
       </SheetTrigger>
       <SheetContent side={side} className="p-0">
         <SheetHeader className="p-4">
-          <SheetTitle>Ferramentas do Editor</SheetTitle>
+          <SheetTitle>Ferramentas</SheetTitle>
           <SheetDescription>
             Explore e selecione ferramentas por categoria. Use a busca para
             encontrar rapidamente.
@@ -261,7 +261,9 @@ export function ToolbarToolsSheet({
 
         <div className="overflow-y-auto p-2">
           {filteredCategories.length === 0 ? (
-            <div className="text-muted-foreground p-4 text-sm">Nenhum resultado encontrado.</div>
+            <div className="text-muted-foreground p-4 text-sm">
+              Nenhum resultado encontrado.
+            </div>
           ) : (
             <Accordion.Root type="multiple" className="flex flex-col">
               {filteredCategories.map((cat) => (
@@ -289,14 +291,20 @@ export function ToolbarToolsSheet({
                         <Card key={item.id} className="p-3">
                           <div className="flex items-start justify-between gap-4">
                             <div>
-                              <div className="text-sm font-medium">{item.label}</div>
+                              <div className="text-sm font-medium">
+                                {item.label}
+                              </div>
                               <div className="text-muted-foreground mt-1 text-xs">
                                 {item.description}
                               </div>
                               {item.keywords && item.keywords.length > 0 && (
                                 <div className="mt-2 flex flex-wrap gap-1">
                                   {item.keywords.map((kw) => (
-                                    <Badge key={kw} variant="outline" className="text-[10px]">
+                                    <Badge
+                                      key={kw}
+                                      variant="outline"
+                                      className="text-[10px]"
+                                    >
                                       {kw}
                                     </Badge>
                                   ))}
@@ -332,8 +340,8 @@ export function ToolbarToolsSheet({
         </div>
       </SheetContent>
     </Sheet>
-  )
+  );
 }
 
 // Export default para facilitar import em outros arquivos
-export default ToolbarToolsSheet
+export default ToolbarToolsSheet;
