@@ -7,3 +7,4 @@ export { default as ListGroup } from "./ListGroup";
 export { default as ColorPicker } from "./ColorPicker";
 export { default as LinkDrawer } from "./LinkDrawer";
 export { default as HistoryGroup } from "./HistoryGroup";
+export { default as CommentsButton } from "./CommentsButton";

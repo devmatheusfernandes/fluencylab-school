@@ -11,6 +11,7 @@ import {
   ColorPicker,
   LinkDrawer,
   HistoryGroup,
+  CommentsButton,
 } from "./components";
 import { ImageUploadButton } from "@/components/tiptap-ui/image-upload-button";
 import { ColorHighlightPopover } from "@/components/tiptap-ui/color-highlight-popover";
@@ -62,6 +63,9 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
                 console.log(`Applied highlight: ${label} (${color})`)
               }
             />
+            <Divider />
+            {/* Comentários */}
+            <CommentsButton editor={editor} />
             <Divider />
             <LinkDrawer editor={editor} />
             <Divider />

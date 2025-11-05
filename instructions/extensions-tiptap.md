@@ -1,417 +1,309 @@
-# Tiptap - Guia de Extensões Customizadas
+Node API
+The power of Tiptap lies in its flexibility. You can create your own extensions from scratch and build a unique editor experience tailored to your needs.
 
-## Estrutura Básica
+Creating a node
+Nodes are the building blocks of your editor. They can be blocks or inline nodes. Good examples to learn from are Paragraph, Heading, or CodeBlock.
 
-### Criando uma Extensão
+They extend all of the options and methods from the Extension API and add a few more specific to nodes.
 
-```typescript
-import { Extension } from "@tiptap/core";
+Let's add a simple node extension to see how it works.
 
-const CustomExtension = Extension.create({
-  name: "customExtension",
-  onUpdate() {
-    console.log(this.editor.getJSON());
-  },
-});
-```
-
-### Com Callback Function (para encapsular lógica)
-
-```typescript
-const CustomExtension = Extension.create(() => {
-  const customVariable = "foo";
-
-  function onCreate() {}
-  function onUpdate() {}
-
-  return {
-    name: "customExtension",
-    onCreate,
-    onUpdate,
-  };
-});
-```
-
-### Instalando no Editor
-
-```typescript
-const editor = new Editor({
-  extensions: [CustomExtension],
-});
-
-// Ou com React/Vue
-const editor = useEditor({
-  extensions: [CustomExtension],
-});
-```
-
-## Opções da Extensão
-
-### `name` (obrigatório)
-
-Identificador único da extensão. Para nodes/marks, persiste no JSON.
-
-```typescript
-const CustomExtension = Extension.create({
-  name: "customExtension",
-});
-```
-
-### `priority`
-
-Define ordem de carregamento (padrão: 100). Prioridade maior = carrega primeiro.
-
-```typescript
-const CustomLink = Link.extend({
-  priority: 1000, // Carrega antes das outras
-});
-```
-
-**Influencia:**
-
-- Ordem dos plugins ProseMirror
-- Ordem do schema (ex: `<a><strong>` vs `<strong><a>`)
-
-### `addOptions`
-
-Define opções configuráveis pelo usuário.
-
-```typescript
-type CustomExtensionOptions = {
-  customOption: string;
-};
-
-const CustomExtension = Extension.create<CustomExtensionOptions>({
-  name: "customExtension",
-  addOptions() {
-    return {
-      customOption: "default value",
-    };
-  },
-});
-
-// Uso:
-const editor = new Editor({
-  extensions: [CustomExtension.configure({ customOption: "new value" })],
-});
-```
-
-### `addStorage`
-
-Gerenciador de estado simples para a extensão.
-
-```typescript
-type CustomExtensionStorage = {
-  customValue: string;
-};
-
-const CustomExtension = Extension.create<any, CustomExtensionStorage>({
-  name: "customExtension",
-  addStorage() {
-    return {
-      customValue: "default value",
-    };
-  },
-  onUpdate() {
-    console.log(this.storage.customValue); // Acesso interno
-  },
-});
-
-// Acesso externo:
-editor.storage.customExtension.customValue;
-```
-
-### `addCommands`
-
-Define comandos executáveis pelo usuário.
-
-```typescript
-const CustomExtension = Extension.create({
-  name: "customExtension",
-  addCommands() {
-    return {
-      customCommand:
-        () =>
-        ({ commands }) => {
-          return commands.setContent("Custom command executed");
-        },
-    };
-  },
-});
-
-// Uso:
-editor.commands.customCommand();
-editor.chain().customCommand().run();
-```
-
-### `addKeyboardShortcuts`
-
-Define atalhos de teclado.
-
-```typescript
-const CustomExtension = Extension.create({
-  name: "customExtension",
-  addKeyboardShortcuts() {
-    return {
-      "Mod-k": () => {
-        console.log("Keyboard shortcut executed");
-        return true;
-      },
-    };
-  },
-});
-```
-
-### `addInputRules`
-
-Regex para transformar texto digitado (markdown shortcuts).
-
-```typescript
-import { markInputRule } from "@tiptap/core";
-
-const CustomExtension = Extension.create({
-  name: "customExtension",
-  addInputRules() {
-    return [
-      markInputRule({
-        find: /(?:~)((?:[^~]+))(?:~)$/,
-        type: this.editor.schema.marks.strike,
-      }),
-    ];
-  },
-});
-```
-
-**Exemplo:** `~texto~` → texto tachado
-
-**Diferença entre Input e Paste Rules:**
-
-- Input rules terminam com `$` (fim da linha)
-- Paste rules não têm `$` (buscam em todo conteúdo)
-
-### `addPasteRules`
-
-Similar ao input rules, mas para conteúdo colado.
-
-```typescript
-import { markPasteRule } from "@tiptap/core";
-
-const CustomExtension = Extension.create({
-  name: "customExtension",
-  addPasteRules() {
-    return [
-      markPasteRule({
-        find: /(?:~)((?:[^~]+))(?:~)/g, // Sem $ no final
-        type: this.editor.schema.marks.strike,
-      }),
-    ];
-  },
-});
-```
-
-## Event Listeners
-
-```typescript
-const CustomExtension = Extension.create({
-  onBeforeCreate() {
-    // Editor está prestes a ser criado
-  },
-  onCreate() {
-    // Editor está pronto
-  },
-  onUpdate() {
-    // Conteúdo mudou
-  },
-  onSelectionUpdate({ editor }) {
-    // Seleção mudou
-  },
-  onTransaction({ transaction }) {
-    // Estado do editor mudou
-  },
-  onFocus({ event }) {
-    // Editor focado
-  },
-  onBlur({ event }) {
-    // Editor perdeu foco
-  },
-  onDestroy() {
-    // Editor sendo destruído
-  },
-});
-```
-
-## ProseMirror Plugins
-
-### Usando plugin existente
-
-```typescript
-import { history } from "@tiptap/pm/history";
-
-const History = Extension.create({
-  addProseMirrorPlugins() {
-    return [history()];
-  },
-});
-```
-
-### Criando plugin customizado
-
-```typescript
-import { Plugin, PluginKey } from "@tiptap/pm/state";
-
-const CustomExtension = Extension.create({
-  name: "customExtension",
-  addProseMirrorPlugins() {
-    return [
-      new Plugin({
-        key: new PluginKey("customPlugin"),
-        view() {
-          return {
-            update() {
-              console.log("Custom plugin updated");
-            },
-          };
-        },
-      }),
-    ];
-  },
-});
-```
-
-## Extensões Compostas
-
-### `addExtensions`
-
-Agrupa múltiplas extensões.
-
-```typescript
-import CustomExtension1 from "./CustomExtension1";
-
-const CustomExtension = Extension.create({
-  name: "customExtension",
-  addExtensions() {
-    return [
-      CustomExtension1.configure({
-        name: "customExtension1",
-      }),
-    ];
-  },
-});
-```
-
-## Estendendo Schema
-
-### `extendNodeSchema`
-
-Adiciona atributos ao NodeConfig.
-
-```typescript
-declare module "@tiptap/core" {
-  interface NodeConfig {
-    customAttribute: {
-      default: null;
-    };
-  }
-}
-
-const CustomExtension = Extension.create({
-  name: "customExtension",
-  extendNodeSchema() {
-    return {
-      customAttribute: {
-        default: null,
-      },
-    };
-  },
-});
-```
-
-### `extendMarkSchema`
-
-Adiciona atributos ao MarkConfig.
-
-```typescript
-declare module "@tiptap/core" {
-  interface MarkConfig {
-    customAttribute: {
-      default: null;
-    };
-  }
-}
-
-const CustomExtension = Extension.create({
-  name: "customExtension",
-  extendMarkSchema() {
-    return {
-      customAttribute: {
-        default: null,
-      },
-    };
-  },
-});
-```
-
-## Contexto `this` Disponível
-
-Dentro de uma extensão, você tem acesso a:
-
-```typescript
-this.name; // Nome da extensão
-this.editor; // Instância do editor
-this.type; // Tipo ProseMirror (se node/mark)
-this.options; // Objeto com todas as configurações
-this.parent; // Extensão pai (se usando extend)
-this.storage; // Objeto de storage
-```
-
-## Tipos de Extensões
-
-### 1. Extension (funcionalidade)
-
-Não adiciona ao schema, apenas funcionalidade.
-
-### 2. Node
-
-Tipos de conteúdo no documento (Paragraph, Heading, CodeBlock).
-
-```typescript
-import { Node } from "@tiptap/core";
+import { Node } from '@tiptap/core'
 
 const CustomNode = Node.create({
-  name: "customNode",
-  // Configurações específicas de node...
-});
-```
+name: 'customNode',
 
-### 3. Mark
+addOptions() {
+return {
+HTMLAttributes: {},
+}
+},
 
-Formatação de texto (Bold, Italic, Link).
+parseHTML() {
+return [
+{
+tag: 'div',
+},
+]
+},
 
-```typescript
-import { Mark } from "@tiptap/core";
+renderHTML({ HTMLAttributes }) {
+return ['div', HTMLAttributes, 0]
+},
+})
+
+You can also use a callback function to create a node. This is useful if you want to encapsulate the logic of your extension, for example when you want to define event handlers or other custom logic.
+
+import { Node } from '@tiptap/core'
+
+const CustomNode = Node.create(() => {
+// here you could define variables or function that you can use on your schema definition
+const customVariable = 'foo'
+
+function onCreate() {}
+function onUpdate() {}
+
+return {
+name: 'customNode',
+onCreate,
+onUpdate,
+
+    // Your code goes here.
+
+}
+})
+
+This code creates a new node extension named CustomNode. It adds an addOptions method to define the node's options, which are configurable by the user. It also adds parseHTML and renderHTML methods to define how the node is parsed and rendered as HTML.
+
+It is installed to the editor just like any other extension by adding it to the extensions array.
+
+import { Editor } from '@tiptap/core'
+
+new Editor({
+extensions: [CustomNode],
+})
+
+// Or if using React or Vue
+
+const editor = useEditor({
+extensions: [CustomNode],
+})
+
+Now let's take a closer look at the options and methods available for nodes.
+
+Node options
+When creating a node, you can define options that are configurable by the user. These options can be used to customize the behavior or appearance of the node.
+
+parseHTML
+The parseHTML method is used to define how the mark is parsed from HTML. It should return an array of objects representing the mark's attributes.
+
+Maps to the parseDOM attribute in the ProseMirror schema.
 
 const CustomMark = Mark.create({
-  name: "customMark",
-  // Configurações específicas de mark...
-});
-```
+name: 'customMark',
 
-## CLI Bootstrap
+parseHTML() {
+return [
+{
+tag: 'span',
+getAttrs: (node) => {
+return {
+class: node.getAttribute('class'),
+}
+},
+},
+]
+},
+})
 
-Para criar extensões publicáveis:
+This will be used during paste events to parse the HTML content into a mark.
 
-```bash
-npm init tiptap-extension
-```
+renderHTML
+The renderHTML method is used to define how the mark is rendered as HTML. It should return an array representing the mark's HTML representation.
 
-O CLI cria um projeto pré-configurado com Rollup.
+Maps to the toDOM attribute in the ProseMirror schema.
 
-## Dicas Importantes
+const CustomMark = Mark.create({
+name: 'customMark',
 
-1. **Prioridade**: Extensões com maior prioridade carregam primeiro
-2. **Input Rules**: Use `$` no final do regex para fim de linha
-3. **Paste Rules**: Não use `$` (busca em todo conteúdo)
-4. **Commands**: Acesse outros comandos via parâmetro `commands`
-5. **Storage**: É namespacado pelo nome da extensão
-6. **TypeScript**: Declare módulos para type safety completo
-7. **Use a pasta**: @/components/editor/extensions e crie uma pasta para cada extensão
+renderHTML({ HTMLAttributes }) {
+return ['span', HTMLAttributes, 0]
+},
+})
+
+This will be used during copy events to render the mark as HTML. For more details, see the extend existing extensions guide.
+
+addAttributes
+The addAttributes method is used to define custom attributes for the mark. It should return an object with the attribute names and their default values.
+
+Maps to the attrs attribute in the ProseMirror schema.
+
+const CustomMark = Mark.create({
+name: 'customMark',
+
+addAttributes() {
+return {
+customAttribute: {
+default: 'value',
+parseHTML: (element) => element.getAttribute('data-custom-attribute'),
+},
+}
+},
+})
+
+For more details, see the extend existing extensions guide.
+
+topNode
+Defines if this node should be a top-level node (doc).
+
+Maps to the topNode attribute in the ProseMirror schema.
+
+const CustomNode = Node.create({
+name: 'customNode',
+
+topNode: true,
+})
+
+content
+The content expression for this node, as described in the schema guide. When not given, the node does not allow any content.
+
+You can read more about it on the Prosemirror documentation here.
+
+const CustomNode = Node.create({
+name: 'customNode',
+
+content: 'block+',
+})
+
+marks
+The marks that are allowed inside of this node. May be a space-separated string referring to mark names or groups, "\_" to explicitly allow all marks, or "" to disallow marks. When not given, nodes with inline content default to allowing all marks, other nodes default to not allowing marks.
+
+Maps to the marks attribute in the ProseMirror schema.
+
+const CustomNode = Node.create({
+name: 'customNode',
+
+marks: 'strong em',
+})
+
+group
+The group or space-separated groups to which this node belongs, which can be referred to in the content expressions for the schema.
+
+By default, Tiptap uses the groups 'block' and 'inline' for nodes. You can also use custom groups if you want to group specific nodes together and handle them in your schema.
+
+Maps to the group attribute in the ProseMirror schema.
+
+const CustomNode = Node.create({
+name: 'customNode',
+
+group: 'block',
+})
+
+inline
+Should be set to true for inline nodes. (Implied for text nodes).
+
+Maps to the inline attribute in the ProseMirror schema.
+
+const CustomNode = Node.create({
+name: 'customNode',
+
+inline: true,
+})
+
+atom
+Can be set to true to indicate that, though this isn't a leaf node, it doesn't have directly editable content and should be treated as a single unit in the view.
+
+Maps to the atom attribute in the ProseMirror schema.
+
+const CustomNode = Node.create({
+name: 'customNode',
+
+atom: true,
+})
+
+selectable
+Controls whether nodes of this type can be selected as a node selection. Defaults to true for non-text nodes.
+
+Maps to the selectable attribute in the ProseMirror schema.
+
+const CustomNode = Node.create({
+name: 'customNode',
+
+selectable: false,
+})
+
+draggable
+Determines whether nodes of this type can be dragged without being selected. Defaults to false.
+
+Maps to the draggable attribute in the ProseMirror schema.
+
+const CustomNode = Node.create({
+name: 'customNode',
+
+draggable: true,
+})
+
+code
+Can be used to indicate that this node contains code, which causes some commands to behave differently.
+
+Maps to the code attribute in the ProseMirror schema.
+
+const CustomNode = Node.create({
+name: 'customNode',
+
+code: true,
+})
+
+whitespace
+Controls the way whitespace in this a node is parsed. The default is "normal", which causes the DOM parser to collapse whitespace in normal mode, and normalize it (replacing newlines and such with spaces) otherwise. "pre" causes the parser to preserve spaces inside the node. When this option isn't given, but code is true, whitespace will default to "pre".
+
+Maps to the whitespace attribute in the ProseMirror schema.
+
+const CustomNode = Node.create({
+name: 'customNode',
+
+whitespace: 'pre',
+})
+
+linebreakReplacement
+Allows a single node to be set as a linebreak equivalent (e.g. hardBreak). When converting between block types that have whitespace set to "pre" and don't support the linebreak node (e.g. codeBlock) and other block types that do support the linebreak node (e.g. paragraphs) - this node will be used as the linebreak instead of stripping the newline.
+
+Maps to the linebreakReplacement attribute in the ProseMirror schema.
+
+const CustomNode = Node.create({
+name: 'customNode',
+
+linebreakReplacement: true,
+})
+
+defining
+When enabled, enables both definingAsContext and definingForContent.
+
+Maps to the defining attribute in the ProseMirror schema.
+
+const CustomNode = Node.create({
+name: 'customNode',
+
+defining: true,
+})
+
+isolating
+When enabled (default is false), the sides of nodes of this type count as boundaries that regular editing operations, like backspacing or lifting, won't cross. An example of a node that should probably have this enabled is a table cell.
+
+Maps to the isolating attribute in the ProseMirror schema.
+
+const CustomNode = Node.create({
+name: 'customNode',
+
+isolating: true,
+})
+
+addNodeView (Advanced)
+For advanced use cases, where you need to execute JavaScript inside your nodes, for example to render a sophisticated interface around an image, you need to learn about node views.
+
+They are really powerful, but also complex. In a nutshell, you need to return a parent DOM element, and a DOM element where the content should be rendered in. Look at the following, simplified example:
+
+import Image from '@tiptap/extension-image'
+
+const CustomImage = Image.extend({
+addNodeView() {
+return () => {
+const container = document.createElement('div')
+
+      container.addEventListener('click', (event) => {
+        alert('clicked on the container')
+      })
+
+      const content = document.createElement('div')
+      container.append(content)
+
+      return {
+        dom: container,
+        contentDOM: content,
+      }
+    }
+
+},
+})
+
+There is a whole lot to learn about node views, so head over to the dedicated section in our guide about node views for more information. If you are looking for a real-world example, look at the source code of the TaskItem node. This is using a node view to render the checkboxes.

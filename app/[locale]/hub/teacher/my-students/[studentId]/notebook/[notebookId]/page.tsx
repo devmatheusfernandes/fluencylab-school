@@ -325,6 +325,7 @@ export default function VisualizarCaderno() {
         className="min-h-screen"
         ydoc={ydocRef.current}
         provider={provider}
+        docId={`notebook_${String(alunoId)}_${String(notebookId)}`}
       />
     </motion.div>
   );

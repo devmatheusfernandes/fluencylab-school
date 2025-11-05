@@ -23,6 +23,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import BottomToolbar from "./toolbar/bottom-toolbar";
 import QuestionsExtension from "@/components/editor/extensions/Question/QuestionsExtension";
 import { Spinner } from "../ui/spinner";
+import { CommentMark } from "@/components/editor/extensions/Comments/CommentsMark";
+import { CommentsSheet } from "@/components/editor/extensions/Comments/CommentsSheet";
 
 interface TiptapEditorProps {
   content: string;
@@ -32,6 +34,7 @@ interface TiptapEditorProps {
   className?: string;
   ydoc?: Y.Doc | null;
   provider?: any | null;
+  docId?: string;
 }
 
 const TiptapEditor: React.FC<TiptapEditorProps> = ({
@@ -42,6 +45,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   className = "",
   ydoc = null,
   provider = null,
+  docId,
 }) => {
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastSavedContentRef = useRef<string>(content);
@@ -79,6 +83,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
 
   const editor = useEditor({
     extensions: [
+      CommentMark,
       QuestionsExtension,
       Placeholder.configure({
         placeholder: ({ node }) => {
@@ -166,6 +171,15 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
       debouncedSave(html);
     },
     onCreate: ({ editor }) => {
+      try {
+        // Debug: listar extensões e marks disponíveis
+        // Útil para verificar se 'comment' está carregado
+        // Remova se não precisar do log.
+        // eslint-disable-next-line no-console
+        console.log("Tiptap extensions:", editor.extensionManager.extensions.map((e: any) => e.name));
+        // eslint-disable-next-line no-console
+        console.log("Tiptap marks:", Object.keys((editor as any).schema?.marks || {}));
+      } catch {}
       // Define o conteúdo inicial, inclusive em modo colaboração, apenas se o editor estiver vazio
       if (content && content !== "<p></p>" && editor.isEmpty) {
         editor.commands.setContent(content);
@@ -208,6 +222,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
           editor={editor}
           className="min-h-[300px] max-h-[600px] overflow-y-auto"
         />
+        <CommentsSheet editor={editor} docId={docId || "test-comments"} />
       </div>
       {isMobile && <BottomToolbar editor={editor} />}
     </div>
