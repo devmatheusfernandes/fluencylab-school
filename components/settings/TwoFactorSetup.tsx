@@ -200,7 +200,6 @@ export default function TwoFactorSetup() {
               <Button
                 onClick={handleEnableTwoFactor}
                 disabled={isEnabling || isLoading}
-                variant="default"
               >
                 {isEnabling ? <Spinner /> : "Ativar"}
               </Button>

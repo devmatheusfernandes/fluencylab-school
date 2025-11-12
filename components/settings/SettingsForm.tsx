@@ -95,7 +95,7 @@ export default function SettingsForm({
         </div>
 
         <div className="flex flex-row justify-end">
-          <Button type="submit" variant="default" disabled={isLoading}>
+          <Button type="submit" disabled={isLoading}>
             {isLoading ? <Spinner /> : "Salvar Configurações"}
           </Button>
         </div>
@@ -139,17 +139,12 @@ export default function SettingsForm({
                   >
                     Desconectar
                   </Button>
-                  <Button
-                    variant="default"
-                    onClick={handleConnectGoogleCalendar}
-                  >
+                  <Button onClick={handleConnectGoogleCalendar}>
                     Reconectar
                   </Button>
                 </>
               ) : (
-                <Button variant="default" onClick={handleConnectGoogleCalendar}>
-                  Conectar
-                </Button>
+                <Button onClick={handleConnectGoogleCalendar}>Conectar</Button>
               )}
             </div>
           </div>

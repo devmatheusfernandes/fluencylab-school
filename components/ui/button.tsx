@@ -1,60 +1,249 @@
-import * as React from "react"
-import { Slot } from "@radix-ui/react-slot"
-import { cva, type VariantProps } from "class-variance-authority"
+import * as React from "react";
+import { Slot } from "@radix-ui/react-slot";
+import { twMerge } from "tailwind-merge";
 
-import { cn } from "@/lib/utils"
-
-const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
-  {
-    variants: {
-      variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        destructive:
-          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
-        outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost:
-          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
-        link: "text-primary underline-offset-4 hover:underline",
-      },
-      size: {
-        default: "h-9 px-4 py-2 has-[>svg]:px-3",
-        sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
-        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
-        icon: "size-9",
-        "icon-sm": "size-8",
-        "icon-lg": "size-10",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
-  }
-)
-
-function Button({
-  className,
-  variant,
-  size,
-  asChild = false,
-  ...props
-}: React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean
-  }) {
-  const Comp = asChild ? Slot : "button"
-
-  return (
-    <Comp
-      data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
-      {...props}
-    />
-  )
+// Define the component's props with all the possible variants
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  /**
+   * The visual style of the button.
+   * @default 'primary'
+   */
+  variant?:
+    | "primary"
+    | "secondary"
+    | "warning"
+    | "success"
+    | "info"
+    | "ghost"
+    | "outline"
+    | "glass"
+    | "link"
+    | "gradient"
+    | "destructive";
+  /**
+   * The size of the button.
+   * @default 'base'
+   */
+  size?: "xs" | "sm" | "base" | "lg" | "xl" | "icon";
+  /**
+   * If true, the button will be renderose as its child component.
+   * This is useful for wrapping components like Next.js's <Link>.
+   * @default false
+   */
+  asChild?: boolean;
+  /**
+   * If true, a loading spinner will be shown, and the button will be disabled.
+   * @default false
+   */
+  isLoading?: boolean;
+  /**
+   * Optional icon to display before the text
+   */
+  leftIcon?: React.ReactNode;
+  /**
+   * Optional icon to display after the text
+   */
+  rightIcon?: React.ReactNode;
+  /**
+   * If true, the button will take the full width of its container
+   * @default false
+   */
+  fullWidth?: boolean;
+  /**
+   * Animation style for the button
+   * @default 'scale'
+   */
+  animation?: "scale" | "bounce" | "pulse" | "none";
 }
 
-export { Button, buttonVariants }
+// Helper function to generate the correct Tailwind classes
+const getButtonClasses = ({
+  variant,
+  size,
+  fullWidth,
+  animation,
+}: Pick<
+  ButtonProps,
+  "variant" | "size" | "fullWidth" | "animation"
+>): string => {
+  const baseClasses =
+    "inline-flex items-center justify-center gap-2 rounded-lg font-medium border transition-all duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none shadow-sm hover:shadow-md";
+
+  // Animation classes
+  const animationClasses = {
+    scale: "transform active:scale-[0.98] disabled:active:scale-100",
+    bounce: "hover:animate-bounce",
+    pulse: "hover:animate-pulse",
+    none: "",
+  };
+
+  const variantClasses = {
+    primary:
+      "bg-indigo-600/90 backdrop-blur-sm border-indigo-500/50 text-white hover:bg-indigo-700/90 hover:border-indigo-600/60 focus-visible:ring-indigo-500 shadow-indigo-500/30  before:absolute before:inset-0 before:rounded-lg before:bg-gradient-to-br before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity relative overflow-hidden",
+    secondary:
+      "bg-amber-100 border-amber-200 text-amber-900 hover:bg-amber-200 hover:border-amber-300 focus-visible:ring-amber-500 dark:bg-amber-800 dark:border-amber-700 dark:text-white dark:hover:bg-amber-700 dark:hover:border-amber-600",
+    destructive:
+      "bg-rose-600 border-rose-600 text-white hover:bg-rose-700 hover:border-rose-700 focus-visible:ring-rose-500 shadow-rose-500/25 hover:shadow-rose-500/40",
+    warning:
+      "bg-yellow-500 border-yellow-500 text-white hover:bg-yellow-600 hover:border-yellow-600 focus-visible:ring-yellow-500 shadow-yellow-500/25 hover:shadow-yellow-500/40",
+    success:
+      "bg-teal-600 border-teal-600 text-white hover:bg-teal-700 hover:border-teal-700 focus-visible:ring-teal-500 shadow-teal-500/25 hover:shadow-teal-500/40",
+    info: "bg-cyan-600 border-cyan-600 text-white hover:bg-cyan-700 hover:border-cyan-700 focus-visible:ring-cyan-500 shadow-cyan-500/25 hover:shadow-cyan-500/40",
+    ghost:
+      "bg-transparent border-transparent text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-gray-500 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white",
+    outline:
+      "bg-transparent border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 focus-visible:ring-gray-500 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:border-gray-500",
+    glass:
+      "bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20 hover:border-white/30 focus-visible:ring-white/50 shadow-lg",
+    link: "bg-transparent border-transparent text-blue-600 underline-offset-4 hover:underline focus-visible:ring-blue-500 dark:text-blue-400 p-0 h-auto shadow-none hover:shadow-none",
+    gradient:
+      "bg-gradient-to-r from-blue-600 to-purple-600 border-transparent text-white hover:from-blue-700 hover:to-purple-700 focus-visible:ring-purple-500 shadow-purple-500/25 hover:shadow-purple-500/40",
+  };
+
+  const sizeClasses = {
+    xs: "px-2.5 py-1.5 text-xs h-7",
+    sm: "px-3 py-2 text-sm h-8",
+    base: "px-4 py-2.5 text-sm h-10",
+    lg: "px-6 py-3 text-base h-12",
+    xl: "px-8 py-4 text-lg h-14",
+    icon: "p-2.5 h-10 w-10",
+  };
+
+  const widthClasses = fullWidth ? "w-full" : "";
+
+  return twMerge(
+    baseClasses,
+    variantClasses[variant || "primary"],
+    sizeClasses[size || "base"],
+    animationClasses[animation || "scale"],
+    widthClasses
+  );
+};
+
+// Loading spinner component
+const LoadingSpinner = ({ size }: { size?: ButtonProps["size"] }) => {
+  const spinnerSizes = {
+    xs: "h-3 w-3",
+    sm: "h-3 w-3",
+    base: "h-4 w-4",
+    lg: "h-5 w-5",
+    xl: "h-6 w-6",
+    icon: "h-4 w-4",
+  };
+
+  return (
+    <svg
+      className={twMerge("animate-spin", spinnerSizes[size || "base"])}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      />
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      />
+    </svg>
+  );
+};
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    {
+      className,
+      variant,
+      size,
+      asChild = false,
+      isLoading = false,
+      leftIcon,
+      rightIcon,
+      fullWidth = false,
+      animation = "scale",
+      children,
+      ...props
+    },
+    ref
+  ) => {
+    // Use Slot if asChild is true, otherwise use a regular button
+    const Comp = asChild ? Slot : "button";
+
+    // Don't show icons when loading (except for icon-only buttons)
+    const showLeftIcon = !isLoading && leftIcon;
+    const showRightIcon = !isLoading && rightIcon;
+    const showChildren = size !== "icon" || !isLoading;
+
+    return (
+      <Comp
+        className={twMerge(
+          getButtonClasses({ variant, size, fullWidth, animation }),
+          className
+        )}
+        data-variant={variant}
+        data-size={size}
+        ref={ref}
+        disabled={isLoading || props.disabled}
+        {...props}
+      >
+        {/* Loading spinner */}
+        {isLoading && <LoadingSpinner size={size} />}
+
+        {/* Left icon */}
+        {showLeftIcon && (
+          <span className="shrink-0 relative z-10">{leftIcon}</span>
+        )}
+
+        {/* Button content */}
+        {showChildren && (
+          <span
+            className={twMerge(
+              "flex items-center justify-center relative z-10",
+              (showLeftIcon || showRightIcon || isLoading) && "truncate"
+            )}
+          >
+            {children}
+          </span>
+        )}
+
+        {/* Right icon */}
+        {showRightIcon && (
+          <span className="shrink-0 relative z-10">{rightIcon}</span>
+        )}
+      </Comp>
+    );
+  }
+);
+
+Button.displayName = "Button";
+
+// Lightweight compatibility helper to produce classes per variant/size,
+// mirroring the signature used across the codebase.
+function buttonVariants({
+  variant,
+  size,
+  className,
+}: {
+  variant?: ButtonProps["variant"];
+  size?: ButtonProps["size"];
+  className?: string;
+}) {
+  return twMerge(
+    getButtonClasses({
+      variant,
+      size,
+      fullWidth: false,
+      animation: "none",
+    }),
+    className
+  );
+}
+
+export { Button, buttonVariants };

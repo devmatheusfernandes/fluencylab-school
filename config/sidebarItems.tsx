@@ -71,13 +71,13 @@ const teacherItems: SidebarItemType[] = [
     icon: <Users className="w-6 h-6" />,
   },
   {
-    href: "/hub/teacher/calendario",
+    href: "/[locale]/hub/teacher/my-schedule",
     label: "Minha Agenda",
     labelKey: "mySchedule",
     icon: <Calendar className="w-6 h-6" />,
   },
   {
-    href: "/hub/teacher/settings",
+    href: "/[locale]/hub/teacher/settings",
     label: "Configurações",
     labelKey: "settings",
     icon: <Settings className="w-6 h-6" />,
