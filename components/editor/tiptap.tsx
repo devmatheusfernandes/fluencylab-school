@@ -26,6 +26,8 @@ import { Spinner } from "../ui/spinner";
 import { CommentMark } from "@/components/editor/extensions/Comments/CommentsMark";
 import { CommentsSheet } from "@/components/editor/extensions/Comments/CommentsSheet";
 
+import "./style.scss";
+
 interface TiptapEditorProps {
   content: string;
   onSave: (content: string) => void;

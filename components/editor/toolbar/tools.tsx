@@ -39,141 +39,56 @@ type ToolCategory = {
 
 const TOOL_CATEGORIES: ToolCategory[] = [
   {
-    id: "formatting",
-    label: "Formatação",
-    description: "Ferramentas para estilizar texto e melhorar a legibilidade.",
+    id: "media",
+    label: "Mídia",
+    description: "Componentes de áudio e vídeo.",
     items: [
-      {
-        id: "bold",
-        label: "Negrito",
-        description: "Aplica peso de fonte elevado no texto selecionado.",
-        keywords: ["texto", "forte"],
-      },
-      {
-        id: "italic",
-        label: "Itálico",
-        description: "Inclina o texto para dar ênfase.",
-        keywords: ["ênfase"],
-      },
-      {
-        id: "underline",
-        label: "Sublinhado",
-        description: "Adiciona uma linha sob o texto selecionado.",
-        keywords: ["linha"],
-      },
-      {
-        id: "strike",
-        label: "Riscado",
-        description: "Tacha o texto para indicar remoção ou correção.",
-        keywords: ["tachado"],
-      },
-      {
-        id: "highlight",
-        label: "Destaque",
-        description: "Aplica marca-texto para chamar atenção.",
-        keywords: ["marca-texto"],
-      },
+      { id: "audio", label: "Áudio", description: "Player de áudio.", keywords: ["som", "media"] },
+      { id: "band-image", label: "Imagem da banda", description: "Imagem do material da banda.", keywords: ["imagem", "banda"] },
+      { id: "band-video", label: "Vídeo da banda", description: "Vídeo do material da banda.", keywords: ["vídeo", "banda"] },
     ],
   },
   {
-    id: "structure",
-    label: "Estrutura",
-    description:
-      "Elementos para organizar conteúdo como listas, títulos e separadores.",
+    id: "exercises",
+    label: "Exercícios",
+    description: "Atividades e prática do aluno.",
     items: [
-      {
-        id: "heading",
-        label: "Título",
-        description: "Define níveis de cabeçalho (H1–H3) para hierarquia.",
-        keywords: ["h1", "h2", "h3"],
-      },
-      {
-        id: "bullet-list",
-        label: "Lista com pontos",
-        description: "Cria uma lista não ordenada para tópicos.",
-        keywords: ["ul"],
-      },
-      {
-        id: "ordered-list",
-        label: "Lista numerada",
-        description: "Cria uma lista ordenada para sequências.",
-        keywords: ["ol"],
-      },
-      {
-        id: "blockquote",
-        label: "Citação",
-        description: "Destaca trechos citados com formatação especial.",
-        keywords: ["quote"],
-      },
-      {
-        id: "separator",
-        label: "Separador",
-        description: "Insere uma linha divisória para seções.",
-        keywords: ["linha"],
-      },
+      { id: "question", label: "Perguntas", description: "Criar exercício de lacunas.", keywords: ["quiz", "lacuna"] },
+      { id: "multiple-choice", label: "Múltipla escolha", description: "Questões objetivas.", keywords: ["pergunta", "opções"] },
+      { id: "sentences", label: "Frases", description: "Exercício de escrita.", keywords: ["texto", "escrita"] },
+      { id: "translation", label: "Tradução", description: "Prática de tradução.", keywords: ["idioma"] },
+      { id: "pronounce", label: "Pronúncia", description: "Prática de pronúncia.", keywords: ["fala", "audio"] },
+      { id: "flashcards", label: "Flashcards", description: "Cartões de memorização.", keywords: ["estudo"] },
+      { id: "quiz", label: "Quiz", description: "Avaliação por quiz.", keywords: ["teste"] },
+      { id: "vocabulab", label: "Vocabulab", description: "Vocabulário interativo.", keywords: ["vocabulário"] },
     ],
   },
   {
-    id: "insert",
-    label: "Inserir",
-    description: "Componentes para inserir links, imagens e blocos especiais.",
-    items: [
-      {
-        id: "link",
-        label: "Link",
-        description: "Cria uma âncora para navegar para uma URL.",
-        keywords: ["url", "ancora"],
-      },
-      {
-        id: "image",
-        label: "Imagem",
-        description: "Insere mídias para ilustrar o conteúdo.",
-        keywords: ["foto", "media"],
-      },
-      {
-        id: "code",
-        label: "Código",
-        description: "Adiciona bloco de código com sintaxe destacada.",
-        keywords: ["snippet", "dev"],
-      },
-      {
-        id: "table",
-        label: "Tabela",
-        description: "Organiza dados em linhas e colunas.",
-        keywords: ["dados"],
-      },
-      {
-        id: "callout",
-        label: "Callout",
-        description: "Cria uma caixa para notas e alertas.",
-        keywords: ["nota", "alerta"],
-      },
-    ],
-  },
-  {
-    id: "content",
+    id: "conteudo",
     label: "Conteúdo",
-    description:
-      "Ferramentas de ensino como exercício, vídeo e perguntas interativas.",
+    description: "Blocos de conteúdo e orientação.",
     items: [
-      {
-        id: "exercise",
-        label: "Inserir exercício",
-        description: "Adiciona um bloco de exercício com enunciado e resposta.",
-        keywords: ["atividade", "prática"],
-      },
-      {
-        id: "video",
-        label: "Inserir vídeo",
-        description: "Embute um vídeo hospedado (YouTube/Vimeo) com controles.",
-        keywords: ["media", "aula"],
-      },
-      {
-        id: "question",
-        label: "Inserir pergunta",
-        description: "Cria uma pergunta objetiva ou discursiva para avaliação.",
-        keywords: ["quiz", "avaliação"],
-      },
+      { id: "text-student", label: "Texto do aluno", description: "Área para escrita do aluno.", keywords: ["aluno"] },
+      { id: "text-teacher", label: "Texto do professor", description: "Área para instruções do professor.", keywords: ["professor"] },
+      { id: "text-tip", label: "Dica de texto", description: "Dicas de escrita.", keywords: ["dica"] },
+      { id: "review", label: "Revisão", description: "Faixa de revisão.", keywords: ["recapitular"] },
+      { id: "goal", label: "Objetivo", description: "Objetivo da aula.", keywords: ["meta"] },
+    ],
+  },
+  {
+    id: "recursos",
+    label: "Recursos",
+    description: "Utilidades e anexos.",
+    items: [
+      { id: "download", label: "Download", description: "Bloco para baixar arquivos.", keywords: ["arquivo"] },
+    ],
+  },
+  {
+    id: "comentarios",
+    label: "Comentários",
+    description: "Anotações e discussões.",
+    items: [
+      { id: "comments", label: "Comentários", description: "Abrir painel de comentários.", keywords: ["feedback"] },
     ],
   },
 ];
@@ -193,7 +108,25 @@ export function ToolbarToolsSheet({
   triggerLabel = "Ferramentas",
   side = "right",
   className,
-  modalTools = ["exercise", "video", "question"],
+  modalTools = [
+    "audio",
+    "band-image",
+    "band-video",
+    "download",
+    "flashcards",
+    "goal",
+    "multiple-choice",
+    "pronounce",
+    "question",
+    "quiz",
+    "review",
+    "sentences",
+    "text-student",
+    "text-teacher",
+    "text-tip",
+    "translation",
+    "vocabulab",
+  ],
 }: ToolbarToolsSheetProps) {
   const [query, setQuery] = useState("");
 
@@ -315,18 +248,14 @@ export function ToolbarToolsSheet({
                               <Button
                                 size="sm"
                                 variant="secondary"
-                                onClick={() => handleSelect(item.id)}
+                                onClick={() =>
+                                  modalTools.includes(item.id) && onOpenDialog
+                                    ? handleOpenDialog(item.id)
+                                    : handleSelect(item.id)
+                                }
                               >
                                 Selecionar
                               </Button>
-                              {modalTools.includes(item.id) && onOpenDialog && (
-                                <Button
-                                  size="sm"
-                                  onClick={() => handleOpenDialog(item.id)}
-                                >
-                                  Abrir modal
-                                </Button>
-                              )}
                             </div>
                           </div>
                         </Card>

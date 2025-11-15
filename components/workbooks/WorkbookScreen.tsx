@@ -286,7 +286,7 @@ export default function Home() {
       <div className="min-h-[90vh] p-8 flex justify-center items-center">
         <div className="flex flex-col items-center">
           <svg
-            className="animate-spin h-12 w-12 text-fluency-blue-500 dark:text-fluency-blue-400"
+            className="animate-spin h-12 w-12 text-primary"
             viewBox="0 0 24 24"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -357,7 +357,7 @@ export default function Home() {
                   >
                     <Link
                       href={{
-                        pathname: "material/Apostila",
+                        pathname: "workbooks/Apostila",
                         query: {
                           book: lesson.workbook,
                           lesson: lesson.docID,
@@ -423,7 +423,7 @@ export default function Home() {
                   >
                     <Link
                       href={{
-                        pathname: "material/Apostila",
+                        pathname: "workbooks/Apostila",
                         query: { book: workbook.id },
                       }}
                       className="block flex-grow"
@@ -463,7 +463,7 @@ export default function Home() {
                         </div>
                         <Edit
                           onClick={() => handleOpenEditModal(workbook)}
-                          className="text-3xl text-gray-500 dark:text-gray-400 hover:text-fluency-blue-600 dark:hover:text-fluency-blue-600 duration-300 ease-in-out cursor-pointer"
+                          className="text-3xl text-gray-500 dark:text-gray-400 hover:text-primary duration-300 ease-in-out cursor-pointer"
                         />
                       </div>
                     )}

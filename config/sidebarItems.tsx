@@ -15,6 +15,7 @@ import {
   Monitor,
   UserCircle,
   UserStar,
+  Book
 } from "lucide-react";
 
 // Define os links para cada papel
@@ -75,6 +76,12 @@ const teacherItems: SidebarItemType[] = [
     label: "Minha Agenda",
     labelKey: "mySchedule",
     icon: <Calendar className="w-6 h-6" />,
+  },
+  {
+    href: "/[locale]/hub/teacher/workbooks",
+    label: "Material",
+    labelKey: "workbooks",
+    icon: <Book className="w-6 h-6" />,
   },
   {
     href: "/[locale]/hub/teacher/settings",
