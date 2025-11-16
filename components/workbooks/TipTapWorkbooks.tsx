@@ -68,6 +68,7 @@ import TextTeacherModal from "@/components/editor/extensions/TextTeacher/TextTea
 import TextTipModal from "@/components/editor/extensions/TextTip/TextTipModal";
 import TranslationModal from "@/components/editor/extensions/Translation/TranslationModal";
 import VocabulabModal from "@/components/editor/extensions/Vocabulab/VocabulabModal";
+import FloatingToolbar from '../editor/toolbar/floating-toolbar';
 
 const Tiptap = ({ onChange, content, isEditable, isTeacherNotebook }: any) => {
   const { data: session } = useSession();
@@ -202,9 +203,6 @@ const Tiptap = ({ onChange, content, isEditable, isTeacherNotebook }: any) => {
       <div className='fixed bottom-[5rem] right-5 z-[999] rounded-md bg-gray-400 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-700'>
         <ToolbarToolsSheet onOpenDialog={(id) => setOpenModalId(id)} modalTools={Object.keys(modalComponents)} />
       </div>
-      {ActiveModal && (
-        <ActiveModal isOpen={true} onClose={() => setOpenModalId(null)} editor={editor} />
-      )}
       {isEditable && <BottomToolbar editor={editor} />}
     </div>
   );

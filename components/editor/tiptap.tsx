@@ -27,6 +27,7 @@ import { CommentMark } from "@/components/editor/extensions/Comments/CommentsMar
 import { CommentsSheet } from "@/components/editor/extensions/Comments/CommentsSheet";
 
 import "./style.scss";
+import BandVideoExtension from "./extensions/BandVideo/BandVideoExtension";
 
 interface TiptapEditorProps {
   content: string;
@@ -87,6 +88,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
     extensions: [
       CommentMark,
       QuestionsExtension,
+      BandVideoExtension,
       Placeholder.configure({
         placeholder: ({ node }) => {
           const headingPlaceholders: { [key: number]: string } = {

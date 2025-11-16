@@ -24,27 +24,9 @@ import "@/components/tiptap-node/heading-node/heading-node.scss";
 import "@/components/tiptap-node/blockquote-node/blockquote-node.scss";
 import "@/components/tiptap-node/image-node/image-node.scss";
 import "@/components/tiptap-node/image-upload-node/image-upload-node.scss";
-import ToolbarToolsSheet from "./tools";
+import ToolbarToolsSheet, { MODAL_COMPONENTS } from "./tools";
 import { BackButton } from "@/components/ui/back-button";
 
-// Extension Modals
-import AudioModal from "@/components/editor/extensions/Audio/AudioModal";
-import BandImageModal from "@/components/editor/extensions/BandImage/BandImageModal";
-import BandVideoModal from "@/components/editor/extensions/BandVideo/BandVideoModal";
-import DownloadModal from "@/components/editor/extensions/Download/DownloadModal";
-import FlashcardModal from "@/components/editor/extensions/Flashcards/FlashcardModal";
-import GoalModal from "@/components/editor/extensions/Goal/GoalModal";
-import MultipleChoiceModal from "@/components/editor/extensions/MultipleChoice/MultipleChoiceModal";
-import PronounceModal from "@/components/editor/extensions/Pronounce/PronounceModal";
-import QuestionsModal from "@/components/editor/extensions/Question/QuestionsModal";
-import QuizModal from "@/components/editor/extensions/Quiz/QuizModal";
-import ReviewModal from "@/components/editor/extensions/Review/ReviewModal";
-import SentencesModal from "@/components/editor/extensions/Sentences/SentencesModal";
-import TextStudentModal from "@/components/editor/extensions/TextStudent/TextStudentModal";
-import TextTeacherModal from "@/components/editor/extensions/TextTeacher/TextTeacherModal";
-import TextTipModal from "@/components/editor/extensions/TextTip/TextTipModal";
-import TranslationModal from "@/components/editor/extensions/Translation/TranslationModal";
-import VocabulabModal from "@/components/editor/extensions/Vocabulab/VocabulabModal";
 
 interface ToolbarProps {
   editor: Editor | null;
@@ -56,25 +38,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
     return null;
   }
 
-  const modalComponents: Record<string, any> = {
-    audio: AudioModal,
-    "band-image": BandImageModal,
-    "band-video": BandVideoModal,
-    download: DownloadModal,
-    flashcards: FlashcardModal,
-    goal: GoalModal,
-    "multiple-choice": MultipleChoiceModal,
-    pronounce: PronounceModal,
-    question: QuestionsModal,
-    quiz: QuizModal,
-    review: ReviewModal,
-    sentences: SentencesModal,
-    "text-student": TextStudentModal,
-    "text-teacher": TextTeacherModal,
-    "text-tip": TextTipModal,
-    translation: TranslationModal,
-    vocabulab: VocabulabModal,
-  };
 
   const handleOpenDialog = (toolId: string) => {
     setOpenModalId(toolId);
@@ -82,7 +45,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
 
   const handleCloseDialog = () => setOpenModalId(null);
 
-  const ActiveModal = openModalId ? modalComponents[openModalId] : null;
+  const ActiveModal = openModalId ? MODAL_COMPONENTS[openModalId] : null;
   return (
     <div className="sticky top-0 z-10 border-b border-border bg-background shadow-sm">
       <div className="p-2">
@@ -125,7 +88,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
             <ThemeSwitcher />
             <ToolbarToolsSheet
               onOpenDialog={handleOpenDialog}
-              modalTools={Object.keys(modalComponents)}
+              modalTools={Object.keys(MODAL_COMPONENTS)}
             />
           </div>
         </div>

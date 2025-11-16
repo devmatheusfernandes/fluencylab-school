@@ -312,7 +312,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="min-h-screen p-4 md:p-8 transition-colors duration-300">
+      <div className="min-h-screen p-2 transition-colors duration-300">
         {/* Search Bar */}
         <div className="flex flex-row gap-6 mb-6 w-full">
           <Input

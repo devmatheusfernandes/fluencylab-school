@@ -22,6 +22,24 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { Editor } from "@tiptap/react";
+import AudioModal from "@/components/editor/extensions/Audio/AudioModal";
+import BandImageModal from "@/components/editor/extensions/BandImage/BandImageModal";
+import BandVideoModal from "@/components/editor/extensions/BandVideo/BandVideoModal";
+import DownloadModal from "@/components/editor/extensions/Download/DownloadModal";
+import FlashcardModal from "@/components/editor/extensions/Flashcards/FlashcardModal";
+import GoalModal from "@/components/editor/extensions/Goal/GoalModal";
+import MultipleChoiceModal from "@/components/editor/extensions/MultipleChoice/MultipleChoiceModal";
+import PronounceModal from "@/components/editor/extensions/Pronounce/PronounceModal";
+import QuestionsModal from "@/components/editor/extensions/Question/QuestionsModal";
+import QuizModal from "@/components/editor/extensions/Quiz/QuizModal";
+import ReviewModal from "@/components/editor/extensions/Review/ReviewModal";
+import SentencesModal from "@/components/editor/extensions/Sentences/SentencesModal";
+import TextStudentModal from "@/components/editor/extensions/TextStudent/TextStudentModal";
+import TextTeacherModal from "@/components/editor/extensions/TextTeacher/TextTeacherModal";
+import TextTipModal from "@/components/editor/extensions/TextTip/TextTipModal";
+import TranslationModal from "@/components/editor/extensions/Translation/TranslationModal";
+import VocabulabModal from "@/components/editor/extensions/Vocabulab/VocabulabModal";
 
 type ToolItem = {
   id: string;
@@ -93,6 +111,40 @@ const TOOL_CATEGORIES: ToolCategory[] = [
   },
 ];
 
+type BaseModalProps = { isOpen: boolean; onClose: () => void; editor: Editor };
+
+const TextTipModalAdapter: React.FC<BaseModalProps> = ({ isOpen, onClose, editor }) => (
+  <TextTipModal isOpen={isOpen} onClose={onClose} editor={editor} initialText="" />
+);
+
+const TextStudentModalAdapter: React.FC<BaseModalProps> = ({ isOpen, onClose, editor }) => (
+  <TextStudentModal isOpen={isOpen} onClose={onClose} editor={editor} initialText="" />
+);
+
+const TextTeacherModalAdapter: React.FC<BaseModalProps> = ({ isOpen, onClose, editor }) => (
+  <TextTeacherModal isOpen={isOpen} onClose={onClose} editor={editor} initialText="" />
+);
+
+export const MODAL_COMPONENTS: Record<string, React.ComponentType<BaseModalProps>> = {
+  audio: AudioModal,
+  "band-image": BandImageModal,
+  "band-video": BandVideoModal,
+  download: DownloadModal,
+  flashcards: FlashcardModal,
+  goal: GoalModal,
+  "multiple-choice": MultipleChoiceModal,
+  pronounce: PronounceModal,
+  question: QuestionsModal,
+  quiz: QuizModal,
+  review: ReviewModal,
+  sentences: SentencesModal,
+  "text-student": TextStudentModalAdapter,
+  "text-teacher": TextTeacherModalAdapter,
+  "text-tip": TextTipModalAdapter,
+  translation: TranslationModal,
+  vocabulab: VocabulabModal,
+};
+
 export type ToolbarToolsSheetProps = {
   onSelectTool?: (toolId: string) => void;
   onOpenDialog?: (toolId: string) => void;
@@ -108,25 +160,7 @@ export function ToolbarToolsSheet({
   triggerLabel = "Ferramentas",
   side = "right",
   className,
-  modalTools = [
-    "audio",
-    "band-image",
-    "band-video",
-    "download",
-    "flashcards",
-    "goal",
-    "multiple-choice",
-    "pronounce",
-    "question",
-    "quiz",
-    "review",
-    "sentences",
-    "text-student",
-    "text-teacher",
-    "text-tip",
-    "translation",
-    "vocabulab",
-  ],
+  modalTools = Object.keys(MODAL_COMPONENTS),
 }: ToolbarToolsSheetProps) {
   const [query, setQuery] = useState("");
 
@@ -166,7 +200,7 @@ export function ToolbarToolsSheet({
     <Sheet>
       <SheetTrigger asChild>
         <Button variant="outline" className={className}>
-          <WrenchIcon />
+          <WrenchIcon className="w-4 h-4" />
         </Button>
       </SheetTrigger>
       <SheetContent side={side} className="p-0">
