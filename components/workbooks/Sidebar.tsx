@@ -17,7 +17,7 @@ export default function Sidebar({
   onSelectLesson: (lesson: Notebook) => void;
   collapsed: boolean;
 }) {
-  const [editingLessonId, setEditingLessonId] = useState<string | null>(null);
+  const [editingLessonId, setEditingLessonId] = useState<string | undefined | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
   const [titleOverrides, setTitleOverrides] = useState<Record<string, string>>({});
@@ -26,8 +26,10 @@ export default function Sidebar({
   const { data: session } = useSession();
 
   const grouped = lessons.reduce((acc, lesson) => {
-    acc[lesson.unit] = acc[lesson.unit] || [];
-    acc[lesson.unit].push(lesson);
+    const unitKey = (lesson.unit ?? "").toString();
+    if (!unitKey) return acc;
+    acc[unitKey] = acc[unitKey] || [];
+    acc[unitKey].push(lesson);
     return acc;
   }, {} as Record<string, Notebook[]>);
 
@@ -51,7 +53,7 @@ export default function Sidebar({
 
   const handleEditStart = (lesson: Notebook, e: React.MouseEvent) => {
     e.stopPropagation();
-    setEditingLessonId(lesson.docID);
+    setEditingLessonId(lesson.docID ?? lesson.id);
     setEditingTitle(lesson.title);
   };
 
@@ -68,9 +70,14 @@ export default function Sidebar({
 
     setIsUpdating(true);
     try {
+      if (!lesson.docID) {
+        handleEditCancel();
+        return;
+      }
       const docRef = doc(db, `Apostilas/${lesson.workbook}/Lessons`, lesson.docID);
       await updateDoc(docRef, { title: editingTitle.trim() });
-      setTitleOverrides((prev) => ({ ...prev, [lesson.docID]: editingTitle.trim() }));
+      const key = lesson.docID as string;
+      setTitleOverrides((prev) => ({ ...prev, [key]: editingTitle.trim() }));
       setEditingLessonId(null);
       setEditingTitle("");
     } catch (error) {
@@ -103,7 +110,7 @@ export default function Sidebar({
             </h2>
             <ul className="space-y-1">
               {[...items].sort((a, b) => a.title.localeCompare(b.title)).map((lesson) => (
-                <li key={lesson.docID} className="relative group">
+                <li key={lesson.docID ?? lesson.id} className="relative group">
                   {editingLessonId === lesson.docID ? (
                     <div className="flex items-center space-x-1 p-1">
                       <input
@@ -140,7 +147,7 @@ export default function Sidebar({
                   ) : (
                     <div className="flex items-center">
                       <button
-                        ref={activeLesson?.docID === lesson.docID ? activeLessonRef : null}
+                        ref={(activeLesson?.docID ?? activeLesson?.id) === (lesson.docID ?? lesson.id) ? activeLessonRef : null}
                         onClick={() => onSelectLesson(lesson)}
                         className={`flex-1 text-left px-3 py-2 rounded-md text-sm transition-colors ${
                           activeLesson?.docID === lesson.docID
@@ -148,7 +155,7 @@ export default function Sidebar({
                             : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                         }`}
                       >
-                        {titleOverrides[lesson.docID] ?? lesson.title}
+                        {titleOverrides[lesson.docID ?? lesson.id] ?? lesson.title}
                       </button>
                       {session?.user.role === "admin" && (
                         <button
@@ -183,7 +190,7 @@ export default function Sidebar({
               <PopoverContent side="right" align="center" className="p-2 w-64">
                 <ul className="space-y-1 max-h-64 overflow-y-auto">
                   {[...items].sort((a, b) => a.title.localeCompare(b.title)).map((lesson) => (
-                    <li key={lesson.docID}>
+                    <li key={lesson.docID ?? lesson.id}>
                       <button
                         onClick={() => onSelectLesson(lesson)}
                         className={`w-full text-left px-2 py-1 rounded text-sm transition-colors ${
@@ -192,7 +199,7 @@ export default function Sidebar({
                             : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                         }`}
                       >
-                        {titleOverrides[lesson.docID] ?? lesson.title}
+                        {titleOverrides[lesson.docID ?? lesson.id] ?? lesson.title}
                       </button>
                     </li>
                   ))}

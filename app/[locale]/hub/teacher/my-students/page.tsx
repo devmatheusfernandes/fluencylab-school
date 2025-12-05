@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { NoResults } from "@/components/ui/no-results";
 import { SearchBar } from "@/components/ui/search-bar";
-import StudentCard from "@/components/teacher/student-card";
+import StudentCard from "@/components/teacher/StudentCard";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface StudentWithNextClass {

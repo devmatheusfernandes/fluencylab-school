@@ -10,10 +10,10 @@ export interface Notebook {
   createdAt: Date;
   updatedAt: Date;
 
-  language: string;
-  unit: string;
-  workbook: string;
-  docID: string;
+  language?: string;
+  unit?: string;
+  workbook?: string;
+  docID?: string;
 }
 
 export interface Workbook {

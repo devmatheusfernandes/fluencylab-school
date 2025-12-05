@@ -124,10 +124,11 @@ export default function Home() {
 
           const organized: OrganizedNotebooks = {};
           combined.forEach((note) => {
-            if (!organized[note.language]) organized[note.language] = {};
-            if (!organized[note.language][note.workbook])
-              organized[note.language][note.workbook] = [];
-            organized[note.language][note.workbook].push(note);
+            const langKey = (note.language ?? "unknown").toString();
+            const wbKey = (note.workbook ?? "unknown").toString();
+            if (!organized[langKey]) organized[langKey] = {};
+            if (!organized[langKey][wbKey]) organized[langKey][wbKey] = [];
+            organized[langKey][wbKey].push(note);
           });
           setOrganizedNotebooks(organized);
         });

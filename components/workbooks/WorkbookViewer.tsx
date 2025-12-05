@@ -77,9 +77,9 @@ export default function WorkbookViewer() {
     setSidebarOpen(false);
 
     const params = new URLSearchParams();
-    params.set("book", lesson.workbook);
-    params.set("lesson", lesson.docID);
-    params.set("workbook", lesson.workbook);
+    params.set("book", String(lesson.workbook ?? ""));
+    params.set("lesson", String(lesson.docID ?? ""));
+    params.set("workbook", String(lesson.workbook ?? ""));
 
     router.replace(`?${params.toString()}`);
   };
@@ -185,7 +185,7 @@ export default function WorkbookViewer() {
       <div className="flex-1 flex flex-col overflow-hidden">
         {activeLesson ? (
           <div className="flex-1 p-6 overflow-auto bg-background no-scrollbar">
-            <LessonViewer key={activeLesson.docID} lesson={activeLesson.docID} workbook={activeLesson.workbook} />
+            <LessonViewer key={activeLesson.docID ?? ""} lesson={activeLesson.docID ?? null} workbook={activeLesson.workbook ?? null} />
           </div>
         ) : (
           <div className="flex-1 flex items-center justify-center text-gray-500 dark:text-gray-400">

@@ -23,6 +23,14 @@ interface StudentCardProps {
 export default function StudentCard({ student }: StudentCardProps) {
   const messages = useMessages();
   const tStudentCard = (messages?.StudentCard ?? {}) as Record<string, string>;
+  const slugify = (s: string) =>
+    s
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  const firstName = student.name?.split(" ")[0] ?? student.name;
 
   const formatNextClassDate = (date: string | Date) => {
     try {
@@ -76,7 +84,7 @@ export default function StudentCard({ student }: StudentCardProps) {
   return (
     <Card>
       <Link
-        href={`/hub/teacher/my-students/${student.id}`}
+        href={`/hub/teacher/my-students/${firstName}?id=${student.id}`}
         className="flex items-center space-x-4"
       >
         <Avatar size="xl">
@@ -86,7 +94,7 @@ export default function StudentCard({ student }: StudentCardProps) {
 
         <div className="flex-1 min-w-0">
           <h3 className="font-bold text-lg truncate text-foreground">
-            {student.name}
+            {firstName}
           </h3>
           <p className="text-muted-foreground text-sm truncate">
             {student.email}

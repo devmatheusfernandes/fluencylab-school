@@ -4,18 +4,9 @@
 import { useState, useCallback, useEffect } from 'react';
 import { User } from '@/types/users/users';
 import { StudentClass, ClassStatus } from '@/types/classes/class';
+import { Notebook } from '@/types/notebooks/notebooks';
 
-// Define local types for notebook and task since we don't have them in the global types yet
-interface Notebook {
-  id: string;
-  title: string;
-  description: string;
-  content: any;
-  student: string;
-  studentName?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+// Use global Notebook type
 
 interface Task {
   id: string;
@@ -250,7 +241,7 @@ export const useStudentPanel = (studentId: string) => {
     }
   }, [studentId]);
 
-    const updateClassStatus = useCallback(async (classId: string, newStatus: ClassStatus) => {
+  const updateClassStatus = useCallback(async (classId: string, newStatus: ClassStatus) => {
     try {
       // For students, use their own endpoint for canceling classes
       if (typeof window !== 'undefined') {
@@ -302,13 +293,28 @@ export const useStudentPanel = (studentId: string) => {
         
         return true;
       } else {
-        // For other status updates, use the general endpoint
+        const mapStatus = (status: ClassStatus) => {
+          switch (status) {
+            case ClassStatus.SCHEDULED:
+              return "scheduled";
+            case ClassStatus.COMPLETED:
+              return "completed";
+            case ClassStatus.NO_SHOW:
+              return "no_show";
+            case ClassStatus.CANCELED_STUDENT:
+            case ClassStatus.CANCELED_ADMIN:
+              return "cancelled";
+            default:
+              return undefined;
+          }
+        };
+        const payloadStatus = mapStatus(newStatus);
         const response = await fetch(`/api/classes/${classId}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ status: newStatus }),
+          body: JSON.stringify({ status: payloadStatus }),
         });
 
         if (!response.ok) {

@@ -73,12 +73,17 @@ export default function ClassDetailsModal({
     }
   };
 
-  const getStatusText = (status: ClassStatus) => {
-    switch (status) {
+  const getStatusText = (status: ClassStatus | string) => {
+    const s = typeof status === "string" ? status : (status as string);
+    switch (s) {
+      case "scheduled":
       case ClassStatus.SCHEDULED:
         return "Agendada";
+      case "completed":
       case ClassStatus.COMPLETED:
         return "Concluída";
+      case "cancelled":
+        return "Cancelada";
       case ClassStatus.CANCELED_STUDENT:
         return "Cancelada pelo aluno";
       case ClassStatus.CANCELED_TEACHER:
@@ -87,8 +92,9 @@ export default function ClassDetailsModal({
         return "Cancelada pelo professor (reposição)";
       case ClassStatus.CANCELED_CREDIT:
         return "Cancelada";
+      case "no_show":
       case ClassStatus.NO_SHOW:
-        return "Falta";
+        return "Aluno faltou";
       case ClassStatus.RESCHEDULED:
         return "Reagendada";
       case ClassStatus.TEACHER_VACATION:
@@ -96,21 +102,26 @@ export default function ClassDetailsModal({
       case ClassStatus.OVERDUE:
         return "Vencida";
       default:
-        return status;
+        return s;
     }
   };
 
-  const getStatusColor = (status: ClassStatus) => {
-    switch (status) {
+  const getStatusColor = (status: ClassStatus | string) => {
+    const s = typeof status === "string" ? status : (status as string);
+    switch (s) {
+      case "scheduled":
       case ClassStatus.SCHEDULED:
         return "bg-blue-100 text-blue-800";
+      case "completed":
       case ClassStatus.COMPLETED:
         return "bg-green-100 text-green-800";
+      case "cancelled":
       case ClassStatus.CANCELED_STUDENT:
       case ClassStatus.CANCELED_TEACHER:
       case ClassStatus.CANCELED_TEACHER_MAKEUP:
       case ClassStatus.CANCELED_CREDIT:
         return "bg-red-100 text-red-800";
+      case "no_show":
       case ClassStatus.NO_SHOW:
         return "bg-yellow-100 text-yellow-800";
       case ClassStatus.RESCHEDULED:
