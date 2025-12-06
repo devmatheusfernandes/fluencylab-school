@@ -112,23 +112,43 @@ export class UserAdminRepository {
   }
 
   async findUsersByIds(userIds: string[]): Promise<User[]> {
-    if (userIds.length === 0) return [];
+    const validIds = Array.from(
+      new Set(
+        (userIds || []).filter(
+          (id) => typeof id === "string" && id.trim().length > 0
+        )
+      )
+    );
 
-    const snapshot = await this.usersCollection
-      .where(admin.firestore.FieldPath.documentId(), "in", userIds)
-      .get();
+    if (validIds.length === 0) return [];
 
-    if (snapshot.empty) return [];
+    const results: admin.firestore.QueryDocumentSnapshot[] = [];
+    for (let i = 0; i < validIds.length; i += 10) {
+      const chunk = validIds.slice(i, i + 10);
+      const chunkSnap = await this.usersCollection
+        .where(admin.firestore.FieldPath.documentId(), "in", chunk)
+        .get();
+      results.push(...chunkSnap.docs);
+    }
 
-    return snapshot.docs.map((doc) => {
-      const data = doc.data();
-      const serializedData = serializeTimestamps(data);
+    if (results.length === 0) return [];
 
-      return {
-        id: doc.id,
-        ...serializedData,
-      } as unknown as User;
-    });
+    const seen = new Set<string>();
+    return results
+      .filter((doc) => {
+        if (seen.has(doc.id)) return false;
+        seen.add(doc.id);
+        return true;
+      })
+      .map((doc) => {
+        const data = doc.data();
+        const serializedData = serializeTimestamps(data);
+
+        return {
+          id: doc.id,
+          ...serializedData,
+        } as unknown as User;
+      });
   }
 
   /**

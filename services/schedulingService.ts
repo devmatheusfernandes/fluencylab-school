@@ -2016,10 +2016,11 @@ export class SchedulingService {
     const classes = await classRepository.findAllClassesByStudentId(studentId);
     if (classes.length === 0) return [];
 
-    // Filter out undefined teacherIds before creating the set
-    const teacherIds = [
+    const teacherIds: string[] = [
       ...new Set(
-        classes.map((cls) => cls.teacherId).filter((id) => id !== undefined)
+        classes
+          .map((cls) => cls.teacherId)
+          .filter((id): id is string => typeof id === "string" && id.trim().length > 0)
       ),
     ];
     const teachers = await userAdminRepository.findUsersByIds(teacherIds);
