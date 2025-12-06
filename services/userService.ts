@@ -174,6 +174,7 @@ export class UserService {
     settingsData: {
       interfaceLanguage?: string;
       theme?: "light" | "dark";
+      themeColor?: "violet" | "rose" | "orange" | "yellow" | "green";
       twoFactorEnabled?: boolean;
     }
   ): Promise<void> {
@@ -185,6 +186,9 @@ export class UserService {
     }
     if (settingsData.theme) {
       allowedUpdates.theme = settingsData.theme;
+    }
+    if (settingsData.themeColor) {
+      allowedUpdates.themeColor = settingsData.themeColor;
     }
     // Note: twoFactorEnabled is handled separately through the AuthService
     // We don't update it directly in the user document here

@@ -8,6 +8,7 @@ import { GoogleCalendarDefaultTimes } from '@/types/users/users';
 interface SettingsData {
   interfaceLanguage?: string;
   theme?: 'light' | 'dark';
+  themeColor?: 'violet' | 'rose' | 'orange' | 'yellow' | 'green';
   twoFactorEnabled?: boolean;
   googleCalendarDefaultTimes?: GoogleCalendarDefaultTimes;
 }
@@ -43,7 +44,7 @@ export const useSettings = () => {
       
       toast.success('Configurações salvas com sucesso!');
       // Força um recarregamento da página para aplicar o novo idioma/tema
-      if (settingsData.interfaceLanguage || settingsData.theme) {
+      if (settingsData.interfaceLanguage || settingsData.theme || settingsData.themeColor) {
         window.location.reload(); 
       }
     } catch (error: any) {

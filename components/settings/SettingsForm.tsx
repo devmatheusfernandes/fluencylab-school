@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSettings } from "@/hooks/useSettings";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,20 +22,41 @@ import { Spinner } from "../ui/spinner";
 interface SettingsFormProps {
   currentLanguage: string;
   currentTheme: "light" | "dark";
+  currentThemeColor?: "violet" | "rose" | "orange" | "yellow" | "green";
   googleCalendarConnected?: boolean;
   googleCalendarDefaultTimes?: GoogleCalendarDefaultTimes;
 }
 
 export default function SettingsForm({
   currentLanguage,
+  currentThemeColor,
   googleCalendarConnected = false,
   googleCalendarDefaultTimes = {},
 }: SettingsFormProps) {
   const [language, setLanguage] = useState(currentLanguage);
+  const [themeColor, setThemeColor] = useState<
+    "violet" | "rose" | "orange" | "yellow" | "green"
+  >(currentThemeColor || "violet");
   const [defaultTimes, setDefaultTimes] = useState<GoogleCalendarDefaultTimes>(
     googleCalendarDefaultTimes || {}
   );
   const { updateSettings, isLoading } = useSettings();
+
+  const applyThemeColorClass = (color: typeof themeColor) => {
+    const root = document.documentElement;
+    root.classList.remove(
+      "theme-violet",
+      "theme-rose",
+      "theme-orange",
+      "theme-yellow",
+      "theme-green"
+    );
+    root.classList.add(`theme-${color}`);
+  };
+
+  useEffect(() => {
+    applyThemeColorClass(themeColor);
+  }, []);
 
   const handleConnectGoogleCalendar = () => {
     window.location.href = "/api/student/google-calendar/connect";
@@ -85,6 +106,28 @@ export default function SettingsForm({
             </Select>
           </div>
           <div className="flex items-center justify-between">
+            <label htmlFor="themeColor">Cor do Tema</label>
+            <Select
+              value={themeColor}
+              onValueChange={(v) => {
+                const c = v as typeof themeColor;
+                setThemeColor(c);
+                applyThemeColorClass(c);
+              }}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="violet">Violet</SelectItem>
+                <SelectItem value="rose">Rose</SelectItem>
+                <SelectItem value="orange">Orange</SelectItem>
+                <SelectItem value="yellow">Yellow</SelectItem>
+                <SelectItem value="green">Green</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center justify-between">
             <label htmlFor="theme">Tema Escuro</label>
             {/* <Switch
               id="theme"
@@ -95,7 +138,12 @@ export default function SettingsForm({
         </div>
 
         <div className="flex flex-row justify-end">
-          <Button type="submit" disabled={isLoading}>
+          <Button
+            onClick={() =>
+              updateSettings({ interfaceLanguage: language, themeColor })
+            }
+            disabled={isLoading}
+          >
             {isLoading ? <Spinner /> : "Salvar Configurações"}
           </Button>
         </div>

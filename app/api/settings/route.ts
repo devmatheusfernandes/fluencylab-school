@@ -3,7 +3,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withAuth, createUniversalConfig } from "../../../lib/auth/middleware";
 import { UserService } from "../../../services/userService";
-import { withValidation } from "@/lib/validation";
 import { z } from "zod";
 
 const userService = new UserService();
@@ -12,7 +11,14 @@ const userService = new UserService();
  * Função para validar quais configurações cada role pode modificar
  */
 function getAllowedSettingsForRole(role: string): string[] {
-  const baseSettings = ["language", "timezone", "notifications", "theme"];
+  const baseSettings = [
+    "language",
+    "interfaceLanguage",
+    "timezone",
+    "notifications",
+    "theme",
+    "themeColor",
+  ];
 
   switch (role) {
     case "admin":
@@ -43,11 +49,12 @@ async function updateSettingsHandler(
   { params, authContext }: { params?: any; authContext: any }
 ) {
   try {
-    const settingsData = await request.json();
+    const raw = await request.json();
+    const parsed = settingsSchema.parse(raw);
 
     // Validar quais configurações o role pode modificar
     const allowedSettings = getAllowedSettingsForRole(authContext.userRole);
-    const requestedSettings = Object.keys(settingsData);
+    const requestedSettings = Object.keys(raw);
 
     // Se não é admin, verificar configurações não permitidas
     if (!allowedSettings.includes("*")) {
@@ -71,7 +78,12 @@ async function updateSettingsHandler(
     // 1. Autenticação do usuário
     // 2. Rate limiting
 
-    await userService.updateUserSettings(authContext.userId, settingsData);
+    const mapped: any = { ...parsed };
+    if (parsed.language) {
+      mapped.interfaceLanguage = parsed.language;
+      delete mapped.language;
+    }
+    await userService.updateUserSettings(authContext.userId, mapped);
 
     return NextResponse.json({
       success: true,
@@ -89,8 +101,10 @@ async function updateSettingsHandler(
 // Schema de validação para configurações
 const settingsSchema = z.object({
   language: z.enum(["pt", "en", "es"]).optional(),
+  interfaceLanguage: z.enum(["pt", "en", "es"]).optional(),
   timezone: z.string().max(50).optional(),
   theme: z.enum(["light", "dark", "system"]).optional(),
+  themeColor: z.enum(["violet", "rose", "orange", "yellow", "green"]).optional(),
   notifications: z
     .object({
       email: z.boolean().optional(),
@@ -117,14 +131,7 @@ const settingsSchema = z.object({
     .optional(),
 });
 
-// Aplicar middleware de validação e autorização
-const validatedUpdateHandler = withValidation(updateSettingsHandler, {
-  bodySchema: settingsSchema,
-  logAttacks: true,
-  blockAttacks: true,
-});
-
 export const PUT = withAuth(
-  validatedUpdateHandler,
+  updateSettingsHandler,
   createUniversalConfig("settings", "general")
 );

@@ -174,6 +174,76 @@ CARDS SÃO COMPONENTES QUE FICAM DENTRO DE SUBCONTAINERS QUE PODEM FUNCIONAR COM
   --sidebar-ring: oklch(0.38 0.189 293.745);
 }
 
+.theme-violet {
+  --primary: oklch(0.541 0.281 293.009);
+  --primary-foreground: oklch(0.969 0.016 293.756);
+  --ring: oklch(0.702 0.183 293.541);
+  --chart-1: oklch(0.811 0.111 293.571);
+  --chart-2: oklch(0.606 0.25 292.717);
+  --chart-3: oklch(0.541 0.281 293.009);
+  --chart-4: oklch(0.491 0.27 292.581);
+  --chart-5: oklch(0.432 0.232 292.759);
+  --sidebar-primary: oklch(0.541 0.281 293.009);
+  --sidebar-primary-foreground: oklch(0.969 0.016 293.756);
+  --sidebar-ring: oklch(0.702 0.183 293.541);
+}
+
+.theme-rose {
+  --primary: oklch(0.69 0.25 22);
+  --primary-foreground: oklch(0.985 0 0);
+  --ring: oklch(0.69 0.25 22);
+  --chart-1: oklch(0.76 0.24 20);
+  --chart-2: oklch(0.66 0.23 28);
+  --chart-3: oklch(0.6 0.22 16);
+  --chart-4: oklch(0.8 0.21 32);
+  --chart-5: oklch(0.72 0.2 12);
+  --sidebar-primary: oklch(0.69 0.25 22);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-ring: oklch(0.69 0.25 22);
+}
+
+.theme-orange {
+  --primary: oklch(0.74 0.22 55);
+  --primary-foreground: oklch(0.21 0.006 285.885);
+  --ring: oklch(0.74 0.22 55);
+  --chart-1: oklch(0.8 0.22 60);
+  --chart-2: oklch(0.72 0.21 50);
+  --chart-3: oklch(0.68 0.2 40);
+  --chart-4: oklch(0.86 0.18 70);
+  --chart-5: oklch(0.76 0.18 35);
+  --sidebar-primary: oklch(0.74 0.22 55);
+  --sidebar-primary-foreground: oklch(0.21 0.006 285.885);
+  --sidebar-ring: oklch(0.74 0.22 55);
+}
+
+.theme-yellow {
+  --primary: oklch(0.9 0.18 100);
+  --primary-foreground: oklch(0.21 0.006 285.885);
+  --ring: oklch(0.9 0.18 100);
+  --chart-1: oklch(0.92 0.17 98);
+  --chart-2: oklch(0.86 0.16 92);
+  --chart-3: oklch(0.8 0.15 88);
+  --chart-4: oklch(0.95 0.14 102);
+  --chart-5: oklch(0.88 0.14 95);
+  --sidebar-primary: oklch(0.9 0.18 100);
+  --sidebar-primary-foreground: oklch(0.21 0.006 285.885);
+  --sidebar-ring: oklch(0.9 0.18 100);
+}
+
+.theme-green {
+  --primary: oklch(0.7 0.15 145);
+  --primary-foreground: oklch(0.985 0 0);
+  --ring: oklch(0.7 0.15 145);
+  --chart-1: oklch(0.76 0.14 150);
+  --chart-2: oklch(0.68 0.13 140);
+  --chart-3: oklch(0.62 0.12 135);
+  --chart-4: oklch(0.8 0.12 155);
+  --chart-5: oklch(0.72 0.12 145);
+  --sidebar-primary: oklch(0.7 0.15 145);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-ring: oklch(0.7 0.15 145);
+}
+
 
 @layer base {
   * {

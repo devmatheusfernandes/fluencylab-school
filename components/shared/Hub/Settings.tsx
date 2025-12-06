@@ -30,6 +30,7 @@ export default async function SettingsPage() {
     <SettingsForm
       currentLanguage={user.interfaceLanguage}
       currentTheme={user.theme || "dark"}
+      currentThemeColor={user.themeColor}
       googleCalendarConnected={googleCalendarConnected}
       googleCalendarDefaultTimes={user.googleCalendarDefaultTimes}
     />

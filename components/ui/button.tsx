@@ -80,20 +80,20 @@ const getButtonClasses = ({
 
   const variantClasses = {
     primary:
-      "bg-indigo-600/90 backdrop-blur-sm border-indigo-500/50 text-white hover:bg-indigo-700/90 hover:border-indigo-600/60 focus-visible:ring-indigo-500 shadow-indigo-500/30  before:absolute before:inset-0 before:rounded-lg before:bg-gradient-to-br before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity relative overflow-hidden",
+      "bg-primary border-primary text-primary-foreground focus-visible:ring-ring before:absolute before:inset-0 before:rounded-lg before:bg-gradient-to-br before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity relative overflow-hidden hover:opacity-95",
     secondary:
-      "bg-amber-100 border-amber-200 text-amber-900 hover:bg-amber-200 hover:border-amber-300 focus-visible:ring-amber-500 dark:bg-amber-800 dark:border-amber-700 dark:text-white dark:hover:bg-amber-700 dark:hover:border-amber-600",
+      "bg-secondary border-secondary text-secondary-foreground focus-visible:ring-ring hover:opacity-95",
     destructive:
-      "bg-rose-600 border-rose-600 text-white hover:bg-rose-700 hover:border-rose-700 focus-visible:ring-rose-500 shadow-rose-500/25 hover:shadow-rose-500/40",
+      "bg-destructive border-destructive text-white focus-visible:ring-destructive hover:opacity-95",
     warning:
       "bg-yellow-500 border-yellow-500 text-white hover:bg-yellow-600 hover:border-yellow-600 focus-visible:ring-yellow-500 shadow-yellow-500/25 hover:shadow-yellow-500/40",
     success:
       "bg-teal-600 border-teal-600 text-white hover:bg-teal-700 hover:border-teal-700 focus-visible:ring-teal-500 shadow-teal-500/25 hover:shadow-teal-500/40",
     info: "bg-cyan-600 border-cyan-600 text-white hover:bg-cyan-700 hover:border-cyan-700 focus-visible:ring-cyan-500 shadow-cyan-500/25 hover:shadow-cyan-500/40",
     ghost:
-      "bg-transparent border-transparent text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-gray-500 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white",
+      "bg-transparent border-transparent text-foreground hover:bg-muted hover:text-foreground focus-visible:ring-ring",
     outline:
-      "bg-transparent border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 focus-visible:ring-gray-500 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:border-gray-500",
+      "bg-transparent border-border text-foreground hover:bg-muted focus-visible:ring-ring",
     glass:
       "bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20 hover:border-white/30 focus-visible:ring-white/50 shadow-lg",
     link: "bg-transparent border-transparent text-blue-600 underline-offset-4 hover:underline focus-visible:ring-blue-500 dark:text-blue-400 p-0 h-auto shadow-none hover:shadow-none",
