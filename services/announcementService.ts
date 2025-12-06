@@ -3,6 +3,7 @@
 import { AnnouncementRepository } from "@/repositories/announcementRepository";
 import { Announcement, AnnouncementType } from "@/types/announcements";
 import { UserRoles } from "@/types/users/userRoles";
+import { pushService } from "@/services/pushService";
 
 const announcementRepository = new AnnouncementRepository();
 
@@ -28,6 +29,10 @@ export class AnnouncementService {
       },
       isActive: true,
     });
+
+    try {
+      await pushService.sendAnnouncement(announcement);
+    } catch {}
 
     return announcement;
   }

@@ -74,6 +74,11 @@ const serverEnvSchema = z.object({
     .string()
     .url("NEXT_PUBLIC_APP_URL deve ser uma URL válida")
     .default("http://localhost:3000"),
+
+  // Web Push (optional)
+  VAPID_PUBLIC_KEY: z.string().optional(),
+  VAPID_PRIVATE_KEY: z.string().optional(),
+  VAPID_SUBJECT: z.string().optional(),
 });
 
 // Schema mínimo para o cliente: apenas variáveis NEXT_PUBLIC
@@ -100,6 +105,9 @@ const clientEnvSchema = z.object({
     .string()
     .url("NEXT_PUBLIC_APP_URL deve ser uma URL válida")
     .default("http://localhost:3000"),
+
+  // Web Push (optional)
+  NEXT_PUBLIC_VAPID_PUBLIC_KEY: z.string().optional(),
 });
 
 /**
@@ -132,9 +140,9 @@ export function validateEnv(): EnvConfig {
     // Important: In the browser, Next.js replaces `process.env.NEXT_PUBLIC_*`
     // at build time, but `process.env` itself is not populated.
     // So we must construct the client env explicitly using direct references.
-    const envToValidate = isServer
-      ? process.env
-      : {
+  const envToValidate = isServer
+    ? process.env
+    : {
           NEXT_PUBLIC_FIREBASE_API_KEY:
             process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
           NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN:
@@ -147,6 +155,7 @@ export function validateEnv(): EnvConfig {
             process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
           NEXT_PUBLIC_FIREBASE_APP_ID: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
           NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+          NEXT_PUBLIC_VAPID_PUBLIC_KEY: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
         } as Record<string, string | undefined>;
 
     validatedEnv = schema.parse(envToValidate) as EnvConfig;

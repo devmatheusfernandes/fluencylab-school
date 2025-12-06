@@ -6,6 +6,7 @@ import { UserData } from "../UserCard/UserCard";
 import { SidebarItemType } from "./Sidebar";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useFirebaseNotifications } from "@/hooks/useFirebaseNotifications";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 interface SidebarWrapperProps {
   items: SidebarItemType[];
@@ -21,7 +22,31 @@ export default function SidebarWrapper({ items, user }: SidebarWrapperProps) {
     markAllAsRead,
     deleteNotification,
     clearAll,
+    refreshNotifications,
   } = useFirebaseNotifications();
+  const { isSupported, registration, subscription, permission, registerServiceWorker, subscribe } = usePushNotifications();
+
+  React.useEffect(() => {
+    registerServiceWorker();
+  }, [registerServiceWorker]);
+
+  React.useEffect(() => {
+    if (!subscription && isSupported) {
+      subscribe().catch(() => {});
+    }
+  }, [subscription, isSupported, subscribe]);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handler = (event: MessageEvent) => {
+      const data = event.data;
+      if (data && data.kind === 'announcement_push') {
+        refreshNotifications();
+      }
+    };
+    navigator.serviceWorker?.addEventListener('message', handler);
+    return () => navigator.serviceWorker?.removeEventListener('message', handler);
+  }, [refreshNotifications]);
 
   const userData = currentUser
     ? {
