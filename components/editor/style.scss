@@ -1,5 +1,6 @@
 /* Basic editor styles */
 .tiptap {
+  font-family: "Lato", sans-serif;
   :first-child {
     margin-top: 0;
   }
@@ -15,6 +16,7 @@
 
   p {
     word-break: break-all;
+
   }
 
   input[type="checkbox"] {
@@ -41,11 +43,11 @@
   }
 
   h1,
-  h2 {
-    line-height: 1.1;
+  h2,
+  h3 {
+    line-height: 1.6;
   }
 
-  h3,
   h4,
   h5,
   h6 {
@@ -73,33 +75,33 @@
     font-size: 3rem;
   }
 
-  code {
-    background-color: rgba(#616161, 0.1);
-    color: #a1a1a1;
-    margin-top: 5px;
-    margin-bottom: 5px;
-    padding: 2px;
-    border-radius: 3px;
-  }
+  // code {
+  //   background-color: rgba(#616161, 0.1);
+  //   color: #a1a1a1;
+  //   margin-top: 5px;
+  //   margin-bottom: 5px;
+  //   padding: 2px;
+  //   border-radius: 3px;
+  // }
 
-  pre {
-    background: #eca31a;
-    text-align: center;
-    color: #fff;
-    font-weight: 700;
-    padding: 0.75rem 1rem;
-    border-radius: 0.4rem;
-    margin-top: 8px;
-    margin-bottom: 8px;
+  // pre {
+  //   background: #eca31a;
+  //   text-align: center;
+  //   color: #fff;
+  //   font-weight: 700;
+  //   padding: 0.75rem 1rem;
+  //   border-radius: 0.4rem;
+  //   margin-top: 8px;
+  //   margin-bottom: 8px;
 
-    code {
-      color: inherit;
-      padding: 0;
-      background: none;
-      font-size: 1rem;
-      font-family: "Quicksand", sans-serif;
-    }
-  }
+  //   code {
+  //     color: inherit;
+  //     padding: 0;
+  //     background: none;
+  //     font-size: 1rem;
+  //     font-family: "Times New Roman", sans-serif;
+  //   }
+  // }
 
   img {
     max-width: 100%;
@@ -111,24 +113,6 @@
     &.ProseMirror-selectednode {
       outline: 3px solid #68cef8;
     }
-  }
-
-  blockquote {
-    // background: #eca31a;
-    text-align: start;
-    // color: #FFF;
-    font-size: 1.5rem;
-    font-weight: 900;
-    // padding: 1rem 3.5rem;
-    // border-radius: 4px;
-    margin-top: 10px;
-    // overflow: visible;
-    // position: relative;
-    // width: fit-content;
-    // text-decoration: underline;
-    border-left: 4px solid #eca31a;
-    margin: 1.5rem 0;
-    padding-left: 1rem;
   }
 
   hr {

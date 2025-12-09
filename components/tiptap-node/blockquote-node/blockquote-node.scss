@@ -12,9 +12,9 @@
 .tiptap.ProseMirror {
   blockquote {
     position: relative;
-    padding-left: 1em;
-    padding-top: 0.375em;
-    padding-bottom: 0.375em;
+    padding-left: .8em;
+    padding-top: 0.1em;
+    padding-bottom: 0.1em;
     margin: 1.5rem 0;
 
     p {
@@ -28,10 +28,10 @@
       left: 0;
       top: 0;
       height: 100%;
-      width: 0.25em;
-      background-color: var(--blockquote-bg-color);
+      width: 0.3em;
+      background-color: var(--primary, #eca31a);
       content: "";
-      border-radius: 0;
+      border-radius: 5px;
     }
   }
 }
