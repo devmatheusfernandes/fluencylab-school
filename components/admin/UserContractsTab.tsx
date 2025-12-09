@@ -10,6 +10,8 @@ import { UserRoles } from "@/types/users/userRoles";
 import { ContractLog, ContractStatus } from "@/types/contract";
 import { Spinner } from "../ui/spinner";
 import ContratoPDF from "../contract/ContratoPDF";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 interface UserContractsTabProps {
   user: User;
@@ -29,6 +31,8 @@ export default function UserContractsTab({
   const [canCancel, setCanCancel] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [showContract, setShowContract] = useState(false);
+  const [isCancelOpen, setIsCancelOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
 
   useEffect(() => {
     const fetchContractData = async () => {
@@ -150,45 +154,27 @@ export default function UserContractsTab({
   };
 
   // Handle contract cancellation
-  const handleCancelContract = async () => {
-    if (
-      !window.confirm(
-        "Tem certeza de que deseja cancelar este contrato? Esta ação não pode ser desfeita."
-      )
-    ) {
-      return;
-    }
-
-    const reason = window.prompt(
-      "Por favor, informe o motivo do cancelamento:"
-    );
-    if (!reason || reason.trim() === "") {
-      alert("O motivo do cancelamento é obrigatório.");
-      return;
-    }
-
+  const handleConfirmCancel = async () => {
+    if (!cancelReason.trim()) return;
     try {
       setIsCancelling(true);
+      const isAdminActor =
+        currentUserRole === UserRoles.ADMIN ||
+        currentUserRole === UserRoles.MANAGER;
       const response = await fetch(`/api/contract/cancel/${user.id}`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          reason: reason.trim(),
-          isAdminCancellation: true,
+          reason: cancelReason.trim(),
+          isAdminCancellation: isAdminActor,
         }),
       });
-
       const result = await response.json();
       if (result.success) {
-        alert("Contrato cancelado com sucesso!");
+        setIsCancelOpen(false);
         window.location.reload();
-      } else {
-        alert(`Erro ao cancelar contrato: ${result.message}`);
       }
     } catch (error) {
-      alert("Erro ao cancelar contrato. Tente novamente.");
     } finally {
       setIsCancelling(false);
     }
@@ -247,6 +233,9 @@ export default function UserContractsTab({
   }
 
   const { status, log } = contractData;
+
+  const roleAllowsCancel =
+    currentUserRole === UserRoles.ADMIN || currentUserRole === UserRoles.MANAGER;
 
   // Check if contract is near expiration (within 30 days)
   const isNearExpiration = status.expiresAt
@@ -331,9 +320,14 @@ export default function UserContractsTab({
           )}
 
           <Button
-            variant="destructive" 
-            onClick={handleCancelContract}
-            disabled={isCancelling}
+            variant="destructive"
+            onClick={() => {
+              setCancelReason("");
+              setIsCancelOpen(true);
+            }}
+            disabled={
+              isCancelling || !((roleAllowsCancel ? true : canCancel) && !status.cancelledAt)
+            }
           >
             {isCancelling ? "Cancelando..." : "Cancelar Contrato"}
           </Button>
@@ -357,6 +351,36 @@ export default function UserContractsTab({
             />
           </Card>
         )}
+
+        <Dialog open={isCancelOpen} onOpenChange={setIsCancelOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Cancelar contrato</DialogTitle>
+              <DialogDescription>Informe o motivo do cancelamento.</DialogDescription>
+            </DialogHeader>
+            <Input
+              placeholder="Motivo do cancelamento"
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+            />
+            <DialogFooter>
+              <Button
+                variant="secondary"
+                onClick={() => setIsCancelOpen(false)}
+                disabled={isCancelling}
+              >
+                Voltar
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleConfirmCancel}
+                disabled={isCancelling || !cancelReason.trim()}
+              >
+                Confirmar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
@@ -535,15 +559,20 @@ export default function UserContractsTab({
             {showContract ? "Ocultar Contrato" : "Visualizar Contrato"}
           </Button>
 
-          {showContract && (
-            <Button variant="secondary" onClick={handlePrintContract}>
-              Imprimir Contrato
-            </Button>
-          )}
+      {showContract && (
+        <Button variant="secondary" onClick={handlePrintContract}>
+          Imprimir Contrato
+        </Button>
+      )}
 
           <Button
-            onClick={handleCancelContract}
-            disabled={isCancelling}
+            onClick={() => {
+              setCancelReason("");
+              setIsCancelOpen(true);
+            }}
+            disabled={
+              isCancelling || !((roleAllowsCancel ? true : canCancel) && !status.cancelledAt)
+            }
           >
             {isCancelling ? "Cancelando..." : "Cancelar Contrato"}
           </Button>
@@ -571,6 +600,36 @@ export default function UserContractsTab({
           />
         </Card>
       )}
+      <Dialog open={isCancelOpen} onOpenChange={setIsCancelOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cancelar contrato</DialogTitle>
+            <DialogDescription>Informe o motivo do cancelamento.</DialogDescription>
+          </DialogHeader>
+          <Input
+            placeholder="Motivo do cancelamento"
+            value={cancelReason}
+            onChange={(e) => setCancelReason(e.target.value)}
+          />
+          <DialogFooter>
+            <Button
+              variant="secondary"
+              onClick={() => setIsCancelOpen(false)}
+              disabled={isCancelling}
+            >
+              Voltar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmCancel}
+              disabled={isCancelling || !cancelReason.trim()}
+            >
+              Confirmar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+        
