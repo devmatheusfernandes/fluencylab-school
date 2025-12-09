@@ -205,7 +205,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {showChildren && (
           <span
             className={twMerge(
-              "flex items-center justify-center relative z-10",
+              "flex items-center text-white justify-center relative z-10",
               (showLeftIcon || showRightIcon || isLoading) && "truncate"
             )}
           >

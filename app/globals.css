@@ -9,7 +9,11 @@
 }
 
 .container-base {
-  @apply bg-slate-400/30 dark:bg-slate-900;
+  @apply bg-slate-500/8 dark:bg-slate-900;
+}
+
+.header-base {
+  @apply bg-slate-500/8 dark:bg-slate-900;
 }
 
 .subcontainer-base {
@@ -25,13 +29,13 @@ CARDS SÃO COMPONENTES QUE FICAM DENTRO DE SUBCONTAINERS QUE PODEM FUNCIONAR COM
 .card-base {
   @apply duration-150 ease-in-out transition-all rounded-lg 
         border border-slate-200/50 dark:border-slate-700/50 
-        bg-slate-300/50 dark:bg-slate-950/40  
+        bg-slate-300/60 dark:bg-slate-950/40  
         hover:border-slate-300 dark:hover:border-slate-600;
 }
 
 .skeleton-base {
   @apply bg-linear-to-r from-slate-400/60 via-slate-400/30 to-slate-400/60
-         dark:from-slate-700 dark:via-slate-600/90 dark:to-slate-700
+         dark:from-slate-800 dark:via-slate-700/90 dark:to-slate-800
          bg-size-[200%_2%] animate-shimmer;
 }
 

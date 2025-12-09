@@ -3,7 +3,8 @@
 import * as React from "react";
 import { twMerge } from "tailwind-merge";
 import { useState } from "react";
-import { CheckCircle, Bell, MailWarning, ClosedCaption, X } from "lucide-react";
+import { CheckCircle, Bell, MailWarning, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 // --- Type Definitions ---
 export interface Notification {
@@ -49,10 +50,8 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   };
 
   const formatTime = (date: Date | string) => {
-    // Convert string to Date if needed
     const dateObj = typeof date === "string" ? new Date(date) : date;
 
-    // Validate that we have a valid date
     if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) {
       return "Invalid date";
     }
@@ -77,9 +76,13 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 
   if (isCollapsed) {
     return (
-      <div
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
         className={twMerge(
-          "flex items-center justify-center w-10 h-10 rounded-lg border transition-colors cursor-pointer",
+          "flex items-center justify-center w-10 h-10 rounded-lg border cursor-pointer",
           notification.read
             ? "bg-surface border-surface-2 hover:bg-surface-hover"
             : "bg-primary/10 border-primary/20 hover:bg-primary/15"
@@ -88,12 +91,16 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
         title={notification.title}
       >
         {getTypeIcon()}
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 20 }}
+      layout
       className={twMerge(
         "group relative p-3 rounded-lg border transition-colors",
         notification.read
@@ -102,20 +109,36 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
       )}
     >
       {/* Unread indicator */}
-      {!notification.read && (
-        <div className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full" />
-      )}
+      <AnimatePresence>
+        {!notification.read && (
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            exit={{ scale: 0 }}
+            className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full"
+          />
+        )}
+      </AnimatePresence>
 
       {/* Close button */}
-      <button
+      <motion.button
+        initial={{ opacity: 0 }}
+        whileHover={{ opacity: 1, scale: 1.1 }}
         onClick={() => onDelete(notification.id)}
         className="absolute top-2 right-6 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-surface-2 rounded"
       >
         <X className="w-3 h-3 text-paragraph" />
-      </button>
+      </motion.button>
 
       <div className="flex items-start gap-3">
-        <div className="mt-0.5">{getTypeIcon()}</div>
+        <motion.div
+          initial={{ scale: 0, rotate: -180 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: "spring", stiffness: 200 }}
+          className="mt-0.5"
+        >
+          {getTypeIcon()}
+        </motion.div>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
@@ -135,30 +158,41 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
           <p className="text-xs text-paragraph/80 leading-relaxed mb-2">
             {notification.message}
           </p>
-          {isOpen && (
-            <div className="flex items-center gap-2">
-              {!notification.read && (
-                <button
-                  onClick={() => onMarkAsRead(notification.id)}
-                  className="text-xs text-primary hover:text-primary-hover font-medium transition-colors"
-                >
-                  Marcar como lida
-                </button>
-              )}
+          <AnimatePresence>
+            {isOpen && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="flex items-center gap-2 overflow-hidden"
+              >
+                {!notification.read && (
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => onMarkAsRead(notification.id)}
+                    className="text-xs text-primary hover:text-primary-hover font-medium transition-colors"
+                  >
+                    Marcar como lida
+                  </motion.button>
+                )}
 
-              {notification.action && (
-                <button
-                  onClick={notification.action.onClick}
-                  className="text-xs text-primary hover:text-primary-hover font-medium transition-colors"
-                >
-                  {notification.action.label}
-                </button>
-              )}
-            </div>
-          )}
+                {notification.action && (
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={notification.action.onClick}
+                    className="text-xs text-primary hover:text-primary-hover font-medium transition-colors"
+                  >
+                    {notification.action.label}
+                  </motion.button>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -175,14 +209,24 @@ export const NotificationBadge: React.FC<NotificationBadgeProps> = ({
   if (count === 0) return null;
 
   return (
-    <div
+    <motion.div
+      initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
+      exit={{ scale: 0 }}
       className={twMerge(
         "absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-medium border-2 border-container",
         className
       )}
     >
-      {count > 99 ? "99+" : count}
-    </div>
+      <motion.span
+        key={count}
+        initial={{ scale: 1.5, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 300 }}
+      >
+        {count > 99 ? "99+" : count}
+      </motion.span>
+    </motion.div>
   );
 };
 
@@ -209,87 +253,149 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
   const unreadCount = notifications.filter((n) => !n.read).length;
   const hasNotifications = notifications.length > 0;
 
-  if (!isOpen) return null;
-
   return (
-    <>
-      {/* Backdrop */}
-      <div className="fixed inset-0 bg-black/50 z-50" onClick={onClose} />
-
-      {/* Modal */}
-      <div className="fixed bottom-0 left-0 right-0 bg-container rounded-t-2xl border-t border-surface-2 z-50 max-h-[80vh] flex flex-col">
-        {/* Handle */}
-        <div className="flex justify-center pt-3 pb-2">
-          <div className="w-12 h-1 bg-surface-2 rounded-full" />
-        </div>
-
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-surface-2">
-          <div className="flex items-center gap-2">
-            <Bell className="w-4 h-4 text-paragraph" />
-            <h3 className="text-lg font-semibold text-title">
-              Todas as Notificações
-            </h3>
-            {unreadCount > 0 && (
-              <NotificationBadge
-                count={unreadCount}
-                className="relative top-0 right-0"
-              />
-            )}
-          </div>
-
-          <button
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 z-50"
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-surface-hover transition-colors"
+          />
+
+          {/* Modal */}
+          <motion.div
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed bottom-0 left-0 right-0 bg-white dark:bg-black rounded-t-2xl border-t border-surface-2 z-50 max-h-[80vh] flex flex-col no-scrollbar"
           >
-            <X className="w-5 h-5 text-paragraph" />
-          </button>
-        </div>
+            {/* Handle */}
+            <div className="flex justify-center pt-3 pb-2">
+              <motion.div
+                animate={{ scaleX: [1, 1.2, 1] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+                className="w-12 h-1 bg-surface-2 rounded-full"
+              />
+            </div>
 
-        {/* Actions */}
-        {hasNotifications && (
-          <div className="flex items-center justify-end gap-1 px-4 py-2 border-b border-surface-2">
-            {unreadCount > 0 && (
-              <button
-                onClick={onMarkAllAsRead}
-                className="text-xs text-primary hover:text-primary-hover font-medium transition-colors"
-              >
-                Marcar todas
-              </button>
-            )}
-            <span className="text-paragraph/40 text-xs">|</span>
-            <button
-              onClick={onClearAll}
-              className="text-xs text-paragraph/60 hover:text-paragraph transition-colors"
-            >
-              Limpar
-            </button>
-          </div>
-        )}
-
-        {/* Notifications List */}
-        <div className="flex-1 overflow-y-auto p-4">
-          <div className="space-y-2">
-            {hasNotifications ? (
-              notifications.map((notification) => (
-                <NotificationItem
-                  key={notification.id}
-                  notification={notification}
-                  onMarkAsRead={onMarkAsRead}
-                  onDelete={onDelete}
-                  isOpen={isOpen}
-                />
-              ))
-            ) : (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <Bell className="w-8 h-8 text-paragraph/30 mb-2" />
-                <p className="text-sm text-paragraph/60">Nenhuma notificação</p>
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-surface-2">
+              <div className="flex items-center gap-2">
+                <motion.div
+                  animate={{ rotate: [0, -10, 10, -10, 0] }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Bell className="w-4 h-4 text-paragraph" />
+                </motion.div>
+                <h3 className="text-lg font-semibold text-title">
+                  Todas as Notificações
+                </h3>
+                {unreadCount > 0 && (
+                  <NotificationBadge
+                    count={unreadCount}
+                    className="relative top-0 right-0"
+                  />
+                )}
               </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </>
+
+              <motion.button
+                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={onClose}
+                className="p-2 rounded-lg hover:bg-surface-hover transition-colors"
+              >
+                <X className="w-5 h-5 text-paragraph" />
+              </motion.button>
+            </div>
+
+            {/* Actions */}
+            <AnimatePresence>
+              {hasNotifications && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="flex items-center justify-end gap-1 px-4 py-2 border-b border-surface-2 overflow-hidden"
+                >
+                  {unreadCount > 0 && (
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={onMarkAllAsRead}
+                      className="text-xs text-primary hover:text-primary-hover font-medium transition-colors"
+                    >
+                      Marcar todas
+                    </motion.button>
+                  )}
+                  <span className="text-paragraph/40 text-xs">|</span>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={onClearAll}
+                    className="text-xs text-paragraph/60 hover:text-paragraph transition-colors"
+                  >
+                    Limpar
+                  </motion.button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Notifications List */}
+            <div className="flex-1 overflow-y-auto p-4">
+              <motion.div
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: {
+                    opacity: 1,
+                    transition: {
+                      staggerChildren: 0.05,
+                    },
+                  },
+                }}
+                className="space-y-2"
+              >
+                <AnimatePresence mode="popLayout">
+                  {hasNotifications ? (
+                    notifications.map((notification) => (
+                      <NotificationItem
+                        key={notification.id}
+                        notification={notification}
+                        onMarkAsRead={onMarkAsRead}
+                        onDelete={onDelete}
+                        isOpen={isOpen}
+                      />
+                    ))
+                  ) : (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="flex flex-col items-center justify-center py-8 text-center"
+                    >
+                      <motion.div
+                        animate={{ y: [0, -10, 0] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      >
+                        <Bell className="w-8 h-8 text-paragraph/30 mb-2" />
+                      </motion.div>
+                      <p className="text-sm text-paragraph/60">
+                        Nenhuma notificação
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 };
 
@@ -325,13 +431,20 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
   if (isCollapsed) {
     return (
       <div className={twMerge("w-full flex justify-center", className)}>
-        <button
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
           onClick={() => setIsModalOpen(true)}
           className="relative p-2 rounded-lg hover:bg-primary/30 hover:text-primary transition-colors"
         >
-          <Bell className="w-5 h-5 text-paragraph" />
+          <motion.div
+            animate={unreadCount > 0 ? { rotate: [0, -10, 10, -10, 0] } : {}}
+            transition={{ duration: 0.5, repeat: unreadCount > 0 ? Infinity : 0, repeatDelay: 3 }}
+          >
+            <Bell className="w-5 h-5 text-paragraph" />
+          </motion.div>
           {unreadCount > 0 && <NotificationBadge count={unreadCount} />}
-        </button>
+        </motion.button>
 
         <NotificationModal
           isOpen={isModalOpen}
@@ -366,42 +479,64 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
           {hasNotifications && (
             <div className="flex items-center gap-1">
               {unreadCount > 0 && (
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={onMarkAllAsRead}
                   className="text-xs text-primary hover:text-primary-hover font-medium transition-colors"
                 >
                   Marcar todas
-                </button>
+                </motion.button>
               )}
               <span className="text-paragraph/40 text-xs">|</span>
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={onClearAll}
                 className="text-xs text-paragraph/60 hover:text-paragraph transition-colors"
               >
                 Limpar
-              </button>
+              </motion.button>
             </div>
           )}
         </div>
 
         {/* Notifications List */}
         <div className="space-y-2 max-h-64 overflow-y-auto">
-          {hasNotifications ? (
-            notifications.map((notification) => (
-              <NotificationItem
-                key={notification.id}
-                notification={notification}
-                onMarkAsRead={onMarkAsRead}
-                onDelete={onDelete}
-                isOpen={false}
-              />
-            ))
-          ) : (
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <Bell className="w-8 h-8 text-paragraph/30 mb-2" />
-              <p className="text-sm text-paragraph/60">Nenhuma notificação</p>
-            </div>
-          )}
+          <AnimatePresence mode="popLayout">
+            {hasNotifications ? (
+              notifications.map((notification, index) => (
+                <motion.div
+                  key={notification.id}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, x: 100 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <NotificationItem
+                    notification={notification}
+                    onMarkAsRead={onMarkAsRead}
+                    onDelete={onDelete}
+                    isOpen={false}
+                  />
+                </motion.div>
+              ))
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="flex flex-col items-center justify-center py-8 text-center"
+              >
+                <motion.div
+                  animate={{ y: [0, -10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <Bell className="w-8 h-8 text-paragraph/30 mb-2" />
+                </motion.div>
+                <p className="text-sm text-paragraph/60">Nenhuma notificação</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     );
@@ -429,53 +564,80 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
         {hasNotifications && isOpen && (
           <div className="flex items-center gap-1">
             {unreadCount > 0 && (
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={onMarkAllAsRead}
                 className="text-xs text-primary hover:text-primary-hover font-medium transition-colors"
               >
                 Marcar todas
-              </button>
+              </motion.button>
             )}
             <span className="text-paragraph/40 text-xs">|</span>
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={onClearAll}
               className="text-xs text-paragraph/60 hover:text-paragraph transition-colors"
             >
               Limpar
-            </button>
+            </motion.button>
           </div>
         )}
       </div>
 
       {/* Notifications List */}
       <div className="space-y-2">
-        {hasNotifications ? (
-          <>
-            {displayNotifications.map((notification) => (
-              <NotificationItem
-                key={notification.id}
-                notification={notification}
-                onMarkAsRead={onMarkAsRead}
-                onDelete={onDelete}
-                isOpen={false}
-              />
-            ))}
+        <AnimatePresence mode="popLayout">
+          {hasNotifications ? (
+            <>
+              {displayNotifications.map((notification, index) => (
+                <motion.div
+                  key={notification.id}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, x: 100 }}
+                  transition={{ delay: index * 0.05 }}
+                  layout
+                >
+                  <NotificationItem
+                    notification={notification}
+                    onMarkAsRead={onMarkAsRead}
+                    onDelete={onDelete}
+                    isOpen={false}
+                  />
+                </motion.div>
+              ))}
 
-            {hasMoreNotifications && (
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="w-full p-2 text-xs text-primary hover:text-primary-hover font-medium transition-colors border border-primary/20 rounded-lg hover:bg-primary/5"
+              {hasMoreNotifications && (
+                <motion.button
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setIsModalOpen(true)}
+                  className="w-full p-2 text-xs text-primary hover:text-primary-hover font-medium transition-colors border border-primary/20 rounded-lg hover:bg-primary/5"
+                >
+                  Ver todas ({notifications.length})
+                </motion.button>
+              )}
+            </>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex flex-col items-center justify-center py-8 text-center"
+            >
+              <motion.div
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
               >
-                Ver todas ({notifications.length})
-              </button>
-            )}
-          </>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <Bell className="w-8 h-8 text-paragraph/30 mb-2" />
-            <p className="text-sm text-paragraph/60">Nenhuma notificação</p>
-          </div>
-        )}
+                <Bell className="w-8 h-8 text-paragraph/30 mb-2" />
+              </motion.div>
+              <p className="text-sm text-paragraph/60">Nenhuma notificação</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Modal */}

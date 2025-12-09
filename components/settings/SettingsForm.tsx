@@ -149,7 +149,7 @@ export default function SettingsForm({
         </div>
       </Card>
 
-      <div className="border rounded-full border-t border-card/80 my-4" />
+      <div className="border rounded-full border-t border-border my-4" />
 
       <Card>
         <Text variant="subtitle" size="lg" weight="semibold">
@@ -285,11 +285,11 @@ export default function SettingsForm({
         </div>
       </Card>
 
-      <div className="border rounded-full border-t border-card/80 my-4" />
+      <div className="border rounded-full border-t border-border my-4" />
 
       <TwoFactorSetup />
 
-      <div className="border rounded-full border-t border-card/80 my-4" />
+      <div className="border rounded-full border-t border-border my-4" />
 
       <Card className="hidden">
         <Text

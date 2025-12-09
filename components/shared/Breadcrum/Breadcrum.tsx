@@ -30,7 +30,7 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>(
         ref={ref}
         aria-label="Breadcrumb"
         className={twMerge(
-          "flex items-center justify-between w-full text-sm bg-slate-400/30 dark:bg-slate-900 rounded-none sm:rounded-t-lg py-1 px-3",
+          "header-base flex items-center justify-between w-full text-sm rounded-none sm:rounded-t-lg py-1 px-3",
           className,
           useIsMobile() && "bg-slate-300 dark:bg-slate-950"
         )}
