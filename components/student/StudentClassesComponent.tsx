@@ -246,6 +246,7 @@ export default function StudentClassesComponent({
           onClose={() => {
             setIsRescheduleModalOpen(false);
             setClassToReschedule(null);
+            fetchTeacherCancellationCredits();
           }}
           classToReschedule={classToReschedule}
         />
