@@ -203,7 +203,8 @@
   }
 
   /* Give a remote user a caret */
-  .collaboration-carets__caret {
+  .collaboration-carets__caret,
+  .collaboration-cursor__caret {
     border-left: 1px solid #0d0d0d;
     border-right: 1px solid #0d0d0d;
     margin-left: -1px;
@@ -211,10 +212,12 @@
     pointer-events: none;
     position: relative;
     word-break: normal;
+    animation: caretFadeOut 4s ease-in forwards;
   }
 
   /* Render the username above the caret */
-  .collaboration-carets__label {
+  .collaboration-carets__label,
+  .collaboration-cursor__label {
     border-radius: 3px 3px 3px 0;
     color: #0d0d0d;
     font-size: 12px;
@@ -227,6 +230,13 @@
     top: -1.4em;
     user-select: none;
     white-space: nowrap;
+    animation: caretFadeOut 4s ease-in forwards;
+  }
+
+  @keyframes caretFadeOut {
+    0% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
   }
 }
 

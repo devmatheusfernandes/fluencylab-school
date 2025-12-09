@@ -38,6 +38,8 @@ interface TiptapEditorProps {
   ydoc?: Y.Doc | null;
   provider?: any | null;
   docId?: string;
+  userName?: string;
+  userColor?: string;
 }
 
 const TiptapEditor: React.FC<TiptapEditorProps> = ({
@@ -49,6 +51,8 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   ydoc = null,
   provider = null,
   docId,
+  userName,
+  userColor,
 }) => {
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastSavedContentRef = useRef<string>(content);
@@ -153,8 +157,8 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
                   CollaborationCaret.configure({
                     provider,
                     user: {
-                      name: "Cyndi Lauper",
-                      color: "#f783ac",
+                      name: userName ?? "Usuário",
+                      color: userColor ?? "#38bdf8",
                     },
                   }),
                 ]
@@ -180,9 +184,9 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         // Útil para verificar se 'comment' está carregado
         // Remova se não precisar do log.
         // eslint-disable-next-line no-console
-        console.log("Tiptap extensions:", editor.extensionManager.extensions.map((e: any) => e.name));
+        // console.log("Tiptap extensions:", editor.extensionManager.extensions.map((e: any) => e.name));
         // eslint-disable-next-line no-console
-        console.log("Tiptap marks:", Object.keys((editor as any).schema?.marks || {}));
+        // console.log("Tiptap marks:", Object.keys((editor as any).schema?.marks || {}));
       } catch {}
       // Define o conteúdo inicial, inclusive em modo colaboração, apenas se o editor estiver vazio
       if (content && content !== "<p></p>" && editor.isEmpty) {

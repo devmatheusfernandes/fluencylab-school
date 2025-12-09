@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
+import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import * as Y from "yjs";
 import { FirestoreProvider } from "@gmcfall/yjs-firestore-provider";
@@ -37,6 +38,41 @@ interface Notebook {
 
 export default function NotebookViewer({ studentId, notebookId }: NotebookViewerProps) {
   const alunoId = studentId;
+  const { data: session } = useSession();
+  const rawName = (session?.user?.name || session?.user?.email || "Usuário") as string;
+  const first = rawName.split(" ")[0] || rawName;
+  const userName = first.charAt(0).toUpperCase() + first.slice(1).toLowerCase();
+  const seedSource = (session?.user?.id || rawName) as string;
+  const seed = Array.from(seedSource).reduce((a, c) => a + c.charCodeAt(0), 0);
+  const seededRandom = (s: number) => {
+    let x = s % 2147483647;
+    if (x <= 0) x += 2147483646;
+    return () => ((x = (x * 16807) % 2147483647) / 2147483647);
+  };
+  const toHex = (v: number) => {
+    const h = v.toString(16);
+    return h.length === 1 ? "0" + h : h;
+  };
+  const hslToHex = (h: number, s: number, l: number) => {
+    s /= 100;
+    l /= 100;
+    const k = (n: number) => (n + h / 30) % 12;
+    const a = s * Math.min(l, 1 - l);
+    const f = (n: number) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+    const r = Math.round(255 * f(0));
+    const g = Math.round(255 * f(8));
+    const b = Math.round(255 * f(4));
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+  };
+  const rand = seededRandom(seed);
+  const paletteSize = 16;
+  const palette = Array.from({ length: paletteSize }, () => {
+    const h = Math.floor(rand() * 360);
+    const s = 60 + Math.floor(rand() * 30);
+    const l = 45 + Math.floor(rand() * 20);
+    return hslToHex(h, s, l);
+  });
+  const userColor = palette[Math.floor(rand() * paletteSize)];
 
   const [notebook, setNotebook] = useState<Notebook | null>(null);
   const [loading, setLoading] = useState(true);
@@ -249,11 +285,13 @@ export default function NotebookViewer({ studentId, notebookId }: NotebookViewer
       <TiptapEditor
         content={content || notebook?.content || ""}
         onSave={handleContentChange}
-        placeholder="Comece a escrever..."
+        placeholder="Comece a escrever o conteúdo do caderno..."
         className="min-h-screen"
         ydoc={ydocRef.current}
         provider={provider}
         docId={`notebook_${String(alunoId)}_${String(notebookId)}`}
+        userName={userName}
+        userColor={userColor}
       />
     </motion.div>
   );
