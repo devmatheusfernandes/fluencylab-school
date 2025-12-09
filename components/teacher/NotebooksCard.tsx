@@ -67,8 +67,7 @@ export default function NotebooksCard({
   notebooks,
   onCreateNotebook,
   userRole,
-  onAddTask,
-  loading = false,
+  onAddTask
 }: NotebooksCardProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -171,7 +170,11 @@ export default function NotebooksCard({
                 className="flex flex-row items-start justify-between overflow-hidden p-4 card-base"
               >
                 <Link
-                  href={`/hub/teacher/my-students/${student?.id}/notebook/${notebook.id}`}
+                  href={
+                    userRole === "teacher"
+                      ? `/hub/teacher/my-students/${student?.id}/notebook/${notebook.id}`
+                      : `/hub/student/my-notebook/notebook/${notebook.id}`
+                  }
                   className="block flex-1"
                 >
                   <h3 className="font-bold text-lg text-title">
