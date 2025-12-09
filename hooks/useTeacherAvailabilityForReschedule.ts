@@ -83,10 +83,12 @@ export const useTeacherAvailabilityForReschedule = (
         });
 
         slots.forEach((slot: AvailabilitySlot) => {
-          // For makeup slots (converted classes), use the original startDate directly
+          // For makeup or non-repeating slots, combine startDate with startTime
           if (slot.type === 'makeup' || !slot.repeating) {
+            const [hour, minute] = slot.startTime.split(":").map(Number);
             const slotDate = new Date(slot.startDate);
-            
+            slotDate.setHours(hour, minute, 0, 0);
+
             // Validation: Within booking horizon?
             if (slotDate > minBookingDate && slotDate <= maxBookingDate) {
               // Validation: Is it an exception?
@@ -94,13 +96,13 @@ export const useTeacherAvailabilityForReschedule = (
                 (ex: AvailabilityException) =>
                   new Date(ex.date).toDateString() === slotDate.toDateString()
               );
-              
-              // Validation: Is there already a class scheduled?
+
+              // Validation: Is there already a class scheduled at this exact time?
               const isBooked = bookedClasses.some(
                 (booked: any) =>
                   new Date(booked.scheduledAt).getTime() === slotDate.getTime()
               );
-              
+
               if (!isException && !isBooked) {
                 concreteSlots.push({
                   date: slotDate,
@@ -109,7 +111,7 @@ export const useTeacherAvailabilityForReschedule = (
                 });
               }
             }
-            return; // Skip the repeating logic for makeup slots
+            return; // Skip the repeating logic when handled above
           }
           
           // For regular repeating slots, use the existing logic

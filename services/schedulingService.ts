@@ -24,6 +24,7 @@ import {
   vacationRepository,
   userAdminRepository,
 } from "@/repositories";
+import { announcementService } from "@/services/announcementService";
 
 const availabilityRepository = new AvailabilityRepository();
 const classRepository = new ClassRepository();
@@ -372,7 +373,6 @@ export class SchedulingService {
         );
       }
 
-      // --- ENVIAR NOTIFICAÇÕES POR E-MAIL ---
       try {
         const promises = [userAdminRepository.findUserById(studentId)];
 
@@ -435,6 +435,30 @@ export class SchedulingService {
           console.log(
             `E-mails de cancelamento enviados para estudante (${student.email}) e professor (${teacher.email})`
           );
+
+          const titleStudent = "Aula cancelada";
+          const messageStudent = `Sua aula ${className} em ${formatDate(classScheduledAt)} às ${formatTime(classScheduledAt)} foi cancelada.`;
+          await announcementService.createAnnouncement(
+            titleStudent,
+            messageStudent,
+            "warning",
+            student.id,
+            "specific",
+            undefined,
+            [student.id]
+          );
+
+          const titleTeacher = "Aula cancelada pelo aluno";
+          const messageTeacher = `O aluno ${student.name} cancelou ${className} em ${formatDate(classScheduledAt)} às ${formatTime(classScheduledAt)}.`;
+          await announcementService.createAnnouncement(
+            titleTeacher,
+            messageTeacher,
+            "warning",
+            student.id,
+            "specific",
+            undefined,
+            [teacher.id]
+          );
         }
       } catch (emailError) {
         console.error("Erro ao enviar e-mails de cancelamento:", emailError);
@@ -451,7 +475,6 @@ export class SchedulingService {
       // Se cancelou em cima da hora, não devolve o crédito e não libera o horário
       await classRef.update({ status: ClassStatus.CANCELED_STUDENT });
 
-      // --- ENVIAR NOTIFICAÇÕES POR E-MAIL (sem devolução de crédito) ---
       try {
         const promises = [userAdminRepository.findUserById(studentId)];
 
@@ -506,6 +529,30 @@ export class SchedulingService {
 
           console.log(
             `E-mails de cancelamento (sem crédito) enviados para estudante (${student.email}) e professor (${teacher.email})`
+          );
+
+          const titleStudent = "Aula cancelada";
+          const messageStudent = `Sua aula ${className} em ${formatDate(classScheduledAt)} às ${formatTime(classScheduledAt)} foi cancelada. Cancelamento fora do prazo não devolve crédito.`;
+          await announcementService.createAnnouncement(
+            titleStudent,
+            messageStudent,
+            "warning",
+            student.id,
+            "specific",
+            undefined,
+            [student.id]
+          );
+
+          const titleTeacher = "Aula cancelada pelo aluno";
+          const messageTeacher = `O aluno ${student.name} cancelou ${className} em ${formatDate(classScheduledAt)} às ${formatTime(classScheduledAt)}.`;
+          await announcementService.createAnnouncement(
+            titleTeacher,
+            messageTeacher,
+            "warning",
+            student.id,
+            "specific",
+            undefined,
+            [teacher.id]
           );
         }
       } catch (emailError) {
@@ -682,6 +729,34 @@ export class SchedulingService {
 
         console.log(
           `[cancelClassByTeacher] E-mails de cancelamento enviados para estudante (${student.email}) e professor (${teacher.email})`
+        );
+
+        const titleStudent = "Aula cancelada pelo professor";
+        const makeupMsg =
+          newStatus === ClassStatus.CANCELED_TEACHER_MAKEUP
+            ? " Você recebeu 1 crédito de reposição válido por 45 dias."
+            : "";
+        const messageStudent = `Sua aula ${className} em ${formatDate(teacherClassScheduledAt)} às ${formatTime(teacherClassScheduledAt)} foi cancelada pelo professor ${teacher.name}.${makeupMsg}`;
+        await announcementService.createAnnouncement(
+          titleStudent,
+          messageStudent,
+          "warning",
+          teacher.id,
+          "specific",
+          undefined,
+          [student.id]
+        );
+
+        const titleTeacher = "Você cancelou uma aula";
+        const messageTeacher = `Você cancelou ${className} com ${student.name} em ${formatDate(teacherClassScheduledAt)} às ${formatTime(teacherClassScheduledAt)}.`;
+        await announcementService.createAnnouncement(
+          titleTeacher,
+          messageTeacher,
+          "warning",
+          teacher.id,
+          "specific",
+          undefined,
+          [teacher.id]
         );
       } else {
         console.log(

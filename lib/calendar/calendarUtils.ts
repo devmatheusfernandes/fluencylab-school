@@ -110,7 +110,7 @@ export const mapTeacherEventsToCalendar = (
             // Priority 3: Available slot
             events.push({
               id: `slot-${slot.id}-${currentDate.getTime()}`,
-              title: "Vago",
+              title: slot.type === "makeup" ? "Reposição" : "Vago",
               date: new Date(currentDate),
               startTime: slot.startTime,
               endTime: slot.endTime,
@@ -181,26 +181,26 @@ export const mapTeacherEventsToCalendar = (
               },
             });
           } else {
-            // Priority 3: Available slot para reposição
+            // Priority 3: Available slot
             let slotColor: CalendarEvent["color"] = "success";
             switch (slot.type) {
               case "regular":
-                slotColor = "success"; // Green for regular slots
+                slotColor = "success";
                 break;
               case "makeup":
-                slotColor = "success"; // Light blue for makeup slots
+                slotColor = "success";
                 break;
             }
 
             events.push({
               id: `slot-${slot.id}`,
-              title: "Para Reposição",
+              title: slot.type === "makeup" ? "Reposição" : "Vago",
               date: slotDate,
               startTime: slot.startTime,
               endTime: slot.endTime,
               color: slotColor,
               slotId: slot.id,
-              classType: slot.type,
+              availabilityType: slot.type,
             });
           }
         }
