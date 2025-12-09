@@ -36,9 +36,9 @@ import { Text } from "@/components/ui/text";
 import AddUserModal from "./AddUserModal";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useRouter } from "next/navigation";
-import { SubContainer } from "../ui/sub-container";
 import { Spinner } from "../ui/spinner";
-import { DotSquareIcon } from "lucide-react";
+import { EllipsisVertical, UserPlus } from "lucide-react";
+import { Card } from "../ui/card";
 
 export default function UserManagementTable() {
   const {
@@ -96,24 +96,14 @@ export default function UserManagementTable() {
     // Formata o nome para ser seguro para a URL (minúsculas, sem espaços)
     const sanitizedName = userName.toLowerCase().replace(/\s+/g, "-");
     const encodedName = encodeURIComponent(sanitizedName);
-    router.push(`/hub/plataforma/users/${encodedName}?id=${userId}`);
+    router.push(`/hub/admin/users/${encodedName}?id=${userId}`);
   };
 
   return (
-    <SubContainer>
-      {/* <Header
-        heading={"Gerenciamento de Usuários"}
-        icon={
-          <UserPlus
-            weight="BoldDuotone"
-            className="w-8 h-8 text-primary hover:text-primary-hover duration-300 ease-in-out transition-all cursor-pointer"
-            onClick={() => setIsAddModalOpen(true)}
-          />
-        }
-      /> */}
-
-      <div className="flex flex-col md:flex-row gap-4 my-4">
-        <Select value={roleFilter} onValueChange={setRoleFilter}>
+    <>
+      <div className="flex flex-col justify-between md:flex-row gap-4 my-4">
+        <div className="flex flex-row gap-2">
+          <Select value={roleFilter} onValueChange={setRoleFilter}>
           <SelectTrigger className="w-full md:w-[200px]">
             <SelectValue placeholder="Filtrar por Papel" />
           </SelectTrigger>
@@ -137,19 +127,24 @@ export default function UserManagementTable() {
             <SelectItem value="inactive">Inativos</SelectItem>
           </SelectContent>
         </Select>
+        </div>
+
+        <UserPlus
+            className="w-6 h-6 text-primary hover:text-primary-hover duration-300 ease-in-out transition-all cursor-pointer"
+            onClick={() => setIsAddModalOpen(true)}
+          />
       </div>
 
       {isLoadingUsers && <Spinner />}
 
       {!isLoadingUsers && users.length > 0 && (
-        <div className="rounded-lg border-1 border-card/95 bg-card/75 p-4 overflow-hidden">
+        <Card>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="text-subtitle">Usuário</TableHead>
                 <TableHead className="text-subtitle">Tipo</TableHead>
-                <TableHead className="text-subtitle">Status</TableHead>
-                <TableHead className="text-right text-paragraph">
+                <TableHead className="text-right">
                   Ações
                 </TableHead>
               </TableRow>
@@ -159,7 +154,7 @@ export default function UserManagementTable() {
                 <TableRow
                   key={user.id}
                   onClick={() => handleRowClick(user.id, user.name)}
-                  className="cursor-pointer hover:bg-card/95"
+                  className="cursor-pointer hover:text-primary"
                 >
                   <TableCell>
                     <div className="flex items-center">
@@ -168,25 +163,18 @@ export default function UserManagementTable() {
                         <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div className="ml-4">
-                        <Text variant="paragraph" weight="medium">
+                        <p className="capitalize font-bold text-lg">
                           {user.name}
-                        </Text>
-                        <Text size="sm" variant="placeholder">
+                        </p>
+                        <p className="text-sm opacity-70">
                           {user.email}
-                        </Text>
+                        </p>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
                     <Badge variant="secondary" >
-                      {user.role}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge 
-                      // variant={user.isActive ? "success" : "danger"}
-                    >
-                      {user.isActive ? "Ativo" : "Inativo"}
+                      <span className="capitalize">{user.role}</span>
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
@@ -194,7 +182,7 @@ export default function UserManagementTable() {
                       <DropdownMenuTrigger asChild>
                         <Button variant="glass" className="h-8 w-8 p-0">
                           <span className="sr-only">Abrir menu</span>
-                          <DotSquareIcon className="h-4 w-4" />
+                          <EllipsisVertical className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
@@ -212,7 +200,7 @@ export default function UserManagementTable() {
                         >
                           Editar Perfil
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-danger hover:bg-danger/20 hover:text-danger">
+                        <DropdownMenuItem className="text-destructive hover:bg-destructive/20! hover:text-destructive!">
                           Deletar
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -222,7 +210,7 @@ export default function UserManagementTable() {
               ))}
             </TableBody>
           </Table>
-        </div>
+        </Card>
       )}
 
       <AddUserModal
@@ -231,6 +219,6 @@ export default function UserManagementTable() {
         onUserCreated={handleUserCreated}
         isLoading={isLoadingUsers}
       />
-    </SubContainer>
+    </>
   );
 }

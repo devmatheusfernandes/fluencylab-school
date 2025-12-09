@@ -58,7 +58,7 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
         <div>
           <label
             htmlFor="name"
-            className="block text-sm font-medium text-subtitle"
+            className="block text-sm font-medium mb-1"
           >
             Nome Completo
           </label>
@@ -72,7 +72,7 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
         <div>
           <label
             htmlFor="email"
-            className="block text-sm font-medium text-subtitle"
+            className="block text-sm font-medium mb-1"
           >
             Email
           </label>
@@ -81,7 +81,7 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
         <div>
           <label
             htmlFor="role"
-            className="block text-sm font-medium text-subtitle"
+            className="block text-sm font-medium mb-1"
           >
             Tipo (Role)
           </label>
@@ -103,7 +103,7 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
           </Select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-subtitle">
+          <label className="block text-sm font-medium mb-1">
             Data de Criação
           </label>
           <Input
@@ -114,7 +114,7 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
         <div>
           <label
             htmlFor="contractStartDate"
-            className="block text-sm font-medium text-subtitle"
+            className="block text-sm font-medium mb-1"
           >
             Data de Início do Contrato
           </label>
@@ -129,7 +129,7 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
         <div>
           <label
             htmlFor="contractLength"
-            className="block text-sm font-medium text-subtitle"
+            className="block text-sm font-medium mb-1"
           >
             Duração do Contrato (Meses)
           </label>

@@ -1,24 +1,21 @@
 // app/hub/plataforma/users/[userName]/page.tsx
-
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { UserService } from "@/services/userService";
-import { userAdminRepository } from "@/repositories"; // Importa instância singleton
+import { userAdminRepository } from "@/repositories";
 import { redirect } from "next/navigation";
-import { Text } from "@/components/ui/text";
+import { NoResults } from "@/components/ui/no-results";
 import UserDetailsClient from "@/components/admin/UseDetailsClient";
 
 const userService = new UserService();
-const userAdminRepo = userAdminRepository; // Usa instância singleton
+const userAdminRepo = userAdminRepository;
 
-// As props da página agora incluem 'params' e 'searchParams'
 interface UserDetailsPageProps {
-  params: { userName: string }; // O nome vem do caminho da URL
-  searchParams: { id?: string }; // O ID vem dos parâmetros de busca (?id=...)
+  params: { userName: string };
+  searchParams: { id?: string }; 
 }
 
 export default async function UserDetailsPage({
-  params,
   searchParams,
 }: UserDetailsPageProps) {
   const session = await getServerSession(authOptions);
@@ -30,16 +27,14 @@ export default async function UserDetailsPage({
 
   if (!userId) {
     return (
-      <div>
-        <Text variant="title" size="xl">
-          ID do utilizador em falta
-        </Text>
-        <Text>Não foi possível encontrar o ID do utilizador na URL.</Text>
-      </div>
+      <NoResults
+        customMessage={{ withoutSearch: "ID de Usuário não encontrado" }}
+        className="py-10"
+      />
     );
   }
 
-  // Busca os detalhes do utilizador E a lista de todos os professores em paralelo
+  // Busca os detalhes do utilizador e a lista de todos os professores em paralelo
   const [userDetails, allTeachers] = await Promise.all([
     userService.getFullUserDetails(userId),
     userAdminRepo.findUsersByRole("teacher"),
@@ -49,16 +44,13 @@ export default async function UserDetailsPage({
 
   if (!userDetails) {
     return (
-      <div>
-        <Text variant="title" size="xl">
-          Utilizador não encontrado
-        </Text>
-        <Text>O utilizador com o ID especificado não foi encontrado.</Text>
-      </div>
+      <NoResults
+        customMessage={{ withoutSearch: "Usuário não encontrado" }}
+        className="py-10"
+      />
     );
   }
 
-  // Passa os dados completos, incluindo a lista de professores, para o componente de cliente
   return (
     <UserDetailsClient user={plainUserDetails} allTeachers={allTeachers} />
   );

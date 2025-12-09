@@ -28,6 +28,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Calendar, CardSimIcon, FileWarning, Gift, User, X } from "lucide-react";
+import { Spinner } from "../ui/spinner";
 
 interface UserCreditsTabProps {
   studentId: string;
@@ -149,13 +150,8 @@ export default function UserCreditsTab({ studentId }: UserCreditsTabProps) {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="text-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Carregando dados de créditos...
-          </p>
-        </div>
+      <div className="p-6 flex flex-col items-center justify-center">
+        <Spinner className="w-12 h-12" />
       </div>
     );
   }
@@ -242,10 +238,7 @@ export default function UserCreditsTab({ studentId }: UserCreditsTabProps) {
       {/* Grant Credits Form */}
       <Card>
         <CardHeader>
-          <CardTitle>Conceder Créditos</CardTitle>
-          <CardTitle>
-            Conceda créditos extras para este estudante regular
-          </CardTitle>
+          <CardTitle className="mb-3">Conceder Créditos</CardTitle>
         </CardHeader>
         <CardContent>
           {error && (
@@ -314,7 +307,7 @@ export default function UserCreditsTab({ studentId }: UserCreditsTabProps) {
               </div>
 
               <div className="space-y-2">
-                <span>Data de Expiração</span>
+                <span>Data e Horário de Expiração</span>
                 <Input
                   id="expiresAt"
                   type="datetime-local"

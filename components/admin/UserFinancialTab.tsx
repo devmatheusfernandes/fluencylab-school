@@ -10,9 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { User } from "@/types/users/users";
-import { Payment } from "@/types/financial/payments";
 import { MonthlyPayment } from "@/types/financial/subscription";
-import { StudentClass, ClassStatus } from "@/types/classes/class";
 import { Calendar, Clock, Coins } from "lucide-react";
 
 interface UserFinancialTabProps {
@@ -32,7 +30,7 @@ interface StudentFinancialData {
   payments: MonthlyPayment[];
 }
 
-const RATE_PER_CLASS = 25; // 25 reais per class
+const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
   const [loading, setLoading] = useState(false);
@@ -42,7 +40,6 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
 
   const fetchTeacherFinancials = useCallback(async () => {
     try {
-      // Fetch real data from the API
       const currentMonth = new Date().getMonth();
       const currentYear = new Date().getFullYear();
       const startOfMonth = new Date(currentYear, currentMonth, 1).toISOString();
@@ -55,48 +52,25 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
         59,
         999
       ).toISOString();
-
       const response = await fetch(
-        `/api/admin/teachers/${user.id}/classes?startDate=${startOfMonth}&endDate=${endOfMonth}`
+        `/api/admin/teachers/${user.id}/earnings?startDate=${startOfMonth}&endDate=${endOfMonth}`
       );
 
       if (!response.ok) {
-        throw new Error("Failed to fetch teacher classes");
+        throw new Error("Failed to fetch teacher earnings");
       }
 
-      const classes = await response.json();
+      const data = await response.json();
 
-      // Process the classes to calculate earnings per student
-      const statsMap = new Map<
-        string,
-        { studentName: string; completedClasses: number; earnings: number }
-      >();
-
-      classes.forEach((cls: any) => {
-        if (cls.status !== "completed" || !cls.completedAt) return;
-
-        const studentId = cls.studentId;
-        const existing = statsMap.get(studentId) || {
-          studentName: cls.studentName || `Aluno ${studentId}`,
-          completedClasses: 0,
-          earnings: 0,
-        };
-
-        existing.completedClasses++;
-        existing.earnings = existing.completedClasses * RATE_PER_CLASS;
-
-        statsMap.set(studentId, existing);
-      });
-
-      // Convert to array format
-      const stats: TeacherClassStats[] = Array.from(statsMap.entries()).map(
-        ([studentId, data]) => ({
-          studentId,
-          ...data,
-        })
-      );
+      const stats: TeacherClassStats[] = (data.stats || []).map((s: any) => ({
+        studentId: s.studentId,
+        studentName: s.studentName,
+        completedClasses: s.completedClasses,
+        earnings: (s.earningsCents || 0) / 100,
+      }));
 
       setTeacherStats(stats);
+      setRatePerClass((data.ratePerClassCents || 0) / 100);
     } catch (error) {
       console.error("Error fetching teacher earnings:", error);
       setTeacherStats([]);
@@ -160,6 +134,7 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
     fetchFinancialData();
   }, [fetchFinancialData]);
 
+  const [ratePerClass, setRatePerClass] = useState<number>(0);
   const renderTeacherView = () => {
     const currentMonth = new Date().toLocaleDateString("pt-BR", {
       month: "long",
@@ -215,7 +190,7 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
                   <p className="text-sm font-medium text-muted-foreground">
                     Valor por Aula
                   </p>
-                  <p className="text-2xl font-bold">R$ 25,00</p>
+                  <p className="text-2xl font-bold">{currency.format(ratePerClass)}</p>
                 </div>
                 <Clock className="h-8 w-8 text-muted-foreground" />
               </div>
@@ -255,13 +230,13 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
                         {student.studentName}
                       </TableCell>
                       <TableCell>{student.completedClasses}</TableCell>
-                      <TableCell>R$ {student.earnings.toFixed(2)}</TableCell>
+                      <TableCell>{currency.format(student.earnings)}</TableCell>
                     </TableRow>
                   ))}
                   <TableRow className="font-semibold bg-muted/50">
                     <TableCell>Total</TableCell>
                     <TableCell>{totalClasses}</TableCell>
-                    <TableCell>R$ {totalEarnings.toFixed(2)}</TableCell>
+                    <TableCell>{currency.format(totalEarnings)}</TableCell>
                   </TableRow>
                 </TableBody>
               </Table>
@@ -291,7 +266,7 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg mt-4">
               <div>
                 <p className="font-medium">
                   {studentFinancials?.paymentMethod === "pix"
@@ -307,11 +282,11 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
                 )}
               </div>
               <Badge
-                // variant={
-                //   studentFinancials?.subscriptionStatus === "active"
-                //     ? "success"
-                //     : "secondary"
-                // }
+                variant={
+                  studentFinancials?.subscriptionStatus === "active"
+                    ? "default"
+                    : "secondary"
+                }
               >
                 {studentFinancials?.subscriptionStatus === "active"
                   ? "Ativo"
@@ -367,9 +342,9 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
                       </TableCell>
                       <TableCell>
                         <Badge
-                          // variant={
-                          //   payment.status === "paid" ? "success" : "secondary"
-                          // }
+                          variant={
+                            payment.status === "paid" ? "success" : "secondary"
+                          }
                         >
                           {payment.status === "paid"
                             ? "Pago"

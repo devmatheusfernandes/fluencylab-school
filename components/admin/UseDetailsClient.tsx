@@ -29,40 +29,41 @@ export default function UserDetailsClient({
   const currentUserRole = session?.user?.role as UserRoles | undefined;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Avatar className="h-20 w-20">
-          <AvatarImage src={user.avatarUrl} />
-          <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-        </Avatar>
-        <div>
-          <Text variant="title" size="2xl" weight="bold">
-            {user.name}
-          </Text>
-          <Text variant="subtitle">{user.email}</Text>
-        </div>
-      </div>
-
+    <div className="p-3 px-6">
       <Tabs defaultValue="overview">
-        <TabsList>
-          <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+        <div className="flex flex-col items-center md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex items-center">
+            <Avatar size="md">
+              <AvatarImage src={user.avatarUrl} />
+              <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <div className="ml-2">
+              <p className="capitalize text-2xl font-bold">
+                {user.name}
+              </p>
+              <p className="text-sm text-gray-500">
+                {user.email}
+              </p>
+            </div>
+          </div>
 
-          <TabsTrigger value="schedule">Horário Fixo</TabsTrigger>
-
-          <TabsTrigger value="classes">Aulas</TabsTrigger>
-          {user.role === "student" && (
-            <TabsTrigger value="credits">Créditos</TabsTrigger>
-          )}
-          <TabsTrigger value="financial">Financeiro</TabsTrigger>
-          <TabsTrigger value="contracts">Contratos</TabsTrigger>
-          {currentUserRole === UserRoles.ADMIN && (
-            <TabsTrigger value="permissions">Permissões</TabsTrigger>
-          )}
-        </TabsList>
+          <TabsList className="mt-3 md:mt-0 flex-wrap h-full">
+            <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+            <TabsTrigger value="schedule">Horário Fixo</TabsTrigger>
+            <TabsTrigger value="classes">Aulas</TabsTrigger>
+            {user.role === "student" && (
+              <TabsTrigger value="credits">Créditos</TabsTrigger>
+            )}
+            <TabsTrigger value="financial">Financeiro</TabsTrigger>
+            <TabsTrigger value="contracts">Contratos</TabsTrigger>
+            {currentUserRole === UserRoles.ADMIN && (
+              <TabsTrigger value="permissions">Permissões</TabsTrigger>
+            )}
+          </TabsList>
+        </div>
 
         <TabsContent value="overview" className="mt-4">
           <UserOverviewTab user={user} />
-          {/* <TeacherAssociation student={user} allTeachers={allTeachers} /> */}
         </TabsContent>
         <TabsContent value="classes" className="mt-4">
           <UserClassesTab classes={user.scheduledClasses || []} />
