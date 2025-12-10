@@ -15,7 +15,7 @@ import CollaborationCaret from "@tiptap/extension-collaboration-caret";
 import * as Y from "yjs";
 import { ImageUploadNode } from "@/components/tiptap-node/image-upload-node";
 import { Image } from "@tiptap/extension-image";
-import { MAX_FILE_SIZE, handleImageUpload } from "@/lib/tiptap-utils";
+import { MAX_FILE_SIZE, handleImageUpload, extractImageSrcsFromHtml, deleteImageByUrl } from "@/lib/tiptap-utils";
 import Placeholder from "@tiptap/extension-placeholder";
 import Toolbar from "./toolbar/toolbar";
 import { TaskList, TaskItem } from "@tiptap/extension-list";
@@ -58,6 +58,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   const lastSavedContentRef = useRef<string>(content);
   const isSavingRef = useRef<boolean>(false);
   const isMobile = useIsMobile();
+  const imageUrlsRef = useRef<Set<string>>(new Set());
 
   const debouncedSave = useCallback(
     async (newContent: string) => {
@@ -131,7 +132,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
       ImageUploadNode.configure({
         accept: "image/*",
         maxSize: MAX_FILE_SIZE,
-        limit: 3,
+        limit: 30,
         upload: handleImageUpload,
         onError: (error: any) => console.error("Upload failed:", error),
       }),
@@ -176,6 +177,13 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
     },
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
+      const current = new Set(extractImageSrcsFromHtml(html));
+      for (const url of imageUrlsRef.current) {
+        if (!current.has(url)) {
+          deleteImageByUrl(url).catch(() => {});
+        }
+      }
+      imageUrlsRef.current = current;
       debouncedSave(html);
     },
     onCreate: ({ editor }) => {
@@ -192,6 +200,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
       if (content && content !== "<p></p>" && editor.isEmpty) {
         editor.commands.setContent(content);
         lastSavedContentRef.current = content;
+        imageUrlsRef.current = new Set(extractImageSrcsFromHtml(content));
       }
     },
   });
@@ -206,6 +215,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
     ) {
       editor.commands.setContent(content);
       lastSavedContentRef.current = content;
+      imageUrlsRef.current = new Set(extractImageSrcsFromHtml(content));
     }
   }, [content, editor, ydoc]);
 

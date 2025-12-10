@@ -7,6 +7,7 @@ import {
   TextSelection,
 } from "@tiptap/pm/state"
 import type { Editor, NodeWithPos } from "@tiptap/react"
+import { getSession } from "next-auth/react"
 
 export const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 
@@ -358,28 +359,75 @@ export const handleImageUpload = async (
   onProgress?: (event: { progress: number }) => void,
   abortSignal?: AbortSignal
 ): Promise<string> => {
-  // Validate file
   if (!file) {
     throw new Error("No file provided")
   }
-
   if (file.size > MAX_FILE_SIZE) {
     throw new Error(
       `File size exceeds maximum allowed (${MAX_FILE_SIZE / (1024 * 1024)}MB)`
     )
   }
 
-  // For demo/testing: Simulate upload progress. In production, replace the following code
-  // with your own upload implementation.
-  for (let progress = 0; progress <= 100; progress += 10) {
-    if (abortSignal?.aborted) {
-      throw new Error("Upload cancelled")
-    }
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    onProgress?.({ progress })
+  const session = await getSession()
+  const userId = session?.user?.id
+  if (!userId) {
+    throw new Error("Usuário não autenticado")
   }
 
-  return "/images/tiptap-ui-placeholder-image.jpg"
+  const xhr = new XMLHttpRequest()
+  const form = new FormData()
+  const safeName = file.name.replace(/\s+/g, "_")
+  form.append("file", new File([file], safeName, { type: file.type }))
+  return await new Promise<string>((resolve, reject) => {
+    xhr.open("POST", "/api/editor/upload-image")
+    xhr.responseType = "json"
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) {
+        const progress = Math.round((e.loaded / e.total) * 100)
+        onProgress?.({ progress })
+      }
+    }
+    xhr.onerror = () => reject(new Error("Network error"))
+    xhr.onabort = () => reject(new Error("Upload cancelled"))
+    xhr.onload = () => {
+      const status = xhr.status
+      const data = xhr.response as any
+      if (status >= 200 && status < 300 && data?.url) {
+        resolve(data.url as string)
+      } else {
+        reject(new Error(data?.error || "Upload failed"))
+      }
+    }
+    if (abortSignal) {
+      abortSignal.addEventListener("abort", () => {
+        try {
+          xhr.abort()
+        } catch {}
+      })
+    }
+    xhr.send(form)
+  })
+}
+
+export const deleteImageByUrl = async (url: string): Promise<void> => {
+  if (!url) return
+  try {
+    await fetch("/api/editor/delete-image", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url }),
+    })
+  } catch {}
+}
+
+export const extractImageSrcsFromHtml = (html: string): string[] => {
+  const result: string[] = []
+  const regex = /<img[^>]*src=["']([^"'>]+)["'][^>]*>/gi
+  let match: RegExpExecArray | null
+  while ((match = regex.exec(html)) !== null) {
+    result.push(match[1])
+  }
+  return result
 }
 
 type ProtocolOptions = {
