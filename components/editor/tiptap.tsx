@@ -28,6 +28,9 @@ import { CommentsSheet } from "@/components/editor/extensions/Comments/CommentsS
 
 import "./style.scss";
 import BandVideoExtension from "./extensions/BandVideo/BandVideoExtension";
+import FloatStudentCallButton from "../stream/FloatStudentCallButton";
+import FloatTeacherCallButton from "../stream/FloatTeacherCallButton";
+import { useSession } from "next-auth/react";
 
 interface TiptapEditorProps {
   content: string;
@@ -40,6 +43,7 @@ interface TiptapEditorProps {
   docId?: string;
   userName?: string;
   userColor?: string;
+  studentID?: any;
 }
 
 const TiptapEditor: React.FC<TiptapEditorProps> = ({
@@ -53,12 +57,14 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   docId,
   userName,
   userColor,
+  studentID,
 }) => {
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastSavedContentRef = useRef<string>(content);
   const isSavingRef = useRef<boolean>(false);
   const isMobile = useIsMobile();
   const imageUrlsRef = useRef<Set<string>>(new Set());
+  const { data: session } = useSession();
 
   const debouncedSave = useCallback(
     async (newContent: string) => {
@@ -233,13 +239,19 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   }
 
   return (
-    <div className={`bg-white dark:bg-black ${className}`}>
+    <div className={`bg-slate-100 dark:bg-black ${className}`}>
       <div className="relative h-screen overflow-y-auto">
         {!isMobile && <Toolbar editor={editor} />}
         <EditorContent
           editor={editor}
           className="min-h-screen no-scrollbar"
-        />
+        /> {session?.user.role === "student" && (
+        <FloatStudentCallButton student={{ studentID }} />
+      )}
+
+      {session?.user.role === "teacher" && (
+        <FloatTeacherCallButton student={ studentID } />
+      )}
         <CommentsSheet editor={editor} docId={docId || "test-comments"} />
       </div>
       {isMobile && <BottomToolbar editor={editor} />}

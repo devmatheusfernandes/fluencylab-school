@@ -10,12 +10,20 @@ import { getSidebarItemsByRole } from "@/config/sidebarItems";
 import { Container } from "@/components/ui/container";
 import { useLocale, useMessages } from "next-intl";
 
+//StreamIO
+import { CallProvider, useCallContext } from "@/context/CallContext";
+import VideoHome from "@/components/stream/VideoHome";
+
 export default function HubLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const messages = useMessages();
   const locale = useLocale();
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const VideoCallOverlay = () => {
+    const { callData } = useCallContext();
+    return callData?.callId ? <VideoHome /> : null;
+  };
 
   useEffect(() => {
     // Obtem a sessão client-side (pois usePathname é client-only)
@@ -45,21 +53,26 @@ export default function HubLayout({ children }: { children: React.ReactNode }) {
 
   // Define o caminho base onde queremos esconder a sidebar e header
   const hideLayoutElements =
-    pathname?.startsWith(`/${locale}/hub/teacher/my-students/`) && pathname?.includes("/notebook/"); 
-    pathname?.startsWith(`/${locale}/hub/student/my-notebook/`) &&
-    pathname?.includes("/notebook/");
+    ((pathname?.startsWith(`/${locale}/hub/teacher/my-students/`) && pathname?.includes("/notebook/")) ||
+      (pathname?.startsWith(`/${locale}/hub/student/my-notebook/`) && pathname?.includes("/notebook/")));
 
   // Se estivermos na página do caderno, não renderiza sidebar nem header
   if (hideLayoutElements) {
     return (
-      <div className="flex flex-col min-h-screen bg-background">
-        <Container className="p-0! flex-1 flex flex-col">{children}</Container>
-      </div>
+      <CallProvider>
+        <div className="flex flex-col min-h-screen bg-background">
+          <Container className="p-0! flex-1 flex flex-col">
+            {children}
+            <VideoCallOverlay />
+          </Container>
+        </div>
+      </CallProvider>
     );
   }
 
   // Layout padrão
   return (
+    <CallProvider>
     <SidebarProvider>
       <div className="flex flex-row gap-2 min-w-screen min-h-screen h-full p-0 sm:p-2 sidebar-base transition-colors duration-300 max-w-screen max-h-screen overflow-y-hidden">
         <SidebarWrapper items={items} />
@@ -78,5 +91,6 @@ export default function HubLayout({ children }: { children: React.ReactNode }) {
         </div>
       </div>
     </SidebarProvider>
+    </CallProvider>
   );
 }

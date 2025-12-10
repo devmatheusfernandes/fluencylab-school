@@ -292,6 +292,7 @@ export default function NotebookViewer({ studentId, notebookId }: NotebookViewer
         docId={`notebook_${String(alunoId)}_${String(notebookId)}`}
         userName={userName}
         userColor={userColor}
+        studentID={studentId}
       />
     </motion.div>
   );

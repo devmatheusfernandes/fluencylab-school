@@ -29,7 +29,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
 
   const ActiveModal = openModalId ? MODAL_COMPONENTS[openModalId] : null;
   return (
-    <div className="sticky top-0 z-50 bg-white dark:bg-black border-b border-border">
+    <div className="sticky top-0 z-50 bg-slate-100 dark:bg-black border-b border-slate-200">
       <div className="p-2">
         <div className="flex items-center justify-between gap-4">
           {/* Esquerda */}
