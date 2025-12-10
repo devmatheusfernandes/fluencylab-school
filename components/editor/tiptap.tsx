@@ -223,12 +223,12 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   }
 
   return (
-    <div className={`overflow-hidden bg-white dark:bg-black ${className}`}>
-      {!isMobile && <Toolbar editor={editor} />}
-      <div className="relative">
+    <div className={`bg-white dark:bg-black ${className}`}>
+      <div className="relative h-screen overflow-y-auto">
+        {!isMobile && <Toolbar editor={editor} />}
         <EditorContent
           editor={editor}
-          className="min-h-[300px] max-h-[600px] overflow-y-auto"
+          className="min-h-screen no-scrollbar"
         />
         <CommentsSheet editor={editor} docId={docId || "test-comments"} />
       </div>

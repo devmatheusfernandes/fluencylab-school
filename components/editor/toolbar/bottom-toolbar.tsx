@@ -2,20 +2,10 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Editor } from "@tiptap/react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Divider,
-  HeadingSelector,
-  TextFormattingGroup,
-  AlignmentGroup,
-  ListGroup,
-  ColorPicker,
-  LinkDrawer,
-  HistoryGroup,
-} from "./components";
-import { ImageUploadButton } from "@/components/tiptap-ui/image-upload-button";
-import { ColorHighlightPopover } from "@/components/tiptap-ui/color-highlight-popover";
+import { TOOL_ITEMS, ToolItem } from "./toolsConfig";
+import ToolbarToolsSheet, { MODAL_COMPONENTS } from "./tools";
 import { BackButton } from "@/components/ui/back-button";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 
@@ -25,29 +15,13 @@ interface ToolbarProps {
 
 const BottomToolbar: React.FC<ToolbarProps> = ({ editor }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [openModalId, setOpenModalId] = useState<string | null>(null);
   const [visibleButtons, setVisibleButtons] = useState<string[]>([]);
   const [hiddenButtons, setHiddenButtons] = useState<string[]>([]);
   const toolbarRef = useRef<HTMLDivElement>(null);
 
-  // Define todos os botões/grupos disponíveis
-  const allButtons = [
-    { id: "heading", component: HeadingSelector, width: 140 },
-    { id: "divider1", component: Divider, width: 20 },
-    { id: "formatting", component: TextFormattingGroup, width: 120 },
-    { id: "divider2", component: Divider, width: 20 },
-    { id: "alignment", component: AlignmentGroup, width: 50 },
-    { id: "divider3", component: Divider, width: 20 },
-    { id: "list", component: ListGroup, width: 50 },
-    { id: "divider4", component: Divider, width: 20 },
-    { id: "color", component: ColorPicker, width: 50 },
-    { id: "colorHighlight", component: ColorHighlightPopover, width: 50 },
-    { id: "divider5", component: Divider, width: 20 },
-    { id: "link", component: LinkDrawer, width: 50 },
-    { id: "divider6", component: Divider, width: 20 },
-    { id: "history", component: HistoryGroup, width: 90 },
-    { id: "imageUpload", component: ImageUploadButton, width: 50 },
-    { id: "themeswitcher", component: ThemeSwitcher, width: 50 },
-  ];
+  // Configuração compartilhada de botões
+  const allButtons: ToolItem[] = TOOL_ITEMS;
 
   useEffect(() => {
     const calculateVisibleButtons = () => {
@@ -59,11 +33,12 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor }) => {
       const hidden: string[] = [];
 
       for (const button of allButtons) {
-        if (accumulatedWidth + button.width <= containerWidth) {
+        const w = button.width ?? 50;
+        if (accumulatedWidth + w <= containerWidth) {
           visible.push(button.id);
-          accumulatedWidth += button.width;
+          accumulatedWidth += w;
         } else {
-          if (!button.id.startsWith("divider")) {
+          if (!button.isDivider) {
             hidden.push(button.id);
           }
         }
@@ -86,8 +61,15 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor }) => {
     const button = allButtons.find((b) => b.id === buttonId);
     if (!button) return null;
 
-    const Component = button.component;
-    return <Component key={buttonId} editor={editor} />;
+    if (button.isDivider) {
+      const DividerComp = button.component as React.ComponentType<Record<string, unknown>>;
+      return <DividerComp key={buttonId} {...(button.props || {})} />;
+    }
+    const EditorComp = button.component as React.ComponentType<{ editor: Editor } & Record<string, unknown>>;
+    const extraProps = button.id === "toolsSheet"
+      ? { onOpenDialog: (toolId: string) => setOpenModalId(toolId), modalTools: Object.keys(MODAL_COMPONENTS), side: "bottom" as const }
+      : {};
+    return <EditorComp key={buttonId} editor={editor} {...(button.props || {})} {...extraProps} />;
   };
 
   return (
@@ -138,30 +120,52 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor }) => {
         className="bg-background border-t border-border shadow-lg"
       >
         <div className="p-2 flex items-center justify-between gap-2">
-          <BackButton />
+          {/* Esquerda */}
+          <div className="flex items-center gap-1 min-w-0">
+            <BackButton />
+          </div>
+
+          {/* Centro */}
           <div className="flex items-center gap-1 flex-1 justify-center overflow-x-auto">
             {visibleButtons.map((buttonId) => renderButton(buttonId))}
           </div>
 
-          {hiddenButtons.length > 0 && (
-            <motion.button
-              onClick={() => setIsExpanded(!isExpanded)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="p-2 rounded-lg transition-all duration-200 text-foreground hover:bg-accent hover:text-accent-foreground flex items-center gap-1 shrink-0"
-              title={isExpanded ? "Ocultar ferramentas" : "Mais ferramentas"}
-            >
-              <motion.div
-                animate={{ rotate: isExpanded ? 180 : 0 }}
-                transition={{ duration: 0.3 }}
+          {/* Direita */}
+          <div className="flex items-center gap-2 min-w-0">
+            <ThemeSwitcher />
+            <ToolbarToolsSheet
+              onOpenDialog={(toolId) => setOpenModalId(toolId)}
+              modalTools={Object.keys(MODAL_COMPONENTS)}
+              side="bottom"
+            />
+            {hiddenButtons.length > 0 && (
+              <motion.button
+                onClick={() => setIsExpanded(!isExpanded)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="p-2 rounded-lg transition-all duration-200 text-foreground hover:bg-accent hover:text-accent-foreground flex items-center gap-1 shrink-0"
+                title={isExpanded ? "Ocultar ferramentas" : "Mais ferramentas"}
               >
-                <ChevronUp size={18} />
-              </motion.div>
-              <span className="text-sm hidden sm:inline">Mais</span>
-            </motion.button>
-          )}
+                <motion.div
+                  animate={{ rotate: isExpanded ? 180 : 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <ChevronUp size={18} />
+                </motion.div>
+                <span className="text-sm hidden sm:inline">Mais</span>
+              </motion.button>
+            )}
+          </div>
         </div>
       </motion.div>
+      {openModalId && (
+        (() => {
+          const ActiveModal = MODAL_COMPONENTS[openModalId!];
+          return ActiveModal ? (
+            <ActiveModal isOpen={true} onClose={() => setOpenModalId(null)} editor={editor} />
+          ) : null;
+        })()
+      )}
     </div>
   );
 };
