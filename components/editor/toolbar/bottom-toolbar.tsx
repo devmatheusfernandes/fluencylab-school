@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Editor } from "@tiptap/react";
-import { ChevronUp } from "lucide-react";
+import { ChevronUp, Plus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TOOL_ITEMS, ToolItem } from "./toolsConfig";
 import ToolbarToolsSheet, { MODAL_COMPONENTS } from "./tools";
@@ -43,8 +43,25 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor }) => {
           }
         }
       }
+      const isDivider = (id: string) => {
+        const b = allButtons.find((x) => x.id === id);
+        return !!b?.isDivider;
+      };
+      const cleanedVisible: string[] = [];
+      for (let i = 0; i < visible.length; i++) {
+        const id = visible[i];
+        const prev = cleanedVisible[cleanedVisible.length - 1];
+        const next = visible[i + 1];
+        if (isDivider(id)) {
+          if (prev && !isDivider(prev) && next && !isDivider(next)) {
+            cleanedVisible.push(id);
+          }
+        } else {
+          cleanedVisible.push(id);
+        }
+      }
 
-      setVisibleButtons(visible);
+      setVisibleButtons(cleanedVisible);
       setHiddenButtons(hidden);
     };
 
@@ -106,6 +123,28 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor }) => {
                   {renderButton(buttonId)}
                 </motion.div>
               ))}
+              <motion.div
+                key="tools-sheet-expanded"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+              >
+                <ToolbarToolsSheet
+                  onOpenDialog={(toolId) => setOpenModalId(toolId)}
+                  modalTools={Object.keys(MODAL_COMPONENTS)}
+                  side="bottom"
+                />
+              </motion.div>
+              <motion.div
+                key="theme-switcher-expanded"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+              >
+                <ThemeSwitcher />
+              </motion.div>
             </motion.div>
           </motion.div>
         )}
@@ -132,12 +171,6 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor }) => {
 
           {/* Direita */}
           <div className="flex items-center gap-2 min-w-0">
-            <ThemeSwitcher />
-            <ToolbarToolsSheet
-              onOpenDialog={(toolId) => setOpenModalId(toolId)}
-              modalTools={Object.keys(MODAL_COMPONENTS)}
-              side="bottom"
-            />
             {hiddenButtons.length > 0 && (
               <motion.button
                 onClick={() => setIsExpanded(!isExpanded)}
@@ -152,7 +185,6 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor }) => {
                 >
                   <ChevronUp size={18} />
                 </motion.div>
-                <span className="text-sm hidden sm:inline">Mais</span>
               </motion.button>
             )}
           </div>

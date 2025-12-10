@@ -157,7 +157,6 @@ export type ToolbarToolsSheetProps = {
 export function ToolbarToolsSheet({
   onSelectTool,
   onOpenDialog,
-  triggerLabel = "Ferramentas",
   side = "right",
   className,
   modalTools = Object.keys(MODAL_COMPONENTS),
@@ -199,7 +198,7 @@ export function ToolbarToolsSheet({
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" className={className}>
+        <Button variant="outline" className="max-w-10">
           <WrenchIcon className="w-4 h-4" />
         </Button>
       </SheetTrigger>
