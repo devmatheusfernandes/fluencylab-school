@@ -1,0 +1,65 @@
+#background-body {
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+}
+
+#border-color {
+    border: 1.5px solid;
+    border-image: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab) 1;
+    border-radius: 6px; /* Apply border-radius here */
+    animation: gradient 15s ease infinite;
+}
+
+#text-gradient {
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); /* Gradient background */
+    -webkit-background-clip: text; /* Vendor prefix for WebKit-based browsers */
+    background-clip: text; /* Standard property */
+    color: transparent; /* Makes text transparent to show the background */
+    font-weight: bold;
+    animation: gradient 15s ease infinite; /* Apply the text gradient animation */
+    -webkit-animation: gradient 15s ease infinite; /* Vendor prefix for WebKit-based browsers */
+    -moz-animation: gradient 15s ease infinite; /* Vendor prefix for Firefox */
+    -o-animation: gradient 15s ease infinite; /* Vendor prefix for Opera */
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes sweepLines {
+    0% {
+      background-position: 0% 100%;
+    }
+    50% {
+      background-position: 0% 0%;
+    }
+    100% {
+      background-position: 0% 100%;
+    }
+  }
+  
+  .animated-textarea {
+    background: linear-gradient(
+        to bottom,
+        #0c2d40,
+        #176687 25%,
+        #21b5de 50%,
+        #8bd4e8 75%,
+        #c0e5f0 100%
+    );
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 100% 300%;
+    animation: sweepLines 5s linear infinite;
+  }
+  
