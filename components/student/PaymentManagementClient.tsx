@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Modal } from "@/components/ui/modal";
+import { Modal, ModalContent } from "@/components/ui/modal";
 import { Textarea } from "@/components/ui/textarea";
 import { formatPrice } from "@/config/pricing";
 import { PaymentStatus, MonthlyPayment } from "@/types/financial/subscription";
@@ -767,8 +767,14 @@ export function PaymentManagementClient() {
       )}
 
       {/* Cancel Subscription Modal */}
-      <Modal open={showCancelModal} onOpenChange={setShowCancelModal}>
-        <div className="p-6">
+      <Modal
+        open={showCancelModal}
+        onOpenChange={(open) => {
+          setShowCancelModal(open);
+          if (!open) setCancellationReason("");
+        }}
+      >
+        <ModalContent>
           <h2 className="text-lg font-semibold mb-4">Cancelar Assinatura</h2>
 
           <div className="space-y-4">
@@ -820,7 +826,7 @@ export function PaymentManagementClient() {
               </Button>
             </div>
           </div>
-        </div>
+        </ModalContent>
       </Modal>
     </div>
   );

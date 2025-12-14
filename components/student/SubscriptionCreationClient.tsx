@@ -84,7 +84,7 @@ export function SubscriptionCreationClient() {
 
         if (selectedMethod === "pix") {
           toast.success("Assinatura criada! Código PIX gerado.");
-          window.location.href = "/hub/plataforma/student/payments";
+          window.location.href = "/hub/student/my-payments";
         } else {
           // Credit card flow with better messaging
           if (result.checkoutUrl) {
@@ -95,7 +95,7 @@ export function SubscriptionCreationClient() {
             }, 1500);
           } else {
             toast.success("Assinatura criada com sucesso!");
-            window.location.href = "/hub/plataforma/student/payments";
+            window.location.href = "/hub/student/my-payments";
           }
         }
       } else {
@@ -202,7 +202,7 @@ export function SubscriptionCreationClient() {
 
           <Button
             onClick={() =>
-              (window.location.href = "/hub/plataforma/student/payments")
+              (window.location.href = "/hub/student/my-payments")
             }
             size="lg"
             className="w-full md:w-auto"
