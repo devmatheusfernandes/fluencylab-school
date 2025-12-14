@@ -75,7 +75,7 @@ export default async function TeacherSettingsPage() {
 
   return (
     <Tabs defaultValue="settings">
-      <div className="flex flex-row items-center justify-between w-full">
+      <div className="flex flex-row items-center justify-center w-full">
         <TabsList className="flex flex-wrap bg-slate-200 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-1 shadow-sm">
           <TabsTrigger
             value="settings"
@@ -84,7 +84,7 @@ export default async function TeacherSettingsPage() {
             <div className="flex items-center gap-2">
               <Settings className="w-4 h-4" />
               <span className="hidden sm:inline">Configurações</span>
-              <span className="sm:hidden">Config</span>
+              <span className="sm:hidden">Configurações</span>
             </div>
           </TabsTrigger>
           <TabsTrigger

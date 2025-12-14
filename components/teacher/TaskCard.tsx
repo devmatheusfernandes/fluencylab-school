@@ -271,8 +271,8 @@ export default function TasksCard({
           />
         </div>
 
-        <div className="flex flex-row sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pt-2">
-          <h2 className="text-xl font-bold text-title">Tarefas</h2>
+        <div className="flex flex-row sm:flex-row justify-between items-start sm:items-center gap-4 mb-2 pt-2">
+          <h2 className="text-xl font-bold title-base">Tarefas</h2>
           <div className="flex items-center gap-2">
             {/* Google Calendar Sync Button */}
             {onSyncWithGoogleCalendar && (
@@ -300,7 +300,7 @@ export default function TasksCard({
 
         {/* Update the task input section to include date picker for teachers */}
         {onAddTask && typeof onAddTask === "function" && (
-          <div className="flex flex-col sm:flex-row items-center gap-2 mb-4">
+          <div className="flex flex-row sm:flex-row items-center gap-2 mb-4">
             <div className="relative flex-1">
               <Input
                 type="text"
@@ -343,7 +343,7 @@ export default function TasksCard({
               typeof onDeleteAllTasks === "function" && (
                 <Trash
                   onClick={handleDeleteAllTasks}
-                  className="w-8 h-8 text-destructive hover:text-destructive-light duration-300 ease-in-out transition-all cursor-pointer"
+                  className="w-4 h-4 text-destructive hover:text-destructive-light duration-300 ease-in-out transition-all cursor-pointer"
                 />
               )}
           </div>

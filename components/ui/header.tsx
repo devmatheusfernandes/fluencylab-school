@@ -65,7 +65,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
         <div className="flex-1 min-w-0">
           <h1
             className={twMerge(
-              "font-bold text-title leading-tight tracking-tight",
+              "font-bold title-base leading-tight tracking-tight",
               headingSizeClasses[headingSize]
             )}
           >

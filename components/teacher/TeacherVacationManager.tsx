@@ -46,11 +46,11 @@ export default function TeacherVacationManager() {
   return (
     <div className="mt-4 mx-auto space-y-8">
       {/* Vacation Status Card */}
-      <Card className="bg-linear-to-br from-blue-100 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
+      <Card className="card-base border-blue-200 dark:border-blue-800">
         <div className="p-6">
           <div className="flex items-center gap-4 mb-6">
-            <div className="p-3 bg-blue-100 dark:bg-blue-900/40 rounded-xl">
-              <Calendar className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            <div className="p-3 bg-primary/10 rounded-lg">
+              <Calendar className="w-6 h-6 text-primary" />
             </div>
             <div>
               <Text className="font-bold text-blue-900 dark:text-blue-100">
@@ -62,14 +62,14 @@ export default function TeacherVacationManager() {
             </div>
           </div>
 
-          <div className="bg-white/30 dark:bg-slate-900/50 rounded-xl p-4 border border-blue-200 dark:border-blue-700">
+          <div className="card-base rounded-xl p-4 border border-blue-200 dark:border-blue-700">
             <div className="flex items-center justify-between">
               <Text
                 size="lg"
                 className="font-semibold text-slate-900 dark:text-slate-100"
               >
                 Você tem{" "}
-                <span className="text-blue-600 dark:text-blue-400 font-bold">
+                <span className="text-primary font-bold">
                   {remainingDays}
                 </span>{" "}
                 dias de férias restantes
@@ -83,8 +83,8 @@ export default function TeacherVacationManager() {
       {/* Vacation Request Form */}
       <Card>
         <div className="flex items-center gap-3 ml-6 mt-4">
-          <div className="p-2 bg-primary/10 dark:bg-slate-800 rounded-lg">
-            <Calendar className="w-6 h-6 text-slate-600 dark:text-slate-400" />
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <Calendar className="w-6 h-6 text-primary" />
           </div>
           <div>
             <Text
@@ -102,7 +102,7 @@ export default function TeacherVacationManager() {
         <div className="p-6 space-y-6">
           <div className="bg-slate-200/10 dark:bg-slate-800 rounded-xl p-4 border border-slate-300 dark:border-slate-700">
             <Text
-              variant="subtitle"
+              variant="paragraph"
               className="text-slate-700 dark:text-slate-300 leading-relaxed"
             >
               Selecione o período em que estará ausente. Todas as aulas
@@ -213,8 +213,8 @@ export default function TeacherVacationManager() {
       <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
         <div className="p-6">
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-white/10 dark:bg-slate-800 rounded-lg">
-              <Calendar className="w-6 h-6 text-slate-600 dark:text-slate-400" />
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Calendar className="w-6 h-6 text-primary" />
             </div>
             <div>
               <Text

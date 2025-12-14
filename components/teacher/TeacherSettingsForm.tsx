@@ -16,6 +16,7 @@ import {
   Settings,
   X,
 } from "lucide-react";
+import { ButtonGroup, ButtonGroupSeparator } from "../ui/button-group";
 
 interface SchedulingSettings {
   bookingLeadTimeHours: number;
@@ -236,24 +237,26 @@ export default function TeacherSettingsForm({
                 Restaurar Padrões
               </Button>
 
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col">
+                <ButtonGroup>
                 <Button type="button" disabled={!hasChanges}>
                   Cancelar
                 </Button>
-
-                <Button type="submit" disabled={isLoading || !hasChanges}>
-                  {isLoading ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      Salvando...
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <Settings className="w-4 h-4" />
-                      Salvar Configurações
-                    </div>
-                  )}
-                </Button>
+                <ButtonGroupSeparator />
+                  <Button type="submit" disabled={isLoading || !hasChanges}>
+                    {isLoading ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        Salvando...
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <Settings className="w-4 h-4" />
+                        Salvar Configurações
+                      </div>
+                    )}
+                  </Button>
+                </ButtonGroup>
               </div>
             </div>
 
@@ -281,7 +284,7 @@ export default function TeacherSettingsForm({
         <div className="p-6">
           <div className="flex items-start gap-4">
             <div className="p-2 bg-primary/10 rounded-lg">
-              <Settings className="w-5 h-5 text-primary dark:text-blue-400" />
+              <Settings className="w-5 h-5 text-primary" />
             </div>
             <div>
               <Text

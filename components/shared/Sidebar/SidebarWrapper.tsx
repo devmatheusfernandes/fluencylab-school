@@ -17,14 +17,13 @@ export default function SidebarWrapper({ items, user }: SidebarWrapperProps) {
   const { user: currentUser } = useCurrentUser();
   const {
     notifications,
-    isLoading: notificationsLoading,
     markAsRead,
     markAllAsRead,
     deleteNotification,
     clearAll,
     refreshNotifications,
   } = useFirebaseNotifications();
-  const { isSupported, registration, subscription, permission, registerServiceWorker, subscribe } = usePushNotifications();
+  const { isSupported, subscription, registerServiceWorker, subscribe } = usePushNotifications();
 
   React.useEffect(() => {
     registerServiceWorker();

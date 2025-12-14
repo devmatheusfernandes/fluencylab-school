@@ -214,7 +214,7 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({
               initial={{ opacity: 0, width: 0 }}
               animate={{ opacity: 1, width: "auto" }}
               exit={{ opacity: 0, width: 0 }}
-              className="text-sm font-medium text-primary-foreground whitespace-nowrap overflow-hidden"
+              className="text-sm font-medium text-foreground whitespace-nowrap overflow-hidden"
             >
               {item.label}
             </motion.span>

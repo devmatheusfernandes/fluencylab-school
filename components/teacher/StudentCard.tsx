@@ -93,7 +93,7 @@ export default function StudentCard({ student }: StudentCardProps) {
         </Avatar>
 
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-lg truncate text-foreground">
+          <h3 className="font-bold text-lg truncate text-primary">
             {firstName}
           </h3>
           <p className="text-muted-foreground text-sm truncate">

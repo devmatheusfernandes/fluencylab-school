@@ -177,10 +177,10 @@ export default function NotebooksCard({
                   }
                   className="block flex-1"
                 >
-                  <h3 className="font-bold text-lg text-title">
+                  <h3 className="subtitle-base">
                     {notebook.title}
                   </h3>
-                  <div className="text-xs text-paragraph opacity-70">
+                  <div className="paragraph-base opacity-70">
                     {notebook.createdAt &&
                       new Date(notebook.createdAt).toLocaleDateString("pt-BR")}
                   </div>
@@ -238,7 +238,7 @@ export default function NotebooksCard({
             </ModalHeader>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-title mb-1">
+                <label className="block text-sm font-medium title-base mb-1">
                   Título *
                 </label>
                 <ModalInput

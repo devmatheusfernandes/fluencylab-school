@@ -16,6 +16,18 @@
   @apply bg-slate-500/8 dark:bg-slate-900;
 }
 
+.title-base {
+  @apply text-xl font-bold text-primary;
+}
+
+.subtitle-base {
+  @apply text-lg font-semibold text-secondary-foreground;
+}
+
+.paragraph-base {
+  @apply text-xs font-medium text-secondary-foreground/80;
+}
+
 .subcontainer-base {
   @apply bg-slate-400/20 dark:bg-slate-800;
 }

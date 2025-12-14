@@ -50,7 +50,7 @@ export function ThemeSwitcher() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsOpen(false)}
-              className="fixed inset-0 z-80"
+              className="fixed inset-0 z-40"
             />
 
             {/* Menu */}

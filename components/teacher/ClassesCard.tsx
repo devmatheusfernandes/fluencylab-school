@@ -27,7 +27,7 @@ import { toast } from "sonner";
 import { Text } from "@/components/ui/text";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "../ui/skeleton";
-import { PaperclipIcon } from "lucide-react";
+import { FileUser } from "lucide-react";
 
 interface ClassesCardProps {
   classes: StudentClass[];
@@ -461,7 +461,7 @@ export default function ClassesCard({
 
       {/* Modern Header with Glass Effect */}
       <div className="border-b border-gray-200/50 dark:border-gray-700/50 py-2 mb-2">
-        <Card className="flex flex-row w-full">
+        <Card className="flex flex-row w-full gap-4">
           <div className="space-y-1">
             <Text size="sm" variant="subtitle">
               Mês
@@ -663,7 +663,7 @@ export default function ClassesCard({
                               : "Adicionar relatório"
                           }
                         >
-                          <PaperclipIcon
+                          <FileUser
                             height={24}
                             className="w-6 h-6"
                           />

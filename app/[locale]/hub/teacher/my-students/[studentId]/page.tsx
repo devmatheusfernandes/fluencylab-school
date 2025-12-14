@@ -120,7 +120,6 @@ const StudentPanelSkeleton = () => (
 );
 
 export default function StudentDetailsPanel() {
-  const { studentId } = useParams();
   const searchParams = useSearchParams();
   const id = searchParams.get("id") || "";
   const { data: session } = useSession();

@@ -78,24 +78,24 @@ export default function HubLayout({ children }: { children: React.ReactNode }) {
   // Layout padrão
   return (
     <CallProvider>
-    <SidebarProvider>
-      <div className="flex flex-row gap-2 min-w-screen min-h-screen h-full p-0 sm:p-2 sidebar-base transition-colors duration-300 max-w-screen max-h-screen overflow-y-hidden">
-        <SidebarWrapper items={items} />
+      <SidebarProvider>
+        <div className="flex flex-row gap-2 min-w-screen min-h-screen h-full p-0 sm:p-2 sidebar-base transition-colors duration-300 max-w-screen max-h-screen overflow-y-hidden">
+          <SidebarWrapper items={items} />
 
-        {/* Main content area */}
-        <div className="flex-1 flex flex-col gap-[1.5px] overflow-x-hidden pb-14 md:pb-0">
-          <div className="sticky top-0 z-20">
-            <HubHeader />
+          {/* Main content area */}
+          <div className="flex-1 flex flex-col gap-[1.5px] overflow-x-hidden pb-14 md:pb-0">
+            <div className="sticky top-0 z-20">
+              <HubHeader />
+            </div>
+            <div className="flex bg-white/20 dark:bg-slate-900 flex-1 flex-col sm:hidden p-1">
+              {children}
+            </div>
+            <Container className="flex-1 flex-col hidden sm:flex">
+              {children}
+            </Container>
           </div>
-          <div className="flex bg-white/20 dark:bg-slate-900 flex-1 flex-col sm:hidden p-1">
-            {children}
-          </div>
-          <Container className="flex-1 flex-col hidden sm:flex">
-            {children}
-          </Container>
         </div>
-      </div>
-    </SidebarProvider>
+      </SidebarProvider>
     </CallProvider>
   );
 }
