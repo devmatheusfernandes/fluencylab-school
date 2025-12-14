@@ -41,7 +41,20 @@ export interface SearchBarProps extends InputProps {
 }
 
 const SearchBar = React.forwardRef<HTMLInputElement, SearchBarProps>(
-  ({ className, containerClassName, ...props }, ref) => {
+  (
+    {
+      className,
+      containerClassName,
+      leftIcon,
+      rightIcon,
+      label,
+      helperText,
+      inputSize,
+      hasError,
+      ...rest
+    },
+    ref
+  ) => {
     return (
       <div
         className={twMerge(
@@ -56,7 +69,8 @@ const SearchBar = React.forwardRef<HTMLInputElement, SearchBarProps>(
           type="search"
           ref={ref}
           className={twMerge("pl-10", className)}
-          {...props}
+          hasError={hasError}
+          {...rest}
         />
       </div>
     );
