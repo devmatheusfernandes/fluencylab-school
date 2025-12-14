@@ -17,7 +17,6 @@ import {
 import { Input } from "@/components/ui/input";
 import TwoFactorSetup from "./TwoFactorSetup";
 import { GoogleCalendarDefaultTimes } from "@/types/users/users";
-import { Spinner } from "../ui/spinner";
 import { ThemeSwitcher } from "../ThemeSwitcher";
 import { 
   Palette, 
@@ -26,7 +25,6 @@ import {
   CheckCircle2, 
   AlertCircle,
   Clock,
-  Save
 } from "lucide-react";
 
 interface SettingsFormProps {
@@ -73,7 +71,7 @@ export default function SettingsForm({
   const [defaultTimes, setDefaultTimes] = useState<GoogleCalendarDefaultTimes>(
     googleCalendarDefaultTimes || {}
   );
-  const { updateSettings, isLoading } = useSettings();
+  const { updateSettings } = useSettings();
 
   const applyThemeColorClass = (color: typeof themeColor) => {
     const root = document.documentElement;
@@ -161,7 +159,13 @@ export default function SettingsForm({
                 <Globe className="h-4 w-4 text-muted-foreground" />
                 <label htmlFor="language" className="font-medium">Idioma</label>
               </div>
-              <Select value={language} onValueChange={setLanguage}>
+              <Select
+                value={language}
+                onValueChange={(v) => {
+                  setLanguage(v);
+                  updateSettings({ interfaceLanguage: v });
+                }}
+              >
                 <SelectTrigger className="w-full sm:w-[180px]">
                   <SelectValue />
                 </SelectTrigger>
@@ -187,6 +191,7 @@ export default function SettingsForm({
                   const c = v as typeof themeColor;
                   setThemeColor(c);
                   applyThemeColorClass(c);
+                  updateSettings({ themeColor: c });
                 }}
               >
                 <SelectTrigger className="w-full sm:w-[180px]">
@@ -212,24 +217,6 @@ export default function SettingsForm({
             >
               <label htmlFor="theme" className="font-medium">Tema</label>
               <ThemeSwitcher />
-            </motion.div>
-          </div>
-
-          <div className="flex justify-end pt-2">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button
-                onClick={() =>
-                  updateSettings({ interfaceLanguage: language, themeColor })
-                }
-                disabled={isLoading}
-                className="gap-2"
-              >
-                {isLoading ? <Spinner /> : <Save className="h-4 w-4" />}
-                {isLoading ? "Salvando..." : "Salvar Configurações"}
-              </Button>
             </motion.div>
           </div>
         </Card>

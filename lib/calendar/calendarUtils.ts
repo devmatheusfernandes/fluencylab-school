@@ -233,7 +233,7 @@ export const mapTeacherClassesToCalendar = (
 
     switch (cls.status) {
       case ClassStatus.SCHEDULED:
-        color = "danger";
+        color = "destructive";
         title = "Reservado";
         break;
       case ClassStatus.COMPLETED:

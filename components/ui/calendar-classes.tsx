@@ -64,7 +64,7 @@ const getEventColorClasses = (color: CalendarEvent["color"]) => {
     secondary: "bg-purple-100 text-purple-800 border-purple-200",
     success: "bg-emerald-100 text-emerald-800 border-emerald-200",
     warning: "bg-amber-100 text-amber-800 border-amber-200",
-    danger: "bg-rose-100 text-rose-800 border-rose-200",
+    destructive: "bg-rose-100 text-rose-800 border-rose-200",
     info: "bg-cyan-100 text-cyan-800 border-cyan-200",
   };
   return colorMap[color || "primary"];

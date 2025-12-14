@@ -114,7 +114,7 @@ export function StudentPaymentStatusCard({
         };
       case "overdue":
         return {
-          color: "danger" as const,
+          color: "destructive" as const,
           text: "Em atraso",
           icon: FileWarning,
           description: "Sua mensalidade está em atraso",

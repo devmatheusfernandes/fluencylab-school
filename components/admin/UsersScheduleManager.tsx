@@ -625,7 +625,7 @@ export default function UserScheduleManager({
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="text-danger"
+                            className="text-destructive"
                             onClick={() => handleRemoveEntry(entry.id)}
                           >
                             <Trash />

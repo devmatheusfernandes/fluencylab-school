@@ -26,7 +26,7 @@ export default function StatCard({ title, value, icon, trend }: StatCardProps) {
       </Text>
       {hasTrend && (
         <div
-          className={`flex items-center text-xs mt-1 ${isPositive ? "text-success" : "text-danger"}`}
+          className={`flex items-center text-xs mt-1 ${isPositive ? "text-success" : "text-destructive"}`}
         >
           {isPositive ? (
             <ArrowUp className="w-4 h-4" />

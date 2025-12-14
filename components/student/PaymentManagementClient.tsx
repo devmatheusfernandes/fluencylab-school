@@ -240,7 +240,7 @@ export function PaymentManagementClient() {
         };
       case "overdue":
         return {
-          color: "danger" as const,
+          color: "destructive" as const,
           text: "Em atraso",
           icon: Link,
         };
@@ -274,11 +274,11 @@ export function PaymentManagementClient() {
       case "available":
         return { color: "secondary" as const, text: "Disponível" };
       case "overdue":
-        return { color: "danger" as const, text: "Em atraso" };
+        return { color: "destructive" as const, text: "Em atraso" };
       case "canceled":
         return { color: "warning" as const, text: "Cancelado" };
       case "failed":
-        return { color: "danger" as const, text: "Falhou" };
+        return { color: "destructive" as const, text: "Falhou" };
       default:
         return { color: "secondary" as const, text: "Indefinido" };
     }

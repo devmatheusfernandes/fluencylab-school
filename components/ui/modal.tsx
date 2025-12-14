@@ -447,7 +447,7 @@ const ModalPrimaryButton = React.forwardRef<
     default:
       "bg-primary hover:bg-primary-hover dark:bg-primary dark:hover:bg-primary-hover",
     destructive:
-      "bg-danger hover:bg-danger-hover dark:bg-danger dark:hover:bg-danger-hover",
+      "bg-destructive hover:bg-destructive-hover dark:bg-destructive dark:hover:bg-destructive-hover",
     secondary:
       "bg-secondary hover:bg-secondary-hover dark:bg-secondary dark:hover:bg-secondary-hover",
   };

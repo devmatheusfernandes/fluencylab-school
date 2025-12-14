@@ -9,7 +9,7 @@ export interface CalendarEvent {
   date: Date;
   startTime?: string;
   endTime?: string;
-  color?: "primary" | "secondary" | "success" | "warning" | "danger" | "info";
+  color?: "primary" | "secondary" | "success" | "warning" | "destructive" | "info";
   isAllDay?: boolean;
   person?: string; // Person responsible for the event
   repeating?: {

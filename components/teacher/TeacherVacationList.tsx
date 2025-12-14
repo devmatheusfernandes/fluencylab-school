@@ -91,7 +91,7 @@ export default function TeacherVacationList({
             <Button
               variant="ghost"
               size="icon"
-              className="text-danger"
+              className="text-destructive"
               onClick={() => openDeleteModal(vac.id!)}
             >
               <Trash />

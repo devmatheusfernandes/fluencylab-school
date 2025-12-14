@@ -66,10 +66,10 @@ const ReviewComponent = ({ node }) => {
           /> */}
         </div>
 
-        {/* Use dangerouslySetInnerHTML to render the processed HTML content */}
+        {/* Use destructiveouslySetInnerHTML to render the processed HTML content */}
         <div
           className="text-md font-normal text-justify leading-relaxed"
-          dangerouslySetInnerHTML={{ __html: processedContent }}
+          destructiveouslySetInnerHTML={{ __html: processedContent }}
         />
 
         {/* NodeViewContent is typically used for editable content within the node.

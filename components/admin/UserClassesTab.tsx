@@ -285,7 +285,7 @@ export default function UserClassesTab({
       case ClassStatus.CANCELED_TEACHER_MAKEUP:
         return "warning";
       default:
-        return "danger";
+        return "destructive";
     }
   };
 

@@ -101,7 +101,7 @@ export function PaymentStatusWidget({ className }: PaymentStatusWidgetProps) {
         };
       case "overdue":
         return {
-          color: "danger" as const,
+          color: "destructive" as const,
           text: "Em atraso",
           icon: Link,
           description: "Sua mensalidade está em atraso",

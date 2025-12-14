@@ -41,7 +41,7 @@ const TextStudentComponent = ({ node }) => {
         <div className='w-full flex flex-row justify-between items-center'>
           <div
             className='p-4 sm:p-7 text-md text-start w-full max-w-[85%] font-semibold' // Adjusted padding and max-width
-            dangerouslySetInnerHTML={{ __html: processedText }}
+            destructiveouslySetInnerHTML={{ __html: processedText }}
           />
           {/* <Image src={StudentImage} alt="Student" className='w-[15%] h-auto' /> */}
         </div>

@@ -55,7 +55,7 @@ const TranslationComponent = ({ node, updateAttributes }) => {
         threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
       },
       {
-        category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+        category: HarmCategory.HARM_CATEGORY_destructiveOUS_CONTENT,
         threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
       },
     ];

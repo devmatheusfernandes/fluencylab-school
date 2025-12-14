@@ -20,6 +20,7 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>(
   ({ items, className, onToggleSidebar }, ref) => {
     const currentItem =
       items && items.length > 0 ? items[items.length - 1] : null;
+    const isMobile = useIsMobile();
 
     if (!currentItem) {
       return null;
@@ -32,22 +33,27 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>(
         className={twMerge(
           "header-base flex items-center justify-between w-full text-sm rounded-none sm:rounded-t-lg py-1 px-3",
           className,
-          useIsMobile() && "bg-slate-300 dark:bg-slate-950"
+          isMobile && "relative bg-slate-300 dark:bg-slate-950"
         )}
       >
-        {onToggleSidebar && !useIsMobile() && (
+        {onToggleSidebar && !isMobile && (
           <Sidebar
             className="text-primary hover:text-secondary duration-300 ease-in-out transition-all cursor-pointer w-6.5 h-6.5"
             onClick={onToggleSidebar}
           />
         )}
         <span
-          className="font-semibold text-md text-foreground"
+          className={twMerge(
+            "font-semibold text-md text-foreground",
+            isMobile && "absolute left-1/2 -translate-x-1/2"
+          )}
           aria-current="page"
         >
           {currentItem.label}
         </span>
-        <ThemeSwitcher />
+        <div className="ml-auto">
+          <ThemeSwitcher />
+        </div>
       </nav>
     );
   }

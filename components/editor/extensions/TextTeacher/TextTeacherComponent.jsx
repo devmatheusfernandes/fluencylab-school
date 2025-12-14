@@ -43,10 +43,10 @@ const TextTeacherComponent = ({ node }) => {
         <div className='w-full flex flex-row justify-between items-center'>
           {/* Ensure TeacherImage is imported and path is correct. Added error handling for Image. */}
           {/* <Image src={TeacherImage} alt="Teacher" className='w-[15%] h-auto' /> */}
-          {/* Use dangerouslySetInnerHTML to render the processed HTML text */}
+          {/* Use destructiveouslySetInnerHTML to render the processed HTML text */}
           <div
             className='p-4 sm:p-7 text-md text-start w-full max-w-[85%] font-semibold' // Adjusted padding and max-width
-            dangerouslySetInnerHTML={{ __html: processedText }}
+            destructiveouslySetInnerHTML={{ __html: processedText }}
           />
         </div>
         {/* NodeViewContent is for editable content within the node.

@@ -20,7 +20,7 @@ import { NoResults } from "@/components/ui/no-results";
 import { SubContainer } from "@/components/ui/sub-container";
 import { Notebook } from "@/types/notebooks/notebooks";
 import { generateNotebookPDF } from "@/utils/pdfGenerator";
-import { Luggage, PaperclipIcon, Plus } from "lucide-react";
+import { FileTextIcon, Luggage, PaperclipIcon, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 interface NotebooksCardProps {
@@ -188,9 +188,9 @@ export default function NotebooksCard({
                 {/* Action buttons - only show for teachers */}
 
                 <div className="flex items-center gap-2">
-                  <PaperclipIcon
+                  <FileTextIcon
                     height={24}
-                    className="w-5 h-5 hover:text-danger/70 duration-300 easy-in-out transition-all cursor-pointer"
+                    className="w-5 h-5 hover:text-destructive/70 duration-300 easy-in-out transition-all cursor-pointer"
                     onClick={(e: React.MouseEvent<SVGSVGElement>) => {
                       e.stopPropagation();
                       e.preventDefault();

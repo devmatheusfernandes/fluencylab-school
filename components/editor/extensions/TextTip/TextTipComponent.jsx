@@ -42,7 +42,7 @@ const TextTipComponent = ({ node }) => {
           {/* <Image src={TipImage} alt="Teacher" className='w-[13%] h-auto' /> */}
           <div
             className='p-4 sm:p-7 text-md text-start w-full max-w-[85%] font-semibold' // Adjusted padding and max-width
-            dangerouslySetInnerHTML={{ __html: processedText }}
+            destructiveouslySetInnerHTML={{ __html: processedText }}
           />
         </div>
         <NodeViewContent />

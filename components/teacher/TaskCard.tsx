@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/modal";
 import DatePicker from "@/components/ui/date-picker";
 import { Spinner } from "../ui/spinner";
-import { Plus, Trash } from "lucide-react";
+import { Plus, RefreshCcw, Trash } from "lucide-react";
 
 // Update the Task interface to include dueDate
 interface Task {
@@ -264,14 +264,14 @@ export default function TasksCard({
         {/* Progress bar at the top */}
         <div className="absolute top-0 left-0 right-0 h-3 bg-slate-700 dark:bg-slate-950 overflow-hidden rounded-t-xl">
           <motion.div
-            className="h-full bg-emerald-600"
+            className="h-full bg-primary"
             initial={{ width: 0 }}
             animate={{ width: `${completionPercentage}%` }}
             transition={{ duration: 0.5, ease: "easeOut" }}
           />
         </div>
 
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pt-2">
+        <div className="flex flex-row sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pt-2">
           <h2 className="text-xl font-bold text-title">Tarefas</h2>
           <div className="flex items-center gap-2">
             {/* Google Calendar Sync Button */}
@@ -281,12 +281,17 @@ export default function TasksCard({
                 whileTap={{ scale: 0.95 }}
                 onClick={onSyncWithGoogleCalendar}
                 disabled={isSyncingWithGoogleCalendar}
-                className="flex items-center gap-1 px-3 py-2 bg-primary text-primary-text rounded-lg text-sm font-medium disabled:opacity-50"
+                className="flex items-center gap-1 px-2 py-2 bg-primary text-primary-text rounded-md text-sm font-medium disabled:opacity-50 group"
               >
                 {isSyncingWithGoogleCalendar ? (
                   <Spinner />
                 ) : (
-                  "Sincronizar"
+                  <>
+                    <RefreshCcw className="w-3 h-3" />
+                    <span className="hidden group-hover:inline-block text-xs">
+                      Sincronizar com calendário
+                    </span>
+                  </>
                 )}
               </motion.button>
             )}
@@ -338,7 +343,7 @@ export default function TasksCard({
               typeof onDeleteAllTasks === "function" && (
                 <Trash
                   onClick={handleDeleteAllTasks}
-                  className="w-8 h-8 text-danger hover:text-danger-light duration-300 ease-in-out transition-all cursor-pointer"
+                  className="w-8 h-8 text-destructive hover:text-destructive-light duration-300 ease-in-out transition-all cursor-pointer"
                 />
               )}
           </div>
@@ -394,7 +399,7 @@ export default function TasksCard({
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => handleDeleteTask(task.id)}
-                      className="ml-2 cursor-pointer text-danger hover:text-danger-light"
+                      className="ml-2 cursor-pointer text-destructive hover:text-destructive-light"
                     >
                       <Trash
                         className="w-5 h-5"
@@ -435,7 +440,7 @@ export default function TasksCard({
               </ModalSecondaryButton>
               <ModalPrimaryButton
                 onClick={confirmDeleteAllTasks}
-                className="!bg-danger !hover:bg-danger-light"
+                className="!bg-destructive !hover:bg-destructive-light"
               >
                 Deletar todas
               </ModalPrimaryButton>
