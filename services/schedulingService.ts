@@ -416,7 +416,7 @@ export class SchedulingService {
             scheduledTime: formatTime(classScheduledAt),
             canceledBy: student.name,
             creditRefunded: false,
-            platformLink: `${platformLink}/hub/plataforma/student/my-class`,
+            platformLink: `${platformLink}/hub/student/my-class`,
           });
 
           // Enviar e-mail para o professor
@@ -428,7 +428,7 @@ export class SchedulingService {
             scheduledDate: formatDate(classScheduledAt),
             scheduledTime: formatTime(classScheduledAt),
             canceledBy: student.name,
-            platformLink: `${platformLink}/hub/plataforma/teacher/my-classes`,
+            platformLink: `${platformLink}/hub/teacher/my-classes`,
             classId: classId,
           });
 
@@ -510,7 +510,7 @@ export class SchedulingService {
             canceledBy: student.name,
             reason: "Cancelamento fora do prazo permitido",
             creditRefunded: false,
-            platformLink: `${platformLink}/hub/plataforma/student/my-class`,
+            platformLink: `${platformLink}/hub/student/my-class`,
           });
 
           // Enviar e-mail para o professor
@@ -523,7 +523,7 @@ export class SchedulingService {
             scheduledTime: formatTime(classScheduledAt),
             canceledBy: student.name,
             reason: "Cancelamento fora do prazo permitido",
-            platformLink: `${platformLink}/hub/plataforma/teacher/my-classes`,
+            platformLink: `${platformLink}/hub/teacher/my-classes`,
             classId: classId,
           });
 
@@ -708,7 +708,7 @@ export class SchedulingService {
           creditRefunded: true, // Professor cancellations always refund
           makeupCreditGranted:
             newStatus === ClassStatus.CANCELED_TEACHER_MAKEUP, // Add this parameter
-          platformLink: `${platformLink}/hub/plataforma/student/my-class`,
+          platformLink: `${platformLink}/hub/student/my-class`,
         });
 
         // Enviar e-mail para o professor (confirmação)
@@ -723,7 +723,7 @@ export class SchedulingService {
           reason: emailReason,
           makeupCreditGranted:
             newStatus === ClassStatus.CANCELED_TEACHER_MAKEUP, // Add this parameter
-          platformLink: `${platformLink}/hub/plataforma/teacher/my-classes`,
+          platformLink: `${platformLink}/hub/teacher/my-classes`,
           classId: classId,
         });
 
@@ -1410,7 +1410,7 @@ export class SchedulingService {
           newTime: formatTime(newScheduledAt),
           reason,
           rescheduleBy: getReschedulerName(),
-          platformLink: `${platformLink}/hub/plataforma/student/my-class`,
+          platformLink: `${platformLink}/hub/student/my-class`,
         });
 
         // Enviar e-mail para o professor
@@ -1425,7 +1425,7 @@ export class SchedulingService {
           newTime: formatTime(newScheduledAt),
           reason,
           rescheduleBy: getReschedulerName(),
-          platformLink: `${platformLink}/hub/plataforma/teacher/my-classes`,
+          platformLink: `${platformLink}/hub/teacher/my-classes`,
         });
 
         console.log(
@@ -1558,7 +1558,7 @@ export class SchedulingService {
             vacationStartDate: formatDate(startDate),
             vacationEndDate: formatDate(endDate),
             affectedClasses: affectedClassesForEmail,
-            platformLink: `${platformLink}/hub/plataforma/student/my-class`,
+            platformLink: `${platformLink}/hub/student/my-class`,
           });
 
           console.log(
@@ -1696,7 +1696,7 @@ export class SchedulingService {
             vacationStartDate: formatDate(vacationData.startDate),
             vacationEndDate: formatDate(vacationData.endDate),
             affectedClasses: affectedClassesForEmail,
-            platformLink: `${platformLink}/hub/plataforma/student/my-class`,
+            platformLink: `${platformLink}/hub/student/my-class`,
           });
 
           console.log(

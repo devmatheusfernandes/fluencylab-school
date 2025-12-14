@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useContract } from "@/hooks/useContract";
 import { Text } from "@/components/ui/text";
-import { Spinner } from "../ui/spinner";
+import { Skeleton } from "../ui/skeleton";
 
 interface StatusUIProps {
   condition: boolean;
@@ -68,7 +68,19 @@ const ProgressStatusCard: React.FC<ProgressStatusCardProps> = ({
 
   // Show loading state while data is being fetched
   if (isUserLoading || isContractLoading) {
-    return <Spinner />;
+    return (
+      <div>
+        <Skeleton className="skeleton-sub h-6 w-28 my-1" />
+        <div className="space-y-2">
+          {[...Array(2)].map((_, index) => (
+            <Skeleton
+              key={index}
+              className="skeleton-base h-12 w-full rounded-md"
+            />
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (
