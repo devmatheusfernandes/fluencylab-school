@@ -213,7 +213,7 @@ export function StudentPaymentStatusCard({
           variant="secondary"
           size="sm"
           onClick={() =>
-            (window.location.href = "/hub/plataforma/student/payments")
+            (window.location.href = "/hub/student/my-payments")
           }
           className="w-full flex items-center gap-2"
         >

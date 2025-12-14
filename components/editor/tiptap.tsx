@@ -31,6 +31,7 @@ import BandVideoExtension from "./extensions/BandVideo/BandVideoExtension";
 import FloatStudentCallButton from "../stream/FloatStudentCallButton";
 import FloatTeacherCallButton from "../stream/FloatTeacherCallButton";
 import { useSession } from "next-auth/react";
+import SentencesExtension from "./extensions/Sentences/SentencesExtension";
 
 interface TiptapEditorProps {
   content: string;
@@ -98,8 +99,13 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   const editor = useEditor({
     extensions: [
       CommentMark,
+
+      //Teaching Extensions
       QuestionsExtension,
       BandVideoExtension,
+      SentencesExtension,
+
+      //Default Extensions
       Placeholder.configure({
         placeholder: ({ node }) => {
           const headingPlaceholders: { [key: number]: string } = {
@@ -245,13 +251,16 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         <EditorContent
           editor={editor}
           className="min-h-screen no-scrollbar"
-        /> {session?.user.role === "student" && (
-        <FloatStudentCallButton student={{ studentID }} />
-      )}
+        /> 
+        
+        {session?.user.role === "student" && (
+          <FloatStudentCallButton student={{ studentID }} />
+        )}
 
-      {session?.user.role === "teacher" && (
-        <FloatTeacherCallButton student={ studentID } />
-      )}
+        {session?.user.role === "teacher" && (
+          <FloatTeacherCallButton student={ studentID } />
+        )}
+        
         <CommentsSheet editor={editor} docId={docId || "test-comments"} />
       </div>
       {isMobile && <BottomToolbar editor={editor} />}

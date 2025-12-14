@@ -12,36 +12,40 @@ export async function POST(request: NextRequest) {
     }
 
     const { subscriptionId, reason, immediate } = await request.json();
+    const reasonText = typeof reason === 'string' ? reason.trim() : '';
     
     // Validate required fields
-    if (!subscriptionId || !reason) {
+    if (!subscriptionId && !reasonText) {
       return NextResponse.json(
-        { error: 'Subscription ID and reason are required' },
+        { error: 'Subscription ID and reason are required', message: 'Subscription ID and reason are required' },
         { status: 400 }
       );
     }
 
     const subscriptionService = new SubscriptionService();
     
-    // Verify subscription belongs to user
-    const subscription = await subscriptionService.getSubscription(subscriptionId);
+    // Resolve subscription: use provided ID or fallback to active subscription
+    const subscription =
+      (subscriptionId && await subscriptionService.getSubscription(subscriptionId)) ||
+      (!subscriptionId && await subscriptionService.getActiveSubscription(session.user.id));
+
     if (!subscription || subscription.userId !== session.user.id) {
       return NextResponse.json(
-        { error: 'Subscription not found or unauthorized' },
+        { error: 'Subscription not found or unauthorized', message: 'Subscription not found or unauthorized' },
         { status: 404 }
       );
     }
 
     if (subscription.status === 'canceled') {
       return NextResponse.json(
-        { error: 'Subscription is already canceled' },
+        { error: 'Subscription is already canceled', message: 'Subscription is already canceled' },
         { status: 400 }
       );
     }
 
     const result = await subscriptionService.cancelSubscription({
       subscriptionId,
-      reason,
+      reason: reasonText || 'User requested cancellation',
       immediate: immediate === true
     });
 
@@ -51,13 +55,13 @@ export async function POST(request: NextRequest) {
     
     if (error instanceof Error) {
       return NextResponse.json(
-        { error: error.message },
+        { error: error.message, message: error.message },
         { status: 400 }
       );
     }
     
     return NextResponse.json(
-      { error: 'Failed to cancel subscription' },
+      { error: 'Failed to cancel subscription', message: 'Failed to cancel subscription' },
       { status: 500 }
     );
   }

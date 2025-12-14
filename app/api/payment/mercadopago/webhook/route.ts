@@ -2,8 +2,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { SubscriptionService } from '@/services/subscriptionService';
-import { MERCADO_PAGO_CONFIG } from '@/lib/mercadopago/config';
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text();

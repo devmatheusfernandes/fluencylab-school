@@ -93,13 +93,13 @@ const teacherItems: SidebarItemType[] = [
 
 const studentItems: SidebarItemType[] = [
   {
-    href: "/hub/student/meu-perfil",
+    href: "/[locale]/hub/student/my-profile",
     label: "Meu Perfil",
     labelKey: "myProfile",
     icon: <Home className="w-6 h-6" />,
   },
   {
-    href: "/hub/student/caderno",
+    href: "/[locale]/hub/student/my-notebook",
     label: "Caderno",
     labelKey: "notebook",
     icon: <BookOpen className="w-6 h-6" />,
@@ -111,7 +111,7 @@ const studentItems: SidebarItemType[] = [
     icon: <Gamepad2 className="w-6 h-6" />,
   },
   {
-    href: "/hub/student/my-class",
+    href: "/[locale]/hub/student/my-classes",
     label: "Calendário",
     labelKey: "calendar",
     icon: <Calendar className="w-6 h-6" />,
@@ -123,7 +123,7 @@ const studentItems: SidebarItemType[] = [
     icon: <Monitor className="w-6 h-6" />,
   },
   {
-    href: "/hub/settings",
+    href: "/[locale]/hub/student/settings",
     label: "Configurações",
     labelKey: "settings",
     icon: <Settings className="w-6 h-6" />,

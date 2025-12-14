@@ -29,12 +29,12 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
 
   const ActiveModal = openModalId ? MODAL_COMPONENTS[openModalId] : null;
   return (
-    <div className="sticky top-0 z-50 bg-slate-100 dark:bg-black border-b border-slate-200">
+    <div className="sticky top-0 z-50 bg-slate-100 dark:bg-black border-b border-secondary-foreground/10">
       <div className="p-2">
         <div className="flex items-center justify-between gap-4">
           {/* Esquerda */}
           <div className="flex items-center gap-1 min-w-0">
-            <BackButton />
+            <BackButton routerBack={true} />
           </div>
 
           {/* Centro: itens principais compartilhados */}

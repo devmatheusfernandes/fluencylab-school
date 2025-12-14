@@ -1,17 +1,24 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { UserRoles } from "@/types/users/userRoles";
-import HubHeader from "@/components/shared/Breadcrum/HubHeader";
-import { SidebarProvider } from "@/context/SidebarContext";
-import SidebarWrapper from "@/components/shared/Sidebar/SidebarWrapper";
+// React & Next.js
 import { useEffect, useState } from "react";
-import { getSidebarItemsByRole } from "@/config/sidebarItems";
-import { Container } from "@/components/ui/container";
+import { usePathname } from "next/navigation";
 import { useLocale, useMessages } from "next-intl";
 
-//StreamIO
+// Types & Config
+import { UserRoles } from "@/types/users/userRoles";
+import { getSidebarItemsByRole } from "@/config/sidebarItems";
+
+// Components
+import HubHeader from "@/components/shared/Breadcrum/HubHeader";
+import SidebarWrapper from "@/components/shared/Sidebar/SidebarWrapper";
+import { Container } from "@/components/ui/container";
+
+// Contexts
+import { SidebarProvider } from "@/context/SidebarContext";
 import { CallProvider, useCallContext } from "@/context/CallContext";
+
+// StreamIO
 import VideoHome from "@/components/stream/VideoHome";
 
 export default function HubLayout({ children }: { children: React.ReactNode }) {
@@ -26,7 +33,6 @@ export default function HubLayout({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    // Obtem a sessão client-side (pois usePathname é client-only)
     async function fetchSession() {
       const res = await fetch("/api/auth/session");
       const data = await res.json();
@@ -41,7 +47,6 @@ export default function HubLayout({ children }: { children: React.ReactNode }) {
   const userRole = session?.user?.role || UserRoles.STUDENT;
   const rawItems = getSidebarItemsByRole(userRole, locale);
 
-  // Translate labels using messages
   const tSidebarItems = (messages?.SidebarItems ?? {}) as Record<
     string,
     string
