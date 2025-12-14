@@ -2040,6 +2040,28 @@ export class SchedulingService {
     }
 
     await classRepository.update(classId, updateData);
+
+    if (
+      newStatus === ClassStatus.COMPLETED &&
+      classToUpdate.status !== ClassStatus.COMPLETED
+    ) {
+      const studentId = classToUpdate.studentId;
+      try {
+        await adminDb
+          .collection("users")
+          .doc(studentId)
+          .update({ completedClassesCount: FieldValue.increment(1) });
+      } catch (err) {
+        console.error("Failed to increment completedClassesCount:", err);
+      }
+      try {
+        const { achievementService } = await import("@/services/achievementService");
+        await achievementService.evaluateAndSyncStudentAchievements(studentId);
+      } catch (err) {
+        console.error("Failed to evaluate achievements after completion:", err);
+      }
+    }
+
     return { ...classToUpdate, ...updateData };
   }
 

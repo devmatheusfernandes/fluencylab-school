@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const achievements = await achievementService.getStudentAchievements(userId);
+    const achievements = await achievementService.evaluateAndSyncStudentAchievements(userId);
 
     return NextResponse.json(achievements);
   } catch (error: any) {

@@ -30,22 +30,22 @@ const statusTranslations: Record<string, string> = {
 // Mapeamento de status para cores dos badges
 const statusVariants: Record<
   string,
-  "primary" | "secondary" | "success" | "warning" | "danger" | "info"
+  "default" | "secondary" | "success" | "warning" | "destructive" | "info"
 > = {
-  scheduled: "primary",
+  scheduled: "default",
   completed: "success",
-  canceled: "danger",
+  canceled: "destructive",
   "no-show": "warning",
   no_show: "warning",
-  "canceled-teacher": "danger",
-  canceled_teacher: "danger",
-  "canceled-student": "danger",
-  canceled_student: "danger",
+  "canceled-teacher": "destructive",
+  canceled_teacher: "destructive",
+  "canceled-student": "destructive",
+  canceled_student: "destructive",
   "canceled-teacher-makeup": "warning",
   canceled_teacher_makeup: "warning",
-  "canceled-admin": "danger",
-  canceled_admin: "danger",
-  cancelled: "danger",
+  "canceled-admin": "destructive",
+  canceled_admin: "destructive",
+  cancelled: "destructive",
   rescheduled: "info",
 };
 
@@ -116,11 +116,10 @@ export default function StudentClassCard({
 
   const getStatusBadge = () => {
     const translatedStatus = statusTranslations[cls.status] || cls.status;
-    const statusVariant = statusVariants[cls.status] || "secondary";
+    const statusVariant = statusVariants[cls.status] || "default";
     return (
       <>
-        <Badge >{translatedStatus}</Badge>
-{/* variant={statusVariant} */}
+        <Badge variant={statusVariant}>{translatedStatus}</Badge>
         {cls.rescheduledFrom && (
           <Badge className="hidden capitalize">
             {cls.rescheduledFrom && "Reagendada"}

@@ -76,6 +76,7 @@ export type User = {
 
   // ACHIEVEMENTS
   achievements?: StudentAchievement[];
+  completedClassesCount?: number;
 
   // CAMPOS ADICIONADOS PARA CONTRATO E REAGENDAMENTO
   contractStartDate?: Date;

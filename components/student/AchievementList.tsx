@@ -9,7 +9,7 @@ import { Skeleton } from "../ui/skeleton";
 
 interface AchievementListProps {
   userId: string | undefined;
-  limit?: number; // New prop to control how many achievements to show
+  limit?: number; 
 }
 
 const AchievementList: React.FC<AchievementListProps> = ({ userId, limit }) => {
@@ -173,9 +173,8 @@ const AchievementList: React.FC<AchievementListProps> = ({ userId, limit }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              // Only make clickable if limit is applied (preview mode)
               {...(limit && {
-                onClick: () => router.push("/hub/plataforma/achievements"),
+                onClick: () => router.push("/hub/student/my-achievements"),
                 className: "cursor-pointer",
               })}
             >

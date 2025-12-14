@@ -11,9 +11,8 @@ export const achievementDefinitions: AchievementDefinition[] = [
     description: "Parabéns por concluir sua primeira aula.",
     icon: "🎓",
     languages: ["Ingles", "Espanhol", "Libras", "Portugues", "english", "spanish", "libras", "portuguese"],
-    criteria: (user) => {
-      // This would check if the user has completed their first class
-      return false;
+    criteria: (stats) => {
+      return (stats?.completedClassesCount ?? 0) >= 1;
     },
   },
   {
@@ -22,9 +21,8 @@ export const achievementDefinitions: AchievementDefinition[] = [
     description: "Você já concluiu 5 aulas. Continue assim!",
     icon: "🌟",
     languages: ["Ingles", "Espanhol", "Libras", "Portugues", "english", "spanish", "libras", "portuguese"],
-    criteria: (user) => {
-      // This would check if the user has completed 5 classes
-      return false;
+    criteria: (stats) => {
+      return (stats?.completedClassesCount ?? 0) >= 5;
     },
   },
   {
@@ -33,9 +31,8 @@ export const achievementDefinitions: AchievementDefinition[] = [
     description: "Incrível! 10 aulas concluídas.",
     icon: "🚀",
     languages: ["Ingles", "Espanhol", "Libras", "Portugues", "english", "spanish", "libras", "portuguese"],
-    criteria: (user) => {
-      // This would check if the user has completed 10 classes
-      return false;
+    criteria: (stats) => {
+      return (stats?.completedClassesCount ?? 0) >= 10;
     },
   },
   {
