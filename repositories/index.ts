@@ -8,9 +8,6 @@ import { ClassRepository } from './classRepository';
 import { ClassTemplateRepository } from './ClassTemplateRepository';
 import { AvailabilityRepository } from './availabilityRepository';
 import { PaymentRepository } from './paymentRepository';
-import { TransactionRepository } from './transactionRepository';
-import { ForecastRepository } from './forecastRepository';
-import { ReceiptStorageRepository } from './receiptStorageRepository';
 import { PlacementRepository } from './placementRepository';
 import { ContractRepository } from './contractRepository';
 import { VacationRepository } from './VacationRepository';
@@ -50,22 +47,6 @@ export const availabilityRepository = new AvailabilityRepository();
  * Repositório de pagamentos
  */
 export const paymentRepository = new PaymentRepository();
-
-/**
- * Repositório de transações financeiras
- */
-export const transactionRepository = new TransactionRepository();
-
-/**
- * Repositório de previsões de despesas
- */
-export const forecastRepository = new ForecastRepository();
-
-/**
- * Repositório de armazenamento de recibos
- */
-export const receiptStorageRepository = new ReceiptStorageRepository();
-
 
 /**
  * Repositório de testes de nivelamento
@@ -111,9 +92,6 @@ export type RepositoryInstances = {
   classTemplateRepository: ClassTemplateRepository;
   availabilityRepository: AvailabilityRepository;
   paymentRepository: PaymentRepository;
-  transactionRepository: TransactionRepository;
-  forecastRepository: ForecastRepository;
-  receiptStorageRepository: ReceiptStorageRepository;
   placementRepository: PlacementRepository;
   contractRepository: ContractRepository;
   vacationRepository: VacationRepository;
@@ -133,9 +111,6 @@ export function getAllRepositories(): RepositoryInstances {
     classTemplateRepository,
     availabilityRepository,
     paymentRepository,
-    transactionRepository,
-    forecastRepository,
-    receiptStorageRepository,
     placementRepository,
     contractRepository,
     vacationRepository,
