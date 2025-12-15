@@ -428,7 +428,7 @@ export default function UserClassesTab({
                       variant="primary"
                       size="sm"
                       onClick={() =>
-                        router.push(`/hub/plataforma/class/${cls.id}`)
+                        router.push(`/hub/admin/class/Aula?aula=${encodeURIComponent(cls.id)}`)
                       }
                     >
                       Ver Aula

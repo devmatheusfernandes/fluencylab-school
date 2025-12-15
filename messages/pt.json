@@ -96,5 +96,8 @@
     "teacher_vacation": "Férias do Professor",
     "overdue": "Atrasada",
     "rescheduledBadge": "Reagendada"
+  },
+  "AdminClassDetails": {
+    "statusLabel": "Status"
   }
 }

@@ -1,4 +1,5 @@
 // components/ui/NoResults.tsx
+"use client";
 import { motion } from "framer-motion";
 
 interface NoResultsProps {

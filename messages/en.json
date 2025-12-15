@@ -96,5 +96,8 @@
     "teacher_vacation": "Teacher Vacation",
     "overdue": "Overdue",
     "rescheduledBadge": "Rescheduled"
+  },
+  "AdminClassDetails": {
+    "statusLabel": "Status"
   }
 }
