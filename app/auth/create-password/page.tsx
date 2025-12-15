@@ -81,8 +81,9 @@ export default function CreatePasswordPage() {
   };
 
   const goToLogin = () => {
-    const lang = searchParams.get('lang') || 'pt-BR';
-    router.push(`/${lang}/(auth)/signin`);
+    const lang = searchParams.get('lang') || 'pt';
+    const locale = lang.split('-')[0];
+    router.push(`/${locale}/signin`);
   };
 
   return (

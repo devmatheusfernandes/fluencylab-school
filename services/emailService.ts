@@ -28,10 +28,11 @@ export class EmailService {
         try {
           const u = new URL(link);
           const oobCode = u.searchParams.get("oobCode");
-          const lang = u.searchParams.get("lang") || "pt-BR";
+          const lang = u.searchParams.get("lang") || "pt";
+          const locale = lang.split("-")[0];
           const base = process.env.NEXTAUTH_URL || "http://localhost:3000";
           if (!oobCode) return link;
-          return `${base}/auth/create-password?oobCode=${encodeURIComponent(
+          return `${base}/${locale}/auth/create-password?oobCode=${encodeURIComponent(
             oobCode
           )}&lang=${encodeURIComponent(lang)}`;
         } catch {
