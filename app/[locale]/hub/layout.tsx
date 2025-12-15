@@ -18,6 +18,9 @@ import { Container } from "@/components/ui/container";
 import { SidebarProvider } from "@/context/SidebarContext";
 import { CallProvider, useCallContext } from "@/context/CallContext";
 
+import { OnboardingWrapper } from "@/components/onboarding/wrapper/OnboardingWrapper";
+import { TeacherOnboardingWrapper } from "@/components/onboarding/wrapper/TeacherOnboardingWrapper";
+
 // StreamIO
 import VideoHome from "@/components/stream/VideoHome";
 
@@ -58,8 +61,10 @@ export default function HubLayout({ children }: { children: React.ReactNode }) {
 
   // Define o caminho base onde queremos esconder a sidebar e header
   const hideLayoutElements =
-    ((pathname?.startsWith(`/${locale}/hub/teacher/my-students/`) && pathname?.includes("/notebook/")) ||
-      (pathname?.startsWith(`/${locale}/hub/student/my-notebook/`) && pathname?.includes("/notebook/")));
+    (pathname?.startsWith(`/${locale}/hub/teacher/my-students/`) &&
+      pathname?.includes("/notebook/")) ||
+    (pathname?.startsWith(`/${locale}/hub/student/my-notebook/`) &&
+      pathname?.includes("/notebook/"));
 
   // Se estivermos na página do caderno, não renderiza sidebar nem header
   if (hideLayoutElements) {
@@ -76,26 +81,31 @@ export default function HubLayout({ children }: { children: React.ReactNode }) {
   }
 
   // Layout padrão
-  return (
-    <CallProvider>
-      <SidebarProvider>
-        <div className="flex flex-row gap-2 min-w-screen min-h-screen h-full p-0 sm:p-2 sidebar-base transition-colors duration-300 max-w-screen max-h-screen overflow-y-hidden">
-          <SidebarWrapper items={items} />
 
-          {/* Main content area */}
-          <div className="flex-1 flex flex-col gap-[1.5px] overflow-x-hidden pb-14 md:pb-0">
-            <div className="sticky top-0 z-20">
-              <HubHeader />
+  return (
+    <OnboardingWrapper>
+      <TeacherOnboardingWrapper>
+        <CallProvider>
+          <SidebarProvider>
+            <div className="flex flex-row gap-2 min-w-screen min-h-screen h-full p-0 sm:p-2 sidebar-base transition-colors duration-300 max-w-screen max-h-screen overflow-y-hidden">
+              <SidebarWrapper items={items} />
+
+              {/* Main content area */}
+              <div className="flex-1 flex flex-col gap-[1.5px] overflow-x-hidden pb-14 md:pb-0">
+                <div className="sticky top-0 z-20">
+                  <HubHeader />
+                </div>
+                <div className="flex bg-white/20 dark:bg-slate-900 flex-1 flex-col sm:hidden p-1">
+                  {children}
+                </div>
+                <Container className="flex-1 flex-col hidden sm:flex">
+                  {children}
+                </Container>
+              </div>
             </div>
-            <div className="flex bg-white/20 dark:bg-slate-900 flex-1 flex-col sm:hidden p-1">
-              {children}
-            </div>
-            <Container className="flex-1 flex-col hidden sm:flex">
-              {children}
-            </Container>
-          </div>
-        </div>
-      </SidebarProvider>
-    </CallProvider>
+          </SidebarProvider>
+        </CallProvider>
+      </TeacherOnboardingWrapper>
+    </OnboardingWrapper>
   );
 }

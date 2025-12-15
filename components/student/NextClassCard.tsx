@@ -136,7 +136,7 @@ export default function NextClassCard({ className = "" }: NextClassCardProps) {
     return (
       <div className="p-2">
         <div className="flex justify-between items-start">
-          <p className="h-5 w-24 rounded">Próxima Aula</p>
+          <p className="flex-1 w-full rounded">Próxima Aula</p>
           <Button
             variant="glass"
             size="icon"
@@ -147,8 +147,8 @@ export default function NextClassCard({ className = "" }: NextClassCardProps) {
             <RefreshCcw className="w-4 h-4" />
           </Button>
         </div>
-        <div className="mt-2">
-          <p className="h-4 w-32 rounded">Nenhuma aula agendada</p>
+        <div className="flex-1 w-full">
+          <p className="flex-1 w-full rounded ">Nenhuma aula agendada</p>
         </div>
       </div>
     );
