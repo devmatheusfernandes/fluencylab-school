@@ -99,10 +99,11 @@ export class UserService {
   }
 
   // Método específico para desativar
-  async deactivateUser(userId: string): Promise<void> {
+  async deactivateUser(userId: string, date?: Date): Promise<void> {
+    const effectiveDate = date ?? new Date();
     await this.updateUser(userId, {
       isActive: false,
-      deactivatedAt: new Date(),
+      deactivatedAt: effectiveDate,
     });
 
     // Log the user deactivation event
