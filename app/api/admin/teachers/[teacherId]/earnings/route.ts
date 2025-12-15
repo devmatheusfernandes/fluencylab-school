@@ -8,7 +8,7 @@ import { ClassStatus } from "@/types/classes/class";
 const classRepository = new ClassRepository();
 const userAdminRepository = new UserAdminRepository();
 
-const RATE_PER_CLASS_CENTS = 2500;
+const DEFAULT_RATE_PER_CLASS_CENTS = 2500;
 
 export async function GET(
   request: NextRequest,
@@ -32,10 +32,14 @@ export async function GET(
 
     let classes = await classRepository.findAllClassesByTeacherId(teacherId);
 
+    // Filter by scheduled date within the requested range
     if (startDateParam) {
       const start = new Date(startDateParam);
       classes = classes.filter((cls) => {
-        const date = cls.scheduledAt instanceof Date ? cls.scheduledAt : new Date(cls.scheduledAt);
+        const date =
+          cls.scheduledAt instanceof Date
+            ? cls.scheduledAt
+            : new Date(cls.scheduledAt as any);
         return date >= start;
       });
     }
@@ -43,7 +47,10 @@ export async function GET(
     if (endDateParam) {
       const end = new Date(endDateParam);
       classes = classes.filter((cls) => {
-        const date = cls.scheduledAt instanceof Date ? cls.scheduledAt : new Date(cls.scheduledAt);
+        const date =
+          cls.scheduledAt instanceof Date
+            ? cls.scheduledAt
+            : new Date(cls.scheduledAt as any);
         return date <= end;
       });
     }
@@ -54,8 +61,9 @@ export async function GET(
 
     const statsMap = new Map<string, { studentName: string; completedClasses: number; earningsCents: number }>();
 
+    const ratePerClassCents = teacher.ratePerClassCents || DEFAULT_RATE_PER_CLASS_CENTS;
     classes.forEach((cls) => {
-      if (cls.status !== ClassStatus.COMPLETED || !cls.completedAt) return;
+      if (cls.status !== ClassStatus.COMPLETED) return;
       const studentId = cls.studentId;
       const current = statsMap.get(studentId) || {
         studentName: studentMap.get(studentId) || `Aluno ${studentId}`,
@@ -63,7 +71,7 @@ export async function GET(
         earningsCents: 0,
       };
       current.completedClasses += 1;
-      current.earningsCents = current.completedClasses * RATE_PER_CLASS_CENTS;
+      current.earningsCents = current.completedClasses * ratePerClassCents;
       statsMap.set(studentId, current);
     });
 
@@ -77,7 +85,7 @@ export async function GET(
 
     return NextResponse.json({
       teacher: { id: teacher.id, name: teacher.name, email: teacher.email },
-      ratePerClassCents: RATE_PER_CLASS_CENTS,
+      ratePerClassCents,
       stats,
       total: { classes: totalClasses, earningsCents: totalEarningsCents },
     });

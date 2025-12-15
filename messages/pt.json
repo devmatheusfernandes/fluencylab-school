@@ -67,5 +67,34 @@
     "dayAt": "dia",
     "at": "às",
     "noScheduledClasses": "Sem aulas agendadas"
+  },
+  "UserRoles": {
+    "admin": "Administrador",
+    "manager": "Gerente",
+    "student": "Estudante",
+    "teacher": "Professor",
+    "guarded_student": "Estudante Tutelado",
+    "material_manager": "Gerente de Material"
+  },
+  "ClassStatus": {
+    "scheduled": "Agendada",
+    "completed": "Concluída",
+    "canceled-student": "Cancelada pelo Aluno",
+    "canceled_student": "Cancelada pelo Aluno",
+    "canceled-teacher": "Cancelada pelo Professor",
+    "canceled_teacher": "Cancelada pelo Professor",
+    "canceled-teacher-makeup": "Cancelada com Reposição",
+    "canceled_teacher_makeup": "Cancelada com Reposição",
+    "canceled-admin": "Cancelada pela Administração",
+    "canceled_admin": "Cancelada pela Administração",
+    "canceled-credit": "Cancelada por Crédito",
+    "canceled_credit": "Cancelada por Crédito",
+    "no-show": "Falta",
+    "no_show": "Falta",
+    "rescheduled": "Reagendada",
+    "teacher-vacation": "Férias do Professor",
+    "teacher_vacation": "Férias do Professor",
+    "overdue": "Atrasada",
+    "rescheduledBadge": "Reagendada"
   }
 }

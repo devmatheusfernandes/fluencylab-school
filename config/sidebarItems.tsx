@@ -21,40 +21,46 @@ import {
 // Define os links para cada papel
 const adminItems: SidebarItemType[] = [
   {
-    href: "/hub/profile",
+    href: "/[locale]/hub/admin/my-profile",
     label: "Meu Perfil",
     labelKey: "myProfile",
     icon: <UserCircle className="w-6 h-6" />,
   },
   {
-    href: "/hub/dashboard",
+    href: "/[locale]/hub/admin/dashboard",
     label: "Painel",
     labelKey: "dashboard",
     icon: <Layers className="w-6 h-6" />,
   },
   {
-    href: "/hub/users",
+    href: "/[locale]/hub/admin/users",
     label: "Usuários",
     labelKey: "users",
     icon: <Users className="w-6 h-6" />,
   },
   {
-    href: "/hub/finances",
+    href: "/[locale]/hub/admin/finances",
     label: "Financeiro",
     labelKey: "finances",
     icon: <DollarSign className="w-6 h-6" />,
   },
   {
-    href: "/hub/courses",
+    href: "/[locale]/hub/admin/courses",
     label: "Cursos",
     labelKey: "courses",
     icon: <Video className="w-6 h-6" />,
   },
   {
-    href: "/hub/documents",
+    href: "/[locale]/hub/admin/documents",
     label: "Documentos",
     labelKey: "documents",
     icon: <FileText className="w-6 h-6" />,
+  },
+  {
+    href: "/[locale]/hub/admin/settings",
+    label: "Configurações",
+    labelKey: "settings",
+    icon: <Settings className="w-6 h-6" />,
   },
 ];
 

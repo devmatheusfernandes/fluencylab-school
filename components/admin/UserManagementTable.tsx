@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import { useUsers } from "@/hooks/useUsers";
 import { UserRoles } from "@/types/users/userRoles";
 import { toast } from "sonner";
-
-// Importações dos seus componentes de UI
 import {
   Table,
   TableBody,
@@ -32,13 +30,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Text } from "@/components/ui/text";
 import AddUserModal from "./AddUserModal";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useRouter } from "next/navigation";
 import { Spinner } from "../ui/spinner";
 import { EllipsisVertical, UserPlus } from "lucide-react";
 import { Card } from "../ui/card";
+import { ButtonGroup } from "../ui/button-group";
 
 export default function UserManagementTable() {
   const {
@@ -102,7 +100,8 @@ export default function UserManagementTable() {
   return (
     <>
       <div className="flex flex-col justify-between md:flex-row gap-4 my-4">
-        <div className="flex flex-row gap-2">
+        <div className="flex flex-row justify-between items-center gap-2">
+          <ButtonGroup>
           <Select value={roleFilter} onValueChange={setRoleFilter}>
           <SelectTrigger className="w-full md:w-[200px]">
             <SelectValue placeholder="Filtrar por Papel" />
@@ -127,12 +126,16 @@ export default function UserManagementTable() {
             <SelectItem value="inactive">Inativos</SelectItem>
           </SelectContent>
         </Select>
-        </div>
-
+        </ButtonGroup>
+        <Button variant="outline">
         <UserPlus
-            className="w-6 h-6 text-primary hover:text-primary-hover duration-300 ease-in-out transition-all cursor-pointer"
+            className="w-4 h-4 text-foreground"
             onClick={() => setIsAddModalOpen(true)}
           />
+          </Button>
+        </div>
+
+        
       </div>
 
       {isLoadingUsers && <Spinner />}

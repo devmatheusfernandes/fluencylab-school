@@ -106,7 +106,8 @@ export type User = {
   subscriptionCancellationReason?: string;
 
   //TEACHER
-  vacationDaysRemaining?: number; // <<< NOVO CAMPO ADICIONADO
+  vacationDaysRemaining?: number;
+  ratePerClassCents?: number;
   schedulingSettings?: {
     bookingLeadTimeHours?: number;
     bookingHorizonDays?: number;

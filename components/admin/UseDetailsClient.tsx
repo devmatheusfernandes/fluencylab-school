@@ -38,24 +38,24 @@ export default function UserDetailsClient({
               <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
             </Avatar>
             <div className="ml-2">
-              <p className="capitalize text-2xl font-bold">
-                {user.name}
-              </p>
-              <p className="text-sm text-gray-500">
-                {user.email}
-              </p>
+              <p className="capitalize text-2xl font-bold">{user.name}</p>
+              <p className="text-sm text-gray-500">{user.email}</p>
             </div>
           </div>
 
-          <TabsList className="mt-3 md:mt-0 flex-wrap h-full">
-            <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-            <TabsTrigger value="schedule">Horário Fixo</TabsTrigger>
-            <TabsTrigger value="classes">Aulas</TabsTrigger>
+          <TabsList className="mt-0 flex-wrap h-full">
+            <TabsTrigger value="overview">Geral</TabsTrigger>
+
             {user.role === "student" && (
-              <TabsTrigger value="credits">Créditos</TabsTrigger>
+              <>
+                <TabsTrigger value="schedule">Horário</TabsTrigger>
+                <TabsTrigger value="classes">Aulas</TabsTrigger>
+                <TabsTrigger value="credits">Créditos</TabsTrigger>
+              </>
             )}
             <TabsTrigger value="financial">Financeiro</TabsTrigger>
             <TabsTrigger value="contracts">Contratos</TabsTrigger>
+
             {currentUserRole === UserRoles.ADMIN && (
               <TabsTrigger value="permissions">Permissões</TabsTrigger>
             )}
@@ -65,34 +65,29 @@ export default function UserDetailsClient({
         <TabsContent value="overview" className="mt-4">
           <UserOverviewTab user={user} />
         </TabsContent>
+
         <TabsContent value="classes" className="mt-4">
           <UserClassesTab classes={user.scheduledClasses || []} />
         </TabsContent>
-        {user.role === "student" && (
-          <TabsContent value="credits" className="mt-4">
-            <UserCreditsTab studentId={user.id} />
-          </TabsContent>
-        )}
+
+        <TabsContent value="credits" className="mt-4">
+          <UserCreditsTab studentId={user.id} />
+        </TabsContent>
         <TabsContent value="financial" className="mt-4">
           <UserFinancialTab user={user} />
         </TabsContent>
+
         <TabsContent value="contracts" className="mt-4">
-          {currentUserRole ? (
-            <UserContractsTab user={user} currentUserRole={currentUserRole} />
-          ) : (
-            <Text>Carregando informações do contrato...</Text>
-          )}
+          <UserContractsTab user={user} currentUserRole={user.role} />
         </TabsContent>
 
         <TabsContent value="schedule" className="mt-4">
           <UserScheduleManager user={user} allTeachers={allTeachers} />
         </TabsContent>
 
-        {currentUserRole === UserRoles.ADMIN && (
-          <TabsContent value="permissions" className="mt-4">
-            <UserPermissionsTab user={user} />
-          </TabsContent>
-        )}
+        <TabsContent value="permissions" className="mt-4">
+          <UserPermissionsTab user={user} />
+        </TabsContent>
       </Tabs>
     </div>
   );

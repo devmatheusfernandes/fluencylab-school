@@ -190,7 +190,7 @@ export default function DatePicker({
     <>
       {/* Input Field */}
       <div
-        className="relative group w-full max-w-sm mx-auto"
+        className="relative group w-full max-w-full mx-auto"
         ref={containerRef}
       >
         <input

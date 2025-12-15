@@ -71,7 +71,7 @@ export default function MyProfile() {
           <Card className="mt-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
             <div className="p-6 border-b border-slate-200 dark:border-slate-700">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                <div className="p-2 bg-primary/20 rounded-lg">
                   <CalendarIcon className="w-6 h-6 text-primary" />
                 </div>
                 <div>

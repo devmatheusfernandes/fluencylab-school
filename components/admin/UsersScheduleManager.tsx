@@ -9,12 +9,11 @@ import {
   ModalFooter,
   ModalClose,
 } from "@/components/ui/modal";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { FullUserDetails } from "@/types/users/user-details";
 import { User } from "@/types/users/users";
 import { ClassTemplateDay } from "@/types/classes/class";
 import { AvailabilitySlot } from "@/types/time/availability";
-import { daysOfWeek } from "@/types/time/times";
 import { toast } from "sonner";
 import { Card } from "../ui/card";
 import { Button } from "../ui/button";
@@ -29,6 +28,8 @@ import { Input } from "../ui/input";
 import { Text } from "../ui/text";
 import { Spinner } from "../ui/spinner";
 import { ArrowLeft, Book, Calendar, Trash } from "lucide-react";
+import { ButtonGroup } from "../ui/button-group";
+import { Header } from "../ui/header";
 
 interface UserScheduleManagerProps {
   user: FullUserDetails;
@@ -69,8 +70,17 @@ export default function UserScheduleManager({
   allTeachers,
 }: UserScheduleManagerProps) {
   const [schedule, setSchedule] = useState<ClassTemplateDay[]>([]);
+  const [savedSchedule, setSavedSchedule] = useState<ClassTemplateDay[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const hasChanges = useMemo(() => {
+    const enc = (arr: ClassTemplateDay[]) =>
+      arr
+        .map((e) => `${e.day}|${e.hour}|${e.teacherId}|${e.language}`)
+        .sort()
+        .join(";");
+    return enc(schedule) !== enc(savedSchedule);
+  }, [schedule, savedSchedule]);
 
   // Novos estados para o fluxo de seleção
   const [selectedTeacherId, setSelectedTeacherId] = useState<string>("");
@@ -106,7 +116,9 @@ export default function UserScheduleManager({
         const response = await fetch(`/api/class-templates/${user.id}`);
         if (response.ok) {
           const data = await response.json();
-          setSchedule(data.days || []);
+          const loaded = (data.days || []) as ClassTemplateDay[];
+          setSchedule(loaded);
+          setSavedSchedule(loaded.map((e: ClassTemplateDay) => ({ ...e })));
         }
       } catch (error) {
         toast.error("Erro ao carregar o horário do aluno.");
@@ -130,8 +142,6 @@ export default function UserScheduleManager({
       </Card>
     );
   }
-
-
 
   // Função para buscar horários disponíveis do professor
   const fetchTeacherAvailability = async () => {
@@ -243,6 +253,7 @@ export default function UserScheduleManager({
       });
       if (response.ok) {
         toast.success("Horário salvo com sucesso!");
+        setSavedSchedule(schedule.map((e) => ({ ...e })));
       } else {
         throw new Error("Falha ao salvar o horário.");
       }
@@ -251,6 +262,17 @@ export default function UserScheduleManager({
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleUndoChanges = () => {
+    setSchedule(savedSchedule.map((e) => ({ ...e })));
+    setShowScheduleSelection(false);
+    setSelectedTeacherId("");
+    setSelectedLanguage("");
+    setAvailableSlots([]);
+    toast.info(
+      "Alterações desfeitas. O horário voltou ao último estado salvo."
+    );
   };
 
   const handleGenerateClasses = async () => {
@@ -517,12 +539,6 @@ export default function UserScheduleManager({
         </ModalContent>
       </Modal>
 
-      {/* <Header
-        heading="Gestão de Horário Fixo"
-        icon={
-          <Calendar weight="BoldDuotone" className="w-8 h-8 text-primary" />
-        }
-      /> */}
       <div className="p-6 space-y-6">
         {isLoading ? (
           <Spinner />
@@ -532,19 +548,21 @@ export default function UserScheduleManager({
               <>
                 {/* --- SELEÇÃO DE PROFESSOR E IDIOMA --- */}
                 <div className="p-4 border border-surface-2 rounded-lg space-y-4">
-                  <Text weight="semibold">Adicionar Novo Horário</Text>
-                  <Text variant="subtitle">
+                  <Text weight="semibold" variant="subtitle">
+                    Adicionar Novo Horário
+                  </Text>
+                  <Text variant="paragraph">
                     Primeiro, selecione o professor e o idioma para ver os
                     horários disponíveis.
                   </Text>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <ButtonGroup>
                     <Select
                       value={selectedTeacherId}
                       onValueChange={setSelectedTeacherId}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione o professor" />
+                        <SelectValue placeholder="Professor" />
                       </SelectTrigger>
                       <SelectContent>
                         {allTeachers.map((teacher, index) => {
@@ -554,10 +572,7 @@ export default function UserScheduleManager({
                               : `teacher-${index}`;
 
                           return (
-                            <SelectItem
-                              key={teacherValue}
-                              value={teacherValue}
-                            >
+                            <SelectItem key={teacherValue} value={teacherValue}>
                               {teacher.name}
                             </SelectItem>
                           );
@@ -570,7 +585,7 @@ export default function UserScheduleManager({
                       onValueChange={setSelectedLanguage}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione o idioma" />
+                        <SelectValue placeholder="Idioma" />
                       </SelectTrigger>
                       <SelectContent>
                         {languageOptions.map((lang) => (
@@ -580,7 +595,7 @@ export default function UserScheduleManager({
                         ))}
                       </SelectContent>
                     </Select>
-                  </div>
+                  </ButtonGroup>
 
                   <Button
                     onClick={fetchTeacherAvailability}
@@ -615,11 +630,11 @@ export default function UserScheduleManager({
                           <Text weight="medium" className="min-w-[80px]">
                             {entry.day}
                           </Text>
-                          <Text variant="subtitle">{entry.hour}</Text>
-                          <Text variant="subtitle">
+                          <Text>{entry.hour}</Text>
+                          <Text className="capitalize">
                             {getTeacherName(entry.teacherId)}
                           </Text>
-                          <Text variant="subtitle">({entry.language})</Text>
+                          <Text>{entry.language}</Text>
                         </div>
                         <div className="flex gap-2">
                           <Button
@@ -628,7 +643,7 @@ export default function UserScheduleManager({
                             className="text-destructive"
                             onClick={() => handleRemoveEntry(entry.id)}
                           >
-                            <Trash />
+                            <Trash className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
@@ -690,36 +705,44 @@ export default function UserScheduleManager({
 
         {/* --- BOTÕES DE AÇÃO PRINCIPAIS --- */}
         {!showScheduleSelection && (
-          <div className="flex flex-col md:flex-row justify-end gap-4 pt-6 border-t border-surface-2">
-            <Button
-              onClick={handleDeleteSchedule}
-              disabled={isSaving || isLoading}
-            >
-              <Trash className="mr-2" />
-              Excluir Aulas
-            </Button>
-
-            <div className="flex gap-4">
+          <div className="flex flex-col md:flex-row items-center justify-end gap-4 pt-6 border-t border-surface-2">
+            <ButtonGroup>
+              <Button
+                onClick={handleDeleteSchedule}
+                disabled={isSaving || isLoading}
+              >
+                <Trash className="mr-2" />
+                Excluir Aulas
+              </Button>
               <Button
                 variant="secondary"
                 onClick={handleGenerateClasses}
                 disabled={isSaving || isLoading}
               >
-                <Book className="mr-2" />
                 Gerar Aulas
               </Button>
-
-              <Button
-                onClick={handleSaveSchedule}
-                disabled={isSaving || isLoading}
-              >
-                {isSaving ? (
-                  <Spinner className="mr-2" />
-                ) : (
-                  <Calendar className="mr-2" />
-                )}
-                Salvar Horário
-              </Button>
+            </ButtonGroup>
+            <div>
+              <ButtonGroup>
+                <Button
+                  onClick={handleSaveSchedule}
+                  disabled={isSaving || isLoading}
+                >
+                  {isSaving ? (
+                    <Spinner className="mr-2" />
+                  ) : (
+                    <Calendar className="mr-2" />
+                  )}
+                  Salvar
+                </Button>
+                <Button
+                  variant="secondary"
+                  disabled={isSaving || isLoading || !hasChanges}
+                  onClick={handleUndoChanges}
+                >
+                  Desfazer
+                </Button>
+              </ButtonGroup>
             </div>
           </div>
         )}

@@ -231,6 +231,10 @@ export class UserService {
     const allowedUpdates: Partial<User> = {
       name: data.name,
       role: data.role,
+      contractStartDate: data.contractStartDate,
+      contractLengthMonths: data.contractLengthMonths,
+      ratePerClassCents: data.ratePerClassCents,
+      profile: data.profile,
       // Adicione outros campos que o admin pode editar aqui
     };
 

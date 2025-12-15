@@ -67,5 +67,34 @@
     "dayAt": "day",
     "at": "at",
     "noScheduledClasses": "No scheduled classes"
+  },
+  "UserRoles": {
+    "admin": "Administrator",
+    "manager": "Manager",
+    "student": "Student",
+    "teacher": "Teacher",
+    "guarded_student": "Guarded Student",
+    "material_manager": "Material Manager"
+  },
+  "ClassStatus": {
+    "scheduled": "Scheduled",
+    "completed": "Completed",
+    "canceled-student": "Canceled by Student",
+    "canceled_student": "Canceled by Student",
+    "canceled-teacher": "Canceled by Teacher",
+    "canceled_teacher": "Canceled by Teacher",
+    "canceled-teacher-makeup": "Canceled with Makeup",
+    "canceled_teacher_makeup": "Canceled with Makeup",
+    "canceled-admin": "Canceled by Admin",
+    "canceled_admin": "Canceled by Admin",
+    "canceled-credit": "Canceled (Credit)",
+    "canceled_credit": "Canceled (Credit)",
+    "no-show": "No-show",
+    "no_show": "No-show",
+    "rescheduled": "Rescheduled",
+    "teacher-vacation": "Teacher Vacation",
+    "teacher_vacation": "Teacher Vacation",
+    "overdue": "Overdue",
+    "rescheduledBadge": "Rescheduled"
   }
 }

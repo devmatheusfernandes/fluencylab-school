@@ -276,12 +276,12 @@ export default function AddUserModal({
                 value={birthDate}
                 onChange={(date) => setBirthDate(date)}
                 placeholder="Selecione a data de nascimento"
-                maxDate={new Date()} // Prevent future dates
+                maxDate={new Date()}
                 required
               />
             </ModalField>
 
-            <ModalField label="Tipo (Role)" required>
+            <ModalField label="Tipo" required>
               <Select
                 value={role}
                 onValueChange={(value) => setRole(value as UserRoles)}

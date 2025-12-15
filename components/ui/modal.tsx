@@ -427,7 +427,7 @@ const ModalInput = React.forwardRef<
     >
       <Input
         className={twMerge(
-          "h-12 px-4 text-base bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-xl",
+          "h-12 px-4 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-xl",
           className
         )}
       />
@@ -459,7 +459,7 @@ const ModalPrimaryButton = React.forwardRef<
       whileTap={{ scale: 0.98 }}
       transition={{ type: "spring", stiffness: 400, damping: 17 }}
       className={twMerge(
-        `min-w-fit flex-1 px-6 py-3 text-base font-semibold text-white rounded-xl 
+        `min-w-fit flex flex-1 items-center justify-center flex-row gap-2 px-6 py-3 text-base font-semibold text-white rounded-xl 
         transition-all duration-150 focus:outline-none 
         disabled:opacity-50 disabled:cursor-not-allowed
         ${variantStyles[variant]}`,

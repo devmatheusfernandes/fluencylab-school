@@ -2,6 +2,13 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -12,6 +19,7 @@ import {
 import { User } from "@/types/users/users";
 import { MonthlyPayment } from "@/types/financial/subscription";
 import { Calendar, Clock, Coins } from "lucide-react";
+import { ButtonGroup } from "../ui/button-group";
 
 interface UserFinancialTabProps {
   user: User;
@@ -31,21 +39,37 @@ interface StudentFinancialData {
 }
 
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+const monthOptions = [
+  { value: 0, label: "Janeiro" },
+  { value: 1, label: "Fevereiro" },
+  { value: 2, label: "Março" },
+  { value: 3, label: "Abril" },
+  { value: 4, label: "Maio" },
+  { value: 5, label: "Junho" },
+  { value: 6, label: "Julho" },
+  { value: 7, label: "Agosto" },
+  { value: 8, label: "Setembro" },
+  { value: 9, label: "Outubro" },
+  { value: 10, label: "Novembro" },
+  { value: 11, label: "Dezembro" },
+];
+const nowYear = new Date().getFullYear();
+const yearOptions = Array.from({ length: 6 }, (_, i) => nowYear - i);
 
 const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
   const [loading, setLoading] = useState(false);
   const [teacherStats, setTeacherStats] = useState<TeacherClassStats[]>([]);
   const [studentFinancials, setStudentFinancials] =
     useState<StudentFinancialData | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
   const fetchTeacherFinancials = useCallback(async () => {
     try {
-      const currentMonth = new Date().getMonth();
-      const currentYear = new Date().getFullYear();
-      const startOfMonth = new Date(currentYear, currentMonth, 1).toISOString();
+      const startOfMonth = new Date(selectedYear, selectedMonth, 1).toISOString();
       const endOfMonth = new Date(
-        currentYear,
-        currentMonth + 1,
+        selectedYear,
+        selectedMonth + 1,
         0,
         23,
         59,
@@ -75,7 +99,7 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
       console.error("Error fetching teacher earnings:", error);
       setTeacherStats([]);
     }
-  }, [user.id]);
+  }, [user.id, selectedMonth, selectedYear]);
 
   const fetchStudentFinancials = useCallback(async () => {
     try {
@@ -136,10 +160,6 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
 
   const [ratePerClass, setRatePerClass] = useState<number>(0);
   const renderTeacherView = () => {
-    const currentMonth = new Date().toLocaleDateString("pt-BR", {
-      month: "long",
-      year: "numeric",
-    });
     const totalClasses = teacherStats.reduce(
       (sum, student) => sum + student.completedClasses,
       0
@@ -162,7 +182,7 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
                   </p>
                   <p className="text-2xl font-bold">{totalClasses}</p>
                 </div>
-                <Calendar className="h-8 w-8 text-muted-foreground" />
+                <Calendar className="h-8 w-8 text-primary/60" />
               </div>
             </CardContent>
           </Card>
@@ -178,7 +198,7 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
                     R$ {totalEarnings.toFixed(2)}
                   </p>
                 </div>
-                <Coins className="h-8 w-8 text-muted-foreground" />
+                <Coins className="h-8 w-8 text-primary/60" />
               </div>
             </CardContent>
           </Card>
@@ -192,7 +212,7 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
                   </p>
                   <p className="text-2xl font-bold">{currency.format(ratePerClass)}</p>
                 </div>
-                <Clock className="h-8 w-8 text-muted-foreground" />
+                <Clock className="h-8 w-8 text-primary/60" />
               </div>
             </CardContent>
           </Card>
@@ -201,9 +221,40 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
         {/* Detailed Table */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Coins className="h-5 w-5" />
-              Ganhos por Aluno - {currentMonth}
+            <CardTitle className="flex items-center justify-between gap-2">
+                Ganhos
+              <ButtonGroup>
+                <Select
+                  value={String(selectedMonth)}
+                  onValueChange={(v) => setSelectedMonth(Number(v))}
+                >
+                  <SelectTrigger className="w-[160px]">
+                    <SelectValue placeholder="Selecione o mês" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {monthOptions.map((month) => (
+                      <SelectItem key={month.value} value={String(month.value)}>
+                        {month.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={String(selectedYear)}
+                  onValueChange={(v) => setSelectedYear(Number(v))}
+                >
+                  <SelectTrigger className="w-[120px]">
+                    <SelectValue placeholder="Ano" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {yearOptions.map((year) => (
+                      <SelectItem key={year} value={String(year)}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </ButtonGroup>
             </CardTitle>
           </CardHeader>
           <CardContent>
