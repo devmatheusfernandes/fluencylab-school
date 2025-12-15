@@ -8,8 +8,12 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'firebasestorage.googleapis.com',
-        // Ex.: https://firebasestorage.googleapis.com/v0/b/<bucket>/o/**
-        pathname: '/v0/b/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'storage.googleapis.com',
+        // Permite qualquer caminho do bucket (ex.: /<bucket>/<path>/**)
+        pathname: '/**',
         // omitindo "search" permite qualquer query string (ex.: ?alt=media&token=...)
       },
     ],

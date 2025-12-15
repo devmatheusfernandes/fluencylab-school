@@ -13,6 +13,7 @@ import { ContractRepository } from './contractRepository';
 import { VacationRepository } from './VacationRepository';
 import { AnnouncementRepository } from './announcementRepository';
 import { AchievementRepository } from './achievementRepository';
+import { CourseRepository } from './courseRepository';
 
 // ============================================================================
 // INSTÂNCIAS SINGLETON CENTRALIZADAS
@@ -72,6 +73,7 @@ export const announcementRepository = new AnnouncementRepository();
  * Repositório de conquistas
  */
 export const achievementRepository = new AchievementRepository();
+export const courseRepository = new CourseRepository();
 
 // ============================================================================
 // EXPORTAÇÕES LEGACY (para compatibilidade)
@@ -97,6 +99,7 @@ export type RepositoryInstances = {
   vacationRepository: VacationRepository;
   announcementRepository: AnnouncementRepository;
   achievementRepository: AchievementRepository;
+  courseRepository: CourseRepository;
 };
 
 /**
@@ -116,6 +119,7 @@ export function getAllRepositories(): RepositoryInstances {
     vacationRepository,
     announcementRepository,
     achievementRepository,
+    courseRepository,
   };
 }
 
