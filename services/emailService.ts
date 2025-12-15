@@ -24,6 +24,21 @@ export class EmailService {
     studentInfo?: string
   ) {
     try {
+      const buildCustomLink = (link: string) => {
+        try {
+          const u = new URL(link);
+          const oobCode = u.searchParams.get("oobCode");
+          const lang = u.searchParams.get("lang") || "pt-BR";
+          const base = process.env.NEXTAUTH_URL || "http://localhost:3000";
+          if (!oobCode) return link;
+          return `${base}/auth/create-password?oobCode=${encodeURIComponent(
+            oobCode
+          )}&lang=${encodeURIComponent(lang)}`;
+        } catch {
+          return link;
+        }
+      };
+      const customActionLink = buildCustomLink(actionLink);
       const subject = studentInfo
         ? "Bem-vindo(a) à Fluency Lab! Defina sua senha para acessar a conta do estudante."
         : "Bem-vindo(a) à Fluency Lab! Defina sua senha.";
@@ -32,7 +47,7 @@ export class EmailService {
         from: "Matheus Fernandes <contato@matheusfernandes.me>",
         to: email,
         subject,
-        react: await WelcomeEmail({ name, actionLink, studentInfo }),
+        react: await WelcomeEmail({ name, actionLink: customActionLink, studentInfo }),
       });
 
       console.log(`E-mail de boas-vindas enviado para ${email}`);

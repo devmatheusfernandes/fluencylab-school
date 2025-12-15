@@ -57,7 +57,10 @@ export class AdminService {
     await adminDb.collection("users").doc(userRecord.uid).set(newUserProfile);
 
     // 3. Gera o link para o usuário DEFINIR sua senha pela primeira vez
-    const actionLink = await adminAuth.generatePasswordResetLink(authEmail);
+    const actionLink = await adminAuth.generatePasswordResetLink(authEmail, {
+      url: `${process.env.NEXTAUTH_URL}/auth/create-password`,
+      handleCodeInApp: true,
+    });
 
     // 4. Envia o e-mail de boas-vindas com o link
     const recipientName = isMinor ? guardian.name : name;
