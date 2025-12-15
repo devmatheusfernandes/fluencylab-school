@@ -381,9 +381,7 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
                   {studentFinancials.payments.map((payment: MonthlyPayment) => (
                     <TableRow key={payment.id}>
                       <TableCell>
-                        {new Date(payment.createdAt).toLocaleDateString(
-                          "pt-BR"
-                        )}
+                        {new Date(payment.dueDate).toLocaleDateString("pt-BR")}
                       </TableCell>
                       <TableCell>
                         {payment.description || "Pagamento mensal"}

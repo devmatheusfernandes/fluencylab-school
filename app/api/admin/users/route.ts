@@ -39,10 +39,26 @@ async function getUsersHandler(
       isActive: status === 'active' ? true : status === 'inactive' ? false : undefined
     });
 
+    let filtered = users;
+    const term = (search || '').trim().toLowerCase();
+    if (term) {
+      const cpfDigits = term.replace(/[^\d]+/g, '');
+      filtered = users.filter((u: any) => {
+        const name = String(u.name || '').toLowerCase();
+        const emailVal = String(u.email || '').toLowerCase();
+        const cpfVal = String((u.cpf as any) || '').replace(/[^\d]+/g, '');
+        return (
+          name.includes(term) ||
+          emailVal.includes(term) ||
+          (cpfDigits && cpfVal && cpfVal.includes(cpfDigits))
+        );
+      });
+    }
+
     return NextResponse.json({
       success: true,
-      data: users,
-      total: users.length
+      data: filtered,
+      total: filtered.length
     });
     
   } catch (error) {
