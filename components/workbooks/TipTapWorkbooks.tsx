@@ -1,8 +1,4 @@
 "use client";
-import React from 'react';
-
-//Other imports
-import { useSession } from 'next-auth/react';
 import "@/components/tiptap/style.scss";
 
 //TipTap Imports
@@ -17,7 +13,6 @@ import StarterKit from '@tiptap/starter-kit'
 import Color from '@tiptap/extension-color'
 import TaskItem from '@tiptap/extension-task-item'
 import TaskList from '@tiptap/extension-task-list'
-import BulletList from '@tiptap/extension-bullet-list'
 import Typography from '@tiptap/extension-typography'
 import { Table } from '@tiptap/extension-table'
 import TableCell from '@tiptap/extension-table-cell'
@@ -27,14 +22,9 @@ import History from '@tiptap/extension-history'
 import { TextStyle } from '@tiptap/extension-text-style'
 import FontFamily from '@tiptap/extension-font-family'
 import { MusicNode } from '@/components/tiptap/extensions/Music/MusicNode'
-
-import FloatingToolbar from '../tiptap/toolbar/floating-toolbar';
 import BottomToolbar from '../tiptap/toolbar/bottom-toolbar';
 
-const Tiptap = ({ onChange, content, isEditable, isTeacherNotebook }: any) => {
-  const { data: session } = useSession();
-  const [openModalId, setOpenModalId] = React.useState<string | null>(null);
-
+const Tiptap = ({ onChange, content, isEditable }: any) => {
   const TabInsertExtension = Extension.create({
     name: "customTab",
 

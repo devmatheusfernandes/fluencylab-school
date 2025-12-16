@@ -25,6 +25,7 @@ import { Card } from "@/components/ui/card";
 import { Editor } from "@tiptap/react";
 import { QuestionsToolModal } from "@/components/tiptap/extensions/Questions/QuestionsToolModal";
 import { MusicToolModal } from "@/components/tiptap/extensions/Music/MusicToolModal";
+import { WorkbookToolModal } from "@/components/tiptap/extensions/Workbooks/WorkbookToolModal";
 
 type ToolItem = {
   id: string;
@@ -41,6 +42,19 @@ type ToolCategory = {
 };
 
 const TOOL_CATEGORIES: ToolCategory[] = [
+  {
+    id: "content",
+    label: "Biblioteca",
+    description: "Importe conteúdo de apostilas e materiais",
+    items: [
+      {
+        id: "workbooks",
+        label: "Apostilas",
+        description: "Navegue e insira conteúdo de aulas das apostilas.",
+        keywords: ["apostila", "livro", "lição", "aula", "conteúdo"],
+      },
+    ],
+  },
   {
     id: "extensions",
     label: "Extensões",
@@ -66,6 +80,7 @@ type BaseModalProps = { isOpen: boolean; onClose: () => void; editor: Editor };
 export const MODAL_COMPONENTS: Record<string, React.ComponentType<BaseModalProps>> = {
   questions: QuestionsToolModal as React.ComponentType<BaseModalProps>,
   music: MusicToolModal as React.ComponentType<BaseModalProps>,
+  workbooks: WorkbookToolModal as React.ComponentType<BaseModalProps>,
 };
 
 export type ToolbarToolsSheetProps = {
