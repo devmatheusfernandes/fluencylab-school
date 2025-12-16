@@ -25,6 +25,7 @@ import { Spinner } from "../ui/spinner";
 import { CommentMark } from "@/components/tiptap/extensions/Comments/CommentsMark";
 import { CommentsSheet } from "@/components/tiptap/extensions/Comments/CommentsSheet";
 import { QuestionsNode } from "@/components/tiptap/extensions/Questions/QuestionsNode";
+import { MusicNode } from "@/components/tiptap/extensions/Music/MusicNode";
 
 import "./style.scss";
 import FloatStudentCallButton from "../stream/FloatStudentCallButton";
@@ -98,6 +99,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
     extensions: [
       CommentMark,
       QuestionsNode,
+      MusicNode,
 
       //Teaching Extensions
 

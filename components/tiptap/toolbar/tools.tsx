@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Editor } from "@tiptap/react";
 import { QuestionsToolModal } from "@/components/tiptap/extensions/Questions/QuestionsToolModal";
+import { MusicToolModal } from "@/components/tiptap/extensions/Music/MusicToolModal";
 
 type ToolItem = {
   id: string;
@@ -52,12 +53,19 @@ const TOOL_CATEGORIES: ToolCategory[] = [
           "Crie perguntas, selecione existentes e monte decks",
         keywords: ["quiz", "pergunta", "deck", "prova", "atividade"],
       },
+      {
+        id: "music",
+        label: "Música/YouTube",
+        description: "Integre vídeo e letra sincronizada (LRCLIB) com modo de completar.",
+        keywords: ["youtube", "music", "lyrics", "lrclib", "jogo"],
+      },
     ],
   },
 ];
 type BaseModalProps = { isOpen: boolean; onClose: () => void; editor: Editor };
 export const MODAL_COMPONENTS: Record<string, React.ComponentType<BaseModalProps>> = {
   questions: QuestionsToolModal as React.ComponentType<BaseModalProps>,
+  music: MusicToolModal as React.ComponentType<BaseModalProps>,
 };
 
 export type ToolbarToolsSheetProps = {

@@ -26,6 +26,7 @@ import TableRow from '@tiptap/extension-table-row'
 import History from '@tiptap/extension-history'
 import { TextStyle } from '@tiptap/extension-text-style'
 import FontFamily from '@tiptap/extension-font-family'
+import { MusicNode } from '@/components/tiptap/extensions/Music/MusicNode'
 
 import FloatingToolbar from '../tiptap/toolbar/floating-toolbar';
 import BottomToolbar from '../tiptap/toolbar/bottom-toolbar';
@@ -57,6 +58,7 @@ const Tiptap = ({ onChange, content, isEditable, isTeacherNotebook }: any) => {
       Document,
       Image,
       History,
+      MusicNode,
       TextStyle, 
       FontFamily,
       Typography,
