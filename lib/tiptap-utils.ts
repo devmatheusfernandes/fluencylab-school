@@ -10,6 +10,7 @@ import type { Editor, NodeWithPos } from "@tiptap/react"
 import { getSession } from "next-auth/react"
 
 export const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+export const MAX_AUDIO_FILE_SIZE = 4 * 1024 * 1024 // 4MB
 
 export const MAC_SYMBOLS: Record<string, string> = {
   mod: "⌘",
@@ -380,6 +381,61 @@ export const handleImageUpload = async (
   form.append("file", new File([file], safeName, { type: file.type }))
   return await new Promise<string>((resolve, reject) => {
     xhr.open("POST", "/api/editor/upload-image")
+    xhr.responseType = "json"
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) {
+        const progress = Math.round((e.loaded / e.total) * 100)
+        onProgress?.({ progress })
+      }
+    }
+    xhr.onerror = () => reject(new Error("Network error"))
+    xhr.onabort = () => reject(new Error("Upload cancelled"))
+    xhr.onload = () => {
+      const status = xhr.status
+      const data = xhr.response as any
+      if (status >= 200 && status < 300 && data?.url) {
+        resolve(data.url as string)
+      } else {
+        reject(new Error(data?.error || "Upload failed"))
+      }
+    }
+    if (abortSignal) {
+      abortSignal.addEventListener("abort", () => {
+        try {
+          xhr.abort()
+        } catch {}
+      })
+    }
+    xhr.send(form)
+  })
+}
+
+export const handleAudioUpload = async (
+  file: File,
+  onProgress?: (event: { progress: number }) => void,
+  abortSignal?: AbortSignal
+): Promise<string> => {
+  if (!file) {
+    throw new Error("No file provided")
+  }
+  if (file.size > MAX_AUDIO_FILE_SIZE) {
+    throw new Error(
+      `File size exceeds maximum allowed (${MAX_AUDIO_FILE_SIZE / (1024 * 1024)}MB)`
+    )
+  }
+
+  const session = await getSession()
+  const userId = session?.user?.id
+  if (!userId) {
+    throw new Error("Usuário não autenticado")
+  }
+
+  const xhr = new XMLHttpRequest()
+  const form = new FormData()
+  const safeName = file.name.replace(/\s+/g, "_")
+  form.append("file", new File([file], safeName, { type: file.type }))
+  return await new Promise<string>((resolve, reject) => {
+    xhr.open("POST", "/api/editor/upload-audio")
     xhr.responseType = "json"
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable) {

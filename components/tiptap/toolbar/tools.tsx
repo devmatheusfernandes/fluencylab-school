@@ -23,6 +23,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Editor } from "@tiptap/react";
+import { QuestionsToolModal } from "@/components/tiptap/extensions/Questions/QuestionsToolModal";
 
 type ToolItem = {
   id: string;
@@ -38,9 +39,26 @@ type ToolCategory = {
   items: ToolItem[];
 };
 
-const TOOL_CATEGORIES: ToolCategory[] = [];
+const TOOL_CATEGORIES: ToolCategory[] = [
+  {
+    id: "extensions",
+    label: "Extensões",
+    description: "Ferramentas adicionais para conteúdo interativo",
+    items: [
+      {
+        id: "questions",
+        label: "Perguntas/Quizzes",
+        description:
+          "Crie perguntas, selecione existentes e monte decks",
+        keywords: ["quiz", "pergunta", "deck", "prova", "atividade"],
+      },
+    ],
+  },
+];
 type BaseModalProps = { isOpen: boolean; onClose: () => void; editor: Editor };
-export const MODAL_COMPONENTS: Record<string, React.ComponentType<BaseModalProps>> = {};
+export const MODAL_COMPONENTS: Record<string, React.ComponentType<BaseModalProps>> = {
+  questions: QuestionsToolModal as React.ComponentType<BaseModalProps>,
+};
 
 export type ToolbarToolsSheetProps = {
   onSelectTool?: (toolId: string) => void;
