@@ -44,6 +44,8 @@ interface TiptapEditorProps {
   userName?: string;
   userColor?: string;
   studentID?: any;
+  title?: string;
+  onTitleChange?: (newTitle: string) => void;
 }
 
 const TiptapEditor: React.FC<TiptapEditorProps> = ({
@@ -58,6 +60,8 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   userName,
   userColor,
   studentID,
+  title,
+  onTitleChange,
 }) => {
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastSavedContentRef = useRef<string>(content);
@@ -245,7 +249,13 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   return (
     <div className={`bg-slate-100 dark:bg-black ${className}`}>
       <div className="relative h-screen overflow-y-auto">
-        {!isMobile && <Toolbar editor={editor} />}
+        {!isMobile && (
+          <Toolbar
+            editor={editor}
+            title={title}
+            onTitleChange={onTitleChange}
+          />
+        )}
         <EditorContent
           editor={editor}
           className="min-h-screen no-scrollbar"

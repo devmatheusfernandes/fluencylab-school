@@ -6,6 +6,7 @@ import { TOOL_ITEMS } from "./toolsConfig";
 import ToolbarToolsSheet, { MODAL_COMPONENTS } from "./tools";
 import { BackButton } from "@/components/ui/back-button";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { TitleEditor } from "./TitleEditor";
 
 import "@/components/tiptap-node/code-block-node/code-block-node.scss";
 import "@/components/tiptap-node/list-node/list-node.scss";
@@ -17,9 +18,11 @@ import "@/components/tiptap-node/image-upload-node/image-upload-node.scss";
  
 interface ToolbarProps {
   editor: Editor | null;
+  title?: string;
+  onTitleChange?: (newTitle: string) => void;
 }
 
-const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
+const Toolbar: React.FC<ToolbarProps> = ({ editor, title, onTitleChange }) => {
   const [openModalId, setOpenModalId] = useState<string | null>(null);
   if (!editor) {
     return null;
@@ -35,6 +38,9 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
           {/* Esquerda */}
           <div className="flex items-center gap-1 min-w-0">
             <BackButton routerBack={true} />
+            {title !== undefined && onTitleChange && (
+              <TitleEditor title={title} onTitleChange={onTitleChange} />
+            )}
           </div>
 
           {/* Centro: itens principais compartilhados */}

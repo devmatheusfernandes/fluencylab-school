@@ -185,6 +185,21 @@ export default function NotebookViewer({ studentId, notebookId }: NotebookViewer
     [notebook, debouncedSave]
   );
 
+  const handleTitleChange = async (newTitle: string) => {
+    if (!alunoId || !notebookId || !notebook) return;
+
+    setNotebook({ ...notebook, title: newTitle });
+
+    try {
+      await updateDoc(doc(db, `users/${alunoId}/Notebooks/${notebookId}`), {
+        title: newTitle,
+        updatedAt: serverTimestamp(),
+      });
+    } catch (error) {
+      console.error("Error updating title:", error);
+    }
+  };
+
   const hasSignificantChanges = useCallback(
     (newContent: string, oldContent: string) => {
       if (!oldContent) return true;
@@ -293,6 +308,8 @@ export default function NotebookViewer({ studentId, notebookId }: NotebookViewer
         userName={userName}
         userColor={userColor}
         studentID={studentId}
+        title={notebook.title}
+        onTitleChange={handleTitleChange}
       />
     </motion.div>
   );
