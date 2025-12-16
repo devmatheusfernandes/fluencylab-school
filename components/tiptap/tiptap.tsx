@@ -22,8 +22,8 @@ import { TaskList, TaskItem } from "@tiptap/extension-list";
 import { useIsMobile } from "@/hooks/use-mobile";
 import BottomToolbar from "./toolbar/bottom-toolbar";
 import { Spinner } from "../ui/spinner";
-import { CommentMark } from "@/components/editor/extensions/Comments/CommentsMark";
-import { CommentsSheet } from "@/components/editor/extensions/Comments/CommentsSheet";
+import { CommentMark } from "@/components/tiptap/extensions/Comments/CommentsMark";
+import { CommentsSheet } from "@/components/tiptap/extensions/Comments/CommentsSheet";
 
 import "./style.scss";
 import FloatStudentCallButton from "../stream/FloatStudentCallButton";

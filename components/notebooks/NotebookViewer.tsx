@@ -19,7 +19,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { Spinner } from "@/components/ui/spinner";
-import TiptapEditor from "@/components/editor/tiptap";
+import TiptapEditor from "@/components/tiptap/tiptap";
 
 interface NotebookViewerProps {
   studentId: string;

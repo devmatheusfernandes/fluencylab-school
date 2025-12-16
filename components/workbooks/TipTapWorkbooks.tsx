@@ -3,7 +3,7 @@ import React from 'react';
 
 //Other imports
 import { useSession } from 'next-auth/react';
-import "@/components/editor/style.scss";
+import "@/components/tiptap/style.scss";
 
 //TipTap Imports
 import Link from '@tiptap/extension-link'
@@ -27,8 +27,8 @@ import History from '@tiptap/extension-history'
 import { TextStyle } from '@tiptap/extension-text-style'
 import FontFamily from '@tiptap/extension-font-family'
 
-import FloatingToolbar from '../editor/toolbar/floating-toolbar';
-import BottomToolbar from '../editor/toolbar/bottom-toolbar';
+import FloatingToolbar from '../tiptap/toolbar/floating-toolbar';
+import BottomToolbar from '../tiptap/toolbar/bottom-toolbar';
 
 const Tiptap = ({ onChange, content, isEditable, isTeacherNotebook }: any) => {
   const { data: session } = useSession();
