@@ -6,8 +6,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
+import { Search, Youtube, Music, User, Loader2, PlayCircle, Clock } from "lucide-react";
 import { isExtensionAvailable } from "@/lib/tiptap-utils";
+import { cn } from "@/lib/utils";
 
 type BaseModalProps = { isOpen: boolean; onClose: () => void; editor: Editor };
 
@@ -20,8 +25,22 @@ function isValidYouTubeUrl(url: string): boolean {
     return false;
   }
 }
+
 function sanitizeUrlInput(url: string): string {
   return url.replace(/[`]/g, "").trim();
+}
+
+function getYouTubeIdFromUrl(url: string): string | null {
+  try {
+    const u = new URL(url);
+    const host = u.hostname.toLowerCase();
+    if (!host.includes("youtube.com") && host !== "youtu.be") return null;
+    const re = /^.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const m = url.match(re);
+    return m && m[1].length === 11 ? m[1] : null;
+  } catch {
+    return null;
+  }
 }
 
 export const MusicToolModal: React.FC<BaseModalProps> = ({ isOpen, onClose, editor }) => {
@@ -36,6 +55,7 @@ export const MusicToolModal: React.FC<BaseModalProps> = ({ isOpen, onClose, edit
 
   const sanitizedVideoUrl = sanitizeUrlInput(videoUrl);
   const canInsert = isValidYouTubeUrl(sanitizedVideoUrl) && track.trim().length > 0 && artist.trim().length > 0;
+  const currentVideoId = getYouTubeIdFromUrl(sanitizedVideoUrl);
 
   const handleInsert = () => {
     if (!canInsert) return;
@@ -47,42 +67,34 @@ export const MusicToolModal: React.FC<BaseModalProps> = ({ isOpen, onClose, edit
       mode: "fill" as const,
       useranswers: {},
     };
+    
+    // Tenta inserir via comando da extensão
     const hasMusic = isExtensionAvailable(editor, "music");
     if (hasMusic) {
       try {
-        const ok = editor?.commands?.insertMusic?.(payload);
-        if (ok) {
+        if (editor?.commands?.insertMusic?.(payload)) {
           onClose();
           return;
         }
       } catch {}
       try {
-        const objectOk = editor?.chain().focus().insertContent({
-          type: "music",
-          attrs: { music: payload },
-        }).run();
-        if (objectOk) {
+        if (editor?.chain().focus().insertContent({ type: "music", attrs: { music: payload } }).run()) {
           onClose();
           return;
         }
       } catch {}
     }
+
+    // Fallback HTML
     try {
       const musicStr = JSON.stringify(payload).replace(/'/g, "&#39;");
       const htmlA = `<music-node music='${musicStr}'></music-node>`;
       const htmlB = `<div data-music='${musicStr}'></div>`;
       const chain = editor?.chain().focus();
       let ok = false;
-      try {
-        ok = !!chain?.insertContent(htmlA).run();
-      } catch {}
-      if (!ok) {
-        try {
-          ok = !!editor?.chain().focus().insertContent(htmlB).run();
-        } catch {}
-      }
-      if (!ok) return;
-      onClose();
+      try { ok = !!chain?.insertContent(htmlA).run(); } catch {}
+      if (!ok) { try { ok = !!editor?.chain().focus().insertContent(htmlB).run(); } catch {} }
+      if (ok) onClose();
     } catch {}
   };
 
@@ -92,17 +104,13 @@ export const MusicToolModal: React.FC<BaseModalProps> = ({ isOpen, onClose, edit
     setSearching(true);
     try {
       setSearchError(null);
-      const r = await fetch(`/api/editor/youtube-search?q=${encodeURIComponent(q)}&maxResults=12`);
+      const r = await fetch(`/api/editor/youtube-search?q=${encodeURIComponent(q)}&maxResults=6`);
       const data = await r.json();
       if (!r.ok) {
         const code = (data?.error as string) || "search_failed";
-        if (code === "Authentication required") {
-          setSearchError("Faça login para buscar vídeos.");
-        } else if (code === "missing_api_key") {
-          setSearchError("Configure a variável de ambiente YOUTUBE_API_KEY ou NEXT_PUBLIC_YOUTUBE_API_KEY.");
-        } else {
-          setSearchError("Falha ao buscar vídeos. Tente novamente.");
-        }
+        if (code === "Authentication required") setSearchError("Faça login para buscar vídeos.");
+        else if (code === "missing_api_key") setSearchError("Configure a API Key do YouTube.");
+        else setSearchError("Falha ao buscar vídeos.");
         setResults([]);
         return;
       }
@@ -116,78 +124,199 @@ export const MusicToolModal: React.FC<BaseModalProps> = ({ isOpen, onClose, edit
   const chooseVideo = (item: { videoId: string; title: string; channelTitle: string }) => {
     const url = `https://www.youtube.com/watch?v=${item.videoId}`;
     setVideoUrl(url);
-    const parts = item.title.split(" - ");
+    
+    // Tentativa inteligente de parsear Título - Artista
+    const parts = item.title.split("-").map(s => s.trim());
     if (parts.length >= 2) {
-      setArtist(parts[0].trim());
-      setTrack(parts.slice(1).join(" - ").trim());
+      // Geralmente "Artista - Música" no YouTube
+      setArtist(parts[0]);
+      setTrack(parts.slice(1).join(" - ")); 
     } else {
-      setTrack(item.title.trim());
-      setArtist(item.channelTitle.trim());
+      setTrack(item.title);
+      setArtist(item.channelTitle);
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={(v) => (!v ? onClose() : null)}>
-      <DialogContent className="min-w-[80vw] h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
-        <DialogHeader>
-          <DialogTitle>Música/YouTube</DialogTitle>
-          <DialogDescription>Insira um vídeo e configure a letra sincronizada.</DialogDescription>
+      <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
+        <DialogHeader className="p-6 pb-4 bg-muted/10 border-b">
+          <DialogTitle className="flex items-center gap-2">
+            <Youtube className="w-5 h-5 text-red-600" /> 
+            Ferramenta de Música
+          </DialogTitle>
+          <DialogDescription>
+            Busque um vídeo no YouTube ou cole o link direto para criar um exercício de "Complete a Letra".
+          </DialogDescription>
         </DialogHeader>
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
-          <div className="space-y-2">
-            <Label>Buscar no YouTube</Label>
-            <div className="flex gap-2">
-              <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Digite o nome da música ou artista" />
-              <Button onClick={handleSearch} disabled={searching || !search.trim()}>{searching ? "Buscando..." : "Buscar"}</Button>
-            </div>
-            {searchError && <div className="text-xs text-red-600 mt-1">{searchError}</div>}
-            {results.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
-                {results.map((it) => (
-                  <button
-                    key={it.videoId}
-                    className="text-left border rounded-md overflow-hidden hover:border-primary/50 transition focus:outline-none"
-                    onClick={() => chooseVideo(it)}
-                  >
-                    {it.thumbnail ? (
-                      <Image src={it.thumbnail} alt={it.title} width={320} height={180} unoptimized className="w-full h-28 object-cover" />
-                    ) : (
-                      <div className="w-full h-28 bg-muted" />
-                    )}
-                    <div className="p-2">
-                      <div className="text-xs font-medium line-clamp-2">{it.title}</div>
-                      <div className="text-[10px] text-muted-foreground line-clamp-1">{it.channelTitle}</div>
+
+        <div className="flex-1 overflow-hidden flex flex-col">
+          <ScrollArea className="flex-1 p-6">
+            <div className="space-y-8">
+              
+              {/* Seção de Busca */}
+              <div className="space-y-4">
+                <div className="flex items-end gap-2">
+                  <div className="flex-1 space-y-2">
+                    <Label>Buscar no YouTube</Label>
+                    <div className="relative">
+                      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input 
+                        value={search} 
+                        onChange={(e) => setSearch(e.target.value)} 
+                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                        placeholder="Nome da música ou artista..." 
+                        className="pl-9"
+                      />
                     </div>
-                  </button>
-                ))}
+                  </div>
+                  <Button onClick={handleSearch} disabled={searching || !search.trim()}>
+                    {searching ? <Loader2 className="w-4 h-4 animate-spin" /> : "Buscar"}
+                  </Button>
+                </div>
+
+                {searchError && (
+                  <div className="p-3 bg-red-50 text-red-600 text-sm rounded-md border border-red-100">
+                    {searchError}
+                  </div>
+                )}
+
+                {results.length > 0 && (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 animate-in fade-in slide-in-from-bottom-2">
+                    {results.map((it) => {
+                      const isSelected = currentVideoId === it.videoId;
+                      return (
+                        <button
+                          key={it.videoId}
+                          className={cn(
+                            "group text-left border rounded-lg overflow-hidden transition-all hover:shadow-md focus:outline-none ring-offset-2",
+                            isSelected ? "ring-2 ring-primary border-primary" : "hover:border-primary/50"
+                          )}
+                          onClick={() => chooseVideo(it)}
+                        >
+                          <div className="relative aspect-video bg-muted">
+                            {it.thumbnail ? (
+                              <Image 
+                                src={it.thumbnail} 
+                                alt={it.title} 
+                                fill 
+                                className={cn("object-cover transition-opacity", isSelected ? "opacity-100" : "opacity-90 group-hover:opacity-100")} 
+                                unoptimized 
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                                <Youtube className="w-8 h-8 opacity-20" />
+                              </div>
+                            )}
+                            {isSelected && (
+                              <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                                <PlayCircle className="w-10 h-10 text-white drop-shadow-md" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="p-3">
+                            <div className="text-sm font-medium line-clamp-2 leading-tight mb-1 group-hover:text-primary transition-colors">
+                              {it.title}
+                            </div>
+                            <div className="text-xs text-muted-foreground line-clamp-1 flex items-center gap-1">
+                              <User className="w-3 h-3" /> {it.channelTitle}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label>Link do YouTube</Label>
-              <Input value={videoUrl} onChange={(e) => setVideoUrl(sanitizeUrlInput(e.target.value))} placeholder="https://youtube.com/..." />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Música</Label>
-              <Input value={track} onChange={(e) => setTrack(e.target.value)} placeholder="Nome da música" />
+
+              <Separator />
+
+              {/* Seção de Configuração */}
+              <Card className="border-dashed shadow-sm bg-muted/5">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base font-medium flex items-center gap-2">
+                    Configuração do Exercício
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold text-muted-foreground uppercase">Link do Vídeo</Label>
+                    <div className="relative">
+                      <Youtube className="absolute left-2.5 top-2.5 h-4 w-4 text-red-500" />
+                      <Input 
+                        value={videoUrl} 
+                        onChange={(e) => setVideoUrl(sanitizeUrlInput(e.target.value))} 
+                        placeholder="https://youtube.com/..." 
+                        className="pl-9 bg-background"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs font-semibold text-muted-foreground uppercase">Música</Label>
+                      <div className="relative">
+                        <Music className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          value={track} 
+                          onChange={(e) => setTrack(e.target.value)} 
+                          placeholder="Ex: Shape of You" 
+                          className="pl-9 bg-background"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs font-semibold text-muted-foreground uppercase">Artista</Label>
+                      <div className="relative">
+                        <User className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          value={artist} 
+                          onChange={(e) => setArtist(e.target.value)} 
+                          placeholder="Ex: Ed Sheeran" 
+                          className="pl-9 bg-background"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold text-muted-foreground uppercase flex items-center gap-1">
+                      <Clock className="w-3 h-3" /> Pausar Automaticamente
+                    </Label>
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        size="sm" 
+                        variant={pauseEvery === 1 ? "primary" : "outline"} 
+                        onClick={() => setPauseEvery(1)}
+                        className="w-32"
+                      >
+                        A cada 1 linha
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant={pauseEvery === 2 ? "primary" : "outline"} 
+                        onClick={() => setPauseEvery(2)}
+                        className="w-32"
+                      >
+                        A cada 2 linhas
+                      </Button>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      O vídeo pausará automaticamente para o aluno preencher a lacuna.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
             </div>
-            <div className="space-y-2">
-              <Label>Artista</Label>
-              <Input value={artist} onChange={(e) => setArtist(e.target.value)} placeholder="Nome do artista" />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label>Pausar a cada</Label>
-            <div className="flex items-center gap-2">
-              <Button variant={pauseEvery === 1 ? "primary" : "outline"} onClick={() => setPauseEvery(1)}>1 linha</Button>
-              <Button variant={pauseEvery === 2 ? "primary" : "outline"} onClick={() => setPauseEvery(2)}>2 linhas</Button>
-            </div>
-          </div>
+          </ScrollArea>
         </div>
-        <DialogFooter>
+
+        <DialogFooter className="p-4 border-t bg-background">
           <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button onClick={handleInsert} disabled={!canInsert}>Inserir</Button>
+          <Button onClick={handleInsert} disabled={!canInsert} className="px-8">
+            Inserir no Editor
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
