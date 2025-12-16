@@ -21,17 +21,14 @@ import Toolbar from "./toolbar/toolbar";
 import { TaskList, TaskItem } from "@tiptap/extension-list";
 import { useIsMobile } from "@/hooks/use-mobile";
 import BottomToolbar from "./toolbar/bottom-toolbar";
-import QuestionsExtension from "@/components/editor/extensions/Question/QuestionsExtension";
 import { Spinner } from "../ui/spinner";
 import { CommentMark } from "@/components/editor/extensions/Comments/CommentsMark";
 import { CommentsSheet } from "@/components/editor/extensions/Comments/CommentsSheet";
 
 import "./style.scss";
-import BandVideoExtension from "./extensions/BandVideo/BandVideoExtension";
 import FloatStudentCallButton from "../stream/FloatStudentCallButton";
 import FloatTeacherCallButton from "../stream/FloatTeacherCallButton";
 import { useSession } from "next-auth/react";
-import SentencesExtension from "./extensions/Sentences/SentencesExtension";
 
 interface TiptapEditorProps {
   content: string;
@@ -101,9 +98,6 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
       CommentMark,
 
       //Teaching Extensions
-      QuestionsExtension,
-      BandVideoExtension,
-      SentencesExtension,
 
       //Default Extensions
       Placeholder.configure({

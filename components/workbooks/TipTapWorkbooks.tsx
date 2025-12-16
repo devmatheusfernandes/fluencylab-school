@@ -27,48 +27,8 @@ import History from '@tiptap/extension-history'
 import { TextStyle } from '@tiptap/extension-text-style'
 import FontFamily from '@tiptap/extension-font-family'
 
-//Extensions
-import TextStudentExtension from '@/components/editor/extensions/TextStudent/TextStudentExtension';
-import TextTeacherExtension from '@/components/editor/extensions/TextTeacher/TextTeacherExtension';
-import TextTipExtension from '@/components/editor/extensions/TextTip/TextTipExtension';
-import BandImageExtension from '@/components/editor/extensions/BandImage/BandImageExtension';
-import BandVideoExtension from '@/components/editor/extensions/BandVideo/BandVideoExtension';
-import SentencesExtension from '@/components/editor/extensions/Sentences/SentencesExtension';
-import TranslationExtension from '@/components/editor/extensions/Translation/TranslationExtension';
-import MultipleChoiceExtension from '@/components/editor/extensions/MultipleChoice/MultipleChoiceExtension';
-import QuestionsExtension from '@/components/editor/extensions/Question/QuestionsExtension';
-import AudioExtension from '@/components/editor/extensions/Audio/AudioExtension';
-import PronounceExtension from '@/components/editor/extensions/Pronounce/PronounceExtension';
-import ReviewExtension from '@/components/editor/extensions/Review/ReviewExtension';
-import GoalExtension from '@/components/editor/extensions/Goal/GoalExtension';
-import VocabulabExtension from '@/components/editor/extensions/Vocabulab/VocabulabExtension';
-import DownloadExtension from '@/components/editor/extensions/Download/DownloadExtension';
-import FlashcardExtension from '@/components/editor/extensions/Flashcards/FlashcardExtension';
-import QuizExtenstion from "@/components/editor/extensions/Quiz/QuizExtension";
-
-//Style
-
-//Tools
-import ToolbarToolsSheet from '@/components/editor/toolbar/tools';
-import BottomToolbar from '@/components/editor/toolbar/bottom-toolbar';
-import AudioModal from "@/components/editor/extensions/Audio/AudioModal";
-import BandImageModal from "@/components/editor/extensions/BandImage/BandImageModal";
-import BandVideoModal from "@/components/editor/extensions/BandVideo/BandVideoModal";
-import DownloadModal from "@/components/editor/extensions/Download/DownloadModal";
-import FlashcardModal from "@/components/editor/extensions/Flashcards/FlashcardModal";
-import GoalModal from "@/components/editor/extensions/Goal/GoalModal";
-import MultipleChoiceModal from "@/components/editor/extensions/MultipleChoice/MultipleChoiceModal";
-import PronounceModal from "@/components/editor/extensions/Pronounce/PronounceModal";
-import QuestionsModal from "@/components/editor/extensions/Question/QuestionsModal";
-import QuizModal from "@/components/editor/extensions/Quiz/QuizModal";
-import ReviewModal from "@/components/editor/extensions/Review/ReviewModal";
-import SentencesModal from "@/components/editor/extensions/Sentences/SentencesModal";
-import TextStudentModal from "@/components/editor/extensions/TextStudent/TextStudentModal";
-import TextTeacherModal from "@/components/editor/extensions/TextTeacher/TextTeacherModal";
-import TextTipModal from "@/components/editor/extensions/TextTip/TextTipModal";
-import TranslationModal from "@/components/editor/extensions/Translation/TranslationModal";
-import VocabulabModal from "@/components/editor/extensions/Vocabulab/VocabulabModal";
 import FloatingToolbar from '../editor/toolbar/floating-toolbar';
+import BottomToolbar from '../editor/toolbar/bottom-toolbar';
 
 const Tiptap = ({ onChange, content, isEditable, isTeacherNotebook }: any) => {
   const { data: session } = useSession();
@@ -94,23 +54,6 @@ const Tiptap = ({ onChange, content, isEditable, isTeacherNotebook }: any) => {
   const editor = useEditor({
     editable: isEditable,
     extensions: [
-      QuizExtenstion,
-      TextStudentExtension,
-      TextTeacherExtension,
-      TextTipExtension,
-      BandImageExtension,
-      BandVideoExtension,
-      SentencesExtension,
-      TranslationExtension,
-      MultipleChoiceExtension,
-      QuestionsExtension,
-      AudioExtension,
-      PronounceExtension,
-      ReviewExtension,
-      GoalExtension,
-      VocabulabExtension,
-      DownloadExtension,
-      FlashcardExtension,
       Document,
       Image,
       History,
@@ -176,33 +119,10 @@ const Tiptap = ({ onChange, content, isEditable, isTeacherNotebook }: any) => {
   if (!editor) {
     return null;
   }
-  const modalComponents: Record<string, any> = {
-    audio: AudioModal,
-    "band-image": BandImageModal,
-    "band-video": BandVideoModal,
-    download: DownloadModal,
-    flashcards: FlashcardModal,
-    goal: GoalModal,
-    "multiple-choice": MultipleChoiceModal,
-    pronounce: PronounceModal,
-    question: QuestionsModal,
-    quiz: QuizModal,
-    review: ReviewModal,
-    sentences: SentencesModal,
-    "text-student": TextStudentModal,
-    "text-teacher": TextTeacherModal,
-    "text-tip": TextTipModal,
-    translation: TranslationModal,
-    vocabulab: VocabulabModal,
-  };
-  const ActiveModal = openModalId ? modalComponents[openModalId] : null;
-
   return (
     <div className='flex flex-col min-w-full min-h-full gap-8 justify-center items-center text-black dark:text-white'>
       <EditorContent editor={editor} />
-      <div className='fixed bottom-[5rem] right-5 z-[999] rounded-md bg-gray-400 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-700'>
-        <ToolbarToolsSheet onOpenDialog={(id) => setOpenModalId(id)} modalTools={Object.keys(modalComponents)} />
-      </div>
+
       {isEditable && <BottomToolbar editor={editor} />}
     </div>
   );
