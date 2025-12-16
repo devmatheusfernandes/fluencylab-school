@@ -26,6 +26,7 @@ import { Editor } from "@tiptap/react";
 import { QuestionsToolModal } from "@/components/tiptap/extensions/Questions/QuestionsToolModal";
 import { MusicToolModal } from "@/components/tiptap/extensions/Music/MusicToolModal";
 import { WorkbookToolModal } from "@/components/tiptap/extensions/Workbooks/WorkbookToolModal";
+import { TasksToolSheet } from "@/components/tiptap/extensions/Tasks/TasksToolSheet";
 
 type ToolItem = {
   id: string;
@@ -56,6 +57,19 @@ const TOOL_CATEGORIES: ToolCategory[] = [
     ],
   },
   {
+    id: "organization",
+    label: "Organização",
+    description: "Ferramentas de gestão e organização",
+    items: [
+      {
+        id: "tasks",
+        label: "Tarefas",
+        description: "Visualize e gerencie as tarefas do aluno",
+        keywords: ["tarefa", "todo", "dever", "casa", "atividade"],
+      },
+    ],
+  },
+  {
     id: "extensions",
     label: "Extensões",
     description: "Ferramentas adicionais para conteúdo interativo",
@@ -76,11 +90,12 @@ const TOOL_CATEGORIES: ToolCategory[] = [
     ],
   },
 ];
-type BaseModalProps = { isOpen: boolean; onClose: () => void; editor: Editor };
+type BaseModalProps = { isOpen: boolean; onClose: () => void; editor: Editor; studentID?: string };
 export const MODAL_COMPONENTS: Record<string, React.ComponentType<BaseModalProps>> = {
   questions: QuestionsToolModal as React.ComponentType<BaseModalProps>,
   music: MusicToolModal as React.ComponentType<BaseModalProps>,
   workbooks: WorkbookToolModal as React.ComponentType<BaseModalProps>,
+  tasks: TasksToolSheet as React.ComponentType<BaseModalProps>,
 };
 
 export type ToolbarToolsSheetProps = {

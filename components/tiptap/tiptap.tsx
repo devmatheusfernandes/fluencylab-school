@@ -254,6 +254,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
             editor={editor}
             title={title}
             onTitleChange={onTitleChange}
+            studentID={studentID}
           />
         )}
         <EditorContent

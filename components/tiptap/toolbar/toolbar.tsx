@@ -20,9 +20,10 @@ interface ToolbarProps {
   editor: Editor | null;
   title?: string;
   onTitleChange?: (newTitle: string) => void;
+  studentID?: string;
 }
 
-const Toolbar: React.FC<ToolbarProps> = ({ editor, title, onTitleChange }) => {
+const Toolbar: React.FC<ToolbarProps> = ({ editor, title, onTitleChange, studentID }) => {
   const [openModalId, setOpenModalId] = useState<string | null>(null);
   if (!editor) {
     return null;
@@ -69,7 +70,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, title, onTitleChange }) => {
         </div>
       </div>
       {ActiveModal && (
-        <ActiveModal isOpen={true} onClose={handleCloseDialog} editor={editor} />
+        <ActiveModal isOpen={true} onClose={handleCloseDialog} editor={editor} studentID={studentID} />
       )}
     </div>
   );
