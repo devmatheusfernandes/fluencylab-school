@@ -31,6 +31,7 @@ import "./style.scss";
 import FloatStudentCallButton from "../stream/FloatStudentCallButton";
 import FloatTeacherCallButton from "../stream/FloatTeacherCallButton";
 import { useSession } from "next-auth/react";
+import Bubble from "./bubble";
 
 interface TiptapEditorProps {
   content: string;
@@ -257,6 +258,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
             studentID={studentID}
           />
         )}
+        <Bubble editor={editor} />
         <EditorContent
           editor={editor}
           className="min-h-screen no-scrollbar"

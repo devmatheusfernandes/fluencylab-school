@@ -15,8 +15,9 @@
   }
 
   p {
-    word-break: break-all;
-
+    overflow-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
   }
 
   input[type="checkbox"] {
