@@ -2,75 +2,8 @@
 @import "tw-animate-css";
 @import "../styles/_variables.scss";
 
-@custom-variant dark (&:is(.dark *));
-
-.sidebar-base {
-  @apply bg-slate-200 dark:bg-slate-950;
-}
-
-.container-base {
-  @apply bg-slate-500/8 dark:bg-slate-900;
-}
-
-.header-base {
-  @apply bg-slate-500/8 dark:bg-slate-900;
-}
-
-.title-base {
-  @apply text-xl font-bold text-primary;
-}
-
-.subtitle-base {
-  @apply text-lg font-semibold text-secondary-foreground;
-}
-
-.paragraph-base {
-  @apply text-xs font-medium text-secondary-foreground/80;
-}
-
-.subcontainer-base {
-  @apply bg-slate-400/20 dark:bg-slate-800;
-}
-
-/* 
-CARDS SÃO COMPONENTES QUE FICAM DENTRO DE SUBCONTAINERS QUE PODEM FUNCIONAR COMO: 
-- CARDS NORMAIS COM GRAFICOS E INFORMAÇOES
-- ITENS DENTRO DE SUBCONTAINERS
-*/
-
-.card-base {
-  @apply duration-150 ease-in-out transition-all rounded-lg 
-        border border-slate-200/50 dark:border-slate-700/50 
-        bg-slate-300/60 dark:bg-slate-950/40  
-        hover:border-slate-300 dark:hover:border-slate-600;
-}
-
-.skeleton-base {
-  @apply bg-linear-to-r from-slate-400/60 via-slate-400/30 to-slate-400/60
-         dark:from-slate-800 dark:via-slate-700/90 dark:to-slate-800
-         bg-size-[200%_2%] animate-shimmer;
-}
-
-.skeleton-sub {
-  @apply bg-linear-to-r from-white/20 via-slate-300/30 to-white/20
-         dark:from-slate-800 dark:via-slate-700/60 dark:to-slate-800
-         bg-size-[200%_50%] animate-shimmer;
-}
-
-
-.input-base {
-  @apply duration-150 ease-in-out transition-all rounded-lg 
-        border border-slate-200/50 dark:border-slate-700/50 
-        bg-white/20 dark:bg-slate-900/35 
-        hover:border-slate-500/30 dark:hover:border-slate-600
-        placeholder:text-gray-500 dark:placeholder:text-gray-400 
-        hover:bg-white/5 dark:hover:bg-gray-800 
-        focus:bg-white/25 dark:focus:bg-gray-800 
-        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/20 dark:focus-visible:ring-blue-400/20 
-        disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-50 dark:disabled:bg-gray-900 ;
-}
-
-@theme  {
+/* --- 1. CONFIGURAÇÃO DO TEMA (TAILWIND v4) --- */
+@theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -112,17 +45,16 @@ CARDS SÃO COMPONENTES QUE FICAM DENTRO DE SUBCONTAINERS QUE PODEM FUNCIONAR COM
   /* Animation definitions */
   --animate-shimmer: shimmer 5.5s ease-in-out infinite;
   @keyframes shimmer {
-    0% {
-      background-position: 200% 0;
-    }
-    100% {
-      background-position: -200% 0;
-    }
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
   }
 }
 
+/* --- 2. VARIÁVEIS DE COR (OKLCH) --- */
 :root {
   --radius: 0.65rem;
+  
+  /* Light Mode Defaults */
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
   --card: oklch(1 0 0);
@@ -154,8 +86,31 @@ CARDS SÃO COMPONENTES QUE FICAM DENTRO DE SUBCONTAINERS QUE PODEM FUNCIONAR COM
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.702 0.183 293.541);
+
+  /* --- STREAM CHAT INTEGRATION (Dynamic Mapping) --- */
+  /* Mapeia as variáveis do Stream para as variáveis do seu Tema */
+  --str-chat__primary-color: var(--primary);
+  --str-chat__active-primary-color: var(--primary); /* Ou use color-mix se quiser escurecer */
+  --str-chat__surface-color: var(--background);
+  --str-chat__secondary-surface-color: var(--muted);
+  --str-chat__primary-surface-color: var(--background);
+  --str-chat__primary-surface-color-low-emphasis: var(--muted-foreground);
+  
+  --str-chat__message-bubble-background-color: var(--secondary);
+  --str-chat__message-text-color: var(--foreground);
+  
+  --str-chat__channel-preview-active-background-color: var(--accent);
+  --str-chat__channel-preview-hover-background-color: var(--accent);
+  
+  --str-chat__border-radius-circle: 100%;
+  --str-chat__border-radius-md: var(--radius);
+  
+  /* Inputs do Stream */
+  --str-chat__input-background-color: var(--background);
+  --str-chat__input-flat-background-color: var(--background);
 }
 
+/* Dark Mode Overrides */
 .dark {
   --background: oklch(0.141 0.005 285.823);
   --foreground: oklch(0.985 0 0);
@@ -190,77 +145,200 @@ CARDS SÃO COMPONENTES QUE FICAM DENTRO DE SUBCONTAINERS QUE PODEM FUNCIONAR COM
   --sidebar-ring: oklch(0.38 0.189 293.745);
 }
 
+/* --- 3. TEMAS ADICIONAIS --- */
 .theme-violet {
   --primary: oklch(0.541 0.281 293.009);
   --primary-foreground: oklch(0.969 0.016 293.756);
   --ring: oklch(0.702 0.183 293.541);
-  --chart-1: oklch(0.811 0.111 293.571);
-  --chart-2: oklch(0.606 0.25 292.717);
-  --chart-3: oklch(0.541 0.281 293.009);
-  --chart-4: oklch(0.491 0.27 292.581);
-  --chart-5: oklch(0.432 0.232 292.759);
   --sidebar-primary: oklch(0.541 0.281 293.009);
   --sidebar-primary-foreground: oklch(0.969 0.016 293.756);
   --sidebar-ring: oklch(0.702 0.183 293.541);
 }
-
 .theme-rose {
   --primary: oklch(0.69 0.25 22);
   --primary-foreground: oklch(0.985 0 0);
   --ring: oklch(0.69 0.25 22);
-  --chart-1: oklch(0.76 0.24 20);
-  --chart-2: oklch(0.66 0.23 28);
-  --chart-3: oklch(0.6 0.22 16);
-  --chart-4: oklch(0.8 0.21 32);
-  --chart-5: oklch(0.72 0.2 12);
   --sidebar-primary: oklch(0.69 0.25 22);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-ring: oklch(0.69 0.25 22);
 }
-
 .theme-orange {
   --primary: oklch(0.74 0.22 55);
   --primary-foreground: oklch(0.21 0.006 285.885);
   --ring: oklch(0.74 0.22 55);
-  --chart-1: oklch(0.8 0.22 60);
-  --chart-2: oklch(0.72 0.21 50);
-  --chart-3: oklch(0.68 0.2 40);
-  --chart-4: oklch(0.86 0.18 70);
-  --chart-5: oklch(0.76 0.18 35);
   --sidebar-primary: oklch(0.74 0.22 55);
   --sidebar-primary-foreground: oklch(0.21 0.006 285.885);
   --sidebar-ring: oklch(0.74 0.22 55);
 }
-
 .theme-yellow {
   --primary: oklch(0.9 0.18 100);
   --primary-foreground: oklch(0.21 0.006 285.885);
   --ring: oklch(0.9 0.18 100);
-  --chart-1: oklch(0.92 0.17 98);
-  --chart-2: oklch(0.86 0.16 92);
-  --chart-3: oklch(0.8 0.15 88);
-  --chart-4: oklch(0.95 0.14 102);
-  --chart-5: oklch(0.88 0.14 95);
   --sidebar-primary: oklch(0.9 0.18 100);
   --sidebar-primary-foreground: oklch(0.21 0.006 285.885);
   --sidebar-ring: oklch(0.9 0.18 100);
 }
-
 .theme-green {
   --primary: oklch(0.7 0.15 145);
   --primary-foreground: oklch(0.985 0 0);
   --ring: oklch(0.7 0.15 145);
-  --chart-1: oklch(0.76 0.14 150);
-  --chart-2: oklch(0.68 0.13 140);
-  --chart-3: oklch(0.62 0.12 135);
-  --chart-4: oklch(0.8 0.12 155);
-  --chart-5: oklch(0.72 0.12 145);
   --sidebar-primary: oklch(0.7 0.15 145);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-ring: oklch(0.7 0.15 145);
 }
 
+/* --- 4. STREAM CHAT OVERRIDES (AVANÇADO) --- */
+/* Estas regras garantem que o Stream obedeça às variáveis acima */
 
+/* 4.1 Definições Globais e Correções Dark Mode */
+.dark .str-chat,
+.dark .str-chat.messaging,
+.dark .str-chat.dark,
+.str-chat {
+  /* Força o uso das variáveis do tema */
+  background-color: var(--background); 
+  color: var(--foreground);
+  
+  /* Variáveis internas do Stream mapeadas para o tema */
+  --str-chat__main-panel-background-color: var(--background);
+  --str-chat__channel-list-background-color: var(--sidebar); /* Lista lateral usa cor da sidebar */
+  --str-chat__message-list-background-color: var(--background);
+}
+
+/* 4.2 Painéis e Listas */
+.dark .str-chat__main-panel,
+.dark .str-chat__channel-list,
+.dark .str-chat__thread {
+  background-color: var(--background) !important;
+  color: var(--foreground);
+}
+
+.dark .str-chat__channel-list {
+  background-color: var(--sidebar) !important;
+  border-right: 1px solid var(--border);
+}
+
+/* 4.3 Headers */
+.dark .str-chat__header-livestream {
+  background-color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  color: var(--foreground);
+}
+
+/* 4.4 Inputs (Area de digitação) */
+.dark .str-chat__message-input, 
+.dark .str-chat__input-flat {
+  background-color: transparent;
+  border-top: 1px solid var(--border);
+}
+
+.dark .str-chat__textarea textarea,
+.dark .str-chat__input-flat textarea {
+  background-color: var(--input) !important;
+  color: var(--foreground) !important;
+  border: 1px solid var(--border);
+}
+
+.dark .str-chat__textarea textarea:focus {
+  border-color: var(--primary);
+  ring: 2px var(--ring);
+}
+
+/* 4.5 Mensagens e Texto */
+/* Texto geral (balões recebidos) */
+.str-chat__message-simple-text-inner,
+.str-chat__message-text-inner {
+  color: var(--foreground) !important;
+  background-color: var(--secondary); /* Balão de quem envia pra você */
+}
+
+/* Suas mensagens (Direita - Balão Primary) */
+.str-chat__message-simple--right .str-chat__message-simple-text-inner {
+  background-color: var(--primary) !important;
+  color: var(--primary-foreground) !important; /* Contraste correto (branco/preto) */
+}
+
+/* 4.6 Scrollbar Customizada do Stream */
+.str-chat__list::-webkit-scrollbar {
+  width: 6px;
+}
+.str-chat__list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.str-chat__list::-webkit-scrollbar-thumb {
+  background-color: var(--muted-foreground);
+  opacity: 0.3;
+  border-radius: 4px;
+}
+
+
+/* --- 5. COMPONENTES CUSTOMIZADOS DO USUÁRIO --- */
+@custom-variant dark (&:is(.dark *));
+
+.sidebar-base {
+  @apply bg-slate-200 dark:bg-slate-950;
+}
+
+.container-base {
+  @apply bg-slate-500/8 dark:bg-slate-900;
+}
+
+.header-base {
+  @apply bg-slate-500/8 dark:bg-slate-900;
+}
+
+.title-base {
+  @apply text-xl font-bold text-primary;
+}
+
+.subtitle-base {
+  @apply text-lg font-semibold text-secondary-foreground;
+}
+
+.paragraph-base {
+  @apply text-xs font-medium text-secondary-foreground/80;
+}
+
+.subcontainer-base {
+  @apply bg-slate-400/20 dark:bg-slate-800;
+}
+
+/* Cards */
+.card-base {
+  @apply duration-150 ease-in-out transition-all rounded-lg 
+         border border-slate-200/50 dark:border-slate-700/50 
+         bg-slate-300/60 dark:bg-slate-950/40  
+         hover:border-slate-300 dark:hover:border-slate-600;
+}
+
+/* Skeleton Loaders */
+.skeleton-base {
+  @apply bg-linear-to-r from-slate-400/60 via-slate-400/30 to-slate-400/60
+         dark:from-slate-800 dark:via-slate-700/90 dark:to-slate-800
+         bg-size-[200%_2%] animate-shimmer;
+}
+
+.skeleton-sub {
+  @apply bg-linear-to-r from-white/20 via-slate-300/30 to-white/20
+         dark:from-slate-800 dark:via-slate-700/60 dark:to-slate-800
+         bg-size-[200%_50%] animate-shimmer;
+}
+
+/* Inputs Gerais */
+.input-base {
+  @apply duration-150 ease-in-out transition-all rounded-lg 
+         border border-slate-200/50 dark:border-slate-700/50 
+         bg-white/20 dark:bg-slate-900/35 
+         hover:border-slate-500/30 dark:hover:border-slate-600
+         placeholder:text-gray-500 dark:placeholder:text-gray-400 
+         hover:bg-white/5 dark:hover:bg-gray-800 
+         focus:bg-white/25 dark:focus:bg-gray-800 
+         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/20 dark:focus-visible:ring-blue-400/20 
+         disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-50 dark:disabled:bg-gray-900 ;
+}
+
+
+/* --- 6. BASE LAYER --- */
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -272,7 +350,6 @@ CARDS SÃO COMPONENTES QUE FICAM DENTRO DE SUBCONTAINERS QUE PODEM FUNCIONAR COM
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
-
   }
   body {
     @apply bg-background text-foreground;

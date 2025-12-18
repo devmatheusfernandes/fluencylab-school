@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
+import { useTheme } from 'next-themes';
 import { ChannelFilters, ChannelSort, ChannelOptions } from 'stream-chat';
 import { 
   Chat, 
@@ -12,10 +13,16 @@ import {
   MessageInput, 
   Thread, 
   useCreateChatClient,
-  LoadingIndicator
+  LoadingIndicator,
+  useChatContext,
+  ChannelHeader
 } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/v2/index.css';
 import { useChatContacts, ChatContact } from '@/hooks/useChatContacts';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, Menu } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface ChatUser {
     id: string;
@@ -23,9 +30,77 @@ interface ChatUser {
     image?: string;
 }
 
+const ChatLayout = () => {
+    const { channel, setActiveChannel, client } = useChatContext();
+    const isMobile = useIsMobile();
+    const { theme } = useTheme();
+
+    // Determine visibility based on mobile state and active channel
+    const showList = !isMobile || !channel;
+    const showChannel = !isMobile || !!channel;
+
+    const filters = useMemo(() => ({ 
+        type: 'messaging', 
+        members: { $in: [client.userID!] } 
+    }), [client.userID]);
+
+    const sort: ChannelSort = useMemo(() => ({ last_message_at: -1 }), []);
+    const options: ChannelOptions = useMemo(() => ({ limit: 10 }), []);
+    
+    return (
+        <div className={cn(
+            "flex w-full h-full overflow-hidden bg-white dark:bg-slate-950", 
+            // Apply dark mode styles to container if needed
+        )}>
+            <div className={cn(
+                "flex flex-col bg-gray-50 dark:bg-slate-900 border-r dark:border-slate-800",
+                isMobile ? "w-full" : "w-1/3 min-w-[250px]",
+                !showList && "hidden"
+            )}>
+                <ChannelList 
+                    filters={filters} 
+                    sort={sort} 
+                    options={options} 
+                    showChannelSearch
+                />
+            </div>
+          <div className={cn(
+    "flex flex-col bg-white dark:bg-slate-950", // Certifique-se que isso está aqui
+    isMobile ? "w-full" : "w-2/3",
+    !showChannel && "hidden"
+)}>
+                <ChannelComponent>
+                    <Window>
+                        {isMobile && (
+                            <div className="flex items-center p-2 border-b dark:border-slate-800 bg-gray-50 dark:bg-slate-900">
+                                <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="mr-2"
+                                    onClick={() => setActiveChannel(undefined)}
+                                >
+                                    <ArrowLeft className="h-5 w-5" />
+                                </Button>
+                                <span className="font-medium text-sm">Voltar</span>
+                            </div>
+                        )}
+                        <ChannelHeader />
+                        <div className="flex-1 overflow-hidden relative">
+                            <MessageList />
+                        </div>
+                        <MessageInput />
+                    </Window>
+                    <Thread />
+                </ChannelComponent>
+            </div>
+        </div>
+    );
+};
+
 const ChatInterface = ({ user, contacts }: { user: ChatUser; contacts: ChatContact[] }) => {
     const apiKey = process.env.NEXT_PUBLIC_STREAM_API_KEY!;
     const [channelsCreated, setChannelsCreated] = useState(false);
+    const { resolvedTheme } = useTheme();
 
     const tokenOrProvider = useCallback(async () => {
         const response = await fetch('/api/token', {
@@ -49,7 +124,6 @@ const ChatInterface = ({ user, contacts }: { user: ChatUser; contacts: ChatConta
 
         const createChannels = async () => {
             try {
-                // Check if we have existing channels first to avoid unnecessary creation
                 const filter = { type: 'messaging', members: { $in: [user.id] } };
                 const existingChannels = await client.queryChannels(filter, {}, { limit: 30 });
                 const existingMemberIds = new Set<string>();
@@ -63,7 +137,6 @@ const ChatInterface = ({ user, contacts }: { user: ChatUser; contacts: ChatConta
                     });
                 });
 
-                // Filter contacts that don't have a channel yet
                 const contactsNeedingChannel = contacts.filter(
                     contact => !existingMemberIds.has(contact.id)
                 );
@@ -73,8 +146,7 @@ const ChatInterface = ({ user, contacts }: { user: ChatUser; contacts: ChatConta
                     return;
                 }
 
-                // Process contacts in chunks to avoid rate limiting (429)
-                const chunkSize = 1; // Process 1 at a time to be extra safe
+                const chunkSize = 1; 
                 for (let i = 0; i < contactsNeedingChannel.length; i += chunkSize) {
                     const chunk = contactsNeedingChannel.slice(i, i + chunkSize);
                     
@@ -84,8 +156,6 @@ const ChatInterface = ({ user, contacts }: { user: ChatUser; contacts: ChatConta
                                 members: [user.id, contact.id],
                             });
 
-                            // Sync users via server-side API before creating channel
-                            // This avoids "User not allowed to perform action UpdateUser" error
                             await fetch('/api/chat/sync', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
@@ -97,15 +167,12 @@ const ChatInterface = ({ user, contacts }: { user: ChatUser; contacts: ChatConta
                                 })
                             });
 
-                            // create() is lighter than watch() if we just want to ensure existence
-                            // But the UI might try to use this channel instance immediately, so we must watch it
                             await channel.watch(); 
                         } catch (err) {
                             console.error(`Failed to create channel for ${contact.id}:`, err);
                         }
                     }));
                     
-                    // Delay between chunks if there are more chunks
                     if (i + chunkSize < contactsNeedingChannel.length) {
                         await new Promise(resolve => setTimeout(resolve, 1000));
                     }
@@ -114,7 +181,6 @@ const ChatInterface = ({ user, contacts }: { user: ChatUser; contacts: ChatConta
                 setChannelsCreated(true);
             } catch (error) {
                 console.error('Error creating channels:', error);
-                // Even if error, we set created to true to stop loop, user can refresh if needed
                 setChannelsCreated(true);
             }
         };
@@ -124,43 +190,18 @@ const ChatInterface = ({ user, contacts }: { user: ChatUser; contacts: ChatConta
 
     if (!client) {
         return (
-            <div className="flex justify-center items-center h-[500px] w-full bg-white rounded-lg border">
+            <div className="flex justify-center items-center h-[500px] w-full bg-white dark:bg-slate-950 rounded-lg border dark:border-slate-800">
                 <LoadingIndicator />
             </div>
         );
     }
 
-    const filters: ChannelFilters = { 
-        type: 'messaging', 
-        members: { $in: [user.id] } 
-    };
-    const sort: ChannelSort = { last_message_at: -1 };
-    const options: ChannelOptions = { limit: 10 };
+    const streamTheme = resolvedTheme === 'dark' ? 'messaging dark' : 'messaging light';
 
     return (
-        <div className="flex h-[80vh] w-full border rounded-lg overflow-hidden bg-white shadow-sm">
-            <Chat client={client} theme="messaging light">
-                <div className="flex w-full h-full">
-                    <div className="w-1/3 border-r min-w-[250px] flex flex-col bg-gray-50">
-                        <ChannelList 
-                            filters={filters} 
-                            sort={sort} 
-                            options={options} 
-                            showChannelSearch
-                        />
-                    </div>
-                    <div className="w-2/3 flex flex-col bg-white">
-                        <ChannelComponent>
-                            <Window>
-                                <div className="flex-1 overflow-hidden relative">
-                                    <MessageList />
-                                </div>
-                                <MessageInput />
-                            </Window>
-                            <Thread />
-                        </ChannelComponent>
-                    </div>
-                </div>
+        <div className="flex h-[80vh] w-full border dark:border-slate-800 rounded-lg overflow-hidden bg-white dark:bg-slate-950 shadow-sm">
+            <Chat client={client} theme={streamTheme}>
+                <ChatLayout />
             </Chat>
         </div>
     );
