@@ -34,6 +34,7 @@ interface Notebook {
   updatedAt: any;
   student: string;
   content: any;
+  transcriptions?: { date: any; content: string }[];
 }
 
 export default function NotebookViewer({ studentId, notebookId }: NotebookViewerProps) {
@@ -124,6 +125,7 @@ export default function NotebookViewer({ studentId, notebookId }: NotebookViewer
             updatedAt: notebookData.updatedAt,
             student: alunoId as string,
             content: fetchedContent,
+            transcriptions: notebookData.transcriptions || [],
           });
 
           setContent(fetchedContent);

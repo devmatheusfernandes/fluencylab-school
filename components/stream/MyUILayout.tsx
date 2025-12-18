@@ -13,6 +13,7 @@ import { useCall } from '@stream-io/video-react-bindings';
 import { Button } from '@/components/ui/button';
 import { useCallContext } from '@/context/CallContext';
 import { useSession } from 'next-auth/react';
+import { useSearchParams, useParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { doc, updateDoc } from 'firebase/firestore';
 import { ParticipantsGrid } from './ParticipantsGrid';
@@ -28,8 +29,19 @@ import {
   Minimize2, 
   Maximize2, 
   PhoneOff, 
-  AlertCircle // Substituindo o MicAlert
+  AlertCircle, // Substituindo o MicAlert
+  Sparkles,
+  FileText,
+  Loader2,
+  Disc
 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from '@/lib/utils';
 
 // --- ESTILOS COMPARTILHADOS ---
@@ -183,13 +195,25 @@ export const JoinUI: React.FC<JoinUIProps> = ({ role, onJoin, joinLabel }) => {
 export const MyUILayout: React.FC = (): JSX.Element => {
   const { data: session } = useSession();
   const [id, setId] = useState<string | null>(null);
+  const [notebookId, setNotebookId] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const params = useParams();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      setId(params.get("student"));
+      // Get student ID
+      const urlParams = new URLSearchParams(window.location.search);
+      const sId = urlParams.get("student");
+      if (sId) setId(sId);
+
+      // Get notebook ID
+      let nId = urlParams.get("notebookId");
+      if (!nId && params?.notebookId) {
+        nId = params.notebookId as string;
+      }
+      if (nId) setNotebookId(nId);
     }
-  }, []);
+  }, [params]);
   
   const call = useCall();
   const { callData, setCallData } = useCallContext();
@@ -199,17 +223,74 @@ export const MyUILayout: React.FC = (): JSX.Element => {
     useCallCallingState,
     useLocalParticipant,
     useRemoteParticipants,
-    useMicrophoneState, // <-- Extraído daqui
-    useCameraState      // <-- Extraído daqui
+    useMicrophoneState,
+    useCameraState,
+    useIsCallRecordingInProgress
   } = useCallStateHooks();
 
   // 2. Chamar os hooks para pegar o estado real
   const { status: micStatus, isSpeakingWhileMuted } = useMicrophoneState();
   const { status: camStatus } = useCameraState();
+  const isRecordingInProgress = useIsCallRecordingInProgress();
   
   // 3. Transformando status em booleans
   const isMicEnabled = micStatus === 'enabled';
   const isCamEnabled = camStatus === 'enabled';
+
+  const [isSummaryOpen, setIsSummaryOpen] = useState(false);
+  const [summary, setSummary] = useState<string | null>(null);
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+
+  const handleToggleRecording = async () => {
+    if (!call) return;
+    try {
+      if (isRecordingInProgress) {
+        await call.stopRecording();
+        try { await call.stopTranscription(); } catch (e) {}
+        toast.success("Gravação parada");
+      } else {
+        await call.startRecording();
+          try {
+            await call.startTranscription({ language: 'auto' });
+          } catch (e) {
+            console.log("Transcrição automática pode já estar ativa ou falhou:", e);
+          }
+        toast.success("Gravação iniciada");
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error("Erro ao alterar gravação");
+    }
+  };
+
+  const handleGenerateSummary = async () => {
+    if (!callData?.callId) return;
+    setIsSummaryOpen(true);
+    if (summary) return;
+
+    setIsGeneratingSummary(true);
+    try {
+      const res = await fetch('/api/summary', {
+        method: 'POST',
+        body: JSON.stringify({ 
+          callId: callData.callId,
+          studentId: id,
+          notebookId: notebookId
+        })
+      });
+      const data = await res.json();
+      if (data.error) {
+        toast.error(data.error);
+        setSummary("Não foi possível gerar o resumo. Verifique se a gravação e transcrição estavam ativas.");
+      } else {
+        setSummary(data.summary);
+      }
+    } catch (e) {
+      toast.error("Erro ao gerar resumo");
+    } finally {
+      setIsGeneratingSummary(false);
+    }
+  };
 
   const callingState = useCallCallingState();
   const localParticipant = useLocalParticipant();
@@ -338,6 +419,20 @@ export const MyUILayout: React.FC = (): JSX.Element => {
                   disabledIcon={CameraOff} 
                 />
 
+                <ControlButton 
+                  onClick={handleToggleRecording} 
+                  isEnabled={!isRecordingInProgress} 
+                  enabledIcon={Disc} 
+                  disabledIcon={Disc} 
+                />
+
+                <ControlButton 
+                  onClick={handleGenerateSummary} 
+                  isEnabled={true} 
+                  enabledIcon={Sparkles} 
+                  disabledIcon={Sparkles} 
+                />
+
                 <div className="rounded-full overflow-hidden hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
                   <ScreenShareButton />
                 </div>
@@ -438,19 +533,52 @@ export const MyUILayout: React.FC = (): JSX.Element => {
   if (!call?.id) return <>Sem chamada ativa</>;
 
   return (
-    <AnimatePresence mode="wait">
-      {callingState !== CallingState.JOINED ? (
-        <JoinUI
-            key="join-ui"
-            role={session?.user.role === "teacher" ? "teacher" : "student"}
-            onJoin={session?.user.role === "teacher" ? handleTeacherJoinCall : handleStudentJoinCall}
-            joinLabel={session?.user.role === "teacher" ? "Iniciar Aula" : "Entrar na Sala"}
-        />
-      ) : isPiP ? (
-        pipComponent
-      ) : (
-        callComponent
-      )}
-    </AnimatePresence>
+    <>
+      <AnimatePresence mode="wait">
+        {callingState !== CallingState.JOINED ? (
+          <JoinUI
+              key="join-ui"
+              role={session?.user.role === "teacher" ? "teacher" : "student"}
+              onJoin={session?.user.role === "teacher" ? handleTeacherJoinCall : handleStudentJoinCall}
+              joinLabel={session?.user.role === "teacher" ? "Iniciar Aula" : "Entrar na Sala"}
+          />
+        ) : isPiP ? (
+          pipComponent
+        ) : (
+          callComponent
+        )}
+      </AnimatePresence>
+
+      <Dialog open={isSummaryOpen} onOpenChange={setIsSummaryOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="text-indigo-500" />
+              Resumo da Reunião
+            </DialogTitle>
+            <DialogDescription>
+              Resumo gerado por IA com base na transcrição da chamada.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4 space-y-4">
+            {isGeneratingSummary ? (
+              <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+                <Loader2 className="h-8 w-8 animate-spin mb-2" />
+                <p>Gerando resumo...</p>
+              </div>
+            ) : summary ? (
+              <div className="prose dark:prose-invert max-w-none">
+                <div className="whitespace-pre-wrap">{summary}</div>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <FileText className="h-12 w-12 mx-auto mb-2 opacity-20" />
+                <p>Nenhum resumo disponível.</p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };

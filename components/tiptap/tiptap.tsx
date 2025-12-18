@@ -256,6 +256,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
             title={title}
             onTitleChange={onTitleChange}
             studentID={studentID}
+            notebookId={docId}
           />)}
         <Bubble editor={editor} />
         <EditorContent
