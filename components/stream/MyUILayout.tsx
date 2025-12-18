@@ -251,7 +251,7 @@ export const MyUILayout: React.FC = (): JSX.Element => {
       } else {
         await call.startRecording();
           try {
-            await call.startTranscription({ language: 'auto' });
+            await call.startTranscription({ language: 'pt' });
           } catch (e) {
             console.log("Transcrição automática pode já estar ativa ou falhou:", e);
           }
@@ -343,7 +343,14 @@ export const MyUILayout: React.FC = (): JSX.Element => {
     if (callingState === CallingState.JOINED) return;
     if (call) {
       try {
-        await call.join({ data: { settings_override: { limits: { max_duration_seconds: 3600 } } } });
+        await call.join({ 
+          data: { 
+            settings_override: { 
+              limits: { max_duration_seconds: 3600 },
+              transcription: { mode: 'available' }
+            } 
+          } 
+        });
         if (id) await updateDoc(doc(db, "users", id), { callId: callData?.callId });
         showJoinedCallToast();
       } catch (error) { console.error(error); }

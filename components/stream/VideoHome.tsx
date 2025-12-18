@@ -60,7 +60,16 @@ export default function VideoHome() {
 
       const newCall = newClient.call("development", callId as string);
       setCall(newCall); // Set the call in state
-      newCall.getOrCreate();
+      newCall.getOrCreate({
+        data: {
+          settings_override: {
+            transcription: {
+              mode: 'available',
+              closed_caption_mode: 'available',
+            },
+          },
+        },
+      });
     }
   }, [streamToken, userId, userName, callId]); // Effect dependency on streamToken, userId, and userName
 

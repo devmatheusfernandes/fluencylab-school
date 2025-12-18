@@ -29,6 +29,7 @@ export async function POST(req: Request) {
 
     // List recordings to find one with transcription
     const { recordings } = await call.listRecordings();
+    console.log(`[Summary] Found ${recordings.length} recordings`);
 
     // Sort by end_time desc to get the latest
     const latestRecording = recordings.sort((a, b) => 
@@ -36,35 +37,42 @@ export async function POST(req: Request) {
     )[0];
 
     if (!latestRecording) {
+      console.log("[Summary] No recordings found");
       return NextResponse.json({ error: 'No recordings found for this call' }, { status: 404 });
     }
     
+    console.log(`[Summary] Latest recording ID: ${latestRecording.filename}, End Time: ${latestRecording.end_time}`);
+
     // Check if transcription is available
-    // Note: The property name might vary based on SDK version. 
-    // Usually it's linked via 'transcription_url' or we have to list transcriptions separately.
-    // Let's try listing transcriptions if queryRecordings doesn't have it.
-    
     let transcriptText = "";
 
     try {
         const { transcriptions } = await call.listTranscriptions();
+        console.log(`[Summary] Found ${transcriptions.length} transcriptions`);
+        
         const latestTranscript = transcriptions.sort((a, b) => 
             new Date(b.end_time).getTime() - new Date(a.end_time).getTime()
         )[0];
 
         if (latestTranscript && latestTranscript.url) {
+            console.log(`[Summary] Fetching transcription from: ${latestTranscript.url}`);
             const response = await fetch(latestTranscript.url);
             transcriptText = await response.text();
+        } else {
+             console.log("[Summary] No transcription URL found in listTranscriptions");
         }
     } catch (e) {
         console.log("Error listing transcriptions, falling back to recording check", e);
     }
 
     if (!transcriptText) {
+         console.log("[Summary] Transcription text is empty. Checking fallback.");
          // Fallback: check if recording has a transcription link directly (some versions do)
          // or if we can't find it.
          return NextResponse.json({ error: 'No transcription found. Ensure recording and transcription were enabled.' }, { status: 404 });
     }
+
+    console.log(`[Summary] Transcript text length: ${transcriptText.length}`);
 
     // Generate Summary with Gemini
     const genAI = new GoogleGenerativeAI(geminiKey);
@@ -83,16 +91,20 @@ export async function POST(req: Request) {
     const response = await result.response;
     const summary = response.text();
 
+    console.log(`[Summary] Generated summary length: ${summary.length}`);
+
     // Save to Firestore if studentId and notebookId are provided
     if (studentId && notebookId && transcriptText) {
       try {
-        await adminDb.doc(`users/${studentId}/Notebooks/${notebookId}`).update({
+        console.log(`[Summary] Saving to users/${studentId}/Notebooks/${notebookId}`);
+        await adminDb.doc(`users/${studentId}/Notebooks/${notebookId}`).set({
           transcriptions: FieldValue.arrayUnion({
             date: new Date(),
             content: transcriptText,
             summary: summary
           })
-        });
+        }, { merge: true });
+        console.log("[Summary] Saved successfully");
       } catch (saveError) {
         console.error("Error saving transcription to notebook:", saveError);
       }
