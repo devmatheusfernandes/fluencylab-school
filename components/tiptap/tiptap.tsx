@@ -187,7 +187,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
     editorProps: {
       attributes: {
         class:
-          "sm:px-[25vw] px-[1vw] prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-strong:text-gray-900 dark:prose-strong:text-gray-100 prose-em:text-gray-700 dark:prose-em:text-gray-300 prose-blockquote:text-gray-600 dark:prose-blockquote:text-gray-400 prose-blockquote:border-gray-300 dark:prose-blockquote:border-gray-600 prose-code:text-gray-900 dark:prose-code:text-gray-100 prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-pre:bg-gray-100 dark:prose-pre:bg-gray-800 prose-ol:text-gray-700 dark:prose-ol:text-gray-300 prose-ul:text-gray-700 dark:prose-ul:text-gray-300 prose-li:text-gray-700 dark:prose-li:text-gray-300 min-h-[300px] p-4",
+          "sm:px-[25vw] px-[8vw] prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-strong:text-gray-900 dark:prose-strong:text-gray-100 prose-em:text-gray-700 dark:prose-em:text-gray-300 prose-blockquote:text-gray-600 dark:prose-blockquote:text-gray-400 prose-blockquote:border-gray-300 dark:prose-blockquote:border-gray-600 prose-code:text-gray-900 dark:prose-code:text-gray-100 prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-pre:bg-gray-100 dark:prose-pre:bg-gray-800 prose-ol:text-gray-700 dark:prose-ol:text-gray-300 prose-ul:text-gray-700 dark:prose-ul:text-gray-300 prose-li:text-gray-700 dark:prose-li:text-gray-300 min-h-[300px] p-4",
       },
     },
     onUpdate: ({ editor }) => {
@@ -249,15 +249,14 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
 
   return (
     <div className={`bg-slate-100 dark:bg-black ${className}`}>
-      <div className="relative h-screen overflow-y-auto">
+      <div className="relative h-screen overflow-y-auto no-scrollbar">
         {!isMobile && (
           <Toolbar
             editor={editor}
             title={title}
             onTitleChange={onTitleChange}
             studentID={studentID}
-          />
-        )}
+          />)}
         <Bubble editor={editor} />
         <EditorContent
           editor={editor}

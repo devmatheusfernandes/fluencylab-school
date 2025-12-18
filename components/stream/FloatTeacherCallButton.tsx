@@ -28,12 +28,12 @@ export default function FloatTeacherCallButton({ student }: FloatTeacherCallButt
 
   return(
     <motion.div
-      className="fixed bottom-12 lg:right-10 md:right-5 right-2 z-40"
+      className="fixed bottom-16 lg:right-10 md:right-5 right-2 z-40"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <motion.button
-        className="flex items-center gap-2 px-4 py-3 rounded-full overflow-hidden bg-primary/80 hover:bg-primary cursor-pointer text-white shadow-lg"
+        className="flex items-center gap-2 px-4 py-3 rounded-full overflow-hidden bg-primary/40 hover:bg-primary cursor-pointer text-white shadow-lg"
         initial={{ width: 56 }}
         animate={{ width: isHovered ? 180 : 56 }}
         transition={{ type: "spring", stiffness: 360, damping: 28, duration: 0.22 }}

@@ -4,119 +4,135 @@ import {
   CallingState,
   StreamTheme,
   useCallStateHooks,
-  ToggleAudioPublishingButton,
-  ToggleVideoPublishingButton,
   ScreenShareButton,
-  Avatar
+  Avatar,
+  // useMicrophoneState, <--- REMOVIDO DAQUI (CAUSA DO ERRO)
+  // useCameraState      <--- REMOVIDO DAQUI
 } from "@stream-io/video-react-sdk";
 import { useCall } from '@stream-io/video-react-bindings';
 import { Button } from '@/components/ui/button';
 import { useCallContext } from '@/context/CallContext';
 import { useSession } from 'next-auth/react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { doc, updateDoc } from 'firebase/firestore';
 import { ParticipantsGrid } from './ParticipantsGrid';
 import { ParticipantsGridPiP } from './ParticipantsGridPiP';
 import { toast } from 'sonner';
 import { db } from '@/lib/firebase/config';
-import { Camera, CameraOff, LucideAlignHorizontalJustifyEnd, LucideClipboardPlus, Mic, MicOff, PictureInPicture, TurntableIcon } from 'lucide-react';
+import { 
+  Camera, 
+  CameraOff, 
+  LogOut, 
+  Mic, 
+  MicOff, 
+  Minimize2, 
+  Maximize2, 
+  PhoneOff, 
+  AlertCircle // Substituindo o MicAlert
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-// Common container and notch classes for responsiveness
-const containerClasses = `
-  fixed top-0 right-0 bottom-0 w-full max-w-sm z-[9999]
-  rounded-l-2xl overflow-y-auto
-  bg-white/20 dark:bg-black/20
-  backdrop-blur-lg
-  border border-white/30 dark:border-white/10
-  text-fluency-gray-800 dark:text-fluency-gray-100
-  hover:bg-white/30 hover:dark:bg-black/30
-  hover:border-white/50 dark:hover:border-white/20
-  focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent
+// --- ESTILOS COMPARTILHADOS ---
+const glassContainerClasses = `
+  fixed top-4 right-4 bottom-4 w-full max-w-sm z-[9999]
+  rounded-3xl overflow-hidden flex flex-col
+  bg-white/80 dark:bg-black/60
+  backdrop-blur-xl saturate-150
+  border border-white/20 dark:border-white/10
+  text-slate-800 dark:text-slate-100
+  shadow-2xl shadow-black/10
   transition-all duration-300
-  shadow-[0_4px_12px_rgba(0,0,0,0.05)]
-  p-4
 `;
-const notchClasses =
-  "absolute left-2 top-1/2 transform -translate-y-1/2 w-[5px] h-12 bg-gray-400 dark:bg-gray-200 rounded-full mx-auto mb-4 cursor-grab";
 
+const controlButtonClasses = `
+  p-3 rounded-full transition-all duration-200 ease-in-out
+  flex items-center justify-center
+  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-900
+`;
+
+// --- TOASTS HELPERS ---
+const toastStyleBase = {
+  borderRadius: "12px",
+  color: "#fff",
+  textAlign: "center" as const,
+  padding: "12px",
+  fontSize: "0.95rem",
+  fontWeight: 600,
+  boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+  border: "1px solid rgba(255,255,255,0.1)"
+};
+
+export const showCanceledCallToast = () => toast("Chamada Cancelada", { position: "bottom-center", style: { ...toastStyleBase, background: "#EAB308" } });
+export const showJoinedCallToast = () => toast("Sala Criada!", { position: "bottom-center", style: { ...toastStyleBase, background: "#22C55E" } });
+export const showLeftCallToast = () => toast("Você saiu da chamada", { position: "bottom-center", style: { ...toastStyleBase, background: "#6366F1" } });
+export const showEndedCallToast = () => toast("Chamada Encerrada", { position: "bottom-center", style: { ...toastStyleBase, background: "#EF4444" } });
+
+// --- COMPONENTE DE BOTÃO ---
+const ControlButton = ({ 
+  onClick, 
+  isEnabled = true, 
+  enabledIcon: EnabledIcon, 
+  disabledIcon: DisabledIcon, 
+  variant = "default" 
+}: any) => {
+  const isDestructive = variant === "destructive";
+  
+  return (
+    <motion.button
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={onClick}
+      className={cn(
+        controlButtonClasses,
+        isDestructive 
+          ? "bg-red-500 text-white hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 shadow-lg shadow-red-500/20"
+          : isEnabled 
+            ? "bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-700" 
+            : "bg-red-500 text-white hover:bg-red-600 dark:bg-red-600 shadow-md shadow-red-500/20"
+      )}
+    >
+      {isEnabled ? <EnabledIcon size={20} /> : <DisabledIcon size={20} />}
+    </motion.button>
+  );
+};
+
+// --- JOIN UI ---
 interface JoinUIProps {
   role: "teacher" | "student";
   onJoin: () => Promise<void>;
   joinLabel: string;
 }
 
-  export const showCanceledCallToast = (): void => {
-    toast("Cancelada", {
-      position: "bottom-center",
-      style: {
-        borderRadius: "10px",
-        background: "#DEBE16",
-        color: "#fff",
-        textAlign: "center",
-        padding: "10px",
-        fontSize: "1rem",
-        fontWeight: 'bold'
-      },
-    });
-  };
-
-  export const showJoinedCallToast = (): void => {
-    toast("Sala criada!", {
-      position: "bottom-center",
-      style: {
-        borderRadius: "10px",
-        background: "#1fc84f",
-        color: "#fff",
-        textAlign: "center",
-        padding: "10px",
-        fontSize: "1rem",
-        fontWeight: 'bold'
-      },
-    });
-  };
-
-  export const showLeftCallToast = (): void => {
-    toast("Até mais!", {
-      position: "bottom-center",
-      style: {
-        borderRadius: "10px",
-        background: "#3F51B5",
-        color: "#fff",
-        textAlign: "center",
-        padding: "10px",
-        fontSize: "1rem",
-        fontWeight: 'bold'
-      },
-    });
-  };
-
-  export const showEndedCallToast = (): void => {
-    toast("Chamada encerrada", {
-      position: "bottom-center",
-      style: {
-        borderRadius: "10px",
-        background: "#FA3D2E",
-        color: "#fff",
-        textAlign: "center",
-        padding: "10px",
-        fontSize: "1rem",
-        fontWeight: 'bold'
-      },
-    });
-  };
-
-// A reusable join UI component wrapped in a motion.div
 export const JoinUI: React.FC<JoinUIProps> = ({ role, onJoin, joinLabel }) => {
     const { useCallSession } = useCallStateHooks();
     const sessionCall = useCallSession();
     const call = useCall();
     const { setCallData } = useCallContext();
     const { data: session } = useSession();
-    // Cria um array de participantes únicos
+
     const uniqueParticipants = sessionCall?.participants.filter(
       (participant, index, self) =>
         index === self.findIndex(p => p.user.id === participant.user.id)
     ) || [];
+
+    const handleCancel = async () => {
+       try { await call?.endCall(); } catch (error) {} 
+       finally {
+          try {
+            const parts = String(call?.id || '').split('-');
+            const other = parts.find((p) => p !== session?.user?.id);
+            if (other) {
+              await fetch('/api/calls/end', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ studentId: other })
+              });
+            }
+          } catch {}
+          setCallData(null);
+          showCanceledCallToast();
+       }
+    }
 
     return (
     <StreamTheme>
@@ -124,87 +140,45 @@ export const JoinUI: React.FC<JoinUIProps> = ({ role, onJoin, joinLabel }) => {
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={0.2}
-        onDragEnd={(event, info) => {
-          if (info.offset.x > 100) {
-            call?.leave();
-            setCallData(null);
-            showCanceledCallToast();
-          }
-        }}
-        initial={{ x: "100%" }}
-        animate={{ x: 0 }}
-        exit={{ x: "100%" }}
-        transition={{ type: "tween", duration: 0.3 }}
-        className={containerClasses}
+        onDragEnd={(event, info) => { if (info.offset.x > 100) handleCancel(); }}
+        initial={{ x: "100%", opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        exit={{ x: "100%", opacity: 0 }}
+        transition={{ type: "spring", damping: 25, stiffness: 200 }}
+        className={glassContainerClasses}
       >
-        <div className={notchClasses} />
-        <div className="flex flex-col items-center justify-center gap-6 rounded-lg p-4 h-[85%]">
-          <p className="text-lg font-semibold">
-            Bem-vindo, {role === "teacher" ? "Professor" : (session?.user.name)}!
-          </p>
-          {role === "student" && 
-          (<div className="flex flex-row items-center justify-center gap-2">
-            Participantes:
-          </div>)}
-          <div className="flex flex-wrap justify-center gap-2">
-            {uniqueParticipants.map((participant, index) => {
-              const key = participant.user.id ? `user-${participant.user.id}` : `index-${index}`;
-              return (
-                <div key={key} className="flex flex-row items-center justify-center gap-2">
-                  <Avatar
-                    name={participant.user.name}
-                    imageSrc={participant.user.image}
-                    style={{ borderRadius: "100%" }}
-                  />
-                  {participant.user.name && (
-                    <div className="font-bold text-sm">
-                      {participant.user.name}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 h-16 w-1 bg-slate-300 dark:bg-slate-700 rounded-full opacity-50" />
+        <div className="flex flex-col items-center justify-center h-full p-6 space-y-8 relative">
+          <div className="text-center space-y-2">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">
+              {role === "teacher" ? "Sala de Aula" : "Pronto?"}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+               {role === "teacher" ? "Prepare-se para ensinar" : `Olá, ${session?.user.name?.split(' ')[0]}`}
+            </p>
           </div>
-
-          <div className="flex flex-wrap items-center justify-center gap-2 w-full">
-            <Button onClick={onJoin}>
-              {joinLabel}
-            </Button>
-            <Button 
-                onClick={async () => {
-                    try {
-                      await call?.endCall();
-                    } catch (error: any) {
-                      if (error.message && error.message.includes("already been left")) {
-                        console.warn("Call was already left.");
-                      } else {
-                        console.error("Error leaving call:", error);
-                      }
-                    } finally {
-                      try {
-                        const parts = String(call?.id || '').split('-');
-                        const other = parts.find((p) => p !== session?.user?.id);
-                        if (other) {
-                          await fetch('/api/calls/end', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ studentId: other })
-                          });
-                        }
-                      } catch {}
-                      setCallData(null);
-                      showCanceledCallToast();
-                    }
-                }}
-                >
-                Cancelar
-            </Button>
+          <div className="flex -space-x-4 items-center justify-center py-4">
+             {uniqueParticipants.length > 0 ? uniqueParticipants.map((p) => (
+               <div key={p.user.id} className="relative z-10 border-4 border-white dark:border-slate-900 rounded-full shadow-lg">
+                 <Avatar name={p.user.name} imageSrc={p.user.image} style={{ width: 64, height: 64, borderRadius: '100%' }} />
+               </div>
+             )) : (
+               <div className="w-16 h-16 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center animate-pulse">
+                 <span className="text-2xl">👋</span>
+               </div>
+             )}
+          </div>
+          <div className="flex flex-col gap-3 w-full max-w-[200px]">
+            <Button onClick={onJoin} className="w-full rounded-full h-12 text-md font-semibold bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-lg shadow-indigo-500/20">{joinLabel}</Button>
+            <Button variant="ghost" onClick={handleCancel} className="w-full rounded-full text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20">Cancelar</Button>
           </div>
         </div>
       </motion.div>
     </StreamTheme>
     );
-  };
+};
+
+// --- MAIN LAYOUT ---
 
 export const MyUILayout: React.FC = (): JSX.Element => {
   const { data: session } = useSession();
@@ -219,30 +193,41 @@ export const MyUILayout: React.FC = (): JSX.Element => {
   
   const call = useCall();
   const { callData, setCallData } = useCallContext();
+  
+  // 1. Extrair os Hooks do `useCallStateHooks`
   const {
     useCallCallingState,
     useLocalParticipant,
     useRemoteParticipants,
-    useMicrophoneState,
+    useMicrophoneState, // <-- Extraído daqui
+    useCameraState      // <-- Extraído daqui
   } = useCallStateHooks();
+
+  // 2. Chamar os hooks para pegar o estado real
+  const { status: micStatus, isSpeakingWhileMuted } = useMicrophoneState();
+  const { status: camStatus } = useCameraState();
+  
+  // 3. Transformando status em booleans
+  const isMicEnabled = micStatus === 'enabled';
+  const isCamEnabled = camStatus === 'enabled';
+
   const callingState = useCallCallingState();
   const localParticipant = useLocalParticipant();
   const remoteParticipants = useRemoteParticipants();
-  const isSpeakingWhileMuted = useMicrophoneState(); 
+  
   const [isPiP, setIsPiP] = useState(false);
   const constraintsRef = useRef<HTMLDivElement>(null);
-  
-  const resolveStudentId = (): string | null => {
+
+  const resolveStudentId = () => {
     if (id) return id;
     if (callData?.callId && session?.user?.id) {
       const parts = String(callData.callId).split('-');
-      const other = parts.find((p) => p !== session.user.id) || null;
-      return other;
+      return parts.find((p) => p !== session.user.id) || null;
     }
     return null;
   };
 
-  const handleEndCall = async (): Promise<void> => {
+  const handleEndCall = async () => {
     if (call) {
       try {
         await call.endCall();
@@ -256,86 +241,62 @@ export const MyUILayout: React.FC = (): JSX.Element => {
           });
         }
         showEndedCallToast();
-      } catch (error) {
-        console.error("Error ending the call:", error);
-      }
+      } catch (error) { console.error(error); }
     }
   };
 
-  const handleStudentLeaveCall = async (): Promise<void> => {
+  const handleStudentLeaveCall = async () => {
     if (call) {
       try {
         await call.leave();
         setCallData(null);
         if (session?.user?.id) {
-          const userRef = doc(db, "users", session.user.id);
-          try {
-            await updateDoc(userRef, { callId: null });
-          } catch (err) {
-            console.error("Erro ao limpar callId do aluno:", err);
-          }
+          try { await updateDoc(doc(db, "users", session.user.id), { callId: null }); } catch (err) {}
         }
         showLeftCallToast();
-      } catch (error) {
-        console.error("Error leaving the call:", error);
-      }
+      } catch (error) { console.error(error); }
     }
   };
 
-  const handleTeacherJoinCall = async (): Promise<void> => {
-    // Prevent duplicate join attempts.
-    if (callingState === CallingState.JOINED) {
-      console.warn("User is already in the call.");
-      return;
-    }
+  const handleTeacherJoinCall = async () => {
+    if (callingState === CallingState.JOINED) return;
     if (call) {
       try {
-        await call.join({
-          data: {
-            settings_override: {
-              limits: {
-                max_duration_seconds: 3600,
-              },
-            },
-          },
-        })
-        if (id) {
-          const studentRef = doc(db, "users", id);
-          try {
-            await updateDoc(studentRef, { callId: callData?.callId });
-            console.log("Campo callId atualizado com sucesso.");
-          } catch (error) {
-            console.error("Erro ao atualizar o campo callId:", error);
-          }
-        }
+        await call.join({ data: { settings_override: { limits: { max_duration_seconds: 3600 } } } });
+        if (id) await updateDoc(doc(db, "users", id), { callId: callData?.callId });
         showJoinedCallToast();
-      } catch (error) {
-        console.error("Error joining the call:", error);
-      }
+      } catch (error) { console.error(error); }
     }
   };
   
-  const handleStudentJoinCall = async (): Promise<void> => {
-    // Prevent duplicate join attempts.
-    if (callingState === CallingState.JOINED) {
-      console.warn("User is already in the call.");
-      return;
-    }
+  const handleStudentJoinCall = async () => {
+    if (callingState === CallingState.JOINED) return;
     if (call) {
-      try {
-        await call.join();
-        showJoinedCallToast();
-      } catch (error) {
-        console.error("Error joining the call:", error);
-      }
+      try { await call.join(); showJoinedCallToast(); } catch (error) { console.error(error); }
     }
   };
 
-  const togglePiP = () => {
-    setIsPiP((prev) => !prev);
-  };
+  const handleToggleAudio = async () => { try { await call?.microphone.toggle(); } catch (e) { console.error(e) }};
+  const handleToggleVideo = async () => { try { await call?.camera.toggle(); } catch (e) { console.error(e) }};
+  const togglePiP = () => setIsPiP((prev) => !prev);
 
-  // Full call UI wrapped in a draggable motion.div
+  // --- COMPONENTE DO AVISO DE FALA NO MUDO ---
+  const TalkingWhileMutedToast = () => (
+    <AnimatePresence>
+      {isSpeakingWhileMuted && (
+        <motion.div
+          initial={{ opacity: 0, y: 10, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 10, scale: 0.9 }}
+          className="absolute bottom-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-black/80 text-white px-4 py-2 rounded-full backdrop-blur border border-white/10 shadow-lg pointer-events-none whitespace-nowrap"
+        >
+          <MicOff className="text-yellow-400 animate-pulse" size={18} />
+          <span className="text-xs font-semibold">Você está falando no mudo</span>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+
   const callComponent = (
     <StreamTheme>
       <motion.div
@@ -343,166 +304,153 @@ export const MyUILayout: React.FC = (): JSX.Element => {
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={0.2}
         onDragEnd={(_event, info) => {
-          if (info.offset.x > 100) {
-            if (callingState === CallingState.JOINED) {
-              togglePiP();
-            } else {
-              setCallData(null);
-              showCanceledCallToast();
-            }
-          }
+          if (info.offset.x > 100) callingState === CallingState.JOINED ? togglePiP() : setCallData(null);
         }}
         initial={{ x: "100%" }}
         animate={{ x: 0 }}
         exit={{ x: "100%" }}
-        transition={{ type: "tween", duration: 0.3 }}
-        className={containerClasses}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        className={glassContainerClasses}
       >
-        <div className={notchClasses} />
-          <div className="flex flex-col items-center justify-center gap-6 rounded-lg p-4">
-
-            <div className="w-full flex flex-col items-center justify-center gap-4">
-              <ParticipantsGrid remoteParticipants={remoteParticipants} localParticipant={localParticipant} />
-            </div>
-            
-            <div className="flex flex-wrap items-center justify-center gap-2 w-full absolute bottom-3">
-              
-              <ToggleAudioPublishingButton />
-              <ToggleVideoPublishingButton />
-              <ScreenShareButton />
-                <button className='p-3 rounded-full bg-fluency-gray-600 dark:bg-fluency-gray-600 hover:bg-fluency-gray-700 hover:dark:bg-fluency-gray-700 duration-300 ease-in-out transition-all' onClick={togglePiP}>
-                  <PictureInPicture className='text-indigo-600'/>
-              </button>
-              {session?.user.role === "student" && (
-                  <button className='p-3 rounded-full bg-fluency-gray-200 dark:bg-fluency-gray-600 hover:bg-fluency-gray-700 hover:dark:bg-fluency-gray-700 duration-300 ease-in-out transition-all' onClick={handleStudentLeaveCall}>
-                      <LucideClipboardPlus className='text-fluency-red-600' />
-                  </button>
-                )}
-              {session?.user.role === "teacher" && (
-                <button className='p-3 rounded-full bg-fluency-gray-600 dark:bg-fluency-gray-600 hover:bg-fluency-gray-700 hover:dark:bg-fluency-gray-700 duration-300 ease-in-out transition-all' onClick={handleEndCall}>
-                  <TurntableIcon className='text-fluency-red-600'/>
-                </button>
-              )}
-            </div>
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 h-12 w-1.5 bg-gray-300 dark:bg-gray-600 rounded-full opacity-40 cursor-grab active:cursor-grabbing" />
+        <div className="flex flex-col h-full relative">
+          
+          <div className="flex-1 overflow-hidden p-2 rounded-t-3xl">
+             <ParticipantsGrid remoteParticipants={remoteParticipants} localParticipant={localParticipant} />
           </div>
+          
+          <TalkingWhileMutedToast />
+
+          <div className="absolute bottom-6 left-0 right-0 flex justify-center items-center z-50 pointer-events-none">
+             <div className="bg-white/90 dark:bg-black/80 backdrop-blur-md rounded-2xl p-2 shadow-xl border border-white/20 dark:border-white/10 flex items-center gap-2 pointer-events-auto">
+                
+                <ControlButton 
+                  onClick={handleToggleAudio} 
+                  isEnabled={isMicEnabled} 
+                  enabledIcon={Mic} 
+                  disabledIcon={MicOff} 
+                />
+
+                <ControlButton 
+                  onClick={handleToggleVideo} 
+                  isEnabled={isCamEnabled} 
+                  enabledIcon={Camera} 
+                  disabledIcon={CameraOff} 
+                />
+
+                <div className="rounded-full overflow-hidden hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+                  <ScreenShareButton />
+                </div>
+
+                <div className="w-px h-6 bg-slate-300 dark:bg-slate-700 mx-1" />
+
+                <ControlButton 
+                  onClick={togglePiP} 
+                  isEnabled={true} 
+                  enabledIcon={Minimize2} 
+                  disabledIcon={Minimize2} 
+                />
+
+                {session?.user.role === "student" ? (
+                  <ControlButton 
+                    onClick={handleStudentLeaveCall} 
+                    isEnabled={true} 
+                    enabledIcon={LogOut} 
+                    disabledIcon={LogOut}
+                    variant="destructive"
+                  />
+                ) : (
+                   <ControlButton 
+                    onClick={handleEndCall} 
+                    isEnabled={true} 
+                    enabledIcon={PhoneOff} 
+                    disabledIcon={PhoneOff}
+                    variant="destructive"
+                  />
+                )}
+             </div>
+          </div>
+        </div>
       </motion.div>
     </StreamTheme>
   );
 
-  // Custom toggle functions
-const handleToggleAudio = async (): Promise<void> => {
-  if (call) {
-    try {
-      await call.microphone.toggle();
-    } catch (error) {
-      console.error("Error toggling audio:", error);
-    }
-  }
-};
-
-const handleToggleVideo = async (): Promise<void> => {
-  if (call) {
-    try {
-      await call.camera.toggle();
-    } catch (error) {
-      console.error("Error toggling video:", error);
-    }
-  }
-};
-  // PiP UI: A smaller, draggable popup constrained to the screen.
   const pipComponent = (
     <StreamTheme>
         <div ref={constraintsRef} className='fixed inset-0 pointer-events-none z-[9999]'>
           <motion.div
-            ref={constraintsRef}
             drag
             dragMomentum={false}
             dragConstraints={constraintsRef}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, scale: 0.8, y: 50 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8 }}
-            className="pointer-events-auto fixed bottom-20 right-20 w-min z-[9999] p-3 rounded-xl bg-fluency-gray-200 dark:bg-fluency-gray-900"
+            className="pointer-events-auto fixed bottom-8 right-8 w-64 shadow-2xl rounded-2xl overflow-hidden bg-black border border-white/10"
           >
-          <div className="flex flex-col items-center justify-center gap-4">
-            <div className="w-full flex flex-col items-center justify-center gap-4">
-              <ParticipantsGridPiP remoteParticipants={remoteParticipants} localParticipant={localParticipant} />
+            <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-black/80 to-transparent z-10 flex justify-end p-2 opacity-0 hover:opacity-100 transition-opacity">
+               <button onClick={togglePiP} className="text-white hover:text-indigo-400">
+                  <Maximize2 size={16} />
+               </button>
+            </div>
+            
+            <AnimatePresence>
+                {isSpeakingWhileMuted && (
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 bg-black/60 p-2 rounded-full animate-pulse border border-yellow-500/50">
+                        <MicOff className="text-yellow-500" size={24}/>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            <div className="aspect-video bg-slate-900">
+               <ParticipantsGridPiP remoteParticipants={remoteParticipants} localParticipant={localParticipant} />
             </div>
 
-            <div className="flex flex-wrap items-center justify-center w-full gap-1">
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              transition={{ type: "spring", stiffness: 300 }}
-              className="p-3 rounded-full bg-fluency-gray-200 dark:bg-fluency-gray-600 
-                         hover:bg-fluency-gray-300 hover:dark:bg-fluency-gray-700 
-                         duration-300 ease-in-out transition-all"
-              onClick={handleToggleAudio}
-            >
-              {localParticipant?.audioStream ? (
-                <Mic className="text-indigo-600" />
-              ) : (
-                <MicOff className="text-red-600" />
-              )}
-            </motion.button>
-
-            {/* Custom Toggle Video Button with animation */}
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              transition={{ type: "spring", stiffness: 300 }}
-              className="p-3 rounded-full bg-fluency-gray-200 dark:bg-fluency-gray-600 
-                         hover:bg-fluency-gray-300 hover:dark:bg-fluency-gray-700 
-                         duration-300 ease-in-out transition-all"
-              onClick={handleToggleVideo}
-            >
-              {localParticipant?.videoStream ? (
-                <Camera className="text-indigo-600" />
-              ) : (
-                <CameraOff className="text-red-600" />
-              )}
-            </motion.button>
-
-              <button className='p-3 rounded-full bg-fluency-gray-200 dark:bg-fluency-gray-600 hover:bg-fluency-gray-300 hover:dark:bg-fluency-gray-700 duration-300 ease-in-out transition-all' onClick={togglePiP}>
-                <PictureInPicture className='text-indigo-600'/>
-              </button>
-              {session?.user.role === "student" && (
-                <button className='p-3 rounded-full bg-fluency-gray-200 dark:bg-fluency-gray-600 hover:bg-fluency-gray-300 hover:dark:bg-fluency-gray-700 duration-300 ease-in-out transition-all' onClick={handleStudentLeaveCall}>
-                    <LucideAlignHorizontalJustifyEnd className='text-fluency-red-600' />
+            <div className="bg-slate-900/90 backdrop-blur border-t border-white/10 p-3 flex justify-around items-center gap-2">
+                <button 
+                  onClick={handleToggleAudio} 
+                  className={cn("p-2 rounded-full transition-colors", isMicEnabled ? "bg-slate-800 text-white" : "bg-red-500 text-white")}
+                >
+                  {isMicEnabled ? <Mic size={16} /> : <MicOff size={16} />}
                 </button>
-              )}
-              {session?.user.role === "teacher" && (
-                <button className='p-3 rounded-full bg-fluency-gray-200 dark:bg-fluency-gray-600 hover:bg-fluency-gray-300 hover:dark:bg-fluency-gray-700 duration-300 ease-in-out transition-all' onClick={handleEndCall}>
-                  <LucideAlignHorizontalJustifyEnd className='text-fluency-red-600'/>
+
+                <button 
+                  onClick={handleToggleVideo} 
+                  className={cn("p-2 rounded-full transition-colors", isCamEnabled ? "bg-slate-800 text-white" : "bg-red-500 text-white")}
+                >
+                  {isCamEnabled ? <Camera size={16} /> : <CameraOff size={16} />}
                 </button>
-              )}
+
+                {session?.user.role === "teacher" ? (
+                   <button onClick={handleEndCall} className="p-2 rounded-full bg-red-600 text-white hover:bg-red-700">
+                      <PhoneOff size={16} />
+                   </button>
+                ) : (
+                  <button onClick={handleStudentLeaveCall} className="p-2 rounded-full bg-slate-800 text-red-400 hover:bg-slate-700">
+                      <LogOut size={16} />
+                   </button>
+                )}
             </div>
-          </div>
-        </motion.div>
-      </div>
+          </motion.div>
+        </div>
     </StreamTheme>
   );
 
   if (!call?.id) return <>Sem chamada ativa</>;
 
   return (
-    <>
+    <AnimatePresence mode="wait">
       {callingState !== CallingState.JOINED ? (
-        session?.user.role === "teacher" ? (
-          <JoinUI
-            role="teacher"
-            onJoin={handleTeacherJoinCall}
-            joinLabel="Iniciar Aula"
-          />
-        ) : (
-          <JoinUI
-            role="student"
-            onJoin={handleStudentJoinCall}
-            joinLabel="Entrar na Aula"
-          />
-        )
+        <JoinUI
+            key="join-ui"
+            role={session?.user.role === "teacher" ? "teacher" : "student"}
+            onJoin={session?.user.role === "teacher" ? handleTeacherJoinCall : handleStudentJoinCall}
+            joinLabel={session?.user.role === "teacher" ? "Iniciar Aula" : "Entrar na Sala"}
+        />
       ) : isPiP ? (
         pipComponent
       ) : (
         callComponent
       )}
-    </>
+    </AnimatePresence>
   );
 };
