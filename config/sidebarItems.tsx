@@ -95,6 +95,12 @@ const teacherItems: SidebarItemType[] = [
     labelKey: "settings",
     icon: <Settings className="w-6 h-6" />,
   },
+  {
+    href: "/[locale]/hub/teacher/my-chat",
+    label: "Chat",
+    labelKey: "chat",
+    icon: <BookOpen className="w-6 h-6" />,
+  },
 ];
 
 const studentItems: SidebarItemType[] = [
@@ -133,6 +139,12 @@ const studentItems: SidebarItemType[] = [
     label: "Configurações",
     labelKey: "settings",
     icon: <Settings className="w-6 h-6" />,
+  },
+  {
+    href: "/[locale]/hub/student/my-chat",
+    label: "Chat",
+    labelKey: "chat",
+    icon: <BookOpen className="w-6 h-6" />,
   },
 ];
 

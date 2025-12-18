@@ -30,6 +30,7 @@ export interface SidebarItemType {
   labelKey?: string;
   icon?: React.ReactNode;
   subItems?: SubItem[];
+  badgeCount?: number;
 }
 
 // --- Sidebar Item Component ---
@@ -61,9 +62,14 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ item, isCollapsed }) => {
           >
             <motion.div
               whileHover={{ rotate: isCollapsed ? 0 : 5 }}
-              className="w-5 h-5 flex items-center justify-center"
+              className="w-5 h-5 flex items-center justify-center relative"
             >
               {item.icon}
+              {isCollapsed && item.badgeCount && item.badgeCount > 0 ? (
+                <div className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-background">
+                  {item.badgeCount > 9 ? "9+" : item.badgeCount}
+                </div>
+              ) : null}
             </motion.div>
             <AnimatePresence>
               {!isCollapsed && (
@@ -71,9 +77,14 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ item, isCollapsed }) => {
                   initial={{ opacity: 0, width: 0 }}
                   animate={{ opacity: 1, width: "auto" }}
                   exit={{ opacity: 0, width: 0 }}
-                  className="ml-3 flex-1 whitespace-nowrap text-left overflow-hidden"
+                  className="ml-3 flex-1 whitespace-nowrap text-left overflow-hidden flex items-center justify-between"
                 >
                   {item.label}
+                  {item.badgeCount && item.badgeCount > 0 ? (
+                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                      {item.badgeCount > 99 ? "99+" : item.badgeCount}
+                    </span>
+                  ) : null}
                 </motion.span>
               )}
             </AnimatePresence>
@@ -152,9 +163,14 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ item, isCollapsed }) => {
       >
         <motion.div
           whileHover={{ rotate: isCollapsed ? 0 : 5 }}
-          className="w-5 h-5 flex items-center justify-center"
+          className="w-5 h-5 flex items-center justify-center relative"
         >
           {item.icon}
+          {isCollapsed && item.badgeCount && item.badgeCount > 0 ? (
+            <div className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-background">
+              {item.badgeCount > 9 ? "9+" : item.badgeCount}
+            </div>
+          ) : null}
         </motion.div>
         <AnimatePresence>
           {!isCollapsed && (
@@ -162,9 +178,14 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ item, isCollapsed }) => {
               initial={{ opacity: 0, width: 0 }}
               animate={{ opacity: 1, width: "auto" }}
               exit={{ opacity: 0, width: 0 }}
-              className="ml-3 flex-1 whitespace-nowrap overflow-hidden"
+              className="ml-3 flex-1 whitespace-nowrap overflow-hidden flex items-center justify-between"
             >
               {item.label}
+              {item.badgeCount && item.badgeCount > 0 ? (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                  {item.badgeCount > 99 ? "99+" : item.badgeCount}
+                </span>
+              ) : null}
             </motion.span>
           )}
         </AnimatePresence>
@@ -189,6 +210,8 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({
   if (item.subItems) {
     return null;
   }
+
+  const badgeCount = notificationCount || item.badgeCount;
 
   return (
     <Link href={item.href}>
@@ -220,8 +243,8 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({
             </motion.span>
           )}
         </AnimatePresence>
-        {notificationCount && notificationCount > 0 && (
-          <NotificationBadge count={notificationCount} />
+        {badgeCount && badgeCount > 0 && (
+          <NotificationBadge count={badgeCount} />
         )}
       </motion.div>
     </Link>

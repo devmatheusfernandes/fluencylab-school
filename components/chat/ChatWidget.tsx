@@ -12,7 +12,6 @@ import {
   MessageList, 
   MessageInput, 
   Thread, 
-  useCreateChatClient,
   LoadingIndicator,
   useChatContext,
   ChannelHeader
@@ -23,6 +22,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useChatClient } from '@/context/ChatClientContext';
 
 interface ChatUser {
     id: string;
@@ -98,25 +98,9 @@ const ChatLayout = () => {
 };
 
 const ChatInterface = ({ user, contacts }: { user: ChatUser; contacts: ChatContact[] }) => {
-    const apiKey = process.env.NEXT_PUBLIC_STREAM_API_KEY!;
     const [channelsCreated, setChannelsCreated] = useState(false);
     const { resolvedTheme } = useTheme();
-
-    const tokenOrProvider = useCallback(async () => {
-        const response = await fetch('/api/token', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: user.id }),
-        });
-        const data = await response.json();
-        return data.token;
-    }, [user.id]);
-
-    const client = useCreateChatClient({
-        apiKey,
-        userData: user,
-        tokenOrProvider,
-    });
+    const { client } = useChatClient();
 
     // Effect to ensure channels exist between user and contacts
     useEffect(() => {
