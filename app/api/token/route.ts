@@ -24,7 +24,10 @@ export async function POST(request: Request) {
       return new Response('Invalid user ID.', { status: 400 });
     }
 
-    const token = serverClient.generateUserToken({ user_id: userId });
+    const token = serverClient.generateUserToken({ 
+      user_id: userId,
+      iat: Math.floor(Date.now() / 1000) - 60 
+    });
 
     const response = {
       userId: userId,
