@@ -113,9 +113,11 @@ interface JoinUIProps {
   role: "teacher" | "student";
   onJoin: () => Promise<void>;
   joinLabel: string;
+  notebookId?: string | null;
+  callData?: any;
 }
 
-export const JoinUI: React.FC<JoinUIProps> = ({ role, onJoin, joinLabel }) => {
+export const JoinUI: React.FC<JoinUIProps> = ({ role, onJoin, joinLabel, notebookId, callData }) => {
     const { useCallSession } = useCallStateHooks();
     const sessionCall = useCallSession();
     const call = useCall();
@@ -137,7 +139,11 @@ export const JoinUI: React.FC<JoinUIProps> = ({ role, onJoin, joinLabel }) => {
               await fetch('/api/calls/end', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ studentId: other })
+                body: JSON.stringify({ 
+                  studentId: other,
+                  notebookId: notebookId,
+                  callId: call?.id || callData?.callId
+                })
               });
             }
           } catch {}
@@ -201,19 +207,21 @@ export const MyUILayout: React.FC = (): JSX.Element => {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // Get student ID
-      const urlParams = new URLSearchParams(window.location.search);
-      const sId = urlParams.get("student");
+      // Get student ID from searchParams or window
+      const sId = searchParams.get("student");
       if (sId) setId(sId);
+      else if (session?.user.role === 'student') {
+        setId(session.user.id);
+      }
 
       // Get notebook ID
-      let nId = urlParams.get("notebookId");
+      let nId = searchParams.get("notebookId");
       if (!nId && params?.notebookId) {
         nId = params.notebookId as string;
       }
       if (nId) setNotebookId(nId);
     }
-  }, [params]);
+  }, [params, searchParams, session]);
   
   const call = useCall();
   const { callData, setCallData } = useCallContext();
@@ -239,7 +247,7 @@ export const MyUILayout: React.FC = (): JSX.Element => {
 
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
-  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+
 
   const handleToggleRecording = async () => {
     if (!call) return;
@@ -298,6 +306,36 @@ export const MyUILayout: React.FC = (): JSX.Element => {
   
   const [isPiP, setIsPiP] = useState(false);
   const constraintsRef = useRef<HTMLDivElement>(null);
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+  const [hasJoined, setHasJoined] = useState(false); // New local state to track intent
+  const isJoiningRef = useRef(false);
+
+  // Chrome background throttling handling
+  useEffect(() => {
+    // Se temos dados da chamada e o usuário JÁ ENTROU (hasJoined), mas estamos IDLE, tentar reconectar
+    if (call && callData?.callId && hasJoined && callingState === CallingState.IDLE && !isJoiningRef.current) {
+      console.log("Auto-rejoining call...");
+      isJoiningRef.current = true;
+      call.join()
+        .catch(console.error)
+        .finally(() => { isJoiningRef.current = false; });
+    }
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && call && callData?.callId && hasJoined) {
+        // Se voltamos e não estamos conectados, tentar reconectar
+        if (callingState !== CallingState.JOINED && callingState !== CallingState.JOINING && callingState !== CallingState.RECONNECTING && !isJoiningRef.current) {
+           isJoiningRef.current = true;
+           call.join()
+             .catch(console.error)
+             .finally(() => { isJoiningRef.current = false; });
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange);
+  }, [call, callData?.callId, callingState, hasJoined]);
 
   const resolveStudentId = () => {
     if (id) return id;
@@ -313,6 +351,7 @@ export const MyUILayout: React.FC = (): JSX.Element => {
       try {
         await call.endCall();
         setCallData(null);
+        setHasJoined(false);
         const studentId = resolveStudentId();
         if (studentId) {
           await fetch('/api/calls/end', {
@@ -331,6 +370,7 @@ export const MyUILayout: React.FC = (): JSX.Element => {
       try {
         await call.leave();
         setCallData(null);
+        setHasJoined(false);
         if (session?.user?.id) {
           try { await updateDoc(doc(db, "users", session.user.id), { callId: null }); } catch (err) {}
         }
@@ -340,9 +380,11 @@ export const MyUILayout: React.FC = (): JSX.Element => {
   };
 
   const handleTeacherJoinCall = async () => {
-    if (callingState === CallingState.JOINED) return;
+    if (callingState === CallingState.JOINED || callingState === CallingState.JOINING || isJoiningRef.current) return;
     if (call) {
       try {
+        isJoiningRef.current = true;
+        setHasJoined(true);
         await call.join({ 
           data: { 
             settings_override: { 
@@ -351,16 +393,33 @@ export const MyUILayout: React.FC = (): JSX.Element => {
             } 
           } 
         });
-        if (id) await updateDoc(doc(db, "users", id), { callId: callData?.callId });
+        if (call?.id) setCallData({ callId: call.id });
+        if (id) await updateDoc(doc(db, "users", id), { callId: callData?.callId || call.id });
         showJoinedCallToast();
-      } catch (error) { console.error(error); }
+      } catch (error) { 
+        console.error(error); 
+        setHasJoined(false);
+      } finally {
+        isJoiningRef.current = false;
+      }
     }
   };
   
   const handleStudentJoinCall = async () => {
-    if (callingState === CallingState.JOINED) return;
+    if (callingState === CallingState.JOINED || callingState === CallingState.JOINING || isJoiningRef.current) return;
     if (call) {
-      try { await call.join(); showJoinedCallToast(); } catch (error) { console.error(error); }
+      try { 
+        isJoiningRef.current = true;
+        setHasJoined(true);
+        await call.join(); 
+        if (call?.id) setCallData({ callId: call.id });
+        showJoinedCallToast(); 
+      } catch (error) { 
+        console.error(error); 
+        setHasJoined(false);
+      } finally {
+        isJoiningRef.current = false;
+      }
     }
   };
 
@@ -400,6 +459,14 @@ export const MyUILayout: React.FC = (): JSX.Element => {
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
         className={glassContainerClasses}
       >
+        {callingState !== CallingState.JOINED && (
+           <div className="absolute inset-0 z-[100] bg-black/60 flex flex-col items-center justify-center backdrop-blur-sm text-white rounded-3xl">
+              <Loader2 className="animate-spin mb-2" size={32} />
+              <span className="text-sm font-medium">
+                {callingState === CallingState.JOINING ? "Entrando..." : "Conectando..."}
+              </span>
+           </div>
+        )}
         <div className="absolute left-3 top-1/2 -translate-y-1/2 h-12 w-1.5 bg-gray-300 dark:bg-gray-600 rounded-full opacity-40 cursor-grab active:cursor-grabbing" />
         <div className="flex flex-col h-full relative">
           
@@ -539,15 +606,19 @@ export const MyUILayout: React.FC = (): JSX.Element => {
 
   if (!call?.id) return <>Sem chamada ativa</>;
 
+  const showCall = hasJoined || callingState === CallingState.JOINED || callingState === CallingState.JOINING || callingState === CallingState.RECONNECTING;
+
   return (
     <>
       <AnimatePresence mode="wait">
-        {callingState !== CallingState.JOINED ? (
+        {!showCall ? (
           <JoinUI
               key="join-ui"
               role={session?.user.role === "teacher" ? "teacher" : "student"}
               onJoin={session?.user.role === "teacher" ? handleTeacherJoinCall : handleStudentJoinCall}
               joinLabel={session?.user.role === "teacher" ? "Iniciar Aula" : "Entrar na Sala"}
+              notebookId={notebookId}
+              callData={callData}
           />
         ) : isPiP ? (
           pipComponent

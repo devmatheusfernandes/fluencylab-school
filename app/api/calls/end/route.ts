@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { adminDb } from '@/lib/firebase/admin';
+import { TranscriptionService } from '@/services/transcriptionService';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,6 +13,8 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const studentId: string | undefined = body?.studentId;
+    const notebookId: string | undefined = body?.notebookId;
+    const callId: string | undefined = body?.callId;
 
     if (!studentId || typeof studentId !== 'string' || !studentId.trim()) {
       return NextResponse.json({ error: 'studentId inválido.' }, { status: 400 });
@@ -30,6 +33,18 @@ export async function POST(request: NextRequest) {
       if (!teachersIds.includes(session.user.id)) {
         return NextResponse.json({ error: 'Professor não associado ao aluno.' }, { status: 403 });
       }
+    }
+
+    // Attempt to save summary if we have the info
+    if (studentId && notebookId && callId) {
+        try {
+            console.log(`[Calls/End] Attempting to auto-save summary for call ${callId}`);
+            const service = new TranscriptionService();
+            await service.processAndSaveSummary(callId, studentId, notebookId);
+        } catch (e) {
+            console.error("[Calls/End] Error auto-saving summary on call end:", e);
+            // Don't fail the whole request, just log it. The call still needs to end.
+        }
     }
 
     await studentRef.update({ callId: null });
