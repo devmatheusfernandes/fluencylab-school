@@ -53,7 +53,6 @@
 /* --- 2. VARIÁVEIS DE COR (OKLCH) --- */
 :root {
   --radius: 0.65rem;
-  
   /* Light Mode Defaults */
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
@@ -87,27 +86,6 @@
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.702 0.183 293.541);
 
-  /* --- STREAM CHAT INTEGRATION (Dynamic Mapping) --- */
-  /* Mapeia as variáveis do Stream para as variáveis do seu Tema */
-  --str-chat__primary-color: var(--primary);
-  --str-chat__active-primary-color: var(--primary); /* Ou use color-mix se quiser escurecer */
-  --str-chat__surface-color: var(--background);
-  --str-chat__secondary-surface-color: var(--muted);
-  --str-chat__primary-surface-color: var(--background);
-  --str-chat__primary-surface-color-low-emphasis: var(--muted-foreground);
-  
-  --str-chat__message-bubble-background-color: var(--secondary);
-  --str-chat__message-text-color: var(--foreground);
-  
-  --str-chat__channel-preview-active-background-color: var(--accent);
-  --str-chat__channel-preview-hover-background-color: var(--accent);
-  
-  --str-chat__border-radius-circle: 100%;
-  --str-chat__border-radius-md: var(--radius);
-  
-  /* Inputs do Stream */
-  --str-chat__input-background-color: var(--background);
-  --str-chat__input-flat-background-color: var(--background);
 }
 
 /* Dark Mode Overrides */
@@ -185,90 +163,6 @@
   --sidebar-primary: oklch(0.7 0.15 145);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-ring: oklch(0.7 0.15 145);
-}
-
-/* --- 4. STREAM CHAT OVERRIDES (AVANÇADO) --- */
-/* Estas regras garantem que o Stream obedeça às variáveis acima */
-
-/* 4.1 Definições Globais e Correções Dark Mode */
-.dark .str-chat,
-.dark .str-chat.messaging,
-.dark .str-chat.dark,
-.str-chat {
-  /* Força o uso das variáveis do tema */
-  background-color: var(--background); 
-  color: var(--foreground);
-  
-  /* Variáveis internas do Stream mapeadas para o tema */
-  --str-chat__main-panel-background-color: var(--background);
-  --str-chat__channel-list-background-color: var(--sidebar); /* Lista lateral usa cor da sidebar */
-  --str-chat__message-list-background-color: var(--background);
-}
-
-/* 4.2 Painéis e Listas */
-.dark .str-chat__main-panel,
-.dark .str-chat__channel-list,
-.dark .str-chat__thread {
-  background-color: var(--background) !important;
-  color: var(--foreground);
-}
-
-.dark .str-chat__channel-list {
-  background-color: var(--sidebar) !important;
-  border-right: 1px solid var(--border);
-}
-
-/* 4.3 Headers */
-.dark .str-chat__header-livestream {
-  background-color: var(--muted);
-  border-bottom: 1px solid var(--border);
-  color: var(--foreground);
-}
-
-/* 4.4 Inputs (Area de digitação) */
-.dark .str-chat__message-input, 
-.dark .str-chat__input-flat {
-  background-color: transparent;
-  border-top: 1px solid var(--border);
-}
-
-.dark .str-chat__textarea textarea,
-.dark .str-chat__input-flat textarea {
-  background-color: var(--input) !important;
-  color: var(--foreground) !important;
-  border: 1px solid var(--border);
-}
-
-.dark .str-chat__textarea textarea:focus {
-  border-color: var(--primary);
-  ring: 2px var(--ring);
-}
-
-/* 4.5 Mensagens e Texto */
-/* Texto geral (balões recebidos) */
-.str-chat__message-simple-text-inner,
-.str-chat__message-text-inner {
-  color: var(--foreground) !important;
-  background-color: var(--secondary); /* Balão de quem envia pra você */
-}
-
-/* Suas mensagens (Direita - Balão Primary) */
-.str-chat__message-simple--right .str-chat__message-simple-text-inner {
-  background-color: var(--primary) !important;
-  color: var(--primary-foreground) !important; /* Contraste correto (branco/preto) */
-}
-
-/* 4.6 Scrollbar Customizada do Stream */
-.str-chat__list::-webkit-scrollbar {
-  width: 6px;
-}
-.str-chat__list::-webkit-scrollbar-track {
-  background: transparent;
-}
-.str-chat__list::-webkit-scrollbar-thumb {
-  background-color: var(--muted-foreground);
-  opacity: 0.3;
-  border-radius: 4px;
 }
 
 
