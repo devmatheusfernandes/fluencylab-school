@@ -8,6 +8,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Transcription } from "@/types/notebooks/notebooks";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { format } from "date-fns";
@@ -24,14 +25,6 @@ interface TranscriptionsToolModalProps {
   editor: Editor;
   studentID?: string;
   notebookId?: string;
-}
-
-interface Transcription {
-  date: any;
-  content: string;
-  summary?: string;
-  callId?: string;
-  status?: 'pending' | 'available' | 'failed';
 }
 
 export function TranscriptionsToolModal({

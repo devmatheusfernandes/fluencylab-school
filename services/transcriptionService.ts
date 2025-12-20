@@ -158,4 +158,57 @@ export class TranscriptionService {
       // or just return empty.
       return { summary: '', transcriptText: '' };
   }
+
+  async handleWebhookEvent(event: any) {
+    if (event.type !== 'call.transcription_ready') return;
+
+    const callId = event.call_cid.split(':')[1]; // assuming video:callId
+    const transcription = event.transcription;
+    const customData = event.call?.custom || {};
+    
+    console.log(`[TranscriptionService] Webhook received for ${callId}`);
+
+    const studentId = customData.studentId;
+    const notebookId = customData.notebookId;
+
+    if (!studentId || !notebookId) {
+        console.error(`[TranscriptionService] Missing studentId or notebookId in call custom data for ${callId}`);
+        // Fallback: Try to find in Firestore if possible, but for now just return
+        return;
+    }
+
+    if (!transcription?.url) {
+        console.error(`[TranscriptionService] No transcription URL in webhook for ${callId}`);
+        return;
+    }
+
+    console.log(`[TranscriptionService] Processing transcription from webhook for ${callId}`);
+
+    try {
+        const text = await this.fetchAndParseTranscription(transcription.url);
+        
+        if (text) {
+            const summary = await this.generateSummary(text);
+            
+            await this.updateTranscription(studentId, notebookId, callId, {
+                content: text,
+                summary: summary,
+                status: 'available'
+            });
+            console.log(`[TranscriptionService] Successfully updated transcription via webhook for ${callId}`);
+        } else {
+             await this.updateTranscription(studentId, notebookId, callId, {
+                status: 'failed'
+            });
+            console.error(`[TranscriptionService] Failed to parse text from webhook URL for ${callId}`);
+        }
+    } catch (e) {
+        console.error(`[TranscriptionService] Error processing webhook for ${callId}:`, e);
+         try {
+            await this.updateTranscription(studentId, notebookId, callId, {
+                status: 'failed'
+            });
+         } catch {}
+    }
+  }
 }

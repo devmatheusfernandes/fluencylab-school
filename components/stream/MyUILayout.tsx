@@ -6,6 +6,7 @@ import {
   useCallStateHooks,
   ScreenShareButton,
   Avatar,
+  TranscriptionSettingsRequestModeEnum,
 } from "@stream-io/video-react-sdk";
 import { useCall } from '@stream-io/video-react-bindings';
 import { Button } from '@/components/ui/button';
@@ -230,13 +231,17 @@ export const MyUILayout: React.FC = (): JSX.Element => {
     useRemoteParticipants,
     useMicrophoneState,
     useCameraState,
-    useIsCallRecordingInProgress
+    useIsCallRecordingInProgress,
+    useCallSettings,
+    useIsCallTranscribingInProgress,
   } = useCallStateHooks();
 
   // 2. Chamar os hooks para pegar o estado real
   const { status: micStatus, isSpeakingWhileMuted } = useMicrophoneState();
   const { status: camStatus } = useCameraState();
   const isRecordingInProgress = useIsCallRecordingInProgress();
+  const { transcription } = useCallSettings() || {};
+  const isTranscribing = useIsCallTranscribingInProgress();
   
   // 3. Transformando status em booleans
   const isMicEnabled = micStatus === 'enabled';
@@ -244,6 +249,23 @@ export const MyUILayout: React.FC = (): JSX.Element => {
 
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
+
+
+  const handleToggleTranscription = async () => {
+    if (!call) return;
+    try {
+        if (isTranscribing) {
+            await call.stopTranscription();
+            toast.info("Transcrição parada");
+        } else {
+            await call.startTranscription();
+            toast.success("Transcrição iniciada");
+        }
+    } catch (e) {
+        console.error("Erro ao alterar transcrição:", e);
+        toast.error("Falha ao alterar transcrição");
+    }
+  };
 
 
   const handleToggleRecording = async () => {
@@ -509,6 +531,15 @@ export const MyUILayout: React.FC = (): JSX.Element => {
                   enabledIcon={Camera} 
                   disabledIcon={CameraOff} 
                 />
+
+                {transcription?.mode !== TranscriptionSettingsRequestModeEnum.DISABLED && (
+                    <ControlButton 
+                        onClick={handleToggleTranscription} 
+                        isEnabled={!isTranscribing} 
+                        enabledIcon={FileText} 
+                        disabledIcon={FileText} 
+                    />
+                )}
 
                 <div className="rounded-full overflow-hidden hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
                   <ScreenShareButton />
