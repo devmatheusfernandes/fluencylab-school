@@ -39,7 +39,7 @@ const speechSpeeds = [
   { label: "2x", value: 2 },
 ];
 
-const MODEL_NAME = "gemini-1.5-pro";
+const MODEL_NAME = "gemini-2.5-pro";
 const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 
 // Variantes de animação para os Dropdowns

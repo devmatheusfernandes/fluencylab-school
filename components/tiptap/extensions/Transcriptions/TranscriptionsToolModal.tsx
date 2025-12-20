@@ -70,13 +70,13 @@ export function TranscriptionsToolModal({
     }
   };
 
-  const handleCheckTranscription = async (callId: string) => {
+  const handleCheckTranscription = async (callId: string, transcriptionId?: string) => {
     if (!callId) return;
     setProcessingId(callId);
     try {
         const res = await fetch('/api/transcriptions/manage', {
             method: 'POST',
-            body: JSON.stringify({ action: 'check', callId, studentId: studentID, notebookId })
+            body: JSON.stringify({ action: 'check', callId, studentId: studentID, notebookId, transcriptionId })
         });
         const data = await res.json();
         if (data.status === 'available') {
@@ -91,13 +91,13 @@ export function TranscriptionsToolModal({
     }
   };
 
-  const handleGenerateSummary = async (callId: string, text: string) => {
+  const handleGenerateSummary = async (callId: string, text: string, transcriptionId?: string) => {
       if (!callId) return;
       setProcessingId(callId);
       try {
           const res = await fetch('/api/transcriptions/manage', {
               method: 'POST',
-              body: JSON.stringify({ action: 'summarize', callId, studentId: studentID, notebookId, text })
+              body: JSON.stringify({ action: 'summarize', callId, studentId: studentID, notebookId, text, transcriptionId })
           });
           const data = await res.json();
           if (data.summary) {
@@ -168,42 +168,42 @@ export function TranscriptionsToolModal({
                                   A transcrição ainda não foi processada ou a aula acabou de terminar.
                               </p>
                               <Button 
-                                  variant="outline" 
-                                  size="sm" 
-                                  onClick={() => item.callId && handleCheckTranscription(item.callId)}
-                                  disabled={isProcessing}
-                              >
-                                  {isProcessing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-                                  Verificar Disponibilidade
-                              </Button>
-                          </div>
-                      ) : (
-                          <>
-                              {hasSummary ? (
-                                <div className="space-y-2">
-                                    <div className="flex items-center gap-2 font-medium text-lg text-primary">
-                                        <Sparkles className="w-5 h-5" />
-                                        Resumo da Aula
-                                    </div>
-                                    <div className="bg-muted/50 p-4 rounded-lg text-sm leading-relaxed whitespace-pre-wrap">
-                                      {item.summary}
-                                    </div>
-                                </div>
-                              ) : (
-                                  <div className="flex items-center justify-between bg-muted/30 p-4 rounded-lg">
-                                      <div className="text-sm text-muted-foreground">
-                                          O resumo desta aula ainda não foi gerado.
-                                      </div>
-                                      <Button 
-                                          size="sm" 
-                                          onClick={() => item.callId && handleGenerateSummary(item.callId, item.content)}
-                                          disabled={isProcessing}
-                                      >
-                                          {isProcessing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
-                                          Gerar Resumo com IA
-                                      </Button>
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => item.callId && handleCheckTranscription(item.callId, item.id)}
+                                disabled={isProcessing}
+                            >
+                                {isProcessing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+                                Verificar Disponibilidade
+                            </Button>
+                        </div>
+                    ) : (
+                        <>
+                            {hasSummary ? (
+                              <div className="space-y-2">
+                                  <div className="flex items-center gap-2 font-medium text-lg text-primary">
+                                      <Sparkles className="w-5 h-5" />
+                                      Resumo da Aula
                                   </div>
-                              )}
+                                  <div className="bg-muted/50 p-4 rounded-lg text-sm leading-relaxed whitespace-pre-wrap">
+                                    {item.summary}
+                                  </div>
+                              </div>
+                            ) : (
+                                <div className="flex items-center justify-between bg-muted/30 p-4 rounded-lg">
+                                    <div className="text-sm text-muted-foreground">
+                                        O resumo desta aula ainda não foi gerado.
+                                    </div>
+                                    <Button 
+                                        size="sm" 
+                                        onClick={() => item.callId && handleGenerateSummary(item.callId, item.content, item.id)}
+                                        disabled={isProcessing}
+                                    >
+                                        {isProcessing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
+                                        Gerar Resumo
+                                    </Button>
+                                </div>
+                            )}
                               
                               <Accordion type="single" collapsible>
                                 <AccordionItem value="transcript" className="border-none">

@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { action, callId, studentId, notebookId, text } = body;
+    const { action, callId, studentId, notebookId, text, transcriptionId } = body;
 
     if (!callId || !studentId || !notebookId) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
         await service.updateTranscription(studentId, notebookId, callId, {
           content: result.text,
           status: 'available'
-        });
+        }, transcriptionId);
         return NextResponse.json({ status: 'available', content: result.text });
       } else {
         return NextResponse.json({ status: 'pending' });
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
       await service.updateTranscription(studentId, notebookId, callId, {
         summary: summary,
         updatedAt: new Date()
-      });
+      }, transcriptionId);
 
       return NextResponse.json({ summary });
     } else {

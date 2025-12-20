@@ -18,6 +18,7 @@ export interface Notebook {
 }
 
 export interface Transcription {
+  id?: string;
   date: any;
   content: string;
   summary?: string;

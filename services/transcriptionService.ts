@@ -116,7 +116,7 @@ export class TranscriptionService {
     if (!text || text.length < 50) return "Transcrição muito curta para gerar resumo.";
 
     const genAI = new GoogleGenerativeAI(this.geminiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
 
     const prompt = `
     O seguinte texto é a transcrição de uma reunião que pode conter falas em Português e Inglês.
@@ -132,7 +132,7 @@ export class TranscriptionService {
     return response.text();
   }
 
-  async updateTranscription(studentId: string, notebookId: string, callId: string, updates: any) {
+  async updateTranscription(studentId: string, notebookId: string, callId: string, updates: any, transcriptionId?: string) {
     const docRef = adminDb.collection('users').doc(studentId).collection('Notebooks').doc(notebookId);
     const docSnap = await docRef.get();
     
@@ -140,7 +140,41 @@ export class TranscriptionService {
         const data = docSnap.data();
         let transcriptions = data?.transcriptions || [];
         
-        const index = transcriptions.findIndex((t: any) => t.callId === callId);
+        let index = -1;
+        
+        // 1. If transcriptionId is provided, find by ID (Most precise)
+        if (transcriptionId) {
+            index = transcriptions.findIndex((t: any) => t.id === transcriptionId);
+        }
+        
+        // 2. If no ID, find by callId. 
+        // Logic: Find the LATEST entry with that callId, preferring 'pending' status if multiple.
+        if (index === -1) {
+            // Find all matches
+            const matches = transcriptions
+                .map((t: any, idx: number) => ({ ...t, originalIndex: idx }))
+                .filter((t: any) => t.callId === callId);
+
+            if (matches.length > 0) {
+                // Sort by date descending (newest first)
+                matches.sort((a: any, b: any) => {
+                     const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date);
+                     const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date);
+                     return dateB.getTime() - dateA.getTime();
+                });
+
+                // Prefer the newest pending one
+                const pendingMatch = matches.find((t: any) => t.status === 'pending');
+                
+                if (pendingMatch) {
+                    index = pendingMatch.originalIndex;
+                } else {
+                    // If no pending, just take the newest one
+                    index = matches[0].originalIndex;
+                }
+            }
+        }
+
         if (index !== -1) {
             transcriptions[index] = { ...transcriptions[index], ...updates, updatedAt: new Date() };
             await docRef.update({ transcriptions });
