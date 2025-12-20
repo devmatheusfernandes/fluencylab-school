@@ -310,6 +310,7 @@ export default function NotebookViewer({ studentId, notebookId }: NotebookViewer
         userName={userName}
         userColor={userColor}
         studentID={studentId}
+        notebookId={notebookId}
         title={notebook.title}
         onTitleChange={handleTitleChange}
       />

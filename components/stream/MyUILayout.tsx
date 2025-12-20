@@ -6,8 +6,6 @@ import {
   useCallStateHooks,
   ScreenShareButton,
   Avatar,
-  // useMicrophoneState, <--- REMOVIDO DAQUI (CAUSA DO ERRO)
-  // useCameraState      <--- REMOVIDO DAQUI
 } from "@stream-io/video-react-sdk";
 import { useCall } from '@stream-io/video-react-bindings';
 import { Button } from '@/components/ui/button';
@@ -29,7 +27,6 @@ import {
   Minimize2, 
   Maximize2, 
   PhoneOff, 
-  AlertCircle, // Substituindo o MicAlert
   Sparkles,
   FileText,
   Loader2,
@@ -349,17 +346,22 @@ export const MyUILayout: React.FC = (): JSX.Element => {
   const handleEndCall = async () => {
     if (call) {
       try {
+        toast.info("Encerrando chamada e gerando resumo...");
         await call.endCall();
-        setCallData(null);
-        setHasJoined(false);
         const studentId = resolveStudentId();
         if (studentId) {
           await fetch('/api/calls/end', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ studentId })
+            body: JSON.stringify({ 
+              studentId,
+              notebookId: notebookId,
+              callId: call.id || callData?.callId
+            })
           });
         }
+        setCallData(null);
+        setHasJoined(false);
         showEndedCallToast();
       } catch (error) { console.error(error); }
     }
@@ -389,8 +391,12 @@ export const MyUILayout: React.FC = (): JSX.Element => {
           data: { 
             settings_override: { 
               limits: { max_duration_seconds: 3600 },
-              transcription: { mode: 'available' }
-            } 
+              transcription: { mode: 'auto-on' }
+            },
+            custom: {
+                studentId: id,
+                notebookId: notebookId
+            }
           } 
         });
         if (call?.id) setCallData({ callId: call.id });
@@ -411,7 +417,18 @@ export const MyUILayout: React.FC = (): JSX.Element => {
       try { 
         isJoiningRef.current = true;
         setHasJoined(true);
-        await call.join(); 
+        await call.join({ 
+          data: { 
+            settings_override: { 
+              limits: { max_duration_seconds: 3600 },
+              transcription: { mode: 'auto-on' }
+            },
+            custom: {
+                studentId: id,
+                notebookId: notebookId
+            }
+          } 
+        }); 
         if (call?.id) setCallData({ callId: call.id });
         showJoinedCallToast(); 
       } catch (error) { 
@@ -491,20 +508,6 @@ export const MyUILayout: React.FC = (): JSX.Element => {
                   isEnabled={isCamEnabled} 
                   enabledIcon={Camera} 
                   disabledIcon={CameraOff} 
-                />
-
-                <ControlButton 
-                  onClick={handleToggleRecording} 
-                  isEnabled={!isRecordingInProgress} 
-                  enabledIcon={Disc} 
-                  disabledIcon={Disc} 
-                />
-
-                <ControlButton 
-                  onClick={handleGenerateSummary} 
-                  isEnabled={true} 
-                  enabledIcon={Sparkles} 
-                  disabledIcon={Sparkles} 
                 />
 
                 <div className="rounded-full overflow-hidden hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">

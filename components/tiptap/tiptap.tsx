@@ -45,6 +45,7 @@ interface TiptapEditorProps {
   userName?: string;
   userColor?: string;
   studentID?: any;
+  notebookId?: string;
   title?: string;
   onTitleChange?: (newTitle: string) => void;
 }
@@ -61,6 +62,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   userName,
   userColor,
   studentID,
+  notebookId,
   title,
   onTitleChange,
 }) => {
@@ -256,7 +258,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
             title={title}
             onTitleChange={onTitleChange}
             studentID={studentID}
-            notebookId={docId}
+            notebookId={notebookId || docId}
           />)}
         <Bubble editor={editor} />
         <EditorContent

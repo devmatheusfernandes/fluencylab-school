@@ -14,6 +14,16 @@ export interface Notebook {
   unit?: string;
   workbook?: string;
   docID?: string;
+  transcriptions?: Transcription[];
+}
+
+export interface Transcription {
+  date: any;
+  content: string;
+  summary?: string;
+  callId?: string;
+  status?: 'pending' | 'available' | 'failed';
+  updatedAt?: any;
 }
 
 export interface Workbook {

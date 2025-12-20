@@ -64,7 +64,7 @@ export default function VideoHome() {
         data: {
           settings_override: {
             transcription: {
-              mode: 'available',
+              mode: 'auto-on',
               closed_caption_mode: 'available',
             },
           },

@@ -20,71 +20,8 @@ export class TranscriptionService {
     this.geminiKey = geminiKey;
   }
 
-  async processAndSaveSummary(callId: string, studentId: string, notebookId: string) {
-    console.log(`[TranscriptionService] Processing call ${callId} for student ${studentId}, notebook ${notebookId}`);
-
-    // 1. Fetch Transcription
-    const call = this.streamClient.video.call('development', callId);
-    
-    // Check recordings
-    const { recordings } = await call.listRecordings();
-    console.log(`[TranscriptionService] Found ${recordings.length} recordings`);
-
-    const latestRecording = recordings.sort((a, b) => 
-      new Date(b.end_time).getTime() - new Date(a.end_time).getTime()
-    )[0];
-
-    if (!latestRecording) {
-      console.log("[TranscriptionService] No recordings found");
-      throw new Error('No recordings found for this call');
-    }
-
-    // Check transcriptions
-    let transcriptText = "";
-    try {
-        const { transcriptions } = await call.listTranscriptions();
-        console.log(`[TranscriptionService] Found ${transcriptions.length} transcriptions`);
-        
-        const latestTranscript = transcriptions.sort((a, b) => 
-            new Date(b.end_time).getTime() - new Date(a.end_time).getTime()
-        )[0];
-
-        if (latestTranscript?.url) {
-            console.log(`[TranscriptionService] Fetching transcription from: ${latestTranscript.url}`);
-            const response = await fetch(latestTranscript.url);
-            transcriptText = await response.text();
-        }
-    } catch (e) {
-        console.error("[TranscriptionService] Error fetching transcription list:", e);
-    }
-
-    if (!transcriptText) {
-         console.log("[TranscriptionService] Transcription text is empty");
-         throw new Error('No transcription found. Ensure recording and transcription were enabled.');
-    }
-
-    // 2. Generate Summary
-    console.log("[TranscriptionService] Generating summary with Gemini...");
-    const genAI = new GoogleGenerativeAI(this.geminiKey);
-    // Keeping the model version from original code, assuming it is correct for the user's setup
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" }); 
-
-    const prompt = `
-    O seguinte texto é a transcrição de uma reunião que pode conter falas em Português e Inglês.
-    Por favor, forneça um resumo conciso em Português.
-    Destaque os pontos principais, decisões tomadas e itens de ação.
-    
-    Transcrição:
-    ${transcriptText.substring(0, 30000)}
-    `;
-
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const summary = response.text();
-    console.log(`[TranscriptionService] Summary generated (length: ${summary.length})`);
-
-    // 3. Save to Firestore
-    console.log(`[TranscriptionService] Saving to users/${studentId}/Notebooks/${notebookId}`);
+  async saveCallMetadata(callId: string, studentId: string, notebookId: string) {
+    console.log(`[TranscriptionService] Saving metadata for call ${callId}`);
     
     await adminDb
       .collection('users')
@@ -94,14 +31,131 @@ export class TranscriptionService {
       .set({
         transcriptions: FieldValue.arrayUnion({
           date: new Date(),
-          content: transcriptText,
-          summary: summary,
-          callId: callId
+          content: '',
+          summary: '',
+          callId: callId,
+          status: 'pending',
+          updatedAt: new Date()
         })
       }, { merge: true });
       
-    console.log("[TranscriptionService] Saved successfully");
+    console.log("[TranscriptionService] Metadata saved");
+  }
 
-    return { summary, transcriptText };
+  async fetchAndParseTranscription(url: string): Promise<string | null> {
+    try {
+        const response = await fetch(url);
+        if (response.ok) {
+            const rawText = await response.text();
+            
+            if (rawText && rawText.trim().length > 0) {
+                let transcriptText = rawText;
+                
+                if (url.endsWith('.jsonl') || rawText.trim().startsWith('{')) {
+                     try {
+                         const lines = rawText.trim().split('\n');
+                         transcriptText = lines.map(line => {
+                             try {
+                                 if (!line.trim()) return "";
+                                 const json = JSON.parse(line);
+                                 return (json.results || []).map((r: any) => 
+                                     r.alternatives?.[0]?.transcript || ""
+                                 ).join(" ") || json.text || ""; 
+                             } catch { return ""; }
+                         }).join(" ");
+                     } catch (e) {
+                         transcriptText = rawText;
+                     }
+                }
+                
+                if (transcriptText.trim().length > 0) {
+                    return transcriptText;
+                }
+            }
+        }
+    } catch (e) {
+        console.error("[TranscriptionService] Error fetching/parsing transcription:", e);
+    }
+    return null;
+  }
+
+  async checkTranscriptionAvailability(callId: string) {
+    console.log(`[TranscriptionService] Checking transcription for ${callId}`);
+    const call = this.streamClient.video.call('development', callId);
+    
+    // Check transcriptions
+    try {
+        const { transcriptions } = await call.listTranscriptions();
+        
+        const latestTranscript = transcriptions.sort((a, b) => 
+            new Date(b.end_time).getTime() - new Date(a.end_time).getTime()
+        )[0];
+
+        if (latestTranscript?.url) {
+            console.log(`[TranscriptionService] Found transcription url: ${latestTranscript.url}`);
+            
+            const text = await this.fetchAndParseTranscription(latestTranscript.url);
+            
+            if (text) {
+                console.log(`[TranscriptionService] Transcription text length: ${text.length}`);
+                return { available: true, text };
+            } else {
+                console.log(`[TranscriptionService] Failed to get text from URL`);
+            }
+        } else {
+            console.log(`[TranscriptionService] No transcription URL found in list`);
+        }
+    } catch (e) {
+        console.error("[TranscriptionService] Error fetching transcription list:", e);
+    }
+    
+    return { available: false, text: '' };
+  }
+
+  async generateSummary(text: string) {
+    if (!text || text.length < 50) return "Transcrição muito curta para gerar resumo.";
+
+    const genAI = new GoogleGenerativeAI(this.geminiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+
+    const prompt = `
+    O seguinte texto é a transcrição de uma reunião que pode conter falas em Português e Inglês.
+    Por favor, forneça um resumo conciso em Português.
+    Destaque os pontos principais, decisões tomadas e itens de ação.
+    
+    Transcrição:
+    ${text.substring(0, 30000)}
+    `;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text();
+  }
+
+  async updateTranscription(studentId: string, notebookId: string, callId: string, updates: any) {
+    const docRef = adminDb.collection('users').doc(studentId).collection('Notebooks').doc(notebookId);
+    const docSnap = await docRef.get();
+    
+    if (docSnap.exists) {
+        const data = docSnap.data();
+        let transcriptions = data?.transcriptions || [];
+        
+        const index = transcriptions.findIndex((t: any) => t.callId === callId);
+        if (index !== -1) {
+            transcriptions[index] = { ...transcriptions[index], ...updates, updatedAt: new Date() };
+            await docRef.update({ transcriptions });
+            return transcriptions[index];
+        }
+    }
+    throw new Error("Transcription not found");
+  }
+
+  // Deprecated/Legacy support wrapper
+  async processAndSaveSummary(callId: string, studentId: string, notebookId: string) {
+      await this.saveCallMetadata(callId, studentId, notebookId);
+      // We don't wait for completion anymore in the new flow, 
+      // but if this is called by legacy code expecting a result, we might need to simulate it 
+      // or just return empty.
+      return { summary: '', transcriptText: '' };
   }
 }

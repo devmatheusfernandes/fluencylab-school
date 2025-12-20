@@ -35,15 +35,14 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Attempt to save summary if we have the info
+    // Save call metadata for future transcription checking
     if (studentId && notebookId && callId) {
         try {
-            console.log(`[Calls/End] Attempting to auto-save summary for call ${callId}`);
+            console.log(`[Calls/End] Saving call metadata for ${callId}`);
             const service = new TranscriptionService();
-            await service.processAndSaveSummary(callId, studentId, notebookId);
+            await service.saveCallMetadata(callId, studentId, notebookId);
         } catch (e) {
-            console.error("[Calls/End] Error auto-saving summary on call end:", e);
-            // Don't fail the whole request, just log it. The call still needs to end.
+            console.error("[Calls/End] Error saving call metadata:", e);
         }
     }
 
