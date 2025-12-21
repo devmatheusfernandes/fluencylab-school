@@ -28,18 +28,9 @@ import {
   Minimize2, 
   Maximize2, 
   PhoneOff, 
-  Sparkles,
   FileText,
-  Loader2,
-  Disc
+  Loader2
 } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { cn } from '@/lib/utils';
 
 // --- ESTILOS COMPARTILHADOS ---
@@ -203,16 +194,17 @@ export const MyUILayout: React.FC = (): JSX.Element => {
   const searchParams = useSearchParams();
   const params = useParams();
 
+  // NOVO ESTADO: Controla se estamos no processo de encerrar a chamada
+  const [isEnding, setIsEnding] = useState(false);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // Get student ID from searchParams or window
       const sId = searchParams.get("student");
       if (sId) setId(sId);
       else if (session?.user.role === 'student') {
         setId(session.user.id);
       }
 
-      // Get notebook ID
       let nId = searchParams.get("notebookId");
       if (!nId && params?.notebookId) {
         nId = params.notebookId as string;
@@ -224,115 +216,45 @@ export const MyUILayout: React.FC = (): JSX.Element => {
   const call = useCall();
   const { callData, setCallData } = useCallContext();
   
-  // 1. Extrair os Hooks do `useCallStateHooks`
   const {
     useCallCallingState,
     useLocalParticipant,
     useRemoteParticipants,
     useMicrophoneState,
     useCameraState,
-    useIsCallRecordingInProgress,
     useCallSettings,
     useIsCallTranscribingInProgress,
   } = useCallStateHooks();
 
-  // 2. Chamar os hooks para pegar o estado real
+  const callingState = useCallCallingState();
   const { status: micStatus, isSpeakingWhileMuted } = useMicrophoneState();
   const { status: camStatus } = useCameraState();
-  const isRecordingInProgress = useIsCallRecordingInProgress();
   const { transcription } = useCallSettings() || {};
   const isTranscribing = useIsCallTranscribingInProgress();
   
-  // 3. Transformando status em booleans
   const isMicEnabled = micStatus === 'enabled';
   const isCamEnabled = camStatus === 'enabled';
 
-  const [isSummaryOpen, setIsSummaryOpen] = useState(false);
-  const [summary, setSummary] = useState<string | null>(null);
-
-
-  const handleToggleTranscription = async () => {
-    if (!call) return;
-    try {
-        if (isTranscribing) {
-            await call.stopTranscription();
-            toast.info("Transcrição parada");
-        } else {
-            await call.startTranscription();
-            toast.success("Transcrição iniciada");
-        }
-    } catch (e) {
-        console.error("Erro ao alterar transcrição:", e);
-        toast.error("Falha ao alterar transcrição");
+  // FAILSAFE: Força a transcrição se não estiver ativa
+  useEffect(() => {
+    if (callingState === CallingState.JOINED && !isTranscribing && call && !isEnding) {
+       call.startTranscription().catch((err) => {
+         console.log("Tentativa de auto-start da transcrição:", err);
+       });
     }
-  };
+  }, [callingState, isTranscribing, call, isEnding]);
 
-
-  const handleToggleRecording = async () => {
-    if (!call) return;
-    try {
-      if (isRecordingInProgress) {
-        await call.stopRecording();
-        try { await call.stopTranscription(); } catch (e) {}
-        toast.success("Gravação parada");
-      } else {
-        await call.startRecording();
-          try {
-            await call.startTranscription({ language: 'pt' });
-          } catch (e) {
-            console.log("Transcrição automática pode já estar ativa ou falhou:", e);
-          }
-        toast.success("Gravação iniciada");
-      }
-    } catch (e) {
-      console.error(e);
-      toast.error("Erro ao alterar gravação");
-    }
-  };
-
-  const handleGenerateSummary = async () => {
-    if (!callData?.callId) return;
-    setIsSummaryOpen(true);
-    if (summary) return;
-
-    setIsGeneratingSummary(true);
-    try {
-      const res = await fetch('/api/summary', {
-        method: 'POST',
-        body: JSON.stringify({ 
-          callId: callData.callId,
-          studentId: id,
-          notebookId: notebookId
-        })
-      });
-      const data = await res.json();
-      if (data.error) {
-        toast.error(data.error);
-        setSummary("Não foi possível gerar o resumo. Verifique se a gravação e transcrição estavam ativas.");
-      } else {
-        setSummary(data.summary);
-      }
-    } catch (e) {
-      toast.error("Erro ao gerar resumo");
-    } finally {
-      setIsGeneratingSummary(false);
-    }
-  };
-
-  const callingState = useCallCallingState();
   const localParticipant = useLocalParticipant();
   const remoteParticipants = useRemoteParticipants();
   
   const [isPiP, setIsPiP] = useState(false);
   const constraintsRef = useRef<HTMLDivElement>(null);
-  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
-  const [hasJoined, setHasJoined] = useState(false); // New local state to track intent
+  const [hasJoined, setHasJoined] = useState(false); 
   const isJoiningRef = useRef(false);
 
   // Chrome background throttling handling
   useEffect(() => {
-    // Se temos dados da chamada e o usuário JÁ ENTROU (hasJoined), mas estamos IDLE, tentar reconectar
-    if (call && callData?.callId && hasJoined && callingState === CallingState.IDLE && !isJoiningRef.current) {
+    if (call && callData?.callId && hasJoined && callingState === CallingState.IDLE && !isJoiningRef.current && !isEnding) {
       console.log("Auto-rejoining call...");
       isJoiningRef.current = true;
       call.join()
@@ -341,8 +263,7 @@ export const MyUILayout: React.FC = (): JSX.Element => {
     }
 
     const onVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && call && callData?.callId && hasJoined) {
-        // Se voltamos e não estamos conectados, tentar reconectar
+      if (document.visibilityState === 'visible' && call && callData?.callId && hasJoined && !isEnding) {
         if (callingState !== CallingState.JOINED && callingState !== CallingState.JOINING && callingState !== CallingState.RECONNECTING && !isJoiningRef.current) {
            isJoiningRef.current = true;
            call.join()
@@ -354,7 +275,7 @@ export const MyUILayout: React.FC = (): JSX.Element => {
 
     document.addEventListener('visibilitychange', onVisibilityChange);
     return () => document.removeEventListener('visibilitychange', onVisibilityChange);
-  }, [call, callData?.callId, callingState, hasJoined]);
+  }, [call, callData?.callId, callingState, hasJoined, isEnding]);
 
   const resolveStudentId = () => {
     if (id) return id;
@@ -368,7 +289,11 @@ export const MyUILayout: React.FC = (): JSX.Element => {
   const handleEndCall = async () => {
     if (call) {
       try {
-        toast.info("Encerrando chamada e gerando resumo...");
+        setIsEnding(true); // Ativa o estado de encerramento
+        
+        // toast.info REMOVIDO conforme solicitado. 
+        // O feedback será via overlay "Encerrando..."
+        
         await call.endCall();
         const studentId = resolveStudentId();
         if (studentId) {
@@ -384,14 +309,19 @@ export const MyUILayout: React.FC = (): JSX.Element => {
         }
         setCallData(null);
         setHasJoined(false);
-        showEndedCallToast();
-      } catch (error) { console.error(error); }
+        showEndedCallToast(); // Toast vermelho solicitado
+      } catch (error) { 
+          console.error(error); 
+      } finally {
+          setIsEnding(false);
+      }
     }
   };
 
   const handleStudentLeaveCall = async () => {
     if (call) {
       try {
+        setIsEnding(true); // Ativa o estado de encerramento
         await call.leave();
         setCallData(null);
         setHasJoined(false);
@@ -399,7 +329,11 @@ export const MyUILayout: React.FC = (): JSX.Element => {
           try { await updateDoc(doc(db, "users", session.user.id), { callId: null }); } catch (err) {}
         }
         showLeftCallToast();
-      } catch (error) { console.error(error); }
+      } catch (error) { 
+          console.error(error); 
+      } finally {
+          setIsEnding(false);
+      }
     }
   };
 
@@ -466,7 +400,6 @@ export const MyUILayout: React.FC = (): JSX.Element => {
   const handleToggleVideo = async () => { try { await call?.camera.toggle(); } catch (e) { console.error(e) }};
   const togglePiP = () => setIsPiP((prev) => !prev);
 
-  // --- COMPONENTE DO AVISO DE FALA NO MUDO ---
   const TalkingWhileMutedToast = () => (
     <AnimatePresence>
       {isSpeakingWhileMuted && (
@@ -498,14 +431,20 @@ export const MyUILayout: React.FC = (): JSX.Element => {
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
         className={glassContainerClasses}
       >
-        {callingState !== CallingState.JOINED && (
+        {/* OVERLAY DE STATUS: CONECTANDO OU ENCERRANDO */}
+        {(callingState !== CallingState.JOINED || isEnding) && (
            <div className="absolute inset-0 z-[100] bg-black/60 flex flex-col items-center justify-center backdrop-blur-sm text-white rounded-3xl">
               <Loader2 className="animate-spin mb-2" size={32} />
               <span className="text-sm font-medium">
-                {callingState === CallingState.JOINING ? "Entrando..." : "Conectando..."}
+                {isEnding 
+                    ? "Encerrando..." 
+                    : callingState === CallingState.JOINING 
+                        ? "Entrando..." 
+                        : "Conectando..."}
               </span>
            </div>
         )}
+
         <div className="absolute left-3 top-1/2 -translate-y-1/2 h-12 w-1.5 bg-gray-300 dark:bg-gray-600 rounded-full opacity-40 cursor-grab active:cursor-grabbing" />
         <div className="flex flex-col h-full relative">
           
@@ -533,12 +472,24 @@ export const MyUILayout: React.FC = (): JSX.Element => {
                 />
 
                 {transcription?.mode !== TranscriptionSettingsRequestModeEnum.DISABLED && (
-                    <ControlButton 
-                        onClick={handleToggleTranscription} 
-                        isEnabled={!isTranscribing} 
-                        enabledIcon={FileText} 
-                        disabledIcon={FileText} 
-                    />
+                    <div className={cn(
+                        "h-10 flex items-center justify-center gap-2 px-3 rounded-full border transition-all select-none",
+                        isTranscribing 
+                        ? "bg-red-500/10 border-red-500/20 text-red-500 dark:text-red-400" 
+                        : "bg-slate-100 dark:bg-slate-800 border-transparent text-muted-foreground"
+                    )}>
+                        {isTranscribing ? (
+                        <>
+                            <span className="relative flex h-2.5 w-2.5">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                            </span>
+                            <span className="text-[10px] font-bold hidden">REC</span>
+                        </>
+                        ) : (
+                        <Loader2 className="animate-spin w-4 h-4 opacity-50" />
+                        )}
+                    </div>
                 )}
 
                 <div className="rounded-full overflow-hidden hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
@@ -640,7 +591,7 @@ export const MyUILayout: React.FC = (): JSX.Element => {
 
   if (!call?.id) return <>Sem chamada ativa</>;
 
-  const showCall = hasJoined || callingState === CallingState.JOINED || callingState === CallingState.JOINING || callingState === CallingState.RECONNECTING;
+  const showCall = hasJoined || callingState === CallingState.JOINED || callingState === CallingState.JOINING || callingState === CallingState.RECONNECTING || isEnding;
 
   return (
     <>
@@ -661,36 +612,6 @@ export const MyUILayout: React.FC = (): JSX.Element => {
         )}
       </AnimatePresence>
 
-      <Dialog open={isSummaryOpen} onOpenChange={setIsSummaryOpen}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="text-indigo-500" />
-              Resumo da Reunião
-            </DialogTitle>
-            <DialogDescription>
-              Resumo gerado por IA com base na transcrição da chamada.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="mt-4 space-y-4">
-            {isGeneratingSummary ? (
-              <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
-                <Loader2 className="h-8 w-8 animate-spin mb-2" />
-                <p>Gerando resumo...</p>
-              </div>
-            ) : summary ? (
-              <div className="prose dark:prose-invert max-w-none">
-                <div className="whitespace-pre-wrap">{summary}</div>
-              </div>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                <FileText className="h-12 w-12 mx-auto mb-2 opacity-20" />
-                <p>Nenhum resumo disponível.</p>
-              </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
     </>
   );
 };
