@@ -3,7 +3,7 @@
 /* ==========================================================================
    1. IMPORTAÇÃO BASE
    ========================================================================== */
-@import 'stream-chat-react/dist/css/v2/index.css';
+@import "stream-chat-react/dist/css/v2/index.css";
 
 /* ==========================================================================
    2. VARIÁVEIS GERAIS (LIGHT MODE / PADRÃO)
@@ -19,7 +19,7 @@
   --str-chat__active-primary-color: var(--primary);
   --str-chat__surface-color: var(--accent);
   --str-chat__secondary-surface-color: var(--muted);
-  
+
   /* Textos */
   --str-chat__text-color: var(--foreground);
   --str-chat__primary-surface-color-low-emphasis: var(--muted-foreground);
@@ -34,7 +34,7 @@
   --str-chat__background-color: var(--content-color);
   --str-chat__secondary-background-color: var(--content-color);
   --str-chat__main-panel-background-color: var(--background);
-  
+
   /* --- TEXTOS --- */
   --str-chat__text-color: var(--foreground);
   --str-chat__text-low-emphasis-color: var(--muted-foreground);
@@ -42,11 +42,11 @@
   --str-chat__header-title-color: var(--foreground);
 
   /* --- BORDAS E LINHAS --- */
-  --str-chat__surface-color: var(--border); 
+  --str-chat__surface-color: var(--border);
   --str-chat__disabled-color: var(--muted);
 
   /* --- INPUTS DE TEXTO --- */
-  --str-chat__message-input-background-color: var(--background);
+  --str-chat__message-input-background-color: var(--content-color);
   --str-chat__channel-search-input-background-color: var(--muted);
 
   /* --- CORREÇÃO: MODAIS, DROPDOWNS E POPUPS (Estavam brancos) --- */
@@ -67,9 +67,9 @@
   --str-chat__message-reactions-option-hover-background-color: var(--accent);
 
   /* --- BOLHAS DE MENSAGEM --- */
-  
+
   /* Minhas mensagens (Direita) - Primary conforme seu pedido */
-  --str-chat__own-message-bubble-background-color: var(--primary); 
+  --str-chat__own-message-bubble-background-color: var(--primary);
   --str-chat__own-message-bubble-color: var(--primary-foreground);
 
   /* Mensagens recebidas (Esquerda) */
@@ -86,6 +86,7 @@
 .dark .str-chat__channel-header {
   border-bottom: 1px solid var(--border);
   box-shadow: none;
+  background-color: var(--secondary);
 }
 
 /* Sidebar (Lista de Canais) */
@@ -103,8 +104,9 @@
 }
 
 /* Item Ativo na lista */
-.dark .str-chat__channel-preview-messenger.str-chat__channel-preview-messenger--active {
-  background-color: var(--sidebar-color); /* Fallback levemente mais claro */
+.dark
+  .str-chat__channel-preview-messenger.str-chat__channel-preview-messenger--active {
+  background-color: var(--secondary); /* Fallback levemente mais claro */
   border-right: 3px solid var(--primary);
 }
 
@@ -117,7 +119,8 @@
 }
 .dark .str-chat__channel-search-input {
   background-color: transparent;
-  border: 0;}
+  border: 0;
+}
 
 /* Menu de Ações da Mensagem (3 pontinhos) */
 .dark .str-chat__message-actions-box {
@@ -130,12 +133,6 @@
 }
 .dark .str-chat__message-actions-list-item-button:hover {
   background-color: var(--accent);
-}
-
-/* Área de Digitação (Input) */
-.dark .str-chat__input-flat-wrapper {
-  background-color: var(--muted);
-  border: 1px solid var(--border);
 }
 
 /* Thread (Fio de resposta) */
@@ -165,4 +162,80 @@
   border-radius: 4px;
 }
 
+/* ==========================================================================
+   6. INPUT FLUTUANTE MODERNO (CORRIGIDO)
+   ========================================================================== */
 
+/* 1. O Container Externo:
+   Aqui definimos o espaço EM VOLTA do input para ele não encostar nas bordas.
+   Isso cria a ilusão de que ele está flutuando.
+*/
+.str-chat__message-input {
+  background-color: transparent !important;
+  padding: 0 1rem .5rem 1rem !important; /* Espaço: Topo, Dir, Baixo, Esq */
+  border-top: none !important; /* Remove borda padrão do topo se houver */
+}
+
+/* 2. O Container Interno (A caixa visual):
+   Aqui aplicamos a cor, a borda e o arredondamento.
+*/
+.str-chat__message-input-inner {
+  background-color: var(--str-chat__message-input-background-color);
+  border: 1px solid var(--border); /* Usa sua variável de borda do tema */
+  border-radius: 2rem !important; /* Arredondamento forte (Pill shape) */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Sombra para elevação */
+  overflow: hidden;
+  flex-grow: 1;
+}
+
+/* Ajuste de sombra para o Dark Mode */
+.dark .str-chat__message-input-inner {
+  background-color: var(--secondary);
+}
+
+/* 3. Limpeza do Textarea:
+   Removemos estilos nativos para que o textarea obedeça a caixa arredondada.
+*/
+.str-chat__message-textarea-container {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.str-chat__textarea textarea:focus {
+  outline: none !important;
+  background-color: transparent !important;
+}
+
+/* 4. Ajuste do botão de upload e emoji para centralizar */
+.str-chat__input-flat .str-chat__file-input-container,
+.str-chat__input-flat .str-chat__emojipicker {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.str-chat__start-recording-audio-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.str-chat__audio_recorder-container {
+  background-color: transparent !important;
+  padding: 0 1rem 1.5rem 1rem !important; /* Espaço: Topo, Dir, Baixo, Esq */
+  border-top: none !important; /* Remove borda padrão do topo se houver */
+}
+
+.str-chat__audio_recorder {
+  background-color: var(--str-chat__message-input-background-color) !important;
+  border: 1px solid var(--border); /* Usa sua variável de borda do tema */
+  border-radius: 2rem !important; /* Arredondamento forte (Pill shape) */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Sombra para elevação */
+  overflow: hidden;
+  flex-grow: 1;
+  padding: 0.4rem 0.5rem;
+  display: flex;
+  justify-content: space-between;
+}

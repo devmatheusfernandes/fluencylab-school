@@ -67,36 +67,49 @@ const ChatLayout = () => {
         />
       </div>
 
-      {/* Main Chat Area */}
+    <div className={cn(
+  "flex flex-col bg-background", 
+  isMobile ? "w-full" : "w-2/3",
+  !showChannel && "hidden"
+)}>
+  <ChannelComponent>
+    <Window>
       <div className={cn(
-        "flex flex-col bg-background", 
-        isMobile ? "w-full" : "w-2/3",
-        !showChannel && "hidden"
+        "flex items-center border-b border-border bg-background",
+        isMobile && "fixed top-11 left-0 right-0 z-10"
       )}>
-        <ChannelComponent>
-          <Window>
-            {isMobile && (
-              <div className="flex items-center p-2 border-b border-border bg-muted/30">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="mr-2"
-                  onClick={() => setActiveChannel(undefined)}
-                >
-                  <ArrowLeft className="h-5 w-5" />
-                </Button>
-                <span className="font-medium text-sm">Voltar</span>
-              </div>
-            )}
-            <ChannelHeader />
-            <div className="flex-1 overflow-hidden relative">
-              <MessageList />
-            </div>
-            <MessageInput />
-          </Window>
-          <Thread />
-        </ChannelComponent>
+        {isMobile && (
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="ml-2 mr-0 shrink-0"
+            onClick={() => setActiveChannel(undefined)}
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        )}
+        <div className="flex-1 min-w-0">
+          <ChannelHeader />
+        </div>
       </div>
+      
+      <div className={cn(
+        "flex-1 overflow-hidden w-full",
+        isMobile && "pb-24 pt-16"
+      )}>
+        <MessageList />
+      </div>
+
+      <div className={cn(
+        isMobile && "fixed bottom-14 left-0 right-0 z-10"
+      )}>
+        <MessageInput audioRecordingEnabled={true}/>
+      </div>
+
+    </Window>
+    <Thread />
+  </ChannelComponent>
+</div>
     </div>
   );
 };
