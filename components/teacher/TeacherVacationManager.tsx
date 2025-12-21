@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import { useTeacher } from "@/hooks/useTeacher";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Text } from "../ui/text";
-import { Calendar } from "lucide-react";
+import { Calendar, Info } from "lucide-react";
 import { Card } from "../ui/card";
 import { Spinner } from "../ui/spinner";
 import { Button } from "../ui/button";
 import DatePicker from "../ui/date-picker";
 import TeacherVacationList from "./TeacherVacationList";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 export default function TeacherVacationManager() {
   const { requestVacation, isLoading, vacations, fetchMyVacations } =
@@ -42,6 +43,16 @@ export default function TeacherVacationManager() {
 
   const isValidPeriod = startDate && endDate && startDate <= endDate;
   const exceedsLimit = vacationDays > (remainingDays || 0);
+
+  // Calculate min start date (40 days from now)
+  const minStartDate = new Date();
+  minStartDate.setDate(minStartDate.getDate() + 40);
+
+  // Calculate max end date (14 days from start date)
+  const maxEndDate = startDate ? new Date(startDate) : null;
+  if (maxEndDate) {
+    maxEndDate.setDate(maxEndDate.getDate() + 13); // +13 because start date counts as day 1
+  }
 
   return (
     <div className="mt-4 mx-auto space-y-8">
@@ -111,13 +122,38 @@ export default function TeacherVacationManager() {
             </Text>
           </div>
 
+          <Alert className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+            <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            <AlertTitle className="text-blue-800 dark:text-blue-300 font-semibold mb-2">
+              Regras para solicitação de férias
+            </AlertTitle>
+            <AlertDescription className="text-blue-700 dark:text-blue-400">
+              <ul className="list-disc pl-4 space-y-1 text-sm">
+                <li>
+                  As férias devem ser solicitadas com pelo menos 40 dias de
+                  antecedência.
+                </li>
+                <li>
+                  O período máximo por solicitação é de 14 dias consecutivos.
+                </li>
+                <li>
+                  O cancelamento também deve ser feito com 40 dias de
+                  antecedência.
+                </li>
+              </ul>
+            </AlertDescription>
+          </Alert>
+
           {/* Date Selection */}
           <div className="flex flex-col sm:flex-row gap-2">
             <DatePicker
               value={startDate}
-              onChange={(date) => setStartDate(date)}
+              onChange={(date) => {
+                setStartDate(date);
+                setEndDate(null); // Reset end date when start date changes
+              }}
               placeholder="Selecione a data de início"
-              minDate={new Date()}
+              minDate={minStartDate}
               disabled={isLoading}
               size="default"
             />
@@ -125,13 +161,15 @@ export default function TeacherVacationManager() {
               value={endDate}
               onChange={(date) => setEndDate(date)}
               placeholder="Selecione a data de término"
-              minDate={startDate || new Date()}
-              disabled={isLoading}
+              minDate={startDate || minStartDate}
+              maxDate={maxEndDate}
+              disabled={isLoading || !startDate}
               size="default"
             />
             <Button
               onClick={handleRequestVacation}
               disabled={isLoading || !isValidPeriod || exceedsLimit}
+              className="w-full"
             >
               {isLoading ? (
                 <Spinner />

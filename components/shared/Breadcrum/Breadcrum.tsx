@@ -44,12 +44,12 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>(
         )}
         <span
           className={twMerge(
-            "font-semibold text-md text-foreground",
-            isMobile && "absolute left-1/2 -translate-x-1/2"
+            "font-semibold text-md text-foreground absolute left-1/2 -translate-x-1/2",
+            
           )}
           aria-current="page"
         >
-          {currentItem.label}
+          {decodeURIComponent(currentItem.label)}
         </span>
         <div className="ml-auto">
           <ThemeSwitcher />
