@@ -35,15 +35,17 @@ export const useNotifications = () => {
       const { announcements } = data;
       
       // Convert announcements to notifications
-      const notificationList: Notification[] = announcements.map((announcement: Announcement) => ({
-        id: announcement.id,
-        title: announcement.title,
-        message: announcement.message,
-        type: announcement.type === 'warning' ? 'warning' : 
-               announcement.type === 'tip' ? 'info' : 'info',
-        timestamp: new Date(announcement.createdAt),
-        read: announcement.readBy.includes(user.id),
-      }));
+      const notificationList: Notification[] = announcements
+        .map((announcement: Announcement) => ({
+          id: announcement.id,
+          title: announcement.title,
+          message: announcement.message,
+          type: announcement.type === 'warning' ? 'warning' : 
+                 announcement.type === 'tip' ? 'info' : 'info',
+          timestamp: new Date(announcement.createdAt),
+          read: announcement.readBy.includes(user.id),
+        }))
+        .filter((notification: Notification) => !notification.read);
       
       setNotifications(notificationList);
     } catch (err: any) {
@@ -110,9 +112,31 @@ export const useNotifications = () => {
     }
   }, [notifications]);
 
-  const clearAll = useCallback(() => {
-    setNotifications([]);
-  }, []);
+  const clearAll = useCallback(async () => {
+    try {
+      // Mark all unread notifications as read before clearing
+      const unreadNotifications = notifications.filter(n => !n.read);
+      
+      if (unreadNotifications.length > 0) {
+        await Promise.all(
+          unreadNotifications.map(notification => 
+            fetch(`/api/announcements/${notification.id}/read`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('firebaseToken')}`,
+                'Content-Type': 'application/json',
+              },
+            })
+          )
+        );
+      }
+      
+      setNotifications([]);
+    } catch (err: any) {
+      setError(err.message || 'Failed to clear notifications');
+      console.error('Error clearing notifications:', err);
+    }
+  }, [notifications]);
 
   const deleteNotification = useCallback(async (id: string) => {
     try {

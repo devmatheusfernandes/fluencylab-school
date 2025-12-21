@@ -413,7 +413,7 @@ interface NotificationCardProps {
 }
 
 export const NotificationCard: React.FC<NotificationCardProps> = ({
-  notifications,
+  notifications: propNotifications,
   onMarkAsRead,
   onMarkAllAsRead,
   onDelete,
@@ -424,7 +424,10 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
   isOpen,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  
+  // Ensure we only show unread notifications
+  const notifications = propNotifications.filter(n => !n.read);
+  const unreadCount = notifications.length;
   const hasNotifications = notifications.length > 0;
 
   // When collapsed, show only the Bell icon with badge
@@ -543,7 +546,7 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
   }
 
   // On desktop, show maximum 2 notifications with "View all" button
-  const displayNotifications = notifications.slice(0, 2);
+  const displayNotifications = notifications.slice(0, 1);
   const hasMoreNotifications = notifications.length > 2;
 
   return (
