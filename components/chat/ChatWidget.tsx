@@ -17,8 +17,6 @@ import {
   ChannelHeader
 } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/v2/index.css';
-// --- IMPORTANT: Import the custom style file you created ---
-// Adjust path if your CSS file is elsewhere, e.g., '@/styles/chat.css'
 import './chat.css'; 
 
 import { useChatContacts, ChatContact } from '@/hooks/useChatContacts';
@@ -181,7 +179,7 @@ const ChatInterface = ({ user, contacts }: { user: ChatUser; contacts: ChatConta
 
   if (!client) {
     return (
-      <div className="flex justify-center items-center h-[500px] w-full bg-background rounded-lg border border-border">
+      <div className="flex justify-center items-center h-full w-full bg-background rounded-lg border border-border">
         <LoadingIndicator />
       </div>
     );
@@ -190,7 +188,7 @@ const ChatInterface = ({ user, contacts }: { user: ChatUser; contacts: ChatConta
   const streamTheme = resolvedTheme === 'dark' ? 'messaging dark' : 'messaging light';
 
   return (
-    <div className="flex h-[80vh] w-full border border-border rounded-lg overflow-hidden bg-background shadow-sm">
+    <div className="flex h-full w-full border border-border rounded-lg overflow-hidden bg-background shadow-sm">
       <Chat client={client} theme={streamTheme}>
         <ChatLayout />
       </Chat>
@@ -214,7 +212,7 @@ export default function ChatWidget() {
   
   if (status === 'loading' || contactsLoading) {
     return (
-      <div className="flex justify-center items-center h-[500px] w-full bg-background rounded-lg border border-border">
+      <div className="flex justify-center items-center h-full w-full bg-background rounded-lg border border-border">
         <LoadingIndicator />
       </div>
     );
@@ -222,7 +220,7 @@ export default function ChatWidget() {
 
   if (contactsError) {
     return (
-      <div className="flex justify-center items-center h-[500px] w-full bg-background rounded-lg border border-destructive/50 text-destructive">
+      <div className="flex justify-center items-center h-full w-full bg-background rounded-lg border border-destructive/50 text-destructive">
         Erro ao carregar contatos: {contactsError}
       </div>
     );
