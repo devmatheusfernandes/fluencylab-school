@@ -81,7 +81,7 @@ const UserCard: React.FC<UserCardProps> = ({
         <AvatarFallback size="lg" name={user.name} />
       </Avatar>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium title-base truncate">{user.name}</p>
+        <p className="text-sm font-medium title-base truncate capitalize">{user.name}</p>
         <p className="text-xs text-paragraph truncate">{userRoleLabel}</p>
       </div>
       {onLogout && (

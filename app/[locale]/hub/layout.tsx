@@ -122,7 +122,7 @@ function HubLayoutContent({ children, session }: { children: React.ReactNode, se
     (pathname?.startsWith(`/${locale}/hub/student/my-notebook/`) &&
       pathname?.includes("/notebook/"));
 
-  const isChatPage = pathname?.includes("/my-chat");
+  const isChatPage = pathname?.includes("/my-chat") || pathname?.includes("/workbooks");
 
   // Se estivermos na página do caderno, não renderiza sidebar nem header
   if (hideLayoutElements) {

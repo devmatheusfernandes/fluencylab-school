@@ -22,7 +22,7 @@ export default function LessonViewer({ lesson, workbook }: LessonViewerProps) {
   useEffect(() => {
     if (session) {
       const role = session.user.role;
-      setIsEditable(role === "admin"); // Editable only for admin
+      setIsEditable(role === "teacher" || role === "manager"); // Editable only for admin and manager
     }
   }, [session]);
 

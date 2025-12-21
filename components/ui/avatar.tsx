@@ -20,6 +20,11 @@ function getInitials(name: string | undefined | null): string {
   return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
 }
 
+const FALLBACK_IMAGES = [
+  "/images/profile-pictures-fallback/rick.jpg",
+  "/images/profile-pictures-fallback/morty.jpg",
+];
+
 const Avatar = React.forwardRef<
   React.ComponentRef<typeof AvatarPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root> & {
@@ -158,20 +163,38 @@ const AvatarFallback = React.forwardRef<
     "2xl": "text-xl sm:text-2xl md:text-3xl lg:text-4xl",
   };
 
-  // Use provided children or generate initials from name
-  const fallbackContent = children || getInitials(name);
+  // Use provided children or generate fallback image from name
+  const fallbackImageSrc = React.useMemo(() => {
+    if (children) return null;
+
+    let hash = 0;
+    const stringToHash = name || "default";
+    for (let i = 0; i < stringToHash.length; i++) {
+      hash = stringToHash.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash) % FALLBACK_IMAGES.length;
+    return FALLBACK_IMAGES[index];
+  }, [name, children]);
 
   return (
     <AvatarPrimitive.Fallback
       ref={ref}
       className={twMerge(
-        "capitalize flex h-full w-full items-center justify-center rounded-2xl bg-foreground/10 text-white border-2 border-foreground/10 font-semibold",
+        "capitalize flex h-full w-full items-center justify-center rounded-2xl bg-foreground/10 text-white border-2 border-foreground/10 font-semibold overflow-hidden",
         textSizeClasses[size],
         className
       )}
       {...props}
     >
-      {fallbackContent}
+      {children ? (
+        children
+      ) : (
+        <img
+          src={fallbackImageSrc!}
+          alt={name || "Avatar fallback"}
+          className="h-full w-full object-cover"
+        />
+      )}
     </AvatarPrimitive.Fallback>
   );
 });

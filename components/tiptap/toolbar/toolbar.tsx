@@ -6,7 +6,7 @@ import { TOOL_ITEMS } from "./toolsConfig";
 import ToolbarToolsSheet, { MODAL_COMPONENTS } from "./tools";
 import { BackButton } from "@/components/ui/back-button";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
-import { TitleEditor } from "./TitleEditor";
+import { TitleEditor } from "./title-editor";
 
 import "@/components/tiptap-node/code-block-node/code-block-node.scss";
 import "@/components/tiptap-node/list-node/list-node.scss";

@@ -23,6 +23,7 @@ import { TextStyle } from '@tiptap/extension-text-style'
 import FontFamily from '@tiptap/extension-font-family'
 import { MusicNode } from '@/components/tiptap/extensions/Music/MusicNode'
 import BottomToolbar from '../tiptap/toolbar/bottom-toolbar';
+import FloatingToolbar from '../tiptap/toolbar/floating-toolbar';
 
 const Tiptap = ({ onChange, content, isEditable }: any) => {
   const TabInsertExtension = Extension.create({
@@ -115,7 +116,7 @@ const Tiptap = ({ onChange, content, isEditable }: any) => {
     <div className='flex flex-col min-w-full min-h-full gap-8 justify-center items-center text-black dark:text-white'>
       <EditorContent editor={editor} />
 
-      {isEditable && <BottomToolbar editor={editor} />}
+      {isEditable && <FloatingToolbar editor={editor} />}
     </div>
   );
 };

@@ -1,210 +1,128 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { Editor } from "@tiptap/react";
-import { ChevronDown, ChevronUp, GripVertical } from "lucide-react";
-import { motion, AnimatePresence, useDragControls, PanInfo } from "framer-motion";
-import {
-  Divider,
-  HeadingSelector,
-  TextFormattingGroup,
-  AlignmentGroup,
-  ListGroup,
-  ColorPicker,
-  LinkDrawer,
-  HistoryGroup,
-} from "./components";
-import { ImageUploadButton } from "@/components/tiptap-ui/image-upload-button";
-import { ColorHighlightPopover } from "@/components/tiptap-ui/color-highlight-popover";
-import { BackButton } from "@/components/ui/back-button";
-import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { TOOL_ITEMS } from "./toolsConfig";
+import { MODAL_COMPONENTS } from "./tools";
+import { motion } from "framer-motion";
+
+// Seus imports de CSS
+import "@/components/tiptap-node/code-block-node/code-block-node.scss";
+import "@/components/tiptap-node/list-node/list-node.scss";
+import "@/components/tiptap-node/paragraph-node/paragraph-node.scss";
+import "@/components/tiptap-node/heading-node/heading-node.scss";
+import "@/components/tiptap-node/blockquote-node/blockquote-node.scss";
+import "@/components/tiptap-node/image-node/image-node.scss";
+import "@/components/tiptap-node/image-upload-node/image-upload-node.scss";
 
 interface ToolbarProps {
   editor: Editor | null;
+  title?: string;
+  onTitleChange?: (newTitle: string) => void;
+  studentID?: string;
+  notebookId?: string;
 }
 
-const FloatingToolbar: React.FC<ToolbarProps> = ({ editor }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [visibleButtons, setVisibleButtons] = useState<string[]>([]);
-  const [hiddenButtons, setHiddenButtons] = useState<string[]>([]);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const toolbarRef = useRef<HTMLDivElement>(null);
-  const dragControls = useDragControls();
-
-  // Define todos os botões/grupos disponíveis
-  const allButtons = [
-    { id: "heading", component: HeadingSelector, width: 140 },
-    { id: "divider1", component: Divider, width: 20 },
-    { id: "formatting", component: TextFormattingGroup, width: 120 },
-    { id: "divider2", component: Divider, width: 20 },
-    { id: "alignment", component: AlignmentGroup, width: 50 },
-    { id: "divider3", component: Divider, width: 20 },
-    { id: "list", component: ListGroup, width: 50 },
-    { id: "divider4", component: Divider, width: 20 },
-    { id: "color", component: ColorPicker, width: 50 },
-    { id: "colorHighlight", component: ColorHighlightPopover, width: 50 },
-    { id: "divider5", component: Divider, width: 20 },
-    { id: "link", component: LinkDrawer, width: 50 },
-    { id: "divider6", component: Divider, width: 20 },
-    { id: "history", component: HistoryGroup, width: 90 },
-    { id: "imageUpload", component: ImageUploadButton, width: 50 },
-    { id: "themeswitcher", component: ThemeSwitcher, width: 50 },
-  ];
-
-  useEffect(() => {
-    const calculateVisibleButtons = () => {
-      if (!toolbarRef.current) return;
-
-      const containerWidth = Math.min(window.innerWidth * 0.9, 800); // Max 800px ou 90% da tela
-      let accumulatedWidth = 0;
-      const visible: string[] = [];
-      const hidden: string[] = [];
-
-      for (const button of allButtons) {
-        if (accumulatedWidth + button.width <= containerWidth - 120) {
-          visible.push(button.id);
-          accumulatedWidth += button.width;
-        } else {
-          if (!button.id.startsWith("divider")) {
-            hidden.push(button.id);
-          }
-        }
-      }
-
-      setVisibleButtons(visible);
-      setHiddenButtons(hidden);
-    };
-
-    calculateVisibleButtons();
-    window.addEventListener("resize", calculateVisibleButtons);
-    return () => window.removeEventListener("resize", calculateVisibleButtons);
-  }, []);
-
-  // Posição inicial centralizada na parte inferior
-  useEffect(() => {
-    const initialX = (window.innerWidth - 800) / 2;
-    const initialY = window.innerHeight - 100;
-    setPosition({ x: initialX, y: initialY });
-  }, []);
-
-  const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    setPosition({
-      x: position.x + info.offset.x,
-      y: position.y + info.offset.y,
-    });
-  };
+const Toolbar: React.FC<ToolbarProps> = ({
+  editor,
+  studentID,
+  notebookId,
+}) => {
+  const [openModalId, setOpenModalId] = useState<string | null>(null);
 
   if (!editor) {
     return null;
   }
 
-  const renderButton = (buttonId: string) => {
-    const button = allButtons.find((b) => b.id === buttonId);
-    if (!button) return null;
-
-    const Component = button.component;
-    return <Component key={buttonId} editor={editor} />;
-  };
+  const handleCloseDialog = () => setOpenModalId(null);
+  const ActiveModal = openModalId ? MODAL_COMPONENTS[openModalId] : null;
 
   return (
-    <motion.div
-      ref={toolbarRef}
-      drag
-      dragControls={dragControls}
-      dragMomentum={false}
-      dragElastic={0}
-      onDragEnd={handleDragEnd}
-      initial={{ scale: 0, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
-      style={{
-        x: position.x,
-        y: position.y,
-      }}
-      className="fixed z-99 max-w-[90vw] md:max-w-[800px]"
-    >
-      {/* Camada expandida (animada) */}
-      <AnimatePresence>
-        {isExpanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0, y: 20 }}
-            animate={{ height: "auto", opacity: 1, y: 0 }}
-            exit={{ height: 0, opacity: 0, y: 20 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="bg-background/95 backdrop-blur-lg border border-border rounded-t-xl shadow-2xl overflow-hidden mb-1"
-          >
-            <motion.div
-              initial={{ y: -20 }}
-              animate={{ y: 0 }}
-              exit={{ y: -20 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="p-3 flex items-center justify-center gap-2 flex-wrap"
-            >
-              {hiddenButtons.map((buttonId, index) => (
-                <motion.div
-                  key={buttonId}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{
-                    duration: 0.2,
-                    delay: index * 0.03,
-                    ease: "easeOut",
-                  }}
-                >
-                  {renderButton(buttonId)}
-                </motion.div>
-              ))}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <>
+      <motion.div
+        initial={{ y: 150, opacity: 0, x: "-50%" }}
+        animate={{ y: 0, opacity: 1, x: "-50%" }}
+        transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.3 }}
+        // AJUSTES MOBILE:
+        // 1. bottom-4: Um pouco mais perto do polegar no mobile.
+        // 2. w-[92vw]: Ocupa quase toda a largura no celular.
+        // 3. md:w-fit: No desktop, ocupa apenas o espaço necessário.
+        className="fixed bottom-16 md:bottom-8 left-1/2 z-20 sm:z-50 w-[92vw] md:w-fit max-w-3xl"
+      >
+        <div
+          className="
+            bg-slate-100/75 dark:bg-slate-950/75
+            backdrop-blur-xl
+            border border-slate-200/30 dark:border-slate-800/30
+            shadow-2xl rounded-2xl 
+            px-3 py-2 md:px-4 md:py-2 /* Padding levemente menor no mobile para ganhar espaço */
+            transition-all ease-in-out duration-300 
+            hover:bg-slate-100/90 dark:hover:bg-slate-950/90 /* Aumentei opacidade no hover para leitura */
+          "
+        >
+          {/* Container Flex ajustado para Scroll Horizontal */}
+          <div className="flex items-center w-full">
+            
+            <div className="
+              flex items-center 
+              w-full
+              gap-2 md:gap-1 
+              no-scrollbar
+              /* Lógica de Scroll Mobile vs Desktop */
+              overflow-x-auto        /* Habilita scroll horizontal */
+              flex-nowrap            /* Impede quebra de linha (vital para mobile) */
+              justify-start          /* Alinha ao início para permitir scroll correto no mobile */
+              md:justify-center      /* Centraliza no desktop se houver espaço */
+              
+              scrollbar-hide         /* Esconde a barra de rolagem visualmente */
+              py-1                   /* Pequeno respiro vertical */
+            ">
+              {TOOL_ITEMS.map((item) => {
+                // Divider
+                if (item.isDivider) {
+                  const DividerComp = item.component as React.ComponentType<
+                    Record<string, unknown>
+                  >;
+                  // No mobile, divisores verticais às vezes atrapalham o toque, 
+                  // podemos dar uma margem extra ou ocultar se desejar.
+                  return (
+                    <div key={item.id} className="flex-shrink-0">
+                       <DividerComp {...(item.props || {})} />
+                    </div>
+                  );
+                }
 
-      {/* Camada principal (sempre visível) */}
-      <div className="bg-background/95 backdrop-blur-lg border border-border rounded-xl shadow-2xl">
-        <div className="p-3 flex items-center gap-2">
-          {/* Drag Handle */}
-          <motion.div
-            onPointerDown={(e) => dragControls.start(e)}
-            whileHover={{ scale: 1.1 }}
-            className="cursor-grab active:cursor-grabbing p-2 hover:bg-accent rounded-lg transition-colors"
-            title="Arrastar toolbar"
-          >
-            <GripVertical size={18} className="text-muted-foreground" />
-          </motion.div>
-
-          <BackButton />
-
-          <Divider />
-
-          <div className="flex items-center gap-1 flex-1 justify-center overflow-x-auto">
-            {visibleButtons.map((buttonId) => renderButton(buttonId))}
+                // Editor Component (Botões)
+                const EditorComp = item.component as React.ComponentType<
+                  { editor: Editor } & Record<string, unknown>
+                >;
+                
+                return (
+                  // flex-shrink-0 impede que os botões sejam esmagados quando falta espaço
+                  <div key={item.id} className="flex-shrink-0">
+                    <EditorComp
+                      editor={editor}
+                      {...(item.props || {})}
+                    />
+                  </div>
+                );
+              })}
+            </div>
           </div>
-
-          {hiddenButtons.length > 0 && (
-            <>
-              <Divider />
-              <motion.button
-                onClick={() => setIsExpanded(!isExpanded)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="p-2 rounded-lg transition-all duration-200 text-foreground hover:bg-accent hover:text-accent-foreground flex items-center gap-1 shrink-0"
-                title={isExpanded ? "Ocultar ferramentas" : "Mais ferramentas"}
-              >
-                <motion.div
-                  animate={{ rotate: isExpanded ? 180 : 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {isExpanded ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
-                </motion.div>
-                <span className="text-sm hidden sm:inline">Mais</span>
-              </motion.button>
-            </>
-          )}
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+
+      {ActiveModal && (
+        <ActiveModal
+          isOpen={true}
+          onClose={handleCloseDialog}
+          editor={editor}
+          studentID={studentID}
+          notebookId={notebookId}
+        />
+      )}
+    </>
   );
 };
 
-export default FloatingToolbar;
+export default Toolbar;

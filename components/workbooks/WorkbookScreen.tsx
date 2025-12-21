@@ -313,14 +313,14 @@ export default function Home() {
 
   return (
     <>
-      <div className="min-h-screen p-2 transition-colors duration-300">
+      <div className="min-h-screen p-6 transition-colors duration-300">
         {/* Search Bar */}
         <div className="flex flex-row gap-6 mb-6 w-full">
           <Input
             type="text"
             placeholder="Buscar lições..."
             value={searchQuery}
-            className="min-w-full"
+            className="w-full"
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           {session?.user.role === "admin" && (
@@ -339,7 +339,7 @@ export default function Home() {
         {/* Search Results */}
         {searchResults.length > 0 ? (
           <motion.div
-            className="mb-12"
+            className="mb-12 "
             initial="hidden"
             animate="visible"
             variants={containerVariants}
