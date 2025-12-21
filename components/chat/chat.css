@@ -31,8 +31,8 @@
 .dark .str-chat,
 .str-chat.dark {
   /* --- FUNDOS GERAIS --- */
-  --str-chat__background-color: var(--background);
-  --str-chat__secondary-background-color: var(--card); /* Sidebar / Headers */
+  --str-chat__background-color: var(--content-color);
+  --str-chat__secondary-background-color: var(--content-color);
   --str-chat__main-panel-background-color: var(--background);
   
   /* --- TEXTOS --- */
@@ -68,7 +68,7 @@
 
   /* --- BOLHAS DE MENSAGEM --- */
   
-  /* Minhas mensagens (Direita) - Vermelho/Primary conforme seu pedido */
+  /* Minhas mensagens (Direita) - Primary conforme seu pedido */
   --str-chat__own-message-bubble-background-color: var(--primary); 
   --str-chat__own-message-bubble-color: var(--primary-foreground);
 
@@ -104,7 +104,7 @@
 
 /* Item Ativo na lista */
 .dark .str-chat__channel-preview-messenger.str-chat__channel-preview-messenger--active {
-  background-color: var(--sidebar-accent, #2a2a2a); /* Fallback levemente mais claro */
+  background-color: var(--sidebar-color); /* Fallback levemente mais claro */
   border-right: 3px solid var(--primary);
 }
 

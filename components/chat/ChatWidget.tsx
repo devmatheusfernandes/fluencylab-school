@@ -188,7 +188,7 @@ const ChatInterface = ({ user, contacts }: { user: ChatUser; contacts: ChatConta
   const streamTheme = resolvedTheme === 'dark' ? 'messaging dark' : 'messaging light';
 
   return (
-    <div className="flex h-full w-full border border-border rounded-lg overflow-hidden bg-background shadow-sm">
+    <div className="flex h-full w-full overflow-hidden">
       <Chat client={client} theme={streamTheme}>
         <ChatLayout />
       </Chat>

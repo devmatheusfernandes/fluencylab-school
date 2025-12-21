@@ -122,6 +122,8 @@ function HubLayoutContent({ children, session }: { children: React.ReactNode, se
     (pathname?.startsWith(`/${locale}/hub/student/my-notebook/`) &&
       pathname?.includes("/notebook/"));
 
+  const isChatPage = pathname?.includes("/my-chat");
+
   // Se estivermos na página do caderno, não renderiza sidebar nem header
   if (hideLayoutElements) {
     return (
@@ -154,10 +156,18 @@ function HubLayoutContent({ children, session }: { children: React.ReactNode, se
                   <div className="sticky top-0 z-20">
                     <HubHeader />
                   </div>
-                  <div className="flex bg-white/20 dark:bg-slate-900 flex-1 flex-col sm:hidden p-1">
+                  <div
+                    className={`flex bg-white/20 dark:bg-slate-900 flex-1 flex-col sm:hidden ${
+                      isChatPage ? "p-0" : "p-1"
+                    }`}
+                  >
                     {children}
                   </div>
-                  <Container className="flex-1 flex-col hidden sm:flex">
+                  <Container
+                    className={`flex-1 flex-col hidden sm:flex ${
+                      isChatPage ? "p-0 sm:p-0" : ""
+                    }`}
+                  >
                     {children}
                   </Container>
                 </div>
@@ -177,7 +187,6 @@ export default function HubLayout({ children }: { children: React.ReactNode }) {
   if (loading) return null;
   
   if (!session) {
-      // Handle unauthenticated state if necessary, or just return children without layout/chat
       // For now, assuming protection is handled by middleware or page wrappers
       return null; 
   }

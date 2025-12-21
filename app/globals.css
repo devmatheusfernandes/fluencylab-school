@@ -85,7 +85,9 @@
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.702 0.183 293.541);
-
+  --content-color: oklch(55.4% 0.042 264 / 0.08);
+  --header-color: oklch(55.4% 0.042 264 / 0.08);
+  --sidebar-color: oklch(92.3% 0.014 264);
 }
 
 /* Dark Mode Overrides */
@@ -121,6 +123,9 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.38 0.189 293.745);
+  --content-color: oklch(17.8% 0.031 264);
+  --header-color: oklch(17.8% 0.031 264);
+  --sidebar-color: oklch(7.4% 0.020 264);
 }
 
 /* --- 3. TEMAS ADICIONAIS --- */
@@ -170,15 +175,15 @@
 @custom-variant dark (&:is(.dark *));
 
 .sidebar-base {
-  @apply bg-slate-200 dark:bg-slate-950;
+  @apply bg-[var(--sidebar-color)] dark:bg-[var(--sidebar-color)];
 }
 
 .container-base {
-  @apply bg-slate-500/8 dark:bg-slate-900;
+  @apply bg-[var(--content-color)] dark:bg-[var(--content-color)];
 }
 
 .header-base {
-  @apply bg-slate-500/8 dark:bg-slate-900;
+  @apply bg-[var(--header-color)] dark:bg-[var(--header-color)];
 }
 
 .title-base {
