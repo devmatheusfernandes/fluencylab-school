@@ -412,24 +412,26 @@ ModalField.displayName = "ModalField";
 
 // Modal Input Component
 const ModalInput = React.forwardRef<
-  React.ComponentRef<typeof motion.div>,
+  HTMLInputElement,
   React.ComponentPropsWithoutRef<typeof Input> & {
     error?: boolean;
-  } & HTMLMotionProps<"div">
->(({ className, ...props }, ref) => {
+    containerProps?: HTMLMotionProps<"div">;
+  }
+>(({ className, containerProps, error, ...props }, ref) => {
   return (
     <motion.div
-      ref={ref}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2, duration: 0.2 }}
-      {...props}
+      {...containerProps}
     >
       <Input
+        ref={ref}
         className={twMerge(
           "h-12 px-4 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-xl",
           className
         )}
+        {...props}
       />
     </motion.div>
   );

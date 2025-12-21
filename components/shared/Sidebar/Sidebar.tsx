@@ -660,7 +660,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={handleLogout}
-                className="p-2.5 rounded-sm bg-destructive/10 hover:bg-destructive/20 text-destructive hover:text-destructive transition-all duration-300 ease-in-out"
+                className="p-2.5 self-center rounded-sm bg-destructive/10 hover:bg-destructive/20 text-destructive hover:text-destructive transition-all duration-300 ease-in-out"
                 title="Sair"
               >
                 <LogOut className="w-4 h-4" />

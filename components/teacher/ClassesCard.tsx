@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { ClassStatus, StudentClass } from "@/types/classes/class";
 import { SubContainer } from "@/components/ui/sub-container";
 import {
@@ -382,7 +382,7 @@ export default function ClassesCard({
           <ModalBody>
             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
               Tem certeza que deseja cancelar esta aula? Esta ação irá marcar a
-              aula como Cancelada (Professor + Reposição) e uma nova aula deverá
+              aula como Cancelada pelo Professor, e uma nova aula deverá
               ser agendada para repor esta.
             </p>
           </ModalBody>
@@ -562,7 +562,7 @@ export default function ClassesCard({
                   <div className="flex flex-col lg:flex-row lg:items-center">
                     {/* Date Section */}
                     <div className="flex-1">
-                      <div className="flex gap-1">
+                      <div className="flex flex-wrap gap-1">
                         <div className="text-sm text-gray-500 dark:text-gray-400">
                           {classDate.toLocaleDateString("pt-BR", {
                             weekday: "short",
@@ -605,7 +605,7 @@ export default function ClassesCard({
                           }
                         >
                           <SelectTrigger
-                            className={`w-full lg:w-48 h-10 text-sm bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors ${
+                            className={`w-full lg:w-34 h-10 text-sm bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors ${
                               isPast ||
                               [
                                 ClassStatus.CANCELED_STUDENT,

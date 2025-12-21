@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
@@ -72,6 +72,17 @@ export default function NotebooksCard({
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newNotebookTitle, setNewNotebookTitle] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isModalOpen) {
+      // Small delay to ensure modal is mounted and transition has started
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isModalOpen]);
 
   // Filter notebooks by search query
   const filteredNotebooks = notebooks.filter(
@@ -239,14 +250,20 @@ export default function NotebooksCard({
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium title-base mb-1">
-                  Título *
+                  Título
                 </label>
                 <ModalInput
+                  ref={inputRef}
                   type="text"
                   value={newNotebookTitle}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setNewNotebookTitle(e.target.value)
                   }
+                  onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                    if (e.key === "Enter") {
+                      handleCreateNotebook();
+                    }
+                  }}
                   placeholder="Digite o título do caderno"
                 />
               </div>
