@@ -165,16 +165,16 @@ const ChatLayout = () => {
   );
 
   return (
-    <div className="flex w-full h-full bg-background overflow-hidden">
+    <div className="flex w-full h-full header-color overflow-hidden">
       {/* --- COLUNA ESQUERDA: LISTA --- */}
       <div
         className={cn(
-          "flex-col border-r border-primary h-full",
+          "flex-col border-r border-r-[2px] border-primary/40 h-full",
           isMobile ? "w-full" : "w-[340px] shrink-0",
           showList ? "flex" : "hidden"
         )}
       >
-        <div className="p-4 border-b border-primary/40 h-[60px] flex items-center justify-center shrink-0">
+        <div className="p-4 border-b border-primary/20 h-[60px] flex items-center justify-center shrink-0">
           <h1 className="font-bold text-lg">Mensagens</h1>
         </div>
         <div className="flex-1 overflow-y-auto min-h-0">
@@ -204,7 +204,7 @@ const ChatLayout = () => {
             <Window>
               <div className="flex flex-col h-full w-full overflow-hidden">
                 {/* 1. Header (Fixo no topo) */}
-                <div className="flex-none z-10">
+                <div className="flex-none z-10 sm:border-none border-t border-primary/20">
                   <CustomChannelHeader />
                 </div>
 

@@ -7,8 +7,8 @@
   --font-primary: var(--font-sans), "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   
   /* Cores de Fundo (Mapeado para globals.css) */
-  --bg-app: var(--background);
-  --bg-panel: var(--card);
+  --bg-app: var(--header-color);
+  --bg-panel: var(--header-color);
   --bg-hover: var(--accent);
   --border-color: var(--border);
 
@@ -78,8 +78,8 @@
 
 /* --- INPUT DE MENSAGEM --- */
 .str-chat__message-input {
-  background-color: var(--background); /*COR DO BACKGROUND AO REDOR DO INPUT DE BUSCA*/
-  padding: 0 1rem 1rem 1rem !important;
+  background-color: var(--bg-app); /*COR DO BACKGROUND AO REDOR DO INPUT DE BUSCA*/
+  padding: .4rem 1rem 1rem 1rem !important;
   /* border-top: 1px solid var(--border-color);*/
 }
 
@@ -92,11 +92,13 @@
 .str-chat__message-input-inner:focus-within {
   border-color: var(--accent-color);
   box-shadow: 0 0 0 1px var(--accent-color);
+  border: 1px;
+  border-radius: 20px;
 }
 
 /* Container do Gravador de Áudio (Ajuste para coincidir com o input) */
 .str-chat__audio_recorder-container {
-  background-color: var(--background);
+  background-color: var(--bg-app);
   padding: 0 1rem 1rem 1rem !important;
   border-top: none !important;
 }
@@ -258,4 +260,52 @@
 .str-chat__channel-list-react .str-chat__channel-list-messenger-react {
   padding-left: 1rem;
   padding-right: 1rem;
+}
+
+.str-chat__li {
+  /* Aplica animação suave em cada mensagem nova */
+  animation: messageSlideIn 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+
+/* ==========================================================================
+   4. ANIMAÇÕES (MENSAGENS)
+   ========================================================================== */
+@keyframes messageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ==========================================================================
+   5. ANIMAÇÕES (BOTÃO DE SAIR DA BUSCA)
+   ========================================================================== */
+@keyframes exitSearchButton {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+
+.str-chat__li {
+  /* Aplica animação suave em cada mensagem nova */
+  animation: messageSlideIn 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.str-chat__channel-search-bar-button.str-chat__channel-search-bar-button--exit-search svg {
+  background-color: var(--accent);
+  border-radius: 100%;
+  padding: 0.25rem;	
+  animation: exitSearchButton 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
