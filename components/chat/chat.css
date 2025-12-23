@@ -254,3 +254,8 @@
 .str-chat__list-notifications {
   display: none;
 }
+
+.str-chat__channel-list-react .str-chat__channel-list-messenger-react {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}

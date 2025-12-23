@@ -44,10 +44,10 @@ const CustomChannelPreview = (props: ChannelPreviewUIComponentProps) => {
     <button
       onClick={() => setActiveChannel?.(channel)}
       className={cn(
-        "flex w-full items-center gap-3 p-4 text-left",
+        "flex w-full items-center gap-3 p-4 text-left rounded-lg my-1 transition-all duration-200 ease-in-out cursor-pointer",
         active
-          ? "bg-foreground/8"
-          : "hover:bg-primary/15 hover:border-r hover:border-primary/25 transition-all duration-200"
+          ? "bg-foreground/8 transition-all duration-200 ease-in-out cursor-pointer"
+          : "hover:bg-primary/15 hover:border-r hover:border-primary/25 transition-all duration-200 ease-in-out cursor-pointer"
       )}
     >
       <UserAvatar
