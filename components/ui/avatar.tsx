@@ -155,12 +155,12 @@ const AvatarFallback = React.forwardRef<
   }
 >(({ className, size = "md", name, children, ...props }, ref) => {
   const textSizeClasses = {
-    xs: "text-xs",
-    sm: "text-sm",
-    md: "text-sm sm:text-base md:text-lg",
-    lg: "text-base sm:text-lg md:text-xl",
-    xl: "text-lg sm:text-xl md:text-2xl",
-    "2xl": "text-xl sm:text-2xl md:text-3xl lg:text-4xl",
+    xs: "h-6 w-6 sm:h-8 sm:w-8",
+    sm: "h-8 w-8 sm:h-10 sm:w-10",
+    md: "h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14",
+    lg: "h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20",
+    xl: "h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24",
+    "2xl": "h-20 w-20 sm:h-24 sm:w-24 md:h-28 md:w-28 lg:h-32 lg:w-32",
   };
 
   // Use provided children or generate fallback image from name

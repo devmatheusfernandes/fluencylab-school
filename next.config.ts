@@ -16,6 +16,10 @@ const nextConfig: NextConfig = {
         pathname: '/**',
         // omitindo "search" permite qualquer query string (ex.: ?alt=media&token=...)
       },
+      {
+        protocol: 'https',
+        hostname: 'getstream.io',
+      },
     ],
   },
 };

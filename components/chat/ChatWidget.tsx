@@ -1,145 +1,284 @@
-'use client';
+"use client";
 
-import { useEffect, useState, useMemo } from 'react';
-import { useSession } from 'next-auth/react';
-import { useTheme } from 'next-themes';
-import { ChannelSort, ChannelOptions } from 'stream-chat';
-import { 
-  Chat, 
-  ChannelList, 
-  Channel as ChannelComponent, 
-  Window, 
-  MessageList, 
-  MessageInput, 
-  Thread, 
+import { useEffect, useState, useMemo } from "react";
+import {
+  Chat,
+  ChannelList,
+  Channel,
+  Window,
+  MessageList,
+  MessageInput,
+  Thread,
   LoadingIndicator,
   useChatContext,
-  ChannelHeader
-} from 'stream-chat-react';
-import 'stream-chat-react/dist/css/v2/index.css';
-import './chat.css'; 
+  ChannelPreviewUIComponentProps,
+  useTypingContext,
+} from "stream-chat-react";
+import { Menu, ArrowLeft } from "lucide-react";
+import "./chat.css";
 
-import { useChatContacts, ChatContact } from '@/hooks/useChatContacts';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useChatClient } from '@/context/ChatClientContext';
+import { useChatContacts } from "@/hooks/useChatContacts";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useChatClient } from "@/context/ChatClientContext";
+import { cn } from "@/lib/utils";
+import { UserAvatar } from "../ui/user-avatar";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { useSession } from "next-auth/react";
 
-interface ChatUser {
-  id: string;
-  name: string;
-  image?: string;
-}
+// --- COMPONENTE: Preview do Canal (Item da Lista) ---
+const CustomChannelPreview = (props: ChannelPreviewUIComponentProps) => {
+  const { channel, setActiveChannel, active } = props;
+  const { client } = useChatContext();
 
-const ChatLayout = () => {
-  const { channel, setActiveChannel, client } = useChatContext();
-  const isMobile = useIsMobile();
+  const members = Object.values(channel.state.members).filter(
+    (m) => m.user_id !== client.userID
+  );
+  const otherMember = members[0]?.user;
+  const { userProfile } = useUserProfile(otherMember?.id);
   
-  // Visibility logic
-  const showList = !isMobile || !channel;
-  const showChannel = !isMobile || !!channel;
+  const lastMessage = channel.state.messages[channel.state.messages.length - 1];
 
-  const filters = useMemo(() => ({ 
-    type: 'messaging', 
-    members: { $in: [client.userID!] } 
-  }), [client.userID]);
-
-  const sort: ChannelSort = useMemo(() => ({ last_message_at: -1 }), []);
-  const options: ChannelOptions = useMemo(() => ({ limit: 10 }), []);
-  
   return (
-    <div className={cn(
-      "flex w-full h-full overflow-hidden bg-background", 
-      // The CSS file handles the dark mode specific overrides
-    )}>
-      {/* Sidebar / Channel List */}
-      <div className={cn(
-        "flex flex-col bg-sidebar border-r border-border",
-        isMobile ? "w-full" : "w-1/3 min-w-[250px]",
-        !showList && "hidden"
-      )}>
-        <ChannelList 
-          filters={filters} 
-          sort={sort} 
-          options={options} 
-          showChannelSearch
-        />
+    <button
+      onClick={() => setActiveChannel?.(channel)}
+      className={cn(
+        "flex w-full items-center gap-3 p-4 text-left",
+        active
+          ? "bg-foreground/8"
+          : "hover:bg-primary/15 hover:border-r hover:border-primary/25 transition-all duration-200"
+      )}
+    >
+      <UserAvatar
+        size="sm"
+        src={userProfile?.avatarUrl}
+        name={otherMember?.name}
+      />
+      <div className="flex-1 min-w-0">
+        <div className="flex justify-between items-baseline mb-0.5">
+          <span className="font-semibold text-foreground truncate text-sm capitalize">
+            {otherMember?.name || "Usuário"}
+          </span>
+          {lastMessage?.created_at && (
+            <span className="text-[10px] text-[#a1a1aa]">
+              {new Date(lastMessage.created_at).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </span>
+          )}
+        </div>
+        <p
+          className={cn(
+            "text-xs truncate",
+            channel.countUnread() > 0
+              ? "text-foreground font-bold"
+              : "text-[#a1a1aa]"
+          )}
+        >
+          {lastMessage?.text || "Sem mensagens"}
+        </p>
       </div>
+    </button>
+  );
+};
 
-    <div className={cn(
-  "flex flex-col bg-background", 
-  isMobile ? "w-full" : "w-2/3",
-  !showChannel && "hidden"
-)}>
-  <ChannelComponent>
-    <Window>
-      <div className={cn(
-        "flex items-center border-b border-border bg-background",
-        isMobile && "fixed top-11 left-0 right-0 z-10"
-      )}>
+// --- COMPONENTE: Header Personalizado ---
+const CustomChannelHeader = () => {
+  const { channel, client } = useChatContext();
+  const { setActiveChannel } = useChatContext();
+  const { typing } = useTypingContext();
+  const isMobile = useIsMobile();
+  const { user, isLoading } = useCurrentUser();
+
+  const members = Object.values(channel?.state.members || {}).filter(
+    (m) => m.user_id !== client.userID
+  );
+  const otherMember = members[0]?.user;
+
+  // Filtra quem está digitando (excluindo o próprio usuário)
+  const typingUsers = Object.values(typing || {}).filter(
+    (user) => user.user?.id !== client.userID
+  );
+  const isTyping = typingUsers.length > 0;
+
+  return (
+    <div className="custom-channel-header justify-between">
+      <div className="flex items-center gap-3">
+        {/* Botão Voltar (Apenas Mobile) */}
         {isMobile && (
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="ml-2 mr-0 shrink-0"
-            onClick={() => setActiveChannel(undefined)}
+          <button
+            onClick={() => setActiveChannel?.(undefined)}
+            className="p-2 -ml-2 rounded-full hover:bg-[#27272a] text-foreground"
           >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
+            <ArrowLeft size={20} />
+          </button>
         )}
-        <div className="flex-1 min-w-0">
-          <ChannelHeader />
+
+        <UserAvatar size="sm" src={user?.avatarUrl} name={user?.name} />
+
+        <div className="flex flex-col">
+          <span className="font-semibold text-sm text-foreground leading-tight capitalize">
+            {otherMember?.name || "Chat"}
+          </span>
+          <span className="text-xs text-[#a1a1aa] flex items-center gap-1">
+            {isTyping ? (
+              <span className="animate-pulse text-primary font-medium">
+                Digitando...
+              </span>
+            ) : otherMember?.online ? (
+              <>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />{" "}
+                Online
+              </>
+            ) : (
+              "Offline"
+            )}
+          </span>
         </div>
       </div>
-      
-      <div className={cn(
-        "flex-1 overflow-hidden w-full",
-        isMobile && "pb-24 pt-16"
-      )}>
-        <MessageList />
-      </div>
-
-      <div className={cn(
-        isMobile && "fixed bottom-14 left-0 right-0 z-10"
-      )}>
-        <MessageInput audioRecordingEnabled={true}/>
-      </div>
-
-    </Window>
-    <Thread />
-  </ChannelComponent>
-</div>
     </div>
   );
 };
 
-const ChatInterface = ({ user, contacts }: { user: ChatUser; contacts: ChatContact[] }) => {
-  const [channelsCreated, setChannelsCreated] = useState(false);
-  const { resolvedTheme } = useTheme();
-  const { client } = useChatClient();
+// --- LAYOUT PRINCIPAL ---
+const ChatLayout = () => {
+  const { channel, client } = useChatContext();
+  const isMobile = useIsMobile();
 
-  // Logic to ensure channels exist between user and contacts
+  const showList = !isMobile || !channel;
+  const showChat = !isMobile || !!channel;
+
+  const filters = useMemo(
+    () => ({
+      type: "messaging",
+      members: { $in: [client.userID as string] },
+    }),
+    [client.userID]
+  );
+
+  const sort = useMemo(() => ({ last_message_at: -1 as const }), []);
+  const options = useMemo(
+    () => ({ limit: 20, watch: true, presence: true }),
+    []
+  );
+
+  return (
+    <div className="flex w-full h-full bg-background overflow-hidden">
+      {/* --- COLUNA ESQUERDA: LISTA --- */}
+      <div
+        className={cn(
+          "flex-col border-r border-primary h-full",
+          isMobile ? "w-full" : "w-[340px] shrink-0",
+          showList ? "flex" : "hidden"
+        )}
+      >
+        <div className="p-4 border-b border-primary/40 h-[60px] flex items-center justify-center shrink-0">
+          <h1 className="font-bold text-lg">Mensagens</h1>
+        </div>
+        <div className="flex-1 overflow-y-auto min-h-0">
+          <ChannelList
+            filters={filters}
+            sort={sort}
+            options={options}
+            Preview={CustomChannelPreview}
+            showChannelSearch
+          />
+        </div>
+      </div>
+
+      {/* --- COLUNA DIREITA: CHAT --- */}
+      <div
+        className={cn(
+          "flex-col flex-1 h-full bg-background w-full min-w-0", // min-w-0 evita overflow flex
+          showChat ? "flex" : "hidden"
+        )}
+      >
+        {channel ? (
+          <Channel TypingIndicator={() => null}>
+            {/* ESTRUTURA FLEX CORRIGIDA:
+                - h-full: Ocupa toda altura disponível
+                - flex-col: Empilha Header, Lista, Input
+            */}
+            <Window>
+              <div className="flex flex-col h-full w-full overflow-hidden">
+                {/* 1. Header (Fixo no topo) */}
+                <div className="flex-none z-10">
+                  <CustomChannelHeader />
+                </div>
+
+                {/* 2. Lista de Mensagens (Ocupa o meio)
+                    - flex-1: Cresce para ocupar espaço
+                    - min-h-0: CRUCIAL para o scroll funcionar dentro do flexbox
+                    - relative: Para posicionamento interno
+                */}
+                <div className="flex-1 min-h-0 w-full relative">
+                  <MessageList disableDateSeparator={false} />
+                </div>
+
+                {/* 3. Input (Fixo no fundo) */}
+                <div className="flex-none z-10 bg-[#09090b]">
+                  <MessageInput audioRecordingEnabled />
+                </div>
+              </div>
+            </Window>
+            <Thread />
+          </Channel>
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center text-[#52525b]">
+            <div className="w-16 h-16 bg-[#18181b] rounded-full flex items-center justify-center mb-4">
+              <Menu size={32} />
+            </div>
+            <p>Selecione uma conversa para começar</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// --- WIDGET EXPORTADO ---
+export default function ChatWidget() {
+  const { data: session } = useSession();
+  const { client } = useChatClient();
+  const { contacts } = useChatContacts();
+  const [channelsCreated, setChannelsCreated] = useState(false);
+
+  // CORREÇÃO 2: Trazendo de volta a lógica que cria os canais com seus contatos
   useEffect(() => {
-    if (!client || contacts.length === 0 || channelsCreated) return;
+    if (
+      !client ||
+      !session?.user?.id ||
+      contacts.length === 0 ||
+      channelsCreated
+    )
+      return;
 
     const createChannels = async () => {
+      const currentUserId = session.user.id;
+
       try {
-        const filter = { type: 'messaging', members: { $in: [user.id] } };
-        const existingChannels = await client.queryChannels(filter, {}, { limit: 30 });
+        // Verifica canais existentes
+        const filter = { type: "messaging", members: { $in: [currentUserId] } };
+        const existingChannels = await client.queryChannels(
+          filter,
+          {},
+          { limit: 30 }
+        );
+
         const existingMemberIds = new Set<string>();
-        
-        existingChannels.forEach(channel => {
+        existingChannels.forEach((channel) => {
           const members = Object.values(channel.state.members);
-          members.forEach(member => {
-            if (member.user_id !== user.id && member.user_id) {
+          members.forEach((member) => {
+            if (member.user_id !== currentUserId && member.user_id) {
               existingMemberIds.add(member.user_id);
             }
           });
         });
 
+        // Filtra contatos que ainda não tem canal
         const contactsNeedingChannel = contacts.filter(
-          contact => !existingMemberIds.has(contact.id)
+          (contact) => !existingMemberIds.has(contact.id)
         );
 
         if (contactsNeedingChannel.length === 0) {
@@ -147,101 +286,38 @@ const ChatInterface = ({ user, contacts }: { user: ChatUser; contacts: ChatConta
           return;
         }
 
-        const chunkSize = 1; 
-        for (let i = 0; i < contactsNeedingChannel.length; i += chunkSize) {
-          const chunk = contactsNeedingChannel.slice(i, i + chunkSize);
-          
-          await Promise.all(chunk.map(async (contact) => {
-            try {
-              const channel = client.channel('messaging', {
-                members: [user.id, contact.id],
-              });
-
-              // Optional: Sync user data if your backend requires it
-              await fetch('/api/chat/sync', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  users: [
-                    { id: user.id, name: user.name, image: user.image },
-                    { id: contact.id, name: contact.name, image: contact.image }
-                  ]
-                })
-              });
-
-              await channel.watch(); 
-            } catch (err) {
-              console.error(`Failed to create channel for ${contact.id}:`, err);
-            }
-          }));
-          
-          if (i + chunkSize < contactsNeedingChannel.length) {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-          }
-        }
+        // Cria os canais faltantes
+        await Promise.all(
+          contactsNeedingChannel.map(async (contact) => {
+            const channel = client.channel("messaging", {
+              members: [currentUserId, contact.id],
+            });
+            await channel.watch();
+          })
+        );
 
         setChannelsCreated(true);
       } catch (error) {
-        console.error('Error creating channels:', error);
-        setChannelsCreated(true);
+        console.error("Erro ao criar canais:", error);
+        setChannelsCreated(true); // Evita loop infinito em caso de erro
       }
     };
 
     createChannels();
-  }, [client, contacts, user.id, user.name, user.image, channelsCreated]);
+  }, [client, contacts, session, channelsCreated]);
 
-  if (!client) {
+  if (!client || !session?.user)
     return (
-      <div className="flex justify-center items-center h-full w-full bg-background rounded-lg border border-border">
+      <div className="flex h-full items-center justify-center bg-background">
         <LoadingIndicator />
       </div>
     );
-  }
-
-  const streamTheme = resolvedTheme === 'dark' ? 'messaging dark' : 'messaging light';
 
   return (
-    <div className="flex h-full w-full overflow-hidden">
-      <Chat client={client} theme={streamTheme}>
+    <div className="h-full w-full overflow-hidden">
+      <Chat client={client} theme="messaging">
         <ChatLayout />
       </Chat>
     </div>
   );
-};
-
-export default function ChatWidget() {
-  const { data: session, status } = useSession();
-  const { contacts, loading: contactsLoading, error: contactsError } = useChatContacts();
-
-  const user = useMemo(() => {
-    if (!session?.user?.id) return null;
-    
-    return {
-      id: session.user.id,
-      name: session.user.name || session.user.email || 'User',
-      image: session.user.image || undefined,
-    } as ChatUser;
-  }, [session?.user?.id, session?.user?.name, session?.user?.email, session?.user?.image]);
-  
-  if (status === 'loading' || contactsLoading) {
-    return (
-      <div className="flex justify-center items-center h-full w-full bg-background rounded-lg border border-border">
-        <LoadingIndicator />
-      </div>
-    );
-  }
-
-  if (contactsError) {
-    return (
-      <div className="flex justify-center items-center h-full w-full bg-background rounded-lg border border-destructive/50 text-destructive">
-        Erro ao carregar contatos: {contactsError}
-      </div>
-    );
-  }
-
-  if (!user) {
-    return null;
-  }
-
-  return <ChatInterface user={user} contacts={contacts} />;
 }
