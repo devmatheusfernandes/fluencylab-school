@@ -21,13 +21,13 @@ export const useOnboarding = () => {
       return;
     }
 
-    console.log("🔍 useOnboarding - Session check:", {
-      status,
-      userId: session?.user?.id,
-      role: session?.user?.role,
-      tutorialCompleted: session?.user?.tutorialCompleted,
-      sessionUser: session?.user
-    });
+    // console.log("🔍 useOnboarding - Session check:", {
+    //   status,
+    //   userId: session?.user?.id,
+    //   role: session?.user?.role,
+    //   tutorialCompleted: session?.user?.tutorialCompleted,
+    //   sessionUser: session?.user
+    // });
 
     // Check if user is a rgular student student AND hasn't completed onboarding. this is onyl for regular students
     if (
@@ -38,7 +38,7 @@ export const useOnboarding = () => {
       console.log("✅ Showing onboarding modal for user - tutorialCompleted:", session?.user?.tutorialCompleted);
       setShowOnboarding(true);
     } else {
-      console.log("❌ NOT showing onboarding modal - tutorialCompleted:", session?.user?.tutorialCompleted, "role:", session?.user?.role);
+      // console.log("❌ NOT showing onboarding modal - tutorialCompleted:", session?.user?.tutorialCompleted, "role:", session?.user?.role);
       setShowOnboarding(false);
     }
 
