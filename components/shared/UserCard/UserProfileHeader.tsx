@@ -64,13 +64,7 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({
                 src={user?.avatarUrl || ""}
                 alt={user?.name || "Profile picture"}
               />
-              <AvatarFallback size="lg">
-                {(user?.name || "")
-                  .split(" ")
-                  .filter(Boolean)
-                  .map((n) => n[0])
-                  .join("") || "?"}
-              </AvatarFallback>
+              <AvatarFallback size="xl" />
             </Avatar>
             <button
               onClick={handleAvatarClick}

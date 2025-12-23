@@ -20,16 +20,14 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
     console.warn(
       `Achievement definition not found for ID: ${studentAchievement.achievementId}`
     );
-    // Even if definition is not found, we still want to show the card
     return (
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="border rounded-2xl p-5 bg-gray-50 border-gray-200 dark:bg-gray-800 dark:border-gray-700"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="border rounded-xl p-4 bg-gray-50 border-gray-200 dark:bg-gray-900 dark:border-gray-800"
       >
-        <div className="text-center text-gray-500 dark:text-gray-400">
-          <p>Conquista não encontrada</p>
-          <p className="text-sm mt-1">ID: {studentAchievement.achievementId}</p>
+        <div className="text-center text-gray-500 dark:text-gray-400 text-sm">
+          <p>Conquista não encontrada (ID: {studentAchievement.achievementId})</p>
         </div>
       </motion.div>
     );
@@ -37,12 +35,12 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
 
   const isUnlocked = studentAchievement.unlocked;
   const unlockedDate = studentAchievement.unlockedAt
-    ? format(new Date(studentAchievement.unlockedAt), "dd/MM/yyyy 'às' HH:mm", {
+    ? format(new Date(studentAchievement.unlockedAt), "dd MMM, yyyy", {
         locale: ptBR,
       })
     : null;
 
-  // Language label mapping
+  // Mapeamento de labels de idioma
   const languageLabel = studentAchievement.language
     ? {
         english: "Inglês",
@@ -56,17 +54,17 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
       }[studentAchievement.language] || studentAchievement.language
     : "";
 
-  // Animation variants
   const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 10, scale: 0.98 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.4, ease: "easeOut" as const },
+      scale: 1,
+      transition: { duration: 0.3, ease: "easeOut" as const },
     },
     hover: {
-      y: -5,
-      scale: 1.02,
+      y: -2,
+      shadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
       transition: { duration: 0.2 },
     },
   };
@@ -77,58 +75,41 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
       initial="hidden"
       animate="visible"
       whileHover="hover"
+      // MUDANÇA PRINCIPAL: Remoção de gradientes de fundo.
+      // Uso de cores sólidas (bg-white/bg-gray-50) e bordas para diferenciação.
       className={`
-        border rounded-2xl p-5 transition-all duration-300
+        relative border rounded-xl p-4 transition-all duration-200 overflow-hidden group
         ${
           isUnlocked
-            ? "bg-gradient-to-br from-container to-teal-400 border-teal-200/70 dark:from-gray-800 dark:to-teal-900/20 dark:border-teal-800/30 shadow-sm hover:shadow-lg"
-            : "bg-gradient-to-br from-container to-card border-gray-200/70 dark:from-gray-800 dark:to-gray-900 dark:border-gray-700 shadow-sm hover:shadow-md"
+            ? "bg-emerald-100/40 border-green-500/30 dark:border-green-500/20 shadow-sm"
+            : "bg-white/60 dark:bg-gray-900 border-gray-200 dark:border-gray-800"
         }
-        overflow-hidden relative
-      
       `}
     >
-      {/* Glow effect for unlocked achievements */}
-      {isUnlocked && (
-        <div className="absolute inset-0 bg-gradient-to-r from-green-100/10 to-transparent dark:from-green-500/5 pointer-events-none" />
-      )}
-
-      <div className="flex items-start gap-4">
-        {/* Icon with animated shine */}
-        <div className="relative">
-          <div
-            className={`
-            w-14 h-14 rounded-lg flex items-center justify-center text-2xl
-            ${
-              isUnlocked
-                ? "bg-background text-green-600 dark:bg-green-900/50 dark:text-green-400"
-                : "bg-background text-gray-400 dark:bg-gray-700 dark:text-gray-500"
-            }
-          `}
-          >
-            {definition.icon}
-          </div>
-
-          {/* Shine effect when unlocked */}
-          {isUnlocked && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: [0, 0.4, 0] }}
-              transition={{ duration: 20, repeat: Infinity, delay: 20 }}
-              className="absolute inset-0 bg-white/50 rounded-xl"
-            />
-          )}
+      <div className="flex items-start gap-3">
+        {/* Ícone: Cores planas em vez de depender do fundo do card */}
+        <div
+          className={`
+          w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 transition-colors
+          ${
+            isUnlocked
+              ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
+              : "bg-gray-200 text-gray-400 dark:bg-gray-800 dark:text-gray-600"
+          }
+        `}
+        >
+          {definition.icon}
         </div>
 
-        <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
+        <div className="flex-1 min-w-0 space-y-1">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <h3
               className={`
-              font-bold text-lg truncate
+              font-semibold text-base truncate mr-auto
               ${
                 isUnlocked
-                  ? "text-green-800 dark:text-green-200"
-                  : "text-gray-700 dark:text-gray-300"
+                  ? "text-gray-900 dark:text-white"
+                  : "text-gray-600 dark:text-gray-400"
               }
             `}
             >
@@ -136,100 +117,80 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
             </h3>
 
             {languageLabel && (
-              <span
-                className={`
-                text-xs px-2 py-1 rounded-full font-medium
-                ${
-                  isUnlocked
-                    ? "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300"
-                    : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
-                }
-              `}
-              >
+              // Labels mais discretas
+              <span className="text-xs px-2 py-0.5 rounded-md font-medium bg-gray-100 text-gray-600 dark:bg-gray-700/50 dark:text-gray-300">
                 {languageLabel}
               </span>
             )}
           </div>
 
-          <p
-            className={`
-            mt-1 text-sm
-            ${
-              isUnlocked
-                ? "text-green-700 dark:text-green-300/90"
-                : "text-gray-600 dark:text-gray-400"
-            }
-          `}
-          >
+          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 font-normal leading-relaxed">
             {definition.description}
           </p>
 
-          {/* Unlock date or status */}
-          <div className="mt-2">
-            {isUnlocked && unlockedDate ? (
-              <p className="text-xs text-green-600 dark:text-green-400/90">
-                Desbloqueada em:{" "}
-                <span className="font-medium">{unlockedDate}</span>
+          {/* Footer com Data ou Status */}
+          <div className="pt-2 flex items-center text-xs font-medium">
+            {isUnlocked ? (
+              <p className="text-green-600 dark:text-green-400 flex items-center gap-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="w-3.5 h-3.5"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                Desbloqueada em {unlockedDate}
               </p>
             ) : (
-              <p className="text-xs text-gray-500 dark:text-gray-500">
-                🔒 Bloqueada - Complete os requisitos
+              <p className="text-gray-400 dark:text-gray-500 flex items-center gap-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="w-3.5 h-3.5"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                Bloqueada
               </p>
             )}
           </div>
         </div>
       </div>
 
-      {/* Progress bar */}
+      {/* Barra de Progresso Minimalista */}
       {studentAchievement.progress !== undefined &&
-        studentAchievement.progressMax !== undefined && (
-          <div className="mt-4">
-            <div className="flex justify-between text-xs mb-1">
-              <span
-                className={`
-                ${
-                  isUnlocked
-                    ? "text-green-700 dark:text-green-400"
-                    : "text-gray-600 dark:text-gray-400"
-                }
-              `}
-              >
-                Progresso: {studentAchievement.progress}/
-                {studentAchievement.progressMax}
-              </span>
-              <span
-                className={`
-                font-medium
-                ${
-                  isUnlocked
-                    ? "text-green-700 dark:text-green-400"
-                    : "text-gray-600 dark:text-gray-400"
-                }
-              `}
-              >
-                {Math.round(
-                  (studentAchievement.progress /
-                    studentAchievement.progressMax) *
-                    100
-                )}
-                %
+        studentAchievement.progressMax !== undefined &&
+        !isUnlocked && ( // Opcional: mostrar progresso apenas se não estiver desbloqueado para limpar ainda mais
+          <div className="mt-4 space-y-1.5">
+            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 font-medium">
+              <span>Progresso</span>
+              <span>
+                {studentAchievement.progress}/{studentAchievement.progressMax}
               </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700 overflow-hidden">
+            <div className="w-full bg-gray-100 rounded-full h-1.5 dark:bg-gray-800 overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{
-                  width: `${(studentAchievement.progress / studentAchievement.progressMax) * 100}%`,
+                  width: `${
+                    (studentAchievement.progress /
+                      studentAchievement.progressMax) *
+                    100
+                  }%`,
                 }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
-                className={`
-                  h-full rounded-full
-                  ${
-                    isUnlocked
-                      ? "bg-green-500"
-                      : "bg-gradient-to-r from-blue-400 to-blue-600"
-                  }
-                `}
+                // MUDANÇA: Barra de cor sólida (azul plano) em vez de gradiente
+                className="h-full rounded-full bg-primary"
               />
             </div>
           </div>

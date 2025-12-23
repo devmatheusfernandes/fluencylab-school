@@ -88,7 +88,7 @@
   --content-color: oklch(55.4% 0.042 264 / 0.08);
   --header-color: oklch(55.4% 0.042 264 / 0.08);
   --sidebar-color: oklch(92.3% 0.014 264);
-    --received-message-bg: oklch(46.683% 0.01286 285.839)
+  --received-message-bg: oklch(46.683% 0.01286 285.839)
 }
 
 /* Dark Mode Overrides */

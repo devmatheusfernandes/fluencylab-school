@@ -85,7 +85,7 @@
 
 .str-chat__message-input-inner {
   border: 2px solid var(--border-color);
-  background-color: var(--bg-panel);
+  background-color: var(--bg-app);
   border-radius: 20px;
 }
 

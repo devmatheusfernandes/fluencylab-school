@@ -26,6 +26,7 @@ import {
   ModalClose,
 } from "@/components/ui/modal";
 import { ButtonGroup } from "../ui/button-group";
+import { Spinner } from "../ui/spinner";
 
 interface UserClassesTabProps {
   classes: StudentClass[];
@@ -413,7 +414,7 @@ export default function UserClassesTab({
                               </SelectContent>
                             </Select>
                             {loadingTeachers && (
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                              <Spinner />
                             )}
                           </div>
                         </div>
