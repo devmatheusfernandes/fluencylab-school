@@ -20,6 +20,7 @@ import { User } from "@/types/users/users";
 import { MonthlyPayment } from "@/types/financial/subscription";
 import { Calendar, Clock, Coins } from "lucide-react";
 import { ButtonGroup } from "../ui/button-group";
+import { Spinner } from "../ui/spinner";
 
 interface UserFinancialTabProps {
   user: User;
@@ -431,7 +432,7 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <Spinner />
       </div>
     );
   }
