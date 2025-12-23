@@ -25,6 +25,7 @@ import { UserAvatar } from "../ui/user-avatar";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useSession } from "next-auth/react";
+import { UserAvatarBubble } from "../ui/user-avatar-bubble";
 
 // --- COMPONENTE: Preview do Canal (Item da Lista) ---
 const CustomChannelPreview = (props: ChannelPreviewUIComponentProps) => {
@@ -89,7 +90,7 @@ const CustomChannelHeader = () => {
   const { setActiveChannel } = useChatContext();
   const { typing } = useTypingContext();
   const isMobile = useIsMobile();
-  const { user, isLoading } = useCurrentUser();
+  const { user } = useCurrentUser();
 
   const members = Object.values(channel?.state.members || {}).filter(
     (m) => m.user_id !== client.userID
@@ -195,7 +196,7 @@ const ChatLayout = () => {
         )}
       >
         {channel ? (
-          <Channel TypingIndicator={() => null}>
+          <Channel TypingIndicator={() => null} Avatar={UserAvatarBubble}>
             {/* ESTRUTURA FLEX CORRIGIDA:
                 - h-full: Ocupa toda altura disponível
                 - flex-col: Empilha Header, Lista, Input
@@ -218,7 +219,7 @@ const ChatLayout = () => {
 
                 {/* 3. Input (Fixo no fundo) */}
                 <div className="flex-none z-10 bg-[#09090b]">
-                  <MessageInput audioRecordingEnabled />
+                  <MessageInput focus maxRows={5} audioRecordingEnabled />
                 </div>
               </div>
             </Window>
