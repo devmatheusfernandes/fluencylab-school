@@ -10,6 +10,8 @@ import { Text } from "@/components/ui/text";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { daysOfWeek } from "@/types/time/times";
 
+import { TeacherContractStatusCard } from "@/components/teacher/TeacherContractStatusCard";
+
 export default function MyProfile() {
   const { user, isLoading } = useCurrentUser();
   const { myClasses, fetchMyClasses, isLoading: isClassesLoading } = useTeacher();
@@ -67,6 +69,10 @@ export default function MyProfile() {
             onLogout={handleLogout}
             className="w-full"
           />
+
+          <div className="mt-4">
+            <TeacherContractStatusCard />
+          </div>
 
           <Card className="mt-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
             <div className="p-6 border-b border-slate-200 dark:border-slate-700">

@@ -14,6 +14,7 @@ import { ProgressTracker } from "@/components/ui/progress-tracker";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
+import { AvailabilityType } from "@/types/time/availability";
 
 // Import step components
 import { WelcomeStep } from "./steps/student";
@@ -26,6 +27,7 @@ import {
   ScheduleSelectionStep,
   ScheduleSlot,
 } from "./steps/teacher/ScheduleSelectionStep";
+import { TeacherContractStep } from "./steps/teacher/TeacherContractStep";
 
 // Types for teacher onboarding data
 export interface TeacherOnboardingData {
@@ -39,6 +41,9 @@ export interface TeacherOnboardingData {
 
   // Banking Information
   bankingInfo: BankingInfo;
+
+  // Contract
+  contractSigned: boolean;
 
   // Schedule
   scheduleSlots: ScheduleSlot[];
@@ -178,10 +183,10 @@ const TeacherFinishStep: React.FC<TeacherOnboardingStepProps> = ({ data }) => {
           </div>
           <div className="p-6 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
             <h3 className="font-semibold mb-3 text-green-800 dark:text-green-200">
-              ✅ Horários Configurados
+              ✅ Contrato Assinado
             </h3>
             <p className="text-sm text-green-700 dark:text-green-300">
-              {data.scheduleSlots.length} horários regulares definidos
+              Parceria firmada com sucesso
             </p>
           </div>
         </div>
@@ -232,6 +237,11 @@ const TEACHER_STEPS = [
     component: BankingInfoStepWrapper,
   },
   {
+    id: "contract-step",
+    title: "Contrato de Parceria",
+    component: TeacherContractStep,
+  },
+  {
     id: "schedule-selection",
     title: "Horários Regulares",
     component: ScheduleSelectionStepWrapper,
@@ -270,6 +280,7 @@ export const TeacherOnboardingModal: React.FC<TeacherOnboardingModalProps> = ({
       cpf: "",
       fullName: session?.user?.name || "",
     },
+    contractSigned: false,
     scheduleSlots: [],
     onboardingCompleted: false,
   });
@@ -299,8 +310,12 @@ export const TeacherOnboardingModal: React.FC<TeacherOnboardingModalProps> = ({
           data.bankingInfo.accountNumber.trim() &&
           data.bankingInfo.accountType
         );
+      case "contract-step":
+        return data.contractSigned;
       case "schedule-selection":
-        return data.scheduleSlots.length >= 5;
+        const regularCount = data.scheduleSlots.filter(s => s.type === AvailabilityType.REGULAR).length;
+        const makeupCount = data.scheduleSlots.filter(s => s.type === AvailabilityType.MAKEUP).length;
+        return regularCount >= 3 && makeupCount >= 3;
       case "finish":
         return true;
       default:

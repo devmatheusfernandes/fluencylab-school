@@ -105,6 +105,10 @@ export const ScheduleSelectionStep: React.FC<ScheduleSelectionStepProps> = ({
       newErrors.startTime = "Horário de início é obrigatório";
     }
 
+    if (!newSlot.type) {
+      newErrors.type = "Tipo de horário é obrigatório";
+    }
+
     // Validar se o horário de fim está correto (45 minutos após o início)
     if (newSlot.startTime) {
       const expectedEndTime = calculateEndTime(newSlot.startTime);
@@ -147,7 +151,7 @@ export const ScheduleSelectionStep: React.FC<ScheduleSelectionStepProps> = ({
         startTime: newSlot.startTime!,
         endTime: newSlot.endTime!,
         title: newSlot.title!.trim(),
-        type: AvailabilityType.REGULAR, // Sempre REGULAR no onboarding
+        type: newSlot.type || AvailabilityType.REGULAR,
       };
 
       onDataChange([...data, slot]);
@@ -189,7 +193,9 @@ export const ScheduleSelectionStep: React.FC<ScheduleSelectionStepProps> = ({
     return DAYS_OF_WEEK.find((day) => day.value === dayOfWeek)?.short || "";
   };
 
-  const canProceed = data.length >= 5;
+  const regularCount = data.filter((s) => s.type === AvailabilityType.REGULAR).length;
+  const makeupCount = data.filter((s) => s.type === AvailabilityType.MAKEUP).length;
+  const canProceed = regularCount >= 3 && makeupCount >= 3;
 
   const groupedSlots = data.reduce(
     (acc, slot) => {
@@ -220,42 +226,72 @@ export const ScheduleSelectionStep: React.FC<ScheduleSelectionStepProps> = ({
             </div>
           </div>
           <Text variant="title" size="xl" weight="bold" className="mb-2">
-            Seus Horários Regulares
+            Seus Horários de Disponibilidade
           </Text>
           <Text variant="subtitle" className="max-w-2xl mx-auto">
-            Configure seus horários de disponibilidade regulares. Cada período
-            tem duração de 45 minutos. Você precisa de pelo menos 5 horários
-            para começar.
+            Configure seus horários de disponibilidade. Você precisa de pelo menos <strong>3 horários regulares</strong> e <strong>3 horários de reposição (Makeup)</strong>.
+            Ambos se repetirão por 6 meses.
           </Text>
         </div>
 
         {/* Progress Indicator */}
-        <Card className="p-4 mb-6 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Info className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              <Text
-                size="sm"
-                weight="medium"
-                className="text-blue-800 dark:text-blue-200"
-              >
-                Progresso: {data.length} de 5 horários mínimos (45 min cada)
-              </Text>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <Card className="p-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Info className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <div>
+                  <Text size="sm" weight="medium" className="text-blue-800 dark:text-blue-200">
+                    Horários Regulares
+                  </Text>
+                  <Text size="xs" className="text-blue-600 dark:text-blue-300">
+                    Mínimo: 3
+                  </Text>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                {regularCount >= 3 ? (
+                  <Badge className="bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200">
+                    <CheckCircle2 className="w-4 h-4 mr-1" />
+                    {regularCount} / 3
+                  </Badge>
+                ) : (
+                  <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-200">
+                    Faltam {3 - regularCount}
+                  </Badge>
+                )}
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              {data.length >= 5 ? (
-                <Badge className="bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200">
-                  <CheckCircle2 className="w-4 h-4 mr-1" />
-                  Pronto!
-                </Badge>
-              ) : (
-                <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-200">
-                  Faltam {5 - data.length}
-                </Badge>
-              )}
+          </Card>
+
+          <Card className="p-4 bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-700">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Info className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                <div>
+                  <Text size="sm" weight="medium" className="text-purple-800 dark:text-purple-200">
+                    Horários de Reposição
+                  </Text>
+                  <Text size="xs" className="text-purple-600 dark:text-purple-300">
+                    Mínimo: 3
+                  </Text>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                {makeupCount >= 3 ? (
+                  <Badge className="bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200">
+                    <CheckCircle2 className="w-4 h-4 mr-1" />
+                    {makeupCount} / 3
+                  </Badge>
+                ) : (
+                  <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-200">
+                    Faltam {3 - makeupCount}
+                  </Badge>
+                )}
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </div>
 
         {/* Current Schedule */}
         <Card className="p-6 mb-6">
@@ -305,9 +341,21 @@ export const ScheduleSelectionStep: React.FC<ScheduleSelectionStepProps> = ({
                           className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
                         >
                           <div>
-                            <Text size="sm" weight="medium">
-                              {slot.title}
-                            </Text>
+                            <div className="flex items-center gap-2 mb-1">
+                              <Text size="sm" weight="medium">
+                                {slot.title}
+                              </Text>
+                              <Badge 
+                                variant="outline" 
+                                className={
+                                  slot.type === AvailabilityType.REGULAR 
+                                    ? "border-blue-200 text-blue-700 bg-blue-50" 
+                                    : "border-purple-200 text-purple-700 bg-purple-50"
+                                }
+                              >
+                                {slot.type === AvailabilityType.REGULAR ? "Regular" : "Reposição"}
+                              </Badge>
+                            </div>
                             <Text size="xs" className="text-gray-500">
                               {formatTime(slot.startTime)} -{" "}
                               {formatTime(slot.endTime)} (45min)
@@ -348,6 +396,42 @@ export const ScheduleSelectionStep: React.FC<ScheduleSelectionStepProps> = ({
               >
                 <XCircle className="w-4 h-4" />
               </Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+               <div className="md:col-span-2">
+                <label className="block text-sm font-medium mb-2">
+                  Tipo de Horário
+                </label>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer p-3 border rounded-lg hover:bg-gray-50 flex-1">
+                    <input
+                      type="radio"
+                      name="slotType"
+                      checked={newSlot.type === AvailabilityType.REGULAR}
+                      onChange={() => setNewSlot(prev => ({ ...prev, type: AvailabilityType.REGULAR }))}
+                      className="w-4 h-4 text-blue-600"
+                    />
+                    <div>
+                      <Text weight="medium">Regular</Text>
+                      <Text size="xs" className="text-gray-500">Para aulas semanais fixas</Text>
+                    </div>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer p-3 border rounded-lg hover:bg-gray-50 flex-1">
+                    <input
+                      type="radio"
+                      name="slotType"
+                      checked={newSlot.type === AvailabilityType.MAKEUP}
+                      onChange={() => setNewSlot(prev => ({ ...prev, type: AvailabilityType.MAKEUP }))}
+                      className="w-4 h-4 text-purple-600"
+                    />
+                     <div>
+                      <Text weight="medium">Reposição (Makeup)</Text>
+                      <Text size="xs" className="text-gray-500">Para reposições eventuais</Text>
+                    </div>
+                  </label>
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -447,7 +531,7 @@ export const ScheduleSelectionStep: React.FC<ScheduleSelectionStepProps> = ({
           <Button onClick={onNext} disabled={isLoading || !canProceed}>
             {canProceed
               ? "Continuar"
-              : `Adicione mais ${5 - data.length} horário(s)`}
+              : "Complete os horários mínimos"}
           </Button>
         </div>
       </div>

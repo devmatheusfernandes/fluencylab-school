@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { adminDb } from "@/lib/firebase/admin";
-import { FieldValue } from "firebase-admin/firestore";
+import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { TeacherOnboardingData } from "@/types/onboarding/teacher";
 
 export async function POST(request: NextRequest) {
@@ -95,11 +95,15 @@ export async function POST(request: NextRequest) {
       const [hours, minutes] = slot.startTime.split(":").map(Number);
       startDate.setHours(hours, minutes, 0, 0);
 
+      // Calculate 6 months from start date for the contract duration
+      const endDate = new Date(startDate);
+      endDate.setMonth(endDate.getMonth() + 6);
+
       const availabilityRef = adminDb.collection("availabilities");
       return availabilityRef.add({
         teacherId: session.user.id,
-        title: slot.title || "Aula Regular",
-        type: "REGULAR",
+        title: slot.title || (slot.type === "makeup" ? "Horário de Reposição" : "Aula Regular"),
+        type: slot.type || "regular",
         startDate: startDate,
         startTime: slot.startTime,
         endTime: slot.endTime,
@@ -108,9 +112,9 @@ export async function POST(request: NextRequest) {
         repeating: {
           type: "weekly",
           interval: 1,
-          endDate: null, // Horários regulares do onboarding são por tempo indefinido
+          endDate: Timestamp.fromDate(endDate), // Contract duration of 6 months
         },
-        color: "BLUE", // Default color for regular slots
+        color: slot.type === "makeup" ? "purple" : "blue", // Visual distinction
       });
     });
 

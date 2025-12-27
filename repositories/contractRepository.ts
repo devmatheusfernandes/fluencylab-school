@@ -269,12 +269,37 @@ export class ContractRepository {
       });
     }
 
-    if (!contractData.cpf || !this.validateCPF(contractData.cpf)) {
+    if (!contractData.cpf) {
       errors.push({
         field: "cpf",
-        message: "CPF inválido",
-        code: "INVALID_CPF",
+        message: "CPF/CNPJ inválido",
+        code: "INVALID_DOCUMENT",
       });
+    } else {
+      const cleanDoc = contractData.cpf.replace(/[^\d]+/g, "");
+      if (cleanDoc.length === 11) {
+        if (!this.validateCPF(cleanDoc)) {
+          errors.push({
+            field: "cpf",
+            message: "CPF inválido",
+            code: "INVALID_CPF",
+          });
+        }
+      } else if (cleanDoc.length === 14) {
+        if (!this.validateCNPJ(cleanDoc)) {
+          errors.push({
+            field: "cpf",
+            message: "CNPJ inválido",
+            code: "INVALID_CNPJ",
+          });
+        }
+      } else {
+        errors.push({
+          field: "cpf",
+          message: "CPF/CNPJ inválido",
+          code: "INVALID_DOCUMENT",
+        });
+      }
     }
 
     if (!contractData.birthDate || !this.isAdult(contractData.birthDate)) {
@@ -349,6 +374,47 @@ export class ContractRepository {
 
     if (remainder === 10 || remainder === 11) remainder = 0;
     if (remainder !== parseInt(cpf.substring(10, 11))) return false;
+
+    return true;
+  }
+
+  /**
+   * Validate CNPJ format and checksum
+   */
+  private validateCNPJ(cnpj: string): boolean {
+    cnpj = cnpj.replace(/[^\d]+/g, "");
+
+    if (cnpj.length !== 14) return false;
+
+    // Eliminate known invalid CNPJs
+    if (/^(\d)\1{13}$/.test(cnpj)) return false;
+
+    let length = cnpj.length - 2;
+    let numbers = cnpj.substring(0, length);
+    let digits = cnpj.substring(length);
+    let sum = 0;
+    let pos = length - 7;
+
+    for (let i = length; i >= 1; i--) {
+      sum += parseInt(numbers.charAt(length - i)) * pos--;
+      if (pos < 2) pos = 9;
+    }
+
+    let result = sum % 11 < 2 ? 0 : 11 - (sum % 11);
+    if (result !== parseInt(digits.charAt(0))) return false;
+
+    length = length + 1;
+    numbers = cnpj.substring(0, length);
+    sum = 0;
+    pos = length - 7;
+
+    for (let i = length; i >= 1; i--) {
+      sum += parseInt(numbers.charAt(length - i)) * pos--;
+      if (pos < 2) pos = 9;
+    }
+
+    result = sum % 11 < 2 ? 0 : 11 - (sum % 11);
+    if (result !== parseInt(digits.charAt(1))) return false;
 
     return true;
   }
