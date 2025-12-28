@@ -2,17 +2,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { SubscriptionService } from '@/services/subscriptionService';
+import crypto from 'crypto';
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text();
     const headersList = await headers();
     
     // Get webhook signature for verification
-    const signature = headersList.get('x-signature');
+    const xSignature = headersList.get('x-signature');
     const requestId = headersList.get('x-request-id');
     
     // Basic security check - verify webhook comes from Mercado Pago
-    if (!signature || !requestId) {
+    if (!xSignature || !requestId) {
       console.error('Missing required webhook headers');
       return NextResponse.json(
         { error: 'Missing required headers' },
@@ -30,6 +32,41 @@ export async function POST(request: NextRequest) {
         { error: 'Invalid JSON payload' },
         { status: 400 }
       );
+    }
+
+    // Verify HMAC Signature
+    // Format: ts=TIMESTAMP,v1=SIGNATURE
+    const parts = xSignature.split(',');
+    let ts;
+    let hash;
+
+    parts.forEach(part => {
+        const [key, value] = part.split('=');
+        if (key && value) {
+            const trimmedKey = key.trim();
+            const trimmedValue = value.trim();
+            if (trimmedKey === 'ts') ts = trimmedValue;
+            if (trimmedKey === 'v1') hash = trimmedValue;
+        }
+    });
+
+    const secret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
+    
+    if (!secret) {
+        console.error('MERCADOPAGO_WEBHOOK_SECRET not configured');
+        return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+    }
+
+    const manifest = `id:${eventData?.data?.id};request-id:${requestId};ts:${ts};`;
+
+    // Create HMAC SHA-256
+    const hmac = crypto.createHmac('sha256', secret);
+    hmac.update(manifest);
+    const sha = hmac.digest('hex');
+
+    if (sha !== hash) {
+        console.error('Invalid webhook signature');
+        return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     }
 
     // Validate required fields

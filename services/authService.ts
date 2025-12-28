@@ -63,13 +63,13 @@ export class AuthService {
   async verifyTwoFactorToken(userId: string, token: string): Promise<boolean> {
     try {
       console.log(
-        `[AuthService] Verificando token 2FA para usuário: ${userId}`
+        `[AuthService] Verificando token 2FA para usuário...`
       );
 
       const secret = await twoFactorService.getTwoFactorSecret(userId);
       if (!secret) {
         console.log(
-          `[AuthService] Nenhum segredo 2FA encontrado para usuário: ${userId}`
+          `[AuthService] Nenhum segredo 2FA encontrado`
         );
         return false;
       }
@@ -95,7 +95,7 @@ export class AuthService {
   async verifyBackupCode(userId: string, code: string): Promise<boolean> {
     try {
       console.log(
-        `[AuthService] Verificando código de backup 2FA para usuário: ${userId}`
+        `[AuthService] Verificando código de backup 2FA...`
       );
 
       const isValid = await twoFactorService.verifyBackupCode(userId, code);

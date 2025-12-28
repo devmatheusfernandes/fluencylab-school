@@ -19,9 +19,8 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         try {
-          console.log(
-            `[NextAuth] Iniciando autorização para email: ${credentials?.email}`
-          );
+          // Log de depuração seguro
+          console.log(`[NextAuth] Iniciando autorização...`);
 
           if (!credentials?.email || !credentials?.password) {
             console.log(`[NextAuth] Credenciais incompletas`);
@@ -54,7 +53,7 @@ export const authOptions: NextAuthOptions = {
             }
 
             console.log(
-              `[NextAuth] Verificando código 2FA: ${credentials.twoFactorCode}`
+              `[NextAuth] Verificando código 2FA...`
             );
 
             // Verify the 2FA token
@@ -90,7 +89,7 @@ export const authOptions: NextAuthOptions = {
           }
 
           console.log(
-            `[NextAuth] Autorização bem-sucedida para usuário: ${user.id}`
+            `[NextAuth] Autorização bem-sucedida`
           );
           return user;
         } catch (error) {
