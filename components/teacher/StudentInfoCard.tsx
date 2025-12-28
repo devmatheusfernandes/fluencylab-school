@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useTranslations } from "next-intl";
 
 interface StudentInfodivProps {
   isMobile: boolean;
@@ -9,6 +10,8 @@ interface StudentInfodivProps {
 export default function StudentInfodiv({
   isMobile
 }: StudentInfodivProps) {
+  const t = useTranslations("StudentInfoCard");
+
   return (
     <div className="flex flex-row w-full justify-between gap-2 h-32">
       <Tooltip>
@@ -16,14 +19,14 @@ export default function StudentInfodiv({
           <div className="subcontainer-base flex items-center justify-center w-full h-full rounded-xl relative cursor-pointer overflow-hidden">
             <Image 
               src="/images/icons/placement.png" 
-              alt="Nivelamento" 
+              alt={t("placement")} 
               fill
               className="object-contain p-2"
             />
           </div>
         </TooltipTrigger>
         <TooltipContent>
-          <p>Nivelamento</p>
+          <p>{t("placement")}</p>
         </TooltipContent>
       </Tooltip>
 
@@ -32,14 +35,14 @@ export default function StudentInfodiv({
           <div className="subcontainer-base flex items-center justify-center w-full h-full rounded-xl relative cursor-pointer overflow-hidden">
             <Image 
               src="/images/icons/report.png" 
-              alt="Relatório" 
+              alt={t("report")} 
               fill
               className="object-contain p-2"
             />
           </div>
         </TooltipTrigger>
         <TooltipContent>
-          <p>Relatório</p>
+          <p>{t("report")}</p>
         </TooltipContent>
       </Tooltip>
 
@@ -48,14 +51,14 @@ export default function StudentInfodiv({
           <div className="subcontainer-base flex items-center justify-center w-full h-full rounded-xl relative cursor-pointer overflow-hidden">
             <Image 
               src="/images/icons/badges.png" 
-              alt="Badges" 
+              alt={t("badges")} 
               fill
               className="object-contain p-2"
             />
           </div>
         </TooltipTrigger>
         <TooltipContent>
-          <p>Badges</p>
+          <p>{t("badges")}</p>
         </TooltipContent>
       </Tooltip>
     </div>

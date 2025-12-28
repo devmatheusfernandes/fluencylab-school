@@ -22,6 +22,7 @@ import { Notebook } from "@/types/notebooks/notebooks";
 import { generateNotebookPDF } from "@/utils/pdfGenerator";
 import { FileTextIcon, Luggage, PaperclipIcon, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface NotebooksCardProps {
   student: {
@@ -42,11 +43,12 @@ const NotebookPDFContent = React.forwardRef<
   HTMLDivElement,
   { notebook: Notebook }
 >(({ notebook }, ref) => {
+  const t = useTranslations("NotebooksCard");
   return (
     <div ref={ref} className="p-8 bg-white text-black">
       <h1 className="text-2xl font-bold mb-4">{notebook.title}</h1>
       <p className="text-sm text-gray-500 mb-6">
-        Criado em:{" "}
+        {t("createdAt")}
         {notebook.createdAt &&
           new Date(notebook.createdAt).toLocaleDateString("pt-BR")}
       </p>
@@ -54,7 +56,7 @@ const NotebookPDFContent = React.forwardRef<
         <p className="text-gray-700 mb-6">{notebook.description}</p>
       )}
       <div className="border-t border-gray-300 pt-4">
-        <h2 className="text-xl font-semibold mb-3">Conteúdo</h2>
+        <h2 className="text-xl font-semibold mb-3">{t("content")}</h2>
         <div className="whitespace-pre-wrap">{notebook.content}</div>
       </div>
     </div>
@@ -69,6 +71,7 @@ export default function NotebooksCard({
   userRole,
   onAddTask
 }: NotebooksCardProps) {
+  const t = useTranslations("NotebooksCard");
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newNotebookTitle, setNewNotebookTitle] = useState("");
@@ -100,12 +103,12 @@ export default function NotebooksCard({
       if (successResult) {
         setNewNotebookTitle("");
         setIsModalOpen(false);
-        toast.success("Sucesso!", { description: "Caderno criado com sucesso." });
+        toast.success(t("successCreated"));
       } else {
-        toast.error("Erro!", { description: "Não foi possível criar o caderno." });
+        toast.error(t("errorCreated"));
       }
     } catch (err) {
-      toast.error("Erro!", { description: "Ocorreu um erro ao criar o caderno." });
+      toast.error(t("errorCreated"));
     }
   };
 
@@ -113,17 +116,20 @@ export default function NotebooksCard({
   const handleAddNotebookAsTask = async (notebook: Notebook) => {
     if (!onAddTask) return;
 
-    const taskText = `Revisar caderno: ${notebook.title} - ${new Date(notebook.createdAt).toLocaleDateString("pt-BR")}`;
+    const taskText = t("reviewTask", {
+      title: notebook.title,
+      date: new Date(notebook.createdAt).toLocaleDateString("pt-BR"),
+    });
 
     try {
       const successResult = await onAddTask(taskText);
       if (successResult) {
-        toast.success("Sucesso!", { description: "Caderno adicionado às tarefas para revisão!" });
+        toast.success(t("successTask"));
       } else {
-        toast.error("Erro!", { description: "Não foi possível adicionar o caderno às tarefas." });
+        toast.error(t("errorTask"));
       }
     } catch (err) {
-      toast.error("Erro!", { description: "Ocorreu um erro ao adicionar o caderno às tarefas." });
+      toast.error(t("errorTask"));
     }
   };
 
@@ -132,12 +138,12 @@ export default function NotebooksCard({
     try {
       const success_result = generateNotebookPDF(notebook);
       if (success_result) {
-        toast.success("Sucesso!", { description: "Caderno baixado como PDF com sucesso!" });
+        toast.success(t("successDownload"));
       } else {
-        toast.error("Erro!", { description: "Ocorreu um erro ao baixar o caderno como PDF." });
+        toast.error(t("errorDownload"));
       }
     } catch (err) {
-      toast.error("Erro!", { description: "Ocorreu um erro ao baixar o caderno como PDF." });
+      toast.error(t("errorDownload"));
       console.error("Error generating PDF:", err);
     }
   };
@@ -146,7 +152,7 @@ export default function NotebooksCard({
     <SubContainer>
       <div className="flex flex-row gap-2 mb-4 relative">
         <SearchBar
-          placeholder="Buscar cadernos..."
+          placeholder={t("searchPlaceholder")}
           value={searchQuery}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setSearchQuery(e.target.value)
@@ -230,8 +236,8 @@ export default function NotebooksCard({
           <NoResults
             searchQuery={searchQuery}
             customMessage={{
-              withSearch: `Nenhum caderno encontrado para "${searchQuery}"`,
-              withoutSearch: "Nenhum caderno criado ainda",
+              withSearch: t("noResultsSearch", { query: searchQuery }),
+              withoutSearch: t("noResultsEmpty"),
             }}
             className="p-8"
           />
@@ -244,13 +250,13 @@ export default function NotebooksCard({
           <ModalContent className="max-w-md">
             <ModalIcon type="confirm" />
             <ModalHeader>
-              <ModalTitle>Criar Novo Caderno</ModalTitle>
+              <ModalTitle>{t("createTitle")}</ModalTitle>
               <ModalClose />
             </ModalHeader>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium title-base mb-1">
-                  Título
+                  {t("inputTitle")}
                 </label>
                 <ModalInput
                   ref={inputRef}
@@ -264,18 +270,18 @@ export default function NotebooksCard({
                       handleCreateNotebook();
                     }
                   }}
-                  placeholder="Digite o título do caderno"
+                  placeholder={t("inputPlaceholder")}
                 />
               </div>
               <ModalFooter>
                 <ModalSecondaryButton onClick={() => setIsModalOpen(false)}>
-                  Cancelar
+                  {t("cancel")}
                 </ModalSecondaryButton>
                 <ModalPrimaryButton
                   onClick={handleCreateNotebook}
                   disabled={!newNotebookTitle.trim()}
                 >
-                  Criar
+                  {t("create")}
                 </ModalPrimaryButton>
               </ModalFooter>
             </div>

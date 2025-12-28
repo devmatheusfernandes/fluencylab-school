@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations, useLocale } from "next-intl";
 import { useState, useEffect } from "react";
 import { ClassStatus, StudentClass } from "@/types/classes/class";
 import { SubContainer } from "@/components/ui/sub-container";
@@ -47,6 +48,10 @@ export default function ClassesCard({
   onFetchClasses,
   loading = false,
 }: ClassesCardProps) {
+  const t = useTranslations("ClassesCard");
+  const tMonths = useTranslations("Months");
+  const locale = useLocale();
+
   const [selectedMonth, setSelectedMonth] = useState<number>(
     new Date().getMonth()
   );
@@ -72,18 +77,18 @@ export default function ClassesCard({
 
   // Enhanced month names for better UX
   const monthNames = [
-    "Janeiro",
-    "Fevereiro",
-    "Março",
-    "Abril",
-    "Maio",
-    "Junho",
-    "Julho",
-    "Agosto",
-    "Setembro",
-    "Outubro",
-    "Novembro",
-    "Dezembro",
+    tMonths("january"),
+    tMonths("february"),
+    tMonths("march"),
+    tMonths("april"),
+    tMonths("may"),
+    tMonths("june"),
+    tMonths("july"),
+    tMonths("august"),
+    tMonths("september"),
+    tMonths("october"),
+    tMonths("november"),
+    tMonths("december"),
   ];
 
   // Filter classes by selected month and year
@@ -109,7 +114,7 @@ export default function ClassesCard({
       await onUpdateClassStatus(classId, newStatus);
       onFetchClasses(selectedMonth, selectedYear);
       console.log("Class status updated successfully.");
-      toast.success("Aula atualizada");
+      toast.success(t("toastUpdated"));
     } catch (error) {
       console.error("Failed to update class status:", error);
       // Could add toast notification here
@@ -148,7 +153,7 @@ export default function ClassesCard({
       }
     > = {
       [ClassStatus.SCHEDULED]: {
-        label: "Agendada",
+        label: t("teacherStatus.scheduled"),
         className:
           "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800",
         icon: "📅",
@@ -156,7 +161,7 @@ export default function ClassesCard({
           "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800",
       },
       [ClassStatus.COMPLETED]: {
-        label: "Concluída",
+        label: t("teacherStatus.completed"),
         className:
           "bg-green-50 text-green-700 border-green-200 dark:bg-green-950/50 dark:text-green-300 dark:border-green-800",
         icon: "✅",
@@ -164,7 +169,7 @@ export default function ClassesCard({
           "bg-green-50 text-green-700 border-green-200 dark:bg-green-950/50 dark:text-green-300 dark:border-green-800",
       },
       [ClassStatus.CANCELED_STUDENT]: {
-        label: "Aluno cancelou",
+        label: t("teacherStatus.canceledStudent"),
         className:
           "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/50 dark:text-red-300 dark:border-red-800",
         icon: "❌",
@@ -172,7 +177,7 @@ export default function ClassesCard({
           "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/50 dark:text-red-300 dark:border-red-800",
       },
       [ClassStatus.CANCELED_TEACHER]: {
-        label: "Cancelada (Professor)",
+        label: t("teacherStatus.canceledTeacher"),
         className:
           "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/50 dark:text-red-300 dark:border-red-800",
         icon: "❌",
@@ -180,7 +185,7 @@ export default function ClassesCard({
           "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/50 dark:text-red-300 dark:border-red-800",
       },
       [ClassStatus.CANCELED_ADMIN]: {
-        label: "Cancelada (Admin)",
+        label: t("teacherStatus.canceledAdmin"),
         className:
           "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/50 dark:text-red-300 dark:border-red-800",
         icon: "🛡️",
@@ -188,7 +193,7 @@ export default function ClassesCard({
           "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/50 dark:text-red-300 dark:border-red-800",
       },
       [ClassStatus.CANCELED_TEACHER_MAKEUP]: {
-        label: "Cancelada (Prof. + Reposição)",
+        label: t("teacherStatus.canceledTeacherMakeup"),
         className:
           "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/50 dark:text-orange-300 dark:border-orange-800",
         icon: "🔄",
@@ -196,7 +201,7 @@ export default function ClassesCard({
           "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/50 dark:text-orange-300 dark:border-orange-800",
       },
       [ClassStatus.CANCELED_CREDIT]: {
-        label: "Cancelada (Crédito)",
+        label: t("teacherStatus.canceledCredit"),
         className:
           "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/50 dark:text-purple-300 dark:border-purple-800",
         icon: "💳",
@@ -204,7 +209,7 @@ export default function ClassesCard({
           "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/50 dark:text-purple-300 dark:border-purple-800",
       },
       [ClassStatus.NO_SHOW]: {
-        label: "Aluno faltou",
+        label: t("teacherStatus.noShow"),
         className:
           "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/50 dark:text-red-300 dark:border-red-800",
         icon: "👤",
@@ -212,7 +217,7 @@ export default function ClassesCard({
           "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/50 dark:text-red-300 dark:border-red-800",
       },
       [ClassStatus.RESCHEDULED]: {
-        label: "Reagendada",
+        label: t("teacherStatus.rescheduled"),
         className:
           "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950/50 dark:text-violet-300 dark:border-violet-800",
         icon: "📅",
@@ -220,7 +225,7 @@ export default function ClassesCard({
           "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950/50 dark:text-violet-300 dark:border-violet-800",
       },
       [ClassStatus.TEACHER_VACATION]: {
-        label: "Minhas férias",
+        label: t("teacherStatus.teacherVacation"),
         className:
           "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950/50 dark:text-indigo-300 dark:border-indigo-800",
         icon: "🏖️",
@@ -228,7 +233,7 @@ export default function ClassesCard({
           "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950/50 dark:text-indigo-300 dark:border-indigo-800",
       },
       [ClassStatus.OVERDUE]: {
-        label: "Atrasada",
+        label: t("teacherStatus.overdue"),
         className:
           "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800",
         icon: "⏰",
@@ -239,7 +244,7 @@ export default function ClassesCard({
 
     return (
       statusMap[norm] || statusMap[status as ClassStatus] || {
-        label: "Outro",
+        label: t("teacherStatus.other"),
         className:
           "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-950/50 dark:text-gray-300 dark:border-gray-800",
         icon: "❓",
@@ -254,12 +259,12 @@ export default function ClassesCard({
     currentStatus: ClassStatus
   ): { value: ClassStatus; label: string }[] => {
     const mainOptions = [
-      { value: ClassStatus.COMPLETED, label: "Concluída" },
+      { value: ClassStatus.COMPLETED, label: t("teacherStatus.completed") },
       {
         value: ClassStatus.CANCELED_TEACHER_MAKEUP,
-        label: "Eu cancelei",
+        label: t("teacherStatus.iCanceled"),
       },
-      { value: ClassStatus.NO_SHOW, label: "Aluno faltou" },
+      { value: ClassStatus.NO_SHOW, label: t("teacherStatus.noShow") },
     ];
 
     // If current status is not one of the main options, add it to the list
@@ -313,14 +318,13 @@ export default function ClassesCard({
             <ModalHeader>
               <ModalIcon type="document" />
               <ModalTitle className="flex items-center gap-2">
-                📝 Relatório da Aula
+                {t("reportModalTitle")}
               </ModalTitle>
             </ModalHeader>
             <ModalBody>
               <div className="space-y-4">
                 <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                  Adicione observações detalhadas sobre esta aula para registro
-                  e acompanhamento do progresso do aluno.
+                  {t("reportModalDescription")}
                 </p>
                 <Textarea
                   value={feedbackModal.currentFeedback}
@@ -330,10 +334,10 @@ export default function ClassesCard({
                       currentFeedback: e.target.value,
                     })
                   }
-                  placeholder="Descreva o conteúdo abordado, desempenho do aluno, pontos de atenção, exercícios realizados..."
+                  placeholder={t("reportPlaceholder")}
                 />
                 <div className="text-xs text-gray-500 dark:text-gray-400">
-                  {feedbackModal.currentFeedback.length}/1000 caracteres
+                  {t("charsCount", { count: feedbackModal.currentFeedback.length })}
                 </div>
               </div>
             </ModalBody>
@@ -343,7 +347,7 @@ export default function ClassesCard({
                   setFeedbackModal({ ...feedbackModal, open: false })
                 }
               >
-                Cancelar
+                {t("cancel")}
               </ModalSecondaryButton>
               <ModalPrimaryButton
                 onClick={() => {
@@ -355,7 +359,7 @@ export default function ClassesCard({
                   }
                 }}
               >
-                Salvar Relatório
+                {t("saveReport")}
               </ModalPrimaryButton>
             </ModalFooter>
           </ModalContent>
@@ -376,14 +380,12 @@ export default function ClassesCard({
           <ModalHeader>
             <ModalIcon type="warning" />
             <ModalTitle className="flex items-center gap-2">
-              🔄 Cancelar com Reposição
+              {t("cancelModalTitle")}
             </ModalTitle>
           </ModalHeader>
           <ModalBody>
             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-              Tem certeza que deseja cancelar esta aula? Esta ação irá marcar a
-              aula como Cancelada pelo Professor, e uma nova aula deverá
-              ser agendada para repor esta.
+              {t("cancelModalDescription")}
             </p>
           </ModalBody>
           <ModalFooter className="flex gap-3">
@@ -392,7 +394,7 @@ export default function ClassesCard({
                 setTeacherCancelModal({ ...teacherCancelModal, open: false })
               }
             >
-              Voltar
+              {t("back")}
             </ModalSecondaryButton>
             <ModalPrimaryButton
               onClick={async () => {
@@ -406,7 +408,7 @@ export default function ClassesCard({
               }}
               className="bg-orange-600 hover:bg-orange-700"
             >
-              Confirmar Cancelamento
+              {t("confirmCancel")}
             </ModalPrimaryButton>
           </ModalFooter>
         </ModalContent>
@@ -426,20 +428,19 @@ export default function ClassesCard({
           <ModalHeader>
             <ModalIcon type="warning" />
             <ModalTitle className="flex items-center gap-2">
-              👤 Marcar como Falta
+              {t("noShowModalTitle")}
             </ModalTitle>
           </ModalHeader>
           <ModalBody>
             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-              Tem certeza que deseja marcar esta aula como Falta? Esta ação
-              indica que o aluno não compareceu à aula agendada.
+              {t("noShowModalDescription")}
             </p>
           </ModalBody>
           <ModalFooter className="flex gap-3">
             <ModalSecondaryButton
               onClick={() => setNoShowModal({ ...noShowModal, open: false })}
             >
-              Voltar
+              {t("back")}
             </ModalSecondaryButton>
             <ModalPrimaryButton
               onClick={async () => {
@@ -453,7 +454,7 @@ export default function ClassesCard({
               }}
               className="bg-red-600 hover:bg-red-700"
             >
-              Confirmar Falta
+              {t("confirmNoShow")}
             </ModalPrimaryButton>
           </ModalFooter>
         </ModalContent>
@@ -464,7 +465,7 @@ export default function ClassesCard({
         <Card className="flex flex-row w-full gap-4">
           <div className="space-y-1">
             <Text size="sm" variant="subtitle">
-              Mês
+              {t("month")}
             </Text>
             <Select
               value={selectedMonth.toString()}
@@ -485,7 +486,7 @@ export default function ClassesCard({
 
           <div className="w-full space-y-1">
             <Text size="sm" variant="subtitle">
-              Ano
+              {t("year")}
             </Text>
             <Select
               value={selectedYear.toString()}
@@ -564,19 +565,19 @@ export default function ClassesCard({
                     <div className="flex-1">
                       <div className="flex flex-wrap gap-1">
                         <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {classDate.toLocaleDateString("pt-BR", {
+                          {classDate.toLocaleDateString(locale, {
                             weekday: "short",
                             day: "2-digit",
                           })}
                           {isToday && (
                             <span className="text-sm text-indigo-500 dark:text-indigo-400 ml-1">
-                              • Hoje
+                              • {t("today")}
                             </span>
                           )}
                         </div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">
-                          <span className="mr-1">às</span>
-                          {classDate.toLocaleTimeString("pt-BR", {
+                          <span className="mr-1">{t("at")}</span>
+                          {classDate.toLocaleTimeString(locale, {
                             hour: "2-digit",
                             minute: "2-digit",
                           })}
@@ -659,8 +660,8 @@ export default function ClassesCard({
                           }`}
                           title={
                             cls.feedback
-                              ? "Editar relatório"
-                              : "Adicionar relatório"
+                              ? t("editReport")
+                              : t("addReport")
                           }
                         >
                           <FileUser
@@ -680,12 +681,12 @@ export default function ClassesCard({
             <div className="text-6xl mb-4">📚</div>
             <NoResults
               customMessage={{
-                withoutSearch: `Nenhuma aula encontrada em ${monthNames[selectedMonth]} de ${selectedYear}`,
+                withoutSearch: t("noClassesFound", { month: monthNames[selectedMonth], year: selectedYear }),
               }}
               className="text-center"
             />
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-              Tente selecionar outro mês ou ano
+              {t("tryOtherDate")}
             </p>
           </div>
         )}

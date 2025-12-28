@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { SubContainer } from "@/components/ui/sub-container";
 import { NoResults } from "@/components/ui/no-results";
@@ -83,6 +84,8 @@ export default function TasksCard({
   isSyncingWithGoogleCalendar = false,
   userRole, // Add this line
 }: TasksCardProps) {
+  const t = useTranslations("TasksCard");
+  const locale = useLocale();
   const [newTask, setNewTask] = useState("");
   const [localTasks, setLocalTasks] = useState<Task[]>(
     tasks.map(parseTaskDates)
@@ -272,7 +275,7 @@ export default function TasksCard({
         </div>
 
         <div className="flex flex-row sm:flex-row justify-between items-start sm:items-center gap-4 mb-2 pt-2">
-          <h2 className="text-xl font-bold title-base">Tarefas</h2>
+          <h2 className="text-xl font-bold title-base">{t("title")}</h2>
           <div className="flex items-center gap-2">
             {/* Google Calendar Sync Button */}
             {onSyncWithGoogleCalendar && (
@@ -289,7 +292,7 @@ export default function TasksCard({
                   <>
                     <RefreshCcw className="w-3 h-3" />
                     <span className="hidden group-hover:inline-block text-xs">
-                      Sincronizar com calendário
+                      {t("syncCalendar")}
                     </span>
                   </>
                 )}
@@ -304,7 +307,7 @@ export default function TasksCard({
             <div className="relative flex-1">
               <Input
                 type="text"
-                placeholder="Adicionar nova tarefa..."
+                placeholder={t("addPlaceholder")}
                 value={newTask}
                 onChange={(e) => setNewTask(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && handleAddTask()}
@@ -332,7 +335,7 @@ export default function TasksCard({
                     const formattedDate = formatDateForInput(date);
                     setDueDate(formattedDate);
                   }}
-                  placeholder="Selecionar dia..."
+                  placeholder={t("selectDate")}
                 />
               </div>
             )}
@@ -386,10 +389,10 @@ export default function TasksCard({
                     {/* Display due date if available */}
                     {task.dueDate && (
                       <div className="text-xs text-paragraph/60 mt-1">
-                        Due:{" "}
+                        {t("due")}
                         {task.dueDate instanceof Date
-                          ? task.dueDate.toLocaleDateString("pt-BR")
-                          : new Date(task.dueDate).toLocaleDateString("pt-BR")}
+                          ? task.dueDate.toLocaleDateString(locale)
+                          : new Date(task.dueDate).toLocaleDateString(locale)}
                       </div>
                     )}
                   </div>
@@ -413,7 +416,7 @@ export default function TasksCard({
             {localTasks.length === 0 && pendingTasks.length === 0 && (
               <NoResults
                 customMessage={{
-                  withoutSearch: "Nenhuma tarefa adicionada",
+                  withoutSearch: t("noTasks"),
                 }}
                 className="p-8"
               />
@@ -428,21 +431,20 @@ export default function TasksCard({
           <ModalContent>
             <ModalIcon type="delete" />
             <ModalHeader>
-              <ModalTitle>Deletar todas as tarefas</ModalTitle>
+              <ModalTitle>{t("deleteAllTitle")}</ModalTitle>
               <ModalDescription>
-                Tem certeza que deseja deletar todas as {localTasks.length}{" "}
-                tarefas? Esta ação não pode ser desfeita.
+                {t("deleteAllDescription", { count: localTasks.length })}
               </ModalDescription>
             </ModalHeader>
             <ModalFooter>
               <ModalSecondaryButton onClick={() => setIsDeleteModalOpen(false)}>
-                Cancelar
+                {t("cancel")}
               </ModalSecondaryButton>
               <ModalPrimaryButton
                 onClick={confirmDeleteAllTasks}
                 className="!bg-destructive !hover:bg-destructive-light"
               >
-                Deletar todas
+                {t("deleteAllConfirm")}
               </ModalPrimaryButton>
             </ModalFooter>
           </ModalContent>

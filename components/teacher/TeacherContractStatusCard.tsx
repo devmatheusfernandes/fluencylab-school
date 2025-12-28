@@ -410,7 +410,7 @@ export const TeacherContractStatusCard = () => {
                     value={formData.cnpj}
                     onChange={handleInputChange}
                     hasError={!!errors.cnpj}
-                    placeholder="XX.XXX.XXX/0001-XX"
+                    placeholder={t("cnpjPlaceholder")}
                     maxLength={18}
                   />
                   {errors.cnpj && (
@@ -445,7 +445,7 @@ export const TeacherContractStatusCard = () => {
                     name="address"
                     value={formData.address}
                     onChange={handleInputChange}
-                    placeholder="Rua, número, bairro"
+                    placeholder={t("addressPlaceholder")}
                     hasError={!!errors.address}
                   />
                   {errors.address && (
