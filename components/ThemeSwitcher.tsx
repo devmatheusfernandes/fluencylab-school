@@ -4,20 +4,22 @@ import { Moon, Sun, Monitor } from "lucide-react";
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 export function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const t = useTranslations("Theme");
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   const themes = [
-    { value: "light", label: "Claro", icon: Sun, color: "text-amber-500" },
-    { value: "dark", label: "Escuro", icon: Moon, color: "text-violet-400" },
-    { value: "system", label: "Sistema", icon: Monitor, color: "text-blue-500" },
+    { value: "light", label: t("light"), icon: Sun, color: "text-amber-500" },
+    { value: "dark", label: t("dark"), icon: Moon, color: "text-violet-400" },
+    { value: "system", label: t("system"), icon: Monitor, color: "text-blue-500" },
   ];
 
   const currentTheme = themes.find((t) => t.value === theme) || themes[0];
@@ -38,6 +40,7 @@ export function ThemeSwitcher() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
+        aria-label={t("toggle")}
         className="relative flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200/50 dark:border-slate-700/50 bg-white/20 dark:bg-slate-900/35 hover:bg-white/40 dark:hover:bg-slate-800/50 transition-colors duration-200"
       >
         <AnimatePresence mode="wait">

@@ -16,21 +16,6 @@ interface TwoFactorClientProps {
   messages: Messages;
 }
 
-function LoadingFallback({ t }: { t: Record<string, string> }) {
-  return (
-    <div className="max-w-md mx-auto w-full">
-      <div className="text-center">
-        <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2">
-          {t.twoFactorLoadingTitle || "Loading..."}
-        </h2>
-        <p className="text-gray-600 dark:text-gray-300">
-          {t.twoFactorLoadingSubtitle || "Preparing two-factor verification"}
-        </p>
-      </div>
-    </div>
-  );
-}
-
 export function TwoFactorClient({ messages }: TwoFactorClientProps) {
   const [code, setCode] = React.useState("");
   const [error, setError] = React.useState("");

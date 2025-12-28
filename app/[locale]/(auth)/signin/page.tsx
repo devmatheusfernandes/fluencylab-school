@@ -1,4 +1,4 @@
-import { SignInClient } from "./SignInClient";
+import { SignInClient } from "../../../../components/auth/SignInClient";
 
 export default async function SignInPage({
   params,

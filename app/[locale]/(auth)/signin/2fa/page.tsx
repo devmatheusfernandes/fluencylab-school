@@ -1,4 +1,4 @@
-import TwoFactorClient from "./TwoFactorClient";
+import TwoFactorClient from "../../../../../components/auth/TwoFactorClient";
 
 export default async function TwoFactorPage({
   params,
