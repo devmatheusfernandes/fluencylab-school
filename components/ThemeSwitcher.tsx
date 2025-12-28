@@ -3,11 +3,16 @@
 import { Moon, Sun, Monitor } from "lucide-react";
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const themes = [
     { value: "light", label: "Claro", icon: Sun, color: "text-amber-500" },
@@ -17,6 +22,14 @@ export function ThemeSwitcher() {
 
   const currentTheme = themes.find((t) => t.value === theme) || themes[0];
   const CurrentIcon = currentTheme.icon;
+
+  if (!mounted) {
+    return (
+      <div className="relative">
+        <div className="relative flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200/50 dark:border-slate-700/50 bg-white/20 dark:bg-slate-900/35 transition-colors duration-200" />
+      </div>
+    );
+  }
 
   return (
     <div className="relative">

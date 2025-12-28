@@ -21,6 +21,11 @@ export default function LanguageSwitcher() {
   const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   function setLocale(nextLocale: string) {
     const segments = pathname.split("/");
@@ -35,6 +40,20 @@ export default function LanguageSwitcher() {
     languages.find((l) => l.value === locale)?.label ?? String(locale);
   const placeholderText =
     locale === "pt" ? `Selecione idioma` : `Select language`;
+
+  if (!mounted) {
+    return (
+      <Button
+        variant="outline"
+        role="combobox"
+        aria-expanded={false}
+        className="w-[200px] justify-between"
+      >
+        {currentLabel}
+        <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+      </Button>
+    );
+  }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
