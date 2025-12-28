@@ -2,7 +2,6 @@ import type { NextConfig } from 'next';
 import createNextIntlPlugin from 'next-intl/plugin';
 
 const nextConfig: NextConfig = {
-  /* additional next config options can go here */
   images: {
     remotePatterns: [
       {
@@ -12,9 +11,7 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'storage.googleapis.com',
-        // Permite qualquer caminho do bucket (ex.: /<bucket>/<path>/**)
         pathname: '/**',
-        // omitindo "search" permite qualquer query string (ex.: ?alt=media&token=...)
       },
       {
         protocol: 'https',

@@ -49,13 +49,11 @@ export default withAuth(
   },
   {
     callbacks: {
-      // Deixamos sempre true e tratamos redirecionamentos acima para controlar locale
       authorized: () => true,
     },
   }
 );
 
 export const config = {
-  // Mantém abrangência para i18n e aplica regras de auth onde necessário
   matcher: ["/((?!api|_next|_vercel|.*\\..*).*)"],
 };
