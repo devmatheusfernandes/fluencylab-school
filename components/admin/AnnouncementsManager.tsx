@@ -19,8 +19,10 @@ import { useUsers } from "@/hooks/useUsers";
 import { twMerge } from "tailwind-merge";
 import { toast } from "sonner";
 import { FileWarning, Info, InfoIcon, Lightbulb } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function AnnouncementsManager() {
+  const t = useTranslations("Roles");
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
@@ -185,15 +187,6 @@ export function AnnouncementsManager() {
     });
   };
 
-  const roleLabels: Record<UserRoles, string> = {
-    [UserRoles.ADMIN]: "Administrador",
-    [UserRoles.MANAGER]: "Gerente",
-    [UserRoles.STUDENT]: "Estudante",
-    [UserRoles.TEACHER]: "Professor",
-    [UserRoles.GUARDED_STUDENT]: "Estudante Tutelado",
-    [UserRoles.MATERIAL_MANAGER]: "Gerente de Material",
-  };
-
   return (
     <div className="space-y-6">
       <Card className="p-6">
@@ -286,7 +279,7 @@ export function AnnouncementsManager() {
                       }}
                       className="rounded"
                     />
-                    <span>{roleLabels[role]}</span>
+                    <span>{[role]}</span>
                   </label>
                 ))}
               </div>
@@ -318,7 +311,7 @@ export function AnnouncementsManager() {
                         className="rounded"
                       />
                       <span>
-                        {user.name} ({roleLabels[user.role]})
+                        {user.name} ({[user.role]})
                       </span>
                     </label>
                   ))}
@@ -380,7 +373,7 @@ export function AnnouncementsManager() {
                           <span>
                             Destinado a:{" "}
                             {announcement.recipients.roles
-                              ?.map((r) => roleLabels[r])
+                              ?.map((r) => t(r))
                               .join(", ")}
                           </span>
                         ) : (

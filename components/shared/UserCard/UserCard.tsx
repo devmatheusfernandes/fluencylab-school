@@ -3,9 +3,10 @@
 import * as React from "react";
 import { twMerge } from "tailwind-merge";
 import { UserRoles } from "@/types/users/userRoles";
-import { roleLabels, capitalizeFirstLetter } from "@/utils/utils";
+import { capitalizeFirstLetter } from "@/utils/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogIn, LogOut } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export interface UserData {
   name: string;
@@ -28,9 +29,8 @@ const UserCard: React.FC<UserCardProps> = ({
   className,
   onLogout,
 }) => {
-  const userRoleLabel = user?.role
-    ? roleLabels[user.role as UserRoles] || capitalizeFirstLetter(user.role)
-    : "";
+  const tRoles = useTranslations("Roles");
+  const userRoleLabel = user?.role ? tRoles(user.role) : "";
 
   if (variant === "mobile") {
     return (

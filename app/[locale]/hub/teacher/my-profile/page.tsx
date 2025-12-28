@@ -11,9 +11,12 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import { daysOfWeek } from "@/types/time/times";
 
 import { TeacherContractStatusCard } from "@/components/teacher/TeacherContractStatusCard";
+import { useTranslations } from "next-intl";
 
 export default function MyProfile() {
   const { user, isLoading } = useCurrentUser();
+  const t = useTranslations("TeacherProfile");
+  const tDays = useTranslations("Days");
   const { myClasses, fetchMyClasses, isLoading: isClassesLoading } = useTeacher();
   const handleLogout = () => {
     signOut({ callbackUrl: "/" });
@@ -82,10 +85,10 @@ export default function MyProfile() {
                 </div>
                 <div>
                   <Text size="lg" className="font-bold text-slate-900 dark:text-slate-100">
-                    Agenda semanal
+                    {t("weeklySchedule")}
                   </Text>
                   <Text size="sm" className="text-slate-600 dark:text-slate-400">
-                    Suas aulas desta semana
+                    {t("yourClassesThisWeek")}
                   </Text>
                 </div>
               </div>
@@ -102,10 +105,15 @@ export default function MyProfile() {
                   {daysOrder.map((dayName) => {
                     const dayClasses = weeklyGrouped[dayName] || [];
                     if (dayClasses.length === 0) return null;
+
+                    const dayIndex = daysOfWeek.indexOf(dayName);
+                    const dayKeys = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+                    const translatedDayName = dayIndex >= 0 ? tDays(dayKeys[dayIndex]) : dayName;
+
                     return (
                       <div key={dayName} className="space-y-2">
                         <Text className="font-semibold text-slate-900 dark:text-slate-100">
-                          {dayName}
+                          {translatedDayName}
                         </Text>
                         <div className="space-y-2">
                           {dayClasses.map((cls) => {
@@ -124,7 +132,7 @@ export default function MyProfile() {
                                     {time}
                                   </div>
                                   <div className="text-sm text-slate-700 dark:text-slate-300">
-                                    {cls.studentName || "Aluno"}
+                                    {cls.studentName || t("student")}
                                   </div>
                                 </div>
                                 <div className="text-xs text-slate-500 dark:text-slate-400">
@@ -138,7 +146,7 @@ export default function MyProfile() {
                     );
                   })}
                   {Object.values(weeklyGrouped).every((arr) => arr.length === 0) && (
-                    <Text className="text-slate-600 dark:text-slate-400">Sem aulas nesta semana</Text>
+                    <Text className="text-slate-600 dark:text-slate-400">{t("noClassesThisWeek")}</Text>
                   )}
                 </>
               )}

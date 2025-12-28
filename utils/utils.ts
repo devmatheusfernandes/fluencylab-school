@@ -151,16 +151,6 @@ export const capitalizeFirstLetter = (str: string) => {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 };
 
-// Role mapping to Portuguese with first letter capitalized
-export const roleLabels: Record<UserRoles, string> = {
-  [UserRoles.ADMIN]: "Administrador",
-  [UserRoles.MANAGER]: "Gerente",
-  [UserRoles.STUDENT]: "Estudante",
-  [UserRoles.TEACHER]: "Professor",
-  [UserRoles.GUARDED_STUDENT]: "Estudante Tutelado",
-  [UserRoles.MATERIAL_MANAGER]: "Gerente de Material",
-};
-
 export const determineCEFRLevel = (score: number): number => {
   if (score >= 90) return 5;
   if (score >= 75) return 4;

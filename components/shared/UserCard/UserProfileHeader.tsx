@@ -6,10 +6,11 @@ import { Text } from "@/components/ui/text";
 import { Badge } from "@/components/ui/badge";
 import { User } from "@/types/users/users";
 import { UserRoles } from "@/types/users/userRoles";
-import { capitalizeFirstLetter, roleLabels } from "@/utils/utils";
+import { capitalizeFirstLetter } from "@/utils/utils";
 import { useAvatar } from "@/hooks/useAvatar";
 import { LogOut, RefreshCw } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { useTranslations } from "next-intl";
 
 interface UserProfileHeaderProps {
   user: User;
@@ -24,11 +25,11 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({
   className = "",
   onAvatarUpdate,
 }) => {
+  const t = useTranslations("UserProfileHeader");
+  const tRoles = useTranslations("Roles");
   const { uploadAvatar, isUploading } = useAvatar(user?.id);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const userRoleLabel = user?.role
-    ? roleLabels[user.role as UserRoles] || capitalizeFirstLetter(user.role)
-    : "";
+  const userRoleLabel = user?.role ? tRoles(user.role) : "";
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
@@ -62,7 +63,7 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({
               <AvatarImage
                 size="xl"
                 src={user?.avatarUrl || ""}
-                alt={user?.name || "Profile picture"}
+                alt={user?.name || t("profilePicture")}
               />
               <AvatarFallback size="xl" />
             </Avatar>
@@ -70,7 +71,7 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({
               onClick={handleAvatarClick}
               disabled={isUploading}
               className="absolute -bottom-1 -right-1 p-1.5 rounded-full bg-primary text-white hover:bg-primary-dark transition-colors shadow-md disabled:opacity-50"
-              title="Alterar foto de perfil"
+              title={t("changeProfilePicture")}
             >
               {isUploading ? (
                 <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -80,7 +81,7 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({
             </button>
           </div>
           <div className="flex flex-col items-start mt-0 sm:mt-2">
-            <Text weight="semibold">{user?.name || ""}</Text>
+            <Text weight="semibold" className="capitalize">{user?.name || ""}</Text>
             <Text variant="placeholder" size="xs">
               {user?.email || ""}
             </Text>
@@ -90,7 +91,7 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({
         <button
           onClick={onLogout}
           className="p-2.5 rounded-lg h-fit bg-destructive/20 hover:bg-destructive/30 text-destructive hover:text-red-500 transition-colors"
-          title="Sair"
+          title={t("logout")}
         >
           <LogOut className="w-4 h-4" />
         </button>

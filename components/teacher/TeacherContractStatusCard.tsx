@@ -27,6 +27,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 
 interface ContractStatusData {
   student: any;
@@ -39,21 +40,7 @@ interface ContractStatusData {
   } | null;
   contractLog: {
     name: string;
-    cpf: string; // Note: In TeacherContractPDF it expects teacherCnpj, but contractLog might save as cpf or generic field. 
-                 // We need to map correctly. TeacherContractStep saves 'cnpj' in 'signatureData', 
-                 // and ContractService saves it to ContractLog. 
-                 // Let's assume ContractLog stores it in 'cpf' field or we check how it's stored.
-                 // Looking at ContractService:
-                 // const contractLogData = { name: signatureData.name, cpf: signatureData.cpf, ... }
-                 // TeacherContractStep sends: signatureData: { ...formData } where formData has cnpj.
-                 // So TeacherContractStep should probably map cnpj to cpf in the payload if the backend expects cpf, 
-                 // OR ContractService just takes what's given.
-                 // TeacherContractStep sends { signatureData: formData }. formData has { cnpj: "..." }.
-                 // ContractService: const { studentId, signatureData } = request; ...
-                 // contractLogData = { name: signatureData.name, cpf: signatureData.cpf, ... }
-                 // Wait, ContractService explicitly maps signatureData.cpf to cpf.
-                 // So if TeacherContractStep sends 'cnpj', it might be lost if ContractService only looks for 'cpf'.
-                 // Let's double check TeacherContractStep.tsx and ContractService.ts
+    cpf: string;
     address: string;
     city: string;
     state: string;
@@ -63,6 +50,7 @@ interface ContractStatusData {
 }
 
 export const TeacherContractStatusCard = () => {
+  const t = useTranslations("TeacherContractStatusCard");
   const { data: session } = useSession();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<ContractStatusData | null>(null);
@@ -102,7 +90,7 @@ export const TeacherContractStatusCard = () => {
       }
     } catch (e) {
       console.error(e);
-      toast.error("Erro ao carregar status do contrato");
+      toast.error(t("errorLoading"));
     } finally {
       setLoading(false);
     }
@@ -138,17 +126,17 @@ export const TeacherContractStatusCard = () => {
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.name.trim()) newErrors.name = "Nome é obrigatório";
+    if (!formData.name.trim()) newErrors.name = t("nameRequired");
     if (!formData.cnpj.trim()) {
-      newErrors.cnpj = "CNPJ é obrigatório";
+      newErrors.cnpj = t("cnpjRequired");
     } else if (formData.cnpj.replace(/\D/g, "").length !== 14) {
-      newErrors.cnpj = "CNPJ inválido";
+      newErrors.cnpj = t("cnpjInvalid");
     }
-    if (!formData.address.trim()) newErrors.address = "Endereço é obrigatório";
-    if (!formData.city.trim()) newErrors.city = "Cidade é obrigatória";
-    if (!formData.state.trim()) newErrors.state = "Estado é obrigatório";
-    if (!formData.zipCode.trim()) newErrors.zipCode = "CEP é obrigatório";
-    if (!formData.agreedToTerms) newErrors.agreedToTerms = "Você deve concordar com os termos";
+    if (!formData.address.trim()) newErrors.address = t("addressRequired");
+    if (!formData.city.trim()) newErrors.city = t("cityRequired");
+    if (!formData.state.trim()) newErrors.state = t("stateRequired");
+    if (!formData.zipCode.trim()) newErrors.zipCode = t("zipCodeRequired");
+    if (!formData.agreedToTerms) newErrors.agreedToTerms = t("termsRequired");
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -191,12 +179,12 @@ export const TeacherContractStatusCard = () => {
         throw new Error("Failed to sign contract");
       }
 
-      toast.success("Contrato assinado com sucesso!");
+      toast.success(t("successSigned"));
       setShowSignModal(false);
       fetchStatus(); // Refresh status
     } catch (error) {
       console.error("Error signing contract:", error);
-      toast.error("Erro ao assinar o contrato. Tente novamente.");
+      toast.error(t("errorSigning"));
     } finally {
       setIsSubmitting(false);
     }
@@ -218,11 +206,11 @@ export const TeacherContractStatusCard = () => {
         throw new Error(err.error || "Failed to renew contract");
       }
 
-      toast.success("Contrato renovado com sucesso!");
+      toast.success(t("successRenewed"));
       fetchStatus();
     } catch (error: any) {
       console.error("Error renewing contract:", error);
-      toast.error(error.message || "Erro ao renovar o contrato.");
+      toast.error(error.message || t("errorRenewing"));
     } finally {
       setIsSubmitting(false);
     }
@@ -237,7 +225,7 @@ export const TeacherContractStatusCard = () => {
 
   const expirationDate = contractStatus?.expiresAt
     ? new Date(contractStatus.expiresAt).toLocaleDateString("pt-BR")
-    : "Indeterminado";
+    : t("undetermined");
 
   const signedDate = contractStatus?.signedAt
     ? new Date(contractStatus.signedAt).toLocaleDateString("pt-BR")
@@ -253,10 +241,10 @@ export const TeacherContractStatusCard = () => {
             </div>
             <div>
               <Text size="lg" className="font-bold text-slate-900 dark:text-slate-100">
-                Contrato de Parceria
+                {t("contractTitle")}
               </Text>
               <Text size="sm" className="text-slate-600 dark:text-slate-400">
-                Status e validade do seu contrato
+                {t("contractSubtitle")}
               </Text>
             </div>
           </div>
@@ -265,19 +253,19 @@ export const TeacherContractStatusCard = () => {
             {isSigned && (
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
                 <CheckCircle className="w-3 h-3 mr-1" />
-                Ativo
+                {t("active")}
               </span>
             )}
             {isExpired && (
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
                 <AlertTriangle className="w-3 h-3 mr-1" />
-                Expirado
+                {t("expired")}
               </span>
             )}
             {isPending && (
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
                 <AlertTriangle className="w-3 h-3 mr-1" />
-                Pendente
+                {t("pending")}
               </span>
             )}
           </div>
@@ -285,7 +273,7 @@ export const TeacherContractStatusCard = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-            <div className="text-sm text-slate-500 dark:text-slate-400 mb-1">Validade</div>
+            <div className="text-sm text-slate-500 dark:text-slate-400 mb-1">{t("validity")}</div>
             <div className="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
               <Calendar className="w-4 h-4 text-slate-400" />
               {expirationDate}
@@ -293,16 +281,16 @@ export const TeacherContractStatusCard = () => {
           </div>
           
           <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-            <div className="text-sm text-slate-500 dark:text-slate-400 mb-1">Assinado em</div>
+            <div className="text-sm text-slate-500 dark:text-slate-400 mb-1">{t("signedAt")}</div>
             <div className="font-semibold text-slate-900 dark:text-slate-100">
               {signedDate}
             </div>
           </div>
 
           <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-            <div className="text-sm text-slate-500 dark:text-slate-400 mb-1">Tipo</div>
+            <div className="text-sm text-slate-500 dark:text-slate-400 mb-1">{t("serviceTypeLabel")}</div>
             <div className="font-semibold text-slate-900 dark:text-slate-100">
-              Prestação de Serviços (MEI)
+              {t("serviceTypeValue")}
             </div>
           </div>
         </div>
@@ -311,21 +299,21 @@ export const TeacherContractStatusCard = () => {
           {(isSigned || isExpired) && (
             <Button variant="outline" onClick={() => setShowContractModal(true)}>
               <Eye className="w-4 h-4 mr-2" />
-              Visualizar Contrato
+              {t("viewContract")}
             </Button>
           )}
 
           {isExpired && (
-            <Button variant="default" onClick={handleRenewContract} disabled={isSubmitting}>
+            <Button onClick={handleRenewContract} disabled={isSubmitting}>
               <RefreshCw className={`w-4 h-4 mr-2 ${isSubmitting ? "animate-spin" : ""}`} />
-              Renovar Contrato
+              {t("renewContract")}
             </Button>
           )}
 
           {isPending && (
-            <Button variant="default" onClick={() => setShowSignModal(true)}>
+            <Button onClick={() => setShowSignModal(true)}>
               <FileSignature className="w-4 h-4 mr-2" />
-              Assinar Contrato
+              {t("signContract")}
             </Button>
           )}
         </div>
@@ -335,7 +323,7 @@ export const TeacherContractStatusCard = () => {
       <Modal open={showContractModal} onOpenChange={setShowContractModal}>
         <ModalContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <ModalHeader>
-            <h2 className="text-xl font-bold">Contrato de Parceria</h2>
+            <h2 className="text-xl font-bold">{t("contractTitle")}</h2>
           </ModalHeader>
           <div className="p-4">
              {data?.contractLog ? (
@@ -350,13 +338,13 @@ export const TeacherContractStatusCard = () => {
                 />
              ) : (
                  <div className="text-center py-8 text-gray-500">
-                     Dados do contrato não encontrados.
+                     {t("contractNotFound")}
                  </div>
              )}
           </div>
           <ModalFooter>
             <ModalSecondaryButton onClick={() => setShowContractModal(false)}>
-              Fechar
+              {t("close")}
             </ModalSecondaryButton>
           </ModalFooter>
         </ModalContent>
@@ -366,7 +354,7 @@ export const TeacherContractStatusCard = () => {
       <Modal open={showSignModal} onOpenChange={setShowSignModal}>
         <ModalContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <ModalHeader>
-            <h2 className="text-xl font-bold">Assinar Contrato de Parceria</h2>
+            <h2 className="text-xl font-bold">{t("signContractTitle")}</h2>
           </ModalHeader>
           <div className="p-6">
             <div className="mb-6">
@@ -381,10 +369,10 @@ export const TeacherContractStatusCard = () => {
             </div>
 
             <div className="border-t pt-6">
-                <Text variant="title" className="mb-4">Dados da Contratada (Você)</Text>
+                <Text variant="title" className="mb-4">{t("contractorData")}</Text>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium mb-2">Nome Completo / Razão Social *</label>
+                    <label className="block text-sm font-medium mb-2">{t("fullNameLabel")}</label>
                     <Input
                       name="name"
                       value={formData.name}
@@ -395,7 +383,7 @@ export const TeacherContractStatusCard = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">CNPJ (MEI) *</label>
+                    <label className="block text-sm font-medium mb-2">{t("cnpjLabel")}</label>
                     <Input
                       name="cnpj"
                       value={formData.cnpj}
@@ -408,7 +396,7 @@ export const TeacherContractStatusCard = () => {
                   </div>
 
                    <div>
-                    <label className="block text-sm font-medium mb-2">CEP *</label>
+                    <label className="block text-sm font-medium mb-2">{t("zipCodeLabel")}</label>
                     <Input
                       name="zipCode"
                       value={formData.zipCode}
@@ -419,7 +407,7 @@ export const TeacherContractStatusCard = () => {
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium mb-2">Endereço Completo *</label>
+                    <label className="block text-sm font-medium mb-2">{t("addressLabel")}</label>
                     <Input
                       name="address"
                       value={formData.address}
@@ -431,7 +419,7 @@ export const TeacherContractStatusCard = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">Cidade *</label>
+                    <label className="block text-sm font-medium mb-2">{t("cityLabel")}</label>
                     <Input
                       name="city"
                       value={formData.city}
@@ -442,7 +430,7 @@ export const TeacherContractStatusCard = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">Estado *</label>
+                    <label className="block text-sm font-medium mb-2">{t("stateLabel")}</label>
                     <Input
                       name="state"
                       value={formData.state}
@@ -463,7 +451,7 @@ export const TeacherContractStatusCard = () => {
                       }}
                     />
                     <div>
-                      <Text size="sm">Declaro que li e concordo com todos os termos do contrato de prestação de serviços apresentado.</Text>
+                      <Text size="sm">{t("agreeToTerms")}</Text>
                       {errors.agreedToTerms && <Text size="sm" className="text-red-500 mt-2">{errors.agreedToTerms}</Text>}
                     </div>
                   </div>
@@ -472,10 +460,10 @@ export const TeacherContractStatusCard = () => {
           </div>
           <ModalFooter>
             <ModalSecondaryButton onClick={() => setShowSignModal(false)} disabled={isSubmitting}>
-              Cancelar
+              {t("cancel")}
             </ModalSecondaryButton>
             <ModalPrimaryButton onClick={handleSignContract} disabled={!formData.agreedToTerms || isSubmitting}>
-               {isSubmitting ? "Assinando..." : "Assinar Digitalmente"}
+               {isSubmitting ? t("signing") : t("signDigitally")}
             </ModalPrimaryButton>
           </ModalFooter>
         </ModalContent>
