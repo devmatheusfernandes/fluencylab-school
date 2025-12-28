@@ -29,6 +29,18 @@
     "twoFactorRequired": "Código 2FA é obrigatório. Digite o código.",
     "unauthorized": "Não autorizado. Faça login novamente."
   },
+  "MyStudentsPage": {
+    "title": "Meus Alunos",
+    "searchPlaceholder": "Procure seus alunos...",
+    "errorLoading": "Erro ao carregar os alunos. Por favor, tente novamente.",
+    "genericError": "Algo deu errado",
+    "noResults": "Nenhum resultado encontrado"
+  },
+  "NoResults": {
+    "withSearch": "Nenhum resultado encontrado",
+    "withoutSearch": "Nenhum resultado disponível",
+    "adjustSearch": "Tente ajustar sua pesquisa ou filtro para encontrar o que procura"
+  },
   "Theme": {
     "toggle": "Alternar tema",
     "light": "Claro",
@@ -136,7 +148,8 @@
     "saturday": "Sábado",
     "dayAt": "dia",
     "at": "às",
-    "noScheduledClasses": "Sem aulas agendadas"
+    "noScheduledClasses": "Sem aulas agendadas",
+    "userAlt": "Usuário"
   },
   "UserRoles": {
     "admin": "Administrador",

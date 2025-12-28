@@ -1,6 +1,7 @@
 // components/ui/NoResults.tsx
 "use client";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 interface NoResultsProps {
   searchQuery?: string;
@@ -55,9 +56,10 @@ export const NoResults: React.FC<NoResultsProps> = ({
   customMessage,
   className = "",
 }) => {
+  const t = useTranslations("NoResults");
   const defaultMessages = {
-    withSearch: "Nenhum aluno encontrado",
-    withoutSearch: "Nenhum aluno disponível",
+    withSearch: t("withSearch"),
+    withoutSearch: t("withoutSearch"),
   };
 
   const messages = { ...defaultMessages, ...customMessage };
@@ -93,7 +95,7 @@ export const NoResults: React.FC<NoResultsProps> = ({
 
       {searchQuery && (
         <motion.p className="mt-2 text-sm" variants={itemVariants}>
-          Tente ajustar sua pesquisa ou filtro para encontrar o que procura
+          {t("adjustSearch")}
         </motion.p>
       )}
     </motion.div>

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { useMessages } from "next-intl";
-import { SubContainer } from "../ui/sub-container";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Calendar } from "lucide-react";
 import { Card } from "../ui/card";
@@ -23,13 +22,6 @@ interface StudentCardProps {
 export default function StudentCard({ student }: StudentCardProps) {
   const messages = useMessages();
   const tStudentCard = (messages?.StudentCard ?? {}) as Record<string, string>;
-  const slugify = (s: string) =>
-    s
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
   const firstName = student.name?.split(" ")[0] ?? student.name;
 
   const formatNextClassDate = (date: string | Date) => {
@@ -87,8 +79,8 @@ export default function StudentCard({ student }: StudentCardProps) {
         href={`/hub/teacher/my-students/${firstName}?id=${student.id}`}
         className="flex items-center space-x-4"
       >
-        <Avatar size="xl">
-          <AvatarImage size="xl" src={student.avatarUrl || ""} alt="Usuário" />
+        <Avatar size="lg">
+          <AvatarImage sizes="lg" src={student.avatarUrl || ""} alt="Usuário" />
           <AvatarFallback name={student.name} />
         </Avatar>
 
@@ -109,7 +101,7 @@ export default function StudentCard({ student }: StudentCardProps) {
           ) : (
             <div className="mt-2">
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">
-                {tStudentCard.noScheduledClasses || "Sem aulas agendadas"}
+                {tStudentCard.noScheduledClasse}
               </span>
             </div>
           )}

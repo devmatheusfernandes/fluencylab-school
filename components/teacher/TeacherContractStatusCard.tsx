@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,6 @@ import {
   Calendar,
   AlertTriangle,
   CheckCircle,
-  XCircle,
   RefreshCw,
 } from "lucide-react";
 import {
@@ -26,7 +25,6 @@ import { TeacherContractPDF } from "@/components/onboarding/steps/teacher/Teache
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 
 interface ContractStatusData {
@@ -51,7 +49,6 @@ interface ContractStatusData {
 
 export const TeacherContractStatusCard = () => {
   const t = useTranslations("TeacherContractStatusCard");
-  const { data: session } = useSession();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<ContractStatusData | null>(null);
   const [showContractModal, setShowContractModal] = useState(false);
@@ -77,15 +74,15 @@ export const TeacherContractStatusCard = () => {
       if (res.ok) {
         const json = await res.json();
         setData(json);
-        
+
         // Initialize form data if user info is available
         if (json.student) {
-           // We try to fill what we can
-           setFormData(prev => ({
-               ...prev,
-               name: json.student.name || "",
-               // We don't have other data easily available unless we fetch banking info or similar
-           }));
+          // We try to fill what we can
+          setFormData((prev) => ({
+            ...prev,
+            name: json.student.name || "",
+            // We don't have other data easily available unless we fetch banking info or similar
+          }));
         }
       }
     } catch (e) {
@@ -148,23 +145,23 @@ export const TeacherContractStatusCard = () => {
     setIsSubmitting(true);
     try {
       // We need to map cnpj to cpf because ContractService expects cpf
-      // Or we should update ContractService to handle cnpj. 
+      // Or we should update ContractService to handle cnpj.
       // For now, let's send both or map it.
       // Actually, looking at ContractService logic:
       // contractLogData = { name: signatureData.name, cpf: signatureData.cpf, ... }
       // So if we send cnpj in 'cpf' field it might work but it's semantically wrong.
-      // However, to avoid changing backend logic too much right now, 
+      // However, to avoid changing backend logic too much right now,
       // let's check what TeacherContractStep does.
       // TeacherContractStep sends { signatureData: formData }. formData has 'cnpj'.
       // If ContractService only reads 'cpf', then 'cnpj' is lost.
       // Let's assume I should fix TeacherContractStep or send 'cpf' as the CNPJ value here for now.
       // To be safe, I'll send the CNPJ value in the 'cpf' field as well, or just rely on 'cnpj' if I fix the service.
-      // I'll assume for now I should send 'cpf' with the CNPJ value to ensure it gets saved in the log 
+      // I'll assume for now I should send 'cpf' with the CNPJ value to ensure it gets saved in the log
       // (since the log table likely has a 'cpf' column and maybe not a 'cnpj' column).
-      
+
       const payload = {
-          ...formData,
-          cpf: formData.cnpj // Mapping CNPJ to CPF field for storage compatibility
+        ...formData,
+        cpf: formData.cnpj, // Mapping CNPJ to CPF field for storage compatibility
       };
 
       const response = await fetch("/api/onboarding/teacher/sign-contract", {
@@ -240,7 +237,10 @@ export const TeacherContractStatusCard = () => {
               <FileSignature className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
             </div>
             <div>
-              <Text size="lg" className="font-bold text-slate-900 dark:text-slate-100">
+              <Text
+                size="lg"
+                className="font-bold text-slate-900 dark:text-slate-100"
+              >
                 {t("contractTitle")}
               </Text>
               <Text size="sm" className="text-slate-600 dark:text-slate-400">
@@ -248,7 +248,7 @@ export const TeacherContractStatusCard = () => {
               </Text>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2">
             {isSigned && (
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
@@ -273,22 +273,28 @@ export const TeacherContractStatusCard = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-            <div className="text-sm text-slate-500 dark:text-slate-400 mb-1">{t("validity")}</div>
+            <div className="text-sm text-slate-500 dark:text-slate-400 mb-1">
+              {t("validity")}
+            </div>
             <div className="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
               <Calendar className="w-4 h-4 text-slate-400" />
               {expirationDate}
             </div>
           </div>
-          
+
           <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-            <div className="text-sm text-slate-500 dark:text-slate-400 mb-1">{t("signedAt")}</div>
+            <div className="text-sm text-slate-500 dark:text-slate-400 mb-1">
+              {t("signedAt")}
+            </div>
             <div className="font-semibold text-slate-900 dark:text-slate-100">
               {signedDate}
             </div>
           </div>
 
           <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-            <div className="text-sm text-slate-500 dark:text-slate-400 mb-1">{t("serviceTypeLabel")}</div>
+            <div className="text-sm text-slate-500 dark:text-slate-400 mb-1">
+              {t("serviceTypeLabel")}
+            </div>
             <div className="font-semibold text-slate-900 dark:text-slate-100">
               {t("serviceTypeValue")}
             </div>
@@ -297,7 +303,10 @@ export const TeacherContractStatusCard = () => {
 
         <div className="flex flex-wrap gap-3">
           {(isSigned || isExpired) && (
-            <Button variant="outline" onClick={() => setShowContractModal(true)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowContractModal(true)}
+            >
               <Eye className="w-4 h-4 mr-2" />
               {t("viewContract")}
             </Button>
@@ -305,7 +314,9 @@ export const TeacherContractStatusCard = () => {
 
           {isExpired && (
             <Button onClick={handleRenewContract} disabled={isSubmitting}>
-              <RefreshCw className={`w-4 h-4 mr-2 ${isSubmitting ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`w-4 h-4 mr-2 ${isSubmitting ? "animate-spin" : ""}`}
+              />
               {t("renewContract")}
             </Button>
           )}
@@ -326,21 +337,21 @@ export const TeacherContractStatusCard = () => {
             <h2 className="text-xl font-bold">{t("contractTitle")}</h2>
           </ModalHeader>
           <div className="p-4">
-             {data?.contractLog ? (
-                <TeacherContractPDF
-                    teacherName={data.contractLog.name}
-                    teacherCnpj={data.contractLog.cpf} // Using cpf field as stored in log
-                    teacherAddress={data.contractLog.address}
-                    teacherCity={data.contractLog.city}
-                    teacherState={data.contractLog.state}
-                    teacherZipCode={data.contractLog.zipCode}
-                    signedDate={data.contractLog.signedAt}
-                />
-             ) : (
-                 <div className="text-center py-8 text-gray-500">
-                     {t("contractNotFound")}
-                 </div>
-             )}
+            {data?.contractLog ? (
+              <TeacherContractPDF
+                teacherName={data.contractLog.name}
+                teacherCnpj={data.contractLog.cpf} // Using cpf field as stored in log
+                teacherAddress={data.contractLog.address}
+                teacherCity={data.contractLog.city}
+                teacherState={data.contractLog.state}
+                teacherZipCode={data.contractLog.zipCode}
+                signedDate={data.contractLog.signedAt}
+              />
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                {t("contractNotFound")}
+              </div>
+            )}
           </div>
           <ModalFooter>
             <ModalSecondaryButton onClick={() => setShowContractModal(false)}>
@@ -358,112 +369,164 @@ export const TeacherContractStatusCard = () => {
           </ModalHeader>
           <div className="p-6">
             <div className="mb-6">
-                <TeacherContractPDF
-                    teacherName={formData.name}
-                    teacherCnpj={formData.cnpj}
-                    teacherAddress={formData.address}
-                    teacherCity={formData.city}
-                    teacherState={formData.state}
-                    teacherZipCode={formData.zipCode}
-                />
+              <TeacherContractPDF
+                teacherName={formData.name}
+                teacherCnpj={formData.cnpj}
+                teacherAddress={formData.address}
+                teacherCity={formData.city}
+                teacherState={formData.state}
+                teacherZipCode={formData.zipCode}
+              />
             </div>
 
             <div className="border-t pt-6">
-                <Text variant="title" className="mb-4">{t("contractorData")}</Text>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium mb-2">{t("fullNameLabel")}</label>
-                    <Input
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      hasError={!!errors.name}
-                    />
-                    {errors.name && <Text size="sm" className="text-red-500 mt-1">{errors.name}</Text>}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">{t("cnpjLabel")}</label>
-                    <Input
-                      name="cnpj"
-                      value={formData.cnpj}
-                      onChange={handleInputChange}
-                      hasError={!!errors.cnpj}
-                      placeholder="XX.XXX.XXX/0001-XX"
-                      maxLength={18}
-                    />
-                    {errors.cnpj && <Text size="sm" className="text-red-500 mt-1">{errors.cnpj}</Text>}
-                  </div>
-
-                   <div>
-                    <label className="block text-sm font-medium mb-2">{t("zipCodeLabel")}</label>
-                    <Input
-                      name="zipCode"
-                      value={formData.zipCode}
-                      onChange={handleInputChange}
-                      hasError={!!errors.zipCode}
-                    />
-                    {errors.zipCode && <Text size="sm" className="text-red-500 mt-1">{errors.zipCode}</Text>}
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium mb-2">{t("addressLabel")}</label>
-                    <Input
-                      name="address"
-                      value={formData.address}
-                      onChange={handleInputChange}
-                      placeholder="Rua, número, bairro"
-                      hasError={!!errors.address}
-                    />
-                    {errors.address && <Text size="sm" className="text-red-500 mt-1">{errors.address}</Text>}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">{t("cityLabel")}</label>
-                    <Input
-                      name="city"
-                      value={formData.city}
-                      onChange={handleInputChange}
-                      hasError={!!errors.city}
-                    />
-                    {errors.city && <Text size="sm" className="text-red-500 mt-1">{errors.city}</Text>}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">{t("stateLabel")}</label>
-                    <Input
-                      name="state"
-                      value={formData.state}
-                      onChange={handleInputChange}
-                      hasError={!!errors.state}
-                    />
-                    {errors.state && <Text size="sm" className="text-red-500 mt-1">{errors.state}</Text>}
-                  </div>
+              <Text variant="title" className="mb-4">
+                {t("contractorData")}
+              </Text>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium mb-2">
+                    {t("fullNameLabel")}
+                  </label>
+                  <Input
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    hasError={!!errors.name}
+                  />
+                  {errors.name && (
+                    <Text size="sm" className="text-red-500 mt-1">
+                      {errors.name}
+                    </Text>
+                  )}
                 </div>
 
-                <div className="mb-6">
-                  <div className="flex items-start gap-3">
-                    <Checkbox
-                      checked={formData.agreedToTerms}
-                      onCheckedChange={(checked) => {
-                          setFormData(prev => ({ ...prev, agreedToTerms: checked as boolean }));
-                          if (errors.agreedToTerms) setErrors(prev => ({ ...prev, agreedToTerms: "" }));
-                      }}
-                    />
-                    <div>
-                      <Text size="sm">{t("agreeToTerms")}</Text>
-                      {errors.agreedToTerms && <Text size="sm" className="text-red-500 mt-2">{errors.agreedToTerms}</Text>}
-                    </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    {t("cnpjLabel")}
+                  </label>
+                  <Input
+                    name="cnpj"
+                    value={formData.cnpj}
+                    onChange={handleInputChange}
+                    hasError={!!errors.cnpj}
+                    placeholder="XX.XXX.XXX/0001-XX"
+                    maxLength={18}
+                  />
+                  {errors.cnpj && (
+                    <Text size="sm" className="text-red-500 mt-1">
+                      {errors.cnpj}
+                    </Text>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    {t("zipCodeLabel")}
+                  </label>
+                  <Input
+                    name="zipCode"
+                    value={formData.zipCode}
+                    onChange={handleInputChange}
+                    hasError={!!errors.zipCode}
+                  />
+                  {errors.zipCode && (
+                    <Text size="sm" className="text-red-500 mt-1">
+                      {errors.zipCode}
+                    </Text>
+                  )}
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium mb-2">
+                    {t("addressLabel")}
+                  </label>
+                  <Input
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    placeholder="Rua, número, bairro"
+                    hasError={!!errors.address}
+                  />
+                  {errors.address && (
+                    <Text size="sm" className="text-red-500 mt-1">
+                      {errors.address}
+                    </Text>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    {t("cityLabel")}
+                  </label>
+                  <Input
+                    name="city"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                    hasError={!!errors.city}
+                  />
+                  {errors.city && (
+                    <Text size="sm" className="text-red-500 mt-1">
+                      {errors.city}
+                    </Text>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    {t("stateLabel")}
+                  </label>
+                  <Input
+                    name="state"
+                    value={formData.state}
+                    onChange={handleInputChange}
+                    hasError={!!errors.state}
+                  />
+                  {errors.state && (
+                    <Text size="sm" className="text-red-500 mt-1">
+                      {errors.state}
+                    </Text>
+                  )}
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <div className="flex items-start gap-3">
+                  <Checkbox
+                    checked={formData.agreedToTerms}
+                    onCheckedChange={(checked) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        agreedToTerms: checked as boolean,
+                      }));
+                      if (errors.agreedToTerms)
+                        setErrors((prev) => ({ ...prev, agreedToTerms: "" }));
+                    }}
+                  />
+                  <div>
+                    <Text size="sm">{t("agreeToTerms")}</Text>
+                    {errors.agreedToTerms && (
+                      <Text size="sm" className="text-red-500 mt-2">
+                        {errors.agreedToTerms}
+                      </Text>
+                    )}
                   </div>
                 </div>
+              </div>
             </div>
           </div>
           <ModalFooter>
-            <ModalSecondaryButton onClick={() => setShowSignModal(false)} disabled={isSubmitting}>
+            <ModalSecondaryButton
+              onClick={() => setShowSignModal(false)}
+              disabled={isSubmitting}
+            >
               {t("cancel")}
             </ModalSecondaryButton>
-            <ModalPrimaryButton onClick={handleSignContract} disabled={!formData.agreedToTerms || isSubmitting}>
-               {isSubmitting ? t("signing") : t("signDigitally")}
+            <ModalPrimaryButton
+              onClick={handleSignContract}
+              disabled={!formData.agreedToTerms || isSubmitting}
+            >
+              {isSubmitting ? t("signing") : t("signDigitally")}
             </ModalPrimaryButton>
           </ModalFooter>
         </ModalContent>

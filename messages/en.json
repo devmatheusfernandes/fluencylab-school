@@ -29,6 +29,18 @@
     "twoFactorRequired": "2FA code is required. Enter the code.",
     "unauthorized": "Unauthorized. Please sign in again."
   },
+  "MyStudentsPage": {
+    "title": "My Students",
+    "searchPlaceholder": "Search your students...",
+    "errorLoading": "Error loading students. Please try again.",
+    "genericError": "Something went wrong",
+    "noResults": "No results found"
+  },
+  "NoResults": {
+    "withSearch": "No results found",
+    "withoutSearch": "No results available",
+    "adjustSearch": "Try adjusting your search or filter to find what you are looking for"
+  },
   "Theme": {
     "toggle": "Toggle theme",
     "light": "Light",
@@ -136,7 +148,8 @@
     "saturday": "Saturday",
     "dayAt": "day",
     "at": "at",
-    "noScheduledClasses": "No scheduled classes"
+    "noScheduledClasses": "No scheduled classes",
+    "userAlt": "User"
   },
   "UserRoles": {
     "admin": "Administrator",

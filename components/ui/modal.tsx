@@ -66,7 +66,7 @@ const ModalContent = React.forwardRef<
           >
             <Dialog.Content
               className={twMerge(
-                `relative w-full max-w-lg mx-4 mb-4 sm:mb-6
+                `relative w-full max-w-lg mx-4 mb-4 sm:mb-6 no-scrollbar
                 bg-white dark:bg-gray-900/95 
                 backdrop-blur-xl
                 rounded-2xl shadow-2xl

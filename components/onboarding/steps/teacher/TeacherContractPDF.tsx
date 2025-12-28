@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import "@/components/contract/Contrato.css";
-import { BankingInfo } from "./BankingInfoStep";
 
 interface TeacherContractPDFProps {
   teacherName: string;
   teacherCnpj: string;
-  teacherAddress?: string; // We might not have this in onboarding yet, but can be optional
+  teacherAddress?: string;
   teacherCity?: string;
   teacherState?: string;
   teacherZipCode?: string;
@@ -31,7 +30,6 @@ export const TeacherContractPDF: React.FC<TeacherContractPDFProps> = ({
   teacherAddress = "[ENDEREÇO DO MEI]",
   teacherCity,
   teacherState,
-  teacherZipCode,
   signedDate,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -40,6 +38,7 @@ export const TeacherContractPDF: React.FC<TeacherContractPDFProps> = ({
     setIsVisible(true);
   }, []);
 
+  //TODO: Get school name, CNPJ, and address from database 
   const schoolName = "Fluency Lab"; // Adjust if needed
   const schoolCNPJ = "47.603.142/0001-07"; // From student contract
   const schoolAddress = "Rua Vinte e Cinco de Julho, 20. Bairro Centro, Tunápolis - SC"; // From student contract
@@ -50,7 +49,7 @@ export const TeacherContractPDF: React.FC<TeacherContractPDFProps> = ({
         isVisible ? "opacity-100" : "opacity-0"
       }`}
     >
-      <div className="max-w-4xl mx-auto p-12 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 shadow-lg print:shadow-none print:rounded-none print:p-0 transition-colors duration-300">
+      <div className="no-scrollbar max-w-4xl mx-auto p-12 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 shadow-lg print:shadow-none print:rounded-none print:p-0 transition-colors duration-300">
         <h1 className="text-xl md:text-2xl font-bold text-center mb-6 pb-4 border-b border-gray-300 dark:border-gray-600">
           CONTRATO DE PRESTAÇÃO DE SERVIÇOS DE INSTRUTORIA EDUCACIONAL E
           PARCERIA COMERCIAL

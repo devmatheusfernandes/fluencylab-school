@@ -1,11 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { NoResults } from "@/components/ui/no-results";
 import { SearchBar } from "@/components/ui/search-bar";
 import StudentCard from "@/components/teacher/StudentCard";
 import { Skeleton } from "@/components/ui/skeleton";
-import ErrorAlert from "@/components/ui/error-alert";
 
 interface StudentWithNextClass {
   id: string;
@@ -19,6 +19,7 @@ interface StudentWithNextClass {
 }
 
 export default function MeusAlunos() {
+  const t = useTranslations("MyStudentsPage");
   const { data: session } = useSession();
   const [students, setStudents] = useState<StudentWithNextClass[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,7 +42,7 @@ export default function MeusAlunos() {
         setStudents(data);
       } catch (error: any) {
         console.error("Error fetching students:", error);
-        setError("Erro ao carregar os alunos. Por favor, tente novamente.");
+        setError(t("errorLoading"));
       } finally {
         setLoading(false);
       }
@@ -57,14 +58,14 @@ export default function MeusAlunos() {
   );
 
   if (error) {
-    return <NoResults customMessage={{ withoutSearch: "Algo deu errado" }} />;
+    return <NoResults customMessage={{ withoutSearch: t("genericError") }} />;
   }
 
   return (
     <div className="mx-1 sm:mx-0">
       {/* Search Bar */}
       <SearchBar
-        placeholder="Procure seus alunos..."
+        placeholder={t("searchPlaceholder")}
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
       />
@@ -81,7 +82,11 @@ export default function MeusAlunos() {
               <StudentCard key={student.id} student={student} />
             ))
           ) : (
-            <NoResults searchQuery={searchQuery} className="col-span-full" />
+            <NoResults
+              searchQuery={searchQuery}
+              customMessage={{ withSearch: t("noResults") }}
+              className="col-span-full"
+            />
           )}
         </div>
       </div>
