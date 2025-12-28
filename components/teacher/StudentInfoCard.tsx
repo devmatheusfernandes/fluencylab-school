@@ -1,34 +1,63 @@
-import { FlaskConicalIcon, FilePlusIcon, BookmarkIcon, PhoneCallIcon } from "lucide-react";
+import Image from "next/image";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
 interface StudentInfodivProps {
   isMobile: boolean;
   student: any;
 }
 
 export default function StudentInfodiv({
-  isMobile,
-  student,
+  isMobile
 }: StudentInfodivProps) {
   return (
-    <div className="flex flex-row w-full justify-between gap-2">
-      <div className="subcontainer-base flex flex-col items-center justify-center w-full h-full gap-1 p-4 rounded-xl">
-        <FlaskConicalIcon className="w-8 h-8 text-secondary" />
-        {!isMobile && <span className="text-secondary font-bold">Nivelamento</span>}
-      </div>
+    <div className="flex flex-row w-full justify-between gap-2 h-32">
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="subcontainer-base flex items-center justify-center w-full h-full rounded-xl relative cursor-pointer overflow-hidden">
+            <Image 
+              src="/images/icons/placement.png" 
+              alt="Nivelamento" 
+              fill
+              className="object-contain p-2"
+            />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Nivelamento</p>
+        </TooltipContent>
+      </Tooltip>
 
-      <div className="subcontainer-base flex flex-col items-center justify-center w-full h-full gap-1 p-4 rounded-xl">
-        <FilePlusIcon className="w-8 h-8 text-success" />
-        {!isMobile && <span className="text-success font-bold">Relatório</span>}
-      </div>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="subcontainer-base flex items-center justify-center w-full h-full rounded-xl relative cursor-pointer overflow-hidden">
+            <Image 
+              src="/images/icons/report.png" 
+              alt="Relatório" 
+              fill
+              className="object-contain p-2"
+            />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Relatório</p>
+        </TooltipContent>
+      </Tooltip>
 
-      <div className="subcontainer-base flex flex-col items-center justify-center w-full h-full gap-1 p-4 rounded-xl">
-        <BookmarkIcon className="w-8 h-8 text-info" />
-        {!isMobile && <span className="text-info font-bold">Badges</span>}
-      </div>
-
-      <div className="subcontainer-base flex flex-col items-center justify-center w-full h-full gap-1 p-4 rounded-xl">
-        <PhoneCallIcon className="w-8 h-8 text-primary" />
-        {!isMobile && <span className="text-primary font-bold">Chamada</span>}
-      </div>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="subcontainer-base flex items-center justify-center w-full h-full rounded-xl relative cursor-pointer overflow-hidden">
+            <Image 
+              src="/images/icons/badges.png" 
+              alt="Badges" 
+              fill
+              className="object-contain p-2"
+            />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Badges</p>
+        </TooltipContent>
+      </Tooltip>
     </div>
   );
 }

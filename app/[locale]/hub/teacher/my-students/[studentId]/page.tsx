@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useStudentPanel } from "@/hooks/useStudentPanel";
 import { ClassStatus } from "@/types/classes/class";
 
