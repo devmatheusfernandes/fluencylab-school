@@ -80,7 +80,7 @@ export default function StudentCard({ student }: StudentCardProps) {
         className="flex items-center space-x-4"
       >
         <Avatar size="lg">
-          <AvatarImage sizes="lg" src={student.avatarUrl || ""} alt="Usuário" />
+          <AvatarImage src={student.avatarUrl || ""} alt="Usuário" />
           <AvatarFallback name={student.name} />
         </Avatar>
 

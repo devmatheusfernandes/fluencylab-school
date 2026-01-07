@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useUsers } from "@/hooks/useUsers";
 import { UserRoles } from "@/types/users/userRoles";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import {
   Table,
@@ -47,7 +48,6 @@ export default function UserManagementTable() {
   } = useUsers();
   const {
     createUser,
-    isLoading: isCreatingUser,
     error: adminError,
     successMessage: adminSuccess,
   } = useAdmin();
@@ -56,6 +56,8 @@ export default function UserManagementTable() {
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const t = useTranslations("UserManagement");
+  const tRoles = useTranslations("UserRoles");
 
   // Efeito para buscar os dados quando os filtros mudam
   useEffect(() => {
@@ -104,13 +106,13 @@ export default function UserManagementTable() {
           <ButtonGroup>
           <Select value={roleFilter} onValueChange={setRoleFilter}>
           <SelectTrigger className="w-full md:w-[200px]">
-            <SelectValue placeholder="Filtrar por Papel" />
+            <SelectValue placeholder={t("filterByRole")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos os Papéis</SelectItem>
+            <SelectItem value="all">{t("allRoles")}</SelectItem>
             {Object.values(UserRoles).map((role) => (
               <SelectItem key={role} value={role}>
-                {role}
+                {tRoles(role)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -118,12 +120,12 @@ export default function UserManagementTable() {
 
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-full md:w-[180px]">
-            <SelectValue placeholder="Filtrar por Status" />
+            <SelectValue placeholder={t("filterByStatus")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos os Status</SelectItem>
-            <SelectItem value="active">Ativos</SelectItem>
-            <SelectItem value="inactive">Inativos</SelectItem>
+            <SelectItem value="all">{t("allStatus")}</SelectItem>
+            <SelectItem value="active">{t("active")}</SelectItem>
+            <SelectItem value="inactive">{t("inactive")}</SelectItem>
           </SelectContent>
         </Select>
         </ButtonGroup>
@@ -133,9 +135,7 @@ export default function UserManagementTable() {
             onClick={() => setIsAddModalOpen(true)}
           />
           </Button>
-        </div>
-
-        
+        </div>        
       </div>
 
       {isLoadingUsers && <Spinner />}
@@ -145,10 +145,10 @@ export default function UserManagementTable() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-subtitle">Usuário</TableHead>
-                <TableHead className="text-subtitle">Tipo</TableHead>
+                <TableHead className="text-subtitle">{t("user")}</TableHead>
+                <TableHead className="text-subtitle">{t("type")}</TableHead>
                 <TableHead className="text-right">
-                  Ações
+                  {t("actions")}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -177,34 +177,34 @@ export default function UserManagementTable() {
                   </TableCell>
                   <TableCell>
                     <Badge variant="secondary" >
-                      <span className="capitalize">{user.role}</span>
+                      <span className="capitalize">{tRoles(user.role)}</span>
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="glass" className="h-8 w-8 p-0">
-                          <span className="sr-only">Abrir menu</span>
+                          <span className="sr-only">{t("openMenu")}</span>
                           <EllipsisVertical className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                        <DropdownMenuLabel>{t("actions")}</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onSelect={() =>
                             updateUserStatus(user.id, !user.isActive)
                           }
                         >
-                          {user.isActive ? "Desativar" : "Reativar"}
+                          {user.isActive ? t("deactivate") : t("reactivate")}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onSelect={() => handleRowClick(user.id, user.name)}
                         >
-                          Editar Perfil
+                          {t("editProfile")}
                         </DropdownMenuItem>
                         <DropdownMenuItem className="text-destructive hover:bg-destructive/20! hover:text-destructive!">
-                          Deletar
+                          {t("delete")}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

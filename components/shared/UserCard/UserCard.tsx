@@ -41,7 +41,7 @@ const UserCard: React.FC<UserCardProps> = ({
         )}
       >
         <Avatar size="xl">
-          <AvatarImage sizes="xl" src={user.avatar || ""} alt="Usuário" />
+          <AvatarImage src={user.avatar || ""} alt="Usuário" />
           <AvatarFallback name={user.name} />
         </Avatar>
         <div className="flex-1 min-w-0">
@@ -66,7 +66,7 @@ const UserCard: React.FC<UserCardProps> = ({
       <div className={twMerge("relative group", className)}>
         <div className="flex items-center justify-center p-2">
           <Avatar size="sm">
-            <AvatarImage sizes="sm" src={user.avatar || ""} alt="Usuário" />
+            <AvatarImage src={user.avatar || ""} alt="Usuário" />
             <AvatarFallback name={user.name} />
           </Avatar>
         </div>
@@ -75,13 +75,13 @@ const UserCard: React.FC<UserCardProps> = ({
   }
 
   return (
-    <div className={twMerge("flex items-center gap-3 p-3", className)}>
-      <Avatar>
-        <AvatarImage sizes="lg" src={user.avatar || ""} alt="Usuário" />
+    <div className={twMerge("flex items-center gap-3 p-2.5", className)}>
+      <Avatar size="md">
+        <AvatarImage src={user.avatar || ""} alt="Usuário" />
         <AvatarFallback name={user.name} />
       </Avatar>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium title-base truncate capitalize">{user.name}</p>
+        <p className="text-sm font-medium title-base truncate capitalize">{user.name.split(" ")[0]}</p>
         <p className="text-xs text-paragraph truncate">{userRoleLabel}</p>
       </div>
       {onLogout && (

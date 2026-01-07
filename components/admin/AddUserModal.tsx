@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { UserRoles } from "@/types/users/userRoles";
+import { useTranslations } from "next-intl";
 import {
   Modal,
   ModalBody,
@@ -55,6 +56,9 @@ export default function AddUserModal({
   onUserCreated,
   isLoading,
 }: AddUserModalProps) {
+  const t = useTranslations("UserManagement");
+  const tRoles = useTranslations("UserRoles");
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState(UserRoles.TEACHER);
@@ -94,54 +98,53 @@ export default function AddUserModal({
       if (isUserMinor && role !== UserRoles.GUARDED_STUDENT) {
         setRole(UserRoles.GUARDED_STUDENT);
         toast.info(
-          "Role automaticamente ajustado",
+          t("minor.roleAdjustedTitle"),
           {
-            description:
-              "Menor de idade detectado - role alterado para Estudante Tutelado. Apenas estudantes tutelados são permitidos para menores de 18 anos.",
+            description: t("minor.roleAdjustedDesc"),
           }
         );
       }
     }
-  }, [birthDate, role, toast]);
+  }, [birthDate, role, toast, t]);
 
   // Validation function
   const validateForm = (): boolean => {
     const errors: string[] = [];
 
-    if (!name.trim()) errors.push("Nome é obrigatório");
+    if (!name.trim()) errors.push(t("validation.nameRequired"));
 
     // For guarded students (minors), email is optional as they use guardian's email
     // For other roles, email is required
     if (!isMinor || role !== UserRoles.GUARDED_STUDENT) {
-      if (!email.trim()) errors.push("Email é obrigatório");
+      if (!email.trim()) errors.push(t("validation.emailRequired"));
     }
 
-    if (!birthDate) errors.push("Data de nascimento é obrigatória");
+    if (!birthDate) errors.push(t("validation.birthDateRequired"));
 
     // Validate age restriction for non-guarded students
     if (birthDate) {
       const age = calculateAge(birthDate);
       if (age < 18 && role !== UserRoles.GUARDED_STUDENT) {
         errors.push(
-          "Usuários menores de 18 anos só podem ser estudantes tutelados"
+          t("validation.underageRestriction")
         );
       }
     }
 
     if (isMinor && role === UserRoles.GUARDED_STUDENT) {
       if (!guardianName.trim())
-        errors.push("Nome do responsável é obrigatório para menores");
+        errors.push(t("validation.guardianNameRequired"));
       if (!guardianEmail.trim())
-        errors.push("Email do responsável é obrigatório para menores");
+        errors.push(t("validation.guardianEmailRequired"));
     }
 
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (email && !emailRegex.test(email)) {
-      errors.push("Email do estudante deve ter formato válido");
+      errors.push(t("validation.emailInvalid"));
     }
     if (guardianEmail && !emailRegex.test(guardianEmail)) {
-      errors.push("Email do responsável deve ter formato válido");
+      errors.push(t("validation.guardianEmailInvalid"));
     }
 
     setValidationErrors(errors);
@@ -153,18 +156,18 @@ export default function AddUserModal({
 
     if (!validateForm()) {
       toast.error(
-        "Erro de validação",
+        t("validation.errorTitle"),
         {
-          description: "Por favor, corrija os erros antes de continuar",
+          description: t("validation.errorDescription"),
         }
       );
       return;
     }
 
     toast.info(
-      "Criando usuário...",
+      t("toasts.creatingUser"),
       {
-        description: "Por favor aguarde enquanto processamos a solicitação",
+        description: t("toasts.processing"),
       }
     );
 
@@ -240,9 +243,9 @@ export default function AddUserModal({
       <ModalContent>
         <ModalIcon type="success" />
         <ModalHeader>
-          <ModalTitle>Criar Novo Usuário</ModalTitle>
+          <ModalTitle>{t("createUserTitle")}</ModalTitle>
           <ModalDescription>
-            Um e-mail será enviado para o utilizador definir a sua senha.
+            {t("createUserDescription")}
           </ModalDescription>
           <ModalClose />
         </ModalHeader>
@@ -262,26 +265,26 @@ export default function AddUserModal({
               </Alert>
             )}
 
-            <ModalField label="Nome Completo" required>
+            <ModalField label={t("fullName")} required>
               <ModalInput
                 value={name}
                 onChange={(e) => setName((e.target as HTMLInputElement).value)}
-                placeholder="e.g., João Silva"
+                placeholder={t("fullNamePlaceholder")}
                 required
               />
             </ModalField>
 
-            <ModalField label="Data de Nascimento" required>
+            <ModalField label={t("birthDate")} required>
               <DatePicker
                 value={birthDate}
                 onChange={(date) => setBirthDate(date)}
-                placeholder="Selecione a data de nascimento"
+                placeholder={t("birthDatePlaceholder")}
                 maxDate={new Date()}
                 required
               />
             </ModalField>
 
-            <ModalField label="Tipo" required>
+            <ModalField label={t("type")} required>
               <Select
                 value={role}
                 onValueChange={(value) => setRole(value as UserRoles)}
@@ -292,19 +295,7 @@ export default function AddUserModal({
                 <SelectContent>
                   {Object.values(UserRoles).map((roleValue) => (
                     <SelectItem key={roleValue} value={roleValue}>
-                      {roleValue === UserRoles.GUARDED_STUDENT
-                        ? "Estudante Tutelado"
-                        : roleValue === UserRoles.STUDENT
-                          ? "Estudante"
-                          : roleValue === UserRoles.TEACHER
-                            ? "Professor"
-                            : roleValue === UserRoles.ADMIN
-                              ? "Administrador"
-                              : roleValue === UserRoles.MANAGER
-                                ? "Gestor"
-                                : roleValue === UserRoles.MATERIAL_MANAGER
-                                  ? "Gestor de Material"
-                                  : roleValue}
+                      {tRoles(roleValue)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -313,14 +304,14 @@ export default function AddUserModal({
 
             {/* Student Email - Only show if not a minor or not a guarded student */}
             {!(isMinor && role === UserRoles.GUARDED_STUDENT) && (
-              <ModalField label="Email" required>
+              <ModalField label={t("email")} required>
                 <ModalInput
                   type="email"
                   value={email}
                   onChange={(e) =>
                     setEmail((e.target as HTMLInputElement).value)
                   }
-                  placeholder="e.g., joao.silva@email.com"
+                  placeholder={t("emailPlaceholder")}
                   required
                 />
               </ModalField>
@@ -331,10 +322,10 @@ export default function AddUserModal({
               <Alert className="mb-4">
                 <Info className="h-4 w-4" />
                 <AlertDescription>
-                  <strong>Menor de idade detectado!</strong>
+                  <strong>{t("minor.detectedTitle")}</strong>
                   {role === UserRoles.GUARDED_STUDENT
-                    ? " O email do responsável será usado como email principal da conta."
-                    : " Considere alterar o role para 'Estudante Tutelado' se necessário."}
+                    ? ` ${t("minor.guardedStudentEmailNotice")}`
+                    : ` ${t("minor.considerChangingRole")}`}
                 </AlertDescription>
               </Alert>
             )}
@@ -344,11 +335,11 @@ export default function AddUserModal({
                 <div className="border-t pt-4 mt-4">
                   <h3 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
                     <Info className="h-4 w-4" />
-                    Dados do Responsável
+                    {t("minor.guardianData")}
                   </h3>
                 </div>
 
-                <ModalField label="Nome do Responsável" required>
+                <ModalField label={t("minor.guardianName")} required>
                   <ModalInput
                     value={guardianName}
                     onChange={(e) =>
@@ -359,7 +350,7 @@ export default function AddUserModal({
                   />
                 </ModalField>
 
-                <ModalField label="Email do Responsável" required>
+                <ModalField label={t("minor.guardianEmail")} required>
                   <ModalInput
                     type="email"
                     value={guardianEmail}
@@ -371,7 +362,7 @@ export default function AddUserModal({
                   />
                 </ModalField>
 
-                <ModalField label="Telefone do Responsável">
+                <ModalField label={t("minor.guardianPhone")}>
                   <ModalInput
                     type="tel"
                     value={guardianPhone}
@@ -382,25 +373,25 @@ export default function AddUserModal({
                   />
                 </ModalField>
 
-                <ModalField label="Parentesco">
+                <ModalField label={t("minor.relationship")}>
                   <Select
                     value={guardianRelationship}
                     onValueChange={setGuardianRelationship}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione o parentesco" />
+                      <SelectValue placeholder={t("minor.relationshipPlaceholder")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="pai">Pai</SelectItem>
-                      <SelectItem value="mãe">Mãe</SelectItem>
+                      <SelectItem value="pai">{t("relationships.father")}</SelectItem>
+                      <SelectItem value="mãe">{t("relationships.mother")}</SelectItem>
                       <SelectItem value="responsável legal">
-                        Responsável Legal
+                        {t("relationships.legalGuardian")}
                       </SelectItem>
-                      <SelectItem value="avô">Avô</SelectItem>
-                      <SelectItem value="avó">Avó</SelectItem>
-                      <SelectItem value="tio">Tio</SelectItem>
-                      <SelectItem value="tia">Tia</SelectItem>
-                      <SelectItem value="outro">Outro</SelectItem>
+                      <SelectItem value="avô">{t("relationships.grandfather")}</SelectItem>
+                      <SelectItem value="avó">{t("relationships.grandmother")}</SelectItem>
+                      <SelectItem value="tio">{t("relationships.uncle")}</SelectItem>
+                      <SelectItem value="tia">{t("relationships.aunt")}</SelectItem>
+                      <SelectItem value="outro">{t("relationships.other")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </ModalField>
@@ -409,9 +400,7 @@ export default function AddUserModal({
                 <Alert className="mt-4">
                   <Info className="h-4 w-4" />
                   <AlertDescription>
-                    <strong>Importante:</strong> O email do responsável será
-                    usado como email principal da conta. O estudante poderá
-                    acessar a plataforma através deste email.
+                    <strong>{t("minor.importantNotice")}</strong> {t("minor.emailUsageNotice")}
                   </AlertDescription>
                 </Alert>
               </>
@@ -423,10 +412,10 @@ export default function AddUserModal({
               onClick={onClose}
               disabled={isLoading}
             >
-              Cancelar
+              {t("cancel")}
             </ModalSecondaryButton>
             <ModalPrimaryButton type="submit" disabled={isLoading}>
-              {isLoading ? <Spinner /> : "Criar Usuário"}{" "}
+              {isLoading ? <Spinner /> : t("createUser")}{" "}
               <Plus className="w-6 h-6" />
             </ModalPrimaryButton>
           </ModalFooter>

@@ -1,5 +1,7 @@
 import { ArrowLeft, ArrowRight, Calendar, X } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { useTranslations } from "next-intl";
+import { daysOfWeek, months } from "@/types/time/times";
 
 interface DatePickerProps {
   value?: Date | null;
@@ -15,33 +17,39 @@ interface DatePickerProps {
 export default function DatePicker({
   value,
   onChange,
-  placeholder = "Select date",
+  placeholder,
   minDate = null,
   maxDate = null,
   disabled = false,
   size = "default",
 }: DatePickerProps) {
+  const t = useTranslations("DatePicker");
+  const tMonths = useTranslations("Months");
+  const tWeekdays = useTranslations("Weekdays");
+  
   const [isOpen, setIsOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(value || null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const months = [
-    "Janeiro",
-    "Fevereiro",
-    "Março",
-    "Abril",
-    "Maio",
-    "Junho",
-    "Julho",
-    "Agosto",
-    "Setembro",
-    "Outubro",
-    "Novembro",
-    "Dezembro",
+    "january",
+    "february",
+    "march",
+    "april",
+    "may",
+    "june",
+    "july",
+    "august",
+    "september",
+    "october",
+    "november",
+    "december",
   ];
 
-  const weekdays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+  const weekdays = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+
+  const resolvedPlaceholder = placeholder || t("selectDate");
 
   const sizeClasses = {
     sm: {
@@ -197,7 +205,7 @@ export default function DatePicker({
           type="text"
           readOnly
           value={formatDate(selectedDate)}
-          placeholder={placeholder}
+          placeholder={resolvedPlaceholder}
           disabled={disabled}
           onClick={() => !disabled && setIsOpen(true)}
           className={`
@@ -257,7 +265,7 @@ export default function DatePicker({
             {/* Header with Close Button */}
             <div className="flex items-center justify-between px-6 pb-4">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                Selecione a data
+                {t("selectDate")}
               </h3>
               <button
                 onClick={handleClose}
@@ -293,7 +301,7 @@ export default function DatePicker({
               </div>
 
               <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                {months[currentDate.getMonth()]} {currentDate.getFullYear()}
+                {tMonths(months[currentDate.getMonth()])} {currentDate.getFullYear()}
               </div>
 
               <div className="flex items-center gap-2">
@@ -321,13 +329,13 @@ export default function DatePicker({
 
             {/* Weekday Headers */}
             <div className="grid grid-cols-7 px-6 pb-2">
-              {weekdays.map((day) => (
+              {daysOfWeek.map((day) => (
                 <div
                   key={day}
                   className="p-3 text-center text-sm font-semibold 
                              text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                 >
-                  {day}
+                  {tWeekdays(day)}
                 </div>
               ))}
             </div>
@@ -394,7 +402,7 @@ export default function DatePicker({
                            hover:border-blue-300/70 dark:hover:border-blue-500/70
                            active:scale-95 touch-manipulation"
               >
-                Hoje
+                {t("today")}
               </button>
               <button
                 type="button"
@@ -407,7 +415,7 @@ export default function DatePicker({
                            hover:border-gray-300/70 dark:hover:border-gray-500/70
                            active:scale-95 touch-manipulation"
               >
-                Cancelar
+                {t("cancel")}
               </button>
             </div>
           </div>

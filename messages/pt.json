@@ -274,5 +274,91 @@
   },
   "AdminClassDetails": {
     "statusLabel": "Status"
+  },
+  "Weekdays": {
+    "sunday": "Dom",
+    "monday": "Seg",
+    "tuesday": "Ter",
+    "wednesday": "Qua",
+    "thursday": "Qui",
+    "friday": "Sex",
+    "saturday": "Sáb"
+  },
+  "DatePicker": {
+    "selectDate": "Selecione a data",
+    "today": "Hoje",
+    "cancel": "Cancelar"
+  },
+  "UserManagement": {
+    "filterByRole": "Filtrar por Papel",
+    "allRoles": "Todos os Papéis",
+    "filterByStatus": "Filtrar por Status",
+    "allStatus": "Todos os Status",
+    "active": "Ativos",
+    "inactive": "Inativos",
+    "user": "Usuário",
+    "type": "Tipo",
+    "actions": "Ações",
+    "openMenu": "Abrir menu",
+    "deactivate": "Desativar",
+    "reactivate": "Reativar",
+    "editProfile": "Editar Perfil",
+    "delete": "Deletar",
+    "createUserTitle": "Criar Novo Usuário",
+    "createUserDescription": "Um e-mail será enviado para o utilizador definir a sua senha.",
+    "cancel": "Cancelar",
+    "createUser": "Criar Usuário",
+    "fullName": "Nome Completo",
+    "fullNamePlaceholder": "e.g., João Silva",
+    "birthDate": "Data de Nascimento",
+    "birthDatePlaceholder": "Selecione a data de nascimento",
+    "email": "Email",
+    "emailPlaceholder": "e.g., joao.silva@email.com",
+    "role": "Tipo",
+    "validation": {
+      "nameRequired": "Nome é obrigatório",
+      "emailRequired": "Email é obrigatório",
+      "birthDateRequired": "Data de nascimento é obrigatória",
+      "underageRestriction": "Usuários menores de 18 anos só podem ser estudantes tutelados",
+      "guardianNameRequired": "Nome do responsável é obrigatório para menores",
+      "guardianEmailRequired": "Email do responsável é obrigatório para menores",
+      "emailInvalid": "Email do estudante deve ter formato válido",
+      "guardianEmailInvalid": "Email do responsável deve ter formato válido",
+      "errorTitle": "Erro de validação",
+      "errorDescription": "Por favor, corrija os erros antes de continuar"
+    },
+    "minor": {
+      "detectedTitle": "Menor de idade detectado!",
+      "roleAdjustedTitle": "Role automaticamente ajustado",
+      "roleAdjustedDesc": "Menor de idade detectado - role alterado para Estudante Tutelado. Apenas estudantes tutelados são permitidos para menores de 18 anos.",
+      "guardedStudentEmailNotice": "O email do responsável será usado como email principal da conta.",
+      "considerChangingRole": "Considere alterar o role para 'Estudante Tutelado' se necessário.",
+      "guardianData": "Dados do Responsável",
+      "guardianName": "Nome do Responsável",
+      "guardianEmail": "Email do Responsável",
+      "guardianPhone": "Telefone do Responsável",
+      "relationship": "Parentesco",
+      "relationshipPlaceholder": "Selecione o parentesco",
+      "importantNotice": "Importante:",
+      "emailUsageNotice": "O email do responsável será usado como email principal da conta. O estudante poderá acessar a plataforma através deste email."
+    },
+    "relationships": {
+      "father": "Pai",
+      "mother": "Mãe",
+      "legalGuardian": "Responsável Legal",
+      "grandfather": "Avô",
+      "grandmother": "Avó",
+      "uncle": "Tio",
+      "aunt": "Tia",
+      "other": "Outro"
+    },
+    "toasts": {
+      "creatingUser": "Criando usuário...",
+      "processing": "Por favor aguarde enquanto processamos a solicitação",
+      "successTitle": "Usuário criado com sucesso!",
+      "successDesc": "Um email foi enviado para {email} com as instruções de acesso",
+      "errorTitle": "Erro ao criar usuário",
+      "unexpectedError": "Ocorreu um erro inesperado"
+    }
   }
 }

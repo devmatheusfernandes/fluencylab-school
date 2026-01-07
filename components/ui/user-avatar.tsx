@@ -22,9 +22,8 @@ export function UserAvatar({
       <AvatarImage
         src={src || ""}
         alt={alt || name || "User avatar"}
-        size={size}
       />
-      <AvatarFallback className="" size={size} name={name || undefined}>
+      <AvatarFallback className="" name={name || undefined}>
         {fallback}
       </AvatarFallback>
     </Avatar>

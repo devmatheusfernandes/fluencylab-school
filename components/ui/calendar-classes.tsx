@@ -7,6 +7,7 @@ import { Text } from "./text";
 import { daysOfWeek, months } from "@/types/time/times";
 import { CalendarEvent, CalendarView } from "@/types/calendar/calendar";
 import { ArrowLeft, ArrowRight, PlusIcon, Calendar as CalendarIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export interface CalendarProps {
   events?: CalendarEvent[];
@@ -127,6 +128,9 @@ export const Calendar: React.FC<CalendarProps> = ({
 }) => {
   const detectedMobile = useIsMobile();
   const isMobile = forceMobile ?? detectedMobile;
+  const tMonths = useTranslations("Months");
+  const tDays = useTranslations("Days");
+  const tWeekdays = useTranslations("Weekdays");
 
   const [currentDate, setCurrentDate] = React.useState(() => {
     return selectedDate || new Date();
@@ -195,11 +199,11 @@ export const Calendar: React.FC<CalendarProps> = ({
       const startDate = weekDates[0];
       const endDate = weekDates[6];
       return `${startDate.getDate()} ${
-        months[startDate.getMonth()]
-      } - ${endDate.getDate()} ${months[endDate.getMonth()]} ${currentYear}`;
+        tMonths(months[startDate.getMonth()])
+      } - ${endDate.getDate()} ${tMonths(months[endDate.getMonth()])} ${currentYear}`;
     } else if (currentView === "day") {
       return `${currentDate.getDate()} ${
-        months[currentDate.getMonth()]
+        tMonths(months[currentDate.getMonth()])
       } ${currentYear}`;
     }
     return "";
@@ -547,7 +551,7 @@ export const Calendar: React.FC<CalendarProps> = ({
                 size="sm"
                 className="font-bold text-slate-900 dark:text-slate-100"
               >
-                {daysOfWeek[date.getDay()]}
+                {tDays(daysOfWeek[date.getDay()])}
               </Text>
               <Text
                 size="xs"

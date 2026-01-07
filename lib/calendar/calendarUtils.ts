@@ -4,7 +4,6 @@ import {
   AvailabilityException,
 } from "@/types/time/availability";
 import {
-  StudentClass,
   ClassStatus,
   PopulatedStudentClass,
 } from "@/types/classes/class";

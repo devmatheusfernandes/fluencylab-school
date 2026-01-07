@@ -274,5 +274,92 @@
   },
   "AdminClassDetails": {
     "statusLabel": "Status"
+  },
+  "Weekdays": {
+    "sunday": "Sun",
+    "monday": "Mon",
+    "tuesday": "Tue",
+    "wednesday": "Wed",
+    "thursday": "Thu",
+    "friday": "Fri",
+    "saturday": "Sat"
+  },
+  "DatePicker": {
+    "selectDate": "Select date",
+    "today": "Today",
+    "cancel": "Cancel",
+    "pickDate": "Pick a date"
+  },
+  "UserManagement": {
+    "filterByRole": "Filter by Role",
+    "allRoles": "All Roles",
+    "filterByStatus": "Filter by Status",
+    "allStatus": "All Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "user": "User",
+    "type": "Type",
+    "actions": "Actions",
+    "openMenu": "Open menu",
+    "deactivate": "Deactivate",
+    "reactivate": "Reactivate",
+    "editProfile": "Edit Profile",
+    "delete": "Delete",
+    "createUserTitle": "Create New User",
+    "createUserDescription": "An email will be sent to the user to set their password.",
+    "cancel": "Cancel",
+    "createUser": "Create User",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "e.g., John Doe",
+    "birthDate": "Date of Birth",
+    "birthDatePlaceholder": "Select date of birth",
+    "email": "Email",
+    "emailPlaceholder": "e.g., john.doe@email.com",
+    "role": "Role",
+    "validation": {
+      "nameRequired": "Name is required",
+      "emailRequired": "Email is required",
+      "birthDateRequired": "Date of birth is required",
+      "underageRestriction": "Users under 18 can only be guarded students",
+      "guardianNameRequired": "Guardian name is required for minors",
+      "guardianEmailRequired": "Guardian email is required for minors",
+      "emailInvalid": "Student email must be valid",
+      "guardianEmailInvalid": "Guardian email must be valid",
+      "errorTitle": "Validation Error",
+      "errorDescription": "Please fix the errors before continuing"
+    },
+    "minor": {
+      "detectedTitle": "Minor detected!",
+      "roleAdjustedTitle": "Role automatically adjusted",
+      "roleAdjustedDesc": "Minor detected - role changed to Guarded Student. Only guarded students are allowed for users under 18.",
+      "guardedStudentEmailNotice": "Guardian email will be used as the primary account email.",
+      "considerChangingRole": "Consider changing role to 'Guarded Student' if necessary.",
+      "guardianData": "Guardian Data",
+      "guardianName": "Guardian Name",
+      "guardianEmail": "Guardian Email",
+      "guardianPhone": "Guardian Phone",
+      "relationship": "Relationship",
+      "relationshipPlaceholder": "Select relationship",
+      "importantNotice": "Important:",
+      "emailUsageNotice": "The guardian's email will be used as the primary account email. The student will be able to access the platform through this email."
+    },
+    "relationships": {
+      "father": "Father",
+      "mother": "Mother",
+      "legalGuardian": "Legal Guardian",
+      "grandfather": "Grandfather",
+      "grandmother": "Grandmother",
+      "uncle": "Uncle",
+      "aunt": "Aunt",
+      "other": "Other"
+    },
+    "toasts": {
+      "creatingUser": "Creating user...",
+      "processing": "Please wait while we process the request",
+      "successTitle": "User created successfully!",
+      "successDesc": "An email was sent to {email} with access instructions",
+      "errorTitle": "Error creating user",
+      "unexpectedError": "An unexpected error occurred"
+    }
   }
 }

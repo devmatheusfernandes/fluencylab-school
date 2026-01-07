@@ -61,11 +61,10 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({
           <div className="relative">
             <Avatar size="xl">
               <AvatarImage
-                size="xl"
                 src={user?.avatarUrl || ""}
                 alt={user?.name || t("profilePicture")}
               />
-              <AvatarFallback size="xl" />
+              <AvatarFallback />
             </Avatar>
             <button
               onClick={handleAvatarClick}

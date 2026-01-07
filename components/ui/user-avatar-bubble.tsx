@@ -19,11 +19,10 @@ export function UserAvatarBubble(props: AvatarProps) {
       <AvatarImage
         src={userProfile?.avatarUrl || user?.image || ""}
         alt={userProfile?.name || user?.name || "User avatar"}
-        size="xs"
         className="self-center align-center"
 
       />
-      <AvatarFallback size="sm" name={userProfile?.name || user?.name || undefined} />
+      <AvatarFallback name={userProfile?.name || user?.name || undefined} />
     </Avatar>
   )
 }
