@@ -97,15 +97,24 @@ export class ContractRepository {
   ): Promise<void> {
     try {
       const userRef = adminDb.collection(this.USERS_COLLECTION).doc(userId);
-      await userRef.update({
+      
+      const updates: any = {
         ContratosAssinados: {
           ...status,
           isValid: this.isContractValid(status.signedAt),
-          expiresAt: status.signedAt
+          expiresAt: status.expiresAt || (status.signedAt
             ? this.calculateExpirationDate(status.signedAt)
-            : null,
+            : null),
         },
-      });
+      };
+
+      // Also update root fields if signedAt is present to ensure UserOverviewTab works correctly
+      if (status.signedAt) {
+        updates.contractStartDate = new Date(status.signedAt);
+        updates.contractLengthMonths = this.CONTRACT_VALIDITY_MONTHS;
+      }
+
+      await userRef.update(updates);
     } catch (error) {
       console.error("Error updating contract status:", error);
       throw error;

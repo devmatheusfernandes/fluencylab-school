@@ -28,13 +28,18 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
   const t = useTranslations("UserRoles");
   const [name, setName] = useState(user.name);
   const [role, setRole] = useState(user.role);
-  const [contractStartDate, setContractStartDate] = useState(
-    user.contractStartDate
-      ? new Date(user.contractStartDate).toISOString().split("T")[0]
-      : ""
-  );
+
+  // Fallback to ContratosAssinados if contractStartDate is missing
+  const signedAt = (user as any).ContratosAssinados?.signedAt;
+  const initialStartDate = user.contractStartDate
+    ? new Date(user.contractStartDate).toISOString().split("T")[0]
+    : signedAt
+    ? new Date(signedAt).toISOString().split("T")[0]
+    : "";
+
+  const [contractStartDate, setContractStartDate] = useState(initialStartDate);
   const [contractLengthMonths, setContractLengthMonths] = useState(
-    user.contractLengthMonths || ""
+    user.contractLengthMonths || (signedAt ? 6 : "")
   );
   const [ratePerClassReais, setRatePerClassReais] = useState<number | undefined>(
     user.ratePerClassCents != null ? user.ratePerClassCents / 100 : undefined
