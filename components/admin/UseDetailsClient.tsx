@@ -1,6 +1,4 @@
 "use client";
-
-import { Text } from "@/components/ui/text";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FullUserDetails } from "@/types/users/user-details";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";

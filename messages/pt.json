@@ -290,6 +290,7 @@
     "cancel": "Cancelar"
   },
   "UserManagement": {
+    "searchPlaceholder": "Buscar usuários...",
     "filterByRole": "Filtrar por Papel",
     "allRoles": "Todos os Papéis",
     "filterByStatus": "Filtrar por Status",

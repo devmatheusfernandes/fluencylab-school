@@ -68,7 +68,7 @@ const getButtonClasses = ({
   "variant" | "size" | "fullWidth" | "animation"
 >): string => {
   const baseClasses =
-    "inline-flex items-center justify-center gap-2 rounded-lg font-medium border transition-all duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none shadow-sm hover:shadow-md";
+    "inline-flex items-center justify-center gap-2 rounded-lg font-medium border transition-all duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none";
 
   // Animation classes
   const animationClasses = {
@@ -86,19 +86,19 @@ const getButtonClasses = ({
     destructive:
       "bg-destructive border-destructive text-white focus-visible:ring-destructive hover:opacity-95",
     warning:
-      "bg-yellow-500 border-yellow-500 text-white hover:bg-yellow-600 hover:border-yellow-600 focus-visible:ring-yellow-500 shadow-yellow-500/25 hover:shadow-yellow-500/40",
+      "bg-yellow-500 border-yellow-500 text-white hover:bg-yellow-600 hover:border-yellow-600 focus-visible:ring-yellow-500",
     success:
-      "bg-teal-600 border-teal-600 text-white hover:bg-teal-700 hover:border-teal-700 focus-visible:ring-teal-500 shadow-teal-500/25 hover:shadow-teal-500/40",
-    info: "bg-cyan-600 border-cyan-600 text-white hover:bg-cyan-700 hover:border-cyan-700 focus-visible:ring-cyan-500 shadow-cyan-500/25 hover:shadow-cyan-500/40",
+      "bg-teal-600 border-teal-600 text-white hover:bg-teal-700 hover:border-teal-700 focus-visible:ring-teal-500",
+    info: "bg-cyan-600 border-cyan-600 text-white hover:bg-cyan-700 hover:border-cyan-700 focus-visible:ring-cyan-500",
     ghost:
       "bg-transparent border-transparent text-foreground hover:bg-muted hover:text-foreground focus-visible:ring-ring",
     outline:
       "bg-transparent border-border text-foreground hover:bg-muted focus-visible:ring-ring",
     glass:
-      "bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20 hover:border-white/30 focus-visible:ring-white/50 shadow-lg",
-    link: "bg-transparent border-transparent text-blue-600 underline-offset-4 hover:underline focus-visible:ring-blue-500 dark:text-blue-400 p-0 h-auto shadow-none hover:shadow-none",
+      "bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20 hover:border-white/30 focus-visible:ring-white/50",
+    link: "bg-transparent border-transparent text-blue-600 underline-offset-4 hover:underline focus-visible:ring-blue-500 dark:text-blue-400 p-0 h-auto",
     gradient:
-      "bg-gradient-to-r from-blue-600 to-purple-600 border-transparent text-white hover:from-blue-700 hover:to-purple-700 focus-visible:ring-purple-500 shadow-purple-500/25 hover:shadow-purple-500/40",
+      "bg-gradient-to-r from-blue-600 to-purple-600 border-transparent text-white hover:from-blue-700 hover:to-purple-700 focus-visible:ring-purple-500",
   };
 
   const sizeClasses = {

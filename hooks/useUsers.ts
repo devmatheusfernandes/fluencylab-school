@@ -6,6 +6,7 @@ import { User } from "@/types/users/users";
 interface UserFilters {
   role?: string;
   isActive?: boolean;
+  search?: string;
 }
 
 export const useUsers = () => {
@@ -20,7 +21,10 @@ export const useUsers = () => {
     try {
       const params = new URLSearchParams();
       if (filters.role) params.append('role', filters.role);
-      if (filters.isActive !== undefined) params.append('isActive', String(filters.isActive));
+      if (filters.isActive !== undefined) {
+        params.append('status', filters.isActive ? 'active' : 'inactive');
+      }
+      if (filters.search) params.append('search', filters.search);
 
       const response = await fetch(`/api/admin/users?${params.toString()}`);
       if (!response.ok) throw new Error("Falha ao buscar usuários.");
