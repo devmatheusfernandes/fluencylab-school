@@ -8,7 +8,8 @@ import { motion } from "framer-motion";
 import { 
   Save, Plus, Edit2, Trash2, ChevronUp, ChevronDown, 
   Loader2, BookOpen, HelpCircle, ImageIcon, UploadCloud, 
-  LayoutList, Clock, Globe, Shield 
+  LayoutList, Clock, Globe, Shield, 
+  ArrowLeft
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -35,12 +36,14 @@ import {
   ModalPrimaryButton,
   ModalSecondaryButton
 } from "@/components/ui/modal";
+import { Header } from "@/components/ui/header";
 
 // Custom Components & Types
 import LessonForm from "../../../../../../components/course/LessonForm";
 import QuizForm from "../../../../../../components/course/QuizForm";
 import SectionForm from "../../../../../../components/course/SectionForm";
 import { Course, Section, Lesson, QuizQuestion } from "../../../../../../types/quiz/types";
+import Link from "next/link";
 
 const generateUniqueId = () => `_${Math.random().toString(36).substr(2, 9)}`;
 
@@ -386,14 +389,12 @@ export default function EditCourseForm() {
         
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight text-foreground">
-                Editor de Curso
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                 {course.title ? `Editando: ${course.title}` : "Carregando detalhes..."}
-              </p>
-            </div>
+            <Header
+              heading="Editor de Curso"
+              subheading={course.title ? `Editando: ${course.title}` : "Carregando detalhes..."}
+              headingSize="3xl"
+              backHref="/hub/admin/courses"
+            />
             <div className="flex items-center gap-2">
                 {savingCourseDetails && <span className="text-xs text-muted-foreground animate-pulse">Salvando alterações...</span>}
             </div>

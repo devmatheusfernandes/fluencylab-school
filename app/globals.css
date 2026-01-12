@@ -189,7 +189,7 @@
 }
 
 .title-base {
-  @apply text-xl font-bold text-primary;
+  @apply text-2xl font-bold text-primary;
 }
 
 .subtitle-base {

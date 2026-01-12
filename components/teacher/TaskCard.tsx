@@ -275,7 +275,7 @@ export default function TasksCard({
         </div>
 
         <div className="flex flex-row sm:flex-row justify-between items-start sm:items-center gap-4 mb-2 pt-2">
-          <h2 className="text-xl font-bold title-base">{t("title")}</h2>
+          <h2 className="text-2xl font-bold title-base">{t("title")}</h2>
           <div className="flex items-center gap-2">
             {/* Google Calendar Sync Button */}
             {onSyncWithGoogleCalendar && (

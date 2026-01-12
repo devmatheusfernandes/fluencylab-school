@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
+import { Header } from "@/components/ui/header";
 
 interface NewCourseData {
   title: string;
@@ -129,19 +130,16 @@ export default function CreateCoursePage() {
       >
         {/* Header */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
-          <div className="flex flex-col gap-1">
-            <Link href="/hub/admin/courses" className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 mb-1 transition-colors">
-               <ArrowLeft className="w-3 h-3" /> Voltar para lista
-            </Link>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">
-              Novo Curso
-            </h1>
-            <p className="text-muted-foreground">
-              Preencha as informações abaixo para criar um novo curso na plataforma.
-            </p>
+          <div className="flex flex-col gap-1 w-full">
+            
+            <Header
+              heading="Novo Curso"
+              subheading="Preencha as informações abaixo para criar um novo curso na plataforma."
+              backHref="/hub/admin/courses"
+            />
           </div>
           <div className="hidden md:block">
-             <Button onClick={(e) => handleSubmit(e as any)} disabled={isSubmitting}>
+             <Button className="flex-1 min-w-max" onClick={(e) => handleSubmit(e as any)} disabled={isSubmitting}>
                 {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                 Salvar Curso
              </Button>

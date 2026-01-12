@@ -45,7 +45,7 @@ const UserCard: React.FC<UserCardProps> = ({
           <AvatarFallback name={user.name} />
         </Avatar>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium title-base truncate">{user.name}</p>
+          <p className="text-sm font-medium text-primary truncate capitalize">{user.name.split(" ")[0]}</p>
           <p className="text-xs text-paragraph truncate">{userRoleLabel}</p>
         </div>
         {onLogout && (
@@ -81,7 +81,7 @@ const UserCard: React.FC<UserCardProps> = ({
         <AvatarFallback name={user.name} />
       </Avatar>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium title-base truncate capitalize">{user.name.split(" ")[0]}</p>
+        <p className="text-sm font-medium text-primary truncate capitalize">{user.name.split(" ")[0]}</p>
         <p className="text-xs text-paragraph truncate">{userRoleLabel}</p>
       </div>
       {onLogout && (

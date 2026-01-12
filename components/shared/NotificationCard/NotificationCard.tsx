@@ -145,7 +145,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
             <h4
               className={twMerge(
                 "text-sm font-medium truncate",
-                notification.read ? "text-paragraph" : "title-base"
+                notification.read ? "text-paragraph" : "subtitle-base"
               )}
             >
               {notification.title}
@@ -292,7 +292,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
                 >
                   <Bell className="w-4 h-4 text-paragraph" />
                 </motion.div>
-                <h3 className="text-lg font-semibold title-base">
+                <h3 className="text-lg font-semibold subtitle-base">
                   Todas as Notificações
                 </h3>
                 {unreadCount > 0 && (

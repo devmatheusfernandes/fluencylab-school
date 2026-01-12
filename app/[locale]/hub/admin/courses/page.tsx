@@ -29,6 +29,7 @@ import {
   ModalSecondaryButton,
 } from "@/components/ui/modal";
 
+import { Header } from "@/components/ui/header";
 import { Course } from "../../../../../types/quiz/types";
 
 export default function AdminCoursesPage() {
@@ -111,14 +112,11 @@ export default function AdminCoursesPage() {
       >
         {/* Header Section */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">
-              Gerenciar Cursos
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Administre o catálogo de cursos, idiomas e níveis.
-            </p>
-          </div>
+          <Header
+            heading="Gerenciar Cursos"
+            subheading="Administre o catálogo de cursos, idiomas e níveis."
+            headingSize="3xl"
+          />
 
           <Link href="/hub/admin/courses/criar">
             <Button className="w-full md:w-auto gap-2">

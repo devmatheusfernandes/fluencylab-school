@@ -71,6 +71,7 @@ import {
   ModalTitle,
   ModalTrigger,
 } from "@/components/ui/modal";
+import { Header } from "@/components/ui/header";
 
 // --- MANTENDO TIPAGENS E CONSTANTES ORIGINAIS ---
 type FinanceTransaction = {
@@ -788,14 +789,10 @@ export default function AdminFinancesPage() {
       >
         {/* Header Section */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
-              Financeiro
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Gestão de receitas e despesas.
-            </p>
-          </div>
+          <Header
+            heading="Financeiro"
+            subheading="Gestão de receitas e despesas."
+          />
 
           <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
             <div className="flex items-center gap-2 flex-1 md:flex-initial">

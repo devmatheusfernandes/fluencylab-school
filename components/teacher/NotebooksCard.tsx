@@ -255,7 +255,7 @@ export default function NotebooksCard({
             </ModalHeader>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium title-base mb-1">
+                <label className="block text-sm font-medium text-primary mb-1">
                   {t("inputTitle")}
                 </label>
                 <ModalInput

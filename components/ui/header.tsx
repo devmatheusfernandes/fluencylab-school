@@ -1,5 +1,8 @@
 import * as React from "react";
 import { twMerge } from "tailwind-merge";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { buttonVariants } from "./button";
 
 export interface HeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
@@ -24,6 +27,10 @@ export interface HeaderProps extends React.HTMLAttributes<HTMLDivElement> {
    * @default 'lg'
    */
   subheadingSize?: "sm" | "base" | "lg" | "xl";
+  /**
+   * Optional URL for the back button. If provided, a back arrow will be displayed.
+   */
+  backHref?: string;
 }
 
 const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
@@ -34,6 +41,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
       icon,
       headingSize = "2xl",
       subheadingSize = "lg",
+      backHref,
       className,
       ...props
     },
@@ -57,30 +65,45 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
       <div
         ref={ref}
         className={twMerge(
-          "flex items-start justify-between gap-4 mb-3",
+          "flex items-start justify-between gap-4",
           className
         )}
         {...props}
       >
-        <div className="flex-1 min-w-0">
-          <h1
-            className={twMerge(
-              "font-bold title-base leading-tight tracking-tight",
-              headingSizeClasses[headingSize]
-            )}
-          >
-            {heading}
-          </h1>
-          {subheading && (
-            <p
+        <div className="flex-1 min-w-0 flex items-start gap-4">
+          {backHref && (
+            <Link
+              href={backHref}
+              className={buttonVariants({
+                variant: "ghost",
+                size: "icon",
+                className: "shrink-0 -ml-2",
+              })}
+            >
+              <ArrowLeft className="h-6 w-6" />
+              <span className="sr-only">Voltar</span>
+            </Link>
+          )}
+          <div>
+            <h1
               className={twMerge(
-                "mt-2 text-subtitle leading-relaxed",
-                subheadingSizeClasses[subheadingSize]
+                "font-bold title-base leading-tight tracking-tight",
+                headingSizeClasses[headingSize]
               )}
             >
-              {subheading}
-            </p>
-          )}
+              {heading}
+            </h1>
+            {subheading && (
+              <p
+                className={twMerge(
+                  "text-subtitle leading-relaxed",
+                  subheadingSizeClasses[subheadingSize]
+                )}
+              >
+                {subheading}
+              </p>
+            )}
+          </div>
         </div>
         {icon && (
           <div className="flex-shrink-0 flex items-center justify-center">
