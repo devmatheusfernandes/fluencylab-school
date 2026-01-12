@@ -240,7 +240,7 @@ export default function SettingsForm({
           </div>
 
           <div className="space-y-4">
-            <Alert className={googleCalendarConnected 
+            <Alert className={googleCalendarConnected
               ? "border-green-500/50 dark:border-green-400/50" 
               : "border-slate-200/50 dark:border-slate-700/50"
             }>
@@ -250,7 +250,7 @@ export default function SettingsForm({
                 <AlertCircle className="h-4 w-4" />
               )}
               <AlertDescription>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full">
                   <div>
                     <Text weight="medium" className={googleCalendarConnected ? "text-green-700 dark:text-green-300" : ""}>
                       {googleCalendarConnected
@@ -258,7 +258,7 @@ export default function SettingsForm({
                         : "Conecte sua conta do Google Calendar"}
                     </Text>
                     {!googleCalendarConnected && (
-                      <Text size="sm" variant="placeholder" className="mt-1">
+                      <Text size="sm" variant="placeholder">
                         Sincronize tarefas automaticamente
                       </Text>
                     )}

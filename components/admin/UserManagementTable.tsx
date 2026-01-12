@@ -37,7 +37,6 @@ import { useAdmin } from "@/hooks/useAdmin";
 import { useRouter } from "next/navigation";
 import { EllipsisVertical, UserPlus } from "lucide-react";
 import { Card } from "../ui/card";
-import { ButtonGroup } from "../ui/button-group";
 import { Input } from "@/components/ui/input";
 import { NoResults } from "@/components/ui/no-results";
 import { Search } from "lucide-react";
@@ -151,7 +150,7 @@ export default function UserManagementTable() {
                   className="pl-8"
                 />
               </div>
-              <ButtonGroup className="w-full flex flex-col sm:flex-row">
+              <div className="w-full flex flex-col sm:flex-row gap-2">
                 <Select value={roleFilter} onValueChange={setRoleFilter}>
                   <SelectTrigger className="w-full sm:w-[200px]">
                     <SelectValue placeholder={t("filterByRole")} />
@@ -176,7 +175,7 @@ export default function UserManagementTable() {
                     <SelectItem value="inactive">{t("inactive")}</SelectItem>
                   </SelectContent>
                 </Select>
-              </ButtonGroup>
+              </div>
             </div>
         </div>
         
@@ -185,7 +184,7 @@ export default function UserManagementTable() {
           variant="glass"
           className="w-full md:w-auto" 
         >
-          <UserPlus className="w-4 h-4 text-primary mr-2" />
+          <UserPlus className="w-4 h-4 text-primary" />
         </Button>
       </div>
 

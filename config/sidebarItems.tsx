@@ -15,7 +15,8 @@ import {
   Monitor,
   UserCircle,
   UserStar,
-  Book
+  Book,
+  BellDotIcon
 } from "lucide-react";
 
 // Define os links para cada papel
@@ -25,12 +26,6 @@ const adminItems: SidebarItemType[] = [
     label: "Meu Perfil",
     labelKey: "myProfile",
     icon: <UserCircle className="w-6 h-6" />,
-  },
-  {
-    href: "/[locale]/hub/admin/dashboard",
-    label: "Painel",
-    labelKey: "dashboard",
-    icon: <Layers className="w-6 h-6" />,
   },
   {
     href: "/[locale]/hub/admin/users",
@@ -51,10 +46,10 @@ const adminItems: SidebarItemType[] = [
     icon: <Video className="w-6 h-6" />,
   },
   {
-    href: "/[locale]/hub/admin/documents",
-    label: "Documentos",
-    labelKey: "documents",
-    icon: <FileText className="w-6 h-6" />,
+    href: "/[locale]/hub/admin/notification",
+    label: "Notificações",
+    labelKey: "notification",
+    icon: <BellDotIcon className="w-6 h-6" />,
   },
   {
     href: "/[locale]/hub/admin/settings",

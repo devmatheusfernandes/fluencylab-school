@@ -7,7 +7,6 @@ export default function AdminUsersPage() {
       <Header
         heading="Usuários"
         subheading="Gerencie os usuários do sistema."
-        headingSize="3xl"
       />
       <UserManagementTable />
     </div>

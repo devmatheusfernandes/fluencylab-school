@@ -5,21 +5,11 @@ export default function manifest(): MetadataRoute.Manifest {
     name: 'FluencyLab School',
     short_name: 'FluencyLab',
     description: 'Aplicativo PWA da FluencyLab School',
-    start_url: '/',
-    display: 'standalone',
+    start_url: '/hub',
+    display: 'fullscreen',
+    display_override: ['fullscreen'],
     background_color: '#ffffff',
     theme_color: '#0ea5e9',
-    icons: [
-      {
-        src: '/globe.svg',
-        sizes: 'any',
-        type: 'image/svg+xml',
-      },
-      {
-        src: '/next.svg',
-        sizes: 'any',
-        type: 'image/svg+xml',
-      },
-    ],
+    icons: [],
   }
 }
