@@ -900,6 +900,7 @@
         "studentPremium": "Premium Student"
       }
     },
+
     "create": {
       "title": "New Course",
       "subtitle": "Fill in the information below to create a new course on the platform.",
@@ -1018,6 +1019,51 @@
       "all": "All",
       "studentBasic": "Basic Student",
       "studentPremium": "Premium Student"
+    }
+  },
+  "AdminNotifications": {
+    "title": "Manage Announcements",
+    "subtitle": "Send notifications and warnings to user groups or specific individuals.",
+    "accessDenied": {
+      "title": "Access Denied",
+      "description": "This area is restricted to administrators only."
+    },
+    "form": {
+      "titleLabel": "Announcement Title",
+      "titlePlaceholder": "Ex: Scheduled Maintenance",
+      "messageLabel": "Message",
+      "messagePlaceholder": "Type the notification content...",
+      "typeLabel": "Alert Type",
+      "typePlaceholder": "Select type",
+      "types": {
+        "info": "Informational",
+        "warning": "Important Warning",
+        "tip": "Helpful Tip"
+      },
+      "recipientsLabel": "Recipients",
+      "tabs": {
+        "role": "By Role (Group)",
+        "specific": "Specific Users"
+      },
+      "roleSelectLabel": "Select one or more groups to receive the alert:",
+      "noRoleSelected": "* No role selected.",
+      "specificIdsLabel": "Paste user IDs separated by commas:",
+      "specificIdsPlaceholder": "Ex: user_123, user_987, user_xyz...",
+      "specificIdsTip": "Tip: Useful for sending billing notices or individual support.",
+      "submitButton": "Send Announcement",
+      "sendingButton": "Sending..."
+    },
+    "toasts": {
+      "requiredFields": "Required fields",
+      "fillTitleMessage": "Please fill in the announcement title and message.",
+      "invalidRecipient": "Invalid recipient",
+      "selectRole": "Select at least one user role.",
+      "provideIds": "Provide specific user IDs.",
+      "sending": "Sending announcement...",
+      "success": "Announcement sent!",
+      "successDesc": "The notification was triggered for the recipients.",
+      "error": "Failed to send",
+      "unexpectedError": "An unexpected error occurred. Please try again."
     }
   },
   "CourseComponents": {

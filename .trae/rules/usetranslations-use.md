@@ -29,6 +29,11 @@ Se você está criando uma página de "Configurações de Usuário", o JSON deve
 
 **Regra Importante:** Sempre adicione as chaves em **ambos** os arquivos (`pt.json` e `en.json`) simultaneamente.
 
+### Evite Aninhamento Desnecessário (Namespace Matching)
+O namespace passado para o hook `useTranslations("Namespace")` deve existir na **raiz** do arquivo JSON.
+*   ❌ **Erro Comum:** Colocar `AdminNotifications` dentro de `AdminCourses` e tentar chamar `useTranslations("AdminNotifications")`. Isso falhará.
+*   ✅ **Correto:** Mantenha os namespaces principais na raiz do JSON para facilitar o acesso direto.
+
 ## 2. Implementação no Componente
 
 ### Importação

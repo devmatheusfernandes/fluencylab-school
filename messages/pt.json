@@ -899,6 +899,7 @@
         "studentPremium": "Estudante Premium"
       }
     },
+
     "create": {
       "title": "Novo Curso",
       "subtitle": "Preencha as informações abaixo para criar um novo curso na plataforma.",
@@ -1017,6 +1018,51 @@
       "all": "Todos",
       "studentBasic": "Estudante Básico",
       "studentPremium": "Estudante Premium"
+    }
+  },
+  "AdminNotifications": {
+    "title": "Gerenciar Anúncios",
+    "subtitle": "Envie notificações e avisos para grupos de usuários ou indivíduos específicos.",
+    "accessDenied": {
+      "title": "Acesso Negado",
+      "description": "Esta área é restrita apenas para administradores."
+    },
+    "form": {
+      "titleLabel": "Título do Anúncio",
+      "titlePlaceholder": "Ex: Manutenção Programada",
+      "messageLabel": "Mensagem",
+      "messagePlaceholder": "Digite o conteúdo da notificação...",
+      "typeLabel": "Tipo de Alerta",
+      "typePlaceholder": "Selecione o tipo",
+      "types": {
+        "info": "Informativo",
+        "warning": "Aviso Importante",
+        "tip": "Dica Útil"
+      },
+      "recipientsLabel": "Destinatários",
+      "tabs": {
+        "role": "Por Papel (Grupo)",
+        "specific": "Usuários Específicos"
+      },
+      "roleSelectLabel": "Selecione um ou mais grupos para receber o alerta:",
+      "noRoleSelected": "* Nenhum papel selecionado.",
+      "specificIdsLabel": "Cole os IDs dos usuários separados por vírgula:",
+      "specificIdsPlaceholder": "Ex: user_123, user_987, user_xyz...",
+      "specificIdsTip": "Dica: Útil para enviar avisos de cobrança ou suporte individual.",
+      "submitButton": "Enviar Anúncio",
+      "sendingButton": "Enviando..."
+    },
+    "toasts": {
+      "requiredFields": "Campos obrigatórios",
+      "fillTitleMessage": "Por favor, preencha o título e a mensagem do anúncio.",
+      "invalidRecipient": "Destinatário inválido",
+      "selectRole": "Selecione pelo menos um papel de usuário.",
+      "provideIds": "Informe os IDs dos usuários específicos.",
+      "sending": "Enviando anúncio...",
+      "success": "Anúncio enviado!",
+      "successDesc": "A notificação foi disparada para os destinatários.",
+      "error": "Falha ao enviar",
+      "unexpectedError": "Ocorreu um erro inesperado. Tente novamente."
     }
   },
   "CourseComponents": {

@@ -65,7 +65,8 @@ export default function AdminAnnouncementsPage() {
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [userIdsText, setUserIdsText] = useState("");
   const [loading, setLoading] = useState(false);
- const tRoles = useTranslations("UserRoles");
+  const tRoles = useTranslations("UserRoles");
+  const t = useTranslations("AdminNotifications");
  
   // --- ESTADO DE CARREGAMENTO (SKELETON) ---
   if (status === "loading") {
@@ -97,9 +98,9 @@ export default function AdminAnnouncementsPage() {
             <div className="flex justify-center mb-2">
               <ShieldAlert className="h-10 w-10 text-destructive" />
             </div>
-            <CardTitle>Acesso Negado</CardTitle>
+            <CardTitle>{t("accessDenied.title")}</CardTitle>
             <CardDescription>
-              Esta área é restrita apenas para administradores.
+              {t("accessDenied.description")}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -111,28 +112,28 @@ export default function AdminAnnouncementsPage() {
   async function submit() {
     // Validação básica antes de enviar
     if (!title.trim() || !message.trim()) {
-        toast.warning("Campos obrigatórios", {
-            description: "Por favor, preencha o título e a mensagem do anúncio."
+        toast.warning(t("toasts.requiredFields"), {
+            description: t("toasts.fillTitleMessage")
         });
         return;
     }
 
     if (recipientTab === "role" && selectedRoles.length === 0) {
-        toast.warning("Destinatário inválido", {
-            description: "Selecione pelo menos um papel de usuário."
+        toast.warning(t("toasts.invalidRecipient"), {
+            description: t("toasts.selectRole")
         });
         return;
     }
      if (recipientTab === "specific" && !userIdsText.trim()) {
-        toast.warning("Destinatário inválido", {
-            description: "Informe os IDs dos usuários específicos."
+        toast.warning(t("toasts.invalidRecipient"), {
+            description: t("toasts.provideIds")
         });
         return;
     }
 
 
     setLoading(true);
-    const loadingToast = toast.loading("Enviando anúncio...");
+    const loadingToast = toast.loading(t("toasts.sending"));
 
     try {
       const payload: any = {
@@ -162,9 +163,9 @@ export default function AdminAnnouncementsPage() {
         throw new Error(err.error || `Erro ${res.status}`);
       }
 
-      toast.success("Anúncio enviado!", {
+      toast.success(t("toasts.success"), {
         id: loadingToast,
-        description: "A notificação foi disparada para os destinatários."
+        description: t("toasts.successDesc")
       });
 
       // Limpar formulário
@@ -177,9 +178,9 @@ export default function AdminAnnouncementsPage() {
       // setRecipientTab("role");
 
     } catch (e: any) {
-      toast.error("Falha ao enviar", {
+      toast.error(t("toasts.error"), {
         id: loadingToast,
-        description: e.message || "Ocorreu um erro inesperado. Tente novamente."
+        description: e.message || t("toasts.unexpectedError")
       });
     } finally {
       setLoading(false);
@@ -195,8 +196,8 @@ export default function AdminAnnouncementsPage() {
       className="p-4 md:p-8 space-y-8"
     >
       <Header
-        heading="Gerenciar Anúncios"
-        subheading="Envie notificações e avisos para grupos de usuários ou indivíduos específicos."
+        heading={t("title")}
+        subheading={t("subtitle")}
         icon={<Megaphone className="h-8 w-8 text-primary" />}
       />
 
@@ -206,10 +207,10 @@ export default function AdminAnnouncementsPage() {
           {/* Título e Mensagem */}
           <div className="grid gap-4">
             <div className="space-y-2">
-              <Label htmlFor="title">Título do Anúncio</Label>
+              <Label htmlFor="title">{t("form.titleLabel")}</Label>
               <Input
                 id="title"
-                placeholder="Ex: Manutenção Programada"
+                placeholder={t("form.titlePlaceholder")}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 disabled={loading}
@@ -218,10 +219,10 @@ export default function AdminAnnouncementsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="message">Mensagem</Label>
+              <Label htmlFor="message">{t("form.messageLabel")}</Label>
               <Textarea
                 id="message"
-                placeholder="Digite o conteúdo da notificação..."
+                placeholder={t("form.messagePlaceholder")}
                 rows={5}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
@@ -233,28 +234,28 @@ export default function AdminAnnouncementsPage() {
 
           {/* Tipo de Anúncio (Select Customizado) */}
           <div className="space-y-2">
-            <Label htmlFor="type">Tipo de Alerta</Label>
+            <Label htmlFor="type">{t("form.typeLabel")}</Label>
             <Select value={type} onValueChange={setType} disabled={loading}>
               <SelectTrigger id="type" className="h-11">
-                <SelectValue placeholder="Selecione o tipo" />
+                <SelectValue placeholder={t("form.typePlaceholder")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="info">
                   <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
                     <Info className="h-4 w-4" />
-                    <span>Informativo</span>
+                    <span>{t("form.types.info")}</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="warning">
                   <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
                     <AlertTriangle className="h-4 w-4" />
-                    <span>Aviso Importante</span>
+                    <span>{t("form.types.warning")}</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="tip">
                   <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
                     <Lightbulb className="h-4 w-4" />
-                    <span>Dica Útil</span>
+                    <span>{t("form.types.tip")}</span>
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -264,23 +265,23 @@ export default function AdminAnnouncementsPage() {
           <div className="border-t pt-4">
              {/* Destinatários (Tabs) */}
             <div className="space-y-4">
-              <Label>Destinatários</Label>
+              <Label>{t("form.recipientsLabel")}</Label>
               <Tabs value={recipientTab} onValueChange={setRecipientTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-2 h-11">
                   <TabsTrigger value="role" className="flex items-center gap-2" disabled={loading}>
                     <Users className="h-4 w-4" />
-                    Por Papel (Grupo)
+                    {t("form.tabs.role")}
                   </TabsTrigger>
                   <TabsTrigger value="specific" className="flex items-center gap-2" disabled={loading}>
                     <User className="h-4 w-4" />
-                    Usuários Específicos
+                    {t("form.tabs.specific")}
                   </TabsTrigger>
                 </TabsList>
 
                 <div className="mt-4 p-4 border rounded-lg bg-muted/30">
                     {/* Conteúdo da Aba: Papéis */}
                     <TabsContent value="role" className="mt-0 space-y-3">
-                    <Label className="text-xs text-muted-foreground">Selecione um ou mais grupos para receber o alerta:</Label>
+                    <Label className="text-xs text-muted-foreground">{t("form.roleSelectLabel")}</Label>
                     {/* Uso do ToggleGroup para seleção múltipla estilo "chips" */}
                     <ToggleGroup
                         type="multiple"
@@ -303,7 +304,7 @@ export default function AdminAnnouncementsPage() {
                     </ToggleGroup>
                     {selectedRoles.length === 0 && recipientTab === "role" && (
                         <p className="text-xs text-amber-500 font-medium animate-pulse">
-                        * Nenhum papel selecionado.
+                        {t("form.noRoleSelected")}
                         </p>
                     )}
                     </TabsContent>
@@ -312,18 +313,18 @@ export default function AdminAnnouncementsPage() {
                     <TabsContent value="specific" className="mt-0 space-y-3">
                         <div className="space-y-2">
                             <Label htmlFor="userIds" className="text-xs text-muted-foreground">
-                                Cole os IDs dos usuários separados por vírgula:
+                                {t("form.specificIdsLabel")}
                             </Label>
                             <Textarea
                                 id="userIds"
-                                placeholder="Ex: user_123, user_987, user_xyz..."
+                                placeholder={t("form.specificIdsPlaceholder")}
                                 value={userIdsText}
                                 onChange={(e) => setUserIdsText(e.target.value)}
                                 disabled={loading}
                                 className="font-mono text-sm min-h-[80px]"
                             />
                              <p className="text-xs text-muted-foreground">
-                                Dica: Útil para enviar avisos de cobrança ou suporte individual.
+                                {t("form.specificIdsTip")}
                             </p>
                         </div>
                     </TabsContent>
@@ -343,12 +344,12 @@ export default function AdminAnnouncementsPage() {
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Enviando...
+                {t("form.sendingButton")}
               </>
             ) : (
               <>
                 <Send className="mr-2 h-5 w-5 group-hover:translate-x-0.5 transition-transform" />
-                Enviar Anúncio
+                {t("form.submitButton")}
               </>
             )}
           </Button>
