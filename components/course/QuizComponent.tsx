@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { HelpCircle, RefreshCcw } from "lucide-react";
-import { QuizQuestion, QuizResult } from "../types";
+import { QuizQuestion, QuizResult } from "../../types/quiz/types";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 

@@ -12,9 +12,16 @@ function Popover({
 }
 
 function PopoverTrigger({
+  className,
   ...props
 }: React.ComponentProps<typeof PopoverPrimitive.Trigger>) {
-  return <PopoverPrimitive.Trigger data-slot="popover-trigger" {...props} />
+  return (
+    <PopoverPrimitive.Trigger
+      data-slot="popover-trigger"
+      className={cn("input-base", className)}
+      {...props}
+    />
+  )
 }
 
 function PopoverContent({

@@ -1,6 +1,6 @@
 import { adminDb } from "@/lib/firebase/admin";
 import { Timestamp } from "firebase-admin/firestore";
-import { Course, Section, Lesson, QuizQuestion } from "@/app/[locale]/hub/admin/courses/components/types";
+import { Course, Section, Lesson, QuizQuestion } from "@/types/quiz/types";
 
 const coursesCollection = adminDb.collection("Cursos");
 

@@ -22,7 +22,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { Separator } from "@/components/ui/separator";
 
-import { Course, Enrollment, Lesson, Section } from "../../../admin/courses/components/types";
+import { Course, Enrollment, Lesson, Section } from "../../../../../../types/quiz/types";
 // Firestore removido do cliente
 
 export default function CourseDetailPageContent() {

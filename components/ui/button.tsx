@@ -91,9 +91,9 @@ const getButtonClasses = ({
       "bg-teal-600 border-teal-600 text-white hover:bg-teal-700 hover:border-teal-700 focus-visible:ring-teal-500",
     info: "bg-cyan-600 border-cyan-600 text-white hover:bg-cyan-700 hover:border-cyan-700 focus-visible:ring-cyan-500",
     ghost:
-      "bg-transparent border-transparent text-foreground hover:bg-muted hover:text-foreground focus-visible:ring-ring",
+      "bg-transparent border-transparent text-foreground hover:bg-white/20 hover:text-foreground focus-visible:ring-ring",
     outline:
-      "bg-transparent border-border text-foreground hover:bg-muted focus-visible:ring-ring",
+      "input-base",
     glass:
       "bg-white/10 backdrop-blur-md border-white/20 text-black dark:text-white hover:bg-white/20 hover:border-white/30 focus-visible:ring-white/50",
     link: "bg-transparent border-transparent text-blue-600 underline-offset-4 hover:underline focus-visible:ring-blue-500 dark:text-blue-400 p-0 h-auto",

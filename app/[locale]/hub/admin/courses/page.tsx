@@ -29,7 +29,7 @@ import {
   ModalSecondaryButton,
 } from "@/components/ui/modal";
 
-import { Course } from "./components/types";
+import { Course } from "../../../../../types/quiz/types";
 
 export default function AdminCoursesPage() {
   const { data: session, status } = useSession();
@@ -103,7 +103,7 @@ export default function AdminCoursesPage() {
   }
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8">
+    <div className="p-4 md:p-8 space-y-8">
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}

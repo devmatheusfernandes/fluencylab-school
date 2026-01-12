@@ -1,6 +1,6 @@
 import { adminStorage, adminDb } from "@/lib/firebase/admin";
 import { courseRepository } from "@/repositories";
-import { Course, Section, Lesson, QuizQuestion } from "@/app/[locale]/hub/admin/courses/components/types";
+import { Course, Section, Lesson, QuizQuestion } from "@/types/quiz/types";
 
 export class CourseService {
   async listCourses(): Promise<Course[]> {

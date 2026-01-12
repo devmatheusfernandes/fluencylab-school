@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { courseRepository } from "@/repositories";
 import { adminDb } from "@/lib/firebase/admin";
-import { Course, Section, Lesson } from "@/app/[locale]/hub/admin/courses/components/types";
+import { Course, Section, Lesson } from "@/types/quiz/types";
 
 type StudentCourse = Course & {
   sectionCount: number;

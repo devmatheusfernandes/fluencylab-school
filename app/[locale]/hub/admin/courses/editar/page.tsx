@@ -22,24 +22,25 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Container } from "@/components/ui/container"; // Assumindo container do shadcn
-import { Modal, ModalContent, ModalHeader, ModalTitle, ModalClose } from "@/components/ui/modal";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
+import { Container } from "@/components/ui/container";
+import { 
+  Modal, 
+  ModalContent, 
+  ModalHeader, 
+  ModalTitle, 
+  ModalClose,
+  ModalDescription,
+  ModalFooter,
+  ModalIcon,
+  ModalPrimaryButton,
+  ModalSecondaryButton
+} from "@/components/ui/modal";
 
 // Custom Components & Types
-import LessonForm from "../components/Component/LessonForm";
-import QuizForm from "../components/Component/QuizForm";
-import SectionForm from "../components/Component/SectionForm";
-import { Course, Section, Lesson, QuizQuestion } from "../components/types";
+import LessonForm from "../../../../../../components/course/LessonForm";
+import QuizForm from "../../../../../../components/course/QuizForm";
+import SectionForm from "../../../../../../components/course/SectionForm";
+import { Course, Section, Lesson, QuizQuestion } from "../../../../../../types/quiz/types";
 
 const generateUniqueId = () => `_${Math.random().toString(36).substr(2, 9)}`;
 
@@ -49,7 +50,6 @@ export default function EditCourseForm() {
   const searchParams = useSearchParams();
   const courseId = searchParams.get("id");
 
-  // --- STATES (Mantidos Originais) ---
   const [course, setCourse] = useState<Partial<Course>>({});
   const [savingCourseDetails, setSavingCourseDetails] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -68,8 +68,10 @@ export default function EditCourseForm() {
   const [currentLessonForQuiz, setCurrentLessonForQuiz] = useState<Lesson | null>(null);
   const [isDeleteSectionAlertOpen, setIsDeleteSectionAlertOpen] = useState(false);
   const [sectionIdToDelete, setSectionIdToDelete] = useState<string | null>(null);
+  const [isDeleteLessonAlertOpen, setIsDeleteLessonAlertOpen] = useState(false);
+  const [lessonToDelete, setLessonToDelete] = useState<{ sectionId: string; lessonId: string } | null>(null);
 
-  // --- DATA FETCHING (Mantido Original) ---
+  // --- DATA FETCHING ---
   const fetchCourseAndContent = useCallback(async () => {
     if (!courseId) return;
     setLoadingContent(true);
@@ -106,7 +108,7 @@ export default function EditCourseForm() {
     fetchCourseAndContent();
   }, [session, status, router, courseId, fetchCourseAndContent]);
 
-  // --- HANDLERS (Mantidos Originais) ---
+  // --- HANDLERS ---
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setCourse((prev: any) => ({ ...prev, [name]: value }));
@@ -268,8 +270,13 @@ export default function EditCourseForm() {
     if (currentLessonForQuiz?.id === updatedLesson.id) setCurrentLessonForQuiz(updatedLesson);
   };
 
+  const openDeleteLessonAlert = (sectionId: string, lessonId: string) => {
+    setLessonToDelete({ sectionId, lessonId });
+    setIsDeleteLessonAlertOpen(true);
+  };
+
   const handleDeleteLesson = async (sectionId: string, lessonId: string) => {
-    if (!courseId || !confirm("Tem certeza que deseja excluir esta lição?")) return;
+    if (!courseId) return;
     const toastId = toast.loading("Excluindo lição...");
     try {
       const res = await fetch(`/api/admin/courses/${courseId}/sections/${sectionId}/lessons/${lessonId}`, { method: "DELETE" });
@@ -477,7 +484,7 @@ export default function EditCourseForm() {
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
                              <LayoutList className="w-5 h-5 text-muted-foreground" />
-                             <h2 className="text-xl font-semibold">Grade Curricular</h2>
+                             <h2 className="text-xl font-semibold">Grade</h2>
                         </div>
                         <Button onClick={() => handleOpenSectionModal()} size="sm">
                             <Plus className="w-4 h-4 mr-1" /> Nova Seção
@@ -501,7 +508,7 @@ export default function EditCourseForm() {
                                     key={section.id} 
                                     initial={{ opacity: 0, y: 10 }} 
                                     animate={{ opacity: 1, y: 0 }}
-                                    className="border rounded-lg bg-card overflow-hidden shadow-sm"
+                                    className="border rounded-lg bg-card/20 overflow-hidden shadow-sm"
                                 >
                                     {/* Section Header */}
                                     <div className="bg-muted/30 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b">
@@ -529,7 +536,7 @@ export default function EditCourseForm() {
                                     </div>
 
                                     {/* Lessons List */}
-                                    <div className="p-2 space-y-1 bg-card">
+                                    <div className="p-2 space-y-1 bg-card/30">
                                         {section.lessons.map((lesson, lIdx) => (
                                             <div key={lesson.id} className="group flex items-center justify-between p-2 rounded hover:bg-muted/50 transition-colors text-sm">
                                                 <div className="flex items-center gap-3 overflow-hidden">
@@ -554,7 +561,7 @@ export default function EditCourseForm() {
                                                     <Button size="icon" variant="ghost" className="h-7 w-7 text-primary" onClick={() => handleOpenLessonModal(section.id, lesson)}>
                                                         <Edit2 className="w-3.5 h-3.5" />
                                                     </Button>
-                                                    <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => handleDeleteLesson(section.id, lesson.id)}>
+                                                    <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => openDeleteLessonAlert(section.id, lesson.id)}>
                                                         <Trash2 className="w-3.5 h-3.5" />
                                                     </Button>
                                                 </div>
@@ -576,7 +583,6 @@ export default function EditCourseForm() {
       </motion.div>
 
       {/* --- MODALS --- */}
-      {/* Usando os componentes Modal originais passados nas props, mas estilizados internamente */}
       <Modal open={isSectionModalOpen} onOpenChange={(open) => !open && setIsSectionModalOpen(false)}>
         <ModalContent className="sm:max-w-lg">
           <ModalHeader>
@@ -632,18 +638,19 @@ export default function EditCourseForm() {
         </ModalContent>
       </Modal>
 
-      <AlertDialog open={isDeleteSectionAlertOpen} onOpenChange={(open) => !open && setIsDeleteSectionAlertOpen(false)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Excluir seção</AlertDialogTitle>
-            <AlertDialogDescription>
+      <Modal open={isDeleteSectionAlertOpen} onOpenChange={(open) => !open && setIsDeleteSectionAlertOpen(false)}>
+        <ModalContent>
+          <ModalIcon type="delete" />
+          <ModalHeader>
+            <ModalTitle>Excluir seção</ModalTitle>
+            <ModalDescription>
               Esta ação excluirá a seção e todas as suas lições e anexos.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setIsDeleteSectionAlertOpen(false)}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              className="text-destructive hover:text-destructive"
+            </ModalDescription>
+          </ModalHeader>
+          <ModalFooter>
+            <ModalSecondaryButton onClick={() => setIsDeleteSectionAlertOpen(false)}>Cancelar</ModalSecondaryButton>
+            <ModalPrimaryButton
+              variant="destructive"
               onClick={() => {
                 if (sectionIdToDelete) {
                   setIsDeleteSectionAlertOpen(false);
@@ -654,10 +661,38 @@ export default function EditCourseForm() {
               }}
             >
               Excluir
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </ModalPrimaryButton>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      <Modal open={isDeleteLessonAlertOpen} onOpenChange={(open) => !open && setIsDeleteLessonAlertOpen(false)}>
+        <ModalContent>
+          <ModalIcon type="delete" />
+          <ModalHeader>
+            <ModalTitle>Excluir lição</ModalTitle>
+            <ModalDescription>
+              Tem certeza que deseja excluir esta lição? Esta ação não pode ser desfeita.
+            </ModalDescription>
+          </ModalHeader>
+          <ModalFooter>
+            <ModalSecondaryButton onClick={() => setIsDeleteLessonAlertOpen(false)}>Cancelar</ModalSecondaryButton>
+            <ModalPrimaryButton
+              variant="destructive"
+              onClick={() => {
+                if (lessonToDelete) {
+                  setIsDeleteLessonAlertOpen(false);
+                  const { sectionId, lessonId } = lessonToDelete;
+                  setLessonToDelete(null);
+                  handleDeleteLesson(sectionId, lessonId);
+                }
+              }}
+            >
+              Excluir
+            </ModalPrimaryButton>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
 
     </Container>
   );

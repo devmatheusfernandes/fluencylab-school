@@ -16,10 +16,10 @@ import { Separator } from "@/components/ui/separator";
 import { Container } from "@/components/ui/container";
 import { Badge } from "@/components/ui/badge";
 
-import { Enrollment, Lesson, QuizResult, Section } from "@/app/[locale]/hub/admin/courses/components/types";
+import { Enrollment, Lesson, QuizResult, Section } from "@/types/quiz/types";
 // Firestore removido do cliente
-import LessonDisplay from "@/app/[locale]/hub/admin/courses/components/Component/LessonDisplay";
-import QuizComponent from "@/app/[locale]/hub/admin/courses/components/Component/QuizComponent";
+import LessonDisplay from "@/components/course/LessonDisplay";
+import QuizComponent from "@/components/course/QuizComponent";
 
 export default function LessonPageContent() {
   const { data: session } = useSession();

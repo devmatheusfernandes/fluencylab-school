@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { ChevronUp, ChevronDown, Trash2, Plus, Paperclip, HelpCircle } from "lucide-react";
-import { Lesson, QuizQuestion, TextContentBlock, VideoContentBlock, Attachment, LessonContentBlock } from "../types";
+import { Lesson, QuizQuestion, TextContentBlock, VideoContentBlock, Attachment, LessonContentBlock } from "../../types/quiz/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";

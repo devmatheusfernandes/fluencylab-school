@@ -780,7 +780,7 @@ export default function AdminFinancesPage() {
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8">
+    <div className="p-4 md:p-8 space-y-8">
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -1379,10 +1379,10 @@ export default function AdminFinancesPage() {
 
             {/* Transactions Table */}
             <Card className="overflow-hidden">
-              <CardHeader className="px-6 py-4 border-b bg-muted/10 flex flex-row items-center justify-between">
+              <CardHeader className="px-6 py-4 border-b bg-muted/10 flex flex-row items-center justify-between rounded-t-md">
                 <CardTitle className="text-lg">Extrato</CardTitle>
                 <Badge variant="outline" className="font-normal">
-                  {displayed.length} registros
+                  {displayed.length}
                 </Badge>
               </CardHeader>
               <div className="overflow-x-auto">

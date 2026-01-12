@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { Section } from "../types";
+import { Section } from "../../types/quiz/types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ModalPrimaryButton, ModalSecondaryButton } from "@/components/ui/modal";

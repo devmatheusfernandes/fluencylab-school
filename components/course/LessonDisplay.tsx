@@ -10,7 +10,7 @@ import {
   QuizQuestion,
   TextContentBlock,
   VideoContentBlock,
-} from '../types';
+} from '../../types/quiz/types';
 
 interface LessonDisplayProps {
   lesson: {

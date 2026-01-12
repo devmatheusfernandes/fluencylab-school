@@ -17,7 +17,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Container } from "@/components/ui/container";
 
 // Firestore removido do cliente; dados agora vêm de APIs
-import { Course } from "../../admin/courses/components/types";
+import { Course } from "../../../../../types/quiz/types";
 
 // Extensão do tipo Course para incluir dados calculados
 type StudentCourse = Course & {

@@ -231,7 +231,8 @@
          border border-slate-200/50 dark:border-slate-700/50 
          bg-white/20 dark:bg-slate-900/35 
          hover:border-slate-500/30 dark:hover:border-slate-600
-         placeholder:text-gray-500 dark:placeholder:text-gray-400 
+         placeholder:text-gray-500! dark:placeholder:text-gray-400 font-normal!
+         data-[placeholder]:text-gray-500! dark:data-[placeholder]:text-gray-400 
          hover:bg-white/5 dark:hover:bg-gray-800 
          focus:bg-white/25 dark:focus:bg-gray-800 
          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/20 dark:focus-visible:ring-blue-400/20 
