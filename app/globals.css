@@ -208,7 +208,7 @@
 .card-base {
   @apply duration-150 ease-in-out transition-all rounded-lg 
          border border-slate-200/50 dark:border-slate-700/50 
-         bg-slate-300/60 dark:bg-slate-950/40  
+         bg-slate-400/20 dark:bg-slate-950/40  
          hover:border-slate-300 dark:hover:border-slate-600;
 }
 
@@ -227,7 +227,7 @@
 
 /* Inputs Gerais */
 .input-base {
-  @apply duration-150 ease-in-out transition-all rounded-lg 
+  @apply duration-150 ease-in-out transition-all rounded-md 
          border border-slate-200/50 dark:border-slate-700/50 
          bg-white/20 dark:bg-slate-900/35 
          hover:border-slate-500/30 dark:hover:border-slate-600

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from 'next/link';
@@ -17,17 +17,17 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Container } from "@/components/ui/container"; // Assumindo que você tem isso do exemplo anterior
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalTitle,
+  ModalDescription,
+  ModalFooter,
+  ModalIcon,
+  ModalPrimaryButton,
+  ModalSecondaryButton,
+} from "@/components/ui/modal";
 
 import { Course } from "./components/types";
 
@@ -103,7 +103,7 @@ export default function AdminCoursesPage() {
   }
 
   return (
-    <Container className="p-4 md:p-8 max-w-7xl mx-auto space-y-8">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8">
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -128,9 +128,8 @@ export default function AdminCoursesPage() {
           </Link>
         </div>
 
-        {/* Stats / Quick Cards (Opcional, mas melhora o visual) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <Card className="bg-muted/30 shadow-sm border-none">
+          <Card className="bg-muted/30   border-none">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Total de Cursos</CardTitle>
               <BookOpen className="h-4 w-4 text-muted-foreground" />
@@ -139,11 +138,11 @@ export default function AdminCoursesPage() {
               {loadingCourses ? <Skeleton className="h-7 w-10" /> : <div className="text-2xl font-bold">{courses.length}</div>}
             </CardContent>
           </Card>
-           {/* Você pode adicionar mais cards aqui se tiver dados, ex: Total Alunos, Cursos Ativos */}
+          {/* Você pode adicionar mais cards aqui se tiver dados, ex: Total Alunos, Cursos Ativos */}
         </div>
 
         {/* Search & Content */}
-        <Card className="border shadow-sm">
+        <Card className="border  ">
           <CardHeader className="px-6 py-4 border-b flex flex-col md:flex-row md:items-center justify-between gap-4">
              <div className="flex flex-col gap-1">
                 <CardTitle className="text-lg">Catálogo</CardTitle>
@@ -175,7 +174,6 @@ export default function AdminCoursesPage() {
               </TableHeader>
               <TableBody>
                 {loadingCourses ? (
-                   // Loading Skeletons
                    Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
                       <TableCell className="pl-6"><Skeleton className="h-5 w-48" /></TableCell>
@@ -243,26 +241,28 @@ export default function AdminCoursesPage() {
         </Card>
       </motion.div>
 
-      {/* Alert Dialog Padrão Shadcn para Exclusão */}
-      <AlertDialog open={!!courseToDeleteId} onOpenChange={(open) => !open && setCourseToDeleteId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-            <AlertDialogDescription>
+      <Modal open={!!courseToDeleteId} onOpenChange={(open) => !open && setCourseToDeleteId(null)}>
+        <ModalContent>
+          <ModalIcon type="delete" />
+          <ModalHeader>
+            <ModalTitle>Confirmar exclusão</ModalTitle>
+            <ModalDescription>
               Tem certeza que deseja excluir este curso permanentemente? Esta ação não pode ser desfeita.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction 
+            </ModalDescription>
+          </ModalHeader>
+          <ModalFooter>
+            <ModalSecondaryButton onClick={() => setCourseToDeleteId(null)}>
+              Cancelar
+            </ModalSecondaryButton>
+            <ModalPrimaryButton 
+              variant="destructive"
               onClick={handleDeleteCourse} 
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Excluir
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </Container>
+            </ModalPrimaryButton>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </div>
   );
 }
