@@ -13,7 +13,7 @@ const SubContainer = React.forwardRef<HTMLDivElement, SubContainerProps>(
     <MotionDiv
       ref={ref}
       className={twMerge(
-        "subcontainer-base w-full transition-all duration-200 ease-in-out p-2 rounded-xl overflow-y-scroll no-scrollbar",
+        "subcontainer-base w-full transition-all duration-200 ease-in-out p-2 rounded-lg overflow-y-scroll no-scrollbar",
         className
       )}
       initial={{ opacity: 0, y: 20 }}

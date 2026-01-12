@@ -5,8 +5,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Text } from "@/components/ui/text";
 import { Badge } from "@/components/ui/badge";
 import { User } from "@/types/users/users";
-import { UserRoles } from "@/types/users/userRoles";
-import { capitalizeFirstLetter } from "@/utils/utils";
 import { useAvatar } from "@/hooks/useAvatar";
 import { LogOut, RefreshCw } from "lucide-react";
 import { Card } from "@/components/ui/card";

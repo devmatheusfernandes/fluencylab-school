@@ -9,28 +9,37 @@ import { Text } from "@/components/ui/text";
 import { Skeleton } from "../ui/skeleton";
 
 interface StatusUIProps {
-  condition: boolean;
-  pendingText: string;
-  completedText: string;
+  text: string;
+  variant: "success" | "pending" | "warning" | "neutral";
   link: string;
   icon?: React.ReactNode;
 }
 
 const StatusItem: React.FC<StatusUIProps> = ({
-  condition,
-  pendingText,
-  completedText,
+  text,
+  variant,
   link,
   icon: Icon,
 }) => {
   const baseClasses =
     "flex flex-row gap-2 w-full rounded-md text-white font-bold p-3 items-center justify-between transition-all duration-200";
 
-  const bgColor = condition
-    ? "bg-teal-700 dark:bg-teal-500"
-    : "bg-rose-800 dark:bg-rose-500";
+  const getBgColor = (variant: StatusUIProps["variant"]) => {
+    switch (variant) {
+      case "success":
+        return "bg-teal-700 dark:bg-teal-500";
+      case "pending":
+        return "bg-rose-800 dark:bg-rose-500";
+      case "warning":
+        return "bg-amber-600 dark:bg-amber-500";
+      case "neutral":
+        return "bg-slate-600 dark:bg-slate-500";
+      default:
+        return "bg-gray-500";
+    }
+  };
 
-  const text = condition ? completedText : pendingText;
+  const bgColor = getBgColor(variant);
 
   return (
     <motion.div
@@ -61,10 +70,30 @@ const ProgressStatusCard: React.FC<ProgressStatusCardProps> = ({
   const { contractStatus, isLoading: isContractLoading } = useContract();
 
   // Check if placement test is completed
-  const isPlacementDone = user?.placementDone === true;
+  const placementStatus: StatusUIProps["variant"] =
+    user?.placementDone === true ? "success" : "pending";
+  const placementText =
+    user?.placementDone === true
+      ? "Nivelamento Completo"
+      : "Nivelamento Pendente";
 
-  // Check if contract is signed
-  const isContractSigned = contractStatus?.signed === true;
+  // Check contract status
+  let contractStatusVariant: StatusUIProps["variant"] = "pending";
+  let contractText = "Contrato Pendente";
+
+  if (contractStatus?.cancelledAt) {
+    contractStatusVariant = "neutral";
+    contractText = "Contrato Cancelado";
+  } else if (
+    contractStatus?.expiresAt &&
+    new Date(contractStatus.expiresAt) < new Date()
+  ) {
+    contractStatusVariant = "warning";
+    contractText = "Contrato Vencido";
+  } else if (contractStatus?.signed) {
+    contractStatusVariant = "success";
+    contractText = "Contrato Assinado";
+  }
 
   // Show loading state while data is being fetched
   if (isUserLoading || isContractLoading) {
@@ -90,17 +119,15 @@ const ProgressStatusCard: React.FC<ProgressStatusCardProps> = ({
       </Text>
       <div className="space-y-2">
         <StatusItem
-          condition={isContractSigned}
-          pendingText="Contrato Pendente"
-          completedText="Contrato Assinado"
-          link="/hub/plataforma/student/contrato"
+          variant={contractStatusVariant}
+          text={contractText}
+          link="/hub/student/my-contract"
           icon={contractIcon}
         />
         <StatusItem
-          condition={isPlacementDone}
-          pendingText="Nivelamento Pendente"
-          completedText="Nivelamento Completo"
-          link="/hub/plataforma/student/nivelamento"
+          variant={placementStatus}
+          text={placementText}
+          link="/hub/student/my-placement-test"
           icon={placementTestIcon}
         />
       </div>

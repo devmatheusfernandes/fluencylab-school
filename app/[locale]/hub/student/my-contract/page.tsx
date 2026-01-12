@@ -10,7 +10,7 @@ import SignatureModal from "@/components/contract/SignatureModal";
 import { toast } from "sonner";
 import { SignatureFormData, Student } from "@/types/contract";
 import { Spinner } from "@/components/ui/spinner";
-import { Check, FileWarning, Printer, AlertCircle, CheckCircle2 } from "lucide-react";
+import { FileWarning, Printer, AlertCircle, CheckCircle2, AlertTriangle, Ban } from "lucide-react";
 
 const ContratoPage: React.FC = () => {
   const {
@@ -117,7 +117,114 @@ const ContratoPage: React.FC = () => {
     );
   }
 
-  const isSigned = contractStatus?.signed && contractStatus?.signedByAdmin;
+  // Determine contract status
+  let status: 'pending' | 'signed' | 'expired' | 'cancelled' = 'pending';
+  
+  if (contractStatus?.cancelledAt) {
+    status = 'cancelled';
+  } else if (contractStatus?.expiresAt && new Date(contractStatus.expiresAt) < new Date()) {
+    status = 'expired';
+  } else if (contractStatus?.signed) {
+    status = 'signed';
+  }
+
+  const renderStatusAlert = () => {
+    switch (status) {
+      case 'cancelled':
+        return (
+          <motion.div
+            key="cancelled-status"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            className="flex-1 w-full"
+          >
+            <Alert className="card-base border-slate-500/50 dark:border-slate-400/50 bg-slate-100 dark:bg-slate-800/50">
+              <Ban className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+              <AlertDescription className="text-slate-700 dark:text-slate-300">
+                <span className="font-semibold">Contrato Cancelado</span>
+                {contractStatus?.cancelledAt && (
+                  <span className="block mt-1 text-sm opacity-80">
+                    Cancelado em{" "}
+                    {new Date(contractStatus.cancelledAt).toLocaleDateString("pt-BR")}
+                  </span>
+                )}
+                {contractStatus?.cancellationReason && (
+                   <span className="block mt-1 text-sm opacity-80">
+                     Motivo: {contractStatus.cancellationReason}
+                   </span>
+                )}
+              </AlertDescription>
+            </Alert>
+          </motion.div>
+        );
+      case 'expired':
+        return (
+          <motion.div
+            key="expired-status"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            className="flex-1 w-full"
+          >
+            <Alert className="card-base border-amber-500/50 dark:border-amber-400/50 bg-amber-50 dark:bg-amber-900/10">
+              <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+              <AlertDescription className="text-amber-700 dark:text-amber-300">
+                <span className="font-semibold">Contrato Vencido</span>
+                {contractStatus?.expiresAt && (
+                  <span className="block mt-1 text-sm opacity-80">
+                    Venceu em{" "}
+                    {new Date(contractStatus.expiresAt).toLocaleDateString("pt-BR")}
+                  </span>
+                )}
+              </AlertDescription>
+            </Alert>
+          </motion.div>
+        );
+      case 'signed':
+        return (
+          <motion.div
+            key="signed-status"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            className="flex-1 w-full"
+          >
+            <Alert className="card-base border-green-500/50 dark:border-green-400/50">
+              <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+              <AlertDescription className="text-green-700 dark:text-green-300">
+                <span className="font-semibold">Contrato assinado</span> em{" "}
+                {contractStatus?.signedAt
+                  ? new Date(contractStatus.signedAt).toLocaleDateString("pt-BR")
+                  : ""}
+                {contractStatus?.expiresAt && (
+                  <span className="block mt-1 text-sm opacity-80">
+                    Válido até{" "}
+                    {new Date(contractStatus.expiresAt).toLocaleDateString("pt-BR")}
+                  </span>
+                )}
+              </AlertDescription>
+            </Alert>
+          </motion.div>
+        );
+      default:
+        return (
+          <motion.div
+            key="unsigned-status"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+          >
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-slate-100">
+              Contrato
+            </h1>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+              Revise e assine o contrato abaixo
+            </p>
+          </motion.div>
+        );
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-500/8 dark:bg-slate-900">
@@ -135,50 +242,12 @@ const ContratoPage: React.FC = () => {
           className="flex flex-col justify-between items-start sm:items-center gap-4 mb-6"
         >
           <AnimatePresence mode="wait">
-            {isSigned ? (
-              <motion.div
-                key="signed-status"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                className="flex-1 w-full"
-              >
-                <Alert className="card-base border-green-500/50 dark:border-green-400/50">
-                  <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
-                  <AlertDescription className="text-green-700 dark:text-green-300">
-                    <span className="font-semibold">Contrato assinado</span> em{" "}
-                    {contractStatus.signedAt
-                      ? new Date(contractStatus.signedAt).toLocaleDateString("pt-BR")
-                      : ""}
-                    {contractStatus.expiresAt && (
-                      <span className="block mt-1 text-sm opacity-80">
-                        Válido até{" "}
-                        {new Date(contractStatus.expiresAt).toLocaleDateString("pt-BR")}
-                      </span>
-                    )}
-                  </AlertDescription>
-                </Alert>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="unsigned-status"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-              >
-                <h1 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-slate-100">
-                  Contrato
-                </h1>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                  Revise e assine o contrato abaixo
-                </p>
-              </motion.div>
-            )}
+            {renderStatusAlert()}
           </AnimatePresence>
 
           {/* Action Button */}
           <AnimatePresence mode="wait">
-            {isSigned ? (
+            {status !== 'pending' ? (
               <motion.div
                 key="print-button"
                 initial={{ opacity: 0, x: 20 }}
@@ -192,6 +261,7 @@ const ContratoPage: React.FC = () => {
                   onClick={handlePrint}
                   className="flex-1 w-full gap-2"
                   size="lg"
+                  variant="outline"
                 >
                   <Printer size={18} />
                   Imprimir Contrato
