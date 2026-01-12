@@ -1,5 +1,6 @@
 // app/components/LessonDisplay.tsx
 import React from 'react';
+import { useTranslations } from "next-intl";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { markdownComponents } from './MarkdownComponents';
@@ -64,6 +65,8 @@ const YouTubeEmbed: React.FC<{ url: string }> = ({ url }) => {
 };
 
 const LessonDisplay: React.FC<LessonDisplayProps> = ({ lesson }) => {
+  const t = useTranslations("CourseComponents.LessonDisplay");
+
   return (
     <div className="space-y-8 mb-3">
       {lesson.contentBlocks.map((block) => (
@@ -91,7 +94,7 @@ const LessonDisplay: React.FC<LessonDisplayProps> = ({ lesson }) => {
       {lesson.attachments && (
         <div className="border border-fluency-gray-200 dark:border-fluency-gray-700 rounded-lg p-4 bg-fluency-gray-50 dark:bg-fluency-gray-800">
           <h3 className="flex items-center gap-2 text-lg font-semibold text-fluency-text-light dark:text-fluency-text-dark mb-3">
-            <Paperclip className="w-5 h-5" /> Anexos
+            <Paperclip className="w-5 h-5" /> {t("attachments")}
           </h3>
           <ul className="space-y-2">
             {lesson.attachments.map((att) => (

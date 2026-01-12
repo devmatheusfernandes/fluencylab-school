@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Plus, Edit2, Trash2 } from "lucide-react";
 import { Lesson, QuizQuestion } from "../../types/quiz/types";
@@ -24,6 +25,7 @@ const QuizForm = ({
   onAddNewQuestionRequest: () => void;
   onRequestEditQuestion: (question: QuizQuestion) => void;
 }) => {
+  const t = useTranslations("CourseComponents.QuizForm");
   const [question, setQuestion] = useState(initialQuestionData?.question || '');
   const [options, setOptions] = useState<string[]>(initialQuestionData?.options || ['', '', '', '']);
   const [correctAnswer, setCorrectAnswer] = useState(initialQuestionData?.correctAnswer || '');
@@ -47,16 +49,16 @@ const QuizForm = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!question.trim()) {
-      toast.error("A pergunta não pode estar vazia.");
+      toast.error(t("emptyQuestion"));
       return;
     }
     const filledOptions = options.filter(opt => opt.trim() !== '');
     if (filledOptions.length < 2) {
-      toast.error("Deve haver pelo menos duas opções preenchidas.");
+      toast.error(t("minOptions"));
       return;
     }
     if (!correctAnswer || !filledOptions.includes(correctAnswer)) {
-      toast.error("Selecione uma resposta correta válida entre as opções preenchidas.");
+      toast.error(t("invalidCorrectAnswer"));
       return;
     }
 
@@ -68,13 +70,13 @@ const QuizForm = ({
       <div className="bg-fluency-pages-light dark:bg-fluency-pages-dark p-4 rounded-xl">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold text-fluency-text-light dark:text-fluency-text-dark">
-            Questões Existentes ({lesson.quiz?.length || 0})
+            {t("existingQuestions", { count: lesson.quiz?.length || 0 })}
           </h3>
           {initialQuestionData && (
             <Button
               onClick={onAddNewQuestionRequest}
             >
-              <Plus className="mr-2 w-4 h-4" /> Nova Questão
+              <Plus className="mr-2 w-4 h-4" /> {t("newQuestion")}
             </Button>
           )}
         </div>
@@ -82,7 +84,7 @@ const QuizForm = ({
         <div className="max-h-40 overflow-y-auto space-y-2">
           {(lesson.quiz || []).length === 0 ? (
             <p className="text-sm text-fluency-text-light dark:text-fluency-text-dark">
-              Nenhuma questão adicionada
+              {t("emptyList")}
             </p>
           ) : (
             (lesson.quiz || []).map(q => (
@@ -113,7 +115,7 @@ const QuizForm = ({
 
       <div className="bg-fluency-pages-light dark:bg-fluency-pages-dark p-4 rounded-xl">
         <h3 className="text-lg font-semibold text-fluency-text-light dark:text-fluency-text-dark mb-4">
-          {initialQuestionData ? `Editando: "${initialQuestionData.question}"` : 'Nova Questão'}
+          {initialQuestionData ? t("editing", { question: initialQuestionData.question }) : t("newQuestion")}
         </h3>
         
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -126,14 +128,14 @@ const QuizForm = ({
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-fluency-text-light dark:text-fluency-text-dark">
-              Opções de Resposta (mínimo 2 preenchidas)
+              {t("optionsLabel")}
             </label>
             {options.map((option, index) => (
               <Input
                 key={index}
                 value={option}
                 onChange={(e) => handleOptionChange(index, e.target.value)}
-                placeholder={`Opção ${index + 1}`}
+                placeholder={t("optionPlaceholder", { index: index + 1 })}
                 className="text-sm"
               />
             ))}
@@ -141,7 +143,7 @@ const QuizForm = ({
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-fluency-text-light dark:text-fluency-text-dark">
-              Resposta Correta
+              {t("correctAnswerLabel")}
             </label>
             <Select
               value={correctAnswer}
@@ -149,7 +151,7 @@ const QuizForm = ({
               required
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Selecione a resposta correta" />
+                <SelectValue placeholder={t("selectCorrectAnswer")} />
               </SelectTrigger>
               <SelectContent>
                 {options.filter(opt => opt.trim() !== '').map((option, index) => (
@@ -165,13 +167,13 @@ const QuizForm = ({
               onClick={onCancel}
               className="w-full sm:w-auto"
             >
-              Fechar
+              {t("close")}
             </ModalSecondaryButton>
             <ModalPrimaryButton
               type="submit"
               className="w-full sm:w-auto"
             >
-              {initialQuestionData ? 'Salvar Alterações' : 'Adicionar Questão'}
+              {initialQuestionData ? t("save") : t("add")}
             </ModalPrimaryButton>
           </div>
         </form>

@@ -80,7 +80,7 @@ const getButtonClasses = ({
 
   const variantClasses = {
     primary:
-      "bg-primary hover:contrast-140 border-primary text-primary-foreground focus-visible:ring-ring relative overflow-hidden transition-all ease-in-out duration-300",
+      "bg-primary hover:contrast-140 border-primary text-white dark:text-primary-foreground focus-visible:ring-ring relative overflow-hidden transition-all ease-in-out duration-300",
     secondary:
       "bg-secondary border-secondary text-secondary-foreground focus-visible:ring-ring hover:opacity-95",
     destructive:

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Section } from "../../types/quiz/types";
 import { Input } from "@/components/ui/input";
@@ -14,12 +15,13 @@ const SectionForm = ({
   onSave: (data: { title: string }) => void; 
   onCancel: () => void 
 }) => {
+  const t = useTranslations("CourseComponents.SectionForm");
   const [title, setTitle] = useState(initialData?.title || '');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
-      toast.error("O título da seção não pode estar vazio.");
+      toast.error(t("emptyTitle"));
       return;
     }
     onSave({ title });
@@ -28,13 +30,13 @@ const SectionForm = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="sectionTitle">Título da Seção</Label>
+        <Label htmlFor="sectionTitle">{t("titleLabel")}</Label>
         <Input
           id="sectionTitle"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
-          placeholder="Introdução ao Curso"
+          placeholder={t("placeholder")}
         />
       </div>
 
@@ -44,13 +46,13 @@ const SectionForm = ({
           onClick={onCancel}
           className="w-full sm:w-auto"
         >
-          Cancelar
+          {t("cancel")}
         </ModalSecondaryButton>
         <ModalPrimaryButton
           type="submit"
           className="w-full sm:w-auto"
         >
-          Salvar Seção
+          {t("save")}
         </ModalPrimaryButton>
       </div>
     </form>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -48,6 +49,8 @@ import Link from "next/link";
 const generateUniqueId = () => `_${Math.random().toString(36).substr(2, 9)}`;
 
 export default function EditCourseForm() {
+  const t = useTranslations("AdminCourses.edit");
+  const tRoles = useTranslations("AdminCourses.roles");
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -81,7 +84,7 @@ export default function EditCourseForm() {
     try {
       const res = await fetch(`/api/admin/courses/${courseId}`);
       if (!res.ok) {
-        toast.error("Curso não encontrado.");
+        toast.error(t("toasts.notFound"));
         router.push("/admin/cursos");
         return;
       }
@@ -91,11 +94,11 @@ export default function EditCourseForm() {
       setSections(data.sections as Section[]);
     } catch (error) {
       console.error("Error fetching course data: ", error);
-      toast.error("Falha ao carregar dados do curso.");
+      toast.error(t("toasts.loadError"));
     } finally {
       setLoadingContent(false);
     }
-  }, [courseId, router]);
+  }, [courseId, router, t]);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -104,12 +107,12 @@ export default function EditCourseForm() {
       return;
     }
     if (!courseId) {
-      toast.error("ID do curso não encontrado na URL.");
+      toast.error(t("toasts.noId"));
       router.push("/admin/cursos");
       return;
     }
     fetchCourseAndContent();
-  }, [session, status, router, courseId, fetchCourseAndContent]);
+  }, [session, status, router, courseId, fetchCourseAndContent, t]);
 
   // --- HANDLERS ---
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -130,7 +133,7 @@ export default function EditCourseForm() {
   const handleSaveCourseDetails = async () => {
     if (!courseId || savingCourseDetails) return;
     setSavingCourseDetails(true);
-    const toastId = toast.loading("Salvando detalhes do curso...");
+    const toastId = toast.loading(t("toasts.savingDetails"));
     try {
       const form = new FormData();
       if (course.title) form.append("title", course.title);
@@ -143,10 +146,10 @@ export default function EditCourseForm() {
       if (!res.ok) throw new Error("Falha na API");
       if (imageFile) setImageFile(null);
       if (imageFile && imagePreview) setImagePreview(imagePreview);
-      toast.success("Detalhes do curso atualizados!", { id: toastId });
+      toast.success(t("toasts.detailsSaved"), { id: toastId });
     } catch (error) {
       console.error("Error updating course details: ", error);
-      toast.error("Falha ao atualizar detalhes do curso.", { id: toastId });
+      toast.error(t("toasts.detailsError"), { id: toastId });
     } finally {
       setSavingCourseDetails(false);
     }
@@ -163,7 +166,7 @@ export default function EditCourseForm() {
 
   const handleSaveSection = async (sectionData: { title: string }) => {
     if (!courseId) return;
-    const toastId = toast.loading(editingSection ? "Atualizando seção..." : "Criando seção...");
+    const toastId = toast.loading(t("toasts.savingSection"));
     try {
       if (editingSection) {
         const res = await fetch(`/api/admin/courses/${courseId}/sections/${editingSection.id}`, {
@@ -183,24 +186,24 @@ export default function EditCourseForm() {
       }
       await fetchCourseAndContent();
       setIsSectionModalOpen(false);
-      toast.success(editingSection ? "Seção atualizada!" : "Seção criada!", { id: toastId });
+      toast.success(editingSection ? t("toasts.sectionSaved") : t("toasts.sectionCreated"), { id: toastId });
     } catch (error) {
       console.error("Error saving section: ", error);
-      toast.error("Falha ao salvar seção.", { id: toastId });
+      toast.error(t("toasts.sectionError"), { id: toastId });
     }
   };
 
   const handleDeleteSection = async (sectionId: string) => {
     if (!courseId) return;
-    const toastId = toast.loading("Excluindo seção e seu conteúdo...");
+    const toastId = toast.loading(t("toasts.deletingSection"));
     try {
       const res = await fetch(`/api/admin/courses/${courseId}/sections/${sectionId}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Falha na API");
       await fetchCourseAndContent();
-      toast.success("Seção excluída com sucesso!", { id: toastId });
+      toast.success(t("toasts.sectionDeleted"), { id: toastId });
     } catch (error: any) {
       console.error("Erro ao excluir seção: ", error);
-      toast.error(`Falha ao excluir seção: ${error.message || 'Erro desconhecido'}`, { id: toastId });
+      toast.error(t("toasts.deleteSectionError", { error: error.message || 'Erro desconhecido' }), { id: toastId });
     }
   };
 
@@ -212,7 +215,7 @@ export default function EditCourseForm() {
 
   const handleSaveLesson = async (lessonData: Omit<Lesson, 'id' | 'order'>) => {
     if (!courseId || !currentSectionIdForLesson) return;
-    const toastId = toast.loading(editingLesson ? "Atualizando lição..." : "Criando lição...");
+    const toastId = toast.loading(t("toasts.savingLesson"));
     try {
       let savedLessonId: string | undefined;
       if (editingLesson) {
@@ -252,10 +255,10 @@ export default function EditCourseForm() {
         setEditingLesson(latestLesson);
         setCurrentLessonForQuiz(latestLesson);
       }
-      toast.success(editingLesson ? "Lição atualizada!" : "Lição criada!", { id: toastId });
+      toast.success(editingLesson ? t("toasts.lessonUpdated") : t("toasts.lessonCreated"), { id: toastId });
     } catch (error) {
       console.error("Error saving lesson: ", error);
-      toast.error("Falha ao salvar lição.", { id: toastId });
+      toast.error(t("toasts.lessonError"), { id: toastId });
     }
   };
 
@@ -280,15 +283,15 @@ export default function EditCourseForm() {
 
   const handleDeleteLesson = async (sectionId: string, lessonId: string) => {
     if (!courseId) return;
-    const toastId = toast.loading("Excluindo lição...");
+    const toastId = toast.loading(t("toasts.deletingLesson"));
     try {
       const res = await fetch(`/api/admin/courses/${courseId}/sections/${sectionId}/lessons/${lessonId}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Falha na API");
       await fetchCourseAndContent();
-      toast.success("Lição excluída!", { id: toastId });
+      toast.success(t("toasts.lessonDeleted"), { id: toastId });
     } catch (error) {
       console.error("Error deleting lesson: ", error);
-      toast.error("Falha ao excluir lição.", { id: toastId });
+      toast.error(t("toasts.deleteLessonError"), { id: toastId });
     }
   };
 
@@ -303,10 +306,10 @@ export default function EditCourseForm() {
 
   const handleSaveQuizQuestion = async (questionData: Omit<QuizQuestion, 'id'>) => {
     if (!courseId || !currentLessonForQuiz || !currentLessonForQuiz.sectionId) {
-      toast.error("Erro interno: dados de curso ou lição faltando.");
+      toast.error(t("toasts.internalError"));
       return;
     }
-    const toastId = toast.loading(editingQuizQuestion ? "Atualizando questão..." : "Adicionando questão...");
+    const toastId = toast.loading(t("toasts.savingQuiz"));
     try {
       let updatedQuiz: QuizQuestion[];
       if (editingQuizQuestion) {
@@ -325,16 +328,16 @@ export default function EditCourseForm() {
       const latestLesson = updatedSection?.lessons?.find(l => l.id === currentLessonForQuiz.id);
       if (latestLesson) setCurrentLessonForQuiz(latestLesson);
       setEditingQuizQuestion(null);
-      toast.success(editingQuizQuestion ? "Questão atualizada!" : "Questão adicionada!", { id: toastId });
+      toast.success(editingQuizQuestion ? t("toasts.quizUpdated") : t("toasts.quizAdded"), { id: toastId });
     } catch (error) {
       console.error("Error saving quiz question: ", error);
-      toast.error("Falha ao salvar questão do quiz.", { id: toastId });
+      toast.error(t("toasts.quizError"), { id: toastId });
     }
   };
 
   const handleDeleteQuizQuestion = async (lesson: Lesson, questionId: string) => {
     if (!courseId || !lesson.sectionId || !confirm("Tem certeza que deseja excluir esta questão do quiz?")) return;
-    const toastId = toast.loading("Excluindo questão...");
+    const toastId = toast.loading(t("toasts.deletingQuiz"));
     try {
       const updatedQuiz = (lesson.quiz || []).filter(q => q.id !== questionId);
       const res = await fetch(`/api/admin/courses/${courseId}/sections/${lesson.sectionId}/lessons/${lesson.id}`, {
@@ -344,10 +347,10 @@ export default function EditCourseForm() {
       });
       if (!res.ok) throw new Error("Falha na API");
       await fetchCourseAndContent();
-      toast.success("Questão excluída!", { id: toastId });
+      toast.success(t("toasts.quizDeleted"), { id: toastId });
     } catch (error) {
       console.error("Error deleting quiz question: ", error);
-      toast.error("Falha ao excluir questão.", { id: toastId });
+      toast.error(t("toasts.deleteQuizError"), { id: toastId });
     }
   };
 
@@ -362,7 +365,7 @@ export default function EditCourseForm() {
     const tempOrder = items[index].order;
     items[index].order = items[targetIndex].order;
     items[targetIndex].order = tempOrder;
-    const toastId = toast.loading("Reordenando...");
+    const toastId = toast.loading(t("toasts.reordering"));
     try {
       const res = await fetch(`/api/admin/courses/${courseId}/reorder`, {
         method: "POST",
@@ -373,10 +376,10 @@ export default function EditCourseForm() {
       });
       if (!res.ok) throw new Error("Falha na API");
       await fetchCourseAndContent();
-      toast.success("Itens reordenados!", { id: toastId });
+      toast.success(t("toasts.reordered"), { id: toastId });
     } catch (error) {
       console.error("Error reordering items: ", error);
-      toast.error("Falha ao reordenar.", { id: toastId });
+      toast.error(t("toasts.reorderError"), { id: toastId });
     }
   };
 
@@ -390,8 +393,8 @@ export default function EditCourseForm() {
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
             <Header
-              heading="Editor de Curso"
-              subheading={course.title ? `Editando: ${course.title}` : "Carregando detalhes..."}
+              heading={t("title")}
+              subheading={course.title ? t("subtitle", { title: course.title }) : t("loading")}
               headingSize="3xl"
               backHref="/hub/admin/courses"
             />
@@ -407,7 +410,7 @@ export default function EditCourseForm() {
                 <Card>
                     <CardHeader>
                         <CardTitle className="text-base flex items-center gap-2">
-                            <ImageIcon className="w-4 h-4" /> Capa & Detalhes
+                            <ImageIcon className="w-4 h-4" /> {t("coverAndDetails")}
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -425,12 +428,12 @@ export default function EditCourseForm() {
                             ) : (
                                 <div className="flex flex-col items-center gap-2 text-muted-foreground">
                                     <UploadCloud className="w-8 h-8" />
-                                    <span className="text-xs font-medium">Clique para fazer upload</span>
+                                    <span className="text-xs font-medium">{t("changeImage")}</span>
                                 </div>
                             )}
                             {imagePreview && (
                                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/40 text-white z-0 transition-opacity pointer-events-none">
-                                    <span className="text-xs font-medium">Trocar imagem</span>
+                                    <span className="text-xs font-medium">{t("changeImage")}</span>
                                 </div>
                             )}
                         </div>
@@ -438,42 +441,42 @@ export default function EditCourseForm() {
                         {/* Metadata Inputs */}
                         <div className="space-y-3">
                             <div className="space-y-1">
-                                <Label htmlFor="title" className="text-xs">Título</Label>
-                                <Input id="title" name="title" value={course.title || ''} onChange={handleInputChange} placeholder="Ex: Inglês para Iniciantes" />
+                                <Label htmlFor="title" className="text-xs">{t("labels.title")}</Label>
+                                <Input id="title" name="title" value={course.title || ''} onChange={handleInputChange} placeholder={t("placeholders.title")} />
                             </div>
                             
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="space-y-1">
-                                    <Label htmlFor="language" className="text-xs flex items-center gap-1"><Globe className="w-3 h-3" /> Idioma</Label>
+                                    <Label htmlFor="language" className="text-xs flex items-center gap-1"><Globe className="w-3 h-3" /> {t("labels.language")}</Label>
                                     <Input id="language" name="language" value={course.language || ''} onChange={handleInputChange} />
                                 </div>
                                 <div className="space-y-1">
-                                    <Label htmlFor="duration" className="text-xs flex items-center gap-1"><Clock className="w-3 h-3" /> Duração</Label>
-                                    <Input id="duration" name="duration" value={course.duration || ''} onChange={handleInputChange} placeholder="Ex: 20h" />
+                                    <Label htmlFor="duration" className="text-xs flex items-center gap-1"><Clock className="w-3 h-3" /> {t("labels.duration")}</Label>
+                                    <Input id="duration" name="duration" value={course.duration || ''} onChange={handleInputChange} placeholder={t("placeholders.duration")} />
                                 </div>
                             </div>
 
                             <div className="space-y-1">
-                                <Label htmlFor="role" className="text-xs flex items-center gap-1"><Shield className="w-3 h-3" /> Acesso</Label>
+                                <Label htmlFor="role" className="text-xs flex items-center gap-1"><Shield className="w-3 h-3" /> {t("labels.access")}</Label>
                                 <Select value={course.role || 'student'} onValueChange={(value) => setCourse((prev: any) => ({ ...prev, role: value }))}>
                                     <SelectTrigger><SelectValue /></SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="student">Estudante Básico</SelectItem>
-                                        <SelectItem value="premium_student">Estudante Premium</SelectItem>
-                                        <SelectItem value="all">Todos</SelectItem>
+                                        <SelectItem value="student">{tRoles("studentBasic")}</SelectItem>
+                                        <SelectItem value="premium_student">{tRoles("studentPremium")}</SelectItem>
+                                        <SelectItem value="all">{tRoles("all")}</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
 
                             <div className="space-y-1">
-                                <Label htmlFor="description" className="text-xs">Descrição</Label>
+                                <Label htmlFor="description" className="text-xs">{t("labels.description")}</Label>
                                 <Textarea id="description" name="description" value={course.description || ''} onChange={handleInputChange} rows={4} className="resize-none" />
                             </div>
                         </div>
 
                         <Button onClick={handleSaveCourseDetails} disabled={savingCourseDetails} className="w-full">
                              {savingCourseDetails ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-                             Salvar Alterações
+                             {t("saveChanges")}
                         </Button>
                     </CardContent>
                 </Card>
@@ -485,10 +488,10 @@ export default function EditCourseForm() {
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
                              <LayoutList className="w-5 h-5 text-muted-foreground" />
-                             <h2 className="text-xl font-semibold">Grade</h2>
+                             <h2 className="text-xl font-semibold">{t("grid")}</h2>
                         </div>
                         <Button onClick={() => handleOpenSectionModal()} size="sm">
-                            <Plus className="w-4 h-4 mr-1" /> Nova Seção
+                            <Plus className="w-4 h-4 mr-1" /> {t("newSection")}
                         </Button>
                     </div>
 
@@ -499,8 +502,8 @@ export default function EditCourseForm() {
                     ) : sections.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-12 border-2 border-dashed rounded-lg bg-muted/10">
                             <BookOpen className="w-10 h-10 text-muted-foreground/50 mb-2" />
-                            <p className="text-muted-foreground">Este curso ainda não tem conteúdo.</p>
-                            <Button variant="link" onClick={() => handleOpenSectionModal()}>Criar primeira seção</Button>
+                            <p className="text-muted-foreground">{t("emptyContent")}</p>
+                            <Button variant="link" onClick={() => handleOpenSectionModal()}>{t("createFirstSection")}</Button>
                         </div>
                     ) : (
                         <div className="space-y-4">
@@ -515,7 +518,7 @@ export default function EditCourseForm() {
                                     <div className="bg-muted/30 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b">
                                         <div>
                                             <Badge variant="outline" className="mb-1 text-[10px] uppercase tracking-wider text-muted-foreground">
-                                                Módulo {idx + 1}
+                                                {t("module")} {idx + 1}
                                             </Badge>
                                             <h3 className="font-semibold text-lg leading-none">{section.title}</h3>
                                         </div>
@@ -547,7 +550,7 @@ export default function EditCourseForm() {
                                                     <span className="font-medium truncate">{lesson.title}</span>
                                                     {lesson.quiz && lesson.quiz.length > 0 && (
                                                         <Badge variant="secondary" className="text-[10px] h-5 px-1 gap-1">
-                                                            <HelpCircle className="w-3 h-3" /> Quiz
+                                                            <HelpCircle className="w-3 h-3" /> {t("quiz")}
                                                         </Badge>
                                                     )}
                                                 </div>
@@ -570,7 +573,7 @@ export default function EditCourseForm() {
                                         ))}
                                         
                                         <Button variant="ghost" size="sm" className="w-full mt-2 text-muted-foreground hover:text-foreground border border-dashed border-transparent hover:border-border" onClick={() => handleOpenLessonModal(section.id)}>
-                                            <Plus className="w-3.5 h-3.5 mr-1.5" /> Adicionar Lição
+                                            <Plus className="w-3.5 h-3.5 mr-1.5" /> {t("addLesson")}
                                         </Button>
                                     </div>
                                 </motion.div>
@@ -587,7 +590,7 @@ export default function EditCourseForm() {
       <Modal open={isSectionModalOpen} onOpenChange={(open) => !open && setIsSectionModalOpen(false)}>
         <ModalContent className="sm:max-w-lg">
           <ModalHeader>
-            <ModalTitle>{editingSection ? "Editar Módulo" : "Novo Módulo"}</ModalTitle>
+            <ModalTitle>{editingSection ? t("modals.editSection") : t("modals.newSection")}</ModalTitle>
             <ModalClose />
           </ModalHeader>
           <div className="py-4">
@@ -599,7 +602,7 @@ export default function EditCourseForm() {
       <Modal open={isLessonModalOpen} onOpenChange={(open) => !open && setIsLessonModalOpen(false)}>
         <ModalContent className="max-w-4xl w-full h-[90vh] overflow-y-auto">
           <ModalHeader>
-            <ModalTitle>{editingLesson ? "Editar Conteúdo da Aula" : "Nova Aula"}</ModalTitle>
+            <ModalTitle>{editingLesson ? t("modals.editLesson") : t("modals.newLesson")}</ModalTitle>
             <ModalClose />
           </ModalHeader>
           <div className="py-2">
@@ -622,7 +625,7 @@ export default function EditCourseForm() {
       <Modal open={isQuizModalOpen} onOpenChange={(open) => !open && setIsQuizModalOpen(false)}>
         <ModalContent className="max-w-3xl w-full max-h-[90vh] overflow-y-auto">
           <ModalHeader>
-            <ModalTitle>Gerenciar Quiz</ModalTitle>
+            <ModalTitle>{t("modals.manageQuiz")}</ModalTitle>
             <ModalClose />
           </ModalHeader>
           {currentLessonForQuiz && (
@@ -643,9 +646,9 @@ export default function EditCourseForm() {
         <ModalContent>
           <ModalIcon type="delete" />
           <ModalHeader>
-            <ModalTitle>Excluir seção</ModalTitle>
+            <ModalTitle>{t("modals.deleteSection.title")}</ModalTitle>
             <ModalDescription>
-              Esta ação excluirá a seção e todas as suas lições e anexos.
+              {t("modals.deleteSection.description")}
             </ModalDescription>
           </ModalHeader>
           <ModalFooter>
@@ -671,9 +674,9 @@ export default function EditCourseForm() {
         <ModalContent>
           <ModalIcon type="delete" />
           <ModalHeader>
-            <ModalTitle>Excluir lição</ModalTitle>
+            <ModalTitle>{t("modals.deleteLesson.title")}</ModalTitle>
             <ModalDescription>
-              Tem certeza que deseja excluir esta lição? Esta ação não pode ser desfeita.
+              {t("modals.deleteLesson.description")}
             </ModalDescription>
           </ModalHeader>
           <ModalFooter>

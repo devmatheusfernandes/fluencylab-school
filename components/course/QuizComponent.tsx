@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { HelpCircle, RefreshCcw } from "lucide-react";
 import { QuizQuestion, QuizResult } from "../../types/quiz/types";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ interface QuizComponentProps {
 }
 
 const QuizComponent = ({ quiz, onQuizSubmit, savedQuizData }: QuizComponentProps) => {
+  const t = useTranslations("CourseComponents.QuizComponent");
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
   const [quizSubmitted, setQuizSubmitted] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -34,10 +36,10 @@ const QuizComponent = ({ quiz, onQuizSubmit, savedQuizData }: QuizComponentProps
   };
 
   const handleSubmitQuiz = async () => {
-    if (!allQuestionsAnswered || isSubmitting) return (toast.error("Por favor, responda todas as perguntas antes de enviar."));
+    if (!allQuestionsAnswered || isSubmitting) return (toast.error(t("answerAll")));
     
     setIsSubmitting(true);
-    const toastId = toast.loading("Enviando respostas do quiz...");
+    const toastId = toast.loading(t("submitting"));
     
     try {
       setQuizSubmitted(true);
@@ -64,14 +66,14 @@ const QuizComponent = ({ quiz, onQuizSubmit, savedQuizData }: QuizComponentProps
       // Show success/error message
       const percentage = Math.round((score / totalQuestions) * 100);
       const message = allCorrect 
-        ? "Parabéns! Todas as respostas estão corretas!" 
-        : `Quiz concluído! Você acertou ${score} de ${totalQuestions} questões (${percentage}%).`;
+        ? t("successAllCorrect")
+        : t("successPartial", { score, total: totalQuestions, percentage });
 
       toast[allCorrect ? 'success' : 'error'](message, { id: toastId });
 
     } catch (error) {
       console.error("Error submitting quiz:", error);
-      toast.error("Erro ao enviar o quiz. Tente novamente.", { id: toastId });
+      toast.error(t("submitError"), { id: toastId });
       setQuizSubmitted(false);
     } finally {
       setIsSubmitting(false);
@@ -107,19 +109,19 @@ const QuizComponent = ({ quiz, onQuizSubmit, savedQuizData }: QuizComponentProps
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xl font-semibold text-fluency-text-light dark:text-fluency-text-dark flex items-center gap-2">
           <HelpCircle className="w-6 h-6 text-fluency-blue-500" /> 
-          Quiz
+          {t("title")}
         </h3>
         
         <div className="flex flex-col items-end gap-1">
           {quizSubmitted && (
             <div className="text-sm font-medium px-3 py-1 rounded-full bg-fluency-blue-100 dark:bg-fluency-blue-900/30 text-fluency-blue-800 dark:text-fluency-blue-200">
-              Pontuação: {currentScore}/{quiz.length} ({percentage}%)
+              {t("score", { score: currentScore, total: quiz.length, percentage })}
             </div>
           )}
           
           {showPreviousAttempt && attemptDate && (
             <div className="text-xs text-fluency-text-secondary dark:text-fluency-text-dark-secondary">
-              Respondido em: {attemptDate}
+              {t("answeredAt", { date: attemptDate })}
             </div>
           )}
         </div>
@@ -127,7 +129,7 @@ const QuizComponent = ({ quiz, onQuizSubmit, savedQuizData }: QuizComponentProps
 
       {quiz.length === 0 ? (
         <p className="text-fluency-text-secondary dark:text-fluency-text-dark-secondary italic">
-          Este quiz não possui questões.
+          {t("empty")}
         </p>
       ) : (
         <div className="space-y-6">
@@ -171,9 +173,9 @@ const QuizComponent = ({ quiz, onQuizSubmit, savedQuizData }: QuizComponentProps
 
                       {quizSubmitted && (
                         <span className="text-sm font-medium">
-                          {isSelected && !isCorrect && "(Sua resposta)"}
-                          {isSelected && isCorrect && "(Correto!)"}
-                          {!isSelected && isCorrect && "(Resposta correta)"}
+                          {isSelected && !isCorrect && t("yourAnswer")}
+                          {isSelected && isCorrect && t("correct")}
+                          {!isSelected && isCorrect && t("correctAnswer")}
                         </span>
                       )}
                     </label>
@@ -192,7 +194,7 @@ const QuizComponent = ({ quiz, onQuizSubmit, savedQuizData }: QuizComponentProps
             variant={allQuestionsAnswered ? 'primary' : 'ghost'}
             className="w-full sm:w-auto"
           >
-            {isSubmitting ? "Enviando..." : "Verificar Respostas"}
+            {isSubmitting ? t("buttons.sending") : t("buttons.check")}
           </Button>
         ) : (
           <>
@@ -203,7 +205,7 @@ const QuizComponent = ({ quiz, onQuizSubmit, savedQuizData }: QuizComponentProps
               disabled={isSubmitting}
             >
               <RefreshCcw className="mr-2 w-5 h-5" />
-              Tentar Novamente
+              {t("buttons.retry")}
             </Button>
           </>
         )}

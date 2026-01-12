@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -31,6 +32,8 @@ interface NewCourseData {
 }
 
 export default function CreateCoursePage() {
+  const t = useTranslations("AdminCourses.create");
+  const tRoles = useTranslations("AdminCourses.roles");
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -81,12 +84,12 @@ export default function CreateCoursePage() {
   const handleSubmit = async (e: React.FormEvent) => { // Removido HTMLFormElement para flexibilidade
     e.preventDefault();
     
-    if (!formData.title || !formData.description) return toast.error("Preencha os campos obrigatórios.");
-    if (!imageFile) return toast.error("Selecione uma imagem de capa para o curso.");
+    if (!formData.title || !formData.description) return toast.error(t("toasts.fillRequired"));
+    if (!imageFile) return toast.error(t("toasts.selectImage"));
     if (isSubmitting) return;
 
     setIsSubmitting(true);
-    const toastId = toast.loading("Criando curso...");
+    const toastId = toast.loading(t("toasts.creating"));
 
     try {
       const form = new FormData();
@@ -100,11 +103,11 @@ export default function CreateCoursePage() {
       const res = await fetch("/api/admin/courses", { method: "POST", body: form });
       if (!res.ok) throw new Error("Falha na API");
       
-      toast.success("Curso criado com sucesso!", { id: toastId });
+      toast.success(t("toasts.success"), { id: toastId });
       router.push("/hub/admin/courses");
     } catch (error) {
       console.error("Error creating course: ", error);
-      toast.error("Falha ao criar o curso.", { id: toastId });
+      toast.error(t("toasts.error"), { id: toastId });
       setIsSubmitting(false);
     }
   };
@@ -133,15 +136,15 @@ export default function CreateCoursePage() {
           <div className="flex flex-col gap-1 w-full">
             
             <Header
-              heading="Novo Curso"
-              subheading="Preencha as informações abaixo para criar um novo curso na plataforma."
+              heading={t("title")}
+              subheading={t("subtitle")}
               backHref="/hub/admin/courses"
             />
           </div>
           <div className="hidden md:block">
              <Button className="flex-1 min-w-max" onClick={(e) => handleSubmit(e as any)} disabled={isSubmitting}>
                 {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-                Salvar Curso
+                {t("saveButton")}
              </Button>
           </div>
         </div>
@@ -151,31 +154,31 @@ export default function CreateCoursePage() {
             <div className="lg:col-span-2 space-y-6">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Detalhes Principais</CardTitle>
-                        <CardDescription>Informações básicas que aparecerão para o aluno.</CardDescription>
+                        <CardTitle>{t("mainDetails")}</CardTitle>
+                        <CardDescription>{t("mainDetailsDesc")}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="title">Título do Curso</Label>
+                            <Label htmlFor="title">{t("labels.title")}</Label>
                             <Input
                                 id="title"
                                 name="title"
                                 value={formData.title}
                                 onChange={handleInputChange}
-                                placeholder="Ex: Inglês Avançado para Negócios"
+                                placeholder={t("placeholders.title")}
                                 className="text-lg font-medium"
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="description">Descrição Completa</Label>
+                            <Label htmlFor="description">{t("labels.description")}</Label>
                             <Textarea
                                 id="description"
                                 name="description"
                                 value={formData.description}
                                 onChange={handleInputChange}
                                 rows={8}
-                                placeholder="Descreva os objetivos, metodologia e o que o aluno irá aprender..."
+                                placeholder={t("placeholders.description")}
                                 className="resize-none"
                             />
                         </div>
@@ -188,7 +191,7 @@ export default function CreateCoursePage() {
                 <Card>
                     <CardHeader>
                         <CardTitle className="text-base flex items-center gap-2">
-                            <ImageIcon className="w-4 h-4" /> Capa do Curso
+                            <ImageIcon className="w-4 h-4" /> {t("labels.cover")}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -205,8 +208,8 @@ export default function CreateCoursePage() {
                             ) : (
                                 <div className="flex flex-col items-center gap-2 text-muted-foreground">
                                     <UploadCloud className="w-8 h-8" />
-                                    <span className="text-xs font-medium">Clique para fazer upload</span>
-                                    <span className="text-[10px] text-muted-foreground/70">JPG, PNG (Max 5MB)</span>
+                                    <span className="text-xs font-medium">{t("upload.click")}</span>
+                                    <span className="text-[10px] text-muted-foreground/70">{t("upload.formats")}</span>
                                 </div>
                             )}
                         </div>
@@ -215,41 +218,41 @@ export default function CreateCoursePage() {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-base">Configurações</CardTitle>
+                        <CardTitle className="text-base">{t("settingsTitle")}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="language" className="text-xs flex items-center gap-1"><Globe className="w-3 h-3" /> Idioma</Label>
+                            <Label htmlFor="language" className="text-xs flex items-center gap-1"><Globe className="w-3 h-3" /> {t("labels.language")}</Label>
                             <Input
                                 id="language"
                                 name="language"
                                 value={formData.language}
                                 onChange={handleInputChange}
-                                placeholder="Ex: Inglês"
+                                placeholder={t("placeholders.language")}
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="duration" className="text-xs flex items-center gap-1"><Clock className="w-3 h-3" /> Duração</Label>
+                            <Label htmlFor="duration" className="text-xs flex items-center gap-1"><Clock className="w-3 h-3" /> {t("labels.duration")}</Label>
                             <Input
                                 id="duration"
                                 name="duration"
                                 value={formData.duration}
                                 onChange={handleInputChange}
-                                placeholder="Ex: 40 horas"
+                                placeholder={t("placeholders.duration")}
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="role" className="text-xs flex items-center gap-1"><Shield className="w-3 h-3" /> Visibilidade</Label>
+                            <Label htmlFor="role" className="text-xs flex items-center gap-1"><Shield className="w-3 h-3" /> {t("labels.visibility")}</Label>
                             <Select value={formData.role} onValueChange={handleRoleChange}>
                                 <SelectTrigger>
-                                    <SelectValue placeholder="Selecione" />
+                                    <SelectValue placeholder={t("placeholders.select")} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="student">Estudante</SelectItem>
-                                    <SelectItem value="teacher">Professor</SelectItem>
-                                    <SelectItem value="all">Todos</SelectItem>
+                                    <SelectItem value="student">{tRoles("student")}</SelectItem>
+                                    <SelectItem value="teacher">{tRoles("teacher")}</SelectItem>
+                                    <SelectItem value="all">{tRoles("all")}</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -260,7 +263,7 @@ export default function CreateCoursePage() {
                 <div className="md:hidden pt-2">
                     <Button onClick={(e) => handleSubmit(e as any)} disabled={isSubmitting} className="w-full">
                         {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-                        Criar Curso
+                        {t("saveButton")}
                     </Button>
                 </div>
             </div>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { ChevronUp, ChevronDown, Trash2, Plus, Paperclip, HelpCircle } from "lucide-react";
 import { Lesson, QuizQuestion, TextContentBlock, VideoContentBlock, Attachment, LessonContentBlock } from "../../types/quiz/types";
@@ -29,6 +30,7 @@ const LessonForm = ({
   lessonId: string | null; // Required for Firebase Storage path (when editing)
   onAttachmentsUpdated: (updatedLesson: Lesson) => void;
 }) => {
+  const t = useTranslations("CourseComponents.LessonForm");
   const [title, setTitle] = useState(initialData?.title || "");
   const [contentBlocks, setContentBlocks] = useState<LessonContentBlock[]>(
     initialData?.contentBlocks || []
@@ -77,7 +79,7 @@ const LessonForm = ({
 
   // Delete a content block
   const handleDeleteBlock = (id: string) => {
-    if (confirm("Tem certeza que deseja remover este bloco de conteúdo?")) {
+    if (confirm(t("messages.confirmDeleteBlock"))) {
       setContentBlocks((prevBlocks) =>
         prevBlocks.filter((block) => block.id !== id)
       );
@@ -108,7 +110,7 @@ const LessonForm = ({
   // NEW: Handle file upload
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!lessonId) {
-      toast.error("Por favor, salve a lição primeiro para adicionar anexos.");
+      toast.error(t("saveFirst"));
       return;
     }
     const file = e.target.files?.[0];
@@ -124,7 +126,7 @@ const LessonForm = ({
         body: form,
       });
       if (!res.ok) {
-        throw new Error("Falha na API");
+        throw new Error(t("apiError"));
       }
       const newAttachment = (await res.json()) as Attachment;
       setAttachments((prev) => [...prev, newAttachment]);
@@ -133,10 +135,10 @@ const LessonForm = ({
         attachments: [...(initialData?.attachments || []), newAttachment],
       } as Lesson;
       onAttachmentsUpdated(updatedLesson);
-      toast.success("Anexo enviado com sucesso!");
+      toast.success(t("attachmentUploaded"));
     } catch (error) {
       console.error("Upload error:", error);
-      toast.error("Falha ao fazer upload do anexo.");
+      toast.error(t("uploadError"));
     } finally {
       setUploading(false);
       setUploadProgress(0);
@@ -148,20 +150,20 @@ const LessonForm = ({
     if (
       !lessonId ||
       !confirm(
-        `Tem certeza que deseja remover o anexo "${attachmentToDelete.name}"?`
+        t("confirmDeleteAttachment", { name: attachmentToDelete.name })
       )
     ) {
       return;
     }
 
-    const toastId = toast.loading("Removendo anexo...");
+    const toastId = toast.loading(t("removingAttachment"));
     try {
       const res = await fetch(`/api/admin/courses/${courseId}/sections/${sectionId}/lessons/${lessonId}/attachments`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ attachment: attachmentToDelete }),
       });
-      if (!res.ok) throw new Error("Falha na API");
+      if (!res.ok) throw new Error(t("apiError"));
 
       // 3. Update local state
       setAttachments((prev) =>
@@ -175,17 +177,17 @@ const LessonForm = ({
         ),
       } as Lesson;
       onAttachmentsUpdated(updatedLesson);
-      toast.success("Anexo removido com sucesso!", { id: toastId });
+      toast.success(t("attachmentRemoved"), { id: toastId });
     } catch (error) {
       console.error("Error deleting attachment:", error);
-      toast.error("Falha ao remover anexo.", { id: toastId });
+      toast.error(t("removeError"), { id: toastId });
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
-      toast.error("O título da lição não pode estar vazio.");
+      toast.error(t("emptyTitle"));
       return;
     }
 
@@ -197,7 +199,7 @@ const LessonForm = ({
 
     if (contentBlocks.length === 0 || !isValid) {
       toast.error(
-        "A lição deve ter pelo menos um bloco de conteúdo preenchido (texto ou vídeo)."
+        t("emptyContent")
       );
       return;
     }
@@ -228,7 +230,7 @@ const LessonForm = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="lessonTitle">Título da Lição</Label>
+        <Label htmlFor="lessonTitle">{t("labels.title")}</Label>
         <Input
           id="lessonTitle"
           value={title}
@@ -240,7 +242,7 @@ const LessonForm = ({
       {/* Content Blocks Management */}
       <div className="pt-6 border-t border-fluency-gray-200 dark:border-fluency-gray-700">
         <h3 className="text-lg font-semibold text-fluency-text-light dark:text-fluency-text-dark mb-4">
-          Blocos de Conteúdo
+          {t("labels.contentBlocks")}
         </h3>
         
         <div className="space-y-4">
@@ -250,23 +252,23 @@ const LessonForm = ({
                 <div className="flex-1 space-y-2">
                   {block.type === "text" ? (
                     <div className="space-y-2">
-                      <Label>Texto (Markdown)</Label>
+                      <Label>{t("labels.textMarkdown")}</Label>
                       <Textarea
                         value={(block as TextContentBlock).content}
                         onChange={(e) => handleBlockChange(block.id, "content", e.target.value)}
                         rows={5}
                         className="font-mono text-sm"
-                        placeholder="Adicione seu texto em Markdown aqui."
+                        placeholder={t("placeholders.markdown")}
                       />
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      <Label>URL do Vídeo (Embed)</Label>
+                      <Label>{t("labels.videoUrl")}</Label>
                       <Input
                         type="url"
                         value={(block as VideoContentBlock).url}
                         onChange={(e) => handleBlockChange(block.id, "url", e.target.value)}
-                        placeholder="Ex: https://www.youtube.com/embed/dQw4w9WgXcQ"
+                        placeholder={t("placeholders.videoUrl")}
                       />
                     </div>
                   )}
@@ -302,14 +304,14 @@ const LessonForm = ({
             onClick={() => handleAddBlock("text")}
             variant="primary"
           >
-            <Plus className="mr-2 w-4 h-4" /> Bloco de Texto
+            <Plus className="mr-2 w-4 h-4" /> {t("buttons.addText")}
           </Button>
           <Button
             type="button"
             onClick={() => handleAddBlock("video")}
             variant="primary"
           >
-            <Plus className="mr-2 w-4 h-4" /> Bloco de Vídeo
+            <Plus className="mr-2 w-4 h-4" /> {t("buttons.addVideo")}
           </Button>
         </div>
       </div>
@@ -317,13 +319,13 @@ const LessonForm = ({
       {/* Attachments Section */}
       <div className="pt-6 border-t border-fluency-gray-200 dark:border-fluency-gray-700">
         <h3 className="text-lg font-semibold text-fluency-text-light dark:text-fluency-text-dark mb-4">
-          Anexos da Lição
+          {t("labels.attachments")}
         </h3>
 
         <div className="space-y-2">
           {attachments.length === 0 ? (
             <p className="text-fluency-text-light dark:text-fluency-text-dark text-sm">
-              Nenhum anexo adicionado.
+              {t("messages.noAttachments")}
             </p>
           ) : (
             attachments.map((att) => (
@@ -350,7 +352,7 @@ const LessonForm = ({
 
         <div className="mt-6">
           <div className="space-y-2">
-            <Label htmlFor="newAttachment">Adicionar novo anexo</Label>
+            <Label htmlFor="newAttachment">{t("labels.newAttachment")}</Label>
             <Input
               id="newAttachment"
               type="file"
@@ -363,7 +365,7 @@ const LessonForm = ({
           {uploading && (
             <div className="mt-4 space-y-2">
               <div className="flex justify-between text-sm text-fluency-text-light dark:text-fluency-text-dark">
-                <span>Enviando: {uploadProgress.toFixed(0)}%</span>
+                <span>{t("messages.uploading", { progress: uploadProgress.toFixed(0) })}</span>
               </div>
               <div className="w-full bg-fluency-gray-100 dark:bg-fluency-gray-800 rounded-full h-2">
                 <div
@@ -376,7 +378,7 @@ const LessonForm = ({
 
           {!lessonId && (
             <p className="text-fluency-orange-600 dark:text-fluency-orange-400 text-sm mt-2">
-              * Para adicionar anexos, salve a lição primeiro.
+              {t("messages.saveFirstNote")}
             </p>
           )}
         </div>
@@ -388,10 +390,10 @@ const LessonForm = ({
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <h3 className="text-lg font-semibold text-fluency-text-light dark:text-fluency-text-dark mb-1">
-                Quiz da Lição
+                {t("labels.lessonQuiz")}
               </h3>
               <p className="text-sm text-fluency-text-light dark:text-fluency-text-dark">
-                {initialData.quiz?.length || 0} questão(ões) adicionada(s)
+                {t("messages.quizCount", { count: initialData.quiz?.length || 0 })}
               </p>
             </div>
             <Button
@@ -399,7 +401,7 @@ const LessonForm = ({
               onClick={() => onManageQuiz(initialData, null)}
               variant="primary"
             >
-              <HelpCircle className="mr-2 w-4 h-4" /> Gerenciar Quiz
+              <HelpCircle className="mr-2 w-4 h-4" /> {t("buttons.manageQuiz")}
             </Button>
           </div>
         </div>
@@ -412,13 +414,13 @@ const LessonForm = ({
           onClick={onCancel}
           className="w-full sm:w-auto"
         >
-          Cancelar
+          {t("buttons.cancel")}
         </ModalSecondaryButton>
         <ModalPrimaryButton
           type="submit"
           className="w-full sm:w-auto"
         >
-          Salvar Lição
+          {t("buttons.save")}
         </ModalPrimaryButton>
       </div>
     </form>

@@ -864,5 +864,245 @@
   "AdminUsers": {
     "heading": "Usuários",
     "subheading": "Gerencie os usuários do sistema."
+  },
+  "AdminCourses": {
+    "list": {
+      "title": "Gerenciar Cursos",
+      "subtitle": "Administre o catálogo de cursos, idiomas e níveis.",
+      "newCourse": "Novo Curso",
+      "totalCourses": "Total de Cursos",
+      "catalog": "Catálogo",
+      "catalogDescription": "Lista de todos os cursos disponíveis.",
+      "searchPlaceholder": "Buscar por título ou idioma...",
+      "headers": {
+        "title": "Título",
+        "language": "Idioma",
+        "duration": "Duração",
+        "access": "Acesso",
+        "actions": "Ações"
+      },
+      "empty": "Nenhum curso encontrado.",
+      "deleteModal": {
+        "title": "Confirmar exclusão",
+        "description": "Tem certeza que deseja excluir este curso permanentemente? Esta ação não pode ser desfeita.",
+        "cancel": "Cancelar",
+        "confirm": "Excluir"
+      },
+      "toasts": {
+        "loadError": "Falha ao carregar os cursos.",
+        "deleting": "Excluindo curso...",
+        "deleteSuccess": "Curso excluído com sucesso!",
+        "deleteError": "Falha ao excluir o curso."
+      },
+      "roles": {
+        "studentBasic": "Estudante Básico",
+        "studentPremium": "Estudante Premium"
+      }
+    },
+    "create": {
+      "title": "Novo Curso",
+      "subtitle": "Preencha as informações abaixo para criar um novo curso na plataforma.",
+      "saveButton": "Salvar Curso",
+      "settingsTitle": "Configurações",
+      "mainDetails": "Detalhes Principais",
+      "mainDetailsDesc": "Informações básicas que aparecerão para o aluno.",
+      "labels": {
+        "title": "Título do Curso",
+        "description": "Descrição Completa",
+        "language": "Idioma",
+        "duration": "Duração",
+        "visibility": "Visibilidade",
+        "cover": "Capa do Curso"
+      },
+      "placeholders": {
+        "title": "Ex: Inglês Avançado para Negócios",
+        "description": "Descreva os objetivos, metodologia e o que o aluno irá aprender...",
+        "language": "Ex: Inglês",
+        "duration": "Ex: 40 horas",
+        "select": "Selecione"
+      },
+      "upload": {
+        "click": "Clique para fazer upload",
+        "formats": "JPG, PNG (Max 5MB)"
+      },
+      "toasts": {
+        "creating": "Criando curso...",
+        "success": "Curso criado com sucesso!",
+        "error": "Falha ao criar o curso.",
+        "fillRequired": "Preencha os campos obrigatórios.",
+        "selectImage": "Selecione uma imagem de capa para o curso."
+      }
+    },
+    "edit": {
+      "title": "Editor de Curso",
+      "subtitle": "Editando: {title}",
+      "loading": "Carregando detalhes...",
+      "coverAndDetails": "Capa & Detalhes",
+      "changeImage": "Trocar imagem",
+      "saveChanges": "Salvar Alterações",
+      "grid": "Grade",
+      "newSection": "Nova Seção",
+      "emptyContent": "Este curso ainda não tem conteúdo.",
+      "createFirstSection": "Criar primeira seção",
+      "module": "Módulo",
+      "quiz": "Quiz",
+      "addLesson": "Adicionar Lição",
+      "confirmDeleteQuiz": "Tem certeza que deseja excluir esta questão do quiz?",
+      "savingChanges": "Salvando alterações...",
+      "labels": {
+        "title": "Título",
+        "language": "Idioma",
+        "duration": "Duração",
+        "access": "Acesso",
+        "description": "Descrição"
+      },
+      "placeholders": {
+        "title": "Ex: Inglês para Iniciantes",
+        "duration": "Ex: 20h"
+      },
+      "modals": {
+        "editSection": "Editar Módulo",
+        "newSection": "Novo Módulo",
+        "editLesson": "Editar Conteúdo da Aula",
+        "newLesson": "Nova Aula",
+        "manageQuiz": "Gerenciar Quiz",
+        "deleteSection": {
+          "title": "Excluir seção",
+          "description": "Esta ação excluirá a seção e todas as suas lições e anexos."
+        },
+        "deleteLesson": {
+          "title": "Excluir lição",
+          "description": "Tem certeza que deseja excluir esta lição? Esta ação não pode ser desfeita."
+        }
+      },
+      "toasts": {
+        "savingDetails": "Salvando detalhes do curso...",
+        "detailsSaved": "Detalhes do curso atualizados!",
+        "detailsError": "Falha ao atualizar detalhes do curso.",
+        "savingSection": "Salvando seção...",
+        "sectionSaved": "Seção salva!",
+        "sectionCreated": "Seção criada!",
+        "sectionError": "Falha ao salvar seção.",
+        "deletingSection": "Excluindo seção e seu conteúdo...",
+        "sectionDeleted": "Seção excluída com sucesso!",
+        "deleteSectionError": "Falha ao excluir seção: {error}",
+        "savingLesson": "Salvando lição...",
+        "lessonSaved": "Lição salva!",
+        "lessonCreated": "Lição criada!",
+        "lessonUpdated": "Lição atualizada!",
+        "lessonError": "Falha ao salvar lição.",
+        "deletingLesson": "Excluindo lição...",
+        "lessonDeleted": "Lição excluída!",
+        "deleteLessonError": "Falha ao excluir lição.",
+        "reordering": "Reordenando...",
+        "reordered": "Itens reordenados!",
+        "reorderError": "Falha ao reordenar.",
+        "savingQuiz": "Salvando questão...",
+        "quizSaved": "Questão salva!",
+        "quizAdded": "Questão adicionada!",
+        "quizUpdated": "Questão atualizada!",
+        "quizError": "Falha ao salvar questão do quiz.",
+        "deletingQuiz": "Excluindo questão...",
+        "quizDeleted": "Questão excluída!",
+        "deleteQuizError": "Falha ao excluir questão.",
+        "internalError": "Erro interno: dados de curso ou lição faltando.",
+        "notFound": "Curso não encontrado.",
+        "noId": "ID do curso não encontrado na URL.",
+        "loadError": "Falha ao carregar dados do curso."
+      }
+    },
+    "roles": {
+      "student": "Estudante",
+      "teacher": "Professor",
+      "all": "Todos",
+      "studentBasic": "Estudante Básico",
+      "studentPremium": "Estudante Premium"
+    }
+  },
+  "CourseComponents": {
+    "LessonDisplay": {
+      "attachments": "Anexos"
+    },
+    "LessonForm": {
+      "saveFirst": "Por favor, salve a lição primeiro para adicionar anexos.",
+      "apiError": "Falha na API",
+      "attachmentUploaded": "Anexo enviado com sucesso!",
+      "uploadError": "Falha ao fazer upload do anexo.",
+      "confirmDeleteAttachment": "Tem certeza que deseja remover o anexo \"{name}\"?",
+      "removingAttachment": "Removendo anexo...",
+      "attachmentRemoved": "Anexo removido com sucesso!",
+      "removeError": "Falha ao remover anexo.",
+      "emptyTitle": "O título da lição não pode estar vazio.",
+      "emptyContent": "A lição deve ter pelo menos um bloco de conteúdo preenchido (texto ou vídeo).",
+      "labels": {
+        "title": "Título da Lição",
+        "contentBlocks": "Blocos de Conteúdo",
+        "textMarkdown": "Texto (Markdown)",
+        "videoUrl": "URL do Vídeo (Embed)",
+        "attachments": "Anexos da Lição",
+        "newAttachment": "Adicionar novo anexo",
+        "lessonQuiz": "Quiz da Lição"
+      },
+      "placeholders": {
+        "markdown": "Adicione seu texto em Markdown aqui.",
+        "videoUrl": "Ex: https://www.youtube.com/embed/..."
+      },
+      "buttons": {
+        "addText": "Bloco de Texto",
+        "addVideo": "Bloco de Vídeo",
+        "manageQuiz": "Gerenciar Quiz",
+        "cancel": "Cancelar",
+        "save": "Salvar Lição"
+      },
+      "messages": {
+        "noAttachments": "Nenhum anexo adicionado.",
+        "uploading": "Enviando: {progress}%",
+        "saveFirstNote": "* Para adicionar anexos, salve a lição primeiro.",
+        "quizCount": "{count} questão(ões) adicionada(s)",
+        "confirmDeleteBlock": "Tem certeza que deseja remover este bloco de conteúdo?"
+      }
+    },
+    "QuizComponent": {
+      "answerAll": "Por favor, responda todas as perguntas antes de enviar.",
+      "submitting": "Enviando respostas do quiz...",
+      "successAllCorrect": "Parabéns! Todas as respostas estão corretas!",
+      "successPartial": "Quiz concluído! Você acertou {score} de {total} questões ({percentage}%).",
+      "submitError": "Erro ao enviar o quiz. Tente novamente.",
+      "title": "Quiz",
+      "score": "Pontuação: {score}/{total} ({percentage}%)",
+      "answeredAt": "Respondido em: {date}",
+      "empty": "Este quiz não possui questões.",
+      "yourAnswer": "(Sua resposta)",
+      "correct": "(Correto!)",
+      "correctAnswer": "(Resposta correta)",
+      "buttons": {
+        "sending": "Enviando...",
+        "check": "Verificar Respostas",
+        "retry": "Tentar Novamente"
+      }
+    },
+    "QuizForm": {
+      "emptyQuestion": "A pergunta não pode estar vazia.",
+      "minOptions": "Deve haver pelo menos duas opções preenchidas.",
+      "invalidCorrectAnswer": "Selecione uma resposta correta válida entre as opções preenchidas.",
+      "existingQuestions": "Questões Existentes ({count})",
+      "newQuestion": "Nova Questão",
+      "emptyList": "Nenhuma questão adicionada",
+      "editing": "Editando: \"{question}\"",
+      "optionsLabel": "Opções de Resposta (mínimo 2 preenchidas)",
+      "optionPlaceholder": "Opção {index}",
+      "correctAnswerLabel": "Resposta Correta",
+      "selectCorrectAnswer": "Selecione a resposta correta",
+      "close": "Fechar",
+      "save": "Salvar Alterações",
+      "add": "Adicionar Questão"
+    },
+    "SectionForm": {
+      "emptyTitle": "O título da seção não pode estar vazio.",
+      "titleLabel": "Título da Seção",
+      "placeholder": "Introdução ao Curso",
+      "cancel": "Cancelar",
+      "save": "Salvar Seção"
+    }
   }
 }

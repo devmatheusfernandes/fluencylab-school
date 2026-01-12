@@ -865,5 +865,245 @@
         },
         "filename": "transactions"
     }
+  },
+  "AdminCourses": {
+    "list": {
+      "title": "Manage Courses",
+      "subtitle": "Manage the catalog of courses, languages, and levels.",
+      "newCourse": "New Course",
+      "totalCourses": "Total Courses",
+      "catalog": "Catalog",
+      "catalogDescription": "List of all available courses.",
+      "searchPlaceholder": "Search by title or language...",
+      "headers": {
+        "title": "Title",
+        "language": "Language",
+        "duration": "Duration",
+        "access": "Access",
+        "actions": "Actions"
+      },
+      "empty": "No courses found.",
+      "deleteModal": {
+        "title": "Confirm deletion",
+        "description": "Are you sure you want to permanently delete this course? This action cannot be undone.",
+        "cancel": "Cancel",
+        "confirm": "Delete"
+      },
+      "toasts": {
+        "loadError": "Failed to load courses.",
+        "deleting": "Deleting course...",
+        "deleteSuccess": "Course deleted successfully!",
+        "deleteError": "Failed to delete course."
+      },
+      "roles": {
+        "studentBasic": "Basic Student",
+        "studentPremium": "Premium Student"
+      }
+    },
+    "create": {
+      "title": "New Course",
+      "subtitle": "Fill in the information below to create a new course on the platform.",
+      "saveButton": "Save Course",
+      "settingsTitle": "Settings",
+      "mainDetails": "Main Details",
+      "mainDetailsDesc": "Basic information that will appear to the student.",
+      "labels": {
+        "title": "Course Title",
+        "description": "Full Description",
+        "language": "Language",
+        "duration": "Duration",
+        "visibility": "Visibility",
+        "cover": "Course Cover"
+      },
+      "placeholders": {
+        "title": "Ex: Advanced Business English",
+        "description": "Describe the objectives, methodology, and what the student will learn...",
+        "language": "Ex: English",
+        "duration": "Ex: 40 hours",
+        "select": "Select"
+      },
+      "upload": {
+        "click": "Click to upload",
+        "formats": "JPG, PNG (Max 5MB)"
+      },
+      "toasts": {
+        "creating": "Creating course...",
+        "success": "Course created successfully!",
+        "error": "Failed to create course.",
+        "fillRequired": "Please fill in the required fields.",
+        "selectImage": "Please select a cover image for the course."
+      }
+    },
+    "edit": {
+      "title": "Course Editor",
+      "subtitle": "Editing: {title}",
+      "loading": "Loading details...",
+      "coverAndDetails": "Cover & Details",
+      "changeImage": "Change image",
+      "saveChanges": "Save Changes",
+      "grid": "Curriculum",
+      "newSection": "New Section",
+      "emptyContent": "This course has no content yet.",
+      "createFirstSection": "Create first section",
+      "module": "Module",
+      "quiz": "Quiz",
+      "addLesson": "Add Lesson",
+      "confirmDeleteQuiz": "Are you sure you want to delete this quiz question?",
+      "savingChanges": "Saving changes...",
+      "labels": {
+        "title": "Title",
+        "language": "Language",
+        "duration": "Duration",
+        "access": "Access",
+        "description": "Description"
+      },
+      "placeholders": {
+        "title": "Ex: Beginner English",
+        "duration": "Ex: 20h"
+      },
+      "modals": {
+        "editSection": "Edit Module",
+        "newSection": "New Module",
+        "editLesson": "Edit Lesson Content",
+        "newLesson": "New Lesson",
+        "manageQuiz": "Manage Quiz",
+        "deleteSection": {
+          "title": "Delete section",
+          "description": "This action will delete the section and all its lessons and attachments."
+        },
+        "deleteLesson": {
+          "title": "Delete lesson",
+          "description": "Are you sure you want to delete this lesson? This action cannot be undone."
+        }
+      },
+      "toasts": {
+        "savingDetails": "Saving course details...",
+        "detailsSaved": "Course details updated!",
+        "detailsError": "Failed to update course details.",
+        "savingSection": "Saving section...",
+        "sectionSaved": "Section saved!",
+        "sectionCreated": "Section created!",
+        "sectionError": "Failed to save section.",
+        "deletingSection": "Deleting section and its content...",
+        "sectionDeleted": "Section deleted successfully!",
+        "deleteSectionError": "Failed to delete section: {error}",
+        "savingLesson": "Saving lesson...",
+        "lessonSaved": "Lesson saved!",
+        "lessonCreated": "Lesson created!",
+        "lessonUpdated": "Lesson updated!",
+        "lessonError": "Failed to save lesson.",
+        "deletingLesson": "Deleting lesson...",
+        "lessonDeleted": "Lesson deleted!",
+        "deleteLessonError": "Failed to delete lesson.",
+        "reordering": "Reordering...",
+        "reordered": "Items reordered!",
+        "reorderError": "Failed to reorder.",
+        "savingQuiz": "Saving question...",
+        "quizSaved": "Question saved!",
+        "quizAdded": "Question added!",
+        "quizUpdated": "Question updated!",
+        "quizError": "Failed to save quiz question.",
+        "deletingQuiz": "Deleting question...",
+        "quizDeleted": "Question deleted!",
+        "deleteQuizError": "Failed to delete question.",
+        "internalError": "Internal error: missing course or lesson data.",
+        "notFound": "Course not found.",
+        "noId": "Course ID not found in URL.",
+        "loadError": "Failed to load course data."
+      }
+    },
+    "roles": {
+      "student": "Student",
+      "teacher": "Teacher",
+      "all": "All",
+      "studentBasic": "Basic Student",
+      "studentPremium": "Premium Student"
+    }
+  },
+  "CourseComponents": {
+    "LessonDisplay": {
+      "attachments": "Attachments"
+    },
+    "LessonForm": {
+      "saveFirst": "Please save the lesson first to add attachments.",
+      "apiError": "API Failure",
+      "attachmentUploaded": "Attachment uploaded successfully!",
+      "uploadError": "Failed to upload attachment.",
+      "confirmDeleteAttachment": "Are you sure you want to remove the attachment \"{name}\"?",
+      "removingAttachment": "Removing attachment...",
+      "attachmentRemoved": "Attachment removed successfully!",
+      "removeError": "Failed to remove attachment.",
+      "emptyTitle": "Lesson title cannot be empty.",
+      "emptyContent": "The lesson must have at least one content block filled (text or video).",
+      "labels": {
+        "title": "Lesson Title",
+        "contentBlocks": "Content Blocks",
+        "textMarkdown": "Text (Markdown)",
+        "videoUrl": "Video URL (Embed)",
+        "attachments": "Lesson Attachments",
+        "newAttachment": "Add new attachment",
+        "lessonQuiz": "Lesson Quiz"
+      },
+      "placeholders": {
+        "markdown": "Add your Markdown text here.",
+        "videoUrl": "Ex: https://www.youtube.com/embed/..."
+      },
+      "buttons": {
+        "addText": "Text Block",
+        "addVideo": "Video Block",
+        "manageQuiz": "Manage Quiz",
+        "cancel": "Cancel",
+        "save": "Save Lesson"
+      },
+      "messages": {
+        "noAttachments": "No attachments added.",
+        "uploading": "Uploading: {progress}%",
+        "saveFirstNote": "* To add attachments, save the lesson first.",
+        "quizCount": "{count} question(s) added",
+        "confirmDeleteBlock": "Are you sure you want to remove this content block?"
+      }
+    },
+    "QuizComponent": {
+      "answerAll": "Please answer all questions before submitting.",
+      "submitting": "Submitting quiz answers...",
+      "successAllCorrect": "Congratulations! All answers are correct!",
+      "successPartial": "Quiz completed! You got {score} out of {total} questions correct ({percentage}%).",
+      "submitError": "Error submitting quiz. Try again.",
+      "title": "Quiz",
+      "score": "Score: {score}/{total} ({percentage}%)",
+      "answeredAt": "Answered at: {date}",
+      "empty": "This quiz has no questions.",
+      "yourAnswer": "(Your answer)",
+      "correct": "(Correct!)",
+      "correctAnswer": "(Correct answer)",
+      "buttons": {
+        "sending": "Sending...",
+        "check": "Check Answers",
+        "retry": "Try Again"
+      }
+    },
+    "QuizForm": {
+      "emptyQuestion": "Question cannot be empty.",
+      "minOptions": "There must be at least two filled options.",
+      "invalidCorrectAnswer": "Select a valid correct answer among the filled options.",
+      "existingQuestions": "Existing Questions ({count})",
+      "newQuestion": "New Question",
+      "emptyList": "No questions added",
+      "editing": "Editing: \"{question}\"",
+      "optionsLabel": "Answer Options (minimum 2 filled)",
+      "optionPlaceholder": "Option {index}",
+      "correctAnswerLabel": "Correct Answer",
+      "selectCorrectAnswer": "Select correct answer",
+      "close": "Close",
+      "save": "Save Changes",
+      "add": "Add Question"
+    },
+    "SectionForm": {
+      "emptyTitle": "Section title cannot be empty.",
+      "titleLabel": "Section Title",
+      "placeholder": "Course Introduction",
+      "cancel": "Cancel",
+      "save": "Save Section"
+    }
   }
 }
