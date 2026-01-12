@@ -209,6 +209,7 @@ export default function DatePicker({
           disabled={disabled}
           onClick={() => !disabled && setIsOpen(true)}
           className={`
+              input-base
               w-full duration-150 ease-in-out transition-all rounded-lg border 
               border-gray-200/50 dark:border-gray-700/50 
               bg-gray-300/80 dark:bg-gray-900/35 

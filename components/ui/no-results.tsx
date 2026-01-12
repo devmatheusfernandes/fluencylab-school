@@ -75,7 +75,7 @@ export const NoResults: React.FC<NoResultsProps> = ({
       <motion.div className="mx-auto w-24 h-24 mb-4" variants={iconVariants}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-full w-full text-gray-300"
+          className="h-full w-full text-primary/50"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"

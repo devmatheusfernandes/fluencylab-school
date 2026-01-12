@@ -247,7 +247,6 @@ export default function AddUserModal({
           <ModalDescription>
             {t("createUserDescription")}
           </ModalDescription>
-          <ModalClose />
         </ModalHeader>
         <ModalForm onSubmit={handleSubmit}>
           <ModalBody>

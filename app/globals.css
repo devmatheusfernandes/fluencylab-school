@@ -147,7 +147,8 @@
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-ring: oklch(0.69 0.25 22);
 }
-.theme-orange {
+/* TODO: MUDAR ESSE PARA COR AZUL JÁ QUE O AMARELO ESTÁ NA COR AMBAR*/
+.theme-orange { 
   --primary: oklch(0.74 0.22 55);
   --primary-foreground: oklch(0.21 0.006 285.885);
   --ring: oklch(0.74 0.22 55);
@@ -156,12 +157,12 @@
   --sidebar-ring: oklch(0.74 0.22 55);
 }
 .theme-yellow {
-  --primary: oklch(0.9 0.18 100);
+  --primary: oklch(76.9% 0.188 70.08);
   --primary-foreground: oklch(0.21 0.006 285.885);
-  --ring: oklch(0.9 0.18 100);
-  --sidebar-primary: oklch(0.9 0.18 100);
+  --ring: oklch(76.9% 0.188 70.08);
+  --sidebar-primary: oklch(76.9% 0.188 70.08);
   --sidebar-primary-foreground: oklch(0.21 0.006 285.885);
-  --sidebar-ring: oklch(0.9 0.18 100);
+  --sidebar-ring: oklch(76.9% 0.188 70.08);
 }
 .theme-green {
   --primary: oklch(0.7 0.15 145);

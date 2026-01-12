@@ -153,7 +153,8 @@
     "settings": "Settings",
     "notebook": "Notebook",
     "practice": "Practice",
-    "calendar": "Calendar"
+    "calendar": "Calendar",
+    "notifications": "Notifications"
   },
   "UserProfileHeader": {
     "profilePicture": "Profile picture",
@@ -659,5 +660,9 @@
         "material_view": "View material"
       }
     }
+  },
+  "AdminUsers": {
+    "heading": "Users",
+    "subheading": "Manage system users."
   }
 }
