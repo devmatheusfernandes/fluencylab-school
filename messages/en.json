@@ -142,7 +142,7 @@
     "notifications": "Notifications"
   },
   "SidebarItems": {
-    "myProfile": "My Profile",
+    "myProfile": "Profile",
     "dashboard": "Dashboard",
     "users": "Users",
     "finances": "Finances",
@@ -1099,6 +1099,27 @@
       "title": "Access Denied",
       "description": "This area is restricted to administrators only."
     },
+    "tabs": {
+      "new": "New Notification",
+      "history": "Sent History"
+    },
+    "history": {
+      "title": "Notification History",
+      "empty": "No notifications sent yet.",
+      "headers": {
+        "title": "Title",
+        "message": "Message",
+        "type": "Type",
+        "recipients": "Recipients",
+        "date": "Sent Date",
+        "readBy": "Read by"
+      },
+      "types": {
+        "role": "Groups: {roles}",
+        "specific": "{count} Users"
+      },
+      "loading": "Loading history..."
+    },
     "form": {
       "titleLabel": "Announcement Title",
       "titlePlaceholder": "Ex: Scheduled Maintenance",
@@ -1122,7 +1143,12 @@
       "specificIdsPlaceholder": "Ex: user_123, user_987, user_xyz...",
       "specificIdsTip": "Tip: Useful for sending billing notices or individual support.",
       "submitButton": "Send Announcement",
-      "sendingButton": "Sending..."
+      "sendingButton": "Sending...",
+      "selectUsersLabel": "Select Users",
+      "selectUsersPlaceholder": "Search user...",
+      "noUsersFound": "No users found.",
+      "selectedUsers": "Selected",
+      "selectUsersButton": "Select users"
     },
     "toasts": {
       "requiredFields": "Required fields",

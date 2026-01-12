@@ -142,7 +142,7 @@
     "notifications": "Notificações"
   },
   "SidebarItems": {
-    "myProfile": "Meu Perfil",
+    "myProfile": "Perfil",
     "dashboard": "Painel",
     "users": "Usuários",
     "finances": "Financeiro",
@@ -1098,6 +1098,27 @@
       "title": "Acesso Negado",
       "description": "Esta área é restrita apenas para administradores."
     },
+    "tabs": {
+      "new": "Nova Notificação",
+      "history": "Histórico de Envios"
+    },
+    "history": {
+      "title": "Histórico de Notificações",
+      "empty": "Nenhuma notificação enviada ainda.",
+      "headers": {
+        "title": "Título",
+        "message": "Mensagem",
+        "type": "Tipo",
+        "recipients": "Destinatários",
+        "date": "Data de Envio",
+        "readBy": "Lido por"
+      },
+      "types": {
+        "role": "Grupos: {roles}",
+        "specific": "{count} Usuários"
+      },
+      "loading": "Carregando histórico..."
+    },
     "form": {
       "titleLabel": "Título do Anúncio",
       "titlePlaceholder": "Ex: Manutenção Programada",
@@ -1121,7 +1142,12 @@
       "specificIdsPlaceholder": "Ex: user_123, user_987, user_xyz...",
       "specificIdsTip": "Dica: Útil para enviar avisos de cobrança ou suporte individual.",
       "submitButton": "Enviar Anúncio",
-      "sendingButton": "Enviando..."
+      "sendingButton": "Enviando...",
+      "selectUsersLabel": "Selecionar Usuários",
+      "selectUsersPlaceholder": "Buscar usuário...",
+      "noUsersFound": "Nenhum usuário encontrado.",
+      "selectedUsers": "Selecionados",
+      "selectUsersButton": "Selecionar usuários"
     },
     "toasts": {
       "requiredFields": "Campos obrigatórios",
