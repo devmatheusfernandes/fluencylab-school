@@ -1071,6 +1071,15 @@
         "en": "English"
       }
     },
+    "contract": {
+      "title": "Contract",
+      "subtitle": "Manage your contract settings",
+      "autoRenewal": "Auto Renewal",
+      "autoRenewalDescription": "Automatically renew contract 7 days before expiration.",
+      "autoRenewalDisabledCancelled": "Renewal unavailable for canceled contracts.",
+      "active": "Active Contract",
+      "expiresAt": "Expires on {date}"
+    },
     "twoFactor": {
       "title": "Authentication",
       "setupTitle": "Two-Factor Authentication",

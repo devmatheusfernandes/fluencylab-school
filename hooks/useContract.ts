@@ -24,6 +24,15 @@ interface UseContractActions {
     signatureData: SignatureFormData
   ) => Promise<ContractOperationResponse>;
   validateContract: () => Promise<ContractOperationResponse>;
+  renewContract: (
+    renewalType: "automatic" | "manual"
+  ) => Promise<ContractOperationResponse>;
+  cancelContract: (reason: string) => Promise<ContractOperationResponse>;
+  checkCancellationEligibility: () => Promise<{
+    canCancel: boolean;
+    message: string;
+  }>;
+  toggleAutoRenewal: (enabled: boolean) => Promise<ContractOperationResponse>;
   refreshContract: () => Promise<void>;
   dismissNotification: () => void;
 }
@@ -56,10 +65,24 @@ export const useContract = (): UseContractReturn => {
     try {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-      const response = await fetch(`/api/contract/${session.user.id}`);
+      const response = await fetch(`/api/contract/${encodeURIComponent(session.user.id)}`);
+
+      if (response.status === 404) {
+        // Handle 404 gracefully - treat as no contract data found
+        setState((prev) => ({
+          ...prev,
+          student: null,
+          contractStatus: null,
+          contractLog: null,
+          showNotification: false,
+          isLoading: false,
+          error: null,
+        }));
+        return;
+      }
 
       if (!response.ok) {
-        throw new Error("Failed to fetch contract data");
+        throw new Error(`Failed to fetch contract data: ${response.status}`);
       }
 
       const data = await response.json();
@@ -185,6 +208,168 @@ export const useContract = (): UseContractReturn => {
     }, [session?.user?.id]);
 
   /**
+   * Renew contract
+   */
+  const renewContract = useCallback(
+    async (
+      renewalType: "automatic" | "manual"
+    ): Promise<ContractOperationResponse> => {
+      if (!session?.user?.id) {
+        return {
+          success: false,
+          message: "User not authenticated",
+        };
+      }
+
+      try {
+        const response = await fetch("/api/teacher/contract/renew", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            studentId: session.user.id,
+            renewalType,
+          }),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          await fetchContractData();
+        }
+
+        return result;
+      } catch (error) {
+        console.error("Error renewing contract:", error);
+        return {
+          success: false,
+          message: error instanceof Error ? error.message : "Unknown error",
+        };
+      }
+    },
+    [session?.user?.id, fetchContractData]
+  );
+
+  /**
+   * Check if user can cancel contract
+   */
+  const checkCancellationEligibility = useCallback(async (): Promise<{
+    canCancel: boolean;
+    message: string;
+  }> => {
+    if (!session?.user?.id) {
+      return {
+        canCancel: false,
+        message: "User not authenticated",
+      };
+    }
+
+    try {
+      const response = await fetch(`/api/contract/cancel/${session.user.id}`);
+      const data = await response.json();
+      return {
+        canCancel: data.canCancel || false,
+        message: data.message || "",
+      };
+    } catch (error) {
+      console.error("Error checking cancellation eligibility:", error);
+      return {
+        canCancel: false,
+        message: "Error checking eligibility",
+      };
+    }
+  }, [session?.user?.id]);
+
+  /**
+   * Cancel contract
+   */
+  const cancelContract = useCallback(
+    async (reason: string): Promise<ContractOperationResponse> => {
+      if (!session?.user?.id) {
+        return {
+          success: false,
+          message: "User not authenticated",
+        };
+      }
+
+      try {
+        const response = await fetch(
+          `/api/contract/cancel/${session.user.id}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              reason,
+            }),
+          }
+        );
+
+        const result = await response.json();
+
+        if (result.success) {
+          await fetchContractData();
+        }
+
+        return result;
+      } catch (error) {
+        console.error("Error cancelling contract:", error);
+        return {
+          success: false,
+          message: error instanceof Error ? error.message : "Unknown error",
+        };
+      }
+    },
+    [session?.user?.id, fetchContractData]
+  );
+
+  /**
+   * Toggle auto renewal
+   */
+  const toggleAutoRenewal = useCallback(
+    async (enabled: boolean): Promise<ContractOperationResponse> => {
+      if (!session?.user?.id) {
+        return {
+          success: false,
+          message: "User not authenticated",
+        };
+      }
+
+      try {
+        const response = await fetch(
+          "/api/contract/auto-renewal/toggle",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              enabled,
+            }),
+          }
+        );
+
+        const result = await response.json();
+
+        if (result.success) {
+          await fetchContractData();
+        }
+
+        return result;
+      } catch (error) {
+        console.error("Error toggling auto renewal:", error);
+        return {
+          success: false,
+          message: error instanceof Error ? error.message : "Unknown error",
+        };
+      }
+    },
+    [session?.user?.id, fetchContractData]
+  );
+
+  /**
    * Refresh contract data
    */
   const refreshContract = useCallback(async (): Promise<void> => {
@@ -219,6 +404,10 @@ export const useContract = (): UseContractReturn => {
     // Actions
     signContract,
     validateContract,
+    renewContract,
+    cancelContract,
+    checkCancellationEligibility,
+    toggleAutoRenewal,
     refreshContract,
     dismissNotification,
   };

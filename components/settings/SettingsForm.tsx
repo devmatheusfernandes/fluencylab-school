@@ -3,10 +3,13 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useSettings } from "@/hooks/useSettings";
+import { useContract } from "@/hooks/useContract";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Switch } from "@/components/ui/switch";
+import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -15,6 +18,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import TwoFactorSetup from "./TwoFactorSetup";
 import { GoogleCalendarDefaultTimes } from "@/types/users/users";
 import { ThemeSwitcher } from "../ThemeSwitcher";
@@ -25,6 +34,8 @@ import {
   CheckCircle2, 
   AlertCircle,
   Clock,
+  FileText,
+  RefreshCw,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -74,6 +85,25 @@ export default function SettingsForm({
     googleCalendarDefaultTimes || {}
   );
   const { updateSettings } = useSettings();
+  const { contractStatus, toggleAutoRenewal } = useContract();
+  const [isTogglingRenewal, setIsTogglingRenewal] = useState(false);
+
+  const handleToggleAutoRenewal = async (enabled: boolean) => {
+    setIsTogglingRenewal(true);
+    try {
+      const result = await toggleAutoRenewal(enabled);
+      if (result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      toast.error("Erro ao alterar renovação automática");
+    } finally {
+      setIsTogglingRenewal(false);
+    }
+  };
+
   const applyThemeColorClass = (color: typeof themeColor) => {
     const root = document.documentElement;
     root.classList.remove(
@@ -222,6 +252,74 @@ export default function SettingsForm({
           </div>
         </Card>
       </motion.div>
+
+      {/* Contract Settings */}
+      {(contractStatus?.signed || contractStatus?.cancelledAt) && (
+        <motion.div 
+          variants={itemVariants}
+          initial="visible" 
+          animate="visible"
+        >
+          <Card className="card-base p-6 space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <FileText className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <Text variant="subtitle" size="lg" weight="semibold">
+                  {t("contract.title")}
+                </Text>
+                <Text size="sm" variant="placeholder">
+                  {t("contract.subtitle")}
+                </Text>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <motion.div 
+                className="flex items-center justify-between p-4 rounded-lg subcontainer-base"
+                whileHover={{ scale: 1.01 }}
+                transition={{ type: "spring", stiffness: 400 }}
+              >
+                <div className="flex items-center gap-3">
+                  <RefreshCw className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                      <label htmlFor="autoRenewal" className="font-medium block">
+                          {t("contract.autoRenewal")}
+                      </label>
+                      <Text size="sm" variant="placeholder">
+                          {t("contract.autoRenewalDescription")}
+                      </Text>
+                  </div>
+                </div>
+                {contractStatus.cancelledAt ? (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="cursor-not-allowed opacity-50">
+                          <Switch 
+                            checked={false} 
+                            disabled={true}
+                          />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{t("contract.autoRenewalDisabledCancelled")}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                ) : (
+                  <Switch 
+                    checked={contractStatus.autoRenewal !== false} 
+                    onCheckedChange={handleToggleAutoRenewal}
+                    disabled={isTogglingRenewal}
+                  />
+                )}
+              </motion.div>
+            </div>
+          </Card>
+        </motion.div>
+      )}
 
       {/* Google Calendar Settings */}
       <motion.div variants={itemVariants}>

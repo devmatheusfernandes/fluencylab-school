@@ -1070,9 +1070,18 @@
         "en": "Inglês"
       }
     },
+    "contract": {
+      "title": "Contrato",
+      "subtitle": "Gerencie as configurações do seu contrato",
+      "autoRenewal": "Renovação Automática",
+      "autoRenewalDescription": "Renovar automaticamente o contrato 7 dias antes do vencimento.",
+      "autoRenewalDisabledCancelled": "Renovação indisponível para contratos cancelados.",
+      "active": "Contrato Ativo",
+      "expiresAt": "Vence em {date}"
+    },
     "twoFactor": {
       "title": "Autenticação",
-      "setupTitle": "Autenticação em Dois Fatores",
+      "setupTitle": "Verificação em Duas Etapas",
       "setupSubtitle": "Adicione uma camada extra de segurança à sua conta",
       "status": "Status",
       "disabledMessage": "A autenticação em dois fatores está desativada",

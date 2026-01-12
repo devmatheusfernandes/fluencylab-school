@@ -10,7 +10,7 @@ import SignatureModal from "@/components/contract/SignatureModal";
 import { toast } from "sonner";
 import { SignatureFormData, Student } from "@/types/contract";
 import { Spinner } from "@/components/ui/spinner";
-import { FileWarning, Printer, AlertCircle, CheckCircle2, AlertTriangle, Ban } from "lucide-react";
+import { FileWarning, Printer, AlertCircle, CheckCircle2, AlertTriangle, Ban, RefreshCw } from "lucide-react";
 
 const ContratoPage: React.FC = () => {
   const {
@@ -21,9 +21,11 @@ const ContratoPage: React.FC = () => {
     isSigning,
     error,
     signContract,
+    renewContract,
   } = useContract();
 
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [isRenewing, setIsRenewing] = React.useState(false);
   const contractRef = useRef<HTMLDivElement>(null);
 
   const displayData: Student | null = React.useMemo(() => {
@@ -56,6 +58,23 @@ const ContratoPage: React.FC = () => {
     } catch (error) {
       console.error("Error signing contract:", error);
       toast.error("Erro inesperado ao assinar contrato");
+    }
+  };
+
+  const handleRenew = async () => {
+    try {
+      setIsRenewing(true);
+      const result = await renewContract("manual");
+      if (result.success) {
+        toast.success("Contrato renovado com sucesso!");
+      } else {
+        toast.error(result.message || "Erro ao renovar contrato");
+      }
+    } catch (error) {
+      console.error("Error renewing contract:", error);
+      toast.error("Erro inesperado ao renovar contrato");
+    } finally {
+      setIsRenewing(false);
     }
   };
 
@@ -182,6 +201,11 @@ const ContratoPage: React.FC = () => {
           </motion.div>
         );
       case 'signed':
+        const daysUntilExpiration = contractStatus?.expiresAt 
+          ? Math.ceil((new Date(contractStatus.expiresAt).getTime() - new Date().getTime()) / (1000 * 3600 * 24))
+          : 0;
+        const showRenewal = daysUntilExpiration <= 30 && daysUntilExpiration > 0;
+
         return (
           <motion.div
             key="signed-status"
@@ -192,18 +216,41 @@ const ContratoPage: React.FC = () => {
           >
             <Alert className="card-base border-green-500/50 dark:border-green-400/50">
               <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
-              <AlertDescription className="text-green-700 dark:text-green-300">
-                <span className="font-semibold">Contrato assinado</span> em{" "}
-                {contractStatus?.signedAt
-                  ? new Date(contractStatus.signedAt).toLocaleDateString("pt-BR")
-                  : ""}
-                {contractStatus?.expiresAt && (
-                  <span className="block mt-1 text-sm opacity-80">
-                    Válido até{" "}
-                    {new Date(contractStatus.expiresAt).toLocaleDateString("pt-BR")}
-                  </span>
+              <div className="flex flex-col gap-2 w-full">
+                <AlertDescription className="text-green-700 dark:text-green-300">
+                  <span className="font-semibold">Contrato assinado</span> em{" "}
+                  {contractStatus?.signedAt
+                    ? new Date(contractStatus.signedAt).toLocaleDateString("pt-BR")
+                    : ""}
+                  {contractStatus?.expiresAt && (
+                    <span className="block mt-1 text-sm opacity-80">
+                      Válido até{" "}
+                      {new Date(contractStatus.expiresAt).toLocaleDateString("pt-BR")}
+                    </span>
+                  )}
+                  {contractStatus?.autoRenewal !== false && (
+                    <span className="block mt-1 text-sm font-medium text-green-800 dark:text-green-200">
+                      Renovação Automática: Ativa
+                    </span>
+                  )}
+                </AlertDescription>
+                
+                {showRenewal && (
+                  <Button 
+                    onClick={handleRenew} 
+                    disabled={isRenewing}
+                    size="sm"
+                    className="w-full sm:w-auto mt-2 bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    {isRenewing ? (
+                      <Spinner className="mr-2 h-4 w-4" />
+                    ) : (
+                      <RefreshCw className="mr-2 h-4 w-4" />
+                    )}
+                    {isRenewing ? "Renovando..." : "Renovar Agora"}
+                  </Button>
                 )}
-              </AlertDescription>
+              </div>
             </Alert>
           </motion.div>
         );

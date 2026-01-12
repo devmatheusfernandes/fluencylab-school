@@ -57,6 +57,11 @@ export class ContractService {
         );
       }
 
+      // If contract is cancelled, return it immediately without validity checks
+      if (contractStatus?.cancelledAt) {
+        return { student, contractStatus, contractLog };
+      }
+
       // Check contract validity
       if (contractStatus && contractStatus.signed && contractStatus.signedAt) {
         const isValid = this.isContractValid(contractStatus.signedAt);
@@ -606,6 +611,73 @@ export class ContractService {
       return {
         success: false,
         message: "Erro ao cancelar contrato",
+      };
+    }
+  }
+
+  /**
+   * Toggle auto-renewal status
+   */
+  async toggleAutoRenewal(
+    studentId: string,
+    enabled: boolean
+  ): Promise<ContractOperationResponse> {
+    try {
+      // Get current contract status
+      const contractStatus = await contractRepository.getContractStatus(
+        studentId
+      );
+
+      if (!contractStatus) {
+        return {
+          success: false,
+          message: "Contrato não encontrado",
+        };
+      }
+
+      if (!contractStatus.signed) {
+        return {
+          success: false,
+          message: "Contrato não assinado",
+        };
+      }
+
+      if (contractStatus.cancelledAt) {
+        return {
+          success: false,
+          message: "Contrato cancelado",
+        };
+      }
+
+      // Update contract status
+      const updatedStatus: ContractStatus = {
+        ...contractStatus,
+        autoRenewal: enabled,
+      };
+
+      await contractRepository.updateContractStatus(studentId, updatedStatus);
+
+      // Log the event
+      await AuditService.logEvent(
+        studentId,
+        "CONTRACT_AUTO_RENEWAL_TOGGLED",
+        "contract",
+        {
+          studentId,
+          enabled,
+        }
+      );
+
+      return {
+        success: true,
+        message: `Renovação automática ${enabled ? "ativada" : "desativada"} com sucesso`,
+        data: updatedStatus,
+      };
+    } catch (error) {
+      console.error("Error toggling auto-renewal:", error);
+      return {
+        success: false,
+        message: "Erro ao alterar status da renovação automática",
       };
     }
   }
