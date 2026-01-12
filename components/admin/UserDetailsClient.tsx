@@ -13,6 +13,7 @@ import UserContractsTab from "./UserContractsTab";
 import UserPermissionsTab from "./UserPermissionsTab";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/types/users/userRoles";
+import { useTranslations } from "next-intl";
 
 interface UserDetailsClientProps {
   user: FullUserDetails;
@@ -25,6 +26,7 @@ export default function UserDetailsClient({
 }: UserDetailsClientProps) {
   const { data: session } = useSession();
   const currentUserRole = session?.user?.role as UserRoles | undefined;
+  const t = useTranslations("UserDetails.tabs");
 
   return (
     <div className="p-3 px-6">
@@ -42,20 +44,20 @@ export default function UserDetailsClient({
           </div>
 
           <TabsList className="mt-0 flex-wrap h-full">
-            <TabsTrigger value="overview">Geral</TabsTrigger>
+            <TabsTrigger value="overview">{t("overview")}</TabsTrigger>
 
             {user.role === "student" && (
               <>
-                <TabsTrigger value="schedule">Horário</TabsTrigger>
-                <TabsTrigger value="classes">Aulas</TabsTrigger>
-                <TabsTrigger value="credits">Créditos</TabsTrigger>
+                <TabsTrigger value="schedule">{t("schedule")}</TabsTrigger>
+                <TabsTrigger value="classes">{t("classes")}</TabsTrigger>
+                <TabsTrigger value="credits">{t("credits")}</TabsTrigger>
               </>
             )}
-            <TabsTrigger value="financial">Financeiro</TabsTrigger>
-            <TabsTrigger value="contracts">Contratos</TabsTrigger>
+            <TabsTrigger value="financial">{t("financial")}</TabsTrigger>
+            <TabsTrigger value="contracts">{t("contracts")}</TabsTrigger>
 
             {currentUserRole === UserRoles.ADMIN && (
-              <TabsTrigger value="permissions">Permissões</TabsTrigger>
+              <TabsTrigger value="permissions">{t("permission")}</TabsTrigger>
             )}
           </TabsList>
         </div>
@@ -76,7 +78,7 @@ export default function UserDetailsClient({
         </TabsContent>
 
         <TabsContent value="contracts" className="mt-4">
-          <UserContractsTab user={user} currentUserRole={user.role} />
+          <UserContractsTab user={user} currentUserRole={currentUserRole || UserRoles.STUDENT} />
         </TabsContent>
 
         <TabsContent value="schedule" className="mt-4">

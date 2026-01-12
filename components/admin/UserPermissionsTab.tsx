@@ -1,5 +1,4 @@
-"use client";
-
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -72,7 +71,7 @@ const allPermissions: UserPermission[] = [
 
 // Group permissions by category for better organization
 const permissionGroups: Record<string, UserPermission[]> = {
-  "Student Permissions": [
+  "student": [
     "class.view",
     "class.cancel.self",
     "class.reschedule.self",
@@ -82,7 +81,7 @@ const permissionGroups: Record<string, UserPermission[]> = {
     "payment.view.self",
     "credits.view.self",
   ],
-  "Teacher Permissions": [
+  "teacher": [
     "class.view.assigned",
     "class.update.status",
     "class.reschedule.teacher",
@@ -92,7 +91,7 @@ const permissionGroups: Record<string, UserPermission[]> = {
     "class.create.with.credits",
     "credits.view.students",
   ],
-  "Admin Permissions": [
+  "admin": [
     "user.create",
     "user.update",
     "user.delete",
@@ -107,14 +106,14 @@ const permissionGroups: Record<string, UserPermission[]> = {
     "credits.grant",
     "credits.view.all",
   ],
-  "Manager/Support Permissions": [
+  "managerSupport": [
     "student.support",
     "teacher.support",
     "report.view.limited",
     "credits.grant",
     "credits.view.assigned",
   ],
-  "Material Manager Permissions": [
+  "materialManager": [
     "material.create",
     "material.update",
     "material.delete",
@@ -123,6 +122,7 @@ const permissionGroups: Record<string, UserPermission[]> = {
 };
 
 export default function UserPermissionsTab({ user }: UserPermissionsTabProps) {
+  const t = useTranslations("UserDetails.permissions");
   const [userPermissions, setUserPermissions] = useState<UserPermission[]>(
     user.permissions || []
   );
@@ -145,46 +145,6 @@ export default function UserPermissionsTab({ user }: UserPermissionsTabProps) {
     "credits.manage",
     "credits.view.all",
   ];
-
-  const permissionMeta: Record<UserPermission, { label: string; description?: string }> = {
-    "class.view": { label: "Ver aulas" },
-    "class.cancel.self": { label: "Cancelar próprias aulas" },
-    "class.reschedule.self": { label: "Reagendar próprias aulas" },
-    "contract.view.self": { label: "Ver contratos" },
-    "profile.update.self": { label: "Atualizar perfil" },
-    "feedback.create": { label: "Enviar feedback" },
-    "payment.view.self": { label: "Ver pagamentos" },
-    "credits.view.self": { label: "Ver créditos" },
-    "class.view.assigned": { label: "Ver aulas atribuídas" },
-    "class.update.status": { label: "Atualizar status das aulas" },
-    "class.reschedule.teacher": { label: "Reagendar aulas" },
-    "vacation.create": { label: "Registrar férias" },
-    "vacation.view": { label: "Ver férias" },
-    "student.feedback.read": { label: "Ler feedbacks dos alunos" },
-    "class.create.with.credits": { label: "Criar aulas com créditos" },
-    "credits.view.students": { label: "Ver créditos dos alunos" },
-    "user.create": { label: "Criar usuário" },
-    "user.update": { label: "Editar usuário" },
-    "user.delete": { label: "Excluir usuário" },
-    "class.view.all": { label: "Ver todas as aulas" },
-    "class.update.any": { label: "Editar quaisquer aulas" },
-    "contract.create": { label: "Criar contrato" },
-    "contract.update": { label: "Atualizar contrato" },
-    "vacation.override": { label: "Modificar férias" },
-    "report.view": { label: "Ver relatórios" },
-    "payment.manage": { label: "Gerir pagamentos" },
-    "credits.manage": { label: "Gerir créditos" },
-    "credits.grant": { label: "Conceder créditos" },
-    "credits.view.all": { label: "Ver todos os créditos" },
-    "student.support": { label: "Suporte ao aluno" },
-    "teacher.support": { label: "Suporte ao professor" },
-    "report.view.limited": { label: "Ver relatórios limitados" },
-    "credits.view.assigned": { label: "Ver créditos atribuídos" },
-    "material.create": { label: "Criar material" },
-    "material.update": { label: "Atualizar material" },
-    "material.delete": { label: "Excluir material" },
-    "material.view": { label: "Ver material" },
-  };
 
   const handlePermissionChange = (
     permission: UserPermission,
@@ -211,9 +171,9 @@ export default function UserPermissionsTab({ user }: UserPermissionsTabProps) {
       permissions: filtered,
     });
     if (success) {
-      toast.success("Permissões atualizadas com sucesso!");
+      toast.success(t("successUpdate"));
     } else {
-      toast.error("Ocorreu um erro ao atualizar as permissões.");
+      toast.error(t("errorUpdate"));
     }
   };
 
@@ -231,7 +191,7 @@ export default function UserPermissionsTab({ user }: UserPermissionsTabProps) {
     return (
       <Card className="p-6">
         <p className="text-subtitle">
-          Você não tem permissão para gerenciar permissões de usuários.
+          {t("noPermission")}
         </p>
       </Card>
     );
@@ -240,49 +200,48 @@ export default function UserPermissionsTab({ user }: UserPermissionsTabProps) {
   return (
     <Card className="p-6">
       <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-2">Gerenciar Permissões</h3>
+        <h3 className="text-lg font-semibold mb-2">{t("managePermissions")}</h3>
         <p className="text-subtitle mb-4">
-          Permissões atuais do usuário: {userPermissions.length} de{" "}
-          {allPermissions.length}
+          {t("currentPermissionsCount", { count: userPermissions.length, total: allPermissions.length })}
         </p>
         <div className="flex gap-2">
           <Button onClick={handleRolePermissions} disabled={isLoading}>
-            Restaurar Permissões Padrão do Cargo
+            {t("restoreDefault")}
           </Button>
           <Button onClick={handleSavePermissions} disabled={isLoading}>
-            {isLoading ? "Salvando..." : "Salvar Permissões"}
+            {isLoading ? t("saving") : t("savePermissions")}
           </Button>
         </div>
         <div className="mt-4 max-w-md">
           <Input
-            placeholder="Buscar permissões"
+            placeholder={t("searchPermissions")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
         </div>
         {isEditingSelf && (
           <p className="text-destructive mt-2">
-            Não é possível editar as próprias permissões.
+            {t("cannotEditSelf")}
           </p>
         )}
       </div>
 
       <div className="space-y-8">
-        {Object.entries(permissionGroups).map(([groupName, permissions]) => {
+        {Object.entries(permissionGroups).map(([groupKey, permissions]) => {
           const visible = permissions.filter((p) =>
-            (permissionMeta[p]?.label || p)
+            (t(`labels.${p.replace(/\./g, '_')}`) || p)
               .toLowerCase()
               .includes(query.toLowerCase())
           );
           if (visible.length === 0) return null;
           return (
-            <div key={groupName}>
+            <div key={groupKey}>
               <h4 className="text-md font-semibold mb-3 border-b pb-1">
-                {groupName}
+                {t(`groups.${groupKey}`)}
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {visible.map((permission) => {
-                  const label = permissionMeta[permission]?.label || permission;
+                  const label = t(`labels.${permission.replace(/\./g, '_')}`);
                   const disabled =
                     isLoading ||
                     isEditingSelf ||
@@ -318,7 +277,7 @@ export default function UserPermissionsTab({ user }: UserPermissionsTabProps) {
 
       <div className="flex justify-end mt-6">
         <Button onClick={handleSavePermissions} disabled={isLoading}>
-          {isLoading ? "Salvando..." : "Salvar Permissões"}
+          {isLoading ? t("saving") : t("savePermissions")}
         </Button>
       </div>
     </Card>

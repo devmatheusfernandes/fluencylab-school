@@ -5,7 +5,7 @@ import { UserService } from "@/services/userService";
 import { userAdminRepository } from "@/repositories";
 import { redirect } from "next/navigation";
 import { NoResults } from "@/components/ui/no-results";
-import UserDetailsClient from "@/components/admin/UseDetailsClient";
+import UserDetailsClient from "@/components/admin/UserDetailsClient";
 
 const userService = new UserService();
 const userAdminRepo = userAdminRepository;

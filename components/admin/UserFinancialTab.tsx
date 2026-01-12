@@ -21,6 +21,7 @@ import { MonthlyPayment } from "@/types/financial/subscription";
 import { Calendar, Clock, Coins } from "lucide-react";
 import { ButtonGroup } from "../ui/button-group";
 import { Spinner } from "../ui/spinner";
+import { useTranslations, useFormatter } from "next-intl";
 
 interface UserFinancialTabProps {
   user: User;
@@ -39,25 +40,22 @@ interface StudentFinancialData {
   payments: MonthlyPayment[];
 }
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
-const monthOptions = [
-  { value: 0, label: "Janeiro" },
-  { value: 1, label: "Fevereiro" },
-  { value: 2, label: "Março" },
-  { value: 3, label: "Abril" },
-  { value: 4, label: "Maio" },
-  { value: 5, label: "Junho" },
-  { value: 6, label: "Julho" },
-  { value: 7, label: "Agosto" },
-  { value: 8, label: "Setembro" },
-  { value: 9, label: "Outubro" },
-  { value: 10, label: "Novembro" },
-  { value: 11, label: "Dezembro" },
-];
-const nowYear = new Date().getFullYear();
-const yearOptions = Array.from({ length: 6 }, (_, i) => nowYear - i);
-
 const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
+  const t = useTranslations("UserDetails.financial");
+  const format = useFormatter();
+  const currency = new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+
+  const nowYear = new Date().getFullYear();
+  const yearOptions = Array.from({ length: 6 }, (_, i) => nowYear - i);
+
+  const monthOptions = Array.from({ length: 12 }, (_, i) => ({
+    value: i,
+    label: format.dateTime(new Date(2024, i, 1), { month: "long" }).replace(/^\w/, (c) => c.toUpperCase()),
+  }));
+
   const [loading, setLoading] = useState(false);
   const [teacherStats, setTeacherStats] = useState<TeacherClassStats[]>([]);
   const [studentFinancials, setStudentFinancials] =
@@ -129,7 +127,7 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
       }));
 
       setStudentFinancials({
-        paymentMethod: data.paymentMethod || "N/A",
+        paymentMethod: data.paymentMethod || t("paymentMethods.notAvailable"),
         subscriptionStatus: data.subscriptionStatus || "inactive",
         payments,
       });
@@ -179,7 +177,7 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">
-                    Aulas Concluídas
+                    {t("completedClasses")}
                   </p>
                   <p className="text-2xl font-bold">{totalClasses}</p>
                 </div>
@@ -193,10 +191,10 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">
-                    Ganhos Totais
+                    {t("totalEarnings")}
                   </p>
                   <p className="text-2xl font-bold">
-                    R$ {totalEarnings.toFixed(2)}
+                    {currency.format(totalEarnings)}
                   </p>
                 </div>
                 <Coins className="h-8 w-8 text-primary/60" />
@@ -209,7 +207,7 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">
-                    Valor por Aula
+                    {t("ratePerClass")}
                   </p>
                   <p className="text-2xl font-bold">{currency.format(ratePerClass)}</p>
                 </div>
@@ -223,14 +221,14 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between gap-2">
-                Ganhos
+                {t("earnings")}
               <ButtonGroup>
                 <Select
                   value={String(selectedMonth)}
                   onValueChange={(v) => setSelectedMonth(Number(v))}
                 >
                   <SelectTrigger className="w-[160px]">
-                    <SelectValue placeholder="Selecione o mês" />
+                    <SelectValue placeholder={t("selectMonth")} />
                   </SelectTrigger>
                   <SelectContent>
                     {monthOptions.map((month) => (
@@ -245,7 +243,7 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
                   onValueChange={(v) => setSelectedYear(Number(v))}
                 >
                   <SelectTrigger className="w-[120px]">
-                    <SelectValue placeholder="Ano" />
+                    <SelectValue placeholder={t("year")} />
                   </SelectTrigger>
                   <SelectContent>
                     {yearOptions.map((year) => (
@@ -263,16 +261,16 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
               <div className="text-center py-8">
                 <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground">
-                  Nenhuma aula concluída neste mês.
+                  {t("noClassesThisMonth")}
                 </p>
               </div>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Aluno</TableHead>
-                    <TableHead>Aulas Concluídas</TableHead>
-                    <TableHead>Ganhos (R$)</TableHead>
+                    <TableHead>{t("student")}</TableHead>
+                    <TableHead>{t("completedClassesHeader")}</TableHead>
+                    <TableHead>{t("earningsHeader")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -286,7 +284,7 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
                     </TableRow>
                   ))}
                   <TableRow className="font-semibold bg-muted/50">
-                    <TableCell>Total</TableCell>
+                    <TableCell>{t("total")}</TableCell>
                     <TableCell>{totalClasses}</TableCell>
                     <TableCell>{currency.format(totalEarnings)}</TableCell>
                   </TableRow>
@@ -314,7 +312,7 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Coins className="h-5 w-5" />
-              Método de Pagamento
+              {t("paymentMethod")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -322,14 +320,15 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
               <div>
                 <p className="font-medium">
                   {studentFinancials?.paymentMethod === "pix"
-                    ? "PIX"
+                    ? t("paymentMethods.pix")
                     : studentFinancials?.paymentMethod === "credit_card"
-                      ? "Cartão de Crédito"
-                      : studentFinancials?.paymentMethod || "Não definido"}
+                    ? t("paymentMethods.credit_card")
+                    : studentFinancials?.paymentMethod ||
+                      t("paymentMethods.undefined")}
                 </p>
                 {user.subscriptionBillingDay && (
                   <p className="text-sm text-muted-foreground">
-                    Cobrança no dia {user.subscriptionBillingDay} de cada mês
+                    {t("billingDay", { day: user.subscriptionBillingDay })}
                   </p>
                 )}
               </div>
@@ -341,10 +340,11 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
                 }
               >
                 {studentFinancials?.subscriptionStatus === "active"
-                  ? "Ativo"
+                  ? t("subscriptionStatus.active")
                   : studentFinancials?.subscriptionStatus === "canceled"
-                    ? "Cancelado"
-                    : studentFinancials?.subscriptionStatus || "Indefinido"}
+                  ? t("subscriptionStatus.canceled")
+                  : studentFinancials?.subscriptionStatus ||
+                    t("subscriptionStatus.undefined")}
               </Badge>
             </div>
           </CardContent>
@@ -355,7 +355,7 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Coins className="h-5 w-5" />
-              Histórico de Pagamentos
+              {t("paymentHistory")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -364,18 +364,18 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
               <div className="text-center py-8">
                 <Coins className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground">
-                  Nenhum histórico de pagamentos disponível.
+                  {t("noPaymentHistory")}
                 </p>
               </div>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Descrição</TableHead>
-                    <TableHead>Valor</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Método</TableHead>
+                    <TableHead>{t("table.date")}</TableHead>
+                    <TableHead>{t("table.description")}</TableHead>
+                    <TableHead>{t("table.amount")}</TableHead>
+                    <TableHead>{t("table.status")}</TableHead>
+                    <TableHead>{t("table.method")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -385,7 +385,7 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
                         {new Date(payment.dueDate).toLocaleDateString("pt-BR")}
                       </TableCell>
                       <TableCell>
-                        {payment.description || "Pagamento mensal"}
+                        {payment.description || t("defaultDescription")}
                       </TableCell>
                       <TableCell>
                         R$ {((payment.amount || 0) / 100).toFixed(2)}
@@ -397,26 +397,27 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
                           }
                         >
                           {payment.status === "paid"
-                            ? "Pago"
+                            ? t("paymentStatus.paid")
                             : payment.status === "pending"
-                              ? "Pendente"
-                              : payment.status === "available"
-                                ? "Disponível"
-                                : payment.status === "overdue"
-                                  ? "Vencido"
-                                  : payment.status === "failed"
-                                    ? "Falhou"
-                                    : payment.status === "canceled"
-                                      ? "Cancelado"
-                                      : payment.status || "Indefinido"}
+                            ? t("paymentStatus.pending")
+                            : payment.status === "available"
+                            ? t("paymentStatus.available")
+                            : payment.status === "overdue"
+                            ? t("paymentStatus.overdue")
+                            : payment.status === "failed"
+                            ? t("paymentStatus.failed")
+                            : payment.status === "canceled"
+                            ? t("paymentStatus.canceled")
+                            : payment.status || t("paymentStatus.undefined")}
                         </Badge>
                       </TableCell>
                       <TableCell>
                         {payment.paymentMethod === "pix"
-                          ? "PIX"
+                          ? t("paymentMethods.pix")
                           : payment.paymentMethod === "credit_card"
-                            ? "Cartão de Crédito"
-                            : payment.paymentMethod || "Não definido"}
+                          ? t("paymentMethods.credit_card")
+                          : payment.paymentMethod ||
+                            t("paymentMethods.undefined")}
                       </TableCell>
                     </TableRow>
                   ))}

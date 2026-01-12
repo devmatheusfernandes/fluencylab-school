@@ -12,6 +12,7 @@ import { Spinner } from "../ui/spinner";
 import ContratoPDF from "../contract/ContratoPDF";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { useTranslations, useFormatter } from "next-intl";
 
 interface UserContractsTabProps {
   user: User;
@@ -22,6 +23,8 @@ export default function UserContractsTab({
   user,
   currentUserRole,
 }: UserContractsTabProps) {
+  const t = useTranslations("UserDetails.contracts");
+  const format = useFormatter();
   const [contractData, setContractData] = useState<{
     status: ContractStatus | null;
     log: ContractLog | null;
@@ -182,27 +185,31 @@ export default function UserContractsTab({
 
   // Simple date formatting function
   const formatDate = (dateString: string | undefined): string => {
-    if (!dateString) return "N/A";
+    if (!dateString) return t("notAvailable");
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString("pt-BR", {
+      return format.dateTime(date, {
         day: "2-digit",
         month: "long",
         year: "numeric",
       });
     } catch (e) {
-      return "Data inválida";
+      return t("invalidDate");
     }
   };
 
   // Short date formatting function
   const formatShortDate = (dateString: string | undefined): string => {
-    if (!dateString) return "N/A";
+    if (!dateString) return t("notAvailable");
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString("pt-BR");
+      return format.dateTime(date, {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
     } catch (e) {
-      return "N/A";
+      return t("notAvailable");
     }
   };
 
@@ -218,7 +225,7 @@ export default function UserContractsTab({
     return (
       <Card className="p-6">
         <Text variant="error">
-          Erro ao carregar informações do contrato: {error}
+          {t("errorLoading", { error })}
         </Text>
       </Card>
     );
@@ -227,7 +234,7 @@ export default function UserContractsTab({
   if (!contractData?.status) {
     return (
       <Card className="p-6">
-        <Text>Nenhum contrato encontrado para este usuário.</Text>
+        <Text>{t("noContractFound")}</Text>
       </Card>
     );
   }
@@ -256,49 +263,49 @@ export default function UserContractsTab({
         <Card className="p-6">
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <Text variant="subtitle">Status do Contrato:</Text>
+              <Text variant="subtitle">{t("contractStatus")}:</Text>
               {status.cancelledAt ? (
-                <Badge>Cancelado</Badge>
+                <Badge>{t("statusCanceled")}</Badge>
               ) : status.signed && status.signedByAdmin && status.isValid ? (
-                <Badge>Assinado e Válido</Badge>
+                <Badge>{t("statusSignedAndValid")}</Badge>
               ) : isExpired ? (
-                <Badge>Expirado</Badge>
+                <Badge>{t("statusExpired")}</Badge>
               ) : (
-                <Badge>Pendente</Badge>
+                <Badge>{t("statusPending")}</Badge>
               )}
             </div>
 
             {isNearExpiration && !isExpired && !status.cancelledAt && (
               <div className="flex items-center gap-2">
-                <Text variant="subtitle">Validade:</Text>
-                <Badge>Perto de expirar</Badge>
+                <Text variant="subtitle">{t("validity")}:</Text>
+                <Badge>{t("nearExpiration")}</Badge>
               </div>
             )}
 
             {isExpired && !status.cancelledAt && (
               <div className="flex items-center gap-2">
-                <Text variant="subtitle">Validade:</Text>
-                <Badge>Expirado</Badge>
+                <Text variant="subtitle">{t("validity")}:</Text>
+                <Badge>{t("statusExpired")}</Badge>
               </div>
             )}
 
             {status.expiresAt && (
               <div className="flex items-center gap-2">
-                <Text variant="subtitle">Data de Expiração:</Text>
+                <Text variant="subtitle">{t("expirationDate")}:</Text>
                 <Text>{formatShortDate(status.expiresAt)}</Text>
               </div>
             )}
 
             {status.cancelledAt && (
               <div className="flex items-center gap-2">
-                <Text variant="subtitle">Data de Cancelamento:</Text>
+                <Text variant="subtitle">{t("cancellationDate")}:</Text>
                 <Text>{formatShortDate(status.cancelledAt)}</Text>
               </div>
             )}
 
             {status.cancellationReason && (
               <div className="flex items-center gap-2">
-                <Text variant="subtitle">Motivo:</Text>
+                <Text variant="subtitle">{t("reason")}:</Text>
                 <Text>{status.cancellationReason}</Text>
               </div>
             )}
@@ -310,12 +317,12 @@ export default function UserContractsTab({
             variant="primary"
             onClick={() => setShowContract(!showContract)}
           >
-            {showContract ? "Ocultar Contrato" : "Visualizar Contrato"}
+            {showContract ? t("hideContract") : t("viewContract")}
           </Button>
 
           {showContract && (
             <Button variant="secondary" onClick={handlePrintContract}>
-              Imprimir Contrato
+              {t("printContract")}
             </Button>
           )}
 
@@ -329,7 +336,7 @@ export default function UserContractsTab({
               isCancelling || !((roleAllowsCancel ? true : canCancel) && !status.cancelledAt)
             }
           >
-            {isCancelling ? "Cancelando..." : "Cancelar Contrato"}
+            {isCancelling ? t("cancelling") : t("cancelContract")}
           </Button>
         </div>
 
@@ -355,11 +362,11 @@ export default function UserContractsTab({
         <Dialog open={isCancelOpen} onOpenChange={setIsCancelOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Cancelar contrato</DialogTitle>
-              <DialogDescription>Informe o motivo do cancelamento.</DialogDescription>
+              <DialogTitle>{t("cancelContractDialogTitle")}</DialogTitle>
+              <DialogDescription>{t("cancelContractDialogDescription")}</DialogDescription>
             </DialogHeader>
             <Input
-              placeholder="Motivo do cancelamento"
+              placeholder={t("cancelReasonPlaceholder")}
               value={cancelReason}
               onChange={(e) => setCancelReason(e.target.value)}
             />
@@ -369,14 +376,14 @@ export default function UserContractsTab({
                 onClick={() => setIsCancelOpen(false)}
                 disabled={isCancelling}
               >
-                Voltar
+                {t("back")}
               </Button>
               <Button
                 variant="destructive"
                 onClick={handleConfirmCancel}
                 disabled={isCancelling || !cancelReason.trim()}
               >
-                Confirmar
+                {t("confirm")}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -391,100 +398,100 @@ export default function UserContractsTab({
       <Card className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Text variant="subtitle">Status do Contrato</Text>
+            <Text variant="subtitle">{t("contractStatus")}</Text>
             <div className="flex items-center gap-2 mt-1">
               {status.cancelledAt ? (
-                <Badge>Cancelado</Badge>
+                <Badge>{t("statusCanceled")}</Badge>
               ) : status.signed && status.signedByAdmin && status.isValid ? (
-                <Badge>Assinado e Válido</Badge>
+                <Badge>{t("statusSignedAndValid")}</Badge>
               ) : isExpired ? (
-                <Badge>Expirado</Badge>
+                <Badge>{t("statusExpired")}</Badge>
               ) : (
-                <Badge>Pendente</Badge>
+                <Badge>{t("statusPending")}</Badge>
               )}
             </div>
           </div>
 
           <div>
-            <Text variant="subtitle">Assinatura do Aluno</Text>
+            <Text variant="subtitle">{t("studentSignature")}</Text>
             <div className="flex items-center gap-2 mt-1">
               {status.signed ? (
-                <Badge>Assinado</Badge>
+                <Badge>{t("signed")}</Badge>
               ) : (
-                <Badge>Pendente</Badge>
+                <Badge>{t("statusPending")}</Badge>
               )}
             </div>
           </div>
 
           <div>
-            <Text variant="subtitle">Assinatura do Administrador</Text>
+            <Text variant="subtitle">{t("adminSignature")}</Text>
             <div className="flex items-center gap-2 mt-1">
               {status.signedByAdmin ? (
-                <Badge>Assinado</Badge>
+                <Badge>{t("signed")}</Badge>
               ) : (
-                <Badge>Pendente</Badge> 
+                <Badge>{t("statusPending")}</Badge> 
               )}
             </div>
           </div>
 
           <div>
-            <Text variant="subtitle">Validade</Text>
+            <Text variant="subtitle">{t("validity")}</Text>
             <div className="flex items-center gap-2 mt-1">
               {isExpired ? (
-                <Badge>Expirado</Badge>
+                <Badge>{t("statusExpired")}</Badge>
               ) : isNearExpiration ? (
-                <Badge>Perto de expirar</Badge>
+                <Badge>{t("nearExpiration")}</Badge>
               ) : (
-                <Badge>Válido</Badge>
+                <Badge>{t("statusValid")}</Badge>
               )}
             </div>
           </div>
 
           {status.signedAt && (
             <div>
-              <Text variant="subtitle">Data de Assinatura</Text>
+              <Text variant="subtitle">{t("signedAt")}</Text>
               <Text className="mt-1">{formatDate(status.signedAt)}</Text>
             </div>
           )}
 
           {status.expiresAt && (
             <div>
-              <Text variant="subtitle">Data de Expiração</Text>
+              <Text variant="subtitle">{t("expirationDate")}</Text>
               <Text className="mt-1">{formatDate(status.expiresAt)}</Text>
             </div>
           )}
 
           {status.adminSignedAt && (
             <div>
-              <Text variant="subtitle">Data de Assinatura Admin</Text>
+              <Text variant="subtitle">{t("adminSignedAt")}</Text>
               <Text className="mt-1">{formatDate(status.adminSignedAt)}</Text>
             </div>
           )}
 
           {status.cancelledAt && (
             <div>
-              <Text variant="subtitle">Data de Cancelamento</Text>
+              <Text variant="subtitle">{t("cancellationDate")}</Text>
               <Text className="mt-1">{formatDate(status.cancelledAt)}</Text>
             </div>
           )}
 
           {status.cancellationReason && (
             <div>
-              <Text variant="subtitle">Motivo do Cancelamento</Text>
+              <Text variant="subtitle">{t("cancellationReason")}</Text>
               <Text className="mt-1">{status.cancellationReason}</Text>
             </div>
           )}
 
           {status.renewalCount && status.renewalCount > 0 && (
             <div>
-              <Text variant="subtitle">Renovações</Text>
-              <Text className="mt-1">{status.renewalCount}x renovado</Text>
+              <Text variant="subtitle">{t("renewals")}</Text>
+              <Text className="mt-1">{t("renewedCount", { count: status.renewalCount })}</Text>
             </div>
           )}
 
           {status.lastRenewalAt && (
             <div>
-              <Text variant="subtitle">Última Renovação</Text>
+              <Text variant="subtitle">{t("lastRenewal")}</Text>
               <Text className="mt-1">{formatDate(status.lastRenewalAt)}</Text>
             </div>
           )}
@@ -494,52 +501,52 @@ export default function UserContractsTab({
       {log && (
         <Card className="p-6">
           <Text variant="title" size="lg" className="mb-4">
-            Detalhes do Contrato
+            {t("contractDetails")}
           </Text>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Text variant="subtitle">Nome Completo</Text>
+              <Text variant="subtitle">{t("fullName")}</Text>
               <Text>{log.name}</Text>
             </div>
 
             <div>
-              <Text variant="subtitle">CPF</Text>
+              <Text variant="subtitle">{t("cpf")}</Text>
               <Text>{log.cpf}</Text>
             </div>
 
             <div>
-              <Text variant="subtitle">Data de Nascimento</Text>
+              <Text variant="subtitle">{t("birthDate")}</Text>
               <Text>{formatDate(log.birthDate)}</Text>
             </div>
 
             <div>
-              <Text variant="subtitle">Endereço</Text>
+              <Text variant="subtitle">{t("address")}</Text>
               <Text>
                 {log.address}, {log.city} - {log.state}, {log.zipCode}
               </Text>
             </div>
 
             <div>
-              <Text variant="subtitle">IP do Cliente</Text>
+              <Text variant="subtitle">{t("clientIP")}</Text>
               <Text>{log.ip}</Text>
             </div>
 
             <div>
-              <Text variant="subtitle">Navegador</Text>
+              <Text variant="subtitle">{t("browser")}</Text>
               <Text>{log.browser}</Text>
             </div>
 
             {log.adminName && (
               <div>
-                <Text variant="subtitle">Administrador</Text>
+                <Text variant="subtitle">{t("admin")}</Text>
                 <Text>{log.adminName}</Text>
               </div>
             )}
 
             {log.adminCPF && (
               <div>
-                <Text variant="subtitle">CPF do Administrador</Text>
+                <Text variant="subtitle">{t("adminCPF")}</Text>
                 <Text>{log.adminCPF}</Text>
               </div>
             )}
@@ -549,19 +556,19 @@ export default function UserContractsTab({
 
       <Card className="p-6">
         <Text variant="title" size="lg" className="mb-4">
-          Ações
+          {t("actions")}
         </Text>
         <div className="flex gap-4">
           <Button
             variant="primary"
             onClick={() => setShowContract(!showContract)}
           >
-            {showContract ? "Ocultar Contrato" : "Visualizar Contrato"}
+            {showContract ? t("hideContract") : t("viewContract")}
           </Button>
 
       {showContract && (
         <Button variant="secondary" onClick={handlePrintContract}>
-          Imprimir Contrato
+          {t("printContract")}
         </Button>
       )}
 
@@ -574,7 +581,7 @@ export default function UserContractsTab({
               isCancelling || !((roleAllowsCancel ? true : canCancel) && !status.cancelledAt)
             }
           >
-            {isCancelling ? "Cancelando..." : "Cancelar Contrato"}
+            {isCancelling ? t("cancelling") : t("cancelContract")}
           </Button>
         </div>
       </Card>
@@ -582,7 +589,7 @@ export default function UserContractsTab({
       {showContract && log && (
         <Card className="p-6">
           <Text variant="title" size="lg" className="mb-4">
-            Contrato Completo
+            {t("fullContract")}
           </Text>
           <ContratoPDF
             alunoData={{
@@ -603,11 +610,11 @@ export default function UserContractsTab({
       <Dialog open={isCancelOpen} onOpenChange={setIsCancelOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Cancelar contrato</DialogTitle>
-            <DialogDescription>Informe o motivo do cancelamento.</DialogDescription>
+            <DialogTitle>{t("cancelContractDialogTitle")}</DialogTitle>
+            <DialogDescription>{t("cancelContractDialogDescription")}</DialogDescription>
           </DialogHeader>
           <Input
-            placeholder="Motivo do cancelamento"
+            placeholder={t("cancelReasonPlaceholder")}
             value={cancelReason}
             onChange={(e) => setCancelReason(e.target.value)}
           />
@@ -617,14 +624,14 @@ export default function UserContractsTab({
               onClick={() => setIsCancelOpen(false)}
               disabled={isCancelling}
             >
-              Voltar
+              {t("back")}
             </Button>
             <Button
               variant="destructive"
               onClick={handleConfirmCancel}
               disabled={isCancelling || !cancelReason.trim()}
             >
-              Confirmar
+              {t("confirm")}
             </Button>
           </DialogFooter>
         </DialogContent>

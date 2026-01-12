@@ -17,7 +17,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { FullUserDetails } from "@/types/users/user-details";
 import { UserRoles } from "@/types/users/userRoles";
-import { useTranslations } from "next-intl";
+import { useTranslations, useFormatter } from "next-intl";
 import { Spinner } from "../ui/spinner";
 
 interface UserOverviewTabProps {
@@ -25,7 +25,10 @@ interface UserOverviewTabProps {
 }
 
 export default function UserOverviewTab({ user }: UserOverviewTabProps) {
-  const t = useTranslations("UserRoles");
+  const t = useTranslations("UserDetails.overview");
+  const tRoles = useTranslations("UserRoles");
+  const tLangs = useTranslations("UserDetails.schedule.languages");
+  const format = useFormatter();
   const [name, setName] = useState(user.name);
   const [role, setRole] = useState(user.role);
 
@@ -64,9 +67,9 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
       languages: teacherLanguages,
     });
     if (success) {
-      toast.success("Perfil do utilizador salvo com sucesso!");
+      toast.success(t("toasts.success"));
     } else {
-      toast.error("Ocorreu um erro ao salvar o perfil.");
+      toast.error(t("toasts.error"));
     }
   };
 
@@ -78,7 +81,7 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
             htmlFor="name"
             className="block text-sm font-medium mb-1"
           >
-            Nome Completo
+            {t("fullName")}
           </label>
           <Input
             className="capitalize"
@@ -93,7 +96,7 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
             htmlFor="email"
             className="block text-sm font-medium mb-1"
           >
-            Email
+            {t("email")}
           </label>
           <Input id="email" value={user.email} disabled />
         </div>
@@ -102,7 +105,7 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
             htmlFor="role"
             className="block text-sm font-medium mb-1"
           >
-            Tipo
+            {t("role")}
           </label>
           <Select
             value={role}
@@ -115,7 +118,7 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
             <SelectContent>
               {Object.values(UserRoles).map((roleValue) => (
                 <SelectItem className="capitalize" key={roleValue} value={roleValue}>
-                  {t(roleValue)}
+                  {tRoles(roleValue)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -123,10 +126,14 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">
-            Data de Criação
+            {t("createdAt")}
           </label>
           <Input
-            value={new Date(user.createdAt).toLocaleDateString("pt-BR")}
+            value={format.dateTime(new Date(user.createdAt), {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit'
+            })}
             disabled
           />
         </div>
@@ -135,7 +142,7 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
             htmlFor="contractStartDate"
             className="block text-sm font-medium mb-1"
           >
-            Data de Início do Contrato
+            {t("contractStartDate")}
           </label>
           <Input
             id="contractStartDate"
@@ -150,7 +157,7 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
             htmlFor="contractLength"
             className="block text-sm font-medium mb-1"
           >
-            Duração do Contrato (Meses)
+            {t("contractLength")}
           </label>
           <Select
             value={String(contractLengthMonths)}
@@ -161,8 +168,8 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="6">6 Meses</SelectItem>
-              <SelectItem value="12">12 Meses</SelectItem>
+              <SelectItem value="6">{t("months6")}</SelectItem>
+              <SelectItem value="12">{t("months12")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -173,7 +180,7 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
                 htmlFor="ratePerClassCents"
                 className="block text-sm font-medium mb-1"
               >
-                Valor por Aula (R$)
+                {t("ratePerClass")}
               </label>
               <Input
                 id="ratePerClassCents"
@@ -190,7 +197,7 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
             </div>
             <div>
               <span className="block text-sm font-medium mb-1">
-                Idiomas que Ensina
+                {t("teachingLanguages")}
               </span>
               <div className="flex flex-wrap gap-3">
                 {["Inglês", "Espanhol", "Libras"].map((lang) => {
@@ -209,7 +216,7 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
                         }}
                         disabled={!canEditUser || isLoading}
                       />
-                      <span>{lang}</span>
+                      <span>{tLangs(lang)}</span>
                     </label>
                   );
                 })}
@@ -221,7 +228,7 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
       {canEditUser && (
         <div className="flex justify-end mt-6">
           <Button onClick={handleSaveChanges} disabled={isLoading}>
-            {isLoading ? <Spinner className="h-5 w-5" /> : "Salvar"}
+            {isLoading ? <Spinner className="h-5 w-5" /> : t("save")}
           </Button>
         </div>
       )}

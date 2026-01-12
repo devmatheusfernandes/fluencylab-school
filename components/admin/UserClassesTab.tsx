@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Text } from "@/components/ui/text";
 import { useState, useMemo, useEffect } from "react";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations, useLocale, useFormatter } from "next-intl";
 import {
   Select,
   SelectContent,
@@ -49,29 +49,22 @@ const generateYearOptions = () => {
   return years;
 };
 
-const monthOptions = [
-  { value: 0, label: "Janeiro" },
-  { value: 1, label: "Fevereiro" },
-  { value: 2, label: "Março" },
-  { value: 3, label: "Abril" },
-  { value: 4, label: "Maio" },
-  { value: 5, label: "Junho" },
-  { value: 6, label: "Julho" },
-  { value: 7, label: "Agosto" },
-  { value: 8, label: "Setembro" },
-  { value: 9, label: "Outubro" },
-  { value: 10, label: "Novembro" },
-  { value: 11, label: "Dezembro" },
-];
-
- 
-
 export default function UserClassesTab({
   classes: initialClasses,
 }: UserClassesTabProps) {
   const router = useRouter();
   const tStatus = useTranslations("ClassStatus");
+  const t = useTranslations("UserDetails.classes");
   const locale = useLocale();
+  const format = useFormatter();
+
+  const monthOptions = useMemo(() => {
+    return Array.from({ length: 12 }, (_, i) => ({
+      value: i,
+      label: format.dateTime(new Date(2024, i, 1), { month: "long" }).replace(/^\w/, (c) => c.toUpperCase()),
+    }));
+  }, [format]);
+
   const yearOptions = useMemo(() => generateYearOptions(), []);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [loadingTeachers, setLoadingTeachers] = useState(true);
@@ -98,7 +91,7 @@ export default function UserClassesTab({
         setTeachers(teacherList);
       } catch (error) {
         console.error("Erro ao buscar professores:", error);
-        toast.error("Erro ao carregar professores");
+        toast.error(t("toasts.loadError"));
       } finally {
         setLoadingTeachers(false);
       }
@@ -127,7 +120,7 @@ export default function UserClassesTab({
   }, [classes, selectedMonth, selectedYear]);
 
   if (!classes || classes.length === 0) {
-    return <Text>Este utilizador não tem nenhuma aula agendada.</Text>;
+    return <Text>{t("noClassesScheduled")}</Text>;
   }
 
   // Function to update class teacher
@@ -147,15 +140,15 @@ export default function UserClassesTab({
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || "Falha ao atualizar professor da aula");
+        throw new Error(result.error || t("toasts.updateFailed"));
       }
 
-      toast.success("Professor da aula atualizado com sucesso!");
+      toast.success(t("toasts.updateSuccess"));
 
       // Reload classes to reflect the change
       window.location.reload();
     } catch (error: any) {
-      toast.error(`Erro ao atualizar professor: ${error.message}`);
+      toast.error(`${t("toasts.updateError")} ${error.message}`);
     }
   };
 
@@ -179,10 +172,10 @@ export default function UserClassesTab({
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || "Falha ao atualizar professor da aula");
+        throw new Error(result.error || t("toasts.updateFailed"));
       }
 
-      toast.success("Professor da aula atualizado com sucesso!");
+      toast.success(t("toasts.updateSuccess"));
       setIsModalOpen(false);
       setPendingTeacherUpdate(null);
 
@@ -204,7 +197,7 @@ export default function UserClassesTab({
         })
       );
     } catch (error: any) {
-      toast.error(`Erro ao atualizar professor: ${error.message}`);
+      toast.error(`${t("toasts.updateError")} ${error.message}`);
       setIsModalOpen(false);
       setPendingTeacherUpdate(null);
     }
@@ -217,7 +210,7 @@ export default function UserClassesTab({
     currentTeacherName: string
   ) => {
     // Find the new teacher name
-    let newTeacherName = "Nenhum professor";
+    let newTeacherName = t("noTeacher");
     if (teacherId !== "none") {
       const teacher = teachers.find((t) => t.id === teacherId);
       if (teacher) {
@@ -284,20 +277,20 @@ export default function UserClassesTab({
       <Modal open={isModalOpen} onOpenChange={setIsModalOpen}>
         <ModalContent>
           <ModalHeader>
-            <ModalTitle>Confirmar Alteração de Professor</ModalTitle>
+            <ModalTitle>{t("modal.confirmTitle")}</ModalTitle>
             <ModalDescription>
-              Tem certeza que deseja alterar o professor desta aula?
+              {t("modal.confirmDescription")}
             </ModalDescription>
           </ModalHeader>
 
           {pendingTeacherUpdate && (
             <div className="py-4 space-y-2">
               <p>
-                <strong>Professor atual:</strong>{" "}
+                <strong>{t("modal.currentTeacher")}</strong>{" "}
                 {pendingTeacherUpdate.currentTeacherName}
               </p>
               <p>
-                <strong>Novo professor:</strong>{" "}
+                <strong>{t("modal.newTeacher")}</strong>{" "}
                 {pendingTeacherUpdate.teacherName}
               </p>
             </div>
@@ -305,9 +298,9 @@ export default function UserClassesTab({
 
           <ModalFooter>
             <ModalClose asChild>
-              <Button variant="secondary">Cancelar</Button>
+              <Button variant="secondary">{t("modal.cancel")}</Button>
             </ModalClose>
-            <Button onClick={confirmUpdateClassTeacher}>Confirmar</Button>
+            <Button onClick={confirmUpdateClassTeacher}>{t("modal.confirm")}</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
@@ -319,7 +312,7 @@ export default function UserClassesTab({
           onValueChange={(val) => setSelectedMonth(Number(val))}
         >
           <SelectTrigger className="w-full md:w-[180px]">
-            <SelectValue placeholder="Filtrar por Mês" />
+            <SelectValue placeholder={t("filterByMonth")} />
           </SelectTrigger>
           <SelectContent>
             {monthOptions.map((month) => (
@@ -334,7 +327,7 @@ export default function UserClassesTab({
           onValueChange={(val) => setSelectedYear(Number(val))}
         >
           <SelectTrigger className="w-full md:w-[120px]">
-            <SelectValue placeholder="Filtrar por Ano" />
+            <SelectValue placeholder={t("filterByYear")} />
           </SelectTrigger>
           <SelectContent>
             {yearOptions.map((year) => (
@@ -378,7 +371,7 @@ export default function UserClassesTab({
 
                         <div className="mt-3">
                           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Professor:
+                            {t("teacherLabel")}
                           </label>
                           <div className="flex items-center space-x-2">
                             <Select
@@ -390,18 +383,18 @@ export default function UserClassesTab({
                                   cls.teacherId
                                     ? teachers.find(
                                         (t) => t.id === cls.teacherId
-                                      )?.name || "Professor desconhecido"
-                                    : "Nenhum professor"
+                                      )?.name || t("unknownTeacher")
+                                    : t("noTeacher")
                                 )
                               }
                               disabled={loadingTeachers}
                             >
                               <SelectTrigger className="w-[200px] capitalize font-bold">
-                                <SelectValue placeholder="Selecionar professor" />
+                                <SelectValue placeholder={t("selectTeacher")} />
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem key="none" value="none">
-                                  Nenhum professor
+                                  {t("noTeacher")}
                                 </SelectItem>
                                 {teachers.map((teacher) => (
                                   <SelectItem
@@ -432,14 +425,14 @@ export default function UserClassesTab({
                         router.push(`/hub/admin/class/Aula?aula=${encodeURIComponent(cls.id)}`)
                       }
                     >
-                      Ver Aula
+                      {t("viewClass")}
                     </Button>
                   </div>
                 </Card>
               );
             })
         ) : (
-          <Text>Nenhuma aula encontrada para o período selecionado.</Text>
+          <Text>{t("noClassesFound")}</Text>
         )}
       </div>
     </div>

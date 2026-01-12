@@ -30,6 +30,7 @@ import { Spinner } from "../ui/spinner";
 import { ArrowLeft, Book, Calendar, Trash } from "lucide-react";
 import { ButtonGroup } from "../ui/button-group";
 import { Header } from "../ui/header";
+import { useTranslations } from "next-intl";
 
 interface UserScheduleManagerProps {
   user: FullUserDetails;
@@ -69,6 +70,7 @@ export default function UserScheduleManager({
   user,
   allTeachers,
 }: UserScheduleManagerProps) {
+  const t = useTranslations("UserDetails.schedule");
   const [schedule, setSchedule] = useState<ClassTemplateDay[]>([]);
   const [savedSchedule, setSavedSchedule] = useState<ClassTemplateDay[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -121,24 +123,20 @@ export default function UserScheduleManager({
           setSavedSchedule(loaded.map((e: ClassTemplateDay) => ({ ...e })));
         }
       } catch (error) {
-        toast.error("Erro ao carregar o horário do aluno.");
+        toast.error(t("errors.loadSchedule"));
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchSchedule();
-  }, [user.id, user.contractStartDate, user.contractLengthMonths]);
+  }, [user.id, user.contractStartDate, user.contractLengthMonths, t]);
 
   // Validação de pré-requisito
   if (!user.contractStartDate || !user.contractLengthMonths) {
     return (
       <Card className="p-6 text-center">
-        <Text variant="subtitle">
-          Por favor, defina a <b>Data de Início</b> e a{" "}
-          <b>Duração do Contrato</b> na aba Visão Geral antes de configurar o
-          horário.
-        </Text>
+        <Text variant="subtitle" dangerouslySetInnerHTML={{ __html: t.raw("missingContractInfo") }} />
       </Card>
     );
   }
@@ -176,10 +174,10 @@ export default function UserScheduleManager({
         setAvailableSlots(uniqueSlots);
         setShowScheduleSelection(true);
       } else {
-        toast.error("Erro ao carregar horários do professor.");
+        toast.error(t("errors.loadTeacherSchedule"));
       }
     } catch (error) {
-      toast.error("Erro ao buscar horários disponíveis.");
+      toast.error(t("errors.fetchSlots"));
     } finally {
       setIsLoadingSlots(false);
     }
@@ -203,7 +201,7 @@ export default function UserScheduleManager({
       });
 
       if (response.ok) {
-        toast.success("Horário atribuído com sucesso!");
+        toast.success(t("success.assigned"));
 
         // Atualiza a lista de horários do aluno
         const newEntry: ClassTemplateDay = {
@@ -227,10 +225,10 @@ export default function UserScheduleManager({
         setSelectedLanguage("");
       } else {
         const error = await response.json();
-        toast.error(`Erro ao atribuir horário: ${error.error}`);
+        toast.error(t("errors.assignWithMsg", { error: error.error }));
       }
     } catch (error) {
-      toast.error("Erro ao atribuir horário.");
+      toast.error(t("errors.assign"));
     } finally {
       setIsSaving(false);
     }
@@ -239,7 +237,7 @@ export default function UserScheduleManager({
   const getTeacherName = (teacherId: string) => {
     return (
       allTeachers.find((t) => t.id === teacherId)?.name ||
-      "Professor não encontrado"
+      t("teacherNotFound")
     );
   };
 
@@ -252,13 +250,13 @@ export default function UserScheduleManager({
         body: JSON.stringify({ days: schedule }),
       });
       if (response.ok) {
-        toast.success("Horário salvo com sucesso!");
+        toast.success(t("success.saved"));
         setSavedSchedule(schedule.map((e) => ({ ...e })));
       } else {
-        throw new Error("Falha ao salvar o horário.");
+        throw new Error(t("errors.save"));
       }
     } catch (error) {
-      toast.error("Ocorreu um erro ao salvar o horário.");
+      toast.error(t("errors.saveGeneric"));
     } finally {
       setIsSaving(false);
     }
@@ -271,14 +269,14 @@ export default function UserScheduleManager({
     setSelectedLanguage("");
     setAvailableSlots([]);
     toast.info(
-      "Alterações desfeitas. O horário voltou ao último estado salvo."
+      t("info.undo")
     );
   };
 
   const handleGenerateClasses = async () => {
     if (
       !confirm(
-        "Tem certeza que deseja gerar todas as aulas para este aluno? Esta ação criará o cronograma para todo o período do contrato."
+        t("confirmGenerate")
       )
     )
       return;
@@ -297,7 +295,7 @@ export default function UserScheduleManager({
         throw new Error(result.error);
       }
     } catch (error: any) {
-      toast.error(`Erro ao gerar aulas: ${error.message}`);
+      toast.error(t("errors.generate", { error: error.message }));
     } finally {
       setIsSaving(false);
     }
@@ -307,7 +305,7 @@ export default function UserScheduleManager({
     setSchedule((currentSchedule) =>
       currentSchedule.filter((entry) => entry.id !== idToRemove)
     );
-    toast.info("Horário removido da lista. Clique em 'Salvar' para confirmar.");
+    toast.info(t("success.removed"));
   };
 
   const handleDeleteSchedule = async () => {
@@ -356,7 +354,7 @@ export default function UserScheduleManager({
         throw new Error(result.error);
       }
     } catch (error: any) {
-      toast.error(`Erro ao deletar horário: ${error.message}`);
+      toast.error(t("errors.delete", { error: error.message }));
     } finally {
       setIsSaving(false);
       // Reset delete options
@@ -388,10 +386,9 @@ export default function UserScheduleManager({
       <Modal open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
         <ModalContent>
           <ModalHeader>
-            <ModalTitle>Opções de Exclusão de Aulas</ModalTitle>
+            <ModalTitle>{t("deleteModal.title")}</ModalTitle>
             <ModalDescription>
-              Escolha como deseja excluir as aulas do aluno. O histórico não
-              será afetado.
+              {t("deleteModal.description")}
             </ModalDescription>
           </ModalHeader>
 
@@ -406,9 +403,9 @@ export default function UserScheduleManager({
                 className="mr-2"
               />
               <label htmlFor="delete-all">
-                <Text weight="medium">Excluir tudo</Text>
+                <Text weight="medium">{t("deleteModal.all")}</Text>
                 <Text variant="subtitle" className="block">
-                  Remove o template e todas as aulas futuras
+                  {t("deleteModal.allDesc")}
                 </Text>
               </label>
             </div>
@@ -423,9 +420,9 @@ export default function UserScheduleManager({
                 className="mr-2"
               />
               <label htmlFor="delete-from-date">
-                <Text weight="medium">Excluir a partir de uma data</Text>
+                <Text weight="medium">{t("deleteModal.fromDate")}</Text>
                 <Text variant="subtitle" className="block">
-                  Remove aulas futuras a partir de uma data específica
+                  {t("deleteModal.fromDateDesc")}
                 </Text>
               </label>
             </div>
@@ -440,9 +437,9 @@ export default function UserScheduleManager({
                 className="mr-2"
               />
               <label htmlFor="delete-date-range">
-                <Text weight="medium">Excluir em um período</Text>
+                <Text weight="medium">{t("deleteModal.range")}</Text>
                 <Text variant="subtitle" className="block">
-                  Remove aulas futuras dentro de um intervalo de datas
+                  {t("deleteModal.rangeDesc")}
                 </Text>
               </label>
             </div>
@@ -452,7 +449,7 @@ export default function UserScheduleManager({
               <div className="space-y-4 mt-2">
                 <div>
                   <label className="block text-sm font-medium mb-1">
-                    Data inicial
+                    {t("deleteModal.startDate")}
                   </label>
                   <Input
                     type="date"
@@ -464,7 +461,7 @@ export default function UserScheduleManager({
                 {deleteOption === "date-range" && (
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      Data final
+                      {t("deleteModal.endDate")}
                     </label>
                     <Input
                       type="date"
@@ -476,10 +473,10 @@ export default function UserScheduleManager({
 
                 <div>
                   <label className="block text-sm font-medium mb-1">
-                    Templates (opcional):
+                    {t("deleteModal.templates")}
                   </label>
                   <Text variant="subtitle" className="text-xs mb-2">
-                    Se nenhum for selecionado, todas as aulas serão excluídas
+                    {t("deleteModal.templatesDesc")}
                   </Text>
                   <div className="max-h-40 overflow-y-auto border rounded p-2">
                     {schedule.map((entry) => (
@@ -522,7 +519,7 @@ export default function UserScheduleManager({
           <ModalFooter>
             <ModalClose asChild>
               <Button variant="secondary" onClick={handleCancelDelete}>
-                Cancelar
+                {t("deleteModal.cancel")}
               </Button>
             </ModalClose>
             <Button
@@ -533,7 +530,7 @@ export default function UserScheduleManager({
                   (!deleteFromDate || !deleteToDate))
               }
             >
-              Confirmar Exclusão
+              {t("deleteModal.confirm")}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -549,11 +546,10 @@ export default function UserScheduleManager({
                 {/* --- SELEÇÃO DE PROFESSOR E IDIOMA --- */}
                 <div className="p-4 border border-surface-2 rounded-lg space-y-4">
                   <Text weight="semibold" variant="subtitle">
-                    Adicionar Novo Horário
+                    {t("addNew")}
                   </Text>
                   <Text variant="paragraph">
-                    Primeiro, selecione o professor e o idioma para ver os
-                    horários disponíveis.
+                    {t("selectInstructions")}
                   </Text>
 
                   <ButtonGroup>
@@ -562,7 +558,7 @@ export default function UserScheduleManager({
                       onValueChange={setSelectedTeacherId}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Professor" />
+                        <SelectValue placeholder={t("teacherPlaceholder")} />
                       </SelectTrigger>
                       <SelectContent>
                         {allTeachers.map((teacher, index) => {
@@ -585,12 +581,12 @@ export default function UserScheduleManager({
                       onValueChange={setSelectedLanguage}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Idioma" />
+                        <SelectValue placeholder={t("languagePlaceholder")} />
                       </SelectTrigger>
                       <SelectContent>
                         {languageOptions.map((lang) => (
                           <SelectItem key={lang} value={lang}>
-                            {lang}
+                            {t(`languages.${lang}`)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -609,16 +605,16 @@ export default function UserScheduleManager({
                     ) : (
                       <Calendar className="mr-2" />
                     )}
-                    Ver Horários Disponíveis
+                    {t("checkAvailability")}
                   </Button>
                 </div>
 
                 {/* --- LISTA DE HORÁRIOS ATUAIS --- */}
                 <div className="space-y-3">
-                  <Text weight="semibold">Horário Semanal Atual</Text>
+                  <Text weight="semibold">{t("currentSchedule")}</Text>
                   {schedule.length === 0 ? (
                     <Text variant="placeholder" className="text-center py-4">
-                      Nenhum horário definido.
+                      {t("noSchedule")}
                     </Text>
                   ) : (
                     schedule.map((entry) => (
@@ -665,16 +661,19 @@ export default function UserScheduleManager({
                     </Button>
                     <div>
                       <Text weight="semibold">
-                        Horários Disponíveis -{" "}
-                        {getTeacherName(selectedTeacherId)}
+                        {t("availableSlotsTitle", {
+                          teacher: getTeacherName(selectedTeacherId),
+                        })}
                       </Text>
-                      <Text variant="subtitle">Idioma: {selectedLanguage}</Text>
+                      <Text variant="subtitle">
+                        {t("languageLabel", { language: selectedLanguage })}
+                      </Text>
                     </div>
                   </div>
 
                   {availableSlots.length === 0 ? (
                     <Text variant="placeholder" className="text-center py-8">
-                      Nenhum horário disponível para este professor e idioma.
+                      {t("noSlotsFound")}
                     </Text>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -690,7 +689,7 @@ export default function UserScheduleManager({
                               {slot.startTime}
                             </Text>
                             <Button size="sm" className="w-full">
-                              Selecionar
+                              {t("select")}
                             </Button>
                           </div>
                         </Card>
@@ -712,14 +711,14 @@ export default function UserScheduleManager({
                 disabled={isSaving || isLoading}
               >
                 <Trash className="mr-2" />
-                Excluir Aulas
+                {t("delete")}
               </Button>
               <Button
                 variant="secondary"
                 onClick={handleGenerateClasses}
                 disabled={isSaving || isLoading}
               >
-                Gerar Aulas
+                {t("generateClasses")}
               </Button>
             </ButtonGroup>
             <div>
@@ -733,14 +732,14 @@ export default function UserScheduleManager({
                   ) : (
                     <Calendar className="mr-2" />
                   )}
-                  Salvar
+                  {t("save")}
                 </Button>
                 <Button
                   variant="secondary"
                   disabled={isSaving || isLoading || !hasChanges}
                   onClick={handleUndoChanges}
                 >
-                  Desfazer
+                  {t("undo")}
                 </Button>
               </ButtonGroup>
             </div>

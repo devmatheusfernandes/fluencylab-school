@@ -29,12 +29,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Calendar, CardSimIcon, FileWarning, Gift, User, X } from "lucide-react";
 import { Spinner } from "../ui/spinner";
+import { useTranslations, useFormatter } from "next-intl";
 
 interface UserCreditsTabProps {
   studentId: string;
 }
 
 export default function UserCreditsTab({ studentId }: UserCreditsTabProps) {
+  const t = useTranslations("UserDetails.credits");
   const [balance, setBalance] = useState<RegularCreditsBalance | null>(null);
   const [transactions, setTransactions] = useState<CreditTransaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,7 +66,7 @@ export default function UserCreditsTab({ studentId }: UserCreditsTabProps) {
         const errorData = await balanceResponse.json().catch(() => ({}));
         throw new Error(
           errorData.error ||
-            `Falha ao carregar saldo de créditos: ${balanceResponse.status}`
+            `${t("errorLoadingBalance")}: ${balanceResponse.status}`
         );
       }
 
@@ -82,11 +84,11 @@ export default function UserCreditsTab({ studentId }: UserCreditsTabProps) {
       }
     } catch (err: any) {
       console.error("Error loading credit data:", err);
-      setError(err.message || "Erro desconhecido ao carregar dados");
+      setError(err.message || t("unknownErrorLoading"));
     } finally {
       setLoading(false);
     }
-  }, [studentId]);
+  }, [studentId, t]);
 
   useEffect(() => {
     loadCreditData();
@@ -96,7 +98,7 @@ export default function UserCreditsTab({ studentId }: UserCreditsTabProps) {
     e.preventDefault();
 
     if (!grantForm.expiresAt) {
-      setError("Data de expiração é obrigatória");
+      setError(t("expirationDateRequired"));
       return;
     }
 
@@ -119,10 +121,10 @@ export default function UserCreditsTab({ studentId }: UserCreditsTabProps) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Falha ao conceder créditos");
+        throw new Error(errorData.error || t("errorGranting"));
       }
 
-      setSuccess("Créditos concedidos com sucesso!");
+      setSuccess(t("successGranting"));
       setGrantForm({
         type: RegularCreditType.BONUS,
         amount: 1,
@@ -138,13 +140,15 @@ export default function UserCreditsTab({ studentId }: UserCreditsTabProps) {
       setGranting(false);
     }
   };
+  
+  const format = useFormatter();
   const formatDate = (date: Date | string) => {
-    return new Date(date).toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+    return format.dateTime(new Date(date), {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
     });
   };
 
@@ -163,7 +167,7 @@ export default function UserCreditsTab({ studentId }: UserCreditsTabProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Total de Créditos
+              {t("totalCredits")}
             </CardTitle>
             <CardSimIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -177,7 +181,7 @@ export default function UserCreditsTab({ studentId }: UserCreditsTabProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Créditos Bônus
+              {t("bonusCredits")}
             </CardTitle>
             <Gift className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -191,7 +195,7 @@ export default function UserCreditsTab({ studentId }: UserCreditsTabProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Alunos Tardios
+              {t("lateStudents")}
             </CardTitle>
             <User className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -205,7 +209,7 @@ export default function UserCreditsTab({ studentId }: UserCreditsTabProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Aulas Canceladas
+              {t("canceledClasses")}
             </CardTitle>
             <X className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -223,7 +227,7 @@ export default function UserCreditsTab({ studentId }: UserCreditsTabProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Créditos Expirados
+              {t("expiredCredits")}
             </CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -238,7 +242,7 @@ export default function UserCreditsTab({ studentId }: UserCreditsTabProps) {
       {/* Grant Credits Form */}
       <Card>
         <CardHeader>
-          <CardTitle className="mb-3">Conceder Créditos</CardTitle>
+          <CardTitle className="mb-3">{t("grantCredits")}</CardTitle>
         </CardHeader>
         <CardContent>
           {error && (
@@ -260,7 +264,7 @@ export default function UserCreditsTab({ studentId }: UserCreditsTabProps) {
           <form onSubmit={handleGrantCredits} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <span>Tipo de Crédito</span>
+                <span>{t("creditType")}</span>
                 <Select
                   value={grantForm.type}
                   onValueChange={(value) =>
@@ -275,22 +279,22 @@ export default function UserCreditsTab({ studentId }: UserCreditsTabProps) {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value={RegularCreditType.BONUS}>
-                      Bônus
+                      {t("bonusCredits")}
                     </SelectItem>
                     <SelectItem value={RegularCreditType.LATE_STUDENTS}>
-                      Alunos Tardios
+                      {t("lateStudents")}
                     </SelectItem>
                     <SelectItem
                       value={RegularCreditType.TEACHER_CANCELLATION}
                     >
-                      Aulas Canceladas
+                      {t("canceledClasses")}
                     </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <span>Quantidade</span>
+                <span>{t("amount")}</span>
                 <Input
                   id="amount"
                   type="number"
@@ -307,7 +311,7 @@ export default function UserCreditsTab({ studentId }: UserCreditsTabProps) {
               </div>
 
               <div className="space-y-2">
-                <span>Data e Horário de Expiração</span>
+                <span>{t("expirationDate")}</span>
                 <Input
                   id="expiresAt"
                   type="datetime-local"
@@ -324,10 +328,10 @@ export default function UserCreditsTab({ studentId }: UserCreditsTabProps) {
             </div>
 
             <div className="space-y-2">
-              <span>Motivo (opcional)</span>
+              <span>{t("reasonOptional")}</span>
               <Textarea
                 id="reason"
-                placeholder="Descreva o motivo para conceder estes créditos..."
+                placeholder={t("reasonPlaceholder")}
                 value={grantForm.reason}
                 onChange={(e) =>
                   setGrantForm((prev) => ({ ...prev, reason: e.target.value }))
@@ -337,7 +341,7 @@ export default function UserCreditsTab({ studentId }: UserCreditsTabProps) {
             </div>
 
             <Button type="submit" disabled={granting}>
-              {granting ? "Concedendo..." : "Conceder Créditos"}
+              {granting ? t("granting") : t("grantCredits")}
             </Button>
           </form>
         </CardContent>
@@ -346,15 +350,15 @@ export default function UserCreditsTab({ studentId }: UserCreditsTabProps) {
       {/* Transaction History */}
       <Card>
         <CardHeader>
-          <CardTitle>Histórico de Transações</CardTitle>
+          <CardTitle>{t("transactionHistory")}</CardTitle>
           <CardDescription>
-            Histórico de créditos concedidos e utilizados
+            {t("transactionHistoryDescription")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {transactions.length === 0 ? (
             <p className="text-center text-muted-foreground py-4">
-              Nenhuma transação encontrada
+              {t("noTransactionsFound")}
             </p>
           ) : (
             <div className="space-y-2">
@@ -370,12 +374,12 @@ export default function UserCreditsTab({ studentId }: UserCreditsTabProps) {
                       // }
                     >
                       {transaction.action === "granted"
-                        ? "Concedido"
-                        : "Utilizado"}
+                        ? t("granted")
+                        : t("used")}
                     </Badge>
                     <div>
                       <p className="font-medium">
-                        {transaction.amount} crédito(s)
+                        {t("creditsCount", { count: transaction.amount })}
                       </p>
                       {transaction.reason && (
                         <p className="text-sm text-muted-foreground">
