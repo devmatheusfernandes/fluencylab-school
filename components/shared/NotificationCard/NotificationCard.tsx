@@ -3,7 +3,7 @@
 import * as React from "react";
 import { twMerge } from "tailwind-merge";
 import { useState } from "react";
-import { CheckCircle, Bell, MailWarning, X } from "lucide-react";
+import { CheckCircle, Bell, MailWarning, X, BrushCleaning } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // --- Type Definitions ---
@@ -214,7 +214,7 @@ export const NotificationBadge: React.FC<NotificationBadgeProps> = ({
       animate={{ scale: 1 }}
       exit={{ scale: 0 }}
       className={twMerge(
-        "absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-medium border-2 border-container",
+        "absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full min-w-[17px] h-[17px] flex items-center justify-center font-medium border-2 border-container",
         className
       )}
     >
@@ -554,8 +554,8 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Bell className="w-4 h-4 text-primary" />
-          <h3 className="text-sm font-medium">Notificações</h3>
+          <Bell className="w-3 h-3 text-primary" />
+          <h3 className="text-xs font-medium">Notificações</h3>
           {unreadCount > 0 && (
             <NotificationBadge
               count={unreadCount}
@@ -564,7 +564,7 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
           )}
         </div>
 
-        {hasNotifications && isOpen && (
+        {hasNotifications && !isOpen && (
           <div className="flex items-center gap-1">
             {unreadCount > 0 && (
               <motion.button
@@ -581,9 +581,8 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={onClearAll}
-              className="text-xs text-paragraph/60 hover:text-paragraph transition-colors"
             >
-              Limpar
+              <BrushCleaning className="cursor-pointer text-paragraph/60 hover:text-paragraph transition-colors w-3 h-3" />
             </motion.button>
           </div>
         )}
@@ -602,6 +601,7 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
                   exit={{ opacity: 0, x: 100 }}
                   transition={{ delay: index * 0.05 }}
                   layout
+                  onClick={() => setIsModalOpen(true)}
                 >
                   <NotificationItem
                     notification={notification}

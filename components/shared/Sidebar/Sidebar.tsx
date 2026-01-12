@@ -635,7 +635,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <motion.div
             layout
             className={twMerge(
-              "border-t border-border pt-3 w-full",
+              "border-t border-primary/20 pt-3 w-full",
               isCollapsed && "border-none pt-0"
             )}
           >
