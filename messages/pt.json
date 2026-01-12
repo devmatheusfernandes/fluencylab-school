@@ -378,6 +378,207 @@
       "noPermission": "Você não tem permissão para gerenciar este usuário."
     }
   },
+  "AdminFinances": {
+    "title": "Financeiro",
+    "subtitle": "Gestão de receitas e despesas.",
+    "months": {
+      "january": "Janeiro",
+      "february": "Fevereiro",
+      "march": "Março",
+      "april": "Abril",
+      "may": "Maio",
+      "june": "Junho",
+      "july": "Julho",
+      "august": "Agosto",
+      "september": "Setembro",
+      "october": "Outubro",
+      "november": "Novembro",
+      "december": "Dezembro"
+    },
+    "filters": {
+      "month": "Mês",
+      "year": "Ano",
+      "searchPlaceholder": "Buscar transações...",
+      "categoryPlaceholder": "Categoria",
+      "allCategories": "Todas Categorias",
+      "csv": "CSV",
+      "update": "Atualizar"
+    },
+    "actions": {
+      "manualPayment": "Pagamento Manual",
+      "pay": "Pagar"
+    },
+    "deleteModal": {
+      "cancel": "Cancelar"
+    },
+    "manualPayment": {
+      "title": "Pagamento Manual",
+      "selectStudent": "Selecionar aluno",
+      "originalValue": "Valor original: {value}",
+      "method": "Método",
+      "cash": "Dinheiro",
+      "observations": "Observações",
+      "register": "Registrar Pagamento",
+      "pay": "Pagar",
+      "subtitle": "Registre uma mensalidade paga manualmente para um aluno.",
+      "pendingTitle": "PAGAMENTOS PENDENTES",
+      "defaultDescription": "Mensalidade",
+      "noStudentFound": "Nenhum aluno encontrado.",
+      "searchPlaceholder": "Buscar por nome ou CPF...",
+      "studentsGroup": "Alunos",
+      "amountPlaceholder": "Valor (R$)",
+      "changeValue": "Alterar valor",
+      "changeValueTitle": "Alterar o valor da mensalidade?",
+      "confirm": "Confirmar",
+      "confirmPayment": "Confirmar Pagamento",
+      "descriptionOptional": "Descrição (opcional)",
+      "methods": {
+        "cash": "Dinheiro",
+        "bank_transfer": "Transferência",
+        "credit_card": "Cartão",
+        "pix": "PIX"
+      }
+    },
+    "stats": {
+      "income": "Entradas",
+      "incomeDesc": "Confirmadas neste mês",
+      "expenses": "Saídas",
+      "expensesDesc": "Realizadas neste mês",
+      "forecastIncome": "Previsto (Entrada)",
+      "forecastIncomeDesc": "Assinaturas ativas",
+      "forecastExpenses": "Previsto (Saída)",
+      "forecastExpensesDesc": "Recorrentes cadastradas"
+    },
+    "newTransaction": {
+      "title": "Nova Transação Rápida",
+      "type": "Tipo",
+      "typePlaceholder": "Tipo",
+      "types": {
+        "income": "Entrada",
+        "expense": "Gasto"
+      },
+      "amountPlaceholder": "R$ 0,00",
+      "method": "Método",
+      "category": "Categoria",
+      "methodPlaceholder": "Método",
+      "categoryPlaceholder": "Categoria",
+      "searchCategory": "Buscar categoria...",
+      "noCategoryFound": "Nenhuma categoria encontrada.",
+      "categoriesGroup": "Categorias",
+      "createCategory": "Criar categoria \"{category}\"",
+      "descriptionPlaceholder": "Descrição",
+      "add": "Adicionar",
+      "attachReceipt": "Anexar comprovante (opcional)",
+      "methods": {
+        "cash": "Dinheiro",
+        "bank_transfer": "Transferência",
+        "credit_card": "Cartão",
+        "pix": "PIX"
+      }
+    },
+    "table": {
+      "title": "Extrato",
+      "headers": {
+        "date": "Data",
+        "description": "Descrição",
+        "category": "Cat.",
+        "amount": "Valor",
+        "actions": "Ações"
+      },
+      "empty": "Nenhuma transação encontrada.",
+      "noDescription": "Sem descrição",
+      "deleteModal": {
+        "title": "Excluir transação?",
+        "description": "Ação irreversível.",
+        "cancel": "Cancelar",
+        "confirm": "Excluir"
+      }
+    },
+    "recurring": {
+      "title": "Recorrentes",
+      "newExpense": "Nova despesa fixa",
+      "namePlaceholderExample": "Nome (ex: Aluguel)",
+      "amountPlaceholder": "Valor",
+      "frequencyPlaceholder": "Frequência",
+      "frequencies": {
+        "monthly": "Mensal",
+        "yearly": "Anual"
+      },
+      "add": "Adicionar",
+      "empty": "Nenhuma cadastrada",
+      "namePlaceholder": "Nome",
+      "categoryPlaceholder": "Categoria",
+      "variable": "Variável",
+      "cancel": "Cancelar",
+      "save": "Salvar",
+      "edit": "Editar",
+      "addAsTransaction": "Adicionar como transação",
+      "labels": {
+        "month": "Mês",
+        "year": "Ano"
+      }
+    },
+    "projection": {
+      "title": "Projeção",
+      "headers": {
+        "month": "Mês",
+        "balance": "Saldo"
+      }
+    },
+    "instantiateModal": {
+      "title": "Adicionar despesa recorrente como transação",
+      "description": "Confirme o valor e a data.",
+      "amountPlaceholder": "Valor (R$)",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar",
+      "defaultDescription": "Despesa recorrente"
+    },
+    "details": {
+      "title": "Detalhes da transação",
+      "totalValue": "Valor Total",
+      "date": "Data",
+      "category": "Categoria",
+      "method": "Método",
+      "description": "Descrição",
+      "types": {
+        "income": "Entrada",
+        "expense": "Despesa"
+      },
+      "noDescription": "Sem descrição",
+      "viewReceipt": "Ver Comprovante",
+      "uploading": "Enviando...",
+      "attachReceipt": "Anexar comprovante",
+      "edit": "Editar"
+    },
+    "editModal": {
+      "title": "Editar Transação",
+      "typePlaceholder": "Tipo",
+      "types": {
+        "income": "Entrada",
+        "expense": "Saída"
+      },
+      "descriptionPlaceholder": "Descrição",
+      "categoryPlaceholder": "Categoria",
+      "cancel": "Cancelar",
+      "save": "Salvar"
+    },
+    "csv": {
+        "headers": {
+            "date": "Data",
+            "description": "Descrição",
+            "type": "Tipo",
+            "amount": "Valor",
+            "method": "Método",
+            "source": "Fonte",
+            "category": "Categoria"
+        },
+        "types": {
+            "income": "Entrada",
+            "expense": "Gasto"
+        },
+        "filename": "transacoes"
+    }
+  },
     "overview": {
       "fullName": "Nome Completo",
       "email": "Email",

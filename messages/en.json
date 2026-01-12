@@ -664,5 +664,206 @@
   "AdminUsers": {
     "heading": "Users",
     "subheading": "Manage system users."
+  },
+  "AdminFinances": {
+    "title": "Finances",
+    "subtitle": "Management of income and expenses.",
+    "months": {
+      "january": "January",
+      "february": "February",
+      "march": "March",
+      "april": "April",
+      "may": "May",
+      "june": "June",
+      "july": "July",
+      "august": "August",
+      "september": "September",
+      "october": "October",
+      "november": "November",
+      "december": "December"
+    },
+    "filters": {
+      "month": "Month",
+      "year": "Year",
+      "searchPlaceholder": "Search transactions...",
+      "categoryPlaceholder": "Category",
+      "allCategories": "All Categories",
+      "csv": "CSV",
+      "update": "Update"
+    },
+    "actions": {
+      "manualPayment": "Manual Payment",
+      "pay": "Pay"
+    },
+    "deleteModal": {
+      "cancel": "Cancel"
+    },
+    "manualPayment": {
+      "title": "Manual Payment",
+      "selectStudent": "Select student",
+      "originalValue": "Original Value: {value}",
+      "method": "Method",
+      "cash": "Cash",
+      "observations": "Observations",
+      "register": "Register Payment",
+      "pay": "Pay",
+      "subtitle": "Register a manually paid monthly fee for a student.",
+      "pendingTitle": "PENDING PAYMENTS",
+      "defaultDescription": "Monthly Fee",
+      "noStudentFound": "No student found.",
+      "searchPlaceholder": "Search by name or CPF...",
+      "studentsGroup": "Students",
+      "amountPlaceholder": "Value (R$)",
+      "changeValue": "Change value",
+      "changeValueTitle": "Change monthly fee value?",
+      "confirm": "Confirm",
+      "confirmPayment": "Confirm Payment",
+      "descriptionOptional": "Description (optional)",
+      "methods": {
+        "cash": "Cash",
+        "bank_transfer": "Bank Transfer",
+        "credit_card": "Card",
+        "pix": "PIX"
+      }
+    },
+    "stats": {
+      "income": "Income",
+      "incomeDesc": "Confirmed this month",
+      "expenses": "Expenses",
+      "expensesDesc": "Made this month",
+      "forecastIncome": "Forecast (Income)",
+      "forecastIncomeDesc": "Active subscriptions",
+      "forecastExpenses": "Forecast (Expenses)",
+      "forecastExpensesDesc": "Registered recurring expenses"
+    },
+    "newTransaction": {
+      "title": "New Quick Transaction",
+      "type": "Type",
+      "typePlaceholder": "Type",
+      "types": {
+        "income": "Income",
+        "expense": "Expense"
+      },
+      "amountPlaceholder": "R$ 0.00",
+      "method": "Method",
+      "category": "Category",
+      "methodPlaceholder": "Method",
+      "categoryPlaceholder": "Category",
+      "searchCategory": "Search category...",
+      "noCategoryFound": "No category found.",
+      "categoriesGroup": "Categories",
+      "createCategory": "Create category \"{category}\"",
+      "descriptionPlaceholder": "Description",
+      "add": "Add",
+      "attachReceipt": "Attach receipt (optional)",
+      "methods": {
+        "cash": "Cash",
+        "bank_transfer": "Bank Transfer",
+        "credit_card": "Card",
+        "pix": "PIX"
+      }
+    },
+    "table": {
+      "title": "Statement",
+      "headers": {
+        "date": "Date",
+        "description": "Description",
+        "category": "Cat.",
+        "amount": "Amount",
+        "actions": "Actions"
+      },
+      "empty": "No transactions found.",
+      "noDescription": "No description",
+      "deleteModal": {
+        "title": "Delete transaction?",
+        "description": "Irreversible action.",
+        "cancel": "Cancel",
+        "confirm": "Delete"
+      }
+    },
+    "recurring": {
+      "title": "Recurring",
+      "newExpense": "New recurring expense",
+      "namePlaceholderExample": "Name (e.g., Rent)",
+      "amountPlaceholder": "Value",
+      "frequencyPlaceholder": "Frequency",
+      "frequencies": {
+        "monthly": "Monthly",
+        "yearly": "Yearly"
+      },
+      "add": "Add",
+      "empty": "None registered",
+      "namePlaceholder": "Name",
+      "categoryPlaceholder": "Category",
+      "variable": "Variable",
+      "cancel": "Cancel",
+      "save": "Save",
+      "edit": "Edit",
+      "addAsTransaction": "Add as transaction",
+      "labels": {
+        "month": "Month",
+        "year": "Year"
+      }
+    },
+    "projection": {
+      "title": "Projection",
+      "headers": {
+        "month": "Month",
+        "balance": "Balance"
+      }
+    },
+    "instantiateModal": {
+      "title": "Add recurring expense as transaction",
+      "description": "Confirm value and date.",
+      "amountPlaceholder": "Value (R$)",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "defaultDescription": "Recurring expense"
+    },
+    "details": {
+      "title": "Transaction Details",
+      "totalValue": "Total Value",
+      "date": "Date",
+      "category": "Category",
+      "method": "Method",
+      "description": "Description",
+      "types": {
+        "income": "Income",
+        "expense": "Expense"
+      },
+      "noDescription": "No description",
+      "viewReceipt": "View Receipt",
+      "uploading": "Uploading...",
+      "attachReceipt": "Attach receipt",
+      "edit": "Edit"
+    },
+    "editModal": {
+      "title": "Edit Transaction",
+      "typePlaceholder": "Type",
+      "types": {
+        "income": "Income",
+        "expense": "Expense"
+      },
+      "descriptionPlaceholder": "Description",
+      "categoryPlaceholder": "Category",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "csv": {
+        "headers": {
+            "date": "Date",
+            "description": "Description",
+            "type": "Type",
+            "amount": "Amount",
+            "method": "Method",
+            "source": "Source",
+            "category": "Category"
+        },
+        "types": {
+            "income": "Income",
+            "expense": "Expense"
+        },
+        "filename": "transactions"
+    }
   }
 }
