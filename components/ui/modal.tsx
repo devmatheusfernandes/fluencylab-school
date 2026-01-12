@@ -165,7 +165,7 @@ const ModalDescription = React.forwardRef<
   React.ComponentRef<typeof motion.div>,
   React.ComponentPropsWithoutRef<typeof Dialog.Description> &
     HTMLMotionProps<"div">
->(({ className, ...props }, ref) => {
+>(({ className, children, ...props }, ref) => {
   return (
     <motion.div
       ref={ref}
@@ -179,7 +179,9 @@ const ModalDescription = React.forwardRef<
           "text-sm text-gray-600 dark:text-gray-400 leading-relaxed",
           className
         )}
-      />
+      >
+        {children}
+      </Dialog.Description>
     </motion.div>
   );
 });

@@ -488,6 +488,7 @@
       },
       "teacherNotFound": "Teacher not found",
       "confirmGenerate": "Are you sure you want to generate all classes for this student? This action will create the schedule for the entire contract period.",
+      "confirmGenerateClasses": "Generate Classes",
       "deleteModal": {
         "title": "Delete Classes Options",
         "description": "Choose how you want to delete the student's classes. History will not be affected.",
@@ -525,7 +526,8 @@
       "availableSlotsTitle": "Available Slots - {teacher}",
       "languageLabel": "Language: {language}",
       "noSlotsFound": "No available slots found for this teacher and language.",
-      "select": "Select"
+      "select": "Select",
+      "goBack": "Go Back"
     },
     "credits": {
       "totalCredits": "Total Credits",

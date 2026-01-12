@@ -80,7 +80,7 @@ const getButtonClasses = ({
 
   const variantClasses = {
     primary:
-      "bg-primary border-primary text-primary-foreground focus-visible:ring-ring before:absolute before:inset-0 before:rounded-lg before:bg-gradient-to-br before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity relative overflow-hidden hover:opacity-95",
+      "bg-primary hover:contrast-140 border-primary text-primary-foreground focus-visible:ring-ring relative overflow-hidden transition-all ease-in-out duration-300",
     secondary:
       "bg-secondary border-secondary text-secondary-foreground focus-visible:ring-ring hover:opacity-95",
     destructive:
@@ -95,7 +95,7 @@ const getButtonClasses = ({
     outline:
       "bg-transparent border-border text-foreground hover:bg-muted focus-visible:ring-ring",
     glass:
-      "bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20 hover:border-white/30 focus-visible:ring-white/50",
+      "bg-white/10 backdrop-blur-md border-white/20 text-black dark:text-white hover:bg-white/20 hover:border-white/30 focus-visible:ring-white/50",
     link: "bg-transparent border-transparent text-blue-600 underline-offset-4 hover:underline focus-visible:ring-blue-500 dark:text-blue-400 p-0 h-auto",
     gradient:
       "bg-gradient-to-r from-blue-600 to-purple-600 border-transparent text-white hover:from-blue-700 hover:to-purple-700 focus-visible:ring-purple-500",

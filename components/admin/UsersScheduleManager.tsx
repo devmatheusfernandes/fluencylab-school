@@ -7,7 +7,9 @@ import {
   ModalTitle,
   ModalDescription,
   ModalFooter,
-  ModalClose,
+  ModalIcon,
+  ModalPrimaryButton,
+  ModalSecondaryButton,
 } from "@/components/ui/modal";
 import { useState, useEffect, useMemo } from "react";
 import { FullUserDetails } from "@/types/users/user-details";
@@ -27,27 +29,26 @@ import {
 import { Input } from "../ui/input";
 import { Text } from "../ui/text";
 import { Spinner } from "../ui/spinner";
-import { ArrowLeft, Book, Calendar, Trash } from "lucide-react";
-import { ButtonGroup } from "../ui/button-group";
-import { Header } from "../ui/header";
+import {
+  ArrowLeft,
+  Calendar,
+  Clock,
+  Globe,
+  Trash,
+  User as UserIcon,
+  AlertCircle,
+  CheckCircle2,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils"; 
 
 interface UserScheduleManagerProps {
   user: FullUserDetails;
   allTeachers: User[];
 }
 
-const initialNewEntryState = {
-  day: "",
-  hour: "",
-  teacherId: "",
-  language: "",
-  id: "",
-};
-
 const languageOptions = ["Inglês", "Espanhol", "Libras", "Português"];
 
-// Novo tipo para representar horários únicos do professor
 type UniqueScheduleSlot = {
   day: string;
   startTime: string;
@@ -56,7 +57,6 @@ type UniqueScheduleSlot = {
   language?: string;
 };
 
-// Tipo para a resposta da API de disponibilidade do professor
 type TeacherAvailabilitySlot = {
   id: string;
   day: string;
@@ -75,6 +75,7 @@ export default function UserScheduleManager({
   const [savedSchedule, setSavedSchedule] = useState<ClassTemplateDay[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  
   const hasChanges = useMemo(() => {
     const enc = (arr: ClassTemplateDay[]) =>
       arr
@@ -84,34 +85,28 @@ export default function UserScheduleManager({
     return enc(schedule) !== enc(savedSchedule);
   }, [schedule, savedSchedule]);
 
-  // Novos estados para o fluxo de seleção
   const [selectedTeacherId, setSelectedTeacherId] = useState<string>("");
   const [selectedLanguage, setSelectedLanguage] = useState<string>("");
-  const [availableSlots, setAvailableSlots] = useState<UniqueScheduleSlot[]>(
-    []
-  );
+  const [availableSlots, setAvailableSlots] = useState<UniqueScheduleSlot[]>([]);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
   const [showScheduleSelection, setShowScheduleSelection] = useState(false);
+  const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
 
-  // Estados para modal de exclusão (mantidos do código original)
+  // Estados para modal de exclusão
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [deleteOption, setDeleteOption] = useState<
-    "all" | "date-range" | "from-date"
-  >("all");
+  const [deleteOption, setDeleteOption] = useState<"all" | "date-range" | "from-date">("all");
   const [deleteFromDate, setDeleteFromDate] = useState("");
   const [deleteToDate, setDeleteToDate] = useState("");
-  const [selectedTemplateEntries, setSelectedTemplateEntries] = useState<
-    ClassTemplateDay[]
-  >([]);
+  const [selectedTemplateEntries, setSelectedTemplateEntries] = useState<ClassTemplateDay[]>([]);
 
-  // Efeito para buscar o horário do aluno
+  // ... (Manteve-se todos os useEffects e lógicas de fetch/save idênticos) ...
+  // Apenas replicando a lógica para contexto, o foco é o return do JSX abaixo.
+
   useEffect(() => {
-    // Only fetch if user has contract details
     if (!user.contractStartDate || !user.contractLengthMonths) {
       setIsLoading(false);
       return;
     }
-
     const fetchSchedule = async () => {
       setIsLoading(true);
       try {
@@ -128,32 +123,27 @@ export default function UserScheduleManager({
         setIsLoading(false);
       }
     };
-
     fetchSchedule();
   }, [user.id, user.contractStartDate, user.contractLengthMonths, t]);
 
-  // Validação de pré-requisito
   if (!user.contractStartDate || !user.contractLengthMonths) {
     return (
-      <Card className="p-6 text-center">
+      <Card className="p-6 text-center border-dashed">
+        <div className="flex justify-center mb-4 text-muted-foreground">
+          <AlertCircle className="w-10 h-10" />
+        </div>
         <Text variant="subtitle" dangerouslySetInnerHTML={{ __html: t.raw("missingContractInfo") }} />
       </Card>
     );
   }
 
-  // Função para buscar horários disponíveis do professor
   const fetchTeacherAvailability = async () => {
     if (!selectedTeacherId || !selectedLanguage) return;
-
     setIsLoadingSlots(true);
     try {
-      const response = await fetch(
-        `/api/admin/teacher-availability/${selectedTeacherId}`
-      );
+      const response = await fetch(`/api/admin/teacher-availability/${selectedTeacherId}`);
       if (response.ok) {
         const data = await response.json();
-
-        // Agrupa os slots únicos por dia e horário
         const uniqueSlots: UniqueScheduleSlot[] = [];
         const seenSlots = new Set<string>();
 
@@ -170,7 +160,6 @@ export default function UserScheduleManager({
             });
           }
         });
-
         setAvailableSlots(uniqueSlots);
         setShowScheduleSelection(true);
       } else {
@@ -183,7 +172,6 @@ export default function UserScheduleManager({
     }
   };
 
-  // Função para selecionar um horário e atribuir ao aluno
   const handleSelectSchedule = async (slot: UniqueScheduleSlot) => {
     setIsSaving(true);
     try {
@@ -202,8 +190,6 @@ export default function UserScheduleManager({
 
       if (response.ok) {
         toast.success(t("success.assigned"));
-
-        // Atualiza a lista de horários do aluno
         const newEntry: ClassTemplateDay = {
           id: `temp-${Date.now()}`,
           day: slot.day,
@@ -211,15 +197,8 @@ export default function UserScheduleManager({
           teacherId: slot.teacherId,
           language: slot.language!,
         };
-
         setSchedule((prev) => [...prev, newEntry]);
-
-        // Remove o slot da lista de disponíveis
-        setAvailableSlots((prev) =>
-          prev.filter((s) => s.slotId !== slot.slotId)
-        );
-
-        // Volta para a tela inicial
+        setAvailableSlots((prev) => prev.filter((s) => s.slotId !== slot.slotId));
         setShowScheduleSelection(false);
         setSelectedTeacherId("");
         setSelectedLanguage("");
@@ -235,10 +214,7 @@ export default function UserScheduleManager({
   };
 
   const getTeacherName = (teacherId: string) => {
-    return (
-      allTeachers.find((t) => t.id === teacherId)?.name ||
-      t("teacherNotFound")
-    );
+    return allTeachers.find((t) => t.id === teacherId)?.name || t("teacherNotFound");
   };
 
   const handleSaveSchedule = async () => {
@@ -268,19 +244,13 @@ export default function UserScheduleManager({
     setSelectedTeacherId("");
     setSelectedLanguage("");
     setAvailableSlots([]);
-    toast.info(
-      t("info.undo")
-    );
+    toast.info(t("info.undo"));
   };
 
-  const handleGenerateClasses = async () => {
-    if (
-      !confirm(
-        t("confirmGenerate")
-      )
-    )
-      return;
+  const handleGenerateClasses = () => setIsGenerateModalOpen(true);
 
+  const executeGenerateClasses = async () => {
+    setIsGenerateModalOpen(false);
     setIsSaving(true);
     try {
       const response = await fetch(`/api/classes/generate-classes`, {
@@ -302,54 +272,35 @@ export default function UserScheduleManager({
   };
 
   const handleRemoveEntry = (idToRemove: string) => {
-    setSchedule((currentSchedule) =>
-      currentSchedule.filter((entry) => entry.id !== idToRemove)
-    );
+    setSchedule((currentSchedule) => currentSchedule.filter((entry) => entry.id !== idToRemove));
     toast.info(t("success.removed"));
   };
 
-  const handleDeleteSchedule = async () => {
-    setIsDeleteModalOpen(true);
-  };
+  const handleDeleteSchedule = async () => setIsDeleteModalOpen(true);
 
   const executeDeleteSchedule = async () => {
     setIsSaving(true);
     setIsDeleteModalOpen(false);
-
     try {
       let response;
-
-      // Determine which deletion API to call based on selected option
       if (deleteOption === "all") {
-        response = await fetch(`/api/class-templates/${user.id}`, {
-          method: "DELETE",
-        });
+        response = await fetch(`/api/class-templates/${user.id}`, { method: "DELETE" });
       } else {
-        // For date-based deletions, we need to call a different API
-        response = await fetch(
-          `/api/class-templates/${user.id}/delete-classes`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              option: deleteOption,
-              fromDate: deleteFromDate,
-              toDate: deleteOption === "date-range" ? deleteToDate : undefined,
-              templateEntries:
-                selectedTemplateEntries.length > 0
-                  ? selectedTemplateEntries
-                  : undefined,
-            }),
-          }
-        );
+        response = await fetch(`/api/class-templates/${user.id}/delete-classes`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            option: deleteOption,
+            fromDate: deleteFromDate,
+            toDate: deleteOption === "date-range" ? deleteToDate : undefined,
+            templateEntries: selectedTemplateEntries.length > 0 ? selectedTemplateEntries : undefined,
+          }),
+        });
       }
-
       const result = await response.json();
       if (response.ok) {
         toast.success(result.message);
-        if (deleteOption === "all") {
-          setSchedule([]); // Limpa o horário na tela only if deleting everything
-        }
+        if (deleteOption === "all") setSchedule([]);
       } else {
         throw new Error(result.error);
       }
@@ -357,7 +308,6 @@ export default function UserScheduleManager({
       toast.error(t("errors.delete", { error: error.message }));
     } finally {
       setIsSaving(false);
-      // Reset delete options
       setDeleteOption("all");
       setDeleteFromDate("");
       setDeleteToDate("");
@@ -367,206 +317,170 @@ export default function UserScheduleManager({
 
   const handleCancelDelete = () => {
     setIsDeleteModalOpen(false);
-    // Reset delete options
     setDeleteOption("all");
     setDeleteFromDate("");
     setDeleteToDate("");
     setSelectedTemplateEntries([]);
   };
 
-  // Função para voltar à seleção de professor/idioma
   const handleBackToSelection = () => {
     setShowScheduleSelection(false);
     setAvailableSlots([]);
   };
 
   return (
-    <Card>
-      {/* Delete Confirmation Modal */}
+    <Card className="overflow-hidden">
       <Modal open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
-        <ModalContent>
+        <ModalContent className="max-w-[90vw] sm:max-w-lg">
+          <ModalIcon type="delete" />
           <ModalHeader>
             <ModalTitle>{t("deleteModal.title")}</ModalTitle>
-            <ModalDescription>
-              {t("deleteModal.description")}
-            </ModalDescription>
+            <ModalDescription>{t("deleteModal.description")}</ModalDescription>
           </ModalHeader>
 
-          <div className="py-4 space-y-4">
-            <div className="flex items-center">
-              <input
-                type="radio"
-                id="delete-all"
-                name="delete-option"
-                checked={deleteOption === "all"}
-                onChange={() => setDeleteOption("all")}
-                className="mr-2"
-              />
-              <label htmlFor="delete-all">
-                <Text weight="medium">{t("deleteModal.all")}</Text>
-                <Text variant="subtitle" className="block">
-                  {t("deleteModal.allDesc")}
-                </Text>
-              </label>
-            </div>
-
-            <div className="flex items-center">
-              <input
-                type="radio"
-                id="delete-from-date"
-                name="delete-option"
-                checked={deleteOption === "from-date"}
-                onChange={() => setDeleteOption("from-date")}
-                className="mr-2"
-              />
-              <label htmlFor="delete-from-date">
-                <Text weight="medium">{t("deleteModal.fromDate")}</Text>
-                <Text variant="subtitle" className="block">
-                  {t("deleteModal.fromDateDesc")}
-                </Text>
-              </label>
-            </div>
-
-            <div className="flex items-center">
-              <input
-                type="radio"
-                id="delete-date-range"
-                name="delete-option"
-                checked={deleteOption === "date-range"}
-                onChange={() => setDeleteOption("date-range")}
-                className="mr-2"
-              />
-              <label htmlFor="delete-date-range">
-                <Text weight="medium">{t("deleteModal.range")}</Text>
-                <Text variant="subtitle" className="block">
-                  {t("deleteModal.rangeDesc")}
-                </Text>
-              </label>
-            </div>
-
-            {(deleteOption === "from-date" ||
-              deleteOption === "date-range") && (
-              <div className="space-y-4 mt-2">
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    {t("deleteModal.startDate")}
-                  </label>
-                  <Input
-                    type="date"
-                    value={deleteFromDate}
-                    onChange={(e) => setDeleteFromDate(e.target.value)}
+          <div className="py-4 space-y-4 max-h-[60vh] overflow-y-auto">
+             {/* Opções de rádio melhoradas para toque */}
+            <div className="space-y-3">
+              {[
+                { id: "all", label: t("deleteModal.all"), desc: t("deleteModal.allDesc") },
+                { id: "from-date", label: t("deleteModal.fromDate"), desc: t("deleteModal.fromDateDesc") },
+                { id: "date-range", label: t("deleteModal.range"), desc: t("deleteModal.rangeDesc") }
+              ].map((opt) => (
+                <label key={opt.id} className={cn(
+                  "flex items-start p-3 border rounded-lg cursor-pointer transition-colors hover:bg-surface-1",
+                  deleteOption === opt.id ? "border-primary bg-primary/5" : "border-border"
+                )}>
+                  <input
+                    type="radio"
+                    name="delete-option"
+                    checked={deleteOption === opt.id}
+                    onChange={() => setDeleteOption(opt.id as any)}
+                    className="mt-1 mr-3"
                   />
-                </div>
-
-                {deleteOption === "date-range" && (
                   <div>
-                    <label className="block text-sm font-medium mb-1">
-                      {t("deleteModal.endDate")}
+                    <Text weight="medium" className="block">{opt.label}</Text>
+                    <Text   className="text-muted-foreground">{opt.desc}</Text>
+                  </div>
+                </label>
+              ))}
+            </div>
+
+            {(deleteOption === "from-date" || deleteOption === "date-range") && (
+              <div className="space-y-4 p-4 bg-surface-1 rounded-lg border">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-semibold uppercase text-muted-foreground mb-1 block">
+                      {t("deleteModal.startDate")}
                     </label>
                     <Input
                       type="date"
-                      value={deleteToDate}
-                      onChange={(e) => setDeleteToDate(e.target.value)}
+                      value={deleteFromDate}
+                      onChange={(e) => setDeleteFromDate(e.target.value)}
                     />
                   </div>
-                )}
-
+                  {deleteOption === "date-range" && (
+                     <div>
+                     <label className="text-xs font-semibold uppercase text-muted-foreground mb-1 block">
+                       {t("deleteModal.endDate")}
+                     </label>
+                     <Input
+                       type="date"
+                       value={deleteToDate}
+                       onChange={(e) => setDeleteToDate(e.target.value)}
+                     />
+                   </div>
+                  )}
+                </div>
+                
+                {/* Lista de templates com checkbox */}
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    {t("deleteModal.templates")}
-                  </label>
-                  <Text variant="subtitle" className="text-xs mb-2">
-                    {t("deleteModal.templatesDesc")}
-                  </Text>
-                  <div className="max-h-40 overflow-y-auto border rounded p-2">
-                    {schedule.map((entry) => (
-                      <div key={entry.id} className="flex items-center py-1">
-                        <input
-                          type="checkbox"
-                          id={`template-${entry.id}`}
-                          checked={selectedTemplateEntries.some(
-                            (e) => e.id === entry.id
-                          )}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedTemplateEntries((prev) => [
-                                ...prev,
-                                entry,
-                              ]);
-                            } else {
-                              setSelectedTemplateEntries((prev) =>
-                                prev.filter((e) => e.id !== entry.id)
-                              );
-                            }
-                          }}
-                          className="mr-2"
-                        />
-                        <label
-                          htmlFor={`template-${entry.id}`}
-                          className="text-sm"
-                        >
-                          {entry.day} {entry.hour} -{" "}
-                          {getTeacherName(entry.teacherId)} ({entry.language})
+                   <label className="text-xs font-semibold uppercase text-muted-foreground mb-1 block">
+                      {t("deleteModal.templates")}
+                   </label>
+                   <div className="max-h-32 overflow-y-auto border rounded bg-background p-2 space-y-1">
+                      {schedule.map((entry) => (
+                        <label key={entry.id} className="flex items-center p-2 hover:bg-surface-1 rounded cursor-pointer">
+                           <input
+                              type="checkbox"
+                              checked={selectedTemplateEntries.some((e) => e.id === entry.id)}
+                              onChange={(e) => {
+                                 if (e.target.checked) setSelectedTemplateEntries((prev) => [...prev, entry]);
+                                 else setSelectedTemplateEntries((prev) => prev.filter((el) => el.id !== entry.id));
+                              }}
+                              className="mr-3 h-4 w-4"
+                           />
+                           <span className="text-sm">
+                              {entry.day} • {entry.hour} • {getTeacherName(entry.teacherId)}
+                           </span>
                         </label>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                   </div>
                 </div>
               </div>
             )}
           </div>
 
-          <ModalFooter>
-            <ModalClose asChild>
-              <Button variant="secondary" onClick={handleCancelDelete}>
-                {t("deleteModal.cancel")}
-              </Button>
-            </ModalClose>
-            <Button
+          <ModalFooter className="flex-col sm:flex-row gap-2">
+            <ModalSecondaryButton onClick={handleCancelDelete} className="w-full sm:w-auto">
+              {t("deleteModal.cancel")}
+            </ModalSecondaryButton>
+            <ModalPrimaryButton
+              variant="destructive"
               onClick={executeDeleteSchedule}
+              className="w-full sm:w-auto"
               disabled={
                 (deleteOption === "from-date" && !deleteFromDate) ||
-                (deleteOption === "date-range" &&
-                  (!deleteFromDate || !deleteToDate))
+                (deleteOption === "date-range" && (!deleteFromDate || !deleteToDate))
               }
             >
               {t("deleteModal.confirm")}
-            </Button>
+            </ModalPrimaryButton>
           </ModalFooter>
         </ModalContent>
       </Modal>
 
-      <div className="p-6 space-y-6">
+      <Modal open={isGenerateModalOpen} onOpenChange={setIsGenerateModalOpen}>
+        <ModalContent className="max-w-[90vw] sm:max-w-md">
+          <ModalIcon type="calendar" />
+          <ModalHeader>
+            <ModalTitle>{t("generateClasses")}</ModalTitle>
+            <ModalDescription>{t("confirmGenerate")}</ModalDescription>
+          </ModalHeader>
+          <ModalFooter className="flex-col sm:flex-row gap-2">
+            <ModalSecondaryButton onClick={() => setIsGenerateModalOpen(false)} className="w-full sm:w-auto">
+              {t("deleteModal.cancel")}
+            </ModalSecondaryButton>
+            <ModalPrimaryButton onClick={executeGenerateClasses} className="w-full sm:w-auto">
+              {t("confirmGenerateClasses")}
+            </ModalPrimaryButton>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      <div className="p-4 sm:p-6 space-y-6">
         {isLoading ? (
-          <Spinner />
+          <div className="flex justify-center py-12">
+             <Spinner />
+          </div>
         ) : (
           <>
             {!showScheduleSelection ? (
               <>
                 {/* --- SELEÇÃO DE PROFESSOR E IDIOMA --- */}
-                <div className="p-4 border border-surface-2 rounded-lg space-y-4">
-                  <Text weight="semibold" variant="subtitle">
-                    {t("addNew")}
-                  </Text>
-                  <Text variant="paragraph">
-                    {t("selectInstructions")}
-                  </Text>
+                <div className="bg-surface-1/50 p-4 sm:p-5 rounded-xl border space-y-4">
+                  <div className="space-y-1">
+                     <Text weight="semibold" variant="subtitle">{t("addNew")}</Text>
+                     <Text   className="text-muted-foreground">{t("selectInstructions")}</Text>
+                  </div>
 
-                  <ButtonGroup>
-                    <Select
-                      value={selectedTeacherId}
-                      onValueChange={setSelectedTeacherId}
-                    >
-                      <SelectTrigger>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Select value={selectedTeacherId} onValueChange={setSelectedTeacherId}>
+                      <SelectTrigger className="w-full h-11">
                         <SelectValue placeholder={t("teacherPlaceholder")} />
                       </SelectTrigger>
                       <SelectContent>
                         {allTeachers.map((teacher, index) => {
-                          const teacherValue =
-                            teacher.id && teacher.id.trim() !== ""
-                              ? teacher.id
-                              : `teacher-${index}`;
-
+                          const teacherValue = teacher.id && teacher.id.trim() !== "" ? teacher.id : `teacher-${index}`;
                           return (
                             <SelectItem key={teacherValue} value={teacherValue}>
                               {teacher.name}
@@ -576,11 +490,8 @@ export default function UserScheduleManager({
                       </SelectContent>
                     </Select>
 
-                    <Select
-                      value={selectedLanguage}
-                      onValueChange={setSelectedLanguage}
-                    >
-                      <SelectTrigger>
+                    <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                      <SelectTrigger className="w-full h-11">
                         <SelectValue placeholder={t("languagePlaceholder")} />
                       </SelectTrigger>
                       <SelectContent>
@@ -591,157 +502,181 @@ export default function UserScheduleManager({
                         ))}
                       </SelectContent>
                     </Select>
-                  </ButtonGroup>
+                  </div>
 
                   <Button
                     onClick={fetchTeacherAvailability}
-                    disabled={
-                      !selectedTeacherId || !selectedLanguage || isLoadingSlots
-                    }
-                    className="w-full"
+                    disabled={!selectedTeacherId || !selectedLanguage || isLoadingSlots}
+                    className="w-full h-11 sm:w-auto sm:min-w-[200px]"
+                    size="lg"
                   >
-                    {isLoadingSlots ? (
-                      <Spinner className="mr-2" />
-                    ) : (
-                      <Calendar className="mr-2" />
-                    )}
+                    {isLoadingSlots ? <Spinner className="mr-2" /> : <Calendar className="mr-2 w-4 h-4" />}
                     {t("checkAvailability")}
                   </Button>
                 </div>
 
                 {/* --- LISTA DE HORÁRIOS ATUAIS --- */}
                 <div className="space-y-3">
-                  <Text weight="semibold">{t("currentSchedule")}</Text>
-                  {schedule.length === 0 ? (
-                    <Text variant="placeholder" className="text-center py-4">
-                      {t("noSchedule")}
-                    </Text>
-                  ) : (
-                    schedule.map((entry) => (
-                      <div
-                        key={entry.id}
-                        className="flex items-center justify-between p-3 bg-surface-1 rounded-md border border-surface-2"
-                      >
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                          <Text weight="medium" className="min-w-[80px]">
-                            {entry.day}
-                          </Text>
-                          <Text>{entry.hour}</Text>
-                          <Text className="capitalize">
-                            {getTeacherName(entry.teacherId)}
-                          </Text>
-                          <Text>{entry.language}</Text>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-destructive"
-                            onClick={() => handleRemoveEntry(entry.id)}
-                          >
-                            <Trash className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </>
-            ) : (
-              <>
-                {/* --- SELEÇÃO DE HORÁRIOS DISPONÍVEIS --- */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={handleBackToSelection}
-                    >
-                      <ArrowLeft />
-                    </Button>
-                    <div>
-                      <Text weight="semibold">
-                        {t("availableSlotsTitle", {
-                          teacher: getTeacherName(selectedTeacherId),
-                        })}
-                      </Text>
-                      <Text variant="subtitle">
-                        {t("languageLabel", { language: selectedLanguage })}
-                      </Text>
-                    </div>
+                  <div className="flex items-center justify-between">
+                     <Text weight="semibold">{t("currentSchedule")}</Text>
+                     <span className="text-xs text-muted-foreground bg-surface-2 px-2 py-1 rounded-full">
+                        {schedule.length} {schedule.length === 1 ? 'item' : 'items'}
+                     </span>
                   </div>
 
-                  {availableSlots.length === 0 ? (
-                    <Text variant="placeholder" className="text-center py-8">
-                      {t("noSlotsFound")}
-                    </Text>
+                  {schedule.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-10 border-2 border-dashed rounded-xl bg-surface-1/30">
+                       <Calendar className="w-10 h-10 text-muted-foreground/50 mb-3" />
+                       <Text variant="placeholder">{t("noSchedule")}</Text>
+                    </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {availableSlots.map((slot) => (
-                        <Card
-                          key={`${slot.day}-${slot.startTime}`}
-                          className="p-4 hover:bg-surface-1 cursor-pointer transition-colors"
-                          onClick={() => handleSelectSchedule(slot)}
+                    <div className="grid grid-cols-1 gap-3">
+                      {schedule.map((entry) => (
+                        <div
+                          key={entry.id}
+                          className="group relative flex flex-col sm:flex-row sm:items-center justify-between p-4 card-base rounded-lg border shadow-sm transition-all hover:shadow-md hover:border-primary/20"
                         >
-                          <div className="text-center space-y-2">
-                            <Text weight="medium">{slot.day}</Text>
-                            <Text variant="subtitle" className="text-lg">
-                              {slot.startTime}
-                            </Text>
-                            <Button size="sm" className="w-full">
-                              {t("select")}
+                          <div className="flex-1 space-y-3 sm:space-y-1">
+                            {/* Dia e Hora - Destaque */}
+                            <div className="flex items-center gap-2 mb-2 sm:mb-0">
+                               <div className="bg-primary/10 text-primary px-3 py-1 rounded-md text-sm font-bold flex items-center gap-2">
+                                  <Calendar className="w-3 h-3" />
+                                  {entry.day}
+                               </div>
+                               <div className="text-lg font-semibold flex items-center gap-1">
+                                  <Clock className="w-4 h-4 text-muted-foreground" />
+                                  {entry.hour}
+                               </div>
+                            </div>
+                            
+                            {/* Detalhes Secundários */}
+                            <div className="flex flex-wrap gap-3 sm:gap-6 text-sm text-muted-foreground pl-1">
+                              <div className="flex items-center gap-1.5">
+                                 <UserIcon className="w-3.5 h-3.5" />
+                                 <span className="truncate max-w-[150px]">{getTeacherName(entry.teacherId)}</span>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                 <Globe className="w-3.5 h-3.5" />
+                                 <span>{entry.language}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="absolute top-3 right-3 sm:relative sm:top-0 sm:right-0">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-8 w-8 sm:h-10 sm:w-10"
+                              onClick={() => handleRemoveEntry(entry.id)}
+                            >
+                              <Trash className="h-4 w-4" />
                             </Button>
                           </div>
-                        </Card>
+                        </div>
                       ))}
                     </div>
                   )}
                 </div>
               </>
+            ) : (
+              /* --- SELEÇÃO DE HORÁRIOS DISPONÍVEIS --- */
+              <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
+                <div className="flex flex-col gap-4 bg-surface-1 p-4 rounded-lg border">
+                   <div className="flex items-start gap-4">
+                      <Button variant="outline" size="icon" onClick={handleBackToSelection} className="shrink-0">
+                         <ArrowLeft className="w-4 h-4" />
+                      </Button>
+                      <div>
+                         <Text weight="semibold" className="text-lg leading-tight">
+                            {t("availableSlotsTitle", { teacher: getTeacherName(selectedTeacherId) })}
+                         </Text>
+                         <div className="flex items-center gap-2 text-muted-foreground mt-1">
+                            <Globe className="w-3 h-3" />
+                            <Text  >{t("languageLabel", { language: selectedLanguage })}</Text>
+                         </div>
+                      </div>
+                   </div>
+                </div>
+
+                {availableSlots.length === 0 ? (
+                  <div className="text-center py-12 bg-surface-1/30 rounded-xl border-dashed border">
+                     <Text variant="placeholder">{t("noSlotsFound")}</Text>
+                     <Button variant="link" onClick={handleBackToSelection} className="mt-2">
+                        {t("goBack")}
+                     </Button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {availableSlots.map((slot) => (
+                      <button
+                        key={`${slot.day}-${slot.startTime}`}
+                        onClick={() => handleSelectSchedule(slot)}
+                        disabled={isSaving}
+                        className="flex flex-col items-center justify-center p-4 rounded-xl border bg-card hover:border-primary hover:bg-primary/5 hover:shadow-md transition-all active:scale-95 text-center gap-2 group"
+                      >
+                         <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground group-hover:text-primary/80">
+                            {slot.day}
+                         </span>
+                         <span className="text-xl font-bold text-foreground group-hover:text-primary">
+                            {slot.startTime}
+                         </span>
+                         <CheckCircle2 className="w-5 h-5 text-primary opacity-0 group-hover:opacity-100 transition-opacity absolute top-2 right-2" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
           </>
         )}
 
-        {/* --- BOTÕES DE AÇÃO PRINCIPAIS --- */}
+        {/* --- BOTÕES DE AÇÃO PRINCIPAIS (Sticky Mobile Friendly) --- */}
         {!showScheduleSelection && (
-          <div className="flex flex-col md:flex-row items-center justify-end gap-4 pt-6 border-t border-surface-2">
-            <ButtonGroup>
-              <Button
-                onClick={handleDeleteSchedule}
-                disabled={isSaving || isLoading}
-              >
-                <Trash className="mr-2" />
-                {t("delete")}
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={handleGenerateClasses}
-                disabled={isSaving || isLoading}
-              >
-                {t("generateClasses")}
-              </Button>
-            </ButtonGroup>
-            <div>
-              <ButtonGroup>
-                <Button
-                  onClick={handleSaveSchedule}
-                  disabled={isSaving || isLoading}
-                >
-                  {isSaving ? (
-                    <Spinner className="mr-2" />
-                  ) : (
-                    <Calendar className="mr-2" />
+          <div className="pt-6 border-t mt-8">
+            <div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between">
+               
+               {/* Grupo Secundário (Deletar/Gerar) */}
+               <div className="grid grid-cols-2 gap-3 sm:flex sm:gap-2">
+                  <Button
+                     variant="glass"
+                     onClick={handleDeleteSchedule}
+                     disabled={isSaving || isLoading || schedule.length === 0}
+                  >
+                     <Trash className="mr-2 h-4 w-4" />
+                     <span className="truncate">{t("delete")}</span>
+                  </Button>
+                  <Button
+                     variant="glass"
+                     className="w-full sm:w-auto"
+                     onClick={handleGenerateClasses}
+                     disabled={isSaving || isLoading || schedule.length === 0}
+                  >
+                     <Calendar className="mr-2 h-4 w-4" />
+                     <span className="truncate">{t("generateClasses")}</span>
+                  </Button>
+               </div>
+
+               {/* Grupo Primário (Salvar/Desfazer) */}
+               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  {hasChanges && (
+                     <Button
+                        variant="ghost"
+                        className="w-full sm:w-auto text-muted-foreground"
+                        disabled={isSaving || isLoading}
+                        onClick={handleUndoChanges}
+                     >
+                        {t("undo")}
+                     </Button>
                   )}
-                  {t("save")}
-                </Button>
-                <Button
-                  variant="secondary"
-                  disabled={isSaving || isLoading || !hasChanges}
-                  onClick={handleUndoChanges}
-                >
-                  {t("undo")}
-                </Button>
-              </ButtonGroup>
+                  <Button
+                     onClick={handleSaveSchedule}
+                     disabled={isSaving || isLoading || !hasChanges}
+                     className={cn("w-full sm:w-auto min-w-[140px]", hasChanges && "animate-pulse")}
+                  >
+                     {isSaving ? <Spinner className="mr-2" /> : <CheckCircle2 className="mr-2 h-5 w-5" />}
+                     {t("save")}
+                  </Button>
+               </div>
             </div>
           </div>
         )}

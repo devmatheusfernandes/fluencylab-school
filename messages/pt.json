@@ -487,6 +487,7 @@
       },
       "teacherNotFound": "Professor não encontrado",
       "confirmGenerate": "Tem certeza que deseja gerar todas as aulas para este aluno? Esta ação criará o cronograma para todo o período do contrato.",
+      "confirmGenerateClasses": "Gerar Aulas",
       "deleteModal": {
         "title": "Opções de Exclusão de Aulas",
         "description": "Escolha como deseja excluir as aulas do aluno. O histórico não será afetado.",
@@ -524,7 +525,8 @@
       "availableSlotsTitle": "Horários Disponíveis - {teacher}",
       "languageLabel": "Idioma: {language}",
       "noSlotsFound": "Nenhum horário disponível para este professor e idioma.",
-      "select": "Selecionar"
+      "select": "Selecionar",
+      "goBack": "Voltar"
     },
     "credits": {
       "totalCredits": "Total de Créditos",
