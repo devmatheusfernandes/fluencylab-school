@@ -3,6 +3,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { SchedulingService } from "@/services/schedulingService";
 import ClassDetailsView from "@/components/admin/ClassDetailsView";
 import { NoResults } from "@/components/ui/no-results";
+import { getTranslations } from "next-intl/server";
 
 const schedulingService = new SchedulingService();
 
@@ -15,6 +16,7 @@ export default async function ClassPage({
   params,
   searchParams,
 }: ClassPageProps) {
+  const t = await getTranslations("AdminClassDetails");
   const session = await getServerSession(authOptions);
   const { classId: pathClassId } = await params;
   const sp = await searchParams;
@@ -29,7 +31,7 @@ export default async function ClassPage({
   if (!classDetails) {
     return (
       <NoResults
-        customMessage={{ withoutSearch: "Aula não encontrada" }}
+        customMessage={{ withoutSearch: t("notFound") }}
         className="py-10"
       />
     );

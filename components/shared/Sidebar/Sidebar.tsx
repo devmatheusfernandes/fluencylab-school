@@ -636,7 +636,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             layout
             className={twMerge(
               "border-t border-primary/20 pt-3 w-full",
-              isCollapsed && "border-none pt-0"
+              isCollapsed && "border-none pt-0 mb-1"
             )}
           >
             <NotificationCard

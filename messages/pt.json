@@ -1,4 +1,17 @@
 {
+  "NotificationCard": {
+    "invalidDate": "Data inválida",
+    "minutesShort": "{minutes}m",
+    "hoursShort": "{hours}h",
+    "daysShort": "{days}d",
+    "markAsRead": "Marcar como lida",
+    "allNotifications": "Todas as Notificações",
+    "markAll": "Marcar todas",
+    "clear": "Limpar",
+    "noNotifications": "Nenhuma notificação",
+    "notifications": "Notificações",
+    "viewAll": "Ver todas ({count})"
+  },
   "Home": {
     "title": "Bem-vindo à FluencyLab School"
   },
@@ -274,7 +287,18 @@
     "rescheduledBadge": "Reagendada"
   },
   "AdminClassDetails": {
-    "statusLabel": "Status"
+    "statusLabel": "Status",
+    "title": "Detalhes da Aula",
+    "teacher": "Professor",
+    "student": "Aluno",
+    "topic": "Tópico da Aula",
+    "report": "Relatório da Aula",
+    "transcriptions": "Transcrições da Semana",
+    "foundRecords": "{count} registro(s) encontrado(s)",
+    "content": "Conteúdo",
+    "noContent": "Sem conteúdo.",
+    "summary": "Resumo",
+    "notFound": "Aula não encontrada"
   },
   "Weekdays": {
     "sunday": "Dom",

@@ -7,7 +7,7 @@ import { Notebook, Transcription } from "@/types/notebooks/notebooks";
 import { collection, query, where, getDocs, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { useMessages } from "next-intl";
+import { useTranslations, useFormatter } from "next-intl";
 import {
   Accordion,
   AccordionContent,
@@ -24,11 +24,8 @@ import {
   ScrollText,
   CheckCircle2,
   XCircle,
-  Mail,
-  ChevronRight,
-  Minus,
+  Mail
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge"; // Supondo que você tenha um componente de Badge, ou usaremos tailwind direto
 
 interface ClassDetailsViewProps {
   classDetails: FullClassDetails;
@@ -54,6 +51,9 @@ const itemVariants = {
 export default function ClassDetailsView({
   classDetails,
 }: ClassDetailsViewProps) {
+  const t = useTranslations("AdminClassDetails");
+  const tStatus = useTranslations("ClassStatus");
+  const format = useFormatter();
   const [weekTranscriptions, setWeekTranscriptions] = useState<Transcription[]>([]);
   const [isLoadingTranscriptions, setIsLoadingTranscriptions] = useState(false);
 
@@ -101,16 +101,14 @@ export default function ClassDetailsView({
   }, [classDetails]);
 
   const classDate = new Date(classDetails.scheduledAt);
-  const formattedDate = classDate.toLocaleDateString("pt-BR", {
+  const formattedDate = format.dateTime(classDate, {
     weekday: "long",
     day: "numeric",
     month: "long",
   });
-  const formattedTime = classDate.toLocaleTimeString("pt-BR", {
+  const formattedTime = format.dateTime(classDate, {
     timeStyle: "short",
   });
-  const messages = useMessages();
-  const tClassStatus = (messages?.ClassStatus ?? {}) as Record<string, string>;
 
   // Minimalist Status Config
   const statusConfig = {
@@ -137,9 +135,16 @@ export default function ClassDetailsView({
   const formatDate = (date: any) => {
     if (!date) return "";
     try {
-      if (typeof date.toDate === "function") return date.toDate().toLocaleDateString("pt-BR");
-      if (date.seconds) return new Date(date.seconds * 1000).toLocaleDateString("pt-BR");
-      return new Date(date).toLocaleDateString("pt-BR");
+      let d;
+      if (typeof date.toDate === "function") d = date.toDate();
+      else if (date.seconds) d = new Date(date.seconds * 1000);
+      else d = new Date(date);
+      
+      return format.dateTime(d, {
+          day: 'numeric',
+          month: 'numeric',
+          year: 'numeric'
+      });
     } catch (e) {
       return "";
     }
@@ -156,7 +161,7 @@ export default function ClassDetailsView({
       <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 dark:border-gray-800 pb-6">
         <div>
             <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
-            Detalhes da Aula
+            {t("title")}
             </h1>
             <div className="flex flex-wrap items-center gap-4 mt-2 text-gray-500 dark:text-gray-400 text-sm">
             <div className="flex items-center gap-1.5 capitalize">
@@ -172,7 +177,7 @@ export default function ClassDetailsView({
 
         <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-medium ${currentStatus.style}`}>
             <StatusIcon className="h-4 w-4" />
-            <span>{tClassStatus[classDetails.status] ?? classDetails.status}</span>
+            <span>{tStatus(classDetails.status as any)}</span>
         </div>
       </motion.div>
 
@@ -189,7 +194,7 @@ export default function ClassDetailsView({
           </Avatar>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-0.5 flex items-center gap-1">
-                <GraduationCap className="h-3 w-3" /> Professor
+                <GraduationCap className="h-3 w-3" /> {t("teacher")}
             </p>
             <p className="font-medium text-gray-900 dark:text-gray-100 truncate capitalize">
               {classDetails?.teacher?.name}
@@ -212,7 +217,7 @@ export default function ClassDetailsView({
           </Avatar>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-0.5 flex items-center gap-1">
-                <User className="h-3 w-3" /> Aluno
+                <User className="h-3 w-3" /> {t("student")}
             </p>
             <p className="font-medium text-gray-900 dark:text-gray-100 truncate capitalize">
               {classDetails.student.name}
@@ -237,7 +242,7 @@ export default function ClassDetailsView({
                     <div className="p-2 bg-blue-100 text-blue-600 rounded-lg dark:bg-blue-900/30 dark:text-blue-400">
                         <FileText className="h-4 w-4" />
                     </div>
-                    <span className="font-medium text-gray-900 dark:text-gray-100">Tópico da Aula</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{t("topic")}</span>
                 </div>
               </AccordionTrigger>
               <AccordionContent className="pt-0 pb-4 text-gray-600 dark:text-gray-400 leading-relaxed px-1">
@@ -254,7 +259,7 @@ export default function ClassDetailsView({
                     <div className="p-2 bg-green-100 text-green-600 rounded-lg dark:bg-green-900/30 dark:text-green-400">
                         <MessageSquare className="h-4 w-4" />
                     </div>
-                    <span className="font-medium text-gray-900 dark:text-gray-100">Relatório da Aula</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{t("report")}</span>
                 </div>
               </AccordionTrigger>
               <AccordionContent className="pt-0 pb-4 text-gray-600 dark:text-gray-400 leading-relaxed px-1">
@@ -272,9 +277,9 @@ export default function ClassDetailsView({
                         <ScrollText className="h-4 w-4" />
                     </div>
                     <div className="text-left">
-                        <span className="block font-medium text-gray-900 dark:text-gray-100">Transcrições da Semana</span>
+                        <span className="block font-medium text-gray-900 dark:text-gray-100">{t("transcriptions")}</span>
                         <span className="block text-xs text-gray-500 font-normal">
-                            {weekTranscriptions.length} registro(s) encontrado(s)
+                            {t("foundRecords", { count: weekTranscriptions.length })}
                         </span>
                     </div>
                 </div>
@@ -291,14 +296,14 @@ export default function ClassDetailsView({
                             
                             <div className="space-y-3">
                                 <div>
-                                    <p className="text-xs font-medium text-gray-400 mb-1">Conteúdo</p>
+                                    <p className="text-xs font-medium text-gray-400 mb-1">{t("content")}</p>
                                     <p className="text-sm text-gray-700 dark:text-gray-300">
-                                        {transcription.content || "Sem conteúdo."}
+                                        {transcription.content || t("noContent")}
                                     </p>
                                 </div>
                                 {transcription.summary && (
                                     <div>
-                                        <p className="text-xs font-medium text-gray-400 mb-1">Resumo</p>
+                                        <p className="text-xs font-medium text-gray-400 mb-1">{t("summary")}</p>
                                         <div className="text-sm text-gray-600 dark:text-gray-400 italic bg-white dark:bg-gray-950 p-3 rounded-lg border border-gray-100 dark:border-gray-800">
                                             {transcription.summary}
                                         </div>
@@ -313,8 +318,6 @@ export default function ClassDetailsView({
           )}
         </Accordion>
       </motion.div>
-
-     
     </motion.div>
   );
 }

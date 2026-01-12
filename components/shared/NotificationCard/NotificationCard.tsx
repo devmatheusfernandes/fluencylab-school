@@ -5,6 +5,7 @@ import { twMerge } from "tailwind-merge";
 import { useState } from "react";
 import { CheckCircle, Bell, MailWarning, X, BrushCleaning } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 // --- Type Definitions ---
 export interface Notification {
@@ -36,6 +37,8 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   isCollapsed = false,
   isOpen,
 }) => {
+  const t = useTranslations("NotificationCard");
+
   const getTypeIcon = () => {
     switch (notification.type) {
       case "success":
@@ -53,7 +56,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
     const dateObj = typeof date === "string" ? new Date(date) : date;
 
     if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) {
-      return "Invalid date";
+      return t("invalidDate");
     }
 
     const now = new Date();
@@ -65,13 +68,13 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
       const diffInMinutes = Math.floor(
         (now.getTime() - dateObj.getTime()) / (1000 * 60)
       );
-      return `${diffInMinutes}m`;
+      return t("minutesShort", { minutes: diffInMinutes });
     }
     if (diffInHours < 24) {
-      return `${diffInHours}h`;
+      return t("hoursShort", { hours: diffInHours });
     }
     const diffInDays = Math.floor(diffInHours / 24);
-    return `${diffInDays}d`;
+    return t("daysShort", { days: diffInDays });
   };
 
   if (isCollapsed) {
@@ -173,7 +176,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
                     onClick={() => onMarkAsRead(notification.id)}
                     className="text-xs text-primary hover:text-primary-hover font-medium transition-colors"
                   >
-                    Marcar como lida
+                    {t("markAsRead")}
                   </motion.button>
                 )}
 
@@ -250,6 +253,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
   onDelete,
   onClearAll,
 }) => {
+  const t = useTranslations("NotificationCard");
   const unreadCount = notifications.filter((n) => !n.read).length;
   const hasNotifications = notifications.length > 0;
 
@@ -293,7 +297,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
                   <Bell className="w-4 h-4 text-paragraph" />
                 </motion.div>
                 <h3 className="text-lg font-semibold subtitle-base">
-                  Todas as Notificações
+                  {t("allNotifications")}
                 </h3>
                 {unreadCount > 0 && (
                   <NotificationBadge
@@ -329,7 +333,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
                       onClick={onMarkAllAsRead}
                       className="text-xs text-primary hover:text-primary-hover font-medium transition-colors"
                     >
-                      Marcar todas
+                      {t("markAll")}
                     </motion.button>
                   )}
                   <span className="text-paragraph/40 text-xs">|</span>
@@ -339,7 +343,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
                     onClick={onClearAll}
                     className="text-xs text-paragraph/60 hover:text-paragraph transition-colors"
                   >
-                    Limpar
+                    {t("clear")}
                   </motion.button>
                 </motion.div>
               )}
@@ -385,7 +389,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
                         <Bell className="w-8 h-8 text-paragraph/30 mb-2" />
                       </motion.div>
                       <p className="text-sm text-paragraph/60">
-                        Nenhuma notificação
+                        {t("noNotifications")}
                       </p>
                     </motion.div>
                   )}
@@ -423,6 +427,7 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
   className,
   isOpen,
 }) => {
+  const t = useTranslations("NotificationCard");
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   // Ensure we only show unread notifications
@@ -470,7 +475,7 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Bell className="w-4 h-4" />
-            <h3 className="text-sm font-medium">Notificações</h3>
+            <h3 className="text-sm font-medium">{t("notifications")}</h3>
             {unreadCount > 0 && (
               <NotificationBadge
                 count={unreadCount}
@@ -488,7 +493,7 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
                   onClick={onMarkAllAsRead}
                   className="text-xs text-primary hover:text-primary-hover font-medium transition-colors"
                 >
-                  Marcar todas
+                  {t("markAll")}
                 </motion.button>
               )}
               <span className="text-paragraph/40 text-xs">|</span>
@@ -498,7 +503,7 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
                 onClick={onClearAll}
                 className="text-xs text-paragraph/60 hover:text-paragraph transition-colors"
               >
-                Limpar
+                {t("clear")}
               </motion.button>
             </div>
           )}
@@ -536,7 +541,7 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
                 >
                   <Bell className="w-8 h-8 text-paragraph/30 mb-2" />
                 </motion.div>
-                <p className="text-sm text-paragraph/60">Nenhuma notificação</p>
+                <p className="text-sm text-paragraph/60">{t("noNotifications")}</p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -555,7 +560,7 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Bell className="w-3 h-3 text-primary" />
-          <h3 className="text-xs font-medium">Notificações</h3>
+          <h3 className="text-xs font-medium">{t("notifications")}</h3>
           {unreadCount > 0 && (
             <NotificationBadge
               count={unreadCount}
@@ -573,7 +578,7 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
                 onClick={onMarkAllAsRead}
                 className="text-xs text-primary hover:text-primary-hover font-medium transition-colors"
               >
-                Marcar todas
+                {t("markAll")}
               </motion.button>
             )}
             <span className="text-paragraph/40 text-xs">|</span>
@@ -621,7 +626,7 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
                   onClick={() => setIsModalOpen(true)}
                   className="w-full p-2 text-xs text-primary hover:text-primary-hover font-medium transition-colors border border-primary/20 rounded-lg hover:bg-primary/5"
                 >
-                  Ver todas ({notifications.length})
+                  {t("viewAll", { count: notifications.length })}
                 </motion.button>
               )}
             </>
@@ -637,7 +642,7 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
               >
                 <Bell className="w-8 h-8 text-paragraph/30 mb-2" />
               </motion.div>
-              <p className="text-sm text-paragraph/60">Nenhuma notificação</p>
+              <p className="text-sm text-paragraph/60">{t("noNotifications")}</p>
             </motion.div>
           )}
         </AnimatePresence>
