@@ -11,8 +11,46 @@ import { defaultIcons } from "./modal-icons";
 import { X } from "lucide-react";
 import { Input } from "./input";
 
+interface ModalContextProps {
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+}
+
+const ModalContext = React.createContext<ModalContextProps | undefined>(undefined);
+
 // Modal Root Component
-const Modal = Dialog.Root;
+const Modal = ({
+  children,
+  open: controlledOpen,
+  onOpenChange,
+  defaultOpen,
+  ...props
+}: React.ComponentProps<typeof Dialog.Root>) => {
+  const [uncontrolledOpen, setUncontrolledOpen] = React.useState(
+    defaultOpen ?? false
+  );
+
+  const isOpen = controlledOpen ?? uncontrolledOpen;
+
+  const handleOpenChange = (open: boolean) => {
+    if (controlledOpen === undefined) {
+      setUncontrolledOpen(open);
+    }
+    onOpenChange?.(open);
+  };
+
+  return (
+    <Dialog.Root
+      open={isOpen}
+      onOpenChange={handleOpenChange}
+      {...props}
+    >
+      <ModalContext.Provider value={{ isOpen, setIsOpen: handleOpenChange }}>
+        {children}
+      </ModalContext.Provider>
+    </Dialog.Root>
+  );
+};
 
 // Modal Trigger Component
 const ModalTrigger = Dialog.Trigger;
@@ -45,6 +83,8 @@ const ModalContent = React.forwardRef<
     showHandle?: boolean;
   } & HTMLMotionProps<"div">
 >(({ className, children, showHandle = true, ...props }, ref) => {
+  const context = React.useContext(ModalContext);
+
   // Prevent body scroll when modal is open
   React.useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -53,61 +93,123 @@ const ModalContent = React.forwardRef<
     };
   }, []);
 
-  return (
-    <Dialog.Portal>
-      <AnimatePresence>
-        <Dialog.Overlay asChild>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end justify-center"
-          >
-            <Dialog.Content
-              className={twMerge(
-                `relative w-full max-w-lg mx-4 mb-4 sm:mb-6 no-scrollbar
-                bg-white dark:bg-gray-900/95 
-                backdrop-blur-xl
-                rounded-2xl shadow-2xl
-                border border-gray-200/50 dark:border-gray-700/50
-                overflow-hidden`,
-                className
-              )}
-              asChild
-              {...props}
+  if (!context) {
+    return (
+      <Dialog.Portal>
+        <AnimatePresence>
+          <Dialog.Overlay asChild>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end justify-center"
             >
-              <motion.div
-                ref={ref}
-                initial={{ y: "100%", opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: "100%", opacity: 0 }}
-                transition={{
-                  type: "spring",
-                  damping: 25,
-                  stiffness: 300,
-                  duration: 0.3,
-                }}
-              >
-                {/* Handle Bar */}
-                {showHandle && (
-                  <div className="flex justify-center pt-4 pb-6">
-                    <div className="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full" />
-                  </div>
+              <Dialog.Content
+                className={twMerge(
+                  `relative w-full max-w-lg mx-4 mb-4 sm:mb-6 no-scrollbar
+                  bg-white dark:bg-gray-900/95 
+                  backdrop-blur-xl
+                  rounded-2xl shadow-2xl
+                  border border-gray-200/50 dark:border-gray-700/50
+                  overflow-hidden`,
+                  className
                 )}
+                asChild
+                {...props}
+              >
+                <motion.div
+                  ref={ref}
+                  initial={{ y: "100%", opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: "100%", opacity: 0 }}
+                  transition={{
+                    type: "spring",
+                    damping: 25,
+                    stiffness: 300,
+                    duration: 0.3,
+                  }}
+                >
+                  {/* Handle Bar */}
+                  {showHandle && (
+                    <div className="flex justify-center pt-4 pb-6">
+                      <div className="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full" />
+                    </div>
+                  )}
 
-                {/* Hidden title for accessibility - required by Radix UI Dialog */}
-                <VisuallyHidden>
-                  <Dialog.Title>Modal</Dialog.Title>
-                </VisuallyHidden>
+                  {/* Hidden title for accessibility - required by Radix UI Dialog */}
+                  <VisuallyHidden>
+                    <Dialog.Title>Modal</Dialog.Title>
+                  </VisuallyHidden>
 
-                <div className="px-6 pb-6">{children}</div>
-              </motion.div>
-            </Dialog.Content>
-          </motion.div>
-        </Dialog.Overlay>
-      </AnimatePresence>
-    </Dialog.Portal>
+                  <div className="px-6 pb-6">{children}</div>
+                </motion.div>
+              </Dialog.Content>
+            </motion.div>
+          </Dialog.Overlay>
+        </AnimatePresence>
+      </Dialog.Portal>
+    );
+  }
+
+  return (
+    <AnimatePresence>
+      {context.isOpen && (
+        <Dialog.Portal forceMount>
+          <Dialog.Overlay asChild forceMount>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end justify-center"
+            >
+              <Dialog.Content
+                className={twMerge(
+                  `relative w-full max-w-lg mx-4 mb-4 sm:mb-6 no-scrollbar
+                  bg-white dark:bg-gray-900/95 
+                  backdrop-blur-xl
+                  rounded-2xl shadow-2xl
+                  border border-gray-200/50 dark:border-gray-700/50
+                  overflow-hidden`,
+                  className
+                )}
+                asChild
+                forceMount
+                {...props}
+              >
+                <motion.div
+                  ref={ref}
+                  initial={{ y: "100%", opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: "100%", opacity: 0 }}
+                  transition={{
+                    type: "spring",
+                    damping: 25,
+                    stiffness: 300,
+                    duration: 0.3,
+                  }}
+                >
+                  {/* Handle Bar */}
+                  {showHandle && (
+                    <div className="flex justify-center pt-4 pb-6">
+                      <div className="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full" />
+                    </div>
+                  )}
+
+                  {/* Hidden title for accessibility - required by Radix UI Dialog */}
+                  <VisuallyHidden>
+                    <Dialog.Title>Modal</Dialog.Title>
+                  </VisuallyHidden>
+
+                  <div className="px-6 pb-6">{children}</div>
+                </motion.div>
+              </Dialog.Content>
+            </motion.div>
+          </Dialog.Overlay>
+        </Dialog.Portal>
+      )}
+    </AnimatePresence>
   );
 });
 ModalContent.displayName = "ModalContent";
@@ -208,7 +310,7 @@ const ModalClose = React.forwardRef<
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3, ease: "easeOut", delay: 0.2 }}
           >
-            <X size={24} />
+            <X size={24} className="opacity-50" />
           </motion.div>
         </>
       )}

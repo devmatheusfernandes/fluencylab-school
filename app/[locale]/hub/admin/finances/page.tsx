@@ -1547,7 +1547,6 @@ export default function AdminFinancesPage() {
                     Nova despesa fixa
                   </span>
                   <Input
-                    className="h-8 text-sm"
                     value={newRecurring.name}
                     onChange={(e) =>
                       setNewRecurring((s) => ({ ...s, name: e.target.value }))
@@ -1556,7 +1555,6 @@ export default function AdminFinancesPage() {
                   />
                   <div className="grid grid-cols-2 gap-2">
                     <Input
-                      className="h-8 text-sm"
                       value={newRecurring.amountBRL}
                       onChange={(e) =>
                         setNewRecurring((s) => ({
@@ -1575,7 +1573,7 @@ export default function AdminFinancesPage() {
                         }))
                       }
                     >
-                      <SelectTrigger className="h-8 text-sm">
+                      <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
