@@ -9,8 +9,10 @@ import { Input } from "@/components/ui/input";
 import { QRCodeSVG } from "qrcode.react";
 import { useSettings } from "@/hooks/useSettings";
 import { Spinner } from "../ui/spinner";
+import { useTranslations } from "next-intl";
 
 export default function TwoFactorSetup() {
+  const t = useTranslations("Settings.twoFactor");
   const { data: session, update } = useSession();
   const { isLoading } = useSettings();
   const [isEnabling, setIsEnabling] = useState(false);
@@ -63,7 +65,7 @@ export default function TwoFactorSetup() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Falha ao configurar");
+        throw new Error(data.error || t("errors.setupFailed"));
       }
 
       setQrCodeUrl(data.qrCodeUrl);
@@ -77,7 +79,7 @@ export default function TwoFactorSetup() {
 
   const handleVerifyCode = async () => {
     if (!verificationCode || verificationCode.length !== 6) {
-      setError("Digite um código válido");
+      setError(t("errors.invalidCode"));
       return;
     }
 
@@ -100,7 +102,7 @@ export default function TwoFactorSetup() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Falha ao verificar código");
+        throw new Error(data.error || t("errors.verifyFailed"));
       }
 
       setIsSetupComplete(true);
@@ -115,7 +117,7 @@ export default function TwoFactorSetup() {
         },
       });
     } catch (err: any) {
-      setError("Código 2FA inválido");
+      setError(t("errors.invalid2FA"));
     } finally {
       setIsVerifying(false);
     }
@@ -135,7 +137,7 @@ export default function TwoFactorSetup() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || "Falha ao desativar");
+        throw new Error(data.error || t("errors.disableFailed"));
       }
 
       setIsSetupComplete(false);
@@ -162,7 +164,7 @@ export default function TwoFactorSetup() {
       <Card className="space-y-6">
         <section>
           <Text variant="subtitle" size="lg" weight="semibold">
-            Autenticação
+            {t("title")}
           </Text>
           <Spinner />
         </section>
@@ -174,10 +176,10 @@ export default function TwoFactorSetup() {
     <Card className="space-y-6">
       <section>
         <Text variant="subtitle" size="lg" weight="semibold">
-          Autenticação em Dois Fatores
+          {t("setupTitle")}
         </Text>
         <Text size="sm" variant="placeholder" className="mt-1">
-          Adicione uma camada extra de segurança à sua conta
+          {t("setupSubtitle")}
         </Text>
 
         {error && (
@@ -192,23 +194,23 @@ export default function TwoFactorSetup() {
           <div className="mt-4 space-y-4">
             <div className="flex flex-row items-start justify-between">
               <div>
-                <Text weight="medium">Status</Text>
+                <Text weight="medium">{t("status")}</Text>
                 <Text size="sm" variant="placeholder">
-                  A autenticação em dois fatores está desativada
+                  {t("disabledMessage")}
                 </Text>
               </div>
               <Button
                 onClick={handleEnableTwoFactor}
                 disabled={isEnabling || isLoading}
               >
-                {isEnabling ? <Spinner /> : "Ativar"}
+                {isEnabling ? <Spinner /> : t("enableButton")}
               </Button>
             </div>
 
             {qrCodeUrl && (
               <div className="mt-6 p-6 border border-card/80 rounded-lg bg-card/20">
                 <Text weight="medium" className="mb-4">
-                  Escaneie este código QR com seu aplicativo de autenticação
+                  {t("qrCodeInstruction")}
                 </Text>
                 <div className="p-4 bg-white rounded-lg flex justify-center my-4">
                   <QRCodeSVG value={qrCodeUrl} size={200} />
@@ -218,8 +220,7 @@ export default function TwoFactorSetup() {
                   variant="placeholder"
                   className="text-center mt-4"
                 >
-                  Se você não puder escanear o código QR, insira esta chave
-                  secreta manualmente:{" "}
+                  {t("manualKeyInstruction")}{" "}
                   <span className="font-mono font-semibold text-secondary">
                     {secret}
                   </span>
@@ -230,8 +231,7 @@ export default function TwoFactorSetup() {
                     htmlFor="verificationCode"
                     className="block text-sm font-medium mb-2"
                   >
-                    Insira o código de 6 dígitos do seu aplicativo de
-                    autenticação
+                    {t("codeInstruction")}
                   </label>
                   <Input
                     id="verificationCode"
@@ -251,7 +251,7 @@ export default function TwoFactorSetup() {
                       onClick={handleVerifyCode}
                       disabled={isVerifying || verificationCode.length !== 6}
                     >
-                      {isVerifying ? <Spinner /> : "Verificar"}
+                      {isVerifying ? <Spinner /> : t("verifyButton")}
                     </Button>
                   </div>
                 </div>
@@ -262,9 +262,9 @@ export default function TwoFactorSetup() {
           <div className="mt-4 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <Text weight="medium">Status</Text>
+                <Text weight="medium">{t("status")}</Text>
                 <Text size="sm" variant="placeholder">
-                  Two-factor authentication is enabled
+                  {t("enabledMessage")}
                 </Text>
               </div>
               <Button
@@ -272,18 +272,17 @@ export default function TwoFactorSetup() {
                 disabled={isLoading}
                 variant="destructive"
               >
-                Disable
+                {t("disableButton")}
               </Button>
             </div>
 
             {backupCodes.length > 0 && (
               <div className="mt-6 p-4 border border-yellow-200 rounded-lg bg-yellow-50">
                 <Text weight="medium" className="mb-2">
-                  Backup Codes
+                  {t("backupCodesTitle")}
                 </Text>
                 <Text size="sm" className="mb-3">
-                  Store these backup codes in a secure location. You can use
-                  each code only once.
+                  {t("backupCodesInstruction")}
                 </Text>
                 <div className="grid grid-cols-2 gap-2">
                   {backupCodes.map((code, index) => (

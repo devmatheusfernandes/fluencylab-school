@@ -1021,6 +1021,77 @@
       "studentPremium": "Premium Student"
     }
   },
+  "Settings": {
+    "header": {
+      "title": "Settings",
+      "subtitle": "Manage your account and system preferences."
+    },
+    "errors": {
+      "userNotFound": "User not found."
+    },
+    "interface": {
+      "title": "Interface",
+      "subtitle": "Customize system appearance",
+      "language": "Language",
+      "themeColor": "Theme Color",
+      "theme": "Theme",
+      "colors": {
+        "violet": "Violet",
+        "rose": "Rose",
+        "orange": "Orange",
+        "yellow": "Yellow",
+        "green": "Green"
+      },
+      "languages": {
+        "pt": "Portuguese",
+        "en": "English"
+      }
+    },
+    "twoFactor": {
+      "title": "Authentication",
+      "setupTitle": "Two-Factor Authentication",
+      "setupSubtitle": "Add an extra layer of security to your account",
+      "status": "Status",
+      "disabledMessage": "Two-factor authentication is disabled",
+      "enabledMessage": "Two-factor authentication is enabled",
+      "enableButton": "Enable",
+      "disableButton": "Disable",
+      "qrCodeInstruction": "Scan this QR code with your authenticator app",
+      "manualKeyInstruction": "If you cannot scan the QR code, enter this secret key manually:",
+      "codeInstruction": "Enter the 6-digit code from your authenticator app",
+      "verifyButton": "Verify",
+      "backupCodesTitle": "Backup Codes",
+      "backupCodesInstruction": "Store these backup codes in a secure location. You can use each code only once.",
+      "errors": {
+        "setupFailed": "Failed to setup",
+        "invalidCode": "Enter a valid code",
+        "verifyFailed": "Failed to verify code",
+        "invalid2FA": "Invalid 2FA code",
+        "disableFailed": "Failed to disable"
+      }
+    },
+    "googleCalendar": {
+        "title": "Google Calendar",
+        "subtitle": "Sync your tasks with Google Calendar",
+        "connected": "Account connected successfully",
+        "connect": "Connect your Google Calendar account",
+        "syncDescription": "Sync tasks automatically",
+        "disconnectButton": "Disconnect",
+        "reconnectButton": "Reconnect",
+        "connectButton": "Connect",
+        "defaultTimesTitle": "Default synchronization times",
+        "until": "to"
+      },
+      "days": {
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday",
+        "sunday": "Sunday"
+      }
+    },
   "AdminNotifications": {
     "title": "Manage Announcements",
     "subtitle": "Send notifications and warnings to user groups or specific individuals.",

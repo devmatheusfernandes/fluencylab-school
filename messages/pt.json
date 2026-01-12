@@ -1020,6 +1020,77 @@
       "studentPremium": "Estudante Premium"
     }
   },
+  "Settings": {
+    "header": {
+      "title": "Configurações",
+      "subtitle": "Gerencie suas preferências de conta e sistema."
+    },
+    "errors": {
+      "userNotFound": "Usuário não encontrado."
+    },
+    "interface": {
+      "title": "Interface",
+      "subtitle": "Personalize a aparência do sistema",
+      "language": "Idioma",
+      "themeColor": "Cor do Tema",
+      "theme": "Tema",
+      "colors": {
+        "violet": "Violeta",
+        "rose": "Rosa",
+        "orange": "Laranja",
+        "yellow": "Amarelo",
+        "green": "Verde"
+      },
+      "languages": {
+        "pt": "Português",
+        "en": "Inglês"
+      }
+    },
+    "twoFactor": {
+      "title": "Autenticação",
+      "setupTitle": "Autenticação em Dois Fatores",
+      "setupSubtitle": "Adicione uma camada extra de segurança à sua conta",
+      "status": "Status",
+      "disabledMessage": "A autenticação em dois fatores está desativada",
+      "enabledMessage": "A autenticação em dois fatores está ativada",
+      "enableButton": "Ativar",
+      "disableButton": "Desativar",
+      "qrCodeInstruction": "Escaneie este código QR com seu aplicativo de autenticação",
+      "manualKeyInstruction": "Se você não puder escanear o código QR, insira esta chave secreta manualmente:",
+      "codeInstruction": "Insira o código de 6 dígitos do seu aplicativo de autenticação",
+      "verifyButton": "Verificar",
+      "backupCodesTitle": "Códigos de Backup",
+      "backupCodesInstruction": "Guarde estes códigos de backup em um local seguro. Você pode usar cada código apenas uma vez.",
+      "errors": {
+        "setupFailed": "Falha ao configurar",
+        "invalidCode": "Digite um código válido",
+        "verifyFailed": "Falha ao verificar código",
+        "invalid2FA": "Código 2FA inválido",
+        "disableFailed": "Falha ao desativar"
+      }
+    },
+    "googleCalendar": {
+        "title": "Calendário Google",
+        "subtitle": "Sincronize suas tarefas com o Google Calendar",
+        "connected": "Conta conectada com sucesso",
+        "connect": "Conecte sua conta do Google Calendar",
+        "syncDescription": "Sincronize tarefas automaticamente",
+        "disconnectButton": "Desconectar",
+        "reconnectButton": "Reconectar",
+        "connectButton": "Conectar",
+        "defaultTimesTitle": "Horários padrão para sincronização",
+        "until": "até"
+      },
+      "days": {
+        "monday": "Segunda-feira",
+        "tuesday": "Terça-feira",
+        "wednesday": "Quarta-feira",
+        "thursday": "Quinta-feira",
+        "friday": "Sexta-feira",
+        "saturday": "Sábado",
+        "sunday": "Domingo"
+      }
+    },
   "AdminNotifications": {
     "title": "Gerenciar Anúncios",
     "subtitle": "Envie notificações e avisos para grupos de usuários ou indivíduos específicos.",

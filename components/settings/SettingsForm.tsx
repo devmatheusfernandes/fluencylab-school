@@ -26,6 +26,7 @@ import {
   AlertCircle,
   Clock,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface SettingsFormProps {
   currentLanguage: string;
@@ -64,6 +65,7 @@ export default function SettingsForm({
   googleCalendarConnected = false,
   googleCalendarDefaultTimes = {},
 }: SettingsFormProps) {
+  const t = useTranslations("Settings");
   const [language, setLanguage] = useState(currentLanguage);
   const [themeColor, setThemeColor] = useState<
     "violet" | "rose" | "orange" | "yellow" | "green"
@@ -72,7 +74,6 @@ export default function SettingsForm({
     googleCalendarDefaultTimes || {}
   );
   const { updateSettings } = useSettings();
-
   const applyThemeColorClass = (color: typeof themeColor) => {
     const root = document.documentElement;
     root.classList.remove(
@@ -108,21 +109,21 @@ export default function SettingsForm({
   };
 
   const dayNames = [
-    { key: "monday", label: "Segunda-feira" },
-    { key: "tuesday", label: "Terça-feira" },
-    { key: "wednesday", label: "Quarta-feira" },
-    { key: "thursday", label: "Quinta-feira" },
-    { key: "friday", label: "Sexta-feira" },
-    { key: "saturday", label: "Sábado" },
-    { key: "sunday", label: "Domingo" },
+    { key: "monday", label: t("days.monday") },
+    { key: "tuesday", label: t("days.tuesday") },
+    { key: "wednesday", label: t("days.wednesday") },
+    { key: "thursday", label: t("days.thursday") },
+    { key: "friday", label: t("days.friday") },
+    { key: "saturday", label: t("days.saturday") },
+    { key: "sunday", label: t("days.sunday") },
   ];
 
   const themeColors = [
-    { value: "violet", label: "Violeta", color: "bg-purple-500" },
-    { value: "rose", label: "Rosa", color: "bg-rose-500" },
-    { value: "orange", label: "Laranja", color: "bg-orange-500" },
-    { value: "yellow", label: "Amarelo", color: "bg-yellow-500" },
-    { value: "green", label: "Verde", color: "bg-green-500" },
+    { value: "violet", label: t("interface.colors.violet"), color: "bg-purple-500" },
+    { value: "rose", label: t("interface.colors.rose"), color: "bg-rose-500" },
+    { value: "orange", label: t("interface.colors.orange"), color: "bg-orange-500" },
+    { value: "yellow", label: t("interface.colors.yellow"), color: "bg-yellow-500" },
+    { value: "green", label: t("interface.colors.green"), color: "bg-green-500" },
   ];
 
   return (
@@ -141,10 +142,10 @@ export default function SettingsForm({
             </div>
             <div>
               <Text variant="subtitle" size="lg" weight="semibold">
-                Interface
+                {t("interface.title")}
               </Text>
               <Text size="sm" variant="placeholder">
-                Personalize a aparência do sistema
+                {t("interface.subtitle")}
               </Text>
             </div>
           </div>
@@ -157,7 +158,7 @@ export default function SettingsForm({
             >
               <div className="flex items-center gap-2">
                 <Globe className="h-4 w-4 text-muted-foreground" />
-                <label htmlFor="language" className="font-medium">Idioma</label>
+                <label htmlFor="language" className="font-medium">{t("interface.language")}</label>
               </div>
               <Select
                 value={language}
@@ -170,8 +171,8 @@ export default function SettingsForm({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pt">Português</SelectItem>
-                  <SelectItem value="en">English</SelectItem>
+                  <SelectItem value="pt">{t("interface.languages.pt")}</SelectItem>
+                  <SelectItem value="en">{t("interface.languages.en")}</SelectItem>
                 </SelectContent>
               </Select>
             </motion.div>
@@ -183,7 +184,7 @@ export default function SettingsForm({
             >
               <div className="flex items-center gap-2">
                 <Palette className="h-4 w-4 text-muted-foreground" />
-                <label htmlFor="themeColor" className="font-medium">Cor do Tema</label>
+                <label htmlFor="themeColor" className="font-medium">{t("interface.themeColor")}</label>
               </div>
               <Select
                 value={themeColor}
@@ -215,7 +216,7 @@ export default function SettingsForm({
               whileHover={{ scale: 1.01 }}
               transition={{ type: "spring", stiffness: 400 }}
             >
-              <label htmlFor="theme" className="font-medium">Tema</label>
+              <label htmlFor="theme" className="font-medium">{t("interface.theme")}</label>
               <ThemeSwitcher />
             </motion.div>
           </div>
@@ -231,10 +232,10 @@ export default function SettingsForm({
             </div>
             <div>
               <Text variant="subtitle" size="lg" weight="semibold">
-                Calendário Google
+                {t("googleCalendar.title")}
               </Text>
               <Text size="sm" variant="placeholder">
-                Sincronize suas tarefas com o Google Calendar
+                {t("googleCalendar.subtitle")}
               </Text>
             </div>
           </div>
@@ -254,12 +255,12 @@ export default function SettingsForm({
                   <div>
                     <Text weight="medium" className={googleCalendarConnected ? "text-green-700 dark:text-green-300" : ""}>
                       {googleCalendarConnected
-                        ? "Conta conectada com sucesso"
-                        : "Conecte sua conta do Google Calendar"}
+                        ? t("googleCalendar.connected")
+                        : t("googleCalendar.connect")}
                     </Text>
                     {!googleCalendarConnected && (
                       <Text size="sm" variant="placeholder">
-                        Sincronize tarefas automaticamente
+                        {t("googleCalendar.syncDescription")}
                       </Text>
                     )}
                   </div>
@@ -278,19 +279,19 @@ export default function SettingsForm({
                               });
                             }}
                           >
-                            Desconectar
+                            {t("googleCalendar.disconnectButton")}
                           </Button>
                         </motion.div>
                         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                           <Button size="sm" onClick={handleConnectGoogleCalendar}>
-                            Reconectar
+                            {t("googleCalendar.reconnectButton")}
                           </Button>
                         </motion.div>
                       </>
                     ) : (
                       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                         <Button size="sm" onClick={handleConnectGoogleCalendar}>
-                          Conectar
+                          {t("googleCalendar.connectButton")}
                         </Button>
                       </motion.div>
                     )}
@@ -330,7 +331,7 @@ export default function SettingsForm({
                           }
                           className="flex-1 sm:w-auto"
                         />
-                        <span className="text-sm text-muted-foreground">até</span>
+                        <span className="text-sm text-muted-foreground">{t("googleCalendar.until")}</span>
                         <Input
                           type="time"
                           value={
