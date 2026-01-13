@@ -18,6 +18,7 @@ import { Text } from "../ui/text";
 import { Card } from "../ui/card";
 import { Button } from "../ui/button";
 import { Trash } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface TeacherVacationListProps {
   vacations: Vacation[];
@@ -28,6 +29,7 @@ export default function TeacherVacationList({
   vacations,
   onDelete,
 }: TeacherVacationListProps) {
+  const t = useTranslations("TeacherSchedule.Vacation.List");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [vacationToDelete, setVacationToDelete] = useState<string | null>(null);
 
@@ -56,23 +58,23 @@ export default function TeacherVacationList({
         throw new Error(result.error || "Erro ao cancelar período de férias");
       }
 
-      toast.success("Período de férias cancelado com sucesso!");
+      toast.success(t("toasts.success"));
       onDelete(); // Recarrega a lista
       closeDeleteModal();
     } catch (error: any) {
       console.error("Erro ao cancelar período de férias:", error);
-      toast.error(`Falha ao cancelar período de férias: ${error.message}`);
+      toast.error(t("toasts.error", { error: error.message }));
     }
   };
 
   if (vacations.length === 0) {
-    return <Text>Nenhum período de férias agendado.</Text>;
+    return <Text>{t("empty")}</Text>;
   }
 
   return (
     <>
       <div className="space-y-4">
-        <Text weight="semibold">Os seus períodos de férias agendados</Text>
+        <Text weight="semibold">{t("title")}</Text>
         {vacations.map((vac) => (
           <Card
             key={vac.id}
@@ -80,11 +82,11 @@ export default function TeacherVacationList({
           >
             <div>
               <Text>
-                <span className="font-medium">De:</span>{" "}
+                <span className="font-medium">{t("from")}</span>{" "}
                 {new Date(vac.startDate).toLocaleDateString("pt-BR")}
               </Text>
               <Text>
-                <span className="font-medium">Até:</span>{" "}
+                <span className="font-medium">{t("to")}</span>{" "}
                 {new Date(vac.endDate).toLocaleDateString("pt-BR")}
               </Text>
             </div>
@@ -103,19 +105,18 @@ export default function TeacherVacationList({
       <Modal open={isModalOpen} onOpenChange={closeDeleteModal}>
         <ModalContent>
           <ModalHeader>
-            <ModalTitle>Cancelar Período de Férias</ModalTitle>
+            <ModalTitle>{t("deleteModal.title")}</ModalTitle>
             <ModalDescription>
-              Tem a certeza de que deseja cancelar este período de férias? As
-              aulas afetadas serão reagendadas.
+              {t("deleteModal.description")}
             </ModalDescription>
             <ModalClose />
           </ModalHeader>
           <ModalFooter>
             <ModalSecondaryButton onClick={closeDeleteModal}>
-              Cancelar
+              {t("deleteModal.cancel")}
             </ModalSecondaryButton>
             <ModalPrimaryButton onClick={handleDelete}>
-              Confirmar
+              {t("deleteModal.confirm")}
             </ModalPrimaryButton>
           </ModalFooter>
         </ModalContent>

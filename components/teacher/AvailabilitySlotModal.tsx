@@ -29,6 +29,7 @@ import { AvailabilityType } from "@/types/time/availability";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "../ui/spinner";
+import { useTranslations } from "next-intl";
 
 interface AvailabilitySlotModalProps {
   isOpen: boolean;
@@ -54,6 +55,7 @@ export default function AvailabilitySlotModal({
   const [endDate, setEndDate] = useState("");
   const [hasEndDate, setHasEndDate] = useState(false); // Novo estado para controlar se tem data fim
   const [isLoading, setIsLoading] = useState(false);
+  const t = useTranslations("TeacherSchedule.AvailabilityForm");
 
   // Atualizar isRepeating baseado no tipo
   useEffect(() => {
@@ -129,11 +131,11 @@ export default function AvailabilitySlotModal({
         throw new Error(error.error || "Failed to create availability slot");
       }
 
-      toast.success("Horário adicionado com sucesso!");
+      toast.success(t("successToast"));
       onSlotCreated();
       onClose();
     } catch (error: any) {
-      toast.error(error.message || "Erro ao adicionar horário");
+      toast.error(error.message || t("errorToast"));
     } finally {
       setIsLoading(false);
     }
@@ -143,35 +145,35 @@ export default function AvailabilitySlotModal({
     <Modal open={isOpen} onOpenChange={onClose}>
       <ModalContent className="overflow-y-auto">
         <ModalHeader>
-          <ModalTitle>Adicionar Novo Horário</ModalTitle>
+          <ModalTitle>{t("addTitle")}</ModalTitle>
           <ModalDescription>
-            Defina um novo horário disponível para agendamento de aulas.
+            {t("addDescription")}
           </ModalDescription>
         </ModalHeader>
         <form onSubmit={handleSubmit}>
           <ModalBody className="space-y-3">
             <div>
-              <label htmlFor="type">Tipo de Horário</label>
+              <label htmlFor="type">{t("typeLabel")}</label>
               <Select
                 value={type}
                 onValueChange={(value) => setType(value as AvailabilityType)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecione o tipo" />
+                  <SelectValue placeholder={t("selectPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={AvailabilityType.REGULAR}>
-                    Regular (Aulas fixas)
+                    {t("typeRegular")}
                   </SelectItem>
                   <SelectItem value={AvailabilityType.MAKEUP}>
-                    Reposição (Aulas de reposição)
+                    {t("typeMakeup")}
                   </SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div>
-              <label htmlFor="startDate">Data de Início</label>
+              <label htmlFor="startDate">{t("startDateLabel")}</label>
               <Input
                 id="startDate"
                 type="date"
@@ -182,7 +184,7 @@ export default function AvailabilitySlotModal({
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="startTime">Início</label>
+                <label htmlFor="startTime">{t("startTimeLabel")}</label>
                 <Input
                   id="startTime"
                   type="time"
@@ -192,7 +194,7 @@ export default function AvailabilitySlotModal({
                 />
               </div>
               <div>
-                <label htmlFor="endTime">Fim</label>
+                <label htmlFor="endTime">{t("endTimeLabel")}</label>
                 <Input
                   id="endTime"
                   type="time"
@@ -213,14 +215,14 @@ export default function AvailabilitySlotModal({
                     setIsRepeating(checked as boolean)
                   }
                 />
-                <label htmlFor="isRepeating">Repetir este horário</label>
+                <label htmlFor="isRepeating">{t("repeatLabel")}</label>
               </div>
             )}
 
             {isRepeating && (
               <div className="space-y-3">
                 <div>
-                  <label htmlFor="repeatingType">Frequência</label>
+                  <label htmlFor="repeatingType">{t("frequencyLabel")}</label>
                   <Select
                     value={repeatingType}
                     onValueChange={setRepeatingType}
@@ -229,15 +231,15 @@ export default function AvailabilitySlotModal({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="weekly">Semanalmente</SelectItem>
-                      <SelectItem value="bi-weekly">Quinzenalmente</SelectItem>
-                      <SelectItem value="monthly">Mensalmente</SelectItem>
+                      <SelectItem value="weekly">{t("frequencies.weekly")}</SelectItem>
+                      <SelectItem value="bi-weekly">{t("frequencies.biWeekly")}</SelectItem>
+                      <SelectItem value="monthly">{t("frequencies.monthly")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div>
-                  <label htmlFor="interval">Intervalo</label>
+                  <label htmlFor="interval">{t("intervalLabel")}</label>
                   <Input
                     id="interval"
                     type="number"
@@ -258,7 +260,7 @@ export default function AvailabilitySlotModal({
                         setHasEndDate(checked as boolean)
                       }
                     />
-                    <label htmlFor="hasEndDate">Definir data de término</label>
+                    <label htmlFor="hasEndDate">{t("defineEndDateLabel")}</label>
                   </div>
                 )}
 
@@ -268,8 +270,8 @@ export default function AvailabilitySlotModal({
                   <div>
                     <label htmlFor="endDate">
                       {type === AvailabilityType.REGULAR
-                        ? "Data de Término"
-                        : "Data de Término (Opcional)"}
+                        ? t("endDateLabel")
+                        : t("endDateOptionalLabel")}
                     </label>
                     <Input
                       id="endDate"
@@ -283,14 +285,14 @@ export default function AvailabilitySlotModal({
 
                 {/* Mostrar informação sobre tempo indefinido para horários regulares */}
                 {type === AvailabilityType.REGULAR && !hasEndDate && (
-                  <Badge>Horário será repetido por tempo indefinido</Badge>
+                  <Badge>{t("indefiniteBadge")}</Badge>
                 )}
               </div>
             )}
           </ModalBody>
           <ModalFooter>
             <ModalPrimaryButton type="submit" disabled={isLoading}>
-              {isLoading ? <Spinner /> : "Adicionar Horário"}
+              {isLoading ? <Spinner /> : t("submitButton")}
             </ModalPrimaryButton>
           </ModalFooter>
         </form>

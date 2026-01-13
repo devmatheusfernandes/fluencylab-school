@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface ClassDetailsModalProps {
   isOpen: boolean;
@@ -28,6 +29,7 @@ export default function ClassDetailsModal({
   classData,
   onSlotConverted,
 }: ClassDetailsModalProps) {
+  const t = useTranslations("TeacherSchedule.ClassDetails");
   const [isConverting, setIsConverting] = useState(false);
   if (!classData) return null;
 
@@ -139,7 +141,7 @@ export default function ClassDetailsModal({
     <Modal open={isOpen} onOpenChange={onClose}>
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Detalhes da Aula</ModalTitle>
+          <ModalTitle>{t("title")}</ModalTitle>
           <ModalClose />
         </ModalHeader>
         <ModalBody>
@@ -160,7 +162,7 @@ export default function ClassDetailsModal({
                 <div className="mt-3">
                   <Image
                     src={classData.studentAvatarUrl}
-                    alt={"Imagem do aluno"}
+                    alt={t("studentInfo")}
                     className="w-12 h-12 rounded-full object-cover"
                     width={12}
                     height={12}
@@ -171,12 +173,12 @@ export default function ClassDetailsModal({
 
             <Card className="p-4">
               <Text variant="title" className="mb-3">
-                Informações da Aula
+                {t("classInfo")}
               </Text>
 
               <div className="space-y-2">
                 <div>
-                  <Text className="text-subtitle font-medium">Data e Hora</Text>
+                  <Text className="text-subtitle font-medium">{t("dateAndTime")}</Text>
                   <Text>
                     {format(new Date(classData.scheduledAt), "PPP 'às' HH:mm", {
                       locale: ptBR,
@@ -185,22 +187,22 @@ export default function ClassDetailsModal({
                 </div>
 
                 <div>
-                  <Text className="text-subtitle font-medium">Duração</Text>
-                  <Text>{classData.durationMinutes} minutos</Text>
+                  <Text className="text-subtitle font-medium">{t("duration")}</Text>
+                  <Text>{classData.durationMinutes} {t("minutes")}</Text>
                 </div>
 
                 <div>
                   <Text className="text-subtitle font-medium">
-                    Tipo de Aula
+                    {t("classType")}
                   </Text>
                   <Text>
-                    {classData.classType === "regular" ? "Regular" : "Avulsa"}
+                    {classData.classType === "regular" ? t("regular") : t("single")}
                   </Text>
                 </div>
 
                 {classData.notes && (
                   <div>
-                    <Text className="text-subtitle font-medium">Notas</Text>
+                    <Text className="text-subtitle font-medium">{t("notes")}</Text>
                     <Text>{classData.notes}</Text>
                   </div>
                 )}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import ClientCalendar from "@/components/teacher/ClientCalendar";
 import {
   mapTeacherEventsToCalendar,
@@ -57,6 +58,7 @@ export default function TeacherSettingsClient({
   const [scheduleData, setScheduleData] = useState(initialScheduleData);
   const [isLoading, setIsLoading] = useState(false);
   const { deleteAvailability } = useTeacher();
+  const t = useTranslations("TeacherSchedule.EventTitles");
 
   const handleRefresh = useCallback(async () => {
     setIsLoading(true);
@@ -80,9 +82,10 @@ export default function TeacherSettingsClient({
           ...mapTeacherEventsToCalendar(
             convertedScheduleData.slots,
             convertedScheduleData.exceptions,
-            convertedScheduleData.bookedClasses
+            convertedScheduleData.bookedClasses,
+            t
           ),
-          ...mapTeacherClassesToCalendar(convertedClassesData),
+          ...mapTeacherClassesToCalendar(convertedClassesData, t),
         ];
 
         // Serialize data for client component

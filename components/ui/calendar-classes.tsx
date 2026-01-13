@@ -131,6 +131,7 @@ export const Calendar: React.FC<CalendarProps> = ({
   const tMonths = useTranslations("Months");
   const tDays = useTranslations("Days");
   const tWeekdays = useTranslations("Weekdays");
+  const t = useTranslations("TeacherSchedule.Calendar");
 
   const [currentDate, setCurrentDate] = React.useState(() => {
     return selectedDate || new Date();
@@ -415,7 +416,7 @@ export const Calendar: React.FC<CalendarProps> = ({
                     .map((event) => renderEventBadge(event, isMobile))}
                   {dayEvents.length > (isMobile ? 2 : 4) && (
                     <div className="px-2 py-1 text-xs text-slate-600 dark:text-slate-400 font-medium bg-slate-100 dark:bg-slate-800 rounded-md">
-                      +{dayEvents.length - (isMobile ? 2 : 4)} mais
+                      {t("andMore", { count: dayEvents.length - (isMobile ? 2 : 4) })}
                     </div>
                   )}
                 </div>
@@ -446,7 +447,7 @@ export const Calendar: React.FC<CalendarProps> = ({
                 size={isMobile ? "sm" : "base"}
                 className="font-bold text-slate-700 dark:text-slate-300"
               >
-                {isMobile ? day.slice(0, 3) : day}
+                {isMobile ? tDays(day).slice(0, 3) : tDays(day)}
               </Text>
             </div>
           ))}
@@ -485,13 +486,13 @@ export const Calendar: React.FC<CalendarProps> = ({
                       size="lg"
                       className="font-bold text-slate-900 dark:text-slate-100"
                     >
-                      {daysOfWeek[date.getDay()]}
+                      {tDays(daysOfWeek[date.getDay()])}
                     </Text>
                     <Text
                       size="sm"
                       className="text-slate-600 dark:text-slate-400 font-medium"
                     >
-                      {date.getDate()} {months[date.getMonth()]}
+                      {date.getDate()} {tMonths(months[date.getMonth()])}
                     </Text>
                   </div>
                   {onAddEvent && (
@@ -505,7 +506,7 @@ export const Calendar: React.FC<CalendarProps> = ({
                       }}
                     >
                       <PlusIcon className="h-4 w-4 mr-2" />
-                      Adicionar
+                      {t("add")}
                     </Button>
                   )}
                 </div>
@@ -516,7 +517,7 @@ export const Calendar: React.FC<CalendarProps> = ({
                       size="sm"
                       className="text-slate-500 dark:text-slate-400 italic"
                     >
-                      Nenhum evento
+                      {t("noEvents")}
                     </Text>
                   ) : (
                     dayEvents.map((event) => renderEventBadge(event, false))
@@ -539,7 +540,7 @@ export const Calendar: React.FC<CalendarProps> = ({
               size="sm"
               className="font-bold text-slate-700 dark:text-slate-300"
             >
-              Hora
+              {t("time")}
             </Text>
           </div>
           {weekDates.map((date) => (
@@ -776,7 +777,7 @@ export const Calendar: React.FC<CalendarProps> = ({
                 onClick={goToToday}
                 className="px-6 py-2 rounded-full border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
               >
-                Hoje
+                {t("today")}
               </Button>
               {onAddEvent && (
                 <Button
@@ -784,7 +785,7 @@ export const Calendar: React.FC<CalendarProps> = ({
                   onClick={() => onAddEvent(currentDate)}
                   className="px-6 py-2 rounded-full"
                 >
-                  Adicionar Evento
+                  {t("addEvent")}
                 </Button>
               )}
             </div>
@@ -824,16 +825,16 @@ export const Calendar: React.FC<CalendarProps> = ({
               <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-xl p-1 border border-slate-200 dark:border-slate-700 shadow-sm gap-2">
                 <Button size="sm" onClick={() => setCurrentView("month") }>
                   <CalendarIcon className="h-4 w-4 mr-2" />
-                  Mês
+                  {t("month")}
                 </Button>
                 <Button size="sm" onClick={() => setCurrentView("week")}>
-                  Semana
+                  {t("week")}
                 </Button>
                 <Button size="sm" onClick={() => setCurrentView("day")}>
-                  Dia
+                  {t("day")}
                 </Button>
                 <Button variant="destructive" size="sm" onClick={goToToday}>
-                  Hoje
+                  {t("today")}
                 </Button>
               </div>
             )}

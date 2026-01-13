@@ -11,8 +11,10 @@ import { Button } from "../ui/button";
 import DatePicker from "../ui/date-picker";
 import TeacherVacationList from "./TeacherVacationList";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { useTranslations } from "next-intl";
 
 export default function TeacherVacationManager() {
+  const t = useTranslations("TeacherSchedule.Vacation");
   const { requestVacation, isLoading, vacations, fetchMyVacations } =
     useTeacher();
   const { user } = useCurrentUser();
@@ -65,10 +67,10 @@ export default function TeacherVacationManager() {
             </div>
             <div>
               <Text className="font-bold text-blue-900 dark:text-blue-100">
-                Saldo de Férias
+                {t("balanceCard.title")}
               </Text>
               <Text size="sm" className="text-blue-600 dark:text-blue-300">
-                Período atual disponível
+                {t("balanceCard.subtitle")}
               </Text>
             </div>
           </div>
@@ -79,11 +81,12 @@ export default function TeacherVacationManager() {
                 size="lg"
                 className="font-semibold text-slate-900 dark:text-slate-100"
               >
-                Você tem{" "}
-                <span className="text-primary font-bold">
-                  {remainingDays}
-                </span>{" "}
-                dias de férias restantes
+                {t.rich("balanceCard.remainingText", {
+                  days: remainingDays || 0,
+                  highlight: (chunks) => (
+                    <span className="text-primary font-bold">{chunks}</span>
+                  ),
+                })}
               </Text>
               <div className="text-4xl">🏖️</div>
             </div>
@@ -102,10 +105,10 @@ export default function TeacherVacationManager() {
               size="lg"
               className="font-bold text-slate-900 dark:text-slate-100"
             >
-              Solicitar Férias
+              {t("requestCard.title")}
             </Text>
             <Text size="sm" className="text-slate-600 dark:text-slate-400">
-              Suas solicitações anteriores e atuais
+              {t("requestCard.subtitle")}
             </Text>
           </div>
         </div>
@@ -116,29 +119,25 @@ export default function TeacherVacationManager() {
               variant="paragraph"
               className="text-slate-700 dark:text-slate-300 leading-relaxed"
             >
-              Selecione o período em que estará ausente. Todas as aulas
-              agendadas neste intervalo serão marcadas como Férias e os alunos
-              serão notificados automaticamente.
+              {t("requestCard.info")}
             </Text>
           </div>
 
           <Alert className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
             <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             <AlertTitle className="text-blue-800 dark:text-blue-300 font-semibold mb-2">
-              Regras para solicitação de férias
+              {t("rules.title")}
             </AlertTitle>
             <AlertDescription className="text-blue-700 dark:text-blue-400">
               <ul className="list-disc pl-4 space-y-1 text-sm">
                 <li>
-                  As férias devem ser solicitadas com pelo menos 40 dias de
-                  antecedência.
+                  {t("rules.advance")}
                 </li>
                 <li>
-                  O período máximo por solicitação é de 14 dias consecutivos.
+                  {t("rules.duration")}
                 </li>
                 <li>
-                  O cancelamento também deve ser feito com 40 dias de
-                  antecedência.
+                  {t("rules.cancellation")}
                 </li>
               </ul>
             </AlertDescription>
@@ -152,7 +151,7 @@ export default function TeacherVacationManager() {
                 setStartDate(date);
                 setEndDate(null); // Reset end date when start date changes
               }}
-              placeholder="Selecione a data de início"
+              placeholder={t("form.startDatePlaceholder")}
               minDate={minStartDate}
               disabled={isLoading}
               size="default"
@@ -160,7 +159,7 @@ export default function TeacherVacationManager() {
             <DatePicker
               value={endDate}
               onChange={(date) => setEndDate(date)}
-              placeholder="Selecione a data de término"
+              placeholder={t("form.endDatePlaceholder")}
               minDate={startDate || minStartDate}
               maxDate={maxEndDate}
               disabled={isLoading || !startDate}
@@ -176,7 +175,7 @@ export default function TeacherVacationManager() {
               ) : (
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
-                  Solicitar Férias
+                  {t("form.submitButton")}
                 </div>
               )}
             </Button>
@@ -191,14 +190,13 @@ export default function TeacherVacationManager() {
                     size="sm"
                     className="font-semibold text-emerald-700 dark:text-emerald-300"
                   >
-                    Resumo do Período
+                    {t("summary.title")}
                   </Text>
                   <Text
                     size="sm"
                     className="text-emerald-600 dark:text-emerald-400"
                   >
-                    {vacationDays} {vacationDays === 1 ? "dia" : "dias"} de
-                    férias solicitados
+                    {t("summary.daysRequested", { days: vacationDays, count: vacationDays })}
                   </Text>
                 </div>
                 <div className="text-right">
@@ -206,7 +204,7 @@ export default function TeacherVacationManager() {
                     size="sm"
                     className="font-semibold text-emerald-700 dark:text-emerald-300"
                   >
-                    Restante após solicitação
+                    {t("summary.remainingAfter")}
                   </Text>
                   <Text
                     size="sm"
@@ -217,8 +215,8 @@ export default function TeacherVacationManager() {
                     }
                   >
                     {exceedsLimit
-                      ? `Excede em ${vacationDays - (remainingDays || 0)} dias`
-                      : `${(remainingDays || 0) - vacationDays} dias restantes`}
+                      ? t("summary.exceedsBy", { days: vacationDays - (remainingDays || 0) })
+                      : t("summary.remainingDays", { days: (remainingDays || 0) - vacationDays })}
                   </Text>
                 </div>
               </div>
@@ -235,10 +233,10 @@ export default function TeacherVacationManager() {
                     size="sm"
                     className="font-semibold text-red-700 dark:text-red-300"
                   >
-                    Período inválido
+                    {t("errors.invalidPeriodTitle")}
                   </Text>
                   <Text size="sm" className="text-red-600 dark:text-red-400">
-                    O período solicitado excede seus dias de férias disponíveis.
+                    {t("errors.invalidPeriodMessage")}
                   </Text>
                 </div>
               </div>
@@ -259,10 +257,10 @@ export default function TeacherVacationManager() {
                 size="lg"
                 className="font-bold text-slate-900 dark:text-slate-100"
               >
-                Histórico de Férias
+                {t("history.title")}
               </Text>
               <Text size="sm" className="text-slate-600 dark:text-slate-400">
-                Suas solicitações anteriores e atuais
+                {t("history.subtitle")}
               </Text>
             </div>
           </div>

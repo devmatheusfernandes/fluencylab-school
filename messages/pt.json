@@ -1941,5 +1941,215 @@
       "zipCodeRequired": "CEP é obrigatório",
       "termsRequired": "Você deve concordar com os termos"
     }
+  },
+  "TeacherSchedule": {
+    "tabs": {
+      "settings": "Configurações",
+      "vacation": "Férias",
+      "schedule": "Agenda"
+    },
+    "Settings": {
+      "title": "Regras de Agendamento",
+      "description": "Configure as políticas para seus alunos agendarem aulas",
+      "form": {
+        "bookingLeadTimeHours": {
+          "label": "Antecedência Mínima",
+          "description": "Tempo mínimo necessário para agendamento de aulas",
+          "unit": "horas"
+        },
+        "bookingHorizonDays": {
+          "label": "Horizonte de Agendamento",
+          "description": "Quantos dias no futuro os alunos podem agendar",
+          "unit": "dias"
+        },
+        "defaultBadge": "Padrão",
+        "min": "Mín: {value}",
+        "max": "Máx: {value}"
+      },
+      "buttons": {
+        "restoreDefaults": "Restaurar Padrões",
+        "cancel": "Cancelar",
+        "save": "Salvar Configurações",
+        "saving": "Salvando..."
+      },
+      "unsavedChanges": "Você tem alterações não salvas. Clique em Salvar Configurações para aplicar.",
+      "tips": {
+        "title": "Dicas de Configuração",
+        "leadTime": "<highlight>Antecedência mínima:</highlight> Tempo que os alunos devem respeitar antes de agendar",
+        "horizon": "<highlight>Horizonte de agendamento:</highlight> Até quando no futuro podem agendar",
+        "dailyLimit": "<highlight>Limite de aulas avulsas:</highlight> Controle sua disponibilidade diária"
+      }
+    },
+    "Vacation": {
+      "title": "Gestão de Férias",
+      "description": "Solicite períodos de férias e gerencie sua disponibilidade você tem {days} dias restantes",
+      "balanceCard": {
+        "title": "Saldo de Férias",
+        "subtitle": "Período atual disponível",
+        "remainingText": "Você tem <highlight>{days}</highlight> dias de férias restantes"
+      },
+      "requestCard": {
+        "title": "Solicitar Férias",
+        "subtitle": "Suas solicitações anteriores e atuais",
+        "info": "Selecione o período em que estará ausente. Todas as aulas agendadas neste intervalo serão marcadas como Férias e os alunos serão notificados automaticamente."
+      },
+      "rules": {
+        "title": "Regras para solicitação de férias",
+        "advance": "As férias devem ser solicitadas com pelo menos 40 dias de antecedência.",
+        "duration": "O período máximo por solicitação é de 14 dias consecutivos.",
+        "cancellation": "O cancelamento também deve ser feito com 40 dias de antecedência."
+      },
+      "form": {
+        "startDatePlaceholder": "Selecione a data de início",
+        "endDatePlaceholder": "Selecione a data de término",
+        "submitButton": "Solicitar Férias"
+      },
+      "summary": {
+        "title": "Resumo do Período",
+        "daysRequested": "{days} {days, plural, =1 {dia} other {dias}} de férias solicitados",
+        "remainingAfter": "Restante após solicitação",
+        "exceedsBy": "Excede em {days} dias",
+        "remainingDays": "{days} dias restantes"
+      },
+      "errors": {
+        "invalidPeriodTitle": "Período inválido",
+        "invalidPeriodMessage": "O período solicitado excede seus dias de férias disponíveis."
+      },
+      "history": {
+        "title": "Histórico de Férias",
+        "subtitle": "Suas solicitações anteriores e atuais"
+      },
+      "List": {
+        "empty": "Nenhum período de férias agendado.",
+        "title": "Os seus períodos de férias agendados",
+        "from": "De:",
+        "to": "Até:",
+        "deleteModal": {
+          "title": "Cancelar Período de Férias",
+          "description": "Tem a certeza de que deseja cancelar este período de férias? As aulas afetadas serão reagendadas.",
+          "cancel": "Cancelar",
+          "confirm": "Confirmar"
+        },
+        "toasts": {
+          "success": "Período de férias cancelado com sucesso!",
+          "error": "Falha ao cancelar período de férias: {error}"
+        }
+      }
+    },
+    "Schedule": {
+      "title": "Agenda e Disponibilidade",
+      "description": "Visualize e gerencie sua agenda completa"
+    },
+    "Calendar": {
+      "today": "Hoje",
+      "month": "Mês",
+      "week": "Semana",
+      "day": "Dia",
+      "add": "Adicionar",
+      "addEvent": "Adicionar Evento",
+      "noEvents": "Nenhum evento",
+      "time": "Hora",
+      "more": "mais",
+      "andMore": "+{count} mais"
+    },
+    "EventTitles": {
+      "booked": "Reservado",
+      "makeup": "Reposição",
+      "available": "Vago",
+      "bookedMakeup": "Reservado (Reposição)",
+      "class": "Aula",
+      "completed": "Concluído",
+      "canceled": "Cancelado",
+      "noShow": "Falta",
+      "rescheduled": "Reagendado",
+      "vacation": "Férias",
+      "overdue": "Vencido"
+    },
+    "ClassDetails": {
+      "title": "Detalhes da Aula",
+      "studentInfo": "Informações do Aluno",
+      "classInfo": "Informações da Aula",
+      "dateAndTime": "Data e Hora",
+      "duration": "Duração",
+      "minutes": "minutos",
+      "classType": "Tipo de Aula",
+      "regular": "Regular",
+      "single": "Avulsa",
+      "notes": "Notas",
+      "status": {
+        "scheduled": "Agendada",
+        "completed": "Concluída",
+        "cancelled": "Cancelada",
+        "canceledStudent": "Cancelada pelo aluno",
+        "canceledTeacher": "Cancelada pelo professor",
+        "canceledTeacherMakeup": "Cancelada pelo professor (reposição)",
+        "canceledCredit": "Cancelada (crédito)",
+        "noShow": "Aluno faltou",
+        "rescheduled": "Reagendada",
+        "teacherVacation": "Férias do professor",
+        "overdue": "Vencida"
+      },
+      "toasts": {
+        "convertSuccess": "Aula convertida em slot disponível com sucesso!",
+        "convertError": "Erro ao converter aula em slot livre"
+      }
+    },
+    "AvailabilityDetails": {
+      "title": "Detalhes do Horário",
+      "infoTitle": "Informações do Horário",
+      "startDate": "Data de Início",
+      "time": "Horário",
+      "type": "Tipo",
+      "repeating": "Repetindo",
+      "single": "Único",
+      "category": "Categoria",
+      "frequency": "Frequência",
+      "frequencyValue": "{type} a cada {interval} vez(es)",
+      "endDate": "Data de Término",
+      "deleteTitle": "Confirmar Exclusão",
+      "deleteRepeatingQuestion": "Este horário se repete. Como deseja excluir?",
+      "deleteSingle": "Excluir apenas esta ocorrência",
+      "deleteSingleDesc": "Remove apenas o evento selecionado em {date}",
+      "deleteFuture": "Excluir esta e todas as ocorrências futuras",
+      "deleteFutureDesc": "Remove este evento e todos os eventos futuros desta série",
+      "deleteConfirmation": "Tem certeza que deseja excluir este horário? Esta ação não pode ser desfeita.",
+      "cancel": "Cancelar",
+      "delete": "Excluir",
+      "deleting": "Excluindo...",
+      "close": "Fechar",
+      "types": {
+        "weekly": "Semanalmente",
+        "biWeekly": "Quinzenalmente",
+        "monthly": "Mensalmente",
+        "regular": "Regular",
+        "makeup": "Reposição"
+      }
+    },
+    "AvailabilityForm": {
+      "addTitle": "Adicionar Novo Horário",
+      "addDescription": "Defina um novo horário disponível para agendamento de aulas.",
+      "typeLabel": "Tipo de Horário",
+      "selectPlaceholder": "Selecione o tipo",
+      "typeRegular": "Regular (Aulas fixas)",
+      "typeMakeup": "Reposição (Aulas de reposição)",
+      "startDateLabel": "Data de Início",
+      "startTimeLabel": "Início",
+      "endTimeLabel": "Fim",
+      "repeatLabel": "Repetir este horário",
+      "frequencyLabel": "Frequência",
+      "intervalLabel": "Intervalo",
+      "defineEndDateLabel": "Definir data de término",
+      "endDateLabel": "Data de Término",
+      "endDateOptionalLabel": "Data de Término (Opcional)",
+      "indefiniteBadge": "Horário será repetido por tempo indefinido",
+      "submitButton": "Adicionar Horário",
+      "successToast": "Horário adicionado com sucesso!",
+      "errorToast": "Erro ao adicionar horário",
+      "frequencies": {
+        "weekly": "Semanalmente",
+        "biWeekly": "Quinzenalmente",
+        "monthly": "Mensalmente"
+      }
+    }
   }
 }

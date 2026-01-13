@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Editor } from "@tiptap/react";
-import { ChevronUp, Plus } from "lucide-react";
+import { ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TOOL_ITEMS, ToolItem } from "./toolsConfig";
 import ToolbarToolsSheet, { MODAL_COMPONENTS } from "./tools";

@@ -15,12 +15,14 @@ import { createDateTimeKey } from "@/utils/utils";
  * @param slots - Teacher's availability slots
  * @param exceptions - Teacher's availability exceptions
  * @param bookedClasses - Teacher's booked classes
+ * @param t - Translation function
  * @returns CalendarEvent[] - Array of calendar events
  */
 export const mapTeacherEventsToCalendar = (
   slots: AvailabilitySlot[],
   exceptions: AvailabilityException[],
-  bookedClasses: PopulatedStudentClass[]
+  bookedClasses: PopulatedStudentClass[],
+  t: (key: string) => string
 ): CalendarEvent[] => {
   // console.log("[DEBUG] mapTeacherEventsToCalendar called with:", {
   //   slotsCount: slots?.length || 0,
@@ -88,7 +90,7 @@ export const mapTeacherEventsToCalendar = (
             // Priority 1: Booked class
             events.push({
               id: `class-${bookedClass.id}`,
-              title: "Reservado",
+              title: t("EventTitles.booked"),
               date: new Date(bookedClass.scheduledAt),
               startTime: bookedClass.scheduledAt.toTimeString().substring(0, 5),
               endTime: new Date(
@@ -109,7 +111,10 @@ export const mapTeacherEventsToCalendar = (
             // Priority 3: Available slot
             events.push({
               id: `slot-${slot.id}-${currentDate.getTime()}`,
-              title: slot.type === "makeup" ? "Reposição" : "Vago",
+              title:
+                slot.type === "makeup"
+                  ? t("EventTitles.makeup")
+                  : t("EventTitles.available"),
               date: new Date(currentDate),
               startTime: slot.startTime,
               endTime: slot.endTime,
@@ -162,7 +167,7 @@ export const mapTeacherEventsToCalendar = (
             // Priority 1: Booked class
             events.push({
               id: `class-${bookedClass.id}`,
-              title: "Reservado (Reposição)",
+              title: t("EventTitles.bookedMakeup"),
               date: new Date(bookedClass.scheduledAt),
               startTime: bookedClass.scheduledAt.toTimeString().substring(0, 5),
               endTime: new Date(
@@ -193,7 +198,10 @@ export const mapTeacherEventsToCalendar = (
 
             events.push({
               id: `slot-${slot.id}`,
-              title: slot.type === "makeup" ? "Reposição" : "Vago",
+              title:
+                slot.type === "makeup"
+                  ? t("EventTitles.makeup")
+                  : t("EventTitles.available"),
               date: slotDate,
               startTime: slot.startTime,
               endTime: slot.endTime,
@@ -218,49 +226,51 @@ export const mapTeacherEventsToCalendar = (
 /**
  * Maps all teacher classes (including past and cancelled) to calendar events
  * @param classes - All teacher's classes
+ * @param t - Translation function
  * @returns CalendarEvent[] - Array of calendar events
  */
 export const mapTeacherClassesToCalendar = (
-  classes: PopulatedStudentClass[]
+  classes: PopulatedStudentClass[],
+  t: (key: string) => string
 ): CalendarEvent[] => {
   const events: CalendarEvent[] = [];
 
   classes.forEach((cls) => {
     // Map class status to calendar event color
     let color: CalendarEvent["color"] = "primary";
-    let title = "Aula";
+    let title = t("EventTitles.class");
 
     switch (cls.status) {
       case ClassStatus.SCHEDULED:
         color = "destructive";
-        title = "Reservado";
+        title = t("EventTitles.booked");
         break;
       case ClassStatus.COMPLETED:
         color = "success";
-        title = "Concluído";
+        title = t("EventTitles.completed");
         break;
       case ClassStatus.CANCELED_STUDENT:
       case ClassStatus.CANCELED_TEACHER:
       case ClassStatus.CANCELED_TEACHER_MAKEUP:
       case ClassStatus.CANCELED_CREDIT:
         color = "warning";
-        title = "Cancelado";
+        title = t("EventTitles.canceled");
         break;
       case ClassStatus.NO_SHOW:
         color = "warning";
-        title = "Falta";
+        title = t("EventTitles.noShow");
         break;
       case ClassStatus.RESCHEDULED:
         color = "info";
-        title = "Reagendado";
+        title = t("EventTitles.rescheduled");
         break;
       case ClassStatus.TEACHER_VACATION:
         color = "info";
-        title = "Férias";
+        title = t("EventTitles.vacation");
         break;
       case ClassStatus.OVERDUE:
         color = "secondary";
-        title = "Vencido";
+        title = t("EventTitles.overdue");
         break;
     }
 

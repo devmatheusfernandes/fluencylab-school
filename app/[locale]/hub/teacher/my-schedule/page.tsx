@@ -17,12 +17,14 @@ import { Card } from "@/components/ui/card";
 import { BadgePoundSterling, Calendar, Ear, Settings } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
+import { getTranslations } from "next-intl/server";
 
 const userAdminRepo = new UserAdminRepository();
 const schedulingService = new SchedulingService();
 
 export default async function TeacherSettingsPage() {
   const session = await getServerSession(authOptions);
+  const t = await getTranslations("TeacherSchedule");
 
   // Busca as configurações atuais do professor para preencher o formulário
   const teacher = await userAdminRepo.findUserById(session!.user.id);
@@ -57,9 +59,10 @@ export default async function TeacherSettingsPage() {
     ...mapTeacherEventsToCalendar(
       scheduleData.slots,
       scheduleData.exceptions,
-      scheduleData.bookedClasses
+      scheduleData.bookedClasses,
+      t
     ),
-    ...mapTeacherClassesToCalendar(allClasses),
+    ...mapTeacherClassesToCalendar(allClasses, t),
   ];
 
   // console.log(
@@ -83,8 +86,8 @@ export default async function TeacherSettingsPage() {
           >
             <div className="flex items-center gap-2">
               <Settings className="w-4 h-4" />
-              <span className="hidden sm:inline">Configurações</span>
-              <span className="sm:hidden">Configurações</span>
+              <span className="hidden sm:inline">{t("tabs.settings")}</span>
+              <span className="sm:hidden">{t("tabs.settings")}</span>
             </div>
           </TabsTrigger>
           <TabsTrigger
@@ -93,8 +96,8 @@ export default async function TeacherSettingsPage() {
           >
             <div className="flex items-center gap-2">
               <Ear className="w-4 h-4" />
-              <span className="hidden sm:inline">Férias</span>
-              <span className="sm:hidden">Férias</span>
+              <span className="hidden sm:inline">{t("tabs.vacation")}</span>
+              <span className="sm:hidden">{t("tabs.vacation")}</span>
             </div>
           </TabsTrigger>
           <TabsTrigger
@@ -103,8 +106,8 @@ export default async function TeacherSettingsPage() {
           >
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
-              <span className="hidden sm:inline">Agenda</span>
-              <span className="sm:hidden">Agenda</span>
+              <span className="hidden sm:inline">{t("tabs.schedule")}</span>
+              <span className="sm:hidden">{t("tabs.schedule")}</span>
             </div>
           </TabsTrigger>
         </TabsList>
@@ -123,10 +126,10 @@ export default async function TeacherSettingsPage() {
                   size="lg"
                   className="font-bold text-slate-900 dark:text-slate-100"
                 >
-                  Regras de Agendamento
+                  {t("Settings.title")}
                 </Text>
                 <Text size="sm" className="text-slate-600 dark:text-slate-400">
-                  Configure as políticas para seus alunos agendarem aulas
+                  {t("Settings.description")}
                 </Text>
               </div>
             </div>
@@ -147,11 +150,12 @@ export default async function TeacherSettingsPage() {
               </div>
               <div>
                 <Text className="font-bold text-slate-900 dark:text-slate-100">
-                  Gestão de Férias
+                  {t("Vacation.title")}
                 </Text>
                 <Text size="sm" className="text-slate-600 dark:text-slate-400">
-                  Solicite períodos de férias e gerencie sua disponibilidade
-                  você tem {teacher?.vacationDaysRemaining || 0} dias restantes
+                  {t("Vacation.description", {
+                    days: teacher?.vacationDaysRemaining || 0,
+                  })}
                 </Text>
               </div>
             </div>
@@ -175,10 +179,10 @@ export default async function TeacherSettingsPage() {
                   size="lg"
                   className="font-bold text-slate-900 dark:text-slate-100"
                 >
-                  Agenda e Disponibilidade
+                  {t("Schedule.title")}
                 </Text>
                 <Text size="sm" className="text-slate-600 dark:text-slate-400">
-                  Visualize e gerencie sua agenda completa
+                  {t("Schedule.description")}
                 </Text>
               </div>
             </div>

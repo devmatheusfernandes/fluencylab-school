@@ -1942,5 +1942,215 @@
       "zipCodeRequired": "ZIP Code is required",
       "termsRequired": "You must agree to the terms"
     }
+  },
+  "TeacherSchedule": {
+    "tabs": {
+      "settings": "Settings",
+      "vacation": "Vacation",
+      "schedule": "Schedule"
+    },
+    "Settings": {
+      "title": "Scheduling Rules",
+      "description": "Configure policies for your students to schedule classes",
+      "form": {
+        "bookingLeadTimeHours": {
+          "label": "Minimum Lead Time",
+          "description": "Minimum time required before scheduling classes",
+          "unit": "hours"
+        },
+        "bookingHorizonDays": {
+          "label": "Scheduling Horizon",
+          "description": "How many days in the future students can schedule",
+          "unit": "days"
+        },
+        "defaultBadge": "Default",
+        "min": "Min: {value}",
+        "max": "Max: {value}"
+      },
+      "buttons": {
+        "restoreDefaults": "Restore Defaults",
+        "cancel": "Cancel",
+        "save": "Save Settings",
+        "saving": "Saving..."
+      },
+      "unsavedChanges": "You have unsaved changes. Click Save Settings to apply.",
+      "tips": {
+        "title": "Configuration Tips",
+        "leadTime": "<highlight>Minimum lead time:</highlight> Time students must respect before scheduling",
+        "horizon": "<highlight>Scheduling horizon:</highlight> How far in the future they can schedule",
+        "dailyLimit": "<highlight>Single class limit:</highlight> Control your daily availability"
+      }
+    },
+    "Vacation": {
+      "title": "Vacation Management",
+      "description": "Request vacation periods and manage your availability. You have {days} days remaining",
+      "balanceCard": {
+        "title": "Vacation Balance",
+        "subtitle": "Current available period",
+        "remainingText": "You have <highlight>{days}</highlight> vacation days remaining"
+      },
+      "requestCard": {
+        "title": "Request Vacation",
+        "subtitle": "Your previous and current requests",
+        "info": "Select the period you will be away. All classes scheduled in this interval will be marked as Vacation and students will be notified automatically."
+      },
+      "rules": {
+        "title": "Vacation Request Rules",
+        "advance": "Vacation must be requested at least 40 days in advance.",
+        "duration": "Maximum period per request is 14 consecutive days.",
+        "cancellation": "Cancellation must also be done 40 days in advance."
+      },
+      "form": {
+        "startDatePlaceholder": "Select start date",
+        "endDatePlaceholder": "Select end date",
+        "submitButton": "Request Vacation"
+      },
+      "summary": {
+        "title": "Period Summary",
+        "daysRequested": "{days} {days, plural, =1 {day} other {days}} of vacation requested",
+        "remainingAfter": "Remaining after request",
+        "exceedsBy": "Exceeds by {days} days",
+        "remainingDays": "{days} days remaining"
+      },
+      "errors": {
+        "invalidPeriodTitle": "Invalid Period",
+        "invalidPeriodMessage": "The requested period exceeds your available vacation days."
+      },
+      "history": {
+        "title": "Vacation History",
+        "subtitle": "Your previous and current requests"
+      },
+      "List": {
+        "empty": "No vacation period scheduled.",
+        "title": "Your scheduled vacation periods",
+        "from": "From:",
+        "to": "To:",
+        "deleteModal": {
+          "title": "Cancel Vacation Period",
+          "description": "Are you sure you want to cancel this vacation period? Affected classes will be rescheduled.",
+          "cancel": "Cancel",
+          "confirm": "Confirm"
+        },
+        "toasts": {
+          "success": "Vacation period canceled successfully!",
+          "error": "Failed to cancel vacation period: {error}"
+        }
+      }
+    },
+    "Schedule": {
+      "title": "Schedule & Availability",
+      "description": "View and manage your complete schedule"
+    },
+    "Calendar": {
+      "today": "Today",
+      "month": "Month",
+      "week": "Week",
+      "day": "Day",
+      "add": "Add",
+      "addEvent": "Add Event",
+      "noEvents": "No events",
+      "time": "Time",
+      "more": "more",
+      "andMore": "+{count} more"
+    },
+    "EventTitles": {
+      "booked": "Booked",
+      "makeup": "Makeup",
+      "available": "Available",
+      "bookedMakeup": "Booked (Makeup)",
+      "class": "Class",
+      "completed": "Completed",
+      "canceled": "Canceled",
+      "noShow": "No-show",
+      "rescheduled": "Rescheduled",
+      "vacation": "Vacation",
+      "overdue": "Overdue"
+    },
+    "ClassDetails": {
+      "title": "Class Details",
+      "studentInfo": "Student Info",
+      "classInfo": "Class Info",
+      "dateAndTime": "Date and Time",
+      "duration": "Duration",
+      "minutes": "minutes",
+      "classType": "Class Type",
+      "regular": "Regular",
+      "single": "Single",
+      "notes": "Notes",
+      "status": {
+        "scheduled": "Scheduled",
+        "completed": "Completed",
+        "cancelled": "Cancelled",
+        "canceledStudent": "Cancelled by student",
+        "canceledTeacher": "Cancelled by teacher",
+        "canceledTeacherMakeup": "Cancelled by teacher (makeup)",
+        "canceledCredit": "Cancelled (credit)",
+        "noShow": "Student no-show",
+        "rescheduled": "Rescheduled",
+        "teacherVacation": "Teacher vacation",
+        "overdue": "Overdue"
+      },
+      "toasts": {
+        "convertSuccess": "Class successfully converted to available slot!",
+        "convertError": "Error converting class to available slot"
+      }
+    },
+    "AvailabilityDetails": {
+      "title": "Slot Details",
+      "infoTitle": "Slot Information",
+      "startDate": "Start Date",
+      "time": "Time",
+      "type": "Type",
+      "repeating": "Repeating",
+      "single": "Single",
+      "category": "Category",
+      "frequency": "Frequency",
+      "frequencyValue": "{type} every {interval} time(s)",
+      "endDate": "End Date",
+      "deleteTitle": "Confirm Deletion",
+      "deleteRepeatingQuestion": "This slot repeats. How do you want to delete?",
+      "deleteSingle": "Delete only this occurrence",
+      "deleteSingleDesc": "Removes only the selected event on {date}",
+      "deleteFuture": "Delete this and all future occurrences",
+      "deleteFutureDesc": "Removes this event and all future events in this series",
+      "deleteConfirmation": "Are you sure you want to delete this slot? This action cannot be undone.",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "close": "Close",
+      "types": {
+        "weekly": "Weekly",
+        "biWeekly": "Bi-weekly",
+        "monthly": "Monthly",
+        "regular": "Regular",
+        "makeup": "Makeup"
+      }
+    },
+    "AvailabilityForm": {
+      "addTitle": "Add New Slot",
+      "addDescription": "Define a new available slot for class scheduling.",
+      "typeLabel": "Slot Type",
+      "selectPlaceholder": "Select type",
+      "typeRegular": "Regular (Fixed classes)",
+      "typeMakeup": "Makeup (Makeup classes)",
+      "startDateLabel": "Start Date",
+      "startTimeLabel": "Start",
+      "endTimeLabel": "End",
+      "repeatLabel": "Repeat this slot",
+      "frequencyLabel": "Frequency",
+      "intervalLabel": "Interval",
+      "defineEndDateLabel": "Set end date",
+      "endDateLabel": "End Date",
+      "endDateOptionalLabel": "End Date (Optional)",
+      "indefiniteBadge": "Slot will repeat indefinitely",
+      "submitButton": "Add Slot",
+      "successToast": "Slot added successfully!",
+      "errorToast": "Error adding slot",
+      "frequencies": {
+        "weekly": "Weekly",
+        "biWeekly": "Bi-weekly",
+        "monthly": "Monthly"
+      }
+    }
   }
 }

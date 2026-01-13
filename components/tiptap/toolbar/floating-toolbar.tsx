@@ -43,10 +43,6 @@ const Toolbar: React.FC<ToolbarProps> = ({
         initial={{ y: 150, opacity: 0, x: "-50%" }}
         animate={{ y: 0, opacity: 1, x: "-50%" }}
         transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.3 }}
-        // AJUSTES MOBILE:
-        // 1. bottom-4: Um pouco mais perto do polegar no mobile.
-        // 2. w-[92vw]: Ocupa quase toda a largura no celular.
-        // 3. md:w-fit: No desktop, ocupa apenas o espaço necessário.
         className="fixed bottom-16 md:bottom-8 left-1/2 z-20 sm:z-50 w-[92vw] md:w-fit max-w-3xl"
       >
         <div

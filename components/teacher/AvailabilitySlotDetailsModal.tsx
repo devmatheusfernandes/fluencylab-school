@@ -17,6 +17,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { CalendarEvent } from "@/types/calendar/calendar";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 interface AvailabilitySlotDetailsModalProps {
   isOpen: boolean;
@@ -40,6 +41,7 @@ export default function AvailabilitySlotDetailsModal({
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteOptions, setShowDeleteOptions] = useState(false);
   const [deleteType, setDeleteType] = useState<"single" | "future">("single");
+  const t = useTranslations("TeacherSchedule.AvailabilityDetails");
 
   if (!event) return null;
 
@@ -65,11 +67,11 @@ export default function AvailabilitySlotDetailsModal({
   const getRepeatingTypeText = (type: string) => {
     switch (type) {
       case "weekly":
-        return "Semanalmente";
+        return t("types.weekly");
       case "bi-weekly":
-        return "Quinzenalmente";
+        return t("types.biWeekly");
       case "monthly":
-        return "Mensalmente";
+        return t("types.monthly");
       default:
         return type;
     }
@@ -78,9 +80,9 @@ export default function AvailabilitySlotDetailsModal({
   const getAvailabilityTypeText = (type: string) => {
     switch (type) {
       case "regular":
-        return "Regular";
+        return t("types.regular");
       case "makeup":
-        return "Reposição";
+        return t("types.makeup");
       default:
         return type;
     }
@@ -90,19 +92,19 @@ export default function AvailabilitySlotDetailsModal({
     <Modal open={isOpen} onOpenChange={onClose}>
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Detalhes do Horário</ModalTitle>
+          <ModalTitle>{t("title")}</ModalTitle>
         </ModalHeader>
         <ModalBody>
           <div className="space-y-4">
             <Card className="p-4">
               <Text variant="title" className="mb-3">
-                Informações do Horário
+                {t("infoTitle")}
               </Text>
 
               <div className="space-y-2">
                 <div>
                   <Text className="text-subtitle font-medium">
-                    Data de Início
+                    {t("startDate")}
                   </Text>
                   <Text>
                     {format(new Date(event.date), "PPP", {
@@ -112,20 +114,20 @@ export default function AvailabilitySlotDetailsModal({
                 </div>
 
                 <div>
-                  <Text className="text-subtitle font-medium">Horário</Text>
+                  <Text className="text-subtitle font-medium">{t("time")}</Text>
                   <Text>
                     {event.startTime} - {event.endTime}
                   </Text>
                 </div>
 
                 <div>
-                  <Text className="text-subtitle font-medium">Tipo</Text>
-                  <Text>{event.repeating ? "Repetindo" : "Único"}</Text>
+                  <Text className="text-subtitle font-medium">{t("type")}</Text>
+                  <Text>{event.repeating ? t("repeating") : t("single")}</Text>
                 </div>
 
                 {event.availabilityType && (
                   <div>
-                    <Text className="text-subtitle font-medium">Categoria</Text>
+                    <Text className="text-subtitle font-medium">{t("category")}</Text>
                     <Text>
                       {getAvailabilityTypeText(event.availabilityType)}
                     </Text>
@@ -136,17 +138,19 @@ export default function AvailabilitySlotDetailsModal({
                   <>
                     <div>
                       <Text className="text-subtitle font-medium">
-                        Frequência
+                        {t("frequency")}
                       </Text>
                       <Text>
-                        {getRepeatingTypeText(event.repeating.type)} a cada{" "}
-                        {event.repeating.interval} vez(es)
+                        {t("frequencyValue", {
+                          type: getRepeatingTypeText(event.repeating.type),
+                          interval: event.repeating.interval
+                        })}
                       </Text>
                     </div>
                     {event.repeating.endDate && (
                       <div>
                         <Text className="text-subtitle font-medium">
-                          Data de Término
+                          {t("endDate")}
                         </Text>
                         <Text>
                           {format(new Date(event.repeating.endDate), "PPP", {
@@ -164,13 +168,13 @@ export default function AvailabilitySlotDetailsModal({
             {showDeleteOptions && (
               <Card className="p-4 border border-red-200 bg-red-50">
                 <Text variant="title" className="mb-3 text-red-800">
-                  Confirmar Exclusão
+                  {t("deleteTitle")}
                 </Text>
 
                 {event?.repeating ? (
                   <div className="space-y-4">
                     <Text className="text-red-700">
-                      Este horário se repete. Como deseja excluir?
+                      {t("deleteRepeatingQuestion")}
                     </Text>
                     <div className="space-y-2">
                       <label className="flex items-center p-2 border rounded cursor-pointer hover:bg-red-100">
@@ -183,12 +187,13 @@ export default function AvailabilitySlotDetailsModal({
                         />
                         <div>
                           <Text className="font-medium">
-                            Excluir apenas esta ocorrência
+                            {t("deleteSingle")}
                           </Text>
                           <Text size="sm" className="text-gray-600">
-                            Remove apenas o evento selecionado em{" "}
-                            {format(new Date(event.date), "PPP", {
-                              locale: ptBR,
+                            {t("deleteSingleDesc", {
+                              date: format(new Date(event.date), "PPP", {
+                                locale: ptBR,
+                              })
                             })}
                           </Text>
                         </div>
@@ -203,11 +208,10 @@ export default function AvailabilitySlotDetailsModal({
                         />
                         <div>
                           <Text className="font-medium">
-                            Excluir esta e todas as ocorrências futuras
+                            {t("deleteFuture")}
                           </Text>
                           <Text size="sm" className="text-gray-600">
-                            Remove este evento e todos os eventos futuros desta
-                            série
+                            {t("deleteFutureDesc")}
                           </Text>
                         </div>
                       </label>
@@ -215,8 +219,7 @@ export default function AvailabilitySlotDetailsModal({
                   </div>
                 ) : (
                   <Text className="text-red-700">
-                    Tem certeza que deseja excluir este horário? Esta ação não
-                    pode ser desfeita.
+                    {t("deleteConfirmation")}
                   </Text>
                 )}
 
@@ -226,14 +229,14 @@ export default function AvailabilitySlotDetailsModal({
                     onClick={() => setShowDeleteOptions(false)}
                     disabled={isDeleting}
                   >
-                    Cancelar
+                    {t("cancel")}
                   </Button>
                   <Button
                     variant="destructive"
                     onClick={handleDelete}
                     disabled={isDeleting}
                   >
-                    {isDeleting ? "Excluindo..." : "Excluir"}
+                    {isDeleting ? t("deleting") : t("delete")}
                   </Button>
                 </div>
               </Card>
@@ -246,10 +249,10 @@ export default function AvailabilitySlotDetailsModal({
               variant="destructive"
               onClick={() => setShowDeleteOptions(true)}
             >
-              Excluir
+              {t("delete")}
             </Button>
           )}
-          <Button onClick={onClose}>Fechar</Button>
+          <Button onClick={onClose}>{t("close")}</Button>
         </ModalFooter>
       </ModalContent>
     </Modal>

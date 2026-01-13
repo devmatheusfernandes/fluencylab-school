@@ -17,6 +17,7 @@ import {
   X,
 } from "lucide-react";
 import { ButtonGroup, ButtonGroupSeparator } from "../ui/button-group";
+import { useTranslations } from "next-intl";
 
 interface SchedulingSettings {
   bookingLeadTimeHours: number;
@@ -45,29 +46,30 @@ interface SettingField {
 export default function TeacherSettingsForm({
   currentSettings,
 }: TeacherSettingsFormProps) {
+  const t = useTranslations("TeacherSchedule.Settings");
   const [settings, setSettings] = useState(currentSettings);
   const { updateSettings, isLoading, error, successMessage } = useTeacher();
 
   const settingFields: SettingField[] = [
     {
       key: "bookingLeadTimeHours",
-      label: "Antecedência Mínima",
-      description: "Tempo mínimo necessário para agendamento de aulas",
+      label: t("form.bookingLeadTimeHours.label"),
+      description: t("form.bookingLeadTimeHours.description"),
       placeholder: "24",
       defaultValue: 24,
       icon: <Clock className="w-5 h-5" />,
-      unit: "horas",
+      unit: t("form.bookingLeadTimeHours.unit"),
       min: 1,
       max: 168, // 1 week
     },
     {
       key: "bookingHorizonDays",
-      label: "Horizonte de Agendamento",
-      description: "Quantos dias no futuro os alunos podem agendar",
+      label: t("form.bookingHorizonDays.label"),
+      description: t("form.bookingHorizonDays.description"),
       placeholder: "30",
       defaultValue: 30,
       icon: <Calendar className="w-5 h-5" />,
-      unit: "dias",
+      unit: t("form.bookingHorizonDays.unit"),
       min: 1,
       max: 365,
     },
@@ -165,7 +167,7 @@ export default function TeacherSettingsForm({
                           </Text>
                           {isDefault && (
                             <span className="px-2 py-1 bg-primary/10 dark:bg-blue-900/30 text-primary dark:text-blue-300 text-xs font-medium rounded-md">
-                              Padrão
+                              {t("form.defaultBadge")}
                             </span>
                           )}
                         </div>
@@ -210,13 +212,13 @@ export default function TeacherSettingsForm({
                             size="xs"
                             className="text-slate-400 dark:text-slate-500"
                           >
-                            Mín: {field.min}
+                            {t("form.min", { value: field.min })}
                           </Text>
                           <Text
                             size="xs"
                             className="text-slate-400 dark:text-slate-500"
                           >
-                            Máx: {field.max}
+                            {t("form.max", { value: field.max })}
                           </Text>
                         </div>
                       )}
@@ -234,25 +236,25 @@ export default function TeacherSettingsForm({
                 disabled={isLoading}
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
-                Restaurar Padrões
+                {t("buttons.restoreDefaults")}
               </Button>
 
               <div className="flex flex-col">
                 <ButtonGroup>
                 <Button type="button" disabled={!hasChanges}>
-                  Cancelar
+                  {t("buttons.cancel")}
                 </Button>
                 <ButtonGroupSeparator />
                   <Button type="submit" disabled={isLoading || !hasChanges}>
                     {isLoading ? (
                       <div className="flex items-center gap-2">
                         <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        Salvando...
+                        {t("buttons.saving")}
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
                         <Settings className="w-4 h-4" />
-                        Salvar Configurações
+                        {t("buttons.save")}
                       </div>
                     )}
                   </Button>
@@ -269,8 +271,7 @@ export default function TeacherSettingsForm({
                     size="sm"
                     className="text-amber-700 dark:text-amber-300"
                   >
-                    Você tem alterações não salvas. Clique em Salvar
-                    Configurações para aplicar.
+                    {t("unsavedChanges")}
                   </Text>
                 </div>
               </div>
@@ -291,20 +292,23 @@ export default function TeacherSettingsForm({
                 size="base"
                 className="font-semibold text-slate-900 dark:text-slate-100 mb-2"
               >
-                Dicas de Configuração
+                {t("tips.title")}
               </Text>
               <div className="space-y-2">
                 <Text size="sm" className="text-slate-600 dark:text-slate-400">
-                  • <strong>Antecedência mínima:</strong> Tempo que os alunos
-                  devem respeitar antes de agendar
+                  • {t.rich("tips.leadTime", {
+                      highlight: (chunks) => <strong>{chunks}</strong>
+                    })}
                 </Text>
                 <Text size="sm" className="text-slate-600 dark:text-slate-400">
-                  • <strong>Horizonte de agendamento:</strong> Até quando no
-                  futuro podem agendar
+                  • {t.rich("tips.horizon", {
+                      highlight: (chunks) => <strong>{chunks}</strong>
+                    })}
                 </Text>
                 <Text size="sm" className="text-slate-600 dark:text-slate-400">
-                  • <strong>Limite de aulas avulsas:</strong> Controle sua
-                  disponibilidade diária
+                  • {t.rich("tips.dailyLimit", {
+                      highlight: (chunks) => <strong>{chunks}</strong>
+                    })}
                 </Text>
               </div>
             </div>
