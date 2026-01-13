@@ -179,6 +179,7 @@
     "contractSubtitle": "Status and validity of your contract",
     "active": "Active",
     "expired": "Expired",
+    "cancelled": "Cancelled",
     "pending": "Pending",
     "validity": "Validity",
     "signedAt": "Signed at",
@@ -580,6 +581,9 @@
       "successGranting": "Credits granted successfully!"
     },
     "contracts": {
+      "autoRenewal": "Automatic Renewal",
+      "autoRenewalEnabled": "Enabled",
+      "autoRenewalDisabled": "Disabled",
       "errorLoading": "Error loading contract information: {error}",
       "invalidDate": "Invalid date",
       "notAvailable": "N/A",

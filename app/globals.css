@@ -245,10 +245,13 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+      
     .no-scrollbar::-webkit-scrollbar {
       display: none;
     }
+
     .no-scrollbar {
       -ms-overflow-style: none;
       scrollbar-width: none;

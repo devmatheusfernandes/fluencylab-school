@@ -22,7 +22,6 @@ import History from '@tiptap/extension-history'
 import { TextStyle } from '@tiptap/extension-text-style'
 import FontFamily from '@tiptap/extension-font-family'
 import { MusicNode } from '@/components/tiptap/extensions/Music/MusicNode'
-import BottomToolbar from '../tiptap/toolbar/bottom-toolbar';
 import FloatingToolbar from '../tiptap/toolbar/floating-toolbar';
 
 const Tiptap = ({ onChange, content, isEditable }: any) => {
@@ -113,8 +112,8 @@ const Tiptap = ({ onChange, content, isEditable }: any) => {
     return null;
   }
   return (
-    <div className='flex flex-col min-w-full min-h-full gap-8 justify-center items-center text-black dark:text-white'>
-      <EditorContent editor={editor} />
+    <div className='no-scrollbar flex flex-col min-w-full min-h-full gap-8 justify-center items-center text-black dark:text-white'>
+      <EditorContent editor={editor} className="no-scrollbar" />
 
       {isEditable && <FloatingToolbar editor={editor} />}
     </div>

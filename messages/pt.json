@@ -179,6 +179,7 @@
     "contractSubtitle": "Status e validade do seu contrato",
     "active": "Ativo",
     "expired": "Expirado",
+    "cancelled": "Cancelado",
     "pending": "Pendente",
     "validity": "Validade",
     "signedAt": "Assinado em",
@@ -780,6 +781,9 @@
       "successGranting": "Créditos concedidos com sucesso!"
     },
     "contracts": {
+      "autoRenewal": "Renovação Automática",
+      "autoRenewalEnabled": "Habilitada",
+      "autoRenewalDisabled": "Desabilitada",
       "errorLoading": "Erro ao carregar informações do contrato: {error}",
       "invalidDate": "Data inválida",
       "notAvailable": "N/A",

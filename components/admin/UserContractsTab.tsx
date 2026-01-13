@@ -10,6 +10,7 @@ import { UserRoles } from "@/types/users/userRoles";
 import { ContractLog, ContractStatus } from "@/types/contract";
 import { Spinner } from "../ui/spinner";
 import ContratoPDF from "../contract/ContratoPDF";
+import { TeacherContractPDF } from "@/components/onboarding/steps/teacher/TeacherContractPDF";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useTranslations, useFormatter } from "next-intl";
@@ -328,6 +329,15 @@ export default function UserContractsTab({
               </div>
             )}
 
+            <div className="flex items-center gap-2">
+              <Text variant="subtitle">{t("autoRenewal")}:</Text>
+              {status.autoRenewal ? (
+                <Badge variant="success">{t("autoRenewalEnabled")}</Badge>
+              ) : (
+                <Badge variant="secondary">{t("autoRenewalDisabled")}</Badge>
+              )}
+            </div>
+
             {status.cancelledAt && (
               <div className="flex items-center gap-2">
                 <Text variant="subtitle">{t("cancellationDate")}:</Text>
@@ -507,6 +517,17 @@ export default function UserContractsTab({
             </div>
           </div>
 
+          <div>
+            <Text variant="subtitle">{t("autoRenewal")}</Text>
+            <div className="flex items-center gap-2 mt-1">
+              {status.autoRenewal ? (
+                <Badge variant="success">{t("autoRenewalEnabled")}</Badge>
+              ) : (
+                <Badge variant="secondary">{t("autoRenewalDisabled")}</Badge>
+              )}
+            </div>
+          </div>
+
           {status.signedAt && (
             <div>
               <Text variant="subtitle">{t("signedAt")}</Text>
@@ -661,20 +682,32 @@ export default function UserContractsTab({
           <Text variant="title" size="lg" className="mb-4">
             {t("fullContract")}
           </Text>
-          <ContratoPDF
-            alunoData={{
-              id: user.id,
-              name: log.name,
-              cpf: log.cpf,
-              email: user.email,
-              birthDate: log.birthDate,
-              address: log.address,
-              city: log.city,
-              state: log.state,
-              zipCode: log.zipCode,
-            }}
-            contractStatus={status}
-          />
+          {user.role === UserRoles.TEACHER ? (
+            <TeacherContractPDF
+              teacherName={log.name}
+              teacherCnpj={log.cpf}
+              teacherAddress={log.address}
+              teacherCity={log.city}
+              teacherState={log.state}
+              teacherZipCode={log.zipCode}
+              signedDate={status.signedAt}
+            />
+          ) : (
+            <ContratoPDF
+              alunoData={{
+                id: user.id,
+                name: log.name,
+                cpf: log.cpf,
+                email: user.email,
+                birthDate: log.birthDate,
+                address: log.address,
+                city: log.city,
+                state: log.state,
+                zipCode: log.zipCode,
+              }}
+              contractStatus={status}
+            />
+          )}
         </Card>
       )}
       <Dialog open={isCancelOpen} onOpenChange={setIsCancelOpen}>

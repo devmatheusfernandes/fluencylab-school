@@ -27,24 +27,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
+import { ContractStatus, ContractLog } from "@/types/contract";
+
 interface ContractStatusData {
   student: any;
-  contractStatus: {
-    signed: boolean;
-    isValid: boolean;
-    expiresAt?: string;
-    signedAt?: string;
-    contractVersion?: string;
-  } | null;
-  contractLog: {
-    name: string;
-    cpf: string;
-    address: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    signedAt: string;
-  } | null;
+  contractStatus: ContractStatus | null;
+  contractLog: ContractLog | null;
 }
 
 export const TeacherContractStatusCard = () => {
@@ -216,9 +204,14 @@ export const TeacherContractStatusCard = () => {
   if (loading) return <Skeleton className="h-48 w-full" />;
 
   const contractStatus = data?.contractStatus;
-  const isSigned = contractStatus?.signed && contractStatus?.isValid;
-  const isExpired = contractStatus?.signed && !contractStatus?.isValid;
-  const isPending = !contractStatus?.signed;
+  
+  // Status logic based on ProgressStatusCard and previous requirements
+  const isCancelled = !!contractStatus?.cancelledAt;
+  const isExpired = !isCancelled && contractStatus?.expiresAt 
+    ? new Date(contractStatus.expiresAt) < new Date() 
+    : false;
+  const isSigned = !isCancelled && !isExpired && contractStatus?.signed;
+  const isPending = !isCancelled && !isExpired && !isSigned;
 
   const expirationDate = contractStatus?.expiresAt
     ? new Date(contractStatus.expiresAt).toLocaleDateString("pt-BR")
@@ -262,6 +255,12 @@ export const TeacherContractStatusCard = () => {
                 {t("expired")}
               </span>
             )}
+            {isCancelled && (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300">
+                <AlertTriangle className="w-3 h-3 mr-1" />
+                {t("cancelled")}
+              </span>
+            )}
             {isPending && (
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
                 <AlertTriangle className="w-3 h-3 mr-1" />
@@ -302,7 +301,7 @@ export const TeacherContractStatusCard = () => {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          {(isSigned || isExpired) && (
+          {(isSigned || isExpired || isCancelled) && (
             <Button
               variant="outline"
               onClick={() => setShowContractModal(true)}
@@ -312,7 +311,7 @@ export const TeacherContractStatusCard = () => {
             </Button>
           )}
 
-          {isExpired && (
+          {(isExpired || isCancelled) && (
             <Button onClick={handleRenewContract} disabled={isSubmitting}>
               <RefreshCw
                 className={`w-4 h-4 mr-2 ${isSubmitting ? "animate-spin" : ""}`}
