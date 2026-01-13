@@ -50,10 +50,16 @@ export class AuthService {
         };
       }
       return null;
-    } catch (error) {
+    } catch (error: any) {
       // O console.error no seu terminal mostrará este erro de permissão
       console.error("Erro de validação:", error);
-      return null; // Retorna null para o NextAuth, que resulta em um erro 401
+      
+      // Propagate Firebase errors to be handled by NextAuth
+      if (error?.code) {
+        throw new Error(error.code);
+      }
+      
+      throw error;
     }
   }
 

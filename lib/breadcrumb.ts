@@ -27,6 +27,8 @@ const segmentToSidebarKey: Record<string, string> = {
   "my-profile": "myProfile",
   "my-students": "students",
   "meus-alunos": "students",
+  "my-chat": "chat",
+  "my-schedule": "mySchedule",
 };
 
 function capitalize(segment: string) {

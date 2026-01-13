@@ -9,7 +9,6 @@ import {
   Layers,
   DollarSign,
   Video,
-  FileText,
   BookOpen,
   Gamepad2,
   Monitor,

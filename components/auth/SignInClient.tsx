@@ -10,6 +10,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { BackButton } from "@/components/ui/back-button";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import BackgroundLogin from "@/public/images/login/background";
+import TransitionAnimation from "@/components/transitions/login";
 
 interface SignInClientProps {
   messages: Record<string, Record<string, string>>;
@@ -27,12 +28,13 @@ export function SignInClient({ messages }: SignInClientProps) {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [localError, setLocalError] = React.useState<string | null>(null);
+  const [showTransition, setShowTransition] = React.useState(false);
 
   React.useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && !showTransition) {
       router.push(callbackUrl);
     }
-  }, [isAuthenticated, router, callbackUrl]);
+  }, [isAuthenticated, router, callbackUrl, showTransition]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,12 +65,44 @@ export function SignInClient({ messages }: SignInClientProps) {
             setLocalError(messages?.Auth?.internalError);
           }
         } else {
-          console.error("Sign in error:", result.error);
-          setLocalError(messages?.Auth?.invalidCredentials);
+          // Map Firebase/NextAuth errors to user-friendly messages
+          let errorMessage = messages?.Auth?.invalidCredentials;
+          
+          switch (result.error) {
+            case "auth/user-not-found":
+              errorMessage = messages?.Auth?.userNotFound;
+              break;
+            case "auth/wrong-password":
+              errorMessage = messages?.Auth?.wrongPassword;
+              break;
+            case "auth/invalid-credential":
+              errorMessage = messages?.Auth?.wrongPassword; // Usually implies wrong password or user not found, safer to say wrong password or generic
+              break;
+            case "auth/invalid-login-credentials":
+              errorMessage = messages?.Auth?.invalidLoginCredentials;
+              break;
+            case "auth/user-disabled":
+              errorMessage = messages?.Auth?.userDisabled;
+              break;
+            case "auth/too-many-requests":
+              errorMessage = messages?.Auth?.tooManyRequests;
+              break;
+            case "CredentialsSignin":
+              errorMessage = messages?.Auth?.invalidCredentials;
+              break;
+            default:
+              errorMessage = messages?.Auth?.invalidCredentials;
+          }
+          
+          setLocalError(errorMessage);
         }
       } else if (result?.ok) {
-        router.push(callbackUrl);
-        router.refresh();
+        setShowTransition(true);
+        // Delay redirection to show the animation
+        setTimeout(() => {
+          router.push(callbackUrl);
+          router.refresh();
+        }, 7000);
       }
     } catch (err) {
       console.error("Sign in error", err);
@@ -76,9 +110,11 @@ export function SignInClient({ messages }: SignInClientProps) {
     }
   };
 
-  if (isAuthenticated) return null;
+  if (isAuthenticated && !showTransition) return null;
 
   const t = messages?.Auth ?? {};
+
+  if (showTransition) return (<TransitionAnimation />);
 
   return (
     <NextIntlClientProvider messages={messages} locale={locale}>
