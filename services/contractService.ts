@@ -466,30 +466,44 @@ export class ContractService {
         };
       }
 
-      if (contractStatus.cancelledAt) {
-        return {
-          success: false,
-          message: "Contrato foi cancelado e não pode ser renovado",
-        };
-      }
+      // If contract was cancelled, we allow renewal but reset cancellation status
+      // if (contractStatus.cancelledAt) {
+      //   return {
+      //     success: false,
+      //     message: "Contrato foi cancelado e não pode ser renovado",
+      //   };
+      // }
 
       const currentExpirationDate = contractStatus.expiresAt;
-      if (!currentExpirationDate) {
-        return {
-          success: false,
-          message: "Data de expiração não encontrada",
-        };
+      
+      // Calculate new expiration date
+      // If cancelled or expired, start 6 months from now
+      // If active, add 6 months to current expiration
+      let newExpirationDate: string;
+      const now = new Date();
+      const isExpired = currentExpirationDate ? new Date(currentExpirationDate) < now : true;
+
+      if (contractStatus.cancelledAt || isExpired || !currentExpirationDate) {
+        const next = new Date();
+        next.setMonth(next.getMonth() + 6);
+        newExpirationDate = next.toISOString();
+      } else {
+        newExpirationDate = this.calculateRenewalExpirationDate(currentExpirationDate);
       }
 
-      // Calculate new expiration date (6 months from current expiration)
-      const newExpirationDate = this.calculateRenewalExpirationDate(
-        currentExpirationDate
-      );
       const renewalCount = (contractStatus.renewalCount || 0) + 1;
+
+      // Remove cancellation fields from base status
+      const { 
+        cancelledAt, 
+        cancelledBy, 
+        cancellationReason, 
+        ...baseStatus 
+      } = contractStatus;
 
       // Update contract status with renewal information
       const updatedStatus: ContractStatus = {
-        ...contractStatus,
+        ...baseStatus,
         expiresAt: newExpirationDate,
         isValid: true,
         renewalCount,
@@ -507,7 +521,7 @@ export class ContractService {
         {
           studentId,
           renewalType,
-          previousExpirationDate: currentExpirationDate,
+          previousExpirationDate: currentExpirationDate || "N/A",
           newExpirationDate,
           renewalCount,
         }
@@ -519,7 +533,7 @@ export class ContractService {
         const emailData: ContractRenewalEmailData = {
           studentName: userData.name || "Estudante",
           studentEmail: userData.email,
-          previousExpirationDate: currentExpirationDate,
+          previousExpirationDate: currentExpirationDate || "N/A",
           newExpirationDate,
           renewalCount,
           contractId: contractStatus.logId || studentId,
@@ -533,7 +547,7 @@ export class ContractService {
         message: "Contrato renovado com sucesso",
         data: updatedStatus,
         renewalData: {
-          previousExpirationDate: currentExpirationDate,
+          previousExpirationDate: currentExpirationDate || "N/A",
           newExpirationDate,
           renewalCount,
           renewalType,

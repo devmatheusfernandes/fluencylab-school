@@ -13,6 +13,17 @@ import ContratoPDF from "../contract/ContratoPDF";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useTranslations, useFormatter } from "next-intl";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalTitle,
+  ModalDescription,
+  ModalFooter,
+  ModalIcon,
+  ModalPrimaryButton,
+  ModalSecondaryButton,
+} from "@/components/ui/modal";
 
 interface UserContractsTabProps {
   user: User;
@@ -36,6 +47,8 @@ export default function UserContractsTab({
   const [showContract, setShowContract] = useState(false);
   const [isCancelOpen, setIsCancelOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
+  const [isRenewing, setIsRenewing] = useState(false);
+  const [isRenewOpen, setIsRenewOpen] = useState(false);
 
   useEffect(() => {
     const fetchContractData = async () => {
@@ -183,6 +196,25 @@ export default function UserContractsTab({
     }
   };
 
+  // Handle contract renewal
+  const handleConfirmRenew = async () => {
+    try {
+      setIsRenewing(true);
+      const response = await fetch(`/api/contract/renew/${user.id}`, {
+        method: "POST",
+      });
+      const result = await response.json();
+      if (result.success) {
+        setIsRenewOpen(false);
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error("Error renewing contract:", error);
+    } finally {
+      setIsRenewing(false);
+    }
+  };
+
   // Simple date formatting function
   const formatDate = (dateString: string | undefined): string => {
     if (!dateString) return t("notAvailable");
@@ -326,6 +358,16 @@ export default function UserContractsTab({
             </Button>
           )}
 
+          {(status.cancelledAt || isExpired) && (
+            <Button
+              variant="primary"
+              onClick={() => setIsRenewOpen(true)}
+              disabled={isRenewing}
+            >
+              {isRenewing ? t("renewing") : t("renewContract")}
+            </Button>
+          )}
+
           <Button
             variant="destructive"
             onClick={() => {
@@ -388,6 +430,24 @@ export default function UserContractsTab({
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        <Modal open={isRenewOpen} onOpenChange={setIsRenewOpen}>
+          <ModalContent>
+            <ModalIcon type="calendar" />
+            <ModalHeader>
+              <ModalTitle>{t("renewContractDialogTitle")}</ModalTitle>
+              <ModalDescription>{t("renewContractDialogDescription")}</ModalDescription>
+            </ModalHeader>
+            <ModalFooter>
+              <ModalSecondaryButton onClick={() => setIsRenewOpen(false)}>
+                {t("back")}
+              </ModalSecondaryButton>
+              <ModalPrimaryButton onClick={handleConfirmRenew} disabled={isRenewing}>
+                {t("confirm")}
+              </ModalPrimaryButton>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
       </div>
     );
   }
@@ -572,6 +632,16 @@ export default function UserContractsTab({
         </Button>
       )}
 
+          {(status.cancelledAt || isExpired) && (
+            <Button
+              variant="primary"
+              onClick={() => setIsRenewOpen(true)}
+              disabled={isRenewing}
+            >
+              {isRenewing ? t("renewing") : t("renewContract")}
+            </Button>
+          )}
+
           <Button
             onClick={() => {
               setCancelReason("");
@@ -636,6 +706,24 @@ export default function UserContractsTab({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Modal open={isRenewOpen} onOpenChange={setIsRenewOpen}>
+        <ModalContent>
+          <ModalIcon type="calendar" />
+          <ModalHeader>
+            <ModalTitle>{t("renewContractDialogTitle")}</ModalTitle>
+            <ModalDescription>{t("renewContractDialogDescription")}</ModalDescription>
+          </ModalHeader>
+          <ModalFooter>
+            <ModalSecondaryButton onClick={() => setIsRenewOpen(false)}>
+              {t("back")}
+            </ModalSecondaryButton>
+            <ModalPrimaryButton onClick={handleConfirmRenew} disabled={isRenewing}>
+              {t("confirm")}
+            </ModalPrimaryButton>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }

@@ -20,41 +20,41 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         try {
           // Log de depuração seguro
-          console.log(`[NextAuth] Iniciando autorização...`);
+          //console.log(`[NextAuth] Iniciando autorização...`);
 
           if (!credentials?.email || !credentials?.password) {
-            console.log(`[NextAuth] Credenciais incompletas`);
+            //console.log(`[NextAuth] Credenciais incompletas`);
             return null;
           }
 
-          console.log(`[NextAuth] Validando usuário...`);
+          //console.log(`[NextAuth] Validando usuário...`);
           const user = await authService.validateUser(
             credentials.email,
             credentials.password
           );
           if (!user) {
-            console.log(
-              `[NextAuth] Usuário não encontrado ou credenciais inválidas`
-            );
+            // console.log(
+            //   `[NextAuth] Usuário não encontrado ou credenciais inválidas`
+            // );
             return null;
           }
 
-          console.log(
-            `[NextAuth] Usuário validado. 2FA habilitado: ${user.twoFactorEnabled}`
-          );
+          // console.log(
+          //   `[NextAuth] Usuário validado. 2FA habilitado: ${user.twoFactorEnabled}`
+          // );
 
           // If 2FA is enabled, we need to verify the 2FA code
           if (user.twoFactorEnabled) {
             // Check if 2FA code is provided
             if (!credentials.twoFactorCode) {
-              console.log(`[NextAuth] 2FA habilitado mas código não fornecido`);
+              //console.log(`[NextAuth] 2FA habilitado mas código não fornecido`);
               // Return a special response indicating 2FA is required
               throw new Error("2FA_REQUIRED");
             }
 
-            console.log(
-              `[NextAuth] Verificando código 2FA...`
-            );
+            // console.log(
+            //   `[NextAuth] Verificando código 2FA...`
+            // );
 
             // Verify the 2FA token
             const isValid = await authService.verifyTwoFactorToken(
@@ -62,38 +62,38 @@ export const authOptions: NextAuthOptions = {
               credentials.twoFactorCode
             );
             if (!isValid) {
-              console.log(
-                `[NextAuth] Token 2FA inválido, tentando código de backup...`
-              );
+              // console.log(
+              //   `[NextAuth] Token 2FA inválido, tentando código de backup...`
+              // );
               // Try to verify as backup code
               const isBackupValid = await authService.verifyBackupCode(
                 user.id,
                 credentials.twoFactorCode
               );
               if (isBackupValid) {
-                console.log(
-                  `[NextAuth] Código de backup válido, invalidando...`
-                );
+                // console.log(
+                //   `[NextAuth] Código de backup válido, invalidando...`
+                // );
                 // Invalidate the used backup code
                 await authService.invalidateBackupCode(
                   user.id,
                   credentials.twoFactorCode
                 );
               } else {
-                console.log(`[NextAuth] Código de backup também inválido`);
+                //console.log(`[NextAuth] Código de backup também inválido`);
                 throw new Error("Invalid 2FA code");
               }
             } else {
-              console.log(`[NextAuth] Token 2FA válido`);
+              //console.log(`[NextAuth] Token 2FA válido`);
             }
           }
 
-          console.log(
-            `[NextAuth] Autorização bem-sucedida`
-          );
+          // console.log(
+          //   `[NextAuth] Autorização bem-sucedida`
+          // );
           return user;
         } catch (error) {
-          console.error(`[NextAuth] Erro na autorização:`, error);
+          //console.error(`[NextAuth] Erro na autorização:`, error);
           throw error;
         }
       },
