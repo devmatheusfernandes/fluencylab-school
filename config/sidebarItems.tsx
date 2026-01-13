@@ -57,6 +57,12 @@ const adminItems: SidebarItemType[] = [
     labelKey: "settings",
     icon: <Settings className="w-6 h-6" />,
   },
+  {
+    href: "/[locale]/hub/teacher/decks",
+    label: "Decks",
+    labelKey: "decks",
+    icon: <Layers className="w-6 h-6" />,
+  },
 ];
 
 const teacherItems: SidebarItemType[] = [
@@ -95,6 +101,12 @@ const teacherItems: SidebarItemType[] = [
     label: "Configurações",
     labelKey: "settings",
     icon: <Settings className="w-6 h-6" />,
+  },
+  {
+    href: "/[locale]/hub/teacher/decks",
+    label: "Decks",
+    labelKey: "decks",
+    icon: <Layers className="w-6 h-6" />,
   },
 ];
 
@@ -146,6 +158,7 @@ const studentItems: SidebarItemType[] = [
 // Mapeia os papéis para suas respectivas listas de itens
 export const sidebarItemsByRole: Record<string, SidebarItemType[]> = {
   [UserRoles.ADMIN]: adminItems,
+  [UserRoles.MANAGER]: adminItems,
   [UserRoles.TEACHER]: teacherItems,
   [UserRoles.STUDENT]: studentItems,
 };

@@ -123,6 +123,37 @@ export const achievementDefinitions: AchievementDefinition[] = [
       return false;
     },
   },
+  // Conquistas de Flashcards
+  {
+    id: "primeiro_deck_estudado",
+    name: "Primeiro Contato",
+    description: "Você estudou seu primeiro flashcard!",
+    icon: "🎴",
+    languages: ["Ingles", "Espanhol", "Libras", "Portugues", "english", "spanish", "libras", "portuguese"],
+    criteria: (stats) => {
+      return (stats?.cardsStudiedCount ?? 0) >= 1;
+    },
+  },
+  {
+    id: "mestre_dos_flashcards",
+    name: "Mestre dos Flashcards",
+    description: "Você já estudou 50 flashcards diferentes!",
+    icon: "🧠",
+    languages: ["Ingles", "Espanhol", "Libras", "Portugues", "english", "spanish", "libras", "portuguese"],
+    criteria: (stats) => {
+      return (stats?.cardsStudiedCount ?? 0) >= 50;
+    },
+  },
+  {
+    id: "memoria_de_elefante",
+    name: "Memória de Elefante",
+    description: "Você dominou 10 flashcards (repetição nível 5)!",
+    icon: "🐘",
+    languages: ["Ingles", "Espanhol", "Libras", "Portugues", "english", "spanish", "libras", "portuguese"],
+    criteria: (stats) => {
+      return (stats?.cardsMasteredCount ?? 0) >= 10;
+    },
+  },
 ];
 
 // Função para obter uma definição de conquista específica por ID

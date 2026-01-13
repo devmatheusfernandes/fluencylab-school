@@ -14,6 +14,8 @@ import { VacationRepository } from './VacationRepository';
 import { AnnouncementRepository } from './announcementRepository';
 import { AchievementRepository } from './achievementRepository';
 import { CourseRepository } from './courseRepository';
+import { FlashcardRepository } from './flashcardRepository';
+import { DeckRepository } from './deckRepository';
 
 // ============================================================================
 // INSTÂNCIAS SINGLETON CENTRALIZADAS
@@ -74,6 +76,8 @@ export const announcementRepository = new AnnouncementRepository();
  */
 export const achievementRepository = new AchievementRepository();
 export const courseRepository = new CourseRepository();
+export const flashcardRepository = new FlashcardRepository();
+export const deckRepository = new DeckRepository();
 
 // ============================================================================
 // EXPORTAÇÕES LEGACY (para compatibilidade)
@@ -100,6 +104,8 @@ export type RepositoryInstances = {
   announcementRepository: AnnouncementRepository;
   achievementRepository: AchievementRepository;
   courseRepository: CourseRepository;
+  flashcardRepository: FlashcardRepository;
+  deckRepository: DeckRepository;
 };
 
 /**
@@ -120,6 +126,8 @@ export function getAllRepositories(): RepositoryInstances {
     announcementRepository,
     achievementRepository,
     courseRepository,
+    flashcardRepository,
+    deckRepository,
   };
 }
 

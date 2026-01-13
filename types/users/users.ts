@@ -78,6 +78,18 @@ export type User = {
   achievements?: StudentAchievement[];
   completedClassesCount?: number;
 
+  // GAMIFICATION
+  gamification?: {
+    currentXP: number;
+    level: number;
+    streak: {
+      current: number;
+      best: number;
+      lastStudyDate: Date | null;
+    };
+    studyHeatmap: Record<string, number>; // "YYYY-MM-DD": intensity (count of reviews)
+  };
+
   // CAMPOS ADICIONADOS PARA CONTRATO E REAGENDAMENTO
   contractStartDate?: Date;
   contractLengthMonths?: 6 | 12;
