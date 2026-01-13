@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 // Firestore removido do cliente; dados agora vêm de APIs
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -22,6 +23,7 @@ import LessonDisplay from "@/components/course/LessonDisplay";
 import QuizComponent from "@/components/course/QuizComponent";
 
 export default function LessonPageContent() {
+  const t = useTranslations("LessonPage");
   const { data: session } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -39,7 +41,7 @@ export default function LessonPageContent() {
   // --- USE EFFECTS (Lógica Original Mantida) ---
   useEffect(() => {
     if (!courseId || !lessonId) {
-      toast.error("IDs de curso ou lição inválidos.");
+      toast.error(t("invalidIds"));
       router.push("/student-dashboard/cursos");
       return;
     }
@@ -50,11 +52,11 @@ export default function LessonPageContent() {
       try {
         const res = await fetch(`/api/student/courses/${courseId}`);
         if (!res.ok) {
-          throw new Error("Falha ao carregar detalhes do curso.");
+          throw new Error(t("loadCourseError"));
         }
         const { sections, enrollment: currentEnrollment } = await res.json();
         if (!currentEnrollment) {
-          toast.error("Você não está matriculado neste curso.");
+          toast.error(t("notEnrolled"));
           router.push(`/student-dashboard/cursos/curso?id=${courseId}`);
           return;
         }
@@ -74,7 +76,7 @@ export default function LessonPageContent() {
         }
 
         if (!lessonData || !currentSection) {
-          toast.error("Lição não encontrada.");
+          toast.error(t("lessonNotFound"));
           router.push(`cursos/curso?id=${courseId}`);
           return;
         }
@@ -94,7 +96,7 @@ export default function LessonPageContent() {
         }
       } catch (error) {
         console.error("Error fetching lesson data: ", error);
-        toast.error("Falha ao carregar a lição.");
+        toast.error(t("loadLessonError"));
         router.push(`/student-dashboard/cursos/curso?id=${courseId}`);
       }
     };
@@ -127,7 +129,7 @@ export default function LessonPageContent() {
   const handleMarkComplete = async () => {
     if (!courseId || !lessonId || !session?.user?.id || markingComplete || isCompleted || !enrollment) return;
     setMarkingComplete(true);
-    const toastId = toast.loading("Marcando como concluída...");
+    const toastId = toast.loading(t("markingComplete"));
 
     try {
       const res = await fetch(`/api/student/courses/${courseId}/progress`, {
@@ -136,19 +138,19 @@ export default function LessonPageContent() {
         body: JSON.stringify({ lessonId }),
       });
       if (!res.ok) {
-        throw new Error("Falha ao marcar lição como concluída.");
+        throw new Error(t("markCompleteError"));
       }
       const newProgress = { ...(enrollment.progress || {}), [lessonId]: true };
       setEnrollment((prev) => (prev ? { ...prev, progress: newProgress } : null));
       setIsCompleted(true);
-      toast.success("Lição marcada como concluída!", { id: toastId });
+      toast.success(t("markCompleteSuccess"), { id: toastId });
       const json = await res.json();
       if (json?.courseCompleted) {
-        toast.success("Parabéns! Você concluiu o curso!");
+        toast.success(t("courseCompletedSuccess"));
       }
     } catch (error) {
       console.error("Erro ao marcar como concluída: ", error);
-      toast.error("Falha ao marcar lição como concluída.", { id: toastId });
+      toast.error(t("markCompleteError"), { id: toastId });
     } finally {
       setMarkingComplete(false);
     }
@@ -208,8 +210,6 @@ export default function LessonPageContent() {
   // --- RENDER ---
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <Toaster position="top-center" />
-
       {/* Header Fixo/Sticky para Desktop */}
       <div className="sticky top-0 z-30 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
          <div className="container max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
@@ -218,12 +218,12 @@ export default function LessonPageContent() {
                 className="text-sm font-medium text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
              >
                 <ArrowLeft className="w-4 h-4" />
-                <span className="hidden sm:inline">Voltar ao curso</span>
+                <span className="hidden sm:inline">{t("backToCourse")}</span>
              </Link>
              
              {isCompleted && (
                  <Badge variant="success" className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-100 hover:bg-emerald-100 border-none gap-1">
-                    <CheckCircle className="w-3 h-3" /> Concluído
+                    <CheckCircle className="w-3 h-3" /> {t("completed")}
                  </Badge>
              )}
          </div>
@@ -256,7 +256,7 @@ export default function LessonPageContent() {
                     <Separator className="my-6" />
                     <div className="flex items-center gap-2 mb-4">
                         <BookOpen className="w-5 h-5 text-primary" />
-                        <h2 className="text-xl font-semibold">Quiz de Fixação</h2>
+                        <h2 className="text-xl font-semibold">{t("fixationQuiz")}</h2>
                     </div>
                     <QuizComponent 
                         quiz={lesson.quiz} 
@@ -289,7 +289,7 @@ export default function LessonPageContent() {
                 ) : (
                     <Check className="mr-2 w-4 h-4" />
                 )}
-                {isCompleted ? "Concluída" : "Marcar como Concluída"}
+                {isCompleted ? t("completed") : t("markAsComplete")}
             </Button>
 
             <Button
@@ -298,7 +298,7 @@ export default function LessonPageContent() {
                 variant={isCompleted ? "primary" : "secondary"}
                 className="flex-1 sm:flex-initial"
             >
-                {nextLessonId ? "Próxima Lição" : isCompleted ? "Finalizar Curso" : "Próxima"}
+                {nextLessonId ? t("nextLesson") : isCompleted ? t("finishCourse") : t("next")}
                 <ArrowRight className="ml-2 w-4 h-4" />
             </Button>
 

@@ -124,7 +124,7 @@ const studentItems: SidebarItemType[] = [
     icon: <BookOpen className="w-6 h-6" />,
   },
   {
-    href: "/hub/student/pratica",
+    href: "/[locale]/hub/student/my-practice",
     label: "Prática",
     labelKey: "practice",
     icon: <Gamepad2 className="w-6 h-6" />,
@@ -136,7 +136,7 @@ const studentItems: SidebarItemType[] = [
     icon: <Calendar className="w-6 h-6" />,
   },
   {
-    href: "/hub/courses",
+    href: "/[locale]/hub/student/my-courses",
     label: "Cursos",
     labelKey: "courses",
     icon: <Monitor className="w-6 h-6" />,

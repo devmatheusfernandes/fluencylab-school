@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 // Firestore removido do cliente; dados agora vêm de APIs
 import Link from 'next/link';
 import Image from 'next/image';
@@ -26,6 +27,7 @@ import { Course, Enrollment, Lesson, Section } from "../../../../../../types/qui
 // Firestore removido do cliente
 
 export default function CourseDetailPageContent() {
+  const t = useTranslations("CourseDetail");
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -47,11 +49,11 @@ export default function CourseDetailPageContent() {
       const res = await fetch(`/api/student/courses/${courseId}`);
       if (!res.ok) {
         if (res.status === 404) {
-          toast.error("Curso não encontrado.");
+          toast.error(t("notFound"));
           router.push("/student-dashboard/cursos");
           return;
         }
-        throw new Error("Falha ao carregar detalhes do curso.");
+        throw new Error(t("loadError"));
       }
       const { course: courseData, sections, totalLessonsCount, enrollment: enrollmentData } = await res.json();
 
@@ -80,7 +82,7 @@ export default function CourseDetailPageContent() {
       }
     } catch (error) {
       console.error("Error fetching course details: ", error);
-      toast.error("Falha ao carregar detalhes do curso.");
+      toast.error(t("loadError"));
     } finally {
       setLoading(false);
     }
@@ -93,7 +95,7 @@ export default function CourseDetailPageContent() {
       return;
     }
     if (!courseId) {
-      toast.error("ID do curso inválido.");
+      toast.error(t("invalidId"));
       router.push("/student-dashboard/cursos");
       return;
     }
@@ -106,17 +108,17 @@ export default function CourseDetailPageContent() {
   const handleEnroll = async () => {
     if (!courseId || !session?.user?.id || enrolling || isEnrolled) return;
     setEnrolling(true);
-    const toastId = toast.loading("Realizando matrícula...");
+    const toastId = toast.loading(t("enrolling"));
     try {
       const res = await fetch(`/api/student/courses/${courseId}/enroll`, { method: "POST" });
       if (!res.ok) {
-        throw new Error("Falha ao realizar matrícula.");
+        throw new Error(t("enrollError"));
       }
       await fetchCourseDetails();
-      toast.success("Matrícula realizada com sucesso!", { id: toastId });
+      toast.success(t("enrollSuccess"), { id: toastId });
     } catch (error) {
       console.error("Error enrolling: ", error);
-      toast.error("Falha ao realizar matrícula.", { id: toastId });
+      toast.error(t("enrollError"), { id: toastId });
     } finally {
       setEnrolling(false);
     }
@@ -156,7 +158,7 @@ export default function CourseDetailPageContent() {
     );
   }
 
-  if (!course) return <div className="flex justify-center items-center min-h-[50vh] text-muted-foreground">Curso não encontrado.</div>;
+  if (!course) return <div className="flex justify-center items-center min-h-[50vh] text-muted-foreground">{t("notFound")}</div>;
 
   return (
     <Container className="p-4 md:p-8 max-w-5xl mx-auto min-h-screen space-y-8">
@@ -167,7 +169,7 @@ export default function CourseDetailPageContent() {
         href="/student-dashboard/cursos" 
         className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
-        <ArrowLeft className="w-4 h-4 mr-1" /> Voltar para cursos
+        <ArrowLeft className="w-4 h-4 mr-1" /> {t("backToCourses")}
       </Link>
 
       {/* Header / Hero Section */}
@@ -215,13 +217,13 @@ export default function CourseDetailPageContent() {
                     {isEnrolled ? (
                         <div className="flex-1 space-y-2">
                            <div className="flex justify-between text-xs font-medium text-muted-foreground">
-                              <span>Seu progresso</span>
+                              <span>{t("yourProgress")}</span>
                               <span>{progressPercentage}%</span>
                            </div>
                            <Progress value={progressPercentage} className="h-2" />
                            {progressPercentage === 100 && (
                              <p className="text-xs text-emerald-600 flex items-center gap-1 font-medium mt-1">
-                               <GraduationCap className="w-3 h-3" /> Curso concluído!
+                               <GraduationCap className="w-3 h-3" /> {t("courseCompleted")}
                              </p>
                            )}
                         </div>
@@ -232,7 +234,7 @@ export default function CourseDetailPageContent() {
                             disabled={enrolling}
                             className="w-full sm:w-auto font-semibold"
                         >
-                           {enrolling ? "Matriculando..." : "Matricular-se Agora"}
+                           {enrolling ? t("enrolling") : t("enrollNow")}
                         </Button>
                     )}
                  </div>
@@ -249,13 +251,13 @@ export default function CourseDetailPageContent() {
         transition={{ duration: 0.4, delay: 0.1 }}
       >
         <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-primary" /> Conteúdo do Curso
+            <BookOpen className="w-5 h-5 text-primary" /> {t("courseContent")}
         </h2>
 
         {!course.sections || course.sections.length === 0 ? (
            <Card className="py-12 flex flex-col items-center justify-center text-muted-foreground bg-muted/20 border-dashed">
                <BookOpen className="w-10 h-10 mb-2 opacity-50" />
-               <p>Nenhum conteúdo disponível no momento.</p>
+               <p>{t("noContent")}</p>
            </Card>
         ) : (
             <Accordion type="multiple" defaultValue={[course.sections[0]?.id]} className="space-y-4">
@@ -265,7 +267,7 @@ export default function CourseDetailPageContent() {
                             <span className="font-medium text-left flex-1">
                                 {section.title}
                                 <span className="block text-xs text-muted-foreground font-normal mt-0.5">
-                                    {section.lessons?.length || 0} aulas
+                                    {section.lessons?.length || 0} {t("classes")}
                                 </span>
                             </span>
                         </AccordionTrigger>
@@ -307,7 +309,7 @@ export default function CourseDetailPageContent() {
                                                     href={`curso/licao?courseId=${courseId}&lessonId=${lesson.id}`} 
                                                     className="absolute inset-0 z-10"
                                                 >
-                                                    <span className="sr-only">Acessar aula</span>
+                                                    <span className="sr-only">{t("accessClass")}</span>
                                                 </Link>
                                             )}
                                             

@@ -1,4 +1,10 @@
 {
+  "Languages": {
+    "english": "English",
+    "spanish": "Spanish",
+    "libras": "Libras",
+    "portuguese": "Portuguese"
+  },
   "NotificationCard": {
     "invalidDate": "Invalid date",
     "minutesShort": "{minutes}m",
@@ -1734,5 +1740,57 @@
     "creating": "Creating subscription...",
     "createButton": "Create subscription {months} months - {price}/month",
     "termsAgreement": "By creating the subscription, you agree to our <linkTerms>Terms of Use</linkTerms> and <linkPrivacy>Privacy Policy</linkPrivacy>"
+  },
+  "StudentCourses": {
+    "title": "My Courses",
+    "subtitle": "Explore and continue your learning journey.",
+    "searchPlaceholder": "Search course or language...",
+    "noCoursesFound": "No courses found",
+    "trySearching": "Try searching with other terms.",
+    "comingSoon": "New courses will be added soon.",
+    "clearSearch": "Clear search",
+    "enrolled": "Enrolled",
+    "duration": "Duration",
+    "modules": "Modules",
+    "lessons": "Lessons",
+    "continueCourse": "Continue Course",
+    "viewDetails": "View Details",
+    "errorLoading": "Failed to load available courses."
+  },
+  "CourseDetail": {
+    "notFound": "Course not found.",
+    "loadError": "Failed to load course details.",
+    "invalidId": "Invalid course ID.",
+    "enrolling": "Enrolling...",
+    "enrollError": "Failed to enroll.",
+    "enrollSuccess": "Enrollment successful!",
+    "backToCourses": "Back to courses",
+    "yourProgress": "Your progress",
+    "courseCompleted": "Course completed!",
+    "enrollNow": "Enroll Now",
+    "courseContent": "Course Content",
+    "noContent": "No content available at the moment.",
+    "classes": "classes",
+    "accessClass": "Access class",
+    "lessonsCount": "{count} lessons"
+  },
+  "LessonPage": {
+    "invalidIds": "Invalid course or lesson IDs.",
+    "loadCourseError": "Failed to load course details.",
+    "notEnrolled": "You are not enrolled in this course.",
+    "lessonNotFound": "Lesson not found.",
+    "loadLessonError": "Failed to load lesson.",
+    "markingComplete": "Marking as complete...",
+    "markCompleteError": "Failed to mark lesson as complete.",
+    "markCompleteSuccess": "Lesson marked as complete!",
+    "courseCompletedSuccess": "Congratulations! You completed the course!",
+    "quizSaveError": "Error saving quiz results.",
+    "backToCourse": "Back to course",
+    "completed": "Completed",
+    "fixationQuiz": "Review Quiz",
+    "markAsComplete": "Mark as Complete",
+    "nextLesson": "Next Lesson",
+    "finishCourse": "Finish Course",
+    "next": "Next"
   }
 }

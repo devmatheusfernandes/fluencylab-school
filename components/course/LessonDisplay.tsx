@@ -37,6 +37,9 @@ const YouTubeEmbed: React.FC<{ url: string }> = ({ url }) => {
 
   const videoId = getVideoId(url);
   if (!videoId) {
+    if (!url || url.trim() === '') {
+      return null;
+    }
     // Se não for URL do YouTube, tenta exibir iframe direto (por exemplo, Vimeo ou outro)
     return (
       <iframe

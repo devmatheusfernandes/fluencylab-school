@@ -1,4 +1,10 @@
 {
+  "Languages": {
+    "english": "Inglês",
+    "spanish": "Espanhol",
+    "libras": "Libras",
+    "portuguese": "Português"
+  },
   "NotificationCard": {
     "invalidDate": "Data inválida",
     "minutesShort": "{minutes}m",
@@ -1733,5 +1739,57 @@
     "creating": "Criando assinatura...",
     "createButton": "Criar assinatura {months} meses - {price}/mês",
     "termsAgreement": "Ao criar a assinatura, você concorda com nossos <linkTerms>Termos de Uso</linkTerms> e <linkPrivacy>Política de Privacidade</linkPrivacy>"
+  },
+  "StudentCourses": {
+    "title": "Meus Cursos",
+    "subtitle": "Explore e continue sua jornada de aprendizado.",
+    "searchPlaceholder": "Buscar curso ou idioma...",
+    "noCoursesFound": "Nenhum curso encontrado",
+    "trySearching": "Tente buscar com outros termos.",
+    "comingSoon": "Novos cursos serão adicionados em breve.",
+    "clearSearch": "Limpar busca",
+    "enrolled": "Inscrito",
+    "duration": "Duração",
+    "modules": "Módulos",
+    "lessons": "Lições",
+    "continueCourse": "Continuar Curso",
+    "viewDetails": "Ver Detalhes",
+    "errorLoading": "Falha ao carregar os cursos disponíveis."
+  },
+  "CourseDetail": {
+    "notFound": "Curso não encontrado.",
+    "loadError": "Falha ao carregar detalhes do curso.",
+    "invalidId": "ID do curso inválido.",
+    "enrolling": "Realizando matrícula...",
+    "enrollError": "Falha ao realizar matrícula.",
+    "enrollSuccess": "Matrícula realizada com sucesso!",
+    "backToCourses": "Voltar para cursos",
+    "yourProgress": "Seu progresso",
+    "courseCompleted": "Curso concluído!",
+    "enrollNow": "Matricular-se Agora",
+    "courseContent": "Conteúdo do Curso",
+    "noContent": "Nenhum conteúdo disponível no momento.",
+    "classes": "aulas",
+    "accessClass": "Acessar aula",
+    "lessonsCount": "{count} lições"
+  },
+  "LessonPage": {
+    "invalidIds": "IDs de curso ou lição inválidos.",
+    "loadCourseError": "Falha ao carregar detalhes do curso.",
+    "notEnrolled": "Você não está matriculado neste curso.",
+    "lessonNotFound": "Lição não encontrada.",
+    "loadLessonError": "Falha ao carregar a lição.",
+    "markingComplete": "Marcando como concluída...",
+    "markCompleteError": "Falha ao marcar lição como concluída.",
+    "markCompleteSuccess": "Lição marcada como concluída!",
+    "courseCompletedSuccess": "Parabéns! Você concluiu o curso!",
+    "quizSaveError": "Erro ao salvar resultados do quiz.",
+    "backToCourse": "Voltar ao curso",
+    "completed": "Concluído",
+    "fixationQuiz": "Quiz de Fixação",
+    "markAsComplete": "Marcar como Concluída",
+    "nextLesson": "Próxima Lição",
+    "finishCourse": "Finalizar Curso",
+    "next": "Próxima"
   }
 }

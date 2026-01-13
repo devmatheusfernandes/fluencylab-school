@@ -37,7 +37,17 @@ export default function RescheduleModal({
   classToReschedule,
 }: RescheduleModalProps) {
   const t = useTranslations("RescheduleModal");
+  const tLanguages = useTranslations("Languages");
   const locale = useLocale();
+
+  const getTranslatedLanguage = (lang: string) => {
+    const lower = lang.toLowerCase();
+    if (lower === 'english' || lower === 'ingles' || lower === 'inglês') return tLanguages('english');
+    if (lower === 'spanish' || lower === 'espanhol') return tLanguages('spanish');
+    if (lower === 'libras') return tLanguages('libras');
+    if (lower === 'portuguese' || lower === 'portugues' || lower === 'português') return tLanguages('portuguese');
+    return lang;
+  };
 
   const {
     rescheduleClass,
@@ -109,7 +119,7 @@ export default function RescheduleModal({
                 <div className="text-center p-4 bg-primary/20 dark:bg-primary/20 rounded-xl border border-primary/80 dark:border-primary/80 mb-6">
                   <div className="text-sm text-blue-700 dark:text-blue-300 mt-1">
                     {t("rescheduleInfo", {
-                      language: classToReschedule.language,
+                      language: getTranslatedLanguage(classToReschedule.language),
                       date: formatDate(new Date(classToReschedule.scheduledAt))
                     })}
                   </div>

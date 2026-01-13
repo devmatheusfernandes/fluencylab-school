@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -27,6 +28,7 @@ type StudentCourse = Course & {
 };
 
 export default function StudentCoursesPage() {
+  const t = useTranslations("StudentCourses");
   const { data: session } = useSession();
   const router = useRouter();
   
@@ -40,13 +42,13 @@ export default function StudentCoursesPage() {
       try {
         const res = await fetch("/api/student/courses/list");
         if (!res.ok) {
-          throw new Error("Falha ao carregar os cursos disponíveis.");
+          throw new Error(t("errorLoading"));
         }
         const data = await res.json();
         setCourses(data);
       } catch (error) {
         console.error("Erro ao carregar cursos: ", error);
-        toast.error("Falha ao carregar os cursos disponíveis.");
+        toast.error(t("errorLoading"));
       } finally {
         setLoading(false);
       }
@@ -98,15 +100,15 @@ export default function StudentCoursesPage() {
       >
         <div>
             <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                <LayoutGrid className="w-8 h-8 text-primary" /> Meus Cursos
+                <LayoutGrid className="w-8 h-8 text-primary" /> {t("title")}
             </h1>
-            <p className="text-muted-foreground mt-1">Explore e continue sua jornada de aprendizado.</p>
+            <p className="text-muted-foreground mt-1">{t("subtitle")}</p>
         </div>
 
         <div className="relative w-full md:w-72">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input 
-                placeholder="Buscar curso ou idioma..." 
+                placeholder={t("searchPlaceholder")}
                 className="pl-9 bg-background/50 backdrop-blur-sm"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -117,12 +119,12 @@ export default function StudentCoursesPage() {
       {filteredCourses.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 border-2 border-dashed rounded-xl bg-muted/10">
           <BookOpen className="w-12 h-12 text-muted-foreground/50 mb-4" />
-          <h3 className="text-lg font-medium text-foreground">Nenhum curso encontrado</h3>
+          <h3 className="text-lg font-medium text-foreground">{t("noCoursesFound")}</h3>
           <p className="text-sm text-muted-foreground mt-1">
-            {search ? "Tente buscar com outros termos." : "Novos cursos serão adicionados em breve."}
+            {search ? t("trySearching") : t("comingSoon")}
           </p>
           {search && (
-              <Button variant="link" onClick={() => setSearch("")} className="mt-2">Limpar busca</Button>
+              <Button variant="link" onClick={() => setSearch("")} className="mt-2">{t("clearSearch")}</Button>
           )}
         </div>
       ) : (
@@ -149,7 +151,7 @@ export default function StudentCoursesPage() {
                              </Badge>
                              {course.isEnrolled && (
                                 <Badge className="bg-emerald-500 text-white hover:bg-emerald-600 border-0 flex items-center gap-1 shadow-sm">
-                                    <CheckCircle2 className="w-3 h-3" /> Inscrito
+                                    <CheckCircle2 className="w-3 h-3" /> {t("enrolled")}
                                 </Badge>
                              )}
                         </div>
@@ -167,15 +169,15 @@ export default function StudentCoursesPage() {
                         </p>
 
                         <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t">
-                            <div className="flex items-center gap-1" title="Duração">
+                            <div className="flex items-center gap-1" title={t("duration")}>
                                 <Clock className="w-3.5 h-3.5" />
                                 <span>{course.duration}</span>
                             </div>
-                            <div className="flex items-center gap-1" title="Módulos">
+                            <div className="flex items-center gap-1" title={t("modules")}>
                                 <Layers className="w-3.5 h-3.5" />
                                 <span>{course.sectionCount}</span>
                             </div>
-                            <div className="flex items-center gap-1" title="Lições">
+                            <div className="flex items-center gap-1" title={t("lessons")}>
                                 <BookOpen className="w-3.5 h-3.5" />
                                 <span>{course.lessonCount}</span>
                             </div>
@@ -185,7 +187,7 @@ export default function StudentCoursesPage() {
                     <CardFooter className="p-4 pt-0">
                         <Link href={`cursos/curso?id=${course.id}`} className="w-full">
                             <Button className="w-full group/btn" variant={course.isEnrolled ? "primary" : "secondary"}>
-                                {course.isEnrolled ? "Continuar Curso" : "Ver Detalhes"}
+                                {course.isEnrolled ? t("continueCourse") : t("viewDetails")}
                                 <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
                             </Button>
                         </Link>
