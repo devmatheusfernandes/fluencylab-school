@@ -23,6 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useTeacherAvailabilityForReschedule } from "@/hooks/useTeacherAvailabilityForReschedule";
 import { Card } from "@/components/ui/card";
 import { Spinner } from "../ui/spinner";
+import { useTranslations, useLocale } from "next-intl";
 
 interface RescheduleModalProps {
   isOpen: boolean;
@@ -35,6 +36,9 @@ export default function RescheduleModal({
   onClose,
   classToReschedule,
 }: RescheduleModalProps) {
+  const t = useTranslations("RescheduleModal");
+  const locale = useLocale();
+
   const {
     rescheduleClass,
     fetchTeacherAvailability,
@@ -66,7 +70,7 @@ export default function RescheduleModal({
     classToReschedule?.status === "canceled-teacher-makeup";
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString("pt-BR", {
+    return date.toLocaleDateString(locale === "pt" ? "pt-BR" : "en-US", {
       weekday: "short",
       day: "numeric",
       month: "short",
@@ -85,34 +89,29 @@ export default function RescheduleModal({
           >
             <ModalHeader>
               <ModalIcon type="calendar" />
-              <ModalTitle>Reagendar Aula</ModalTitle>
+              <ModalTitle>{t("title")}</ModalTitle>
               <ModalClose />
             </ModalHeader>
             {classToReschedule && (
               <ModalBody>
                 <Text variant="subtitle" size="sm" className="text-center mb-6">
-                  Selecione um novo horário para a sua aula com{" "}
-                  <span className="font-bold capitalize">
-                    {classToReschedule.teacherName}
-                  </span>
-                  .
+                  {t("selectNewTime", { teacherName: classToReschedule.teacherName ?? "" })}
                 </Text>
 
                 {isTeacherMakeupClass && (
                   <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
                     <p className="text-sm text-yellow-800 text-center">
-                      <span className="font-bold">Aviso:</span> Esta aula foi
-                      cancelada pelo professor. Você pode reagendá-la usando um
-                      crédito de reposição sem consumir seus reagendamentos
-                      mensais.
+                      {t("teacherCancellationWarning")}
                     </p>
                   </div>
                 )}
 
                 <div className="text-center p-4 bg-primary/20 dark:bg-primary/20 rounded-xl border border-primary/80 dark:border-primary/80 mb-6">
                   <div className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                    Remarcar aula de {classToReschedule.language} de{" "}
-                    {formatDate(new Date(classToReschedule.scheduledAt))}
+                    {t("rescheduleInfo", {
+                      language: classToReschedule.language,
+                      date: formatDate(new Date(classToReschedule.scheduledAt))
+                    })}
                   </div>
                 </div>
 
@@ -134,7 +133,7 @@ export default function RescheduleModal({
                           <div className="p-4">
                             <div className="font-medium text-gray-900 dark:text-gray-100">
                               {formatDate(slot.date)} às{" "}
-                              {slot.date.toLocaleTimeString("pt-BR", {
+                              {slot.date.toLocaleTimeString(locale === "pt" ? "pt-BR" : "en-US", {
                                 hour: "2-digit",
                                 minute: "2-digit",
                               })}
@@ -146,10 +145,10 @@ export default function RescheduleModal({
                       <div className="text-center py-8">
                         <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
                           <div className="text-gray-500 dark:text-gray-400 font-medium">
-                            Nenhum horário disponível
+                            {t("noSlots")}
                           </div>
                           <div className="text-gray-400 dark:text-gray-500 text-sm mt-1">
-                            Não há opções de reagendamento no momento
+                            {t("noOptions")}
                           </div>
                         </div>
                       </div>
@@ -163,13 +162,13 @@ export default function RescheduleModal({
                       htmlFor="reason"
                       className="block text-sm font-medium text-subtitle mb-1"
                     >
-                      Motivo (Opcional)
+                      {t("reasonLabel")}
                     </label>
                     <Textarea
                       id="reason"
                       value={reason}
                       onChange={(e) => setReason(e.target.value)}
-                      placeholder="Ex: Compromisso de trabalho"
+                      placeholder={t("reasonPlaceholder")}
                     />
                   </div>
                 )}
@@ -177,17 +176,17 @@ export default function RescheduleModal({
             )}
             <ModalFooter>
               <ModalSecondaryButton onClick={onClose}>
-                Cancelar
+                {t("cancel")}
               </ModalSecondaryButton>
               <ModalPrimaryButton
                 onClick={handleConfirmReschedule}
                 disabled={!selectedSlot || isHookLoading}
               >
                 {isHookLoading
-                  ? "A Reagendar..."
+                  ? t("rescheduling")
                   : isTeacherMakeupClass
-                    ? "Confirmar e usar crédito"
-                    : "Confirmar Novo Horário"}
+                    ? t("confirmCredit")
+                    : t("confirmNewTime")}
               </ModalPrimaryButton>
             </ModalFooter>
           </motion.div>

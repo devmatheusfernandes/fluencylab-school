@@ -6,6 +6,7 @@ import AchievementCard from "./AchievementCard";
 import { useAchievements } from "@/hooks/useAchievements";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "../ui/skeleton";
+import { useTranslations } from "next-intl";
 
 interface AchievementListProps {
   userId: string | undefined;
@@ -16,6 +17,7 @@ const AchievementList: React.FC<AchievementListProps> = ({ userId, limit }) => {
   const { achievements, loading, error } = useAchievements(userId);
   const [filter, setFilter] = useState<"all" | "unlocked" | "locked">("all");
   const router = useRouter();
+  const t = useTranslations("AchievementList");
 
   // Filter achievements based on the selected filter
   const filteredAchievements = achievements.filter((achievement) => {
@@ -65,8 +67,8 @@ const AchievementList: React.FC<AchievementListProps> = ({ userId, limit }) => {
         className="bg-red-50 border border-red-200 text-red-700 px-4 py-4 rounded-xl shadow-sm dark:bg-red-900/20 dark:border-red-800 dark:text-red-200"
       >
         <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-          <strong className="font-bold">Erro!</strong>
-          <span>Não foi possível carregar suas conquistas.</span>
+          <strong className="font-bold">{t("errorTitle")}</strong>
+          <span>{t("errorDesc")}</span>
         </div>
       </motion.div>
     );
@@ -89,7 +91,7 @@ const AchievementList: React.FC<AchievementListProps> = ({ userId, limit }) => {
                   : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700"
               }`}
             >
-              Todas ({achievements.length})
+              {t("all")} ({achievements.length})
             </motion.button>
 
             <motion.button
@@ -102,7 +104,7 @@ const AchievementList: React.FC<AchievementListProps> = ({ userId, limit }) => {
                   : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700"
               }`}
             >
-              Desbloqueadas ({achievements.filter((a) => a.unlocked).length})
+              {t("unlocked")} ({achievements.filter((a) => a.unlocked).length})
             </motion.button>
 
             <motion.button
@@ -115,7 +117,7 @@ const AchievementList: React.FC<AchievementListProps> = ({ userId, limit }) => {
                   : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700"
               }`}
             >
-              Bloqueadas ({achievements.filter((a) => !a.unlocked).length})
+              {t("locked")} ({achievements.filter((a) => !a.unlocked).length})
             </motion.button>
           </div>
         </div>
@@ -147,17 +149,17 @@ const AchievementList: React.FC<AchievementListProps> = ({ userId, limit }) => {
             </div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
               {filter === "all"
-                ? "Nenhuma conquista disponível"
+                ? t("emptyAllTitle")
                 : filter === "unlocked"
-                ? "Nenhuma desbloqueada"
-                : "Tudo desbloqueado!"}
+                ? t("emptyUnlockedTitle")
+                : t("emptyLockedTitle")}
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               {filter === "all"
-                ? "Parece que ainda não há conquistas disponíveis."
+                ? t("emptyAllDesc")
                 : filter === "unlocked"
-                ? "Continue explorando para liberar novas conquistas."
-                : "Você não tem conquistas pendentes nesta categoria."}
+                ? t("emptyUnlockedDesc")
+                : t("emptyLockedDesc")}
             </p>
           </div>
         </motion.div>

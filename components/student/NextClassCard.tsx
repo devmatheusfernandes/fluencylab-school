@@ -6,12 +6,15 @@ import { toast } from "sonner";
 import { Skeleton } from "../ui/skeleton";
 import { Button } from "../ui/button";
 import { Calendar, Clock, RefreshCcw } from "lucide-react";
+import { useTranslations, useLocale } from "next-intl";
 
 interface NextClassCardProps {
   className?: string;
 }
 
 export default function NextClassCard({ className = "" }: NextClassCardProps) {
+  const t = useTranslations("NextClassCard");
+  const locale = useLocale();
   const { myClasses, fetchMyClasses, isLoading } = useStudent();
   const [nextClass, setNextClass] = useState<{
     type: string;
@@ -65,14 +68,14 @@ export default function NextClassCard({ className = "" }: NextClassCardProps) {
     const isTomorrow = classDateWithoutTime.getTime() === tomorrow.getTime();
 
     // Format date
-    const formattedDate = classDate.toLocaleDateString("pt-BR", {
+    const formattedDate = classDate.toLocaleDateString(locale, {
       weekday: "long",
       day: "numeric",
       month: "long",
     });
 
     // Format time
-    const time = classDate.toLocaleTimeString("pt-BR", {
+    const time = classDate.toLocaleTimeString(locale, {
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -89,13 +92,13 @@ export default function NextClassCard({ className = "" }: NextClassCardProps) {
       time,
       daysUntil,
     };
-  }, [myClasses]);
+  }, [myClasses, locale]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
       await fetchMyClasses();
-      toast.success("Aulas atualizadas com sucesso!");
+      toast.success(t("refreshSuccess"));
       setIsRefreshing(false);
     } catch (error) {
       console.error("Failed to refresh classes:", error);
@@ -136,19 +139,19 @@ export default function NextClassCard({ className = "" }: NextClassCardProps) {
     return (
       <div className="p-2">
         <div className="flex justify-between items-start">
-          <p className="flex-1 w-full rounded">Próxima Aula</p>
+          <p className="flex-1 w-full rounded">{t("title")}</p>
           <Button
             variant="glass"
             size="icon"
             onClick={handleRefresh}
-            aria-label="Atualizar"
-            title="Atualizar"
+            aria-label={t("refresh")}
+            title={t("refresh")}
           >
             <RefreshCcw className="w-4 h-4" />
           </Button>
         </div>
         <div className="flex-1 w-full">
-          <p className="flex-1 w-full rounded ">Nenhuma aula agendada</p>
+          <p className="flex-1 w-full rounded ">{t("noClass")}</p>
         </div>
       </div>
     );
@@ -157,13 +160,13 @@ export default function NextClassCard({ className = "" }: NextClassCardProps) {
   return (
     <div className="p-2">
       <div className="flex justify-between items-start">
-        <p className="h-5 w-24 rounded w-full ">Próxima Aula</p>
+        <p className="h-5 w-24 rounded w-full ">{t("title")}</p>
         <Button
           variant="glass"
           size="icon"
           onClick={handleRefresh}
-          aria-label="Atualizar"
-          title="Atualizar"
+          aria-label={t("refresh")}
+          title={t("refresh")}
         >
           {isRefreshing ? (
             <RefreshCcw className="w-4 h-4 animate-spin" />
@@ -176,7 +179,7 @@ export default function NextClassCard({ className = "" }: NextClassCardProps) {
       <div className="mt-2">
         {nextClass.type === "rescheduled" && (
           <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-200 mb-2">
-            Aula Remarcada
+            {t("rescheduled")}
           </div>
         )}
 
@@ -184,9 +187,9 @@ export default function NextClassCard({ className = "" }: NextClassCardProps) {
           <Calendar className="w-4 h-4 mr-2" />
           <span className="font-medium">
             {nextClass.isToday
-              ? "Hoje"
+              ? t("today")
               : nextClass.isTomorrow
-                ? "Amanhã"
+                ? t("tomorrow")
                 : nextClass.formattedDate}
           </span>
         </div>
@@ -199,14 +202,14 @@ export default function NextClassCard({ className = "" }: NextClassCardProps) {
         {nextClass.daysUntil > 0 && (
           <div className="mt-2 text-sm text-paragraph">
             {nextClass.daysUntil === 1
-              ? "Falta 1 dia"
-              : `Faltam ${nextClass.daysUntil} dias`}
+              ? t("daysUntil", { count: 1 })
+              : t("daysUntilPlural", { count: nextClass.daysUntil })}
           </div>
         )}
 
         {nextClass.isToday && (
           <div className="mt-2 text-sm font-medium text-teal-500 dark:text-teal-800">
-            Sua aula é hoje!
+            {t("isToday")}
           </div>
         )}
       </div>

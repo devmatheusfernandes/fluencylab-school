@@ -1,3 +1,7 @@
+---
+alwaysApply: false
+description: 
+---
 # Regras de Uso de Modais
 
 Ao implementar modais na aplicação, siga estritamente este padrão visual para manter a consistência:

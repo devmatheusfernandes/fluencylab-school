@@ -2,7 +2,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/config/pricing";
@@ -11,6 +10,7 @@ import { toast } from "sonner";
 import Image from "next/image";
 import { Calendar, CheckCircle, Clock, Clock1, Copy, FileWarning, MailWarning, X } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
+import { useTranslations, useLocale } from "next-intl";
 
 interface StudentPaymentStatusCardProps {
   className?: string;
@@ -19,6 +19,8 @@ interface StudentPaymentStatusCardProps {
 export function StudentPaymentStatusCard({
   className,
 }: StudentPaymentStatusCardProps) {
+  const t = useTranslations("StudentPaymentStatusCard");
+  const locale = useLocale();
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | null>(
     null
   );
@@ -68,14 +70,14 @@ export function StudentPaymentStatusCard({
               }
             : null
         );
-        toast.success("Novo código PIX gerado com sucesso!");
+        toast.success(t("generateSuccess"));
       } else {
         const error = await response.json();
-        toast.error(error.message || "Erro ao gerar código PIX");
+        toast.error(error.message || t("generateError"));
       }
     } catch (error) {
       console.error("Error generating PIX:", error);
-      toast.error("Erro ao gerar código PIX");
+      toast.error(t("generateError"));
     } finally {
       setGeneratingPix(false);
     }
@@ -85,9 +87,9 @@ export function StudentPaymentStatusCard({
     if (paymentStatus?.pixCode) {
       try {
         await navigator.clipboard.writeText(paymentStatus.pixCode);
-        toast.success("Código PIX copiado!");
+        toast.success(t("copySuccess"));
       } catch (error) {
-        toast.error("Erro ao copiar código PIX");
+        toast.error(t("copyError"));
       }
     }
   };
@@ -108,37 +110,37 @@ export function StudentPaymentStatusCard({
       case "active":
         return {
           color: "success" as const,
-          text: "Em dia",
+          text: t("active"),
           icon: CheckCircle,
-          description: "Sua mensalidade está em dia",
+          description: t("activeDesc"),
         };
       case "overdue":
         return {
           color: "destructive" as const,
-          text: "Em atraso",
+          text: t("overdue"),
           icon: FileWarning,
-          description: "Sua mensalidade está em atraso",
+          description: t("overdueDesc"),
         };
       case "canceled":
         return {
           color: "warning" as const,
-          text: "Cancelado",
+          text: t("canceled"),
           icon: X,
-          description: "Sua assinatura foi cancelada",
+          description: t("canceledDesc"),
         };
       case "pending":
         return {
           color: "warning" as const,
-          text: "Pendente",
+          text: t("pending"),
           icon: Clock,
-          description: "Aguardando confirmação do pagamento",
+          description: t("pendingDesc"),
         };
       default:
         return {
           color: "secondary" as const,
-          text: "Indefinido",
+          text: t("undefined"),
           icon: MailWarning,
-          description: "Status não definido",
+          description: t("undefinedDesc"),
         };
     }
   };
@@ -207,7 +209,7 @@ export function StudentPaymentStatusCard({
       <div className="flex flex-col items-center gap-2">
         <div className="text-center">
           <MailWarning className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-          <p className="text-gray-600">Nenhuma assinatura encontrada</p>
+          <p className="text-gray-600">{t("noSubscription")}</p>
         </div>
         <Button
           variant="secondary"
@@ -218,7 +220,7 @@ export function StudentPaymentStatusCard({
           className="w-full flex items-center gap-2"
         >
           <Calendar className="w-4 h-4" />
-          Gerenciar Pagamentos
+          {t("managePayments")}
         </Button>
       </div>
     );
@@ -233,12 +235,12 @@ export function StudentPaymentStatusCard({
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <StatusIcon className="w-5 h-5"    />
-          <h3 className="flex flex-row items-center gap-1text-lg font-semibold">
-            Status do Pagamento{" "}
+          <h3 className="flex flex-row items-center gap-1 text-lg font-semibold">
+            {t("title")}{" "}
             {paymentStatus.paymentMethod === "credit_card" ? (
-              <p className="ml-1">do Cartão</p>
+              <p className="ml-1">{t("creditCard")}</p>
             ) : (
-              <p className="ml-1">do Pix</p>
+              <p className="ml-1">{t("pix")}</p>
             )}
           </h3>
         </div>
@@ -278,14 +280,14 @@ export function StudentPaymentStatusCard({
                         </div>
                       )}
                       <div className="text-center text-sm text-gray-600">
-                        Escaneie o QR Code ou copie o código PIX abaixo
+                        {t("pixInstructions")}
                       </div>
                     </>
                   ) : (
                     <div className="text-center p-3 bg-card rounded-lg">
                       <Clock1 className="w-6 h-6 text-blue-600 mx-auto mb-2" />
                       <p className="text-sm text-blue-800">
-                        O código PIX será liberado em {daysUntilDue} dia(s)
+                        {t("pixRelease", { days: daysUntilDue ?? 0 })}
                       </p>
                     </div>
                   )}
@@ -295,7 +297,7 @@ export function StudentPaymentStatusCard({
                     <div className="flex justify-between items-center">
                       {paymentStatus.pixExpiresAt && (
                         <span className="text-xs text-paragraph">
-                          Expira em:{" "}
+                          {t("pixExpires")}{" "}
                           {new Date(
                             paymentStatus.pixExpiresAt
                           ).toLocaleDateString("pt-BR")}
@@ -312,7 +314,7 @@ export function StudentPaymentStatusCard({
                       className="flex items-center gap-1"
                     >
                       <Copy className="w-4 h-4 mr-1" />
-                      Copiar código PIX
+                      {t("copyPix")}
                     </Button>
                   </div>
                 </div>
@@ -320,8 +322,8 @@ export function StudentPaymentStatusCard({
                 <div className="space-y-3">
                   <p className="text-sm text-gray-600">
                     {paymentStatus.subscriptionStatus === "overdue"
-                      ? "Gere um novo código PIX para pagar sua mensalidade em atraso:"
-                      : "Gere o código PIX para pagar sua próxima mensalidade:"}
+                      ? t("generatePixOverdue")
+                      : t("generatePixNext")}
                   </p>
                   <Button
                     size="sm"
@@ -329,7 +331,7 @@ export function StudentPaymentStatusCard({
                     disabled={generatingPix}
                     className="w-full"
                   >
-                    {generatingPix ? "Gerando..." : "Gerar código PIX"}
+                    {generatingPix ? t("generating") : t("generatePix")}
                   </Button>
                 </div>
               )}
@@ -338,10 +340,10 @@ export function StudentPaymentStatusCard({
             <div className="text-center p-20">
               <Calendar className="w-6 h-6 text-gray-600 mx-auto mb-2" />
               <p className="hidden text-sm text-gray-700">
-                Próximo vencimento em {daysUntilDue} dias
+                {t("dueIn", { days: daysUntilDue ?? 0 })}
               </p>
               <p className="text-xs text-gray-700 dark:text-gray-300 font-bold mt-1">
-                O código PIX será disponibilizado 2 dias antes do vencimento
+                {t("pixAvailability")}
               </p>
             </div>
           )}
@@ -356,25 +358,24 @@ export function StudentPaymentStatusCard({
               {paymentStatus.subscriptionStatus === "active" ? (
                 <>
                   <CheckCircle className="w-4 h-4 text-green-600" />
-                  <span className="text-sm">Pagamento automático ativo</span>
+                  <span className="text-sm">{t("autoPaymentActive")}</span>
                 </>
               ) : paymentStatus.subscriptionStatus === "overdue" ? (
                 <>
                   <MailWarning className="w-4 h-4 text-red-600" />
-                  <span className="text-sm">Pagamento com problema</span>
+                  <span className="text-sm">{t("paymentProblem")}</span>
                 </>
               ) : (
                 <>
                   <Clock1 className="w-4 h-4 text-yellow-600" />
-                  <span className="text-sm">Pagamento pendente</span>
+                  <span className="text-sm">{t("paymentPending")}</span>
                 </>
               )}
             </div>
 
             {paymentStatus.subscriptionStatus === "overdue" && (
               <p className="text-xs text-red-600">
-                Houve um problema com o pagamento. Verifique seus dados
-                cadastrados.
+                {t("problemDesc")}
               </p>
             )}
           </div>
@@ -385,17 +386,17 @@ export function StudentPaymentStatusCard({
       <div className="hidden space-y-2 text-sm border-t pt-3">
         {paymentStatus.amount && (
           <div className="flex justify-between">
-            <span className="font-medium">Valor:</span>
+            <span className="font-medium">{t("value")}</span>
             <span>{formatPrice(paymentStatus.amount)}</span>
           </div>
         )}
 
         {paymentStatus.nextPaymentDue && (
           <div className="flex justify-between">
-            <span className="font-medium">Próximo vencimento:</span>
+            <span className="font-medium">{t("nextDue")}</span>
             <span>
               {new Date(paymentStatus.nextPaymentDue).toLocaleDateString(
-                "pt-BR"
+                locale
               )}
             </span>
           </div>
@@ -403,10 +404,10 @@ export function StudentPaymentStatusCard({
 
         {paymentStatus.lastPaymentDate && (
           <div className="flex justify-between">
-            <span className="font-medium">Último pagamento:</span>
+            <span className="font-medium">{t("lastPayment")}</span>
             <span>
               {new Date(paymentStatus.lastPaymentDate).toLocaleDateString(
-                "pt-BR"
+                locale
               )}
             </span>
           </div>

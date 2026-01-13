@@ -33,15 +33,7 @@ import StudentClassCard from "@/components/student/StudentClassCard";
 import { ClassCancellationModal } from "@/components/student/ClassCancellationModal";
 import RescheduleModal from "@/components/student/RescheduleModal";
 import { Clock } from "lucide-react";
-
-// Helper functions for date filtering
-const monthOptions = Array.from({ length: 12 }, (_, i) => ({
-  value: i,
-  label: new Date(0, i).toLocaleString("pt-BR", { month: "long" }),
-}));
-
-const currentYear = new Date().getFullYear();
-const yearOptions = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
+import { useTranslations, useLocale } from "next-intl";
 
 interface StudentClassesComponentProps {
   showTitle?: boolean;
@@ -52,6 +44,21 @@ export default function StudentClassesComponent({
   showTitle = false,
   className = "",
 }: StudentClassesComponentProps) {
+  const t = useTranslations("StudentClassesComponent");
+  const locale = useLocale();
+  const dateLocale = locale === "pt" ? "pt-BR" : "en-US";
+
+  // Helper functions for date filtering
+  const monthOptions = useMemo(() => Array.from({ length: 12 }, (_, i) => ({
+    value: i,
+    label: new Date(0, i + 1, 0).toLocaleString(dateLocale, { month: "long" }),
+    // Using day 0 of next month or fixed date to avoid overflow issues with February if current day is 30/31
+    // Actually new Date(0, i) is fine (1900-01-01, 1900-02-01...)
+  })), [dateLocale]);
+
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
+
   const {
     myClasses,
     rescheduleInfo,
@@ -163,14 +170,14 @@ export default function StudentClassesComponent({
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || "Erro ao cancelar aula");
+        throw new Error(result.error || t("cancelError"));
       }
 
       if (result.success) {
         if (result.suggestReschedule) {
           // Show reschedule suggestion
           toast.info(
-            `Você ainda tem ${result.rescheduleInfo.remaining} reagendamentos disponíveis este mês. Que tal reagendar esta aula ao invés de cancelar?`,
+            t("rescheduleSuggestion", { remaining: result.rescheduleInfo.remaining }),
             {
               duration: 8000,
               action: {
@@ -180,7 +187,7 @@ export default function StudentClassesComponent({
             }
           );
         } else {
-          toast.success("Aula cancelada com sucesso!");
+          toast.success(t("cancelSuccess"));
         }
 
         // Refresh the classes list and reschedule info
@@ -268,21 +275,21 @@ export default function StudentClassesComponent({
               <ModalIcon>
                 <Clock className="w-6 h-6 text-blue-600" />
               </ModalIcon>
-              <ModalTitle>Reagendar ao invés de cancelar?</ModalTitle>
+              <ModalTitle>{t("rescheduleInsteadTitle")}</ModalTitle>
             </ModalHeader>
             <ModalBody>
               <Text className="text-center my-4">
-                Você ainda tem reagendamentos disponíveis este mês. Que tal
-                reagendar esta aula ao invés de cancelar?
+                {t("rescheduleInsteadDesc")}
               </Text>
               <div className="my-4 p-3 bg-blue-50 dark:bg-primary rounded-lg">
                 <Text
                   size="sm"
                   className="text-center font-medium text-blue-900 dark:text-white"
                 >
-                  Reagendamentos disponíveis:{" "}
-                  {rescheduleInfo.limit - rescheduleInfo.count} de{" "}
-                  {rescheduleInfo.limit}
+                  {t("availableReschedules", {
+                    count: rescheduleInfo.limit - rescheduleInfo.count,
+                    limit: rescheduleInfo.limit
+                  })}
                 </Text>
               </div>
             </ModalBody>
@@ -293,7 +300,7 @@ export default function StudentClassesComponent({
                   setShowCancellationModal(true);
                 }}
               >
-                Cancelar mesmo assim
+                {t("cancelAnyway")}
               </ModalSecondaryButton>
               <ModalPrimaryButton
                 onClick={() => {
@@ -303,7 +310,7 @@ export default function StudentClassesComponent({
                   setClassToCancel(null);
                 }}
               >
-                Reagendar
+                {t("reschedule")}
               </ModalPrimaryButton>
             </ModalFooter>
           </ModalContent>
@@ -315,7 +322,7 @@ export default function StudentClassesComponent({
         <Card className="w-full flex flex-row gap-2">
           <div className="space-y-1">
             <Text size="sm" variant="subtitle">
-              Mês
+              {t("monthLabel")}
             </Text>
             <Select
               value={String(selectedMonth)}
@@ -327,7 +334,7 @@ export default function StudentClassesComponent({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos os Meses</SelectItem>
+                <SelectItem value="all">{t("allMonths")}</SelectItem>
                 {monthOptions.map((m) => (
                   <SelectItem
                     key={m.value}
@@ -343,7 +350,7 @@ export default function StudentClassesComponent({
 
           <div className="space-y-1">
             <Text size="sm" variant="subtitle">
-              Ano
+              {t("yearLabel")}
             </Text>
             <Select
               value={String(selectedYear)}
@@ -355,7 +362,7 @@ export default function StudentClassesComponent({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos os Anos</SelectItem>
+                <SelectItem value="all">{t("allYears")}</SelectItem>
                 {yearOptions.map((y) => (
                   <SelectItem key={y} value={String(y)}>
                     {y}
@@ -370,8 +377,11 @@ export default function StudentClassesComponent({
         <Card className="p-3 w-full">
           <Text size="sm" className="font-medium text-subtitle mb-1">
             {selectedMonth === "all" || selectedYear === "all"
-              ? "Reagendamentos (mês atual)"
-              : `Reagendamentos em ${monthOptions[selectedMonth as number]?.label} ${selectedYear}`}
+              ? t("reschedulesTitle")
+              : t("reschedulesMonthTitle", {
+                  month: monthOptions[selectedMonth as number]?.label,
+                  year: selectedYear
+                })}
           </Text>
           <Text className="font-bold text-lg">
             {displayRescheduleInfo.count} / {displayRescheduleInfo.limit}
@@ -380,7 +390,7 @@ export default function StudentClassesComponent({
             selectedMonth !== "all" &&
             selectedYear !== "all" && (
               <Text size="xs" className="text-subtitle/30 mt-1">
-                Histórico do mês selecionado
+                {t("historyLabel")}
               </Text>
             )}
         </Card>
@@ -388,13 +398,13 @@ export default function StudentClassesComponent({
         {/* Teacher Cancellation Credits Card */}
         <Card className="w-full p-3 bg-amber-50 border-amber-200">
           <Text size="sm" className="font-medium text-subtitle mb-1">
-            Créditos de Reposição
+            {t("creditsTitle")}
           </Text>
           <Text className="font-bold text-lg text-amber-800">
             {teacherCancellationCredits}
           </Text>
           <Text size="xs" className="text-subtitle/30 mt-1">
-            Para aulas canceladas pelo professor
+            {t("creditsDesc")}
           </Text>
         </Card>
       </div>
@@ -421,14 +431,13 @@ export default function StudentClassesComponent({
             customMessage={{
               withoutSearch:
                 selectedMonth === "all" && selectedYear === "all"
-                  ? "Você não tem nenhuma aula no seu cronograma."
-                  : `Nenhuma aula encontrada para ${
-                      selectedMonth !== "all"
+                  ? t("noClassesTitle")
+                  : t("noClassesFiltered", {
+                      month: selectedMonth !== "all"
                         ? monthOptions[selectedMonth as number]?.label
-                        : "todos os meses"
-                    } de ${
-                      selectedYear !== "all" ? selectedYear : "todos os anos"
-                    }.`,
+                        : t("allMonths"),
+                      year: selectedYear !== "all" ? selectedYear : t("allYears")
+                    }),
             }}
           />
         )

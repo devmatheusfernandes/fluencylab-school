@@ -1,13 +1,13 @@
-// services/achievementDefinitions.ts
 
 import { AchievementDefinition } from "@/types/users/achievements";
+import { useTranslations } from "next-intl";
 
-// Definições de conquistas
+// Definições de conquistas (Dados estáticos / Lógica)
 export const achievementDefinitions: AchievementDefinition[] = [
   // Conquistas de aulas concluídas
   {
     id: "primeira_aula_concluida",
-    name: "Primeira Aula Concluída!",
+    name: "Primeira Aula Concluída!", // Fallback / Backend usage
     description: "Parabéns por concluir sua primeira aula.",
     icon: "🎓",
     languages: ["Ingles", "Espanhol", "Libras", "Portugues", "english", "spanish", "libras", "portuguese"],
@@ -156,7 +156,18 @@ export const achievementDefinitions: AchievementDefinition[] = [
   },
 ];
 
-// Função para obter uma definição de conquista específica por ID
+// Hook para obter definições com traduções aplicadas (Client Components)
+export const useAchievementDefinitions = (): AchievementDefinition[] => {
+  const t = useTranslations("Achievements");
+
+  return achievementDefinitions.map((def) => ({
+    ...def,
+    name: t(`${def.id}.title`),
+    description: t(`${def.id}.description`),
+  }));
+};
+
+// Função helper para compatibilidade (mas sem tradução dinâmica no server-side se chamada diretamente)
 export const getAchievementDefinition = (
   id: string
 ): AchievementDefinition | undefined => {

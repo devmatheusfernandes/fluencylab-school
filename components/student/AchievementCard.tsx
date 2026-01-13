@@ -4,8 +4,9 @@ import React from "react";
 import { motion } from "framer-motion";
 import { StudentAchievement } from "@/types/users/achievements";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { ptBR, enUS } from "date-fns/locale";
 import { getAchievementDefinition } from "@/config/achievementDefinitions";
+import { useTranslations, useLocale } from "next-intl";
 
 interface AchievementCardProps {
   studentAchievement: StudentAchievement;
@@ -14,6 +15,11 @@ interface AchievementCardProps {
 const AchievementCard: React.FC<AchievementCardProps> = ({
   studentAchievement,
 }) => {
+  const t = useTranslations("Achievements");
+  const tAchievementCard = useTranslations("AchievementCard");
+  const locale = useLocale();
+  const dateLocale = locale === "pt" ? ptBR : enUS;
+  
   const definition = getAchievementDefinition(studentAchievement.achievementId);
 
   if (!definition) {
@@ -27,7 +33,7 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
         className="border rounded-xl p-4 bg-gray-50 border-gray-200 dark:bg-gray-900 dark:border-gray-800"
       >
         <div className="text-center text-gray-500 dark:text-gray-400 text-sm">
-          <p>Conquista não encontrada (ID: {studentAchievement.achievementId})</p>
+          <p>{t("notFound", { id: studentAchievement.achievementId })}</p>
         </div>
       </motion.div>
     );
@@ -36,23 +42,26 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
   const isUnlocked = studentAchievement.unlocked;
   const unlockedDate = studentAchievement.unlockedAt
     ? format(new Date(studentAchievement.unlockedAt), "dd MMM, yyyy", {
-        locale: ptBR,
+        locale: dateLocale,
       })
     : null;
 
   // Mapeamento de labels de idioma
-  const languageLabel = studentAchievement.language
-    ? {
-        english: "Inglês",
-        spanish: "Espanhol",
-        libras: "Libras",
-        portuguese: "Português",
-        Ingles: "Inglês",
-        Espanhol: "Espanhol",
-        Libras: "Libras",
-        Portugues: "Português",
-      }[studentAchievement.language] || studentAchievement.language
-    : "";
+  const languageKeyMap: Record<string, string> = {
+        english: "english",
+        spanish: "spanish",
+        libras: "libras",
+        portuguese: "portuguese",
+        Ingles: "english",
+        Espanhol: "spanish",
+        Libras: "libras",
+        Portugues: "portuguese",
+  };
+  
+  const normalizedLang = studentAchievement.language ? languageKeyMap[studentAchievement.language] : undefined;
+  const languageLabel = normalizedLang 
+    ? tAchievementCard(`languages.${normalizedLang}`) 
+    : studentAchievement.language || "";
 
   const cardVariants = {
     hidden: { opacity: 0, y: 10, scale: 0.98 },
@@ -113,7 +122,7 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
               }
             `}
             >
-              {definition.name}
+              {t(`${definition.id}.title`)}
             </h3>
 
             {languageLabel && (
@@ -125,7 +134,7 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
           </div>
 
           <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 font-normal leading-relaxed">
-            {definition.description}
+            {t(`${definition.id}.description`)}
           </p>
 
           {/* Footer com Data ou Status */}
@@ -144,7 +153,7 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
                     clipRule="evenodd"
                   />
                 </svg>
-                Desbloqueada em {unlockedDate}
+                {tAchievementCard("unlockedAt", { date: unlockedDate ?? "" })}
               </p>
             ) : (
               <p className="text-gray-400 dark:text-gray-500 flex items-center gap-1">
@@ -160,7 +169,7 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
                     clipRule="evenodd"
                   />
                 </svg>
-                Bloqueada
+                {tAchievementCard("locked")}
               </p>
             )}
           </div>
@@ -173,7 +182,7 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
         !isUnlocked && ( // Opcional: mostrar progresso apenas se não estiver desbloqueado para limpar ainda mais
           <div className="mt-4 space-y-1.5">
             <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 font-medium">
-              <span>Progresso</span>
+              <span>{tAchievementCard("progress")}</span>
               <span>
                 {studentAchievement.progress}/{studentAchievement.progressMax}
               </span>

@@ -1,4 +1,3 @@
-// components/student/PaymentStatusWidget.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -11,12 +10,16 @@ import { PaymentStatus } from "@/types/financial/subscription";
 import { toast } from "sonner";
 import { Link } from "lucide-react";
 import { Spinner } from "../ui/spinner";
+import { useTranslations, useLocale } from "next-intl";
 
 interface PaymentStatusWidgetProps {
   className?: string;
 }
 
 export function PaymentStatusWidget({ className }: PaymentStatusWidgetProps) {
+  const t = useTranslations("PaymentStatusWidget");
+  const locale = useLocale();
+
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | null>(
     null
   );
@@ -35,9 +38,11 @@ export function PaymentStatusWidget({ className }: PaymentStatusWidgetProps) {
         setPaymentStatus(data);
       } else {
         console.error("Failed to fetch payment status");
+        toast.error(t("fetchError"));
       }
     } catch (error) {
       console.error("Error fetching payment status:", error);
+      toast.error(t("fetchError"));
     } finally {
       setLoading(false);
     }
@@ -66,14 +71,14 @@ export function PaymentStatusWidget({ className }: PaymentStatusWidgetProps) {
               }
             : null
         );
-        toast.success("Novo código PIX gerado com sucesso!");
+        toast.success(t("pixGenerated"));
       } else {
         const error = await response.json();
-        toast.error(error.message || "Erro ao gerar código PIX");
+        toast.error(error.message || t("pixError"));
       }
     } catch (error) {
       console.error("Error generating PIX:", error);
-      toast.error("Erro ao gerar código PIX");
+      toast.error(t("pixError"));
     } finally {
       setGeneratingPix(false);
     }
@@ -83,9 +88,9 @@ export function PaymentStatusWidget({ className }: PaymentStatusWidgetProps) {
     if (paymentStatus?.pixCode) {
       try {
         await navigator.clipboard.writeText(paymentStatus.pixCode);
-        toast.success("Código PIX copiado!");
+        toast.success(t("pixCopied"));
       } catch (error) {
-        toast.error("Erro ao copiar código PIX");
+        toast.error(t("pixCopyError"));
       }
     }
   };
@@ -95,37 +100,37 @@ export function PaymentStatusWidget({ className }: PaymentStatusWidgetProps) {
       case "active":
         return {
           color: "success" as const,
-          text: "Em dia",
+          text: t("status.active"),
           icon: Link,
-          description: "Sua mensalidade está em dia",
+          description: t("statusDesc.active"),
         };
       case "overdue":
         return {
           color: "destructive" as const,
-          text: "Em atraso",
+          text: t("status.overdue"),
           icon: Link,
-          description: "Sua mensalidade está em atraso",
+          description: t("statusDesc.overdue"),
         };
       case "canceled":
         return {
           color: "warning" as const,
-          text: "Cancelado",
+          text: t("status.canceled"),
           icon: Link,
-          description: "Sua assinatura foi cancelada",
+          description: t("statusDesc.canceled"),
         };
       case "pending":
         return {
           color: "warning" as const,
-          text: "Pendente",
+          text: t("status.pending"),
           icon: Link,
-          description: "Aguardando confirmação do pagamento",
+          description: t("statusDesc.pending"),
         };
       default:
         return {
           color: "secondary" as const,
-          text: "Indefinido",
+          text: t("status.undefined"),
           icon: Link,
-          description: "Status não definido",
+          description: t("statusDesc.undefined"),
         };
     }
   };
@@ -145,7 +150,7 @@ export function PaymentStatusWidget({ className }: PaymentStatusWidgetProps) {
       <Card className={`p-6 ${className}`}>
         <div className="text-center">
           <Link className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-          <p className="text-gray-600">Nenhuma assinatura encontrada</p>
+          <p className="text-gray-600">{t("noSubscription")}</p>
         </div>
       </Card>
     );
@@ -159,7 +164,7 @@ export function PaymentStatusWidget({ className }: PaymentStatusWidgetProps) {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <StatusIcon className="w-5 h-5" />
-          <h3 className="text-lg font-semibold">Status do Pagamento</h3>
+          <h3 className="text-lg font-semibold">{t("paymentStatusTitle")}</h3>
         </div>
         <Badge >
           {statusInfo.text}
@@ -178,14 +183,14 @@ export function PaymentStatusWidget({ className }: PaymentStatusWidgetProps) {
             <div className="flex items-center gap-2 mb-2">
               <Link className="w-4 h-4 text-yellow-600" />
               <span className="text-sm font-medium text-yellow-800">
-                Pagamento em atraso
+                {t("paymentOverdue")}
               </span>
             </div>
 
             {paymentStatus.pixCode ? (
               <div className="space-y-3">
                 <p className="text-xs text-yellow-700">
-                  Use o código PIX abaixo para efetuar o pagamento:
+                  {t("usePixCode")}
                 </p>
                 <div className="bg-white p-3 rounded border">
                   <code className="text-xs break-all font-mono">
@@ -200,14 +205,11 @@ export function PaymentStatusWidget({ className }: PaymentStatusWidgetProps) {
                     className="flex items-center gap-1"
                   >
                     <Link className="w-3 h-3" />
-                    Copiar PIX
+                    {t("copyPix")}
                   </Button>
                   {paymentStatus.pixExpiresAt && (
                     <span className="text-xs text-yellow-600 self-center">
-                      Expira em:{" "}
-                      {new Date(paymentStatus.pixExpiresAt).toLocaleDateString(
-                        "pt-BR"
-                      )}
+                      {t("expiresIn", { date: new Date(paymentStatus.pixExpiresAt).toLocaleDateString(locale === "pt" ? "pt-BR" : "en-US") })}
                     </span>
                   )}
                 </div>
@@ -219,7 +221,7 @@ export function PaymentStatusWidget({ className }: PaymentStatusWidgetProps) {
                 disabled={generatingPix}
                 className="w-full"
               >
-                {generatingPix ? "Gerando..." : "Gerar código PIX"}
+                {generatingPix ? t("generating") : t("generatePix")}
               </Button>
             )}
           </div>
@@ -229,17 +231,17 @@ export function PaymentStatusWidget({ className }: PaymentStatusWidgetProps) {
       <div className="space-y-3 text-sm">
         {paymentStatus.amount && (
           <div className="flex justify-between">
-            <span className="font-medium">Valor:</span>
+            <span className="font-medium">{t("value")}</span>
             <span>{formatPrice(paymentStatus.amount)}</span>
           </div>
         )}
 
         {paymentStatus.nextPaymentDue && (
           <div className="flex justify-between">
-            <span className="font-medium">Próximo vencimento:</span>
+            <span className="font-medium">{t("nextDue")}</span>
             <span>
               {new Date(paymentStatus.nextPaymentDue).toLocaleDateString(
-                "pt-BR"
+                locale === "pt" ? "pt-BR" : "en-US"
               )}
             </span>
           </div>
@@ -247,10 +249,10 @@ export function PaymentStatusWidget({ className }: PaymentStatusWidgetProps) {
 
         {paymentStatus.lastPaymentDate && (
           <div className="flex justify-between">
-            <span className="font-medium">Último pagamento:</span>
+            <span className="font-medium">{t("lastPayment")}</span>
             <span>
               {new Date(paymentStatus.lastPaymentDate).toLocaleDateString(
-                "pt-BR"
+                locale === "pt" ? "pt-BR" : "en-US"
               )}
             </span>
           </div>
@@ -258,12 +260,12 @@ export function PaymentStatusWidget({ className }: PaymentStatusWidgetProps) {
 
         {paymentStatus.paymentMethod && (
           <div className="flex justify-between">
-            <span className="font-medium">Método de pagamento:</span>
+            <span className="font-medium">{t("paymentMethod")}</span>
             <div className="flex items-center gap-1">
               {paymentStatus.paymentMethod === "credit_card" ? (
                 <>
                   <Link className="w-4 h-4" />
-                  <span>Cartão de crédito</span>
+                  <span>{t("creditCard")}</span>
                 </>
               ) : (
                 <>
@@ -286,7 +288,7 @@ export function PaymentStatusWidget({ className }: PaymentStatusWidgetProps) {
           className="w-full flex items-center gap-2"
         >
           <Link className="w-4 h-4" />
-          Gerenciar Pagamentos
+          {t("managePayments")}
         </Button>
       </div>
     </Card>

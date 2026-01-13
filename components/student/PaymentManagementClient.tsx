@@ -1,4 +1,3 @@
-// components/student/PaymentManagementClient.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -14,8 +13,12 @@ import { toast } from "sonner";
 import Image from "next/image";
 import { Link } from "lucide-react";
 import { Spinner } from "../ui/spinner";
+import { useTranslations, useLocale } from "next-intl";
 
 export function PaymentManagementClient() {
+  const t = useTranslations("PaymentManagementClient");
+  const locale = useLocale();
+
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | null>(
     null
   );
@@ -40,11 +43,11 @@ export function PaymentManagementClient() {
         const data = await response.json();
         setPaymentStatus(data);
       } else {
-        toast.error("Erro ao carregar status do pagamento");
+        toast.error(t("paymentStatusError"));
       }
     } catch (error) {
       console.error("Error fetching payment status:", error);
-      toast.error("Erro ao carregar dados");
+      toast.error(t("dataError"));
     } finally {
       setLoading(false);
     }
@@ -60,12 +63,12 @@ export function PaymentManagementClient() {
       } else {
         // Don't show error toast for 404 (no subscription found)
         if (response.status !== 404) {
-          toast.error("Erro ao carregar histórico de pagamentos");
+          toast.error(t("historyError"));
         }
       }
     } catch (error) {
       console.error("Error fetching payment history:", error);
-      toast.error("Erro ao carregar histórico");
+      toast.error(t("historyLoadError"));
     } finally {
       setLoadingHistory(false);
     }
@@ -94,13 +97,13 @@ export function PaymentManagementClient() {
               }
             : null
         );
-        toast.success("Novo código PIX gerado!");
+        toast.success(t("pixGenerated"));
       } else {
         const error = await response.json();
-        toast.error(error.message || "Erro ao gerar PIX");
+        toast.error(error.message || t("pixError"));
       }
     } catch (error) {
-      toast.error("Erro ao gerar código PIX");
+      toast.error(t("pixGenError"));
     } finally {
       setGeneratingPix(false);
     }
@@ -128,10 +131,10 @@ export function PaymentManagementClient() {
 
         if (result.cancellationFee > 0) {
           toast.success(
-            `Assinatura cancelada. Taxa de cancelamento: ${formatPrice(result.cancellationFee)}`
+            t("subscriptionCanceledFee", { fee: formatPrice(result.cancellationFee) })
           );
         } else {
-          toast.success("Assinatura cancelada com sucesso!");
+          toast.success(t("subscriptionCanceled"));
         }
 
         // Refresh payment status and history
@@ -139,10 +142,10 @@ export function PaymentManagementClient() {
         fetchPaymentHistory();
       } else {
         const error = await response.json();
-        toast.error(error.message || "Erro ao cancelar assinatura");
+        toast.error(error.message || t("cancelError"));
       }
     } catch (error) {
-      toast.error("Erro ao cancelar assinatura");
+      toast.error(t("cancelError"));
     } finally {
       setCanceling(false);
     }
@@ -165,7 +168,7 @@ export function PaymentManagementClient() {
           // Open in the same window to maintain the flow
           window.location.href = data.checkoutUrl;
         } else {
-          toast.error("URL de checkout não disponível");
+          toast.error(t("checkoutUrlError"));
         }
       } else {
         const error = await response.json();
@@ -175,12 +178,12 @@ export function PaymentManagementClient() {
           console.log("Checkout URL not available, attempting to recreate...");
           await handleRecreateCheckout();
         } else {
-          toast.error(error.message || "Erro ao obter URL de checkout");
+          toast.error(error.message || t("checkoutUrlLoadError"));
         }
       }
     } catch (error) {
       console.error("Error getting checkout URL:", error);
-      toast.error("Erro ao carregar checkout");
+      toast.error(t("checkoutLoadError"));
     } finally {
       setLoadingCheckout(false);
     }
@@ -190,7 +193,7 @@ export function PaymentManagementClient() {
     if (!paymentStatus?.subscriptionId) return;
 
     try {
-      toast.info("Recriando sessão de pagamento...");
+      toast.info(t("recreatingSession"));
 
       const response = await fetch("/api/student/recreate-checkout", {
         method: "POST",
@@ -201,21 +204,21 @@ export function PaymentManagementClient() {
       if (response.ok) {
         const data = await response.json();
         if (data.checkoutUrl) {
-          toast.success("Sessão de pagamento recriada com sucesso!");
+          toast.success(t("sessionRecreated"));
           // Small delay to show the message
           setTimeout(() => {
             window.location.href = data.checkoutUrl;
           }, 1000);
         } else {
-          toast.error("Erro ao recriar sessão de pagamento");
+          toast.error(t("sessionRecreateError"));
         }
       } else {
         const error = await response.json();
-        toast.error(error.message || "Erro ao recriar checkout");
+        toast.error(error.message || t("sessionRecreateError"));
       }
     } catch (error) {
       console.error("Error recreating checkout:", error);
-      toast.error("Erro ao recriar sessão de pagamento");
+      toast.error(t("sessionRecreateError"));
     }
   };
 
@@ -223,9 +226,9 @@ export function PaymentManagementClient() {
     if (paymentStatus?.pixCode) {
       try {
         await navigator.clipboard.writeText(paymentStatus.pixCode);
-        toast.success("Código PIX copiado!");
+        toast.success(t("pixCopied"));
       } catch (error) {
-        toast.error("Erro ao copiar código PIX");
+        toast.error(t("pixCopyError"));
       }
     }
   };
@@ -235,31 +238,31 @@ export function PaymentManagementClient() {
       case "active":
         return {
           color: "success" as const,
-          text: "Ativa",
+          text: t("status.active"),
           icon: Link,
         };
       case "overdue":
         return {
           color: "destructive" as const,
-          text: "Em atraso",
+          text: t("status.overdue"),
           icon: Link,
         };
       case "canceled":
         return {
           color: "warning" as const,
-          text: "Cancelada",
+          text: t("status.canceled"),
           icon: Link,
         };
       case "pending":
         return {
           color: "warning" as const,
-          text: "Pendente",
+          text: t("status.pending"),
           icon: Link,
         };
       default:
         return {
           color: "secondary" as const,
-          text: "Indefinido",
+          text: t("status.undefined"),
           icon: Link,
         };
     }
@@ -268,25 +271,25 @@ export function PaymentManagementClient() {
   const getPaymentStatusBadge = (status: MonthlyPayment["status"]) => {
     switch (status) {
       case "paid":
-        return { color: "success" as const, text: "Pago" };
+        return { color: "success" as const, text: t("status.paid") };
       case "pending":
-        return { color: "warning" as const, text: "Pendente" };
+        return { color: "warning" as const, text: t("status.pending") };
       case "available":
-        return { color: "secondary" as const, text: "Disponível" };
+        return { color: "secondary" as const, text: t("status.available") };
       case "overdue":
-        return { color: "destructive" as const, text: "Em atraso" };
+        return { color: "destructive" as const, text: t("status.overdue") };
       case "canceled":
-        return { color: "warning" as const, text: "Cancelado" };
+        return { color: "warning" as const, text: t("status.canceled") };
       case "failed":
-        return { color: "destructive" as const, text: "Falhou" };
+        return { color: "destructive" as const, text: t("status.failed") };
       default:
-        return { color: "secondary" as const, text: "Indefinido" };
+        return { color: "secondary" as const, text: t("status.undefined") };
     }
   };
 
   const exportPaymentHistory = () => {
     if (paymentHistory.length === 0) {
-      toast.error("Nenhum dado para exportar");
+      toast.error(t("noDataExport"));
       return;
     }
 
@@ -302,13 +305,13 @@ export function PaymentManagementClient() {
       ...paymentHistory.map((payment) =>
         [
           payment.description,
-          new Date(payment.dueDate).toLocaleDateString("pt-BR"),
+          new Date(payment.dueDate).toLocaleDateString(locale === "pt" ? "pt-BR" : "en-US"),
           getPaymentStatusBadge(payment.status).text,
           formatPrice(payment.amount),
           payment.paidAt
-            ? new Date(payment.paidAt).toLocaleDateString("pt-BR")
+            ? new Date(payment.paidAt).toLocaleDateString(locale === "pt" ? "pt-BR" : "en-US")
             : "-",
-          payment.paymentMethod === "pix" ? "PIX" : "Cartão de Crédito",
+          payment.paymentMethod === "pix" ? "PIX" : t("creditCard"),
         ].join(",")
       ),
     ].join("\n");
@@ -319,7 +322,7 @@ export function PaymentManagementClient() {
     link.download = `historico-pagamentos-${new Date().toISOString().split("T")[0]}.csv`;
     link.click();
 
-    toast.success("Histórico exportado com sucesso!");
+    toast.success(t("historyExported"));
   };
 
   if (loading) {
@@ -335,17 +338,17 @@ export function PaymentManagementClient() {
       <Card className="p-8 text-center">
         <Link className="w-12 h-12 text-gray-400 mx-auto mb-4" />
         <h3 className="text-lg font-semibold mb-2">
-          Nenhuma assinatura encontrada
+          {t("noSubscriptionTitle")}
         </h3>
         <p className="text-gray-600 mb-4">
-          Você ainda não possui uma assinatura ativa.
+          {t("noSubscriptionDesc")}
         </p>
         <Button
           onClick={() =>
             (window.location.href = "/hub/plataforma/student/subscription")
           }
         >
-          Criar Assinatura
+          {t("createSubscription")}
         </Button>
       </Card>
     );
@@ -362,8 +365,8 @@ export function PaymentManagementClient() {
           <div className="flex items-center gap-3">
             <StatusIcon className="w-6 h-6" />
             <div>
-              <h2 className="text-xl font-semibold">Status da Assinatura</h2>
-              <p className="text-gray-600">Informações sobre sua mensalidade</p>
+              <h2 className="text-xl font-semibold">{t("subscriptionStatusTitle")}</h2>
+              <p className="text-gray-600">{t("subscriptionStatusDesc")}</p>
             </div>
           </div>
           <Badge className="text-sm">
@@ -378,7 +381,7 @@ export function PaymentManagementClient() {
           <div className="space-y-4">
             <div>
               <span className="text-sm font-medium text-gray-500">
-                Valor da mensalidade
+                {t("monthlyValue")}
               </span>
               <p className="text-lg font-semibold">
                 {paymentStatus.amount
@@ -390,11 +393,11 @@ export function PaymentManagementClient() {
             {paymentStatus.nextPaymentDue && (
               <div>
                 <span className="text-sm font-medium text-gray-500">
-                  Próximo vencimento
+                  {t("nextDue")}
                 </span>
                 <p className="text-lg">
                   {new Date(paymentStatus.nextPaymentDue).toLocaleDateString(
-                    "pt-BR"
+                    locale === "pt" ? "pt-BR" : "en-US"
                   )}
                 </p>
               </div>
@@ -404,13 +407,13 @@ export function PaymentManagementClient() {
           <div className="space-y-4">
             <div>
               <span className="text-sm font-medium text-gray-500">
-                Método de pagamento
+                {t("paymentMethod")}
               </span>
               <div className="flex items-center gap-2 mt-1">
                 {paymentStatus.paymentMethod === "credit_card" ? (
                   <>
                     <Link className="w-4 h-4" />
-                    <span>Cartão de crédito</span>
+                    <span>{t("creditCard")}</span>
                   </>
                 ) : (
                   <span className="text-blue-600 font-semibold">PIX</span>
@@ -421,11 +424,11 @@ export function PaymentManagementClient() {
             {paymentStatus.lastPaymentDate && (
               <div>
                 <span className="text-sm font-medium text-gray-500">
-                  Último pagamento
+                  {t("lastPayment")}
                 </span>
                 <p className="text-lg">
                   {new Date(paymentStatus.lastPaymentDate).toLocaleDateString(
-                    "pt-BR"
+                    locale === "pt" ? "pt-BR" : "en-US"
                   )}
                 </p>
               </div>
@@ -441,26 +444,22 @@ export function PaymentManagementClient() {
             <div className="flex items-center gap-2 mb-4">
               <Link className="w-5 h-5 text-yellow-600" />
               <h3 className="text-lg font-semibold text-yellow-800">
-                Pagamento em atraso
+                {t("paymentOverdue")}
               </h3>
             </div>
 
             {paymentStatus.pixCode ? (
               <div className="space-y-4">
                 <p className="text-gray-700">
-                  Use o código PIX abaixo para efetuar o pagamento da sua
-                  mensalidade:
+                  {t("usePixCode")}
                 </p>
 
                 <div className="bg-gray-50 p-4 rounded-lg border">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium">Código PIX</span>
+                    <span className="text-sm font-medium">{t("pixCodeLabel")}</span>
                     {paymentStatus.pixExpiresAt && (
                       <span className="text-xs text-gray-500">
-                        Expira em:{" "}
-                        {new Date(
-                          paymentStatus.pixExpiresAt
-                        ).toLocaleDateString("pt-BR")}
+                        {t("expiresIn", { date: new Date(paymentStatus.pixExpiresAt).toLocaleDateString(locale === "pt" ? "pt-BR" : "en-US") })}
                       </span>
                     )}
                   </div>
@@ -490,7 +489,7 @@ export function PaymentManagementClient() {
                     className="flex items-center gap-2"
                   >
                     <Link className="w-4 h-4" />
-                    Copiar código
+                    {t("copyCode")}
                   </Button>
                   <Button
                     onClick={generatePixPayment}
@@ -500,22 +499,21 @@ export function PaymentManagementClient() {
                     <Link
                       className={`w-4 h-4 ${generatingPix ? "animate-spin" : ""}`}
                     />
-                    Gerar novo código
+                    {t("generateNewCode")}
                   </Button>
                 </div>
               </div>
             ) : (
               <div className="space-y-4">
                 <p className="text-gray-700">
-                  Gere um código PIX para efetuar o pagamento da sua
-                  mensalidade.
+                  {t("generatePixDesc")}
                 </p>
                 <Button
                   onClick={generatePixPayment}
                   disabled={generatingPix}
                   className="w-full md:w-auto"
                 >
-                  {generatingPix ? "Gerando..." : "Gerar código PIX"}
+                  {generatingPix ? t("generating") : t("generatePixCode")}
                 </Button>
               </div>
             )}
@@ -529,15 +527,13 @@ export function PaymentManagementClient() {
             <div className="flex items-center gap-2 mb-4">
               <Link className="w-5 h-5 text-orange-600" />
               <h3 className="text-lg font-semibold text-orange-800">
-                Pagamento Pendente
+                {t("paymentPendingTitle")}
               </h3>
             </div>
 
             <div className="space-y-4">
               <p className="text-gray-700">
-                Sua assinatura foi criada, mas o pagamento ainda não foi
-                concluído. Complete o pagamento no checkout seguro do Mercado
-                Pago.
+                {t("paymentPendingDesc")}
               </p>
 
               <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
@@ -545,18 +541,16 @@ export function PaymentManagementClient() {
                   <Link className="w-5 h-5 text-orange-600 mt-0.5" />
                   <div>
                     <h4 className="font-medium text-orange-800 mb-1">
-                      O que fazer agora?
+                      {t("whatToDo")}
                     </h4>
                     <ul className="text-sm text-orange-700 space-y-1">
-                      <li>• Clique no botão abaixo para voltar ao checkout</li>
-                      <li>• Complete o pagamento com seus dados do cartão</li>
+                      <li>• {t("step1")}</li>
+                      <li>• {t("step2")}</li>
                       <li>
-                        • Após o pagamento, sua assinatura será ativada
-                        automaticamente
+                        • {t("step3")}
                       </li>
                       <li>
-                        • Se o checkout não estiver disponível, você pode
-                        recriar a sessão de pagamento
+                        • {t("step4")}
                       </li>
                     </ul>
                   </div>
@@ -573,12 +567,12 @@ export function PaymentManagementClient() {
                   {loadingCheckout ? (
                     <>
                       <Spinner />
-                      Carregando checkout...
+                      {t("loadingCheckout")}
                     </>
                   ) : (
                     <>
                       <Link className="w-4 h-4 mr-2" />
-                      Voltar ao Checkout Seguro
+                      {t("backToCheckout")}
                     </>
                   )}
                 </Button>
@@ -593,7 +587,7 @@ export function PaymentManagementClient() {
                   <Link
                     className={`w-4 h-4 mr-2 ${loadingCheckout ? "animate-spin" : ""}`}
                   />
-                  Recriar Sessão
+                  {t("recreateSession")}
                 </Button>
               </div>
             </div>
@@ -603,7 +597,7 @@ export function PaymentManagementClient() {
       {/* Payment History */}
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">Histórico de Pagamentos</h3>
+          <h3 className="text-lg font-semibold">{t("paymentHistoryTitle")}</h3>
           <Button
             variant="secondary"
             size="sm"
@@ -612,7 +606,7 @@ export function PaymentManagementClient() {
             disabled={paymentHistory.length === 0}
           >
             <Link className="w-4 h-4" />
-            Exportar
+            {t("export")}
           </Button>
         </div>
 
@@ -623,7 +617,7 @@ export function PaymentManagementClient() {
         ) : paymentHistory.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <Link className="w-8 h-8 mx-auto mb-2" />
-            <p>Nenhum pagamento encontrado</p>
+            <p>{t("noPaymentFound")}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -646,18 +640,18 @@ export function PaymentManagementClient() {
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600">
                         <div>
                           <span className="font-medium text-gray-500">
-                            Vencimento:
+                            {t("dueDate")}
                           </span>
                           <p>
                             {new Date(payment.dueDate).toLocaleDateString(
-                              "pt-BR"
+                              locale === "pt" ? "pt-BR" : "en-US"
                             )}
                           </p>
                         </div>
 
                         <div>
                           <span className="font-medium text-gray-500">
-                            Valor:
+                            {t("value")}
                           </span>
                           <p className="font-semibold">
                             {formatPrice(payment.amount)}
@@ -666,23 +660,23 @@ export function PaymentManagementClient() {
 
                         <div>
                           <span className="font-medium text-gray-500">
-                            Método:
+                            {t("paymentMethod")}
                           </span>
                           <p>
                             {payment.paymentMethod === "pix"
                               ? "PIX"
-                              : "Cartão de Crédito"}
+                              : t("creditCard")}
                           </p>
                         </div>
 
                         <div>
                           <span className="font-medium text-gray-500">
-                            Data do Pagamento:
+                            {t("paymentDate")}
                           </span>
                           <p>
                             {payment.paidAt
                               ? new Date(payment.paidAt).toLocaleDateString(
-                                  "pt-BR"
+                                  locale === "pt" ? "pt-BR" : "en-US"
                                 )
                               : "-"}
                           </p>
@@ -693,14 +687,11 @@ export function PaymentManagementClient() {
                         <div className="mt-3 pt-3 border-t">
                           <div className="flex items-center gap-2 mb-2">
                             <span className="text-sm font-medium text-blue-600">
-                              Código PIX disponível
+                              {t("pixAvailable")}
                             </span>
                             {payment.pixExpiresAt && (
                               <span className="text-xs text-gray-500">
-                                Expira em:{" "}
-                                {new Date(
-                                  payment.pixExpiresAt
-                                ).toLocaleDateString("pt-BR")}
+                                {t("expiresIn", { date: new Date(payment.pixExpiresAt).toLocaleDateString(locale === "pt" ? "pt-BR" : "en-US") })}
                               </span>
                             )}
                           </div>
@@ -727,12 +718,12 @@ export function PaymentManagementClient() {
                                   navigator.clipboard.writeText(
                                     payment.pixCode
                                   );
-                                  toast.success("Código PIX copiado!");
+                                  toast.success(t("pixCopied"));
                                 }
                               }}
                             >
                               <Link className="w-3 h-3 mr-1" />
-                              Copiar PIX
+                              {t("copyPix")}
                             </Button>
                           </div>
                         </div>
@@ -749,18 +740,17 @@ export function PaymentManagementClient() {
       {/* Subscription Actions */}
       {paymentStatus.subscriptionStatus !== "canceled" && (
         <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Ações da Assinatura</h3>
+          <h3 className="text-lg font-semibold mb-4">{t("subscriptionActions")}</h3>
           <div className="space-y-3">
             <Button
               variant="destructive"
               onClick={() => setShowCancelModal(true)}
               className="w-full md:w-auto"
             >
-              Cancelar Assinatura
+              {t("cancelSubscription")}
             </Button>
             <p className="text-sm text-gray-500">
-              * Taxa de cancelamento pode ser aplicada para assinaturas com
-              menos de 6 meses
+              {t("cancelFeeWarning")}
             </p>
           </div>
         </Card>
@@ -775,17 +765,16 @@ export function PaymentManagementClient() {
         }}
       >
         <ModalContent>
-          <h2 className="text-lg font-semibold mb-4">Cancelar Assinatura</h2>
+          <h2 className="text-lg font-semibold mb-4">{t("cancelModalTitle")}</h2>
 
           <div className="space-y-4">
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
               <div className="flex items-start gap-2">
                 <Link className="w-5 h-5 text-yellow-600 mt-0.5" />
                 <div className="text-sm">
-                  <p className="font-medium text-yellow-800 mb-1">Atenção</p>
+                  <p className="font-medium text-yellow-800 mb-1">{t("attention")}</p>
                   <p className="text-yellow-700">
-                    O cancelamento é irreversível. Assinaturas com menos de 6
-                    meses podem estar sujeitas a taxa de cancelamento.
+                    {t("cancelWarning")}
                   </p>
                 </div>
               </div>
@@ -793,12 +782,12 @@ export function PaymentManagementClient() {
 
             <div>
               <label className="block text-sm font-medium mb-2">
-                Motivo do cancelamento *
+                {t("cancelReasonLabel")}
               </label>
               <Textarea
                 value={cancellationReason}
                 onChange={(e) => setCancellationReason(e.target.value)}
-                placeholder="Por favor, nos conte o motivo do cancelamento..."
+                placeholder={t("cancelReasonPlaceholder")}
                 rows={4}
                 required
               />
@@ -822,7 +811,7 @@ export function PaymentManagementClient() {
                 disabled={canceling || !cancellationReason.trim()}
                 className="flex-1"
               >
-                {canceling ? "Cancelando..." : "Confirmar Cancelamento"}
+                {canceling ? t("canceling") : t("confirmCancel")}
               </Button>
             </div>
           </div>

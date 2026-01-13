@@ -7,6 +7,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useContract } from "@/hooks/useContract";
 import { Text } from "@/components/ui/text";
 import { Skeleton } from "../ui/skeleton";
+import { useTranslations } from "next-intl";
 
 interface StatusUIProps {
   text: string;
@@ -66,6 +67,7 @@ const ProgressStatusCard: React.FC<ProgressStatusCardProps> = ({
   placementTestIcon,
   contractIcon,
 }) => {
+  const t = useTranslations("ProgressStatusCard");
   const { user, isLoading: isUserLoading } = useCurrentUser();
   const { contractStatus, isLoading: isContractLoading } = useContract();
 
@@ -74,25 +76,25 @@ const ProgressStatusCard: React.FC<ProgressStatusCardProps> = ({
     user?.placementDone === true ? "success" : "pending";
   const placementText =
     user?.placementDone === true
-      ? "Nivelamento Completo"
-      : "Nivelamento Pendente";
+      ? t("placementComplete")
+      : t("placementPending");
 
   // Check contract status
   let contractStatusVariant: StatusUIProps["variant"] = "pending";
-  let contractText = "Contrato Pendente";
+  let contractText = t("contractPending");
 
   if (contractStatus?.cancelledAt) {
     contractStatusVariant = "neutral";
-    contractText = "Contrato Cancelado";
+    contractText = t("contractCancelled");
   } else if (
     contractStatus?.expiresAt &&
     new Date(contractStatus.expiresAt) < new Date()
   ) {
     contractStatusVariant = "warning";
-    contractText = "Contrato Vencido";
+    contractText = t("contractExpired");
   } else if (contractStatus?.signed) {
     contractStatusVariant = "success";
-    contractText = "Contrato Assinado";
+    contractText = t("contractSigned");
   }
 
   // Show loading state while data is being fetched
@@ -115,7 +117,7 @@ const ProgressStatusCard: React.FC<ProgressStatusCardProps> = ({
   return (
     <div>
       <Text variant="subtitle" size="lg" weight="semibold" className="my-1">
-        Checklist
+        {t("checklist")}
       </Text>
       <div className="space-y-2">
         <StatusItem

@@ -1,4 +1,5 @@
 "use client";
+
 import { PopulatedStudentClass, ClassStatus } from "@/types/classes/class";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,25 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { useState } from "react";
 import RescheduleModal from "./RescheduleModal";
-
-// Mapeamento de status para português
-const statusTranslations: Record<string, string> = {
-  scheduled: "Agendada",
-  completed: "Concluída",
-  canceled: "Cancelada",
-  "no-show": "Faltou",
-  no_show: "Faltou",
-  "canceled-teacher": "Cancelada pelo Professor",
-  canceled_teacher: "Cancelada pelo Professor",
-  "canceled-student": "Cancelada pelo Aluno",
-  canceled_student: "Cancelada pelo Aluno",
-  "canceled-teacher-makeup": "À marcar reposição",
-  canceled_teacher_makeup: "À marcar reposição",
-  "canceled-admin": "Cancelada",
-  canceled_admin: "Cancelada",
-  cancelled: "Cancelada",
-  rescheduled: "Reagendada",
-};
+import { useTranslations, useLocale } from "next-intl";
 
 // Mapeamento de status para cores dos badges
 const statusVariants: Record<
@@ -62,6 +45,9 @@ export default function StudentClassCard({
   onReschedule?: (cls: PopulatedStudentClass) => void;
   onCancelWithCheck?: (cls: PopulatedStudentClass) => void;
 }) {
+  const t = useTranslations("StudentClassCard");
+  const locale = useLocale();
+
   const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
 
@@ -99,30 +85,35 @@ export default function StudentClassCard({
 
     if (!onCancel) return;
 
-    const confirmMessage =
-      "Tem certeza que deseja cancelar esta aula? Esta ação não pode ser desfeita.";
+    const confirmMessage = t("confirmCancel");
     if (!confirm(confirmMessage)) return;
 
     setIsCanceling(true);
     try {
       await onCancel(cls.id, new Date(cls.scheduledAt));
-      toast.success("Aula cancelada com sucesso!");
+      toast.success(t("cancelSuccess"));
     } catch (error: any) {
-      toast.error(error.message || "Erro ao cancelar aula");
+      toast.error(error.message || t("cancelError"));
     } finally {
       setIsCanceling(false);
     }
   };
 
   const getStatusBadge = () => {
-    const translatedStatus = statusTranslations[cls.status] || cls.status;
+    // Tenta obter a tradução do status, fallback para o status original se não encontrar
+    // Normaliza keys com underscore para hifen se necessário, mas o JSON tem ambos
+    const statusKey = cls.status;
+    const translatedStatus = t.has(`status.${statusKey}`) 
+      ? t(`status.${statusKey}`) 
+      : cls.status;
+      
     const statusVariant = statusVariants[cls.status] || "default";
     return (
       <>
         <Badge variant={statusVariant}>{translatedStatus}</Badge>
         {cls.rescheduledFrom && (
           <Badge className="hidden capitalize">
-            {cls.rescheduledFrom && "Reagendada"}
+            {cls.rescheduledFrom && t("status.rescheduled")}
           </Badge>
         )}
       </>
@@ -143,26 +134,26 @@ export default function StudentClassCard({
                 {cls.teacherName}
               </h3>
               <p className="text-sm font-semibold text-subtitle">
-                {new Date(cls.scheduledAt).toLocaleDateString("pt-BR", {
+                {new Date(cls.scheduledAt).toLocaleDateString(locale === "pt" ? "pt-BR" : "en-US", {
                   weekday: "long",
                   day: "2-digit",
                   month: "long",
                 })}
               </p>
               <p className="text-sm text-subtitle">
-                {new Date(cls.scheduledAt).toLocaleTimeString("pt-BR", {
+                {new Date(cls.scheduledAt).toLocaleTimeString(locale === "pt" ? "pt-BR" : "en-US", {
                   hour: "2-digit",
                   minute: "2-digit",
                 })}
               </p>
               {cls.rescheduledFrom && (
                 <p className="text-xs text-blue-600 font-medium mt-1">
-                  📅 Aula foi reagendada
+                  📅 {t("rescheduledBadge")}
                 </p>
               )}
               {isTeacherMakeup && (
                 <p className="text-center text-xs text-warning font-medium mt-1">
-                  ⚠️ Cancelada pelo professor
+                  ⚠️ {t("teacherCanceledBadge")}
                 </p>
               )}
             </div>
@@ -179,7 +170,7 @@ export default function StudentClassCard({
                 onClick={handleCancelClick}
                 disabled={isCanceling}
               >
-                {isCanceling ? "Cancelando..." : "Cancelar"}
+                {isCanceling ? t("canceling") : t("cancel")}
               </Button>
             )}
             {isReschedulable && (
@@ -189,7 +180,7 @@ export default function StudentClassCard({
                 disabled={!isReschedulable}
                 variant={isTeacherMakeup ? "success" : "primary"}
               >
-                {isTeacherMakeup ? "Reagendar com crédito" : "Reagendar"}
+                {isTeacherMakeup ? t("rescheduleCredit") : t("reschedule")}
               </Button>
             )}
           </div>

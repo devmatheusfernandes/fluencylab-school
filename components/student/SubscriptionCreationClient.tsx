@@ -1,4 +1,3 @@
-// components/student/SubscriptionCreationClient.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -12,8 +11,10 @@ import { useSession } from "next-auth/react";
 import { formatPrice } from "@/config/pricing";
 import { Spinner } from "../ui/spinner";
 import { Link } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function SubscriptionCreationClient() {
+  const t = useTranslations("SubscriptionCreationClient");
   const { data: session } = useSession();
   const [selectedMethod, setSelectedMethod] = useState<
     "pix" | "credit_card" | null
@@ -57,12 +58,12 @@ export function SubscriptionCreationClient() {
 
   const createSubscription = async () => {
     if (!selectedMethod || !session?.user) {
-      toast.error("Selecione um método de pagamento");
+      toast.error(t("selectMethod"));
       return;
     }
 
     if (billingDay < 1 || billingDay > 28) {
-      toast.error("O dia de vencimento deve estar entre 1 e 28");
+      toast.error(t("billingDayError"));
       return;
     }
 
@@ -83,28 +84,28 @@ export function SubscriptionCreationClient() {
         const result = await response.json();
 
         if (selectedMethod === "pix") {
-          toast.success("Assinatura criada! Código PIX gerado.");
+          toast.success(t("pixCreated"));
           window.location.href = "/hub/student/my-payments";
         } else {
           // Credit card flow with better messaging
           if (result.checkoutUrl) {
-            toast.success("Redirecionando para pagamento seguro...");
+            toast.success(t("redirecting"));
             // Small delay to show the message
             setTimeout(() => {
               window.location.href = result.checkoutUrl;
             }, 1500);
           } else {
-            toast.success("Assinatura criada com sucesso!");
+            toast.success(t("createdSuccess"));
             window.location.href = "/hub/student/my-payments";
           }
         }
       } else {
         const error = await response.json();
-        toast.error(error.message || "Erro ao criar assinatura");
+        toast.error(error.message || t("createError"));
       }
     } catch (error) {
       console.error("Error creating subscription:", error);
-      toast.error("Erro ao criar assinatura");
+      toast.error(t("createError"));
     } finally {
       setCreating(false);
     }
@@ -152,48 +153,46 @@ export function SubscriptionCreationClient() {
           </div>
 
           <h2 className={`text-2xl font-bold text-${textColor} mb-2`}>
-            {isPending
-              ? "Você tem uma assinatura pendente!"
-              : "Você já tem um plano de aula!"}
+            {isPending ? t("pendingTitle") : t("activeTitle")}
           </h2>
 
           <p className={`text-${descriptionColor} mb-6`}>
-            {isPending
-              ? "Sua assinatura foi criada, mas o pagamento ainda precisa ser concluído. Acesse a área de pagamentos para finalizar."
-              : "Sua assinatura está ativa e funcionando perfeitamente. Acesse a área de pagamentos para gerenciar sua assinatura."}
+            {isPending ? t("pendingDesc") : t("activeDesc")}
           </p>
 
           {subscriptionInfo && (
             <div className="bg-white rounded-lg p-4 mb-6 text-left">
               <h3 className="font-semibold text-gray-800 mb-3">
-                Detalhes da sua assinatura:
+                {t("detailsTitle")}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                 <div>
-                  <span className="text-gray-600">Status:</span>
+                  <span className="text-gray-600">{t("statusLabel")}</span>
                   <span className="ml-2 font-medium text-green-600 capitalize">
                     {subscriptionInfo.status}
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Método de pagamento:</span>
+                  <span className="text-gray-600">{t("methodLabel")}</span>
                   <span className="ml-2 font-medium">
                     {subscriptionInfo.paymentMethod === "pix"
                       ? "PIX"
-                      : "Cartão de Crédito"}
+                      : t("creditCardTitle")}
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Duração do contrato:</span>
+                  <span className="text-gray-600">{t("contractLabel")}</span>
                   <span className="ml-2 font-medium">
-                    {subscriptionInfo.contractLengthMonths} meses
+                    {t("months", { count: subscriptionInfo.contractLengthMonths })}
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Progresso:</span>
+                  <span className="text-gray-600">{t("progressLabel")}</span>
                   <span className="ml-2 font-medium">
-                    {subscriptionInfo.paymentsCompleted}/
-                    {subscriptionInfo.totalPayments} pagamentos
+                    {t("paymentsCount", {
+                      completed: subscriptionInfo.paymentsCompleted,
+                      total: subscriptionInfo.totalPayments
+                    })}
                   </span>
                 </div>
               </div>
@@ -208,7 +207,7 @@ export function SubscriptionCreationClient() {
             className="w-full md:w-auto"
           >
             <Link className="w-4 h-4 mr-2" />
-            {isPending ? "Finalizar Pagamento" : "Ir para Área de Pagamentos"}
+            {isPending ? t("finishPayment") : t("goToPayments")}
           </Button>
         </Card>
       </div>
@@ -218,8 +217,8 @@ export function SubscriptionCreationClient() {
   const subscriptionPrice = getSubscriptionPrice();
   const userType =
     session.user.role === "GUARDED_STUDENT"
-      ? "Estudante Acompanhado"
-      : "Estudante Regular";
+      ? t("guardedStudent")
+      : t("regularStudent");
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -227,22 +226,22 @@ export function SubscriptionCreationClient() {
       <Card className="p-6 text-center border-2 border-blue-200 bg-blue-50">
         <div className="flex items-center justify-center gap-2 mb-2">
           <Link className="w-5 h-5 text-blue-600" />
-          <span className="text-sm font-medium text-blue-800">Seu Plano</span>
+          <span className="text-sm font-medium text-blue-800">{t("planTitle")}</span>
         </div>
         <h2 className="text-2xl font-bold text-blue-900 mb-1">{userType}</h2>
         <p className="text-3xl font-bold text-blue-600 mb-2">
           {formatPrice(subscriptionPrice)}
-          <span className="text-lg font-normal">/mês</span>
+          <span className="text-lg font-normal">{t("perMonth")}</span>
         </p>
         <p className="text-sm text-blue-700">
-          Acesso completo à plataforma, aulas ilimitadas e suporte personalizado
+          {t("planDesc")}
         </p>
       </Card>
 
       {/* Payment Method Selection */}
       <div>
         <h3 className="text-xl font-semibold mb-4">
-          Escolha sua forma de pagamento
+          {t("chooseMethod")}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* PIX Option */}
@@ -260,9 +259,9 @@ export function SubscriptionCreationClient() {
                   <Link className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
-                  <h4 className="font-semibold">PIX</h4>
+                  <h4 className="font-semibold">{t("pixTitle")}</h4>
                   <p className="text-sm text-gray-600">
-                    Pagamento manual mensal
+                    {t("pixDesc")}
                   </p>
                 </div>
               </div>
@@ -276,20 +275,20 @@ export function SubscriptionCreationClient() {
             <div className="space-y-2 mb-4">
               <div className="flex items-center gap-2">
                 <Link className="w-4 h-4 text-green-500" />
-                <span className="text-sm">Sem taxas adicionais</span>
+                <span className="text-sm">{t("noFees")}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Link className="w-4 h-4 text-green-500" />
-                <span className="text-sm">Pagamento instantâneo</span>
+                <span className="text-sm">{t("instantPayment")}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Link className="w-4 h-4 text-green-500" />
-                <span className="text-sm">Controle total dos pagamentos</span>
+                <span className="text-sm">{t("controlPayment")}</span>
               </div>
             </div>
 
             <Badge variant="secondary" className="w-full justify-center">
-              Mais Popular
+              {t("mostPopular")}
             </Badge>
           </Card>
 
@@ -308,8 +307,8 @@ export function SubscriptionCreationClient() {
                   <Link className="w-6 h-6 text-purple-600" />
                 </div>
                 <div>
-                  <h4 className="font-semibold">Cartão de Crédito</h4>
-                  <p className="text-sm text-gray-600">Cobrança automática</p>
+                  <h4 className="font-semibold">{t("creditCardTitle")}</h4>
+                  <p className="text-sm text-gray-600">{t("creditCardDesc")}</p>
                 </div>
               </div>
               {selectedMethod === "credit_card" && (
@@ -322,24 +321,24 @@ export function SubscriptionCreationClient() {
             <div className="space-y-2 mb-4">
               <div className="flex items-center gap-2">
                 <Link className="w-4 h-4 text-green-500" />
-                <span className="text-sm">Cobrança automática</span>
+                <span className="text-sm">{t("autoBilling")}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Link className="w-4 h-4 text-green-500" />
-                <span className="text-sm">Sem preocupação com datas</span>
+                <span className="text-sm">{t("noWorries")}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Link className="w-4 h-4 text-green-500" />
-                <span className="text-sm">Aceita principais bandeiras</span>
+                <span className="text-sm">{t("allFlags")}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Link className="w-4 h-4 text-green-500" />
-                <span className="text-sm">Checkout seguro Mercado Pago</span>
+                <span className="text-sm">{t("secureCheckout")}</span>
               </div>
             </div>
 
             <Badge className="w-full justify-center">
-              Mais Prático
+              {t("mostPractical")}
             </Badge>
           </Card>
         </div>
@@ -347,7 +346,7 @@ export function SubscriptionCreationClient() {
 
       {/* Contract Length Selection */}
       <div>
-        <h3 className="text-xl font-semibold mb-4">Duração do contrato</h3>
+        <h3 className="text-xl font-semibold mb-4">{t("contractDuration")}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* 6 Months Option */}
           <Card
@@ -360,8 +359,8 @@ export function SubscriptionCreationClient() {
           >
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h4 className="font-semibold text-lg">6 Meses</h4>
-                <p className="text-sm text-gray-600">Contrato mais flexível</p>
+                <h4 className="font-semibold text-lg">{t("sixMonths")}</h4>
+                <p className="text-sm text-gray-600">{t("flexibleContract")}</p>
               </div>
               {contractLength === 6 && (
                 <div className="p-1 bg-green-500 rounded-full">
@@ -372,11 +371,11 @@ export function SubscriptionCreationClient() {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Link className="w-4 h-4 text-green-500" />
-                <span className="text-sm">6 pagamentos mensais</span>
+                <span className="text-sm">{t("sixPayments")}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Link className="w-4 h-4 text-green-500" />
-                <span className="text-sm">Renovação flexível</span>
+                <span className="text-sm">{t("flexibleRenewal")}</span>
               </div>
             </div>
           </Card>
@@ -392,9 +391,9 @@ export function SubscriptionCreationClient() {
           >
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h4 className="font-semibold text-lg">12 Meses</h4>
+                <h4 className="font-semibold text-lg">{t("twelveMonths")}</h4>
                 <p className="text-sm text-gray-600">
-                  Compromisso anual completo
+                  {t("fullCommitment")}
                 </p>
               </div>
               {contractLength === 12 && (
@@ -406,15 +405,15 @@ export function SubscriptionCreationClient() {
             <div className="space-y-2 mb-4">
               <div className="flex items-center gap-2">
                 <Link className="w-4 h-4 text-green-500" />
-                <span className="text-sm">12 pagamentos mensais</span>
+                <span className="text-sm">{t("twelvePayments")}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Link className="w-4 h-4 text-green-500" />
-                <span className="text-sm">Estabilidade garantida</span>
+                <span className="text-sm">{t("guaranteedStability")}</span>
               </div>
             </div>
             <Badge variant="success" className="w-full justify-center">
-              Recomendado
+              {t("recommended")}
             </Badge>
           </Card>
         </div>
@@ -424,11 +423,10 @@ export function SubscriptionCreationClient() {
       <Card className="p-6">
         <div className="flex items-center gap-2 mb-4">
           <Link className="w-5 h-5 text-gray-600" />
-          <h3 className="text-lg font-semibold">Dia de vencimento</h3>
+          <h3 className="text-lg font-semibold">{t("billingDayTitle")}</h3>
         </div>
         <p className="text-gray-600 mb-4">
-          Escolha o dia do mês que você prefere que sua mensalidade seja cobrada
-          (entre 1 e 28)
+          {t("billingDayDesc")}
         </p>
         <div className="max-w-xs">
           <Input
@@ -437,12 +435,11 @@ export function SubscriptionCreationClient() {
             max="28"
             value={billingDay}
             onChange={(e) => setBillingDay(parseInt(e.target.value) || 5)}
-            placeholder="Dia do vencimento"
+            placeholder={t("billingDayPlaceholder")}
           />
         </div>
         <p className="text-sm text-gray-500 mt-2">
-          Recomendamos escolher um dia entre 5 e 25 para evitar problemas com
-          finais de mês
+          {t("billingDayTip")}
         </p>
       </Card>
 
@@ -451,22 +448,17 @@ export function SubscriptionCreationClient() {
         <div className="space-y-4">
           <div className="text-sm text-gray-600">
             <p className="mb-2">
-              ✅ <strong>Sem fidelidade:</strong> Você pode cancelar a qualquer
-              momento
+              {t("noLoyalty")}
             </p>
             <p className="mb-2">
-              ✅ <strong>Suporte 24/7:</strong> Nossa equipe está sempre
-              disponível
+              {t("support247")}
             </p>
             <p className="mb-2">
-              ⚠️ <strong>Taxa de cancelamento:</strong> Assinaturas canceladas
-              em menos de 6 meses podem ter taxa de R$ 50,00
+              {t("cancellationFee")}
             </p>
             {selectedMethod === "credit_card" && (
               <p className="mb-2 text-blue-600">
-                🔒 <strong>Pagamento Seguro:</strong> Você será redirecionado
-                para o checkout seguro do Mercado Pago para inserir os dados do
-                cartão
+                {t("securePayment")}
               </p>
             )}
           </div>
@@ -481,23 +473,19 @@ export function SubscriptionCreationClient() {
               {creating ? (
                 <>
                   <Spinner />
-                  Criando assinatura...
+                  {t("creating")}
                 </>
               ) : (
-                `Criar assinatura ${contractLength} meses - ${formatPrice(subscriptionPrice)}/mês`
+                t("createButton", { months: contractLength, price: formatPrice(subscriptionPrice) })
               )}
             </Button>
           </div>
 
           <p className="text-xs text-gray-500 text-center">
-            Ao criar a assinatura, você concorda com nossos{" "}
-            <a href="/terms" className="text-blue-600 hover:underline">
-              Termos de Uso
-            </a>{" "}
-            e{" "}
-            <a href="/privacy" className="text-blue-600 hover:underline">
-              Política de Privacidade
-            </a>
+            {t.rich("termsAgreement", {
+              linkTerms: (chunks) => <a href="/terms" className="text-blue-600 hover:underline">{chunks}</a>,
+              linkPrivacy: (chunks) => <a href="/privacy" className="text-blue-600 hover:underline">{chunks}</a>
+            })}
           </p>
         </div>
       </Card>

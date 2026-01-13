@@ -1,4 +1,3 @@
-// components/student/ClassCancellationModal.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -23,6 +22,7 @@ import {
   useStudentClassActions,
 } from "@/hooks/useStudentClassActions";
 import { Text } from "../ui/text";
+import { useTranslations, useLocale } from "next-intl";
 
 interface ClassCancellationModalProps {
   classData: StudentClass;
@@ -31,20 +31,15 @@ interface ClassCancellationModalProps {
   onConfirm: () => void;
 }
 
-const formatDate = (date: Date) => {
-  return new Date(date).toLocaleDateString("pt-BR", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-  });
-};
-
 export const ClassCancellationModal: React.FC<ClassCancellationModalProps> = ({
   classData,
   isOpen,
   onClose,
   onConfirm,
 }) => {
+  const t = useTranslations("ClassCancellationModal");
+  const locale = useLocale();
+
   const [step, setStep] = useState<
     "confirm" | "reschedule" | "options" | "success"
   >("reschedule");
@@ -65,6 +60,14 @@ export const ClassCancellationModal: React.FC<ClassCancellationModalProps> = ({
       checkRescheduleOptions(classData.id);
     }
   }, [isOpen, step, classData.id, checkRescheduleOptions]);
+
+  const formatDate = (date: Date) => {
+    return new Date(date).toLocaleDateString(locale === "pt" ? "pt-BR" : "en-US", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+    });
+  };
 
   const handleCancel = async () => {
     const result = await cancelClass(classData.id);
@@ -128,14 +131,13 @@ export const ClassCancellationModal: React.FC<ClassCancellationModalProps> = ({
               <ModalHeader>
                 <ModalIcon type="warning" />
                 <ModalTitle className="text-center">
-                  Confirmar Cancelamento
+                  {t("confirmCancellationTitle")}
                 </ModalTitle>
               </ModalHeader>
 
               <ModalBody>
                 <Text variant="subtitle" size="sm" className="text-center mb-6">
-                  Tem certeza que deseja cancelar esta aula? Esta ação não pode
-                  ser desfeita.
+                  {t("confirmCancellationDescription")}
                 </Text>
                 <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800">
                   <div className="font-medium text-red-900 dark:text-red-100">
@@ -149,14 +151,14 @@ export const ClassCancellationModal: React.FC<ClassCancellationModalProps> = ({
 
               <ModalFooter>
                 <ModalSecondaryButton onClick={() => setStep("reschedule")}>
-                  Voltar
+                  {t("back")}
                 </ModalSecondaryButton>
                 <ModalPrimaryButton
                   variant="destructive"
                   onClick={handleCancel}
                   disabled={loading}
                 >
-                  {loading ? "Cancelando..." : "Confirmar Cancelamento"}
+                  {loading ? t("canceling") : t("confirm")}
                 </ModalPrimaryButton>
               </ModalFooter>
             </motion.div>
@@ -172,21 +174,17 @@ export const ClassCancellationModal: React.FC<ClassCancellationModalProps> = ({
               <ModalClose />
               <ModalHeader>
                 <ModalIcon type="delete" />
-                <ModalTitle className="text-center">Cancelamento</ModalTitle>
+                <ModalTitle className="text-center">{t("cancellationTitle")}</ModalTitle>
               </ModalHeader>
 
               <ModalBody>
                 <Text variant="subtitle" size="sm" className="text-center mb-6">
-                  Você tem opções de reagendamento disponíveis! Em vez de
-                  cancelar, você pode reagendar esta aula.
+                  {t("rescheduleSuggestion")}
                 </Text>
                 {classData.status === ClassStatus.CANCELED_TEACHER_MAKEUP && (
                   <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
                     <p className="text-sm text-yellow-800 text-center">
-                      <span className="font-bold">Aviso:</span> Esta aula foi
-                      cancelada pelo professor. Você pode reagendá-la usando um
-                      crédito de reposição sem consumir seus reagendamentos
-                      mensais.
+                      {t("teacherCancellationWarning")}
                     </p>
                   </div>
                 )}
@@ -204,12 +202,12 @@ export const ClassCancellationModal: React.FC<ClassCancellationModalProps> = ({
                 <ModalSecondaryButton
                   onClick={() => handleRescheduleChoice("cancel")}
                 >
-                  Cancelar Aula
+                  {t("cancelClass")}
                 </ModalSecondaryButton>
                 <ModalPrimaryButton
                   onClick={() => handleRescheduleChoice("reschedule")}
                 >
-                  Reagendar Aula
+                  {t("rescheduleClass")}
                 </ModalPrimaryButton>
               </ModalFooter>
             </motion.div>
@@ -224,9 +222,9 @@ export const ClassCancellationModal: React.FC<ClassCancellationModalProps> = ({
             >
               <ModalHeader>
                 <ModalIcon type="calendar" />
-                <ModalTitle>Escolha um Novo Horário</ModalTitle>
+                <ModalTitle>{t("chooseNewTime")}</ModalTitle>
                 <ModalDescription>
-                  Selecione um dos horários disponíveis para reagendar sua aula
+                  {t("selectSlot")}
                 </ModalDescription>
               </ModalHeader>
 
@@ -239,7 +237,7 @@ export const ClassCancellationModal: React.FC<ClassCancellationModalProps> = ({
                   <div className="text-center py-4">
                     <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800">
                       <div className="text-red-700 dark:text-red-300 font-medium">
-                        Erro ao carregar opções
+                        {t("errorLoadingOptions")}
                       </div>
                       <div className="text-red-600 dark:text-red-400 text-sm mt-1">
                         {error}
@@ -271,10 +269,10 @@ export const ClassCancellationModal: React.FC<ClassCancellationModalProps> = ({
                   <div className="text-center py-8">
                     <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
                       <div className="text-gray-500 dark:text-gray-400 font-medium">
-                        Nenhum horário disponível
+                        {t("noSlotsAvailable")}
                       </div>
                       <div className="text-gray-400 dark:text-gray-500 text-sm mt-1">
-                        Não há opções de reagendamento no momento
+                        {t("noRescheduleOptions")}
                       </div>
                     </div>
                   </div>
@@ -283,13 +281,13 @@ export const ClassCancellationModal: React.FC<ClassCancellationModalProps> = ({
 
               <ModalFooter>
                 <ModalSecondaryButton onClick={() => setStep("reschedule")}>
-                  Voltar
+                  {t("back")}
                 </ModalSecondaryButton>
                 <ModalPrimaryButton
                   onClick={handleReschedule}
                   disabled={!selectedSlot || loading}
                 >
-                  {loading ? "Reagendando..." : "Confirmar Reagendamento"}
+                  {loading ? t("rescheduling") : t("confirmReschedule")}
                 </ModalPrimaryButton>
               </ModalFooter>
             </motion.div>
@@ -304,19 +302,19 @@ export const ClassCancellationModal: React.FC<ClassCancellationModalProps> = ({
             >
               <ModalHeader>
                 <ModalIcon type="success" />
-                <ModalTitle>Sucesso!</ModalTitle>
+                <ModalTitle>{t("successTitle")}</ModalTitle>
                 <ModalDescription>
-                  Sua aula foi atualizada com sucesso.
+                  {t("successDescription")}
                 </ModalDescription>
               </ModalHeader>
 
               <ModalBody>
                 <div className="text-center p-6 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800">
                   <div className="text-green-800 dark:text-green-200 font-medium">
-                    Operação realizada com sucesso!
+                    {t("successOperation")}
                   </div>
                   <div className="text-green-700 dark:text-green-300 text-sm mt-1">
-                    Redirecionando...
+                    {t("redirecting")}
                   </div>
                 </div>
               </ModalBody>
