@@ -26,9 +26,11 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useSession } from "next-auth/react";
 import { UserAvatarBubble } from "../ui/user-avatar-bubble";
+import { useTranslations } from "next-intl";
 
 // --- COMPONENTE: Preview do Canal (Item da Lista) ---
 const CustomChannelPreview = (props: ChannelPreviewUIComponentProps) => {
+  const t = useTranslations("ChatWidget");
   const { channel, setActiveChannel, active } = props;
   const { client } = useChatContext();
 
@@ -58,7 +60,7 @@ const CustomChannelPreview = (props: ChannelPreviewUIComponentProps) => {
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-baseline mb-0.5">
           <span className="font-semibold text-foreground truncate text-sm capitalize">
-            {otherMember?.name || "Usuário"}
+            {otherMember?.name || t("defaultUser")}
           </span>
           {lastMessage?.created_at && (
             <span className="text-[10px] text-[#a1a1aa]">
@@ -77,7 +79,7 @@ const CustomChannelPreview = (props: ChannelPreviewUIComponentProps) => {
               : "text-[#a1a1aa]"
           )}
         >
-          {lastMessage?.text || "Sem mensagens"}
+          {lastMessage?.text || t("noMessages")}
         </p>
       </div>
     </button>
@@ -86,6 +88,7 @@ const CustomChannelPreview = (props: ChannelPreviewUIComponentProps) => {
 
 // --- COMPONENTE: Header Personalizado ---
 const CustomChannelHeader = () => {
+  const t = useTranslations("ChatWidget");
   const { channel, client } = useChatContext();
   const { setActiveChannel } = useChatContext();
   const { typing } = useTypingContext();
@@ -120,20 +123,20 @@ const CustomChannelHeader = () => {
 
         <div className="flex flex-col">
           <span className="font-semibold text-sm text-foreground leading-tight capitalize">
-            {otherMember?.name || "Chat"}
+            {otherMember?.name || t("defaultChatName")}
           </span>
           <span className="text-xs text-[#a1a1aa] flex items-center gap-1">
             {isTyping ? (
               <span className="animate-pulse text-primary font-medium">
-                Digitando...
+                {t("typing")}
               </span>
             ) : otherMember?.online ? (
               <>
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />{" "}
-                Online
+                {t("online")}
               </>
             ) : (
-              "Offline"
+              t("offline")
             )}
           </span>
         </div>
@@ -146,6 +149,7 @@ const CustomChannelHeader = () => {
 const ChatLayout = () => {
   const { channel, client } = useChatContext();
   const isMobile = useIsMobile();
+  const t = useTranslations("ChatWidget");
 
   const showList = !isMobile || !channel;
   const showChat = !isMobile || !!channel;
@@ -175,7 +179,7 @@ const ChatLayout = () => {
         )}
       >
         <div className="p-4 border-b border-primary/20 h-[60px] flex items-center justify-center shrink-0">
-          <h1 className="font-bold text-lg">Mensagens</h1>
+          <h1 className="font-bold text-lg">{t("messagesTitle")}</h1>
         </div>
         <div className="flex-1 overflow-y-auto min-h-0">
           <ChannelList
@@ -230,7 +234,7 @@ const ChatLayout = () => {
             <div className="w-16 h-16 bg-[#18181b] rounded-full flex items-center justify-center mb-4">
               <Menu size={32} />
             </div>
-            <p>Selecione uma conversa para começar</p>
+            <p>{t("selectChatPrompt")}</p>
           </div>
         )}
       </div>

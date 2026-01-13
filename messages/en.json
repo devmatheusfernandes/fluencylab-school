@@ -173,7 +173,8 @@
     "notebook": "Notebook",
     "practice": "Practice",
     "calendar": "Calendar",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "chat": "Chat"
   },
   "UserProfileHeader": {
     "profilePicture": "Profile picture",
@@ -1792,5 +1793,15 @@
     "nextLesson": "Next Lesson",
     "finishCourse": "Finish Course",
     "next": "Next"
+  },
+  "ChatWidget": {
+    "defaultUser": "User",
+    "noMessages": "No messages",
+    "typing": "Typing...",
+    "online": "Online",
+    "offline": "Offline",
+    "messagesTitle": "Messages",
+    "selectChatPrompt": "Select a conversation to start",
+    "defaultChatName": "Chat"
   }
 }

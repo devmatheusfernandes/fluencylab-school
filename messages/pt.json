@@ -173,7 +173,8 @@
     "notebook": "Caderno",
     "practice": "Prática",
     "calendar": "Calendário",
-    "notifications": "Notificações"
+    "notifications": "Notificações",
+    "chat": "Conversas"
   },
   "UserProfileHeader": {
     "profilePicture": "Foto de perfil",
@@ -1791,5 +1792,15 @@
     "nextLesson": "Próxima Lição",
     "finishCourse": "Finalizar Curso",
     "next": "Próxima"
+  },
+  "ChatWidget": {
+    "defaultUser": "Usuário",
+    "noMessages": "Sem mensagens",
+    "typing": "Digitando...",
+    "online": "Online",
+    "offline": "Offline",
+    "messagesTitle": "Mensagens",
+    "selectChatPrompt": "Selecione uma conversa para começar",
+    "defaultChatName": "Chat"
   }
 }
