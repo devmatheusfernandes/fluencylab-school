@@ -16,6 +16,7 @@ import { Checkbox } from "../ui/checkbox";
 import { SignatureFormData } from "@/types/contract";
 import { Spinner } from "../ui/spinner";
 import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface SignatureModalProps {
   isOpen: boolean;
@@ -30,6 +31,7 @@ const SignatureModal: React.FC<SignatureModalProps> = ({
   onSubmit,
   studentName,
 }) => {
+  const t = useTranslations("SignatureModal");
   const [formData, setFormData] = useState<SignatureFormData>({
     cpf: "",
     name: studentName || "",
@@ -204,11 +206,9 @@ const SignatureModal: React.FC<SignatureModalProps> = ({
     <Modal open={isOpen}>
       <ModalContent className="max-w-2xl">
         <ModalHeader>
-          <ModalTitle>Assinar Contrato Digitalmente</ModalTitle>
+          <ModalTitle>{t("title")}</ModalTitle>
           <ModalDescription>
-            Confirme seus dados e digite seu nome completo como assinatura
-            digital. Ao clicar em Assinar, você concorda com todos os termos do
-            contrato.
+            {t("description")}
           </ModalDescription>
         </ModalHeader>
 
@@ -219,7 +219,7 @@ const SignatureModal: React.FC<SignatureModalProps> = ({
                 htmlFor="name"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
-                Nome Completo (Assinatura) *
+                {t("nameLabel")}
               </label>
               <Input
                 type="text"
@@ -241,7 +241,7 @@ const SignatureModal: React.FC<SignatureModalProps> = ({
                   htmlFor="cpf"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
-                  CPF *
+                  {t("cpfLabel")}
                 </label>
                 <Input
                   type="text"
@@ -264,7 +264,7 @@ const SignatureModal: React.FC<SignatureModalProps> = ({
                   htmlFor="birthDate"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
-                  Data de Nascimento *
+                  {t("birthDateLabel")}
                 </label>
                 <Input
                   type="date"
@@ -286,7 +286,7 @@ const SignatureModal: React.FC<SignatureModalProps> = ({
                 htmlFor="address"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
-                Endereço Completo (Rua, Nº, Comp.) *
+                {t("addressLabel")}
               </label>
               <Input
                 type="text"
@@ -308,7 +308,7 @@ const SignatureModal: React.FC<SignatureModalProps> = ({
                   htmlFor="city"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
-                  Cidade *
+                  {t("cityLabel")}
                 </label>
                 <Input
                   type="text"
@@ -328,7 +328,7 @@ const SignatureModal: React.FC<SignatureModalProps> = ({
                   htmlFor="state"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
-                  Estado *
+                  {t("stateLabel")}
                 </label>
                 <Input
                   type="text"
@@ -348,7 +348,7 @@ const SignatureModal: React.FC<SignatureModalProps> = ({
                   htmlFor="zipCode"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                 >
-                  CEP *
+                  {t("zipCodeLabel")}
                 </label>
                 <Input
                   type="text"
@@ -385,8 +385,7 @@ const SignatureModal: React.FC<SignatureModalProps> = ({
               htmlFor="agreedToTerms"
               className="text-sm text-gray-900 dark:text-gray-200 cursor-pointer leading-relaxed"
             >
-              Li e concordo com todos os termos e condições do contrato
-              apresentado.
+              {t("termsLabel")}
             </label>
           </div>
           {errors.agreedToTerms && (
@@ -396,7 +395,7 @@ const SignatureModal: React.FC<SignatureModalProps> = ({
           <ModalFooter>
             <Button type="button" onClick={onClose} disabled={isLoading}>
               <X size={18} className="mr-2" />
-              Cancelar
+              {t("cancelButton")}
             </Button>
             <Button
               type="submit"
@@ -405,7 +404,7 @@ const SignatureModal: React.FC<SignatureModalProps> = ({
               isLoading={isLoading}
             >
               {isLoading ? <Spinner /> : null}
-              {isLoading ? "Assinando..." : "Assinar Contrato"}
+              {isLoading ? t("signingButton") : t("signButton")}
             </Button>
           </ModalFooter>
         </form>

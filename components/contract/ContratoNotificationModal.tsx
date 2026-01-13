@@ -3,8 +3,10 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useContractNotification } from "@/hooks/useContract";
 import { ArrowRight, FileWarning } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 const ContratoNotificationModal = () => {
+  const t = useTranslations("ContractNotification");
   const { status } = useSession();
   const { shouldShow } = useContractNotification();
 
@@ -19,7 +21,7 @@ const ContratoNotificationModal = () => {
           <div className="flex items-center mb-2 md:mb-0">
             <FileWarning size={24} className="mr-2" />
             <span className="font-semibold">
-              Seu contrato ainda não foi assinado!
+              {t("unsignedMessage")}
             </span>
           </div>
 
@@ -27,7 +29,7 @@ const ContratoNotificationModal = () => {
             href="contrato"
             className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors duration-300 flex items-center"
           >
-            Assinar Agora
+            {t("signButton")}
             <ArrowRight size={20} className="ml-1" />
           </Link>
         </div>

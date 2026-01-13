@@ -11,8 +11,10 @@ import { toast } from "sonner";
 import { SignatureFormData, Student } from "@/types/contract";
 import { Spinner } from "@/components/ui/spinner";
 import { FileWarning, Printer, AlertCircle, CheckCircle2, AlertTriangle, Ban, RefreshCw } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 const ContratoPage: React.FC = () => {
+  const t = useTranslations("StudentContract");
   const {
     student,
     contractStatus,
@@ -51,13 +53,13 @@ const ContratoPage: React.FC = () => {
 
       if (result.success) {
         setIsModalOpen(false);
-        toast.success("Contrato assinado com sucesso por ambas as partes!");
+        toast.success(t("signedSuccess"));
       } else {
-        toast.error(result.message || "Erro ao assinar contrato");
+        toast.error(result.message || t("signError"));
       }
     } catch (error) {
       console.error("Error signing contract:", error);
-      toast.error("Erro inesperado ao assinar contrato");
+      toast.error(t("unexpectedSignError"));
     }
   };
 
@@ -66,13 +68,13 @@ const ContratoPage: React.FC = () => {
       setIsRenewing(true);
       const result = await renewContract("manual");
       if (result.success) {
-        toast.success("Contrato renovado com sucesso!");
+        toast.success(t("renewSuccess"));
       } else {
-        toast.error(result.message || "Erro ao renovar contrato");
+        toast.error(result.message || t("renewError"));
       }
     } catch (error) {
       console.error("Error renewing contract:", error);
-      toast.error("Erro inesperado ao renovar contrato");
+      toast.error(t("unexpectedRenewError"));
     } finally {
       setIsRenewing(false);
     }
@@ -87,7 +89,7 @@ const ContratoPage: React.FC = () => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="flex justify-center items-center min-h-screen bg-slate-500/8 dark:bg-slate-900"
+        className="flex justify-center items-center min-h-screen"
       >
         <motion.div
           animate={{ rotate: 360 }}
@@ -104,7 +106,7 @@ const ContratoPage: React.FC = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="container mx-auto p-4 md:p-8 min-h-screen flex flex-col justify-center items-center bg-slate-500/8 dark:bg-slate-900"
+        className="container mx-auto p-4 md:p-8 min-h-screen flex flex-col justify-center items-center"
       >
         <motion.div
           initial={{ scale: 0 }}
@@ -123,13 +125,13 @@ const ContratoPage: React.FC = () => {
           transition={{ delay: 0.3 }}
           className="text-2xl md:text-3xl font-bold mb-4 text-red-600 dark:text-red-400"
         >
-          Erro ao Carregar Dados
+          {t("errorLoadingTitle")}
         </motion.h1>
 
         <Alert className="max-w-md card-base">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            {error || "Não foi possível carregar os dados do aluno para exibir o contrato. Por favor, tente recarregar a página ou contate o suporte."}
+            {error || t("errorLoadingMessage")}
           </AlertDescription>
         </Alert>
       </motion.div>
@@ -161,16 +163,15 @@ const ContratoPage: React.FC = () => {
             <Alert className="card-base border-slate-500/50 dark:border-slate-400/50 bg-slate-100 dark:bg-slate-800/50">
               <Ban className="h-4 w-4 text-slate-600 dark:text-slate-400" />
               <AlertDescription className="text-slate-700 dark:text-slate-300">
-                <span className="font-semibold">Contrato Cancelado</span>
+                <span className="font-semibold">{t("cancelledTitle")}</span>
                 {contractStatus?.cancelledAt && (
                   <span className="block mt-1 text-sm opacity-80">
-                    Cancelado em{" "}
-                    {new Date(contractStatus.cancelledAt).toLocaleDateString("pt-BR")}
+                    {t("cancelledOn", { date: new Date(contractStatus.cancelledAt).toLocaleDateString("pt-BR") })}
                   </span>
                 )}
                 {contractStatus?.cancellationReason && (
                    <span className="block mt-1 text-sm opacity-80">
-                     Motivo: {contractStatus.cancellationReason}
+                     {t("cancellationReason", { reason: contractStatus.cancellationReason })}
                    </span>
                 )}
               </AlertDescription>
@@ -189,11 +190,10 @@ const ContratoPage: React.FC = () => {
             <Alert className="card-base border-amber-500/50 dark:border-amber-400/50 bg-amber-50 dark:bg-amber-900/10">
               <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
               <AlertDescription className="text-amber-700 dark:text-amber-300">
-                <span className="font-semibold">Contrato Vencido</span>
+                <span className="font-semibold">{t("expiredTitle")}</span>
                 {contractStatus?.expiresAt && (
                   <span className="block mt-1 text-sm opacity-80">
-                    Venceu em{" "}
-                    {new Date(contractStatus.expiresAt).toLocaleDateString("pt-BR")}
+                    {t("expiredOn", { date: new Date(contractStatus.expiresAt).toLocaleDateString("pt-BR") })}
                   </span>
                 )}
               </AlertDescription>
@@ -218,19 +218,18 @@ const ContratoPage: React.FC = () => {
               <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
               <div className="flex flex-col gap-2 w-full">
                 <AlertDescription className="text-green-700 dark:text-green-300">
-                  <span className="font-semibold">Contrato assinado</span> em{" "}
+                  <span className="font-semibold">{t("signedTitle")}</span>{" "}
                   {contractStatus?.signedAt
-                    ? new Date(contractStatus.signedAt).toLocaleDateString("pt-BR")
+                    ? t("signedOn", { date: new Date(contractStatus.signedAt).toLocaleDateString("pt-BR") })
                     : ""}
                   {contractStatus?.expiresAt && (
                     <span className="block mt-1 text-sm opacity-80">
-                      Válido até{" "}
-                      {new Date(contractStatus.expiresAt).toLocaleDateString("pt-BR")}
+                      {t("validUntil", { date: new Date(contractStatus.expiresAt).toLocaleDateString("pt-BR") })}
                     </span>
                   )}
                   {contractStatus?.autoRenewal !== false && (
                     <span className="block mt-1 text-sm font-medium text-green-800 dark:text-green-200">
-                      Renovação Automática: Ativa
+                      {t("autoRenewalActive")}
                     </span>
                   )}
                 </AlertDescription>
@@ -247,7 +246,7 @@ const ContratoPage: React.FC = () => {
                     ) : (
                       <RefreshCw className="mr-2 h-4 w-4" />
                     )}
-                    {isRenewing ? "Renovando..." : "Renovar Agora"}
+                    {isRenewing ? t("renewingButton") : t("renewButton")}
                   </Button>
                 )}
               </div>
@@ -263,10 +262,10 @@ const ContratoPage: React.FC = () => {
             exit={{ opacity: 0, x: 20 }}
           >
             <h1 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-slate-100">
-              Contrato
+              {t("pageTitle")}
             </h1>
             <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-              Revise e assine o contrato abaixo
+              {t("pageSubtitle")}
             </p>
           </motion.div>
         );
@@ -274,7 +273,7 @@ const ContratoPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-500/8 dark:bg-slate-900">
+    <div className="min-h-screen">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -300,7 +299,6 @@ const ContratoPage: React.FC = () => {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }} className="flex-1 w-full"
               >
                 <Button
@@ -311,7 +309,7 @@ const ContratoPage: React.FC = () => {
                   variant="outline"
                 >
                   <Printer size={18} />
-                  Imprimir Contrato
+                  {t("printButton")}
                 </Button>
               </motion.div>
             ) : (
@@ -320,7 +318,6 @@ const ContratoPage: React.FC = () => {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }} className="flex-1 w-full"
               >
                 <Button
@@ -331,7 +328,7 @@ const ContratoPage: React.FC = () => {
                   size="lg"
                 >
                   <Printer size={18} />
-                  {isSigning ? "Assinando..." : "Assinar Contrato"}
+                  {isSigning ? t("signingButton") : t("signButton")}
                 </Button>
               </motion.div>
             )}
@@ -344,7 +341,7 @@ const ContratoPage: React.FC = () => {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="card-base p-6 md:p-8"
+          className="p-6 md:p-8"
         >
           <ContratoPDF alunoData={displayData} contractStatus={contractStatus} />
         </motion.div>
