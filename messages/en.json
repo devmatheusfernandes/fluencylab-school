@@ -51,7 +51,16 @@
     "twoFactorLoadingSubtitle": "Preparing two-factor verification",
     "twoFactorInvalid": "Invalid 2FA code. Try again.",
     "twoFactorRequired": "2FA code is required. Enter the code.",
-    "unauthorized": "Unauthorized. Please sign in again."
+    "unauthorized": "Unauthorized. Please sign in again.",
+    "forgotPassword": "Forgot my password",
+    "forgotPasswordTitle": "Recover Password",
+    "forgotPasswordDescription": "Enter your email to receive a password reset link.",
+    "sendResetLink": "Send link",
+    "backToLogin": "Back to login",
+    "resetEmailSent": "Reset email sent!",
+    "resetEmailSentDesc": "Check your inbox (and spam) to reset your password.",
+    "emailRequired": "Email is required.",
+    "emailInvalid": "Invalid email."
   },
   "MyStudentsPage": {
     "title": "My Students",

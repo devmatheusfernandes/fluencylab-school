@@ -1,0 +1,14 @@
+import { ForgotPasswordClient } from "../../../../components/auth/ForgotPasswordClient";
+
+export default async function ForgotPasswordPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const messages = (
+    await import(`../../../../messages/${locale}.json`)
+  ).default as Record<string, Record<string, string>>;
+
+  return <ForgotPasswordClient messages={messages} />;
+}

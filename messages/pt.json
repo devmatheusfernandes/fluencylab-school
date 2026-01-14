@@ -51,7 +51,16 @@
     "twoFactorLoadingSubtitle": "Preparando verificação em duas etapas",
     "twoFactorInvalid": "Código 2FA inválido. Tente novamente.",
     "twoFactorRequired": "Código 2FA é obrigatório. Digite o código.",
-    "unauthorized": "Não autorizado. Faça login novamente."
+    "unauthorized": "Não autorizado. Faça login novamente.",
+    "forgotPassword": "Esqueci minha senha",
+    "forgotPasswordTitle": "Recuperar Senha",
+    "forgotPasswordDescription": "Digite seu e-mail para receber um link de redefinição de senha.",
+    "sendResetLink": "Enviar link",
+    "backToLogin": "Voltar para o login",
+    "resetEmailSent": "E-mail de redefinição enviado!",
+    "resetEmailSentDesc": "Verifique sua caixa de entrada (e spam) para redefinir sua senha.",
+    "emailRequired": "E-mail é obrigatório.",
+    "emailInvalid": "E-mail inválido."
   },
   "MyStudentsPage": {
     "title": "Meus Alunos",

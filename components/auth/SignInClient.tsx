@@ -67,7 +67,7 @@ export function SignInClient({ messages }: SignInClientProps) {
         } else {
           // Map Firebase/NextAuth errors to user-friendly messages
           let errorMessage = messages?.Auth?.invalidCredentials;
-          
+
           switch (result.error) {
             case "auth/user-not-found":
               errorMessage = messages?.Auth?.userNotFound;
@@ -93,7 +93,7 @@ export function SignInClient({ messages }: SignInClientProps) {
             default:
               errorMessage = messages?.Auth?.invalidCredentials;
           }
-          
+
           setLocalError(errorMessage);
         }
       } else if (result?.ok) {
@@ -114,7 +114,7 @@ export function SignInClient({ messages }: SignInClientProps) {
 
   const t = messages?.Auth ?? {};
 
-  if (showTransition) return (<TransitionAnimation />);
+  if (showTransition) return <TransitionAnimation />;
 
   return (
     <NextIntlClientProvider messages={messages} locale={locale}>
@@ -182,6 +182,7 @@ export function SignInClient({ messages }: SignInClientProps) {
                   )}
                 </form>
 
+              <div className="flex flex-col items-center gap-2">
                 <p className="text-center text-gray-600 dark:text-gray-300 mt-8 text-sm">
                   {t.contactPrompt}{" "}
                   <a
@@ -191,6 +192,13 @@ export function SignInClient({ messages }: SignInClientProps) {
                     {t.contactLink}
                   </a>
                 </p>
+                <a
+                  href={`/${locale}/forgot-password`}
+                  className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 hover:dark:text-blue-300 font-medium underline"
+                >
+                  {t.forgotPassword}
+                </a>
+              </div>
               </div>
             </div>
           </div>
