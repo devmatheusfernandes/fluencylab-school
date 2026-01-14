@@ -298,12 +298,12 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
   };
 
   const renderStudentView = () => {
-    console.log("Rendering student view. User data:", {
-      subscriptionPaymentMethod: user.subscriptionPaymentMethod,
-      subscriptionStatus: user.subscriptionStatus,
-      subscriptionBillingDay: user.subscriptionBillingDay,
-    });
-    console.log("Student financial data:", studentFinancials);
+    // console.log("Rendering student view. User data:", {
+    //   subscriptionPaymentMethod: user.subscriptionPaymentMethod,
+    //   subscriptionStatus: user.subscriptionStatus,
+    //   subscriptionBillingDay: user.subscriptionBillingDay,
+    // });
+    // console.log("Student financial data:", studentFinancials);
 
     return (
       <div className="space-y-6">

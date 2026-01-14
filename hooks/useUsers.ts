@@ -41,19 +41,39 @@ export const useUsers = () => {
   const updateUserStatus = async (userId: string, isActive: boolean) => {
     setIsLoading(true);
     setError(null);
-    setSuccessMessage(null); // Limpa a mensagem de sucesso anterior
+    setSuccessMessage(null);
     try {
-      const method = isActive ? 'PUT' : 'DELETE';
-      const response = await fetch(`/api/admin/users/${userId}`, { method });
-      if (!response.ok) throw new Error(`Falha ao ${isActive ? 'reativar' : 'desativar'} usuário.`);
-      
-      const successMsg = `Usuário ${isActive ? 'reativado' : 'desativado'} com sucesso.`;
-      setSuccessMessage(successMsg); // Define a nova mensagem de sucesso
+      let response: Response;
 
-      // Recarrega a lista de usuários para refletir a mudança
-      await fetchUsers(); 
+      if (isActive) {
+        response = await fetch(`/api/admin/users/${userId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ isActive: true }),
+        });
+      } else {
+        response = await fetch(`/api/admin/users/${userId}`, {
+          method: "DELETE",
+        });
+      }
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        const message =
+          (data && (data.error || data.message)) ||
+          `Falha ao ${isActive ? "reativar" : "desativar"} usuário.`;
+        throw new Error(message);
+      }
+
+      const successMsg = `Usuário ${
+        isActive ? "reativado" : "desativado"
+      } com sucesso.`;
+      setSuccessMessage(successMsg);
+
+      await fetchUsers();
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "Erro ao atualizar usuário.");
     } finally {
       setIsLoading(false);
     }

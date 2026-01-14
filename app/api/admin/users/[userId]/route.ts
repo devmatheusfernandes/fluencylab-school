@@ -24,7 +24,7 @@ export async function PATCH(
     return NextResponse.json({ message: 'Usuário atualizado com sucesso.' });
     
   } catch (error: any) {
-    console.error(`Erro ao atualizar usuário (PATCH):`, error);
+    //console.error(`Erro ao atualizar usuário (PATCH):`, error);
     return NextResponse.json({ error: error.message || 'Erro interno do servidor.' }, { status: 500 });
   }
 }
@@ -44,7 +44,7 @@ export async function DELETE(
     await userService.deactivateUser(userId);
     return NextResponse.json({ message: 'Usuário desativado com sucesso.' });
   } catch (error: any) {
-    console.error(`Erro ao desativar usuário (DELETE):`, error);
+    //console.error(`Erro ao desativar usuário (DELETE):`, error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

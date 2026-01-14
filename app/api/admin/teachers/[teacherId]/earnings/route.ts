@@ -60,13 +60,13 @@ export async function GET(
     const studentMap = new Map(students.filter(Boolean).map((s) => [s!.id, s!.name]));
 
     const statsMap = new Map<string, { studentName: string; completedClasses: number; earningsCents: number }>();
-
+    
     const ratePerClassCents = teacher.ratePerClassCents || DEFAULT_RATE_PER_CLASS_CENTS;
     classes.forEach((cls) => {
       if (cls.status !== ClassStatus.COMPLETED) return;
       const studentId = cls.studentId;
       const current = statsMap.get(studentId) || {
-        studentName: studentMap.get(studentId) || `Aluno ${studentId}`,
+        studentName: studentMap.get(studentId) || `ID: ${studentId}`,
         completedClasses: 0,
         earningsCents: 0,
       };

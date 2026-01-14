@@ -62,7 +62,7 @@ async function getUsersHandler(
     });
     
   } catch (error) {
-    console.error('Erro ao buscar usuários:', error);
+    //console.error('Erro ao buscar usuários:', error);
     return NextResponse.json(
       { error: 'Erro interno do servidor.' },
       { status: 500 }
@@ -124,7 +124,7 @@ async function createUserHandler(
     }, { status: 201 });
     
   } catch (error) {
-    console.error('Erro ao criar usuário:', error);
+    //console.error('Erro ao criar usuário:', error);
     return NextResponse.json(
       { error: 'Erro interno do servidor.' },
       { status: 500 }

@@ -30,6 +30,7 @@ export type ClassTemplate = {
 };
 
 export type StudentClass = {
+  name?: any; //ADICIONEI AGORA MAS NEM SEI SE DEVIA
   id: string; // id da aula
   studentId: string;
   teacherId?: string;
