@@ -55,13 +55,7 @@ const adminItems: SidebarItemType[] = [
     label: "Configurações",
     labelKey: "settings",
     icon: <Settings className="w-6 h-6" />,
-  },
-  {
-    href: "/[locale]/hub/teacher/decks",
-    label: "Decks",
-    labelKey: "decks",
-    icon: <Layers className="w-6 h-6" />,
-  },
+  }
 ];
 
 const teacherItems: SidebarItemType[] = [

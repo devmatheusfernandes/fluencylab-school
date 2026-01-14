@@ -222,7 +222,7 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
           <CardHeader>
             <CardTitle className="flex items-center justify-between gap-2">
                 {t("earnings")}
-              <ButtonGroup>
+              <div className="flex flex-row gap-2">
                 <Select
                   value={String(selectedMonth)}
                   onValueChange={(v) => setSelectedMonth(Number(v))}
@@ -253,7 +253,7 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
                     ))}
                   </SelectContent>
                 </Select>
-              </ButtonGroup>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent>
