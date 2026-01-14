@@ -12,7 +12,6 @@ import {
 } from "@/types/classes/class";
 import { AvailabilitySlot, AvailabilityType } from "@/types/time/availability";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
-import { daysOfWeek } from "@/types/time/times";
 import { User } from "@/types/users/users";
 import { Vacation } from "@/types/time/vacation";
 import { EmailService } from "@/services/emailService";
@@ -25,6 +24,16 @@ import {
   userAdminRepository,
 } from "@/repositories";
 import { announcementService } from "@/services/announcementService";
+
+const daysOfWeekPt = [
+  "Domingo",
+  "Segunda",
+  "Terça",
+  "Quarta",
+  "Quinta",
+  "Sexta",
+  "Sábado",
+];
 
 const availabilityRepository = new AvailabilityRepository();
 const classRepository = new ClassRepository();
@@ -989,7 +998,7 @@ export class SchedulingService {
 
     while (currentDate <= endDate) {
       const dayIndex = currentDate.getDay();
-      const dayName = daysOfWeek[dayIndex];
+      const dayName = daysOfWeekPt[dayIndex];
       const templateDaysForCurrentDay = template.days.filter(
         (d) => d.day === dayName
       );
@@ -1931,7 +1940,7 @@ export class SchedulingService {
             const classDate = (
               classData.scheduledAt as unknown as Timestamp
             ).toDate();
-            const classDay = daysOfWeek[classDate.getDay()];
+            const classDay = daysOfWeekPt[classDate.getDay()];
             const classHour = `${String(classDate.getHours()).padStart(
               2,
               "0"

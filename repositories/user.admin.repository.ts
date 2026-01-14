@@ -10,7 +10,6 @@ import admin from "firebase-admin";
  * This ensures consistent serialization for React Server Components
  */
 function serializeTimestamps(data: any): any {
-  // Helper function to safely convert timestamp to date
   const safeToDate = (timestamp: any): Date | undefined => {
     if (!timestamp) return undefined;
     if (timestamp instanceof Date) return timestamp;
@@ -23,7 +22,6 @@ function serializeTimestamps(data: any): any {
     return undefined;
   };
 
-  // Handle regularClassCredits timestamps
   let serializedCredits = data.regularClassCredits;
   if (serializedCredits && Array.isArray(serializedCredits)) {
     serializedCredits = serializedCredits.map((credit: any) => ({
@@ -32,6 +30,18 @@ function serializeTimestamps(data: any): any {
       expiresAt: safeToDate(credit.expiresAt) || new Date(),
       usedAt: safeToDate(credit.usedAt),
     }));
+  }
+
+  let serializedGamification = data.gamification;
+  if (serializedGamification) {
+    const streak = serializedGamification.streak || {};
+    serializedGamification = {
+      ...serializedGamification,
+      streak: {
+        ...streak,
+        lastStudyDate: safeToDate(streak.lastStudyDate) || null,
+      },
+    };
   }
 
   return {
@@ -46,6 +56,7 @@ function serializeTimestamps(data: any): any {
     subscriptionCreatedAt: safeToDate(data.subscriptionCreatedAt),
     subscriptionCanceledAt: safeToDate(data.subscriptionCanceledAt),
     regularClassCredits: serializedCredits,
+    gamification: serializedGamification,
   };
 }
 

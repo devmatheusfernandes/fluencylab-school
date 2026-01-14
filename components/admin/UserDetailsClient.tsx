@@ -14,6 +14,7 @@ import UserPermissionsTab from "./UserPermissionsTab";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/types/users/userRoles";
 import { useTranslations } from "next-intl";
+import { BackButton } from "../ui/back-button";
 
 interface UserDetailsClientProps {
   user: FullUserDetails;
@@ -30,8 +31,11 @@ export default function UserDetailsClient({
 
   return (
     <div className="p-3 px-6">
+      
       <Tabs defaultValue="overview">
         <div className="flex flex-col items-center md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex flex-row gap-2 items-center">
+            <BackButton href="/hub/admin/users" />
           <div className="flex items-center">
             <Avatar size="md">
               <AvatarImage src={user.avatarUrl} />
@@ -41,6 +45,7 @@ export default function UserDetailsClient({
               <p className="capitalize text-2xl font-bold">{user.name}</p>
               <p className="text-sm text-gray-500">{user.email}</p>
             </div>
+          </div>
           </div>
 
           <TabsList className="mt-0 flex-wrap h-full">
@@ -73,6 +78,7 @@ export default function UserDetailsClient({
         <TabsContent value="credits" className="mt-4">
           <UserCreditsTab studentId={user.id} />
         </TabsContent>
+        
         <TabsContent value="financial" className="mt-4">
           <UserFinancialTab user={user} />
         </TabsContent>

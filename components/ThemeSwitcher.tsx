@@ -41,7 +41,7 @@ export function ThemeSwitcher() {
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
         aria-label={t("toggle")}
-        className="relative flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200/50 dark:border-slate-700/50 bg-white/20 dark:bg-slate-900/35 hover:bg-white/40 dark:hover:bg-slate-800/50 transition-colors duration-200"
+        className="relative flex h-10 w-10 items-center justify-center rounded-lg border-none border-slate-200/50 dark:border-slate-700/50 bg-white/20 dark:bg-slate-900/35 hover:bg-white/40 dark:hover:bg-slate-800/50 transition-colors duration-200"
       >
         <AnimatePresence mode="wait">
           <motion.div

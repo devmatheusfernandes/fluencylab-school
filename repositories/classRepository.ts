@@ -7,8 +7,17 @@ import {
   PopulatedStudentClass,
   StudentClass,
 } from "@/types/classes/class";
-import { daysOfWeek } from "@/types/time/times";
 import { Timestamp, Transaction } from "firebase-admin/firestore";
+
+const daysOfWeekPt = [
+  "Domingo",
+  "Segunda",
+  "Terça",
+  "Quarta",
+  "Quinta",
+  "Sexta",
+  "Sábado",
+];
 
 export class ClassRepository {
   private collectionRef = adminDb.collection("classes");
@@ -446,7 +455,7 @@ export class ClassRepository {
         const classDate = (
           classData.scheduledAt as unknown as Timestamp
         ).toDate();
-        const classDay = daysOfWeek[classDate.getDay()];
+        const classDay = daysOfWeekPt[classDate.getDay()];
         const classHour = `${String(classDate.getHours()).padStart(
           2,
           "0"
@@ -569,7 +578,7 @@ export class ClassRepository {
         const classDate = (
           classData.scheduledAt as unknown as Timestamp
         ).toDate();
-        const classDay = daysOfWeek[classDate.getDay()];
+        const classDay = daysOfWeekPt[classDate.getDay()];
         const classHour = `${String(classDate.getHours()).padStart(
           2,
           "0"
@@ -626,7 +635,7 @@ export class ClassRepository {
         const classDate = (
           classData.scheduledAt as unknown as Timestamp
         ).toDate();
-        const classDay = daysOfWeek[classDate.getDay()];
+        const classDay = daysOfWeekPt[classDate.getDay()];
         const classHour = `${String(classDate.getHours()).padStart(
           2,
           "0"
@@ -698,7 +707,7 @@ export class ClassRepository {
         const classDate = (
           classData.scheduledAt as unknown as Timestamp
         ).toDate();
-        const classDay = daysOfWeek[classDate.getDay()];
+        const classDay = daysOfWeekPt[classDate.getDay()];
         const classHour = `${String(classDate.getHours()).padStart(
           2,
           "0"

@@ -285,11 +285,11 @@ export default function UserClassesTab({
 
           {pendingTeacherUpdate && (
             <div className="py-4 space-y-2">
-              <p>
+              <p className="capitalize">
                 <strong>{t("modal.currentTeacher")}</strong>{" "}
                 {pendingTeacherUpdate.currentTeacherName}
               </p>
-              <p>
+              <p className="capitalize">
                 <strong>{t("modal.newTeacher")}</strong>{" "}
                 {pendingTeacherUpdate.teacherName}
               </p>
@@ -297,16 +297,13 @@ export default function UserClassesTab({
           )}
 
           <ModalFooter>
-            <ModalClose asChild>
-              <Button variant="secondary">{t("modal.cancel")}</Button>
-            </ModalClose>
             <Button onClick={confirmUpdateClassTeacher}>{t("modal.confirm")}</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
 
       {/* --- Barra de Filtros --- */}
-      <ButtonGroup>
+      <div className="flex flex-row gap-2">
         <Select
           value={String(selectedMonth)}
           onValueChange={(val) => setSelectedMonth(Number(val))}
@@ -337,7 +334,7 @@ export default function UserClassesTab({
             ))}
           </SelectContent>
         </Select>
-      </ButtonGroup>
+      </div>
 
       <div className="space-y-4">
         {filteredClasses.length > 0 ? (
