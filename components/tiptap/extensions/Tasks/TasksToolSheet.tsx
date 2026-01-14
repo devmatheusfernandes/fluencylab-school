@@ -10,16 +10,6 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -46,6 +36,17 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { Task } from "@/types/tasks/tasks";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalTitle,
+  ModalDescription,
+  ModalFooter,
+  ModalIcon,
+  ModalPrimaryButton,
+  ModalSecondaryButton,
+} from "@/components/ui/modal";
 
 interface TasksToolSheetProps {
   isOpen: boolean;
@@ -325,23 +326,28 @@ export const TasksToolSheet: React.FC<TasksToolSheetProps> = ({
         </SheetContent>
       </Sheet>
 
-      {/* Alert Dialog para Confirmação de Exclusão */}
-      <AlertDialog open={!!taskToDelete} onOpenChange={(open) => !open && setTaskToDelete(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Excluir tarefa?</AlertDialogTitle>
-            <AlertDialogDescription>
+      <Modal open={!!taskToDelete} onOpenChange={(open) => !open && setTaskToDelete(null)}>
+        <ModalContent>
+          <ModalIcon type="delete" />
+          <ModalHeader>
+            <ModalTitle>Excluir tarefa?</ModalTitle>
+            <ModalDescription>
               Esta ação moverá a tarefa para a lixeira. Você tem certeza?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteTask} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            </ModalDescription>
+          </ModalHeader>
+          <ModalFooter>
+            <ModalSecondaryButton onClick={() => setTaskToDelete(null)}>
+              Cancelar
+            </ModalSecondaryButton>
+            <ModalPrimaryButton
+              variant="destructive"
+              onClick={handleDeleteTask}
+            >
               Sim, excluir
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </ModalPrimaryButton>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   );
 };

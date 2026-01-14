@@ -157,7 +157,7 @@ function HubLayoutContent({ children, session }: { children: React.ReactNode, se
                     <HubHeader />
                   </div>
                   <div
-                    className={`flex bg-white/20 dark:bg-slate-900 flex-1 flex-col sm:hidden ${
+                    className={`flex container-base flex-1 flex-col sm:hidden ${
                       isChatPage ? "p-0" : "p-1"
                     }`}
                   >
@@ -187,7 +187,7 @@ export default function HubLayout({ children }: { children: React.ReactNode }) {
   if (loading) return null;
   
   if (!session) {
-      // For now, assuming protection is handled by middleware or page wrappers
+      // For now, assuming protection is handled by proxy or page wrappers
       return null; 
   }
 

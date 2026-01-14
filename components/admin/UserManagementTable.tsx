@@ -32,6 +32,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalPrimaryButton,
+  ModalSecondaryButton,
+  ModalTitle,
+} from "@/components/ui/modal";
 import AddUserModal from "./AddUserModal";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useRouter } from "next/navigation";
@@ -50,16 +60,20 @@ export default function UserManagementTable() {
   } = useUsers();
   const {
     createUser,
+    deleteUser,
     error: adminError,
     successMessage: adminSuccess,
+    isLoading: isAdminLoading,
   } = useAdmin();
 
   const router = useRouter();
   const [roleFilter, setRoleFilter] = useState<string>("all");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("active");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [debouncedSearch, setDebouncedSearch] = useState<string>("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const t = useTranslations("UserManagement");
   const tRoles = useTranslations("UserRoles");
 
@@ -105,13 +119,30 @@ export default function UserManagementTable() {
     }
   };
 
+  const handleDeleteUser = async () => {
+    if (!deleteUserId) return;
+
+    setIsDeleteModalOpen(false);
+
+    const success = await deleteUser(deleteUserId);
+    if (success) {
+      await fetchUsers({
+        role: roleFilter === "all" ? undefined : roleFilter,
+        isActive: statusFilter === "all" ? undefined : statusFilter === "active",
+        search: debouncedSearch || undefined,
+      });
+      setDeleteUserId(null);
+    } else {
+      setDeleteUserId(null);
+    }
+  };
+
   const handleRowClick = (userId: string, userName: string) => {
     const sanitizedName = userName.toLowerCase().replace(/\s+/g, "-");
     const encodedName = encodeURIComponent(sanitizedName);
     router.push(`/hub/admin/users/${encodedName}?id=${userId}`);
   };
 
-  // Componente interno para o Skeleton das Linhas
   const TableRowsSkeleton = () => (
     <>
       {[...Array(5)].map((_, index) => (
@@ -134,6 +165,26 @@ export default function UserManagementTable() {
         </TableRow>
       ))}
     </>
+  );
+
+  const SingleRowSkeleton = () => (
+    <TableRow>
+      <TableCell>
+        <div className="flex items-center">
+          <Skeleton className="h-10 w-10 rounded-full" />
+          <div className="ml-4 space-y-2">
+            <Skeleton className="h-4 w-[150px]" />
+            <Skeleton className="h-3 w-[100px]" />
+          </div>
+        </div>
+      </TableCell>
+      <TableCell className="hidden sm:table-cell">
+        <Skeleton className="h-5 w-20 rounded-full" />
+      </TableCell>
+      <TableCell className="text-right">
+        <Skeleton className="h-8 w-8 rounded-md ml-auto" />
+      </TableCell>
+    </TableRow>
   );
 
   return (
@@ -205,6 +256,9 @@ export default function UserManagementTable() {
                 <TableRowsSkeleton />
               ) : users.length > 0 ? (
                 users.map((user) => (
+                  user.id === deleteUserId && isAdminLoading ? (
+                    <SingleRowSkeleton key={user.id} />
+                  ) : (
                   <TableRow
                     key={user.id}
                     onClick={() => handleRowClick(user.id, user.name)}
@@ -255,25 +309,36 @@ export default function UserManagementTable() {
                           <DropdownMenuLabel>{t("actions")}</DropdownMenuLabel>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
-                            onSelect={(e) => {
-                                e.stopPropagation();
-                                updateUserStatus(user.id, !user.isActive);
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              updateUserStatus(user.id, !user.isActive);
                             }}
                           >
                             {user.isActive ? t("deactivate") : t("reactivate")}
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onSelect={() => handleRowClick(user.id, user.name)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRowClick(user.id, user.name);
+                            }}
                           >
                             {t("editProfile")}
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive hover:bg-destructive/20! hover:text-destructive!">
+                          <DropdownMenuItem
+                            className="text-destructive hover:bg-destructive/20! hover:text-destructive!"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteUserId(user.id);
+                              setIsDeleteModalOpen(true);
+                            }}
+                          >
                             {t("delete")}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
+                  )
                 ))
               ) : (
                  <TableRow>
@@ -293,6 +358,37 @@ export default function UserManagementTable() {
         onUserCreated={handleUserCreated}
         isLoading={isLoadingUsers}
       />
+      <Modal open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+        <ModalContent>
+          <ModalHeader>
+            <ModalTitle>{t("deleteConfirmTitle")}</ModalTitle>
+          </ModalHeader>
+          <ModalBody>
+            <p>{t("deleteConfirmDescription")}</p>
+          </ModalBody>
+          <ModalFooter>
+            <ModalSecondaryButton
+              type="button"
+              onClick={() => {
+                setIsDeleteModalOpen(false);
+                setDeleteUserId(null);
+              }}
+            >
+              {t("cancel")}
+            </ModalSecondaryButton>
+            <ModalPrimaryButton
+              type="button"
+              variant="destructive"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteUser();
+              }}
+            >
+              {t("deleteConfirmButton")}
+            </ModalPrimaryButton>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   );
 }

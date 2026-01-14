@@ -278,7 +278,7 @@ const ModalDescription = React.forwardRef<
     >
       <Dialog.Description
         className={twMerge(
-          "text-sm text-gray-600 dark:text-gray-400 leading-relaxed",
+          "text-center text-sm text-gray-600 dark:text-gray-400 leading-relaxed",
           className
         )}
       >
@@ -532,7 +532,7 @@ const ModalInput = React.forwardRef<
       <Input
         ref={ref}
         className={twMerge(
-          "h-12 px-4 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-xl",
+          "h-10 px-4 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-xl",
           className
         )}
         {...props}
