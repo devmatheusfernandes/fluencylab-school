@@ -304,11 +304,11 @@ const ContratoPage: React.FC = () => {
                 <Button
                   disabled={isLoading || isSigning}
                   onClick={handlePrint}
-                  className="flex-1 w-full gap-2"
+                  className="flex-1 w-full"
                   size="lg"
                   variant="outline"
                 >
-                  <Printer size={18} />
+                  <Printer size={18} className="mr-2"/>
                   {t("printButton")}
                 </Button>
               </motion.div>

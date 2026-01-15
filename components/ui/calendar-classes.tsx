@@ -717,7 +717,6 @@ export const Calendar: React.FC<CalendarProps> = ({
                 variant="ghost"
                 size="icon"
                 onClick={goToPreviousPeriod}
-                className="h-10 w-10 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700"
               >
                 <ArrowLeft className="h-5 w-5 text-gray-600 dark:text-gray-400" />
               </Button>
@@ -733,7 +732,6 @@ export const Calendar: React.FC<CalendarProps> = ({
                 variant="ghost"
                 size="icon"
                 onClick={goToNextPeriod}
-                className="h-10 w-10 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700"
               >
                 <ArrowRight className="h-5 w-5 text-gray-600 dark:text-gray-400" />
               </Button>
@@ -798,15 +796,15 @@ export const Calendar: React.FC<CalendarProps> = ({
                 <div className="flex items-center gap-2">
                   <Button
                     size="icon"
+                    variant="ghost"
                     onClick={goToPreviousPeriod}
-                    className="h-11 w-11 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-200"
                   >
                     <ArrowLeft className="h-5 w-5 text-slate-700 dark:text-slate-300" />
                   </Button>
                   <Button
                     size="icon"
+                    variant="ghost"
                     onClick={goToNextPeriod}
-                    className="h-11 w-11 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-200"
                   >
                     <ArrowRight className="h-5 w-5 text-slate-700 dark:text-slate-300" />
                   </Button>
