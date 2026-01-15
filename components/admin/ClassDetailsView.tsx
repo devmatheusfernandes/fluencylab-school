@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { FullClassDetails } from "@/types/classes/class";
 import { Notebook, Transcription } from "@/types/notebooks/notebooks";
 import { collection, query, where, getDocs, Timestamp } from "firebase/firestore";
@@ -24,8 +25,10 @@ import {
   ScrollText,
   CheckCircle2,
   XCircle,
-  Mail
+  Mail,
+  BookOpen
 } from "lucide-react";
+import { BackButton } from "../ui/back-button";
 
 interface ClassDetailsViewProps {
   classDetails: FullClassDetails;
@@ -55,6 +58,7 @@ export default function ClassDetailsView({
   const tStatus = useTranslations("ClassStatus");
   const format = useFormatter();
   const [weekTranscriptions, setWeekTranscriptions] = useState<Transcription[]>([]);
+  const [weekNotebooks, setWeekNotebooks] = useState<Notebook[]>([]);
   const [isLoadingTranscriptions, setIsLoadingTranscriptions] = useState(false);
 
   useEffect(() => {
@@ -65,11 +69,10 @@ export default function ClassDetailsView({
       try {
         const classDate = new Date(classDetails.scheduledAt);
         const startDate = new Date(classDate);
-        startDate.setDate(classDate.getDate() - 1);
         startDate.setHours(0, 0, 0, 0);
 
         const endDate = new Date(startDate);
-        endDate.setDate(startDate.getDate() + 6);
+        endDate.setDate(startDate.getDate() + 7);
         endDate.setHours(23, 59, 59, 999);
 
         const notebooksRef = collection(db, "users", classDetails.student.id, "Notebooks");
@@ -81,15 +84,18 @@ export default function ClassDetailsView({
 
         const querySnapshot = await getDocs(q);
         const transcriptions: Transcription[] = [];
+        const notebooks: Notebook[] = [];
 
         querySnapshot.forEach((doc) => {
           const data = doc.data() as Notebook;
+          notebooks.push({ ...data, id: doc.id });
           if (data.transcriptions && Array.isArray(data.transcriptions)) {
             transcriptions.push(...data.transcriptions);
           }
         });
 
         setWeekTranscriptions(transcriptions);
+        setWeekNotebooks(notebooks);
       } catch (error) {
         console.error("Error fetching transcriptions:", error);
       } finally {
@@ -157,23 +163,27 @@ export default function ClassDetailsView({
       initial="hidden"
       animate="visible"
     >
+     
       {/* 1. Minimalist Header */}
       <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 dark:border-gray-800 pb-6">
-        <div>
-            <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
-            {t("title")}
-            </h1>
-            <div className="flex flex-wrap items-center gap-4 mt-2 text-gray-500 dark:text-gray-400 text-sm">
-            <div className="flex items-center gap-1.5 capitalize">
-                <Calendar className="h-4 w-4 text-gray-400" />
-                {formattedDate}
+         <div className="flex flex-row items-start gap-2">
+          <BackButton href="/hub/admin/users" />
+          <div>
+              <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
+              {t("title")}
+              </h1>
+              <div className="flex flex-wrap items-center gap-4 mt-2 text-gray-500 dark:text-gray-400 text-sm">
+              <div className="flex items-center gap-1.5 capitalize">
+                  <Calendar className="h-4 w-4 text-gray-400" />
+                  {formattedDate}
+              </div>
+              <div className="flex items-center gap-1.5">
+                  <Clock className="h-4 w-4 text-gray-400" />
+                  {formattedTime}
+              </div>
+              </div>
             </div>
-            <div className="flex items-center gap-1.5">
-                <Clock className="h-4 w-4 text-gray-400" />
-                {formattedTime}
-            </div>
-            </div>
-        </div>
+         </div>
 
         <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-medium ${currentStatus.style}`}>
             <StatusIcon className="h-4 w-4" />
@@ -316,7 +326,56 @@ export default function ClassDetailsView({
               </AccordionContent>
             </AccordionItem>
           )}
+
+          {/* Notebooks Item */}
+          {weekNotebooks.length > 0 && (
+            <AccordionItem value="notebooks" className="border rounded-xl px-4 bg-gray-50/50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800">
+              <AccordionTrigger className="hover:no-underline py-4">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg dark:bg-indigo-900/30 dark:text-indigo-400">
+                        <BookOpen className="h-4 w-4" />
+                    </div>
+                    <div className="text-left">
+                        <span className="block font-medium text-gray-900 dark:text-gray-100">{t("notebooks")}</span>
+                        <span className="block text-xs text-gray-500 font-normal">
+                            {t("foundRecords", { count: weekNotebooks.length })}
+                        </span>
+                    </div>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="pt-0 pb-4">
+                <div className="space-y-2 px-1">
+                    {weekNotebooks.map((notebook) => (
+                        <Link 
+                            key={notebook.id}
+                            href={`/hub/admin/class/${classDetails.id}/notebook/${notebook.id}`}
+                            className="block group"
+                        >
+                            <div className="p-3 rounded-lg border border-gray-200 bg-white hover:border-indigo-300 transition-colors dark:bg-gray-950 dark:border-gray-800 dark:hover:border-indigo-700">
+                                <div className="flex justify-between items-start">
+                                    <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                                        {notebook.title}
+                                    </h4>
+                                    <span className="text-xs text-gray-500">
+                                        {formatDate(notebook.createdAt)}
+                                    </span>
+                                </div>
+                                {notebook.description && (
+                                    <p className="text-xs text-gray-500 mt-1 line-clamp-1">
+                                        {notebook.description}
+                                    </p>
+                                )}
+                            </div>
+                        </Link>
+                    ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          )}
         </Accordion>
+
+          {/* TO DO: PUT NOTEBOOKS LIST HERE */}
+
       </motion.div>
     </motion.div>
   );
