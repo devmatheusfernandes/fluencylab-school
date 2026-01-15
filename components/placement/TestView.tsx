@@ -14,6 +14,7 @@ import { AudioPlayer } from "./AudioPlayer";
 import { Question, AdaptiveState } from "../../types/placement/types";
 import { MAX_QUESTIONS } from "../../utils/placement-utils";
 import { pageVariants, containerVariants, itemVariants } from "../../config/animations";
+import { useTranslations } from "next-intl";
 
 interface TestViewProps {
   currentQuestion: Question;
@@ -34,6 +35,8 @@ export const TestView = ({
   onSkip,
   onExit,
 }: TestViewProps) => {
+    const t = useTranslations("Placement");
+  
   return (
     <div className="flex flex-col items-center w-full max-w-2xl mx-auto">
       {/* Top Bar */}
@@ -144,7 +147,7 @@ export const TestView = ({
             className="w-full md:w-auto font-bold text-foreground hover:text-primary uppercase tracking-widest hover:bg-transparent"
             onClick={onSkip}
           >
-            SKIP
+            {t("skip")}
           </Button>
 
           {/* Next Button */}
@@ -161,8 +164,8 @@ export const TestView = ({
                         `}
           >
             {adaptiveState.questionCount === MAX_QUESTIONS - 1
-              ? "FINISH TEST"
-              : "CHECK"}
+              ? t("finishTest")
+              : t("check")}
           </Button>
         </CardFooter>
       </AnimatePresence>

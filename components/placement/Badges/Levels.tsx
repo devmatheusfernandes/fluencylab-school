@@ -8,6 +8,7 @@ import RicharlissonImage from "../../../public/images/badges/richarlisson.png";
 import JoelSantanaImage from "../../../public/images/badges/joelsantana.png";
 import NaldoBennyImage from "../../../public/images/badges/naldobenny.png";
 import { EyeClosed } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export const badgesData = [
   {
@@ -71,6 +72,9 @@ interface LevelsProps {
 }
 
 export function Levels({ onClose }: LevelsProps) {
+  const t = useTranslations("Placement");
+  const tBadges = useTranslations("Badges");
+
   return (
     <div className="fixed inset-0 bg-gray-400 bg-opacity-65 flex justify-center items-center z-50">
       <div className="relative text-text-light dark:text-text-dark bg-pages-light dark:bg-pages-dark rounded-lg w-[90%] lg:w-[70%] max-h-[90vh] overflow-y-auto shadow-xl p-8">
@@ -85,13 +89,12 @@ export function Levels({ onClose }: LevelsProps) {
         {/* Title & Description */}
         <div className="text-center">
           <h1 className="text-3xl font-bold mb-2">
-            Fluency Níveis - Método Alternativo 😂
+            {t("levelsTitle")}
           </h1>
           <p className="mb-6 text-center max-w-2xl mx-auto">
-            Uma maneira divertida de entender seu nível de inglês! Aqui estão
-            todos os níveis explicados de forma simples e engraçada.
-            <br /> Conforme você faz os testes, sua pontuação vai atualizando e
-            seu nível vai sendo definido até o último teste ser feito.
+            {t.rich("levelsDescription", {
+              br: () => <br />,
+            })}
           </p>
         </div>
 
@@ -105,7 +108,7 @@ export function Levels({ onClose }: LevelsProps) {
               <div className="border-4 bg-white rounded-full">
                 <Image
                   src={badge.image}
-                  alt={badge.name}
+                  alt={tBadges(`items.${index}.name`)}
                   width={100}
                   height={100}
                   className="bg-cover scale-125"
@@ -113,13 +116,13 @@ export function Levels({ onClose }: LevelsProps) {
               </div>
               <div>
                 <h2 className="text-xl font-semibold">
-                  {badge.name} - {badge.level}
+                  {tBadges(`items.${index}.name`)} - {tBadges(`levels.${index}`)}
                 </h2>
                 <p className="text-gray-500 dark:text-gray-300 text-sm mb-2">
-                  {badge.text}
+                  {tBadges(`items.${index}.text`)}
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {badge.explanation}
+                  {tBadges(`items.${index}.explanation`)}
                 </p>
                 <a
                   href={badge.link}
@@ -127,7 +130,7 @@ export function Levels({ onClose }: LevelsProps) {
                   rel="noopener noreferrer"
                   className="mt-2 text-indigo-500 hover:text-indigo-600 dark:text-indigo-400 dark:hover:text-indigo-300 underline block"
                 >
-                  Ver em ação 🔗
+                  {t("seeInAction")}
                 </a>
               </div>
             </div>

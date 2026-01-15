@@ -34,6 +34,7 @@ import {
   getNextLevel,
   selectNextQuestion,
 } from "../../../../../../utils/placement-utils";
+import { useTranslations } from "next-intl";
 
 // Import questions directly
 import enQuestionsData from "../../../../../../placement/en-questions.json";
@@ -44,6 +45,7 @@ export default function TestPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const langParam = searchParams.get("lang");
+  const t = useTranslations("Placement");
 
   const [loading, setLoading] = useState(true);
   const [selectedLanguage, setSelectedLanguage] = useState<"en" | "pt">("en");
@@ -203,7 +205,7 @@ export default function TestPage() {
     const firstQuestion = selectNextQuestion(startLevel, [], pool);
 
     if (!firstQuestion) {
-      toast.error("Error initializing test. No questions found.");
+      toast.error(t("errorInit"));
       return;
     }
 
@@ -378,7 +380,7 @@ export default function TestPage() {
         await setDoc(doc(db, "placement_progress", session.user.id), {
           completed: true,
         }, { merge: true });
-        toast.success("Test completed!");
+        toast.success(t("testCompleted"));
       } catch (error) {
         console.error("Error saving results:", error);
       }

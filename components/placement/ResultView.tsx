@@ -23,6 +23,7 @@ import {
 import { DiagnosticResult } from "../../types/placement/types";
 import { SKILL_PAGE_SIZE, getMacroSkill, MAX_QUESTIONS } from "../../utils/placement-utils";
 import { badgesData } from "./Badges/Levels";
+import { useTranslations } from "next-intl";
 
 interface ResultViewProps {
   result: {
@@ -36,6 +37,9 @@ interface ResultViewProps {
 }
 
 export const ResultView = ({ result, onBack, isHistoryView }: ResultViewProps) => {
+  const t = useTranslations("Placement");
+  const tBadges = useTranslations("Badges");
+
   const [skillViewMode, setSkillViewMode] = useState<"macro" | "topics">(
     "macro"
   );
@@ -45,10 +49,12 @@ export const ResultView = ({ result, onBack, isHistoryView }: ResultViewProps) =
 
   const badge = useMemo(() => {
     if (!result.level) return null;
-    const base = result.level.split(" ")[0];
+    const base = result.level.split(" ")[0]; // "A1", "A2", etc.
     const code = base.toUpperCase().slice(0, 2);
-    const matched = badgesData.find((item) => item.level.startsWith(code));
-    return matched || null;
+    // Find index in badgesData to know which translation key to use
+    const index = badgesData.findIndex((item) => item.level.startsWith(code));
+    const matched = badgesData[index];
+    return matched ? { ...matched, index } : null;
   }, [result.level]);
 
   const chartData = useMemo(() => {
@@ -323,7 +329,7 @@ export const ResultView = ({ result, onBack, isHistoryView }: ResultViewProps) =
           className="w-full h-14 text-lg font-bold uppercase tracking-wider rounded-2xl bg-indigo-500 hover:bg-indigo-600 border-b-4 border-indigo-700 active:border-b-0 active:translate-y-1 transition-all"
           onClick={onBack}
         >
-          {isHistoryView ? "Back to History" : "Go back"}
+          {isHistoryView ? t("backToHistory") : t("goBack")}
         </Button>
       </div>
 
@@ -341,7 +347,7 @@ export const ResultView = ({ result, onBack, isHistoryView }: ResultViewProps) =
               <div className="border-4 bg-white rounded-full">
                 <Image
                   src={badge.image}
-                  alt={badge.name}
+                  alt={tBadges(`items.${badge.index}.name`)}
                   width={120}
                   height={120}
                   className="object-cover"
@@ -349,13 +355,13 @@ export const ResultView = ({ result, onBack, isHistoryView }: ResultViewProps) =
               </div>
               <div className="text-center space-y-2">
                 <h2 className="text-xl font-semibold">
-                  {badge.name} - {badge.level}
+                  {tBadges(`items.${badge.index}.name`)} - {tBadges(`levels.${badge.index}`)}
                 </h2>
                 <p className="text-sm text-gray-500 dark:text-gray-300">
-                  {badge.text}
+                  {tBadges(`items.${badge.index}.text`)}
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {badge.explanation}
+                  {tBadges(`items.${badge.index}.explanation`)}
                 </p>
                 <a
                   href={badge.link}
@@ -363,7 +369,7 @@ export const ResultView = ({ result, onBack, isHistoryView }: ResultViewProps) =
                   rel="noopener noreferrer"
                   className="mt-2 inline-block text-indigo-500 hover:text-indigo-600 dark:text-indigo-400 dark:hover:text-indigo-300 underline"
                 >
-                  Ver em ação
+                  {t("seeInAction")}
                 </a>
               </div>
             </div>
