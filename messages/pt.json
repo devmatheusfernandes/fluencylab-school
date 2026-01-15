@@ -428,6 +428,10 @@
       "noPermission": "Você não tem permissão para gerenciar este usuário."
     }
   },
+  "AdminUsers": {
+    "heading": "Usuários",
+    "subheading": "Gerencie os usuários do sistema."
+  },
   "AdminFinances": {
     "title": "Financeiro",
     "subtitle": "Gestão de receitas e despesas.",
@@ -917,10 +921,6 @@
         "material_view": "Ver material"
       }
     }
-  },
-  "AdminUsers": {
-    "heading": "Usuários",
-    "subheading": "Gerencie os usuários do sistema."
   },
   "AdminCourses": {
     "list": {
