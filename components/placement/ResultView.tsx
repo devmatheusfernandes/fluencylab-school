@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   Trophy,
@@ -8,6 +9,7 @@ import {
   Clock,
   ArrowLeft,
   ChevronRight,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +22,7 @@ import {
 } from "recharts";
 import { DiagnosticResult } from "../../types/placement/types";
 import { SKILL_PAGE_SIZE, getMacroSkill, MAX_QUESTIONS } from "../../utils/placement-utils";
+import { badgesData } from "./Badges/Levels";
 
 interface ResultViewProps {
   result: {
@@ -37,6 +40,16 @@ export const ResultView = ({ result, onBack, isHistoryView }: ResultViewProps) =
     "macro"
   );
   const [skillOffset, setSkillOffset] = useState(0);
+  const [showBadge, setShowBadge] = useState(false);
+  const [showBadgeModal, setShowBadgeModal] = useState(false);
+
+  const badge = useMemo(() => {
+    if (!result.level) return null;
+    const base = result.level.split(" ")[0];
+    const code = base.toUpperCase().slice(0, 2);
+    const matched = badgesData.find((item) => item.level.startsWith(code));
+    return matched || null;
+  }, [result.level]);
 
   const chartData = useMemo(() => {
     if (!result) return [];
@@ -90,6 +103,15 @@ export const ResultView = ({ result, onBack, isHistoryView }: ResultViewProps) =
     return Math.floor(skillOffset / SKILL_PAGE_SIZE) + 1;
   }, [skillOffset, chartData.length, macroChartData.length, skillViewMode]);
 
+  const handleBadgeClick = () => {
+    if (!badge) return;
+    if (!showBadge) {
+      setShowBadge(true);
+    } else {
+      setShowBadgeModal(true);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
@@ -97,18 +119,47 @@ export const ResultView = ({ result, onBack, isHistoryView }: ResultViewProps) =
       exit={{ opacity: 0, x: -20 }}
       className="w-full text-center space-y-8 max-w-2xl mx-auto"
     >
-      {/* Celebration Header */}
       <div className="relative">
         <div className="absolute inset-0 flex items-center justify-center -z-10">
           <div className="w-64 h-64 bg-yellow-100 rounded-full blur-3xl opacity-50 animate-pulse" />
         </div>
         <motion.div
           initial={{ scale: 0, rotate: -20 }}
-          animate={{ scale: 1, rotate: 0 }}
+          animate={{ scale: showBadge ? 1.05 : 1, rotate: 0 }}
           transition={{ type: "spring", stiffness: 260, damping: 20 }}
-          className="w-32 h-32 mx-auto bg-gradient-to-br from-yellow-400 to-orange-500 rounded-3xl shadow-xl flex items-center justify-center border-4 border-white mb-6"
+          className="w-32 h-32 mx-auto bg-gradient-to-br from-yellow-400 to-orange-500 rounded-3xl shadow-xl flex items-center justify-center border-4 border-white mb-6 cursor-pointer relative"
+          onClick={handleBadgeClick}
         >
-          <Trophy className="h-16 w-16 text-white" />
+          {!showBadge || !badge ? (
+            <Trophy className="h-16 w-16 text-white" />
+          ) : (
+            <div className="flex flex-col items-center gap-2">
+              <div className="h-16 w-16 rounded-full overflow-hidden bg-white flex items-center justify-center">
+                <Image
+                  src={badge.image}
+                  alt={badge.name}
+                  width={64}
+                  height={64}
+                  className="object-cover"
+                />
+              </div>
+              <p className="text-xs font-semibold text-white text-center px-2">
+                {badge.name}
+              </p>
+            </div>
+          )}
+          {showBadge && (
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                setShowBadge(false);
+              }}
+              className="absolute left-2 top-2 rounded-full bg-white/20 p-1 text-white hover:bg-white/30"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </button>
+          )}
         </motion.div>
 
         <h2 className="text-slate-400 font-bold uppercase tracking-widest text-sm mb-2">
@@ -124,7 +175,6 @@ export const ResultView = ({ result, onBack, isHistoryView }: ResultViewProps) =
         </p>
       </div>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto">
         <div className="bg-white dark:bg-black p-4 rounded-2xl border-2 border-slate-100 dark:border-black/50 flex flex-col items-center">
           <div className="bg-green-100 p-2 rounded-full mb-2">
@@ -267,7 +317,6 @@ export const ResultView = ({ result, onBack, isHistoryView }: ResultViewProps) =
         </ResponsiveContainer>
       </div>
 
-      {/* Footer Actions */}
       <div className="space-y-3 pt-4">
         <Button
           size="lg"
@@ -277,6 +326,50 @@ export const ResultView = ({ result, onBack, isHistoryView }: ResultViewProps) =
           {isHistoryView ? "Back to History" : "Go back"}
         </Button>
       </div>
+
+      {showBadgeModal && badge && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="relative w-[90%] max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-black p-6 shadow-xl">
+            <button
+              type="button"
+              onClick={() => setShowBadgeModal(false)}
+              className="absolute right-4 top-4 px-3 py-1 text-xs font-semibold text-slate-600 dark:text-slate-200"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <div className="flex flex-col items-center gap-4">
+              <div className="border-4 bg-white rounded-full">
+                <Image
+                  src={badge.image}
+                  alt={badge.name}
+                  width={120}
+                  height={120}
+                  className="object-cover"
+                />
+              </div>
+              <div className="text-center space-y-2">
+                <h2 className="text-xl font-semibold">
+                  {badge.name} - {badge.level}
+                </h2>
+                <p className="text-sm text-gray-500 dark:text-gray-300">
+                  {badge.text}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {badge.explanation}
+                </p>
+                <a
+                  href={badge.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 inline-block text-indigo-500 hover:text-indigo-600 dark:text-indigo-400 dark:hover:text-indigo-300 underline"
+                >
+                  Ver em ação
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 };

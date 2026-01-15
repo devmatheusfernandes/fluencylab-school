@@ -57,7 +57,7 @@ export const TestView = ({
         </div>
       </div>
 
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         <motion.div
           key={currentQuestion.id}
           variants={pageVariants}

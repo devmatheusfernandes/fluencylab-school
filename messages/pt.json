@@ -5,6 +5,22 @@
     "libras": "Libras",
     "portuguese": "Português"
   },
+  "Placement": {
+    "chooseLanguage": "Escolha um idioma",
+    "adaptTestLevel": "Nós adaptaremos o teste ao seu nível.",
+    "continueTest": "Continue seu teste de {lang}",
+    "testInProgress": "Você tem um teste em andamento.",
+    "continue": "Continuar",
+    "selected": "Selecionado",
+    "testDuration": "O teste leva cerca de 10 minutos. As perguntas ficam mais difíceis ou fáceis com base nas suas respostas. Boa sorte!",
+    "startTest": "Iniciar Teste de Nivelamento",
+    "viewHistory": "Ver Resultados Anteriores",
+    "historyTitle": "Histórico",
+    "historySubheading": "Revise seus resultados anteriores do teste de nivelamento.",
+    "noHistory": "Nenhum histórico encontrado. Faça um teste para ver seus resultados aqui!",
+    "unknownDate": "Data desconhecida",
+    "errorHistory": "Falha ao carregar o histórico."
+  },
   "NotificationCard": {
     "invalidDate": "Data inválida",
     "minutesShort": "{minutes}m",
@@ -188,7 +204,8 @@
     "practice": "Prática",
     "calendar": "Calendário",
     "notifications": "Notificações",
-    "chat": "Conversas"
+    "chat": "Conversas",
+    "myPlacement": "Nivelamento"
   },
   "UserProfileHeader": {
     "profilePicture": "Foto de perfil",
@@ -1330,6 +1347,10 @@
     "checklist": "Checklist",
     "placementComplete": "Nivelamento Completo",
     "placementPending": "Nivelamento Pendente",
+    "placementNone": "Nenhum nivelamento realizado",
+    "placementInProgress": "Nivelamento em andamento",
+    "placementDone": "Nivelamento feito recentemente",
+    "placementOutdated": "Nivelamento pendente (mais de 6 meses)",
     "contractPending": "Contrato Pendente",
     "contractCancelled": "Contrato Cancelado",
     "contractExpired": "Contrato Vencido",

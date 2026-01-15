@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { ContainerCard } from "@/components/ui/container";
 import { SubContainer } from "@/components/ui/sub-container";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -7,12 +8,12 @@ import { signOut } from "next-auth/react";
 import NextClassCard from "@/components/student/NextClassCard";
 import ProgressStatusCard from "@/components/student/ProgressStatusCard";
 import { StudentPaymentStatusCard } from "@/components/student/StudentPaymentStatusCard";
-import { usePlacementTests } from "@/hooks/usePlacementTests";
 import AchievementList from "@/components/student/AchievementList";
-import { determineCEFRLevel } from "@/utils/utils";
 import UserProfileHeader from "@/components/shared/UserCard/UserProfileHeader";
 import Badges from "@/components/placement/Badges/Badges";
 import { Skeleton } from "@/components/ui/skeleton";
+import { collection, query, where, orderBy, limit, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase/config";
 
 const ProfileHeaderSkeleton = () => (
   <Skeleton className="skeleton-base rounded-xl p-4 w-full">
@@ -60,9 +61,63 @@ const AchievementsSkeleton = ({ limit = 3 }: { limit?: number }) => (
   </div>
 );
 
+const LEVEL_INDEX: Record<string, number> = {
+  A1: 0,
+  A2: 1,
+  B1: 2,
+  B2: 3,
+  C1: 4,
+  C2: 5,
+};
+
 export default function MeuPerfil() {
   const { user, isLoading } = useCurrentUser();
-  const { tests } = usePlacementTests();
+  const [placementBadgeLevel, setPlacementBadgeLevel] = useState<number | null>(null);
+  const [isPlacementLoading, setIsPlacementLoading] = useState(true);
+
+  useEffect(() => {
+    const loadLatestPlacementResult = async () => {
+      setIsPlacementLoading(true);
+      setPlacementBadgeLevel(null);
+
+      if (!user?.id) {
+        setIsPlacementLoading(false);
+        return;
+      }
+
+      try {
+        const q = query(
+          collection(db, "placement_results"),
+          where("userId", "==", user.id),
+          orderBy("completedAt", "desc"),
+          limit(1)
+        );
+        const snap = await getDocs(q);
+
+        if (snap.empty) {
+          setIsPlacementLoading(false);
+          return;
+        }
+
+        const data = snap.docs[0].data() as {
+          assignedLevel?: string;
+        };
+
+        if (data.assignedLevel && LEVEL_INDEX[data.assignedLevel]) {
+          setPlacementBadgeLevel(LEVEL_INDEX[data.assignedLevel]);
+        } else {
+          setPlacementBadgeLevel(0);
+        }
+      } catch (error) {
+        console.error("Error loading latest placement result:", error);
+        setPlacementBadgeLevel(null);
+      } finally {
+        setIsPlacementLoading(false);
+      }
+    };
+
+    loadLatestPlacementResult();
+  }, [user?.id]);
 
   const handleLogout = () => {
     signOut({ callbackUrl: "/" });
@@ -120,8 +175,8 @@ export default function MeuPerfil() {
         transition={{ duration: 0.4, delay: 0.3 }}
       >
         <Badges
-          level={determineCEFRLevel(tests[0]?.totalScore || 0)}
-          isLoading={isLoading}
+          level={placementBadgeLevel ?? 0}
+          isLoading={isLoading || isPlacementLoading}
         />
       </SubContainer>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -8,6 +8,8 @@ import { useContract } from "@/hooks/useContract";
 import { Text } from "@/components/ui/text";
 import { Skeleton } from "../ui/skeleton";
 import { useTranslations } from "next-intl";
+import { doc, getDoc, collection, query, where, orderBy, limit, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase/config";
 
 interface StatusUIProps {
   text: string;
@@ -70,14 +72,82 @@ const ProgressStatusCard: React.FC<ProgressStatusCardProps> = ({
   const t = useTranslations("ProgressStatusCard");
   const { user, isLoading: isUserLoading } = useCurrentUser();
   const { contractStatus, isLoading: isContractLoading } = useContract();
+  const [placementStatus, setPlacementStatus] =
+    useState<StatusUIProps["variant"]>("pending");
+  const [placementText, setPlacementText] = useState<string>(
+    t("placementPending")
+  );
 
-  // Check if placement test is completed
-  const placementStatus: StatusUIProps["variant"] =
-    user?.placementDone === true ? "success" : "pending";
-  const placementText =
-    user?.placementDone === true
-      ? t("placementComplete")
-      : t("placementPending");
+  useEffect(() => {
+    const evaluatePlacementStatus = async () => {
+      if (!user?.id) {
+        setPlacementStatus("pending");
+        setPlacementText(t("placementNone"));
+        return;
+      }
+
+      try {
+        const progressRef = doc(db, "placement_progress", user.id);
+        const progressSnap = await getDoc(progressRef);
+
+        if (progressSnap.exists()) {
+          const progressData = progressSnap.data() as { completed?: boolean };
+          if (!progressData.completed) {
+            setPlacementStatus("warning");
+            setPlacementText(t("placementInProgress"));
+            return;
+          }
+        }
+
+        const resultsQuery = query(
+          collection(db, "placement_results"),
+          where("userId", "==", user.id),
+          orderBy("completedAt", "desc"),
+          limit(1)
+        );
+
+        const resultsSnap = await getDocs(resultsQuery);
+
+        if (resultsSnap.empty) {
+          setPlacementStatus("pending");
+          setPlacementText(t("placementNone"));
+          return;
+        }
+
+        const latest = resultsSnap.docs[0].data() as { completedAt?: any };
+
+        if (!latest.completedAt) {
+          setPlacementStatus("pending");
+          setPlacementText(t("placementNone"));
+          return;
+        }
+
+        const completedDate =
+          typeof latest.completedAt.toDate === "function"
+            ? latest.completedAt.toDate()
+            : new Date(latest.completedAt);
+
+        const now = new Date();
+        const diffMs = now.getTime() - completedDate.getTime();
+        const diffDays = diffMs / (1000 * 60 * 60 * 24);
+        const sixMonthsInDays = 6 * 30;
+
+        if (diffDays <= sixMonthsInDays) {
+          setPlacementStatus("success");
+          setPlacementText(t("placementDone"));
+        } else {
+          setPlacementStatus("pending");
+          setPlacementText(t("placementOutdated"));
+        }
+      } catch (error) {
+        console.error("Error evaluating placement status:", error);
+        setPlacementStatus("pending");
+        setPlacementText(t("placementNone"));
+      }
+    };
+
+    evaluatePlacementStatus();
+  }, [user?.id, t]);
 
   // Check contract status
   let contractStatusVariant: StatusUIProps["variant"] = "pending";
@@ -129,7 +199,7 @@ const ProgressStatusCard: React.FC<ProgressStatusCardProps> = ({
         <StatusItem
           variant={placementStatus}
           text={placementText}
-          link="/hub/student/my-placement-test"
+          link="/hub/student/my-placement"
           icon={placementTestIcon}
         />
       </div>

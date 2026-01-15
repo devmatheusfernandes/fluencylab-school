@@ -70,7 +70,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
         )}
         {...props}
       >
-        <div className="flex-1 min-w-0 flex items-start gap-4">
+        <div className="flex-1 min-w-0 flex items-center gap-4">
           {backHref && (
             <Link
               href={backHref}

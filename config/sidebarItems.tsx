@@ -6,7 +6,6 @@ import {
   Users,
   Calendar,
   Settings,
-  Layers,
   DollarSign,
   Video,
   BookOpen,

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
@@ -10,16 +10,16 @@ import { toast } from "sonner";
 import { HistoryItem } from "../../../../../../types/placement/types";
 import { ResultView } from "../../../../../../components/placement/ResultView";
 import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Header } from "@/components/ui/header";
+import { useTranslations } from "next-intl";
 
 export default function HistoryPage() {
   const { data: session } = useSession();
+  const t = useTranslations("Placement");
+  const tLang = useTranslations("Languages");
   const [loading, setLoading] = useState(true);
   const [historyList, setHistoryList] = useState<HistoryItem[]>([]);
   const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     const loadHistory = async () => {
@@ -42,7 +42,7 @@ export default function HistoryPage() {
         setHistoryList(historyData);
       } catch (error) {
         console.error("Error loading history:", error);
-        toast.error("Failed to load history.");
+        toast.error(t("errorHistory"));
       } finally {
         setLoading(false);
       }
@@ -81,25 +81,18 @@ export default function HistoryPage() {
   }
 
   return (
-    <div className="flex flex-col items-center py-6 px-4 font-sans text-slate-800">
-      <div className="w-full max-w-2xl space-y-8">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.back()}
-            className="rounded-full"
-          >
-            <ArrowLeft className="h-6 w-6" />
-          </Button>
-          <h1 className="text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-3">
-            <History className="h-8 w-8 text-primary" /> History
-          </h1>
-        </div>
+    <div className="flex flex-col py-6 px-4 w-full">
+      <div className="space-y-4">
+        <Header
+          heading={t("historyTitle")}
+          backHref="/hub/student/my-placement"
+          icon={<History className="h-8 w-8 text-primary" />}
+          subheading={t("historySubheading")}
+        />
 
         {historyList.length === 0 ? (
           <div className="text-center py-12 text-slate-500">
-            No history found. Take a test to see your results here!
+            {t("noHistory")}
           </div>
         ) : (
           <div className="space-y-3">
@@ -127,13 +120,15 @@ export default function HistoryPage() {
                     </div>
                     <div>
                       <p className="font-bold text-slate-700">
-                        {item.language === "en" ? "English" : "Portuguese"}
+                        {item.language === "en"
+                          ? tLang("english")
+                          : tLang("portuguese")}
                       </p>
                       <p className="text-xs text-slate-400 flex items-center gap-1">
                         <Calendar className="h-3 w-3" />{" "}
                         {item.completedAt?.toDate
                           ? item.completedAt.toDate().toLocaleDateString()
-                          : "Unknown date"}
+                          : t("unknownDate")}
                       </p>
                     </div>
                   </div>

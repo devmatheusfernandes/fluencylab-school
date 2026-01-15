@@ -5,6 +5,22 @@
     "libras": "Libras",
     "portuguese": "Portuguese"
   },
+  "Placement": {
+    "chooseLanguage": "Choose a language",
+    "adaptTestLevel": "We'll adapt the test to your level.",
+    "continueTest": "Continue your {lang} Test",
+    "testInProgress": "You have a test in progress.",
+    "continue": "Continue",
+    "selected": "Selected",
+    "testDuration": "The test takes about 10 minutes. Questions get harder or easier based on your answers. Good luck!",
+    "startTest": "Start Placement Test",
+    "viewHistory": "View Past Results",
+    "historyTitle": "History",
+    "historySubheading": "Review your previous placement test results.",
+    "noHistory": "No history found. Take a test to see your results here!",
+    "unknownDate": "Unknown date",
+    "errorHistory": "Failed to load history."
+  },
   "NotificationCard": {
     "invalidDate": "Invalid date",
     "minutesShort": "{minutes}m",
@@ -188,7 +204,8 @@
     "practice": "Practice",
     "calendar": "Calendar",
     "notifications": "Notifications",
-    "chat": "Chat"
+    "chat": "Chat",
+    "myPlacement": "Placement"
   },
   "UserProfileHeader": {
     "profilePicture": "Profile picture",
@@ -1331,6 +1348,10 @@
     "checklist": "Checklist",
     "placementComplete": "Placement Complete",
     "placementPending": "Placement Pending",
+    "placementNone": "No placement test completed",
+    "placementInProgress": "Placement test in progress",
+    "placementDone": "Placement recently completed",
+    "placementOutdated": "Placement pending (over 6 months old)",
     "contractPending": "Contract Pending",
     "contractCancelled": "Contract Cancelled",
     "contractExpired": "Contract Expired",

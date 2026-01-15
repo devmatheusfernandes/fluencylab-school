@@ -15,11 +15,15 @@ import { useSession } from "next-auth/react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { pageVariants } from "../../../../../config/animations";
+import { Header } from "@/components/ui/header";
+import { useTranslations } from "next-intl";
 
 export default function PlacementHomePage() {
   const { data: session } = useSession();
   const router = useRouter();
   const pathname = usePathname();
+  const t = useTranslations("Placement");
+  const tLang = useTranslations("Languages");
   const [selectedLanguage, setSelectedLanguage] = useState<"en" | "pt">("en");
   const [incompleteTest, setIncompleteTest] = useState<{
     lang: "en" | "pt";
@@ -63,8 +67,8 @@ export default function PlacementHomePage() {
   };
 
   return (
-    <div className="flex flex-col md:items-center py-6 px-4 font-sans text-slate-800">
-      <div className="w-full max-w-2xl flex-1 flex flex-col justify-center">
+    <div className="flex flex-col py-6 px-4 w-full">
+      <div className=" flex flex-col justify-center">
         <motion.div
           variants={pageVariants}
           initial="initial"
@@ -72,17 +76,13 @@ export default function PlacementHomePage() {
           exit="exit"
           className="space-y-8"
         >
-          <div className="text-center space-y-4">
-            <div className="inline-block p-4 bg-background rounded-2xl mb-2">
-              <Globe className="h-12 w-12 text-primary" />
-            </div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
-              Choose a language
-            </h1>
-            <p className="text-slate-500 font-medium text-lg">
-              We'll adapt the test to your level.
-            </p>
-          </div>
+          <Header
+            heading={t("chooseLanguage")}
+            subheading={t("adaptTestLevel")}
+            backHref="/hub/student/my-profile"
+            icon={<Globe className="h-12 w-12 text-primary" />}
+            className="mb-8"
+          />
 
           {incompleteTest && (
             <motion.div
@@ -94,10 +94,10 @@ export default function PlacementHomePage() {
                 <PlayCircle className="h-10 w-10 text-primary" />
                 <div>
                   <h3 className="font-bold text-lg text-primary-foreground">
-                    Continue your {incompleteTest.lang === "en" ? "English" : "Portuguese"} Test
+                    {t("continueTest", { lang: incompleteTest.lang === "en" ? tLang("english") : tLang("portuguese") })}
                   </h3>
                   <p className="text-sm text-slate-500 font-medium">
-                    You have a test in progress.
+                    {t("testInProgress")}
                   </p>
                 </div>
               </div>
@@ -105,7 +105,7 @@ export default function PlacementHomePage() {
                 onClick={handleContinue}
                 className="w-full sm:w-auto font-bold uppercase tracking-wider"
               >
-                Continue
+                {t("continue")}
               </Button>
             </motion.div>
           )}
@@ -113,17 +113,17 @@ export default function PlacementHomePage() {
           {!incompleteTest && (
             <>
               {/* Language Selection */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-3xl mx-auto py-4">
                 {[
                   {
                     id: "en",
-                    label: "English",
+                    label: tLang("english"),
                     flag: "🇺🇸",
                     color: "bg-emerald-500",
                   },
                   {
                     id: "pt",
-                    label: "Portuguese",
+                    label: tLang("portuguese"),
                     flag: "🇧🇷",
                     color: "bg-amber-500",
                   },
@@ -143,16 +143,13 @@ export default function PlacementHomePage() {
                         : "bg-card border-2 border-accent"
                     }`}
                   >
-                    <span className="text-4xl shadow-sm rounded-full bg-white p-2">
-                      {lang.flag}
-                    </span>
                     <div>
-                      <span className="block font-bold text-xl text-slate-700">
+                      <span className={`block font-bold text-xl ${selectedLanguage === lang.id ? "text-black" : "text-white"}`}>
                         {lang.label}
                       </span>
                       {selectedLanguage === lang.id && (
                         <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                          Selected
+                          {t("selected")}
                         </span>
                       )}
                     </div>
@@ -169,20 +166,19 @@ export default function PlacementHomePage() {
                 ))}
               </div>
 
-              <div className="bg-card rounded-xl border-2 border-accent p-4 flex gap-3 text-blue-800">
+              <div className="bg-card w-full max-w-3xl mx-auto rounded-xl border-2 border-accent p-4 flex gap-3 text-blue-800">
                 <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
                 <div className="text-sm font-medium leading-relaxed">
-                  The test takes about 10 minutes. Questions get harder or
-                  easier based on your answers. Good luck!
+                  {t("testDuration")}
                 </div>
               </div>
 
               <Button
                 size="lg"
-                className="w-full h-14 text-lg font-bold uppercase tracking-wider rounded-2xl border-b-4 border-primary-foreground/20 active:border-b-0 active:translate-y-1 transition-all"
+                className="w-full max-w-3xl mx-auto flex justify-center h-14 text-lg font-bold uppercase tracking-wider rounded-2xl border-b-4 border-primary-foreground/20 active:border-b-0 active:translate-y-1 transition-all"
                 onClick={handleStart}
               >
-                Start Placement Test
+                {t("startTest")}
               </Button>
             </>
           )}
@@ -190,10 +186,10 @@ export default function PlacementHomePage() {
           <div className="pt-6">
             <Button
               variant="ghost"
-              className="w-full font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 justify-center"
+              className="mx-auto font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 justify-center"
               onClick={handleViewHistory}
             >
-              <History className="h-4 w-4" /> View Past Results
+              <History className="h-4 w-4 mr-2" /> {t("viewHistory")}
             </Button>
           </div>
         </motion.div>
