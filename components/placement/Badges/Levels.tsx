@@ -8,6 +8,7 @@ import RicharlissonImage from "../../../public/images/badges/richarlisson.png";
 import JoelSantanaImage from "../../../public/images/badges/joelsantana.png";
 import NaldoBennyImage from "../../../public/images/badges/naldobenny.png";
 import { EyeClosed } from "lucide-react";
+
 const badgesData = [
   {
     name: "Sabrina Sato",

@@ -1,0 +1,242 @@
+[
+{
+"id": "q_01",
+"text": "Eu ____ brasileiro.",
+"options": ["sou", "estou", "é", "são"],
+"correctOption": "sou",
+"level": "A1",
+"topics": ["grammar", "verb-ser"]
+},
+{
+"id": "q_02",
+"text": "Ela mora ____ Brasil.",
+"options": ["em", "no", "na", "de"],
+"correctOption": "no",
+"level": "A1",
+"topics": ["grammar", "prepositions-contractions"]
+},
+{
+"id": "q_03",
+"text": "Nós ____ estudar agora.",
+"options": ["vamos", "vai", "vão", "vou"],
+"correctOption": "vamos",
+"level": "A1",
+"topics": ["grammar", "verb-ir"]
+},
+{
+"id": "q_04",
+"text": "Qual é o ____ nome?",
+"options": ["teu", "seu", "tua", "suas"],
+"correctOption": "seu",
+"level": "A1",
+"topics": ["grammar", "possessives"]
+},
+{
+"id": "q_05",
+"text": "A mesa é **.",
+"options": ["bonito", "bonitos", "bonita", "bonitas"],
+"correctOption": "bonita",
+"level": "A1",
+"topics": ["grammar", "adjective-agreement"]
+},
+{
+"id": "q_06",
+"text": "Ontem eu ____ ao cinema com meus amigos.",
+"options": ["fui", "foi", "vou", "ia"],
+"correctOption": "fui",
+"level": "A2",
+"topics": ["grammar", "past-perfect"]
+},
+{
+"id": "q_07",
+"text": "Minha casa é ____ que a sua.",
+"options": ["mais grande", "maior", "grande", "muito grande"],
+"correctOption": "maior",
+"level": "A2",
+"topics": ["grammar", "comparatives"]
+},
+{
+"id": "q_08",
+"text": "Eu preciso conversar ____ você.",
+"options": ["de", "por", "com", "a"],
+"correctOption": "com",
+"level": "A2",
+"topics": ["grammar", "prepositions"]
+},
+{
+"id": "q_09",
+"text": "Nós estamos ____ um filme agora.",
+"options": ["assistir", "assistindo", "assistido", "assiste"],
+"correctOption": "assistindo",
+"level": "A2",
+"topics": ["grammar", "present-continuous"]
+},
+{
+"id": "q_10",
+"text": "Você conhece ____ restaurante bom por aqui?",
+"options": ["algum", "nenhum", "alguém", "nada"],
+"correctOption": "algum",
+"level": "A2",
+"topics": ["grammar", "indefinite-pronouns"]
+},
+{
+"id": "q_11",
+"text": "Antigamente, eu ____ muito futebol na rua.",
+"options": ["joguei", "jogava", "jogo", "jogara"],
+"correctOption": "jogava",
+"level": "B1",
+"topics": ["grammar", "past-imperfect"]
+},
+{
+"id": "q_12",
+"text": "Espero que você ____ bem na prova.",
+"options": ["vai", "fui", "vá", "ir"],
+"correctOption": "vá",
+"level": "B1",
+"topics": ["grammar", "present-subjunctive"]
+},
+{
+"id": "q_13",
+"text": "Este presente é ____ você.",
+"options": ["por", "para", "de", "com"],
+"correctOption": "para",
+"level": "B1",
+"topics": ["grammar", "prepositions-por-vs-para"]
+},
+{
+"id": "q_14",
+"text": "Eu já tinha ____ o trabalho quando ele chegou.",
+"options": ["terminado", "terminou", "terminava", "terminar"],
+"correctOption": "terminado",
+"level": "B1",
+"topics": ["grammar", "past-perfect-compound"]
+},
+{
+"id": "q_15",
+"text": "Ela gosta de ____ cedo nos finais de semana.",
+"options": ["levantar-se", "se levantar", "levantar", "se levanta"],
+"correctOption": "levantar-se",
+"level": "B1",
+"topics": ["grammar", "reflexive-verbs"]
+},
+{
+"id": "q_16",
+"text": "Quando você ____ o livro, me avise.",
+"options": ["ler", "leu", "leia", "lê"],
+"correctOption": "ler",
+"level": "B2",
+"topics": ["grammar", "future-subjunctive"]
+},
+{
+"id": "q_17",
+"text": "É importante eles ____ a verdade.",
+"options": ["saberem", "sabem", "saibam", "souberem"],
+"correctOption": "saberem",
+"level": "B2",
+"topics": ["grammar", "personal-infinitive"]
+},
+{
+"id": "q_18",
+"text": "Eu vou à escola ____ pé.",
+"options": ["de", "a", "à", "em"],
+"correctOption": "a",
+"level": "B2",
+"topics": ["grammar", "prepositions-modes"]
+},
+{
+"id": "q_19",
+"text": "Se eu ____ rico, viajaria o mundo todo.",
+"options": ["fui", "era", "fosse", "sou"],
+"correctOption": "fosse",
+"level": "B2",
+"topics": ["grammar", "imperfect-subjunctive"]
+},
+{
+"id": "q_20",
+"text": "Fui ____ festa ontem, mas não gostei.",
+"options": ["a", "na", "à", "em"],
+"correctOption": "à",
+"level": "B2",
+"topics": ["grammar", "crase"]
+},
+{
+"id": "q_21",
+"text": "Ele não foi trabalhar, ____ estava doente.",
+"options": ["por que", "por quê", "porque", "porquê"],
+"correctOption": "porque",
+"level": "C1",
+"topics": ["grammar", "use-of-porques"]
+},
+{
+"id": "q_22",
+"text": "Se você tivesse estudado, ____ passado no teste.",
+"options": ["tinha", "teria", "terá", "tivesse"],
+"correctOption": "teria",
+"level": "C1",
+"topics": ["grammar", "conditional-compound"]
+},
+{
+"id": "q_23",
+"text": "Embora ____ chovendo, nós vamos sair.",
+"options": ["está", "esteja", "estiver", "estava"],
+"correctOption": "esteja",
+"level": "C1",
+"topics": ["grammar", "conjunctions-concessive"]
+},
+{
+"id": "q_24",
+"text": "Ele comprou dois ____ novos.",
+"options": ["guarda-chuvas", "guardas-chuvas", "guarda-chuva", "guardas-chuva"],
+"correctOption": "guarda-chuvas",
+"level": "C1",
+"topics": ["grammar", "compound-nouns-plural"]
+},
+{
+"id": "q_25",
+"text": "Nunca se ____ de onde viemos.",
+"options": ["esqueça", "esquece", "esqueçam", "esqueci"],
+"correctOption": "esqueça",
+"level": "C1",
+"topics": ["grammar", "imperative-negative"]
+},
+{
+"id": "q_26",
+"text": "Dar-**-ei o recado assim que o vir.",
+"options": ["lhe", "lo", "te", "se"],
+"correctOption": "lhe",
+"level": "C2",
+"topics": ["grammar", "mesoclisis"]
+},
+{
+"id": "q_27",
+"text": "Ele agiu de tal forma que ____ suspeitas.",
+"options": ["suscitou", "suscetibilizou", "sucateou", "susteve"],
+"correctOption": "suscitou",
+"level": "C2",
+"topics": ["vocabulary", "formal-verbs"]
+},
+{
+"id": "q_28",
+"text": "A medida foi tomada ____ evitar maiores prejuízos.",
+"options": ["a fim de", "afim de", "a fim que", "afim que"],
+"correctOption": "a fim de",
+"level": "C2",
+"topics": ["grammar", "connectors"]
+},
+{
+"id": "q_29",
+"text": "Haja o que ____, estaremos juntos.",
+"options": ["haver", "houver", "haja", "há"],
+"correctOption": "houver",
+"level": "C2",
+"topics": ["grammar", "future-subjunctive-irregular"]
+},
+{
+"id": "q_30",
+"text": "Prefiro estudar ____ trabalhar.",
+"options": ["do que", "a", "que", "de"],
+"correctOption": "a",
+"level": "C2",
+"topics": ["grammar", "verb-regency-preferir"]
+}
+]

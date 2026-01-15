@@ -1,0 +1,244 @@
+[
+{
+  "id": "q_audio_1",
+  "text": "What is the speaker describing?",
+  "audioUrl": "https://commondatastorage.googleapis.com/codeskulptor-assets/week7-button.m4a", 
+  "options": ["An Elephant", "A Car", "A Bird", "A Plane"],
+  "correctOption": "An Elephant",
+  "level": "A1",
+  "topics": ["listening", "vocabulary"]
+},
+{
+"id": "q_02",
+"text": "She ____ like apples.",
+"options": ["don't", "doesn't", "not", "isn't"],
+"correctOption": "doesn't",
+"level": "A1",
+"topics": ["grammar", "present-simple"]
+},
+{
+"id": "q_03",
+"text": "The keys are ____ the table.",
+"options": ["on", "in", "at", "to"],
+"correctOption": "on",
+"level": "A1",
+"topics": ["grammar", "prepositions"]
+},
+{
+"id": "q_04",
+"text": "My brother's daughter is my ____.",
+"options": ["nephew", "cousin", "niece", "sister"],
+"correctOption": "niece",
+"level": "A1",
+"topics": ["vocabulary", "family-members"]
+},
+{
+"id": "q_05",
+"text": "What time ____ you get up?",
+"options": ["does", "are", "is", "do"],
+"correctOption": "do",
+"level": "A1",
+"topics": ["grammar", "auxiliary-verbs"]
+},
+{
+"id": "q_06",
+"text": "Yesterday, I ____ a new car.",
+"options": ["buy", "bought", "buyed", "buying"],
+"correctOption": "bought",
+"level": "A2",
+"topics": ["grammar", "past-simple"]
+},
+{
+"id": "q_07",
+"text": "This building is ____ than the other one.",
+"options": ["tall", "tallest", "taller", "more tall"],
+"correctOption": "taller",
+"level": "A2",
+"topics": ["grammar", "comparatives"]
+},
+{
+"id": "q_08",
+"text": "I am interested ____ learning Spanish.",
+"options": ["on", "in", "at", "for"],
+"correctOption": "in",
+"level": "A2",
+"topics": ["grammar", "prepositions"]
+},
+{
+"id": "q_09",
+"text": "We were watching TV when the phone ____.",
+"options": ["ring", "rang", "was ringing", "rings"],
+"correctOption": "rang",
+"level": "A2",
+"topics": ["grammar", "past-continuous-vs-simple"]
+},
+{
+"id": "q_10",
+"text": "There aren't ____ chairs in the room.",
+"options": ["some", "any", "much", "no"],
+"correctOption": "any",
+"level": "A2",
+"topics": ["grammar", "quantifiers"]
+},
+{
+"id": "q_11",
+"text": "I ____ Paris three times.",
+"options": ["have visited", "visit", "visited", "had visited"],
+"correctOption": "have visited",
+"level": "B1",
+"topics": ["grammar", "present-perfect"]
+},
+{
+"id": "q_12",
+"text": "If it rains tomorrow, we ____ the picnic.",
+"options": ["cancel", "would cancel", "will cancel", "canceled"],
+"correctOption": "will cancel",
+"level": "B1",
+"topics": ["grammar", "first-conditional"]
+},
+{
+"id": "q_13",
+"text": "She has been working here ____ 2010.",
+"options": ["for", "since", "from", "until"],
+"correctOption": "since",
+"level": "B1",
+"topics": ["grammar", "prepositions"]
+},
+{
+"id": "q_14",
+"text": "He accused me ____ stealing the money.",
+"options": ["of", "for", "about", "with"],
+"correctOption": "of",
+"level": "B1",
+"topics": ["grammar", "dependent-prepositions"]
+},
+{
+"id": "q_15",
+"text": "You ____ wear a uniform at school; it's the rule.",
+"options": ["must", "should", "might", "can"],
+"correctOption": "must",
+"level": "B1",
+"topics": ["grammar", "modals-obligation"]
+},
+{
+"id": "q_16",
+"text": "By the time we arrived, the movie ____.",
+"options": ["started", "had started", "has started", "starts"],
+"correctOption": "had started",
+"level": "B2",
+"topics": ["grammar", "past-perfect"]
+},
+{
+"id": "q_17",
+"text": "If I ____ you, I would accept the job offer.",
+"options": ["was", "were", "am", "have been"],
+"correctOption": "were",
+"level": "B2",
+"topics": ["grammar", "second-conditional"]
+},
+{
+"id": "q_18",
+"text": "The meeting was put ____ until next week.",
+"options": ["away", "off", "out", "up"],
+"correctOption": "off",
+"level": "B2",
+"topics": ["vocabulary", "phrasal-verbs"]
+},
+{
+"id": "q_19",
+"text": "He succeeded ____ solving the complex problem.",
+"options": ["on", "at", "in", "with"],
+"correctOption": "in",
+"level": "B2",
+"topics": ["grammar", "prepositions"]
+},
+{
+"id": "q_20",
+"text": "I used to smoke, but I gave it ____ last year.",
+"options": ["up", "in", "out", "away"],
+"correctOption": "up",
+"level": "B2",
+"topics": ["vocabulary", "phrasal-verbs"]
+},
+{
+"id": "q_21",
+"text": "Rarely ____ such a magnificent performance.",
+"options": ["I have seen", "have I seen", "I saw", "saw I"],
+"correctOption": "have I seen",
+"level": "C1",
+"topics": ["grammar", "inversion"]
+},
+{
+"id": "q_22",
+"text": "It’s high time we ____ home.",
+"options": ["go", "went", "gone", "are going"],
+"correctOption": "went",
+"level": "C1",
+"topics": ["grammar", "subjunctive-structures"]
+},
+{
+"id": "q_23",
+"text": "The government's plan was met with widespread **.",
+"options": ["opposition", "opposite", "opposing", "opponent"],
+"correctOption": "opposition",
+"level": "C1",
+"topics": ["vocabulary", "word-formation"]
+},
+{
+"id": "q_24",
+"text": "** to popular belief, wealth does not guarantee happiness.",
+"options": ["Opposite", "Contrary", "Against", "Opposed"],
+"correctOption": "Contrary",
+"level": "C1",
+"topics": ["grammar", "prepositions"]
+},
+{
+"id": "q_25",
+"text": "I’ll have the report finished ____ Friday.",
+"options": ["until", "by", "on", "to"],
+"correctOption": "by",
+"level": "C1",
+"topics": ["grammar", "prepositions"]
+},
+{
+"id": "q_26",
+"text": "Had I known about the traffic, I ____ earlier.",
+"options": ["would leave", "would have left", "had left", "left"],
+"correctOption": "would have left",
+"level": "C2",
+"topics": ["grammar", "third-conditional-inversion"]
+},
+{
+"id": "q_27",
+"text": "The CEO categorically ____ any involvement in the scandal.",
+"options": ["refused", "rejected", "denied", "renounced"],
+"correctOption": "denied",
+"level": "C2",
+"topics": ["vocabulary", "collocations"]
+},
+{
+"id": "q_28",
+"text": "She was ____ with envy when she saw his new car.",
+"options": ["red", "green", "blue", "yellow"],
+"correctOption": "green",
+"level": "C2",
+"topics": ["vocabulary", "idioms"]
+},
+{
+"id": "q_29",
+"text": "The company is ____ the verge of bankruptcy.",
+"options": ["at", "in", "on", "to"],
+"correctOption": "on",
+"level": "C2",
+"topics": ["grammar", "fixed-phrases-prepositions"]
+},
+{
+"id": "q_30",
+"text": "Whatever the outcome ____ be, we must remain united.",
+"options": ["may", "can", "should", "will"],
+"correctOption": "may",
+"level": "C2",
+"topics": ["grammar", "modals-concession"]
+}
+
+]

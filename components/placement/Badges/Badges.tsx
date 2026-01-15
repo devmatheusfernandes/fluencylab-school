@@ -89,7 +89,7 @@ export default function Badges({
           alt="EnglishBadge"
         />
       </div>
-      {/* Nome clicável */}
+
       <div
         className="cursor-pointer font-bold mt-2 duration-300 ease-in-out transition-all hover:text-indigo-500"
         onClick={openModal}
