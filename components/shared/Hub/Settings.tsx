@@ -6,7 +6,6 @@ import { UserAdminRepository } from "@/repositories/user.admin.repository";
 import { redirect } from "next/navigation";
 import SettingsForm from "@/components/settings/SettingsForm";
 import ErrorAlert from "@/components/ui/error-alert";
-import { Header } from "@/components/ui/header";
 import { getTranslations } from "next-intl/server";
 
 const userAdminRepo = new UserAdminRepository();
@@ -31,12 +30,6 @@ export default async function SettingsPage() {
 
   return (
     <div className="flex flex-col">
-      <div className="px-4 md:px-6 pt-6 pb-2">
-        <Header
-          heading={t("header.title")}
-          subheading={t("header.subtitle")}
-        />
-      </div>
       <SettingsForm
         currentLanguage={user.interfaceLanguage}
         currentTheme={user.theme || "dark"}

@@ -9,7 +9,7 @@ import { toast } from "sonner";
 
 // Icons
 import { useTranslations } from "next-intl";
-import { Plus, Edit, Trash2, Search, BookOpen, Clock, Globe, Loader2, AlertCircle } from "lucide-react";
+import { Plus, Edit, Trash2, Search, BookOpen, Clock, Globe, AlertCircle } from "lucide-react";
 
 // UI Components
 import { Button } from "@/components/ui/button";
@@ -122,7 +122,7 @@ export default function AdminCoursesPage() {
 
           <Link href="/hub/admin/courses/criar">
             <Button className="w-full md:w-auto gap-2">
-              <Plus className="w-4 h-4" />
+              <Plus className="w-4 h-4 mr-1" />
               {t("newCourse")}
             </Button>
           </Link>

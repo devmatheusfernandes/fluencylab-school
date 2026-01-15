@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { usePathname, useRouter } from "next/navigation";
 import { useSettings } from "@/hooks/useSettings";
 import { useContract } from "@/hooks/useContract";
 import { Card } from "@/components/ui/card";
@@ -38,6 +39,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { Header } from "../ui/header";
 
 interface SettingsFormProps {
   currentLanguage: string;
@@ -77,6 +79,8 @@ export default function SettingsForm({
   googleCalendarDefaultTimes = {},
 }: SettingsFormProps) {
   const t = useTranslations("Settings");
+  const router = useRouter();
+  const pathname = usePathname();
   const [language, setLanguage] = useState(currentLanguage);
   const [themeColor, setThemeColor] = useState<
     "violet" | "rose" | "orange" | "yellow" | "green"
@@ -163,6 +167,10 @@ export default function SettingsForm({
       initial="hidden"
       animate="visible"
     >
+      <Header
+        heading={t("header.title")}
+        subheading={t("header.subtitle")}
+      />
       {/* Interface Settings */}
       <motion.div variants={itemVariants}>
         <Card className="card-base p-6 space-y-6">
@@ -195,6 +203,11 @@ export default function SettingsForm({
                 onValueChange={(v) => {
                   setLanguage(v);
                   updateSettings({ interfaceLanguage: v });
+                  const segments = pathname.split("/");
+                  if (segments.length > 1) {
+                    segments[1] = v;
+                  }
+                  router.push(segments.join("/"));
                 }}
               >
                 <SelectTrigger className="w-full sm:w-[180px]">

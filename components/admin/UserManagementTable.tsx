@@ -50,6 +50,7 @@ import { Card } from "../ui/card";
 import { Input } from "@/components/ui/input";
 import { NoResults } from "@/components/ui/no-results";
 import { Search } from "lucide-react";
+import { Header } from "../ui/header";
 
 export default function UserManagementTable() {
   const {
@@ -76,6 +77,7 @@ export default function UserManagementTable() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const t = useTranslations("UserManagement");
   const tRoles = useTranslations("UserRoles");
+  const tHeader = useTranslations("AdminUsers");
 
   // Debounce search query
   useEffect(() => {
@@ -189,6 +191,10 @@ export default function UserManagementTable() {
 
   return (
     <>
+     <Header
+        heading={tHeader("heading")}
+        subheading={tHeader("subheading")}
+      />
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 my-4">
         <div className="w-full md:w-auto flex flex-col gap-2">
             <div className="flex flex-col sm:flex-row gap-2">
