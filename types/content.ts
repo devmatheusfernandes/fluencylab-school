@@ -25,6 +25,7 @@ export interface LearningItem {
   
   mainText: string;    // "run"
   phonetic?: string;   // "/rʌn/"
+  imageUrl?: string | null; // URL da imagem ilustrativa
 
   meanings: Array<{
     context: string;       // "Physical activity"

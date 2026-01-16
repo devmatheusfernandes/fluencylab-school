@@ -1,7 +1,11 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { LearningItem } from '@/types/content';
+import { updateLearningItem } from '@/actions/learning-items';
+import { handleImageUpload, deleteImageByUrl } from '@/lib/tiptap-utils';
+import { toast } from 'sonner';
+import Image from 'next/image';
 import {
   Table,
   TableBody,
@@ -11,6 +15,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,7 +33,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Search, Eye, Volume2, FilterX, BookOpen, Layers, Settings } from 'lucide-react';
+import { Search, Eye, Volume2, FilterX, BookOpen, Layers, Settings, Loader2, Upload, X, Edit } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Header } from '@/components/ui/header';
@@ -374,8 +379,105 @@ const MotionTableRow = motion(TableRow);
 
 // Extracted Modal for clearer code
 function DetailModal({ item }: { item: LearningItem }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState<Partial<LearningItem>>(item);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleInputChange = (field: keyof LearningItem, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleMeaningChange = (index: number, field: string, value: string) => {
+    const newMeanings = [...(formData.meanings || [])];
+    newMeanings[index] = { ...newMeanings[index], [field]: value };
+    setFormData(prev => ({ ...prev, meanings: newMeanings }));
+  };
+
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+      const url = await handleImageUpload(file);
+      
+      // If there was a previous image and it's different, we might want to delete it
+      // But we only delete on "Save" or explicit delete to avoid losing images on cancel
+      // Actually, for better UX, let's just update the state and handle cleanup on save/cancel logic if needed
+      // Ideally, we delete the old image immediately if it was just uploaded in this session, 
+      // but if it's the committed image, we wait for save.
+      // For simplicity: just set the new URL. 
+      // Cleanup of unused images is a separate maintenance task or we can do it if we are sure.
+      
+      setFormData(prev => ({ ...prev, imageUrl: url }));
+      toast.success("Image uploaded successfully");
+    } catch (error) {
+      toast.error("Failed to upload image");
+      console.error(error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleRemoveImage = async () => {
+    if (!formData.imageUrl) return;
+
+    // If it's a newly uploaded image (not saved yet), we could delete it directly.
+    // If it's the original image, we might want to wait until "Save" to delete it from storage?
+    // Current requirement: "Remover imagem do storage ao deletar imagem de item com confirmação"
+    
+    if (confirm("Are you sure you want to remove this image? This cannot be undone.")) {
+       try {
+         await deleteImageByUrl(formData.imageUrl);
+         setFormData(prev => ({ ...prev, imageUrl: null }));
+         toast.success("Image removed");
+       } catch (error) {
+         toast.error("Failed to remove image");
+       }
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      setIsSaving(true);
+      
+      // If the image URL changed and the original item had a DIFFERENT image URL,
+      // we should delete the old one to keep storage clean.
+      if (item.imageUrl && formData.imageUrl !== item.imageUrl) {
+         // The user replaced the image. We should delete the old one.
+         // Note: We already handle explicit delete in handleRemoveImage.
+         // This is for when they upload a NEW one directly over the old one.
+         await deleteImageByUrl(item.imageUrl);
+      }
+
+      const result = await updateLearningItem(item.id, formData);
+      if (result.success) {
+        toast.success("Item updated successfully");
+        setIsEditing(false);
+      } else {
+        toast.error("Failed to update item: " + result.error);
+      }
+    } catch (error) {
+      toast.error("An error occurred");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setFormData(item);
+    setIsEditing(false);
+  };
+
   return (
-    <Modal>
+    <Modal open={undefined} onOpenChange={(open) => {
+      if (!open) {
+        setIsEditing(false);
+        setFormData(item);
+      }
+    }}>
       <ModalTrigger asChild>
         <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary">
           <Eye className="h-4 w-4" />
@@ -384,13 +486,30 @@ function DetailModal({ item }: { item: LearningItem }) {
       <ModalContent showHandle={false} className="bg-black! max-w-2xl max-h-[85vh] flex flex-col p-0 overflow-hidden">
         <div className="px-6 pt-6 pb-2">
           <div className="flex justify-between items-start">
-            <div className="space-y-1">
-              <h2 className="flex items-center gap-3 text-3xl font-bold text-primary">
-                {item.mainText}
-                <Badge variant="secondary" className="text-sm font-normal uppercase align-middle">{item.language}</Badge>
-              </h2>
-              <div className="flex items-center gap-3">
-                {item.phonetic && (
+            <div className="space-y-1 w-full">
+              {isEditing ? (
+                 <div className="flex gap-2 items-center w-full">
+                    <Input 
+                      value={formData.mainText} 
+                      onChange={(e) => handleInputChange('mainText', e.target.value)}
+                      className="text-2xl font-bold h-10 w-1/2"
+                    />
+                    <Input 
+                      value={formData.phonetic || ''} 
+                      onChange={(e) => handleInputChange('phonetic', e.target.value)}
+                      placeholder="Phonetic"
+                      className="font-mono h-10 w-1/4"
+                    />
+                 </div>
+              ) : (
+                <h2 className="flex items-center gap-3 text-3xl font-bold text-primary">
+                  {item.mainText}
+                  <Badge variant="secondary" className="text-sm font-normal uppercase align-middle">{item.language}</Badge>
+                </h2>
+              )}
+              
+              <div className="flex items-center gap-3 mt-2">
+                {!isEditing && item.phonetic && (
                   <div className="text-muted-foreground flex items-center gap-2 bg-muted/50 px-2 py-1 rounded-md text-sm font-mono">
                     {item.phonetic}
                     <Volume2 className="h-3 w-3 cursor-pointer hover:text-foreground transition-colors" />
@@ -398,6 +517,23 @@ function DetailModal({ item }: { item: LearningItem }) {
                 )}
                 <Badge variant="outline">{item.type}</Badge>
                 <LevelBadge level={item.level} />
+                
+                <div className="flex-1" />
+                
+                {isEditing ? (
+                  <div className="flex gap-2">
+                    <Button variant="ghost" size="sm" onClick={handleCancel} disabled={isSaving}>Cancel</Button>
+                    <Button size="sm" onClick={handleSave} disabled={isSaving}>
+                      {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Save
+                    </Button>
+                  </div>
+                ) : (
+                  <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit
+                  </Button>
+                )}
               </div>
             </div>
           </div>
@@ -405,6 +541,58 @@ function DetailModal({ item }: { item: LearningItem }) {
 
         <ScrollArea className="flex-1 px-6 pb-6">
           <div className="space-y-6 mt-2">
+            
+            {/* Image Section */}
+            <div className="space-y-2">
+               <h4 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground border-b pb-2">Illustration</h4>
+               {isEditing ? (
+                 <div className="flex items-center gap-4 p-4 border rounded-lg border-dashed bg-muted/20">
+                    {formData.imageUrl ? (
+                      <div className="relative group">
+                        <div className="relative h-32 w-32 rounded-md overflow-hidden border">
+                          <Image src={formData.imageUrl} alt="Preview" fill className="object-cover" />
+                        </div>
+                        <Button 
+                          variant="destructive" 
+                          size="icon" 
+                          className="absolute -top-2 -right-2 h-6 w-6 rounded-full shadow-md"
+                          onClick={handleRemoveImage}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="h-32 w-32 rounded-md border border-dashed flex items-center justify-center bg-muted/30 text-muted-foreground">
+                        <span className="text-xs">No image</span>
+                      </div>
+                    )}
+                    
+                    <div className="flex flex-col gap-2">
+                      <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
+                        {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
+                        Upload Image
+                      </Button>
+                      <input 
+                        type="file" 
+                        ref={fileInputRef} 
+                        className="hidden" 
+                        accept="image/*"
+                        onChange={handleImageSelect}
+                      />
+                      <p className="text-xs text-muted-foreground">Max 5MB. Supports JPG, PNG, WEBP.</p>
+                    </div>
+                 </div>
+               ) : (
+                 item.imageUrl ? (
+                   <div className="relative h-48 w-full rounded-lg overflow-hidden border">
+                      <Image src={item.imageUrl} alt={item.mainText} fill className="object-cover" />
+                   </div>
+                 ) : (
+                   <p className="text-sm text-muted-foreground italic">No image available.</p>
+                 )
+               )}
+            </div>
+
             {/* Forms Section */}
             {item.forms && (
               <div className="p-4 bg-muted/30 rounded-lg border border-border/50">
@@ -426,19 +614,57 @@ function DetailModal({ item }: { item: LearningItem }) {
             {/* Meanings Section */}
             <div className="space-y-4">
               <h4 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground border-b pb-2">Meanings & Contexts</h4>
-              {item.meanings.map((meaning, index) => (
+              {(isEditing ? formData.meanings : item.meanings)?.map((meaning, index) => (
                 <div key={index} className="space-y-3 pb-4 border-b border-dashed last:border-0">
                   <div className="flex items-start gap-3">
                     <Badge className="mt-1 shrink-0" variant="secondary">{meaning.context}</Badge>
-                    <div className="space-y-1">
-                      <p className="font-bold text-lg leading-none text-foreground">{meaning.translation}</p>
-                      <p className="text-muted-foreground text-sm">{meaning.definition}</p>
+                    <div className="space-y-1 w-full">
+                      {isEditing ? (
+                        <>
+                          <Input 
+                            value={meaning.translation} 
+                            onChange={(e) => handleMeaningChange(index, 'translation', e.target.value)}
+                            className="font-bold"
+                            placeholder="Translation"
+                          />
+                          <Textarea 
+                            value={meaning.definition}
+                            onChange={(e) => handleMeaningChange(index, 'definition', e.target.value)}
+                            className="text-sm min-h-[60px]"
+                            placeholder="Definition"
+                          />
+                        </>
+                      ) : (
+                        <>
+                          <p className="font-bold text-lg leading-none text-foreground">{meaning.translation}</p>
+                          <p className="text-muted-foreground text-sm">{meaning.definition}</p>
+                        </>
+                      )}
                     </div>
                   </div>
                   
                   <div className="ml-2 sm:ml-12 p-3 bg-primary/5 rounded-r-lg border-l-2 border-primary">
-                    <p className="text-sm font-medium italic text-foreground/90">"{meaning.example}"</p>
-                    <p className="text-sm text-muted-foreground mt-1">{meaning.exampleTranslation}</p>
+                     {isEditing ? (
+                        <div className="space-y-2">
+                           <Input 
+                              value={meaning.example} 
+                              onChange={(e) => handleMeaningChange(index, 'example', e.target.value)}
+                              className="text-sm italic"
+                              placeholder="Example sentence"
+                            />
+                            <Input 
+                              value={meaning.exampleTranslation} 
+                              onChange={(e) => handleMeaningChange(index, 'exampleTranslation', e.target.value)}
+                              className="text-sm text-muted-foreground"
+                              placeholder="Example translation"
+                            />
+                        </div>
+                     ) : (
+                        <>
+                          <p className="text-sm font-medium italic text-foreground/90">"{meaning.example}"</p>
+                          <p className="text-sm text-muted-foreground mt-1">{meaning.exampleTranslation}</p>
+                        </>
+                     )}
                   </div>
                 </div>
               ))}
