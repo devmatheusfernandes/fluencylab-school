@@ -227,7 +227,9 @@
     "calendar": "Calendário",
     "notifications": "Notificações",
     "chat": "Conversas",
-    "myPlacement": "Nivelamento"
+    "myPlacement": "Nivelamento",
+    "contents": "Conteúdos",
+    "vocabulary": "Vocabulário"
   },
   "UserProfileHeader": {
     "profilePicture": "Foto de perfil",

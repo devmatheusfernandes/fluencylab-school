@@ -1,0 +1,272 @@
+'use server';
+
+import { adminDb } from '@/lib/firebase/admin';
+import { FieldValue } from 'firebase-admin/firestore';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { Content, LearningItem, CEFRLevel } from '@/types/content';
+
+const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || '');
+
+interface AnalysisResult {
+  level: CEFRLevel;
+  items: Array<Omit<LearningItem, 'id' | 'metadata' | 'language'>>;
+}
+
+export async function generateCandidates(contentId: string, transcript: string) {
+  try {
+    // 1. Atualize o status do content para 'analyzing'
+    const contentRef = adminDb.collection('contents').doc(contentId);
+    await contentRef.update({
+      status: 'analyzing',
+    });
+
+    const contentSnap = await contentRef.get();
+    const contentData = contentSnap.data() as Content | undefined;
+    const contentLanguage = contentData?.language || 'en';
+
+    // 2. Instancie o modelo Gemini Flash
+    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+
+    const isPortugueseBaseLanguage = contentLanguage === 'pt';
+
+    const intro = isPortugueseBaseLanguage
+      ? `Você é um linguista especialista em ensino de idiomas (Português para falantes de Inglês). Sua tarefa é extrair vocabulário estruturado de textos em Português e determinar o nível CEFR geral. As traduções devem ser para o Inglês.`
+      : `Você é um linguista especialista em ensino de idiomas (Inglês para falantes de Português). Sua tarefa é extrair vocabulário estruturado de textos em Inglês e determinar o nível CEFR geral. As traduções devem ser para o Português do Brasil.`;
+
+    const translationInstruction = isPortugueseBaseLanguage
+      ? `Tradução: Inglês (EN).`
+      : `Tradução: Português do Brasil (PT-BR).`;
+
+    const exampleBlock = isPortugueseBaseLanguage
+      ? `{
+  "level": "B1",
+  "items": [
+    {
+      "slug": "de_ferias_expression",
+      "mainText": "de férias",
+      "type": "expression",
+      "level": "A2",
+      "phonetic": "/dʒi ˈfeɾias/",
+      "meanings": [
+        {
+          "context": "lazer/viagem",
+          "definition": "período em que alguém está descansando do trabalho ou dos estudos",
+          "translation": "on vacation",
+          "example": "Ele está de férias este mês.",
+          "exampleTranslation": "He is on vacation this month."
+        }
+      ],
+      "forms": { "base": "de férias" }
+    }
+  ]
+}`
+      : `{
+  "level": "B1",
+  "items": [
+    {
+      "slug": "run_verb",
+      "mainText": "run",
+      "type": "verb",
+      "level": "A1",
+      "phonetic": "/rʌn/",
+      "meanings": [
+        {
+          "context": "physical activity",
+          "definition": "move fast by foot",
+          "translation": "correr",
+          "example": "I run fast",
+          "exampleTranslation": "Eu corro rápido"
+        },
+        {
+          "context": "management",
+          "definition": "to manage or operate something",
+          "translation": "administrar",
+          "example": "She runs a big company",
+          "exampleTranslation": "Ela administra uma grande empresa"
+        }
+      ],
+      "forms": { "base": "run", "past": "ran", "participle": "run" }
+    }
+  ]
+}`;
+
+    // 3. Prompt de extração
+    const prompt = `
+${intro}
+
+User Prompt:
+
+Analise a transcrição abaixo. 
+1. Determine o nível CEFR geral do texto (A1, A2, B1, B2, C1, ou C2).
+2. Extraia os itens de aprendizado mais relevantes.
+
+Regras de Extração:
+
+Slug: Gere um ID único para cada termo no formato maintext_type (tudo minúsculo, espaços viram underline). Ex: run_verb, give_up_phrasal_verb, blue_adjective.
+
+Types: Use estritamente: noun, verb, adjective, adverb, preposition, pronoun, phrasal_verb, idiom, expression, slang, connector.
+
+Contexto (IMPORTANTE): 
+- Se uma palavra tiver múltiplos significados RELEVANTES no contexto geral ou comum, adicione múltiplos objetos no array "meanings".
+- Tente fornecer pelo menos 1 significado principal, mas sinta-se à vontade para adicionar outros se forem úteis para um aluno desse nível.
+- Definições e exemplos devem ser claros.
+
+${translationInstruction}
+
+Verbos: Se for verbo, preencha o campo forms. Se for Noun preencha também, mas apenas com o plural dele.
+
+Saída Obrigatória: Retorne APENAS um JSON Object válido (sem markdown), com a seguinte estrutura:
+
+${exampleBlock}
+
+Transcrição: """ ${transcript} """
+    `;
+
+    // 4. Pedir o JSON
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+
+    // 5. Faça o parse da resposta
+    const cleanedText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    const analysis = JSON.parse(cleanedText) as AnalysisResult;
+
+    // 6. Salve o array resultante no campo candidatesQueue e o nível detectado
+    // 7. Mude o status para 'processing_items'
+    await contentRef.update({
+      level: analysis.level, // Atualiza o nível com a detecção da IA
+      candidatesQueue: analysis.items,
+      status: 'processing_items',
+    });
+
+    return { success: true, count: analysis.items.length, level: analysis.level };
+
+  } catch (error) {
+    console.error('Error generating candidates:', error);
+    await adminDb.collection('contents').doc(contentId).update({
+      status: 'error',
+    });
+    return { success: false, count: 0, error };
+  }
+}
+
+export async function processBatch(contentId: string) {
+  try {
+    const contentRef = adminDb.collection('contents').doc(contentId);
+    
+    // 1. Busque o doc do content
+    const contentDoc = await contentRef.get();
+    if (!contentDoc.exists) {
+      throw new Error('Content not found');
+    }
+
+    const contentData = contentDoc.data() as Content;
+    const language = contentData.language || 'en';
+    const candidatesQueue = contentData.candidatesQueue || [];
+
+    // 2. Verifique o array candidatesQueue
+    if (candidatesQueue.length === 0) {
+      await contentRef.update({
+        status: 'ready',
+      });
+      return { completed: true };
+    }
+
+    // 3. Processamento (Lote de 10)
+    const batchSize = 10;
+    const itemsToProcess = candidatesQueue.slice(0, batchSize);
+    const remainingItems = candidatesQueue.slice(batchSize);
+
+    const slugs = itemsToProcess.map(item => item.slug);
+
+    // 4. Deduplicação
+    const existingItemsQuery = await adminDb.collection('learningItems')
+      .where('slug', 'in', slugs)
+      .get();
+
+    const existingItemsMap = new Map<string, string>(); // slug -> id
+    existingItemsQuery.docs.forEach(doc => {
+      const data = doc.data();
+      existingItemsMap.set(data.slug, doc.id);
+    });
+
+    // 5. Batch Write
+    const batch = adminDb.batch();
+    const newRelatedItemIds: string[] = [];
+
+    for (const item of itemsToProcess) {
+      if (existingItemsMap.has(item.slug)) {
+        // Se o slug já existe, usamos o ID existente
+        const existingId = existingItemsMap.get(item.slug)!;
+        newRelatedItemIds.push(existingId);
+        
+        // Opcional: Poderíamos atualizar o item existente com novos contextos (meanings) se não existirem
+        // Mas por simplicidade, vamos apenas vincular por enquanto.
+      } else {
+        // Se o slug não existe, criamos novo
+        const newItemRef = adminDb.collection('learningItems').doc();
+        const newItem: LearningItem = {
+          ...item,
+          id: newItemRef.id,
+          language,
+          metadata: {
+            createdAt: FieldValue.serverTimestamp(),
+            updatedAt: FieldValue.serverTimestamp(),
+          },
+        } as any; 
+
+        batch.set(newItemRef, newItem);
+        newRelatedItemIds.push(newItemRef.id);
+      }
+    }
+
+    batch.update(contentRef, {
+      candidatesQueue: remainingItems,
+      relatedItemIds: FieldValue.arrayUnion(...newRelatedItemIds),
+    });
+
+    await batch.commit();
+
+    return { 
+      completed: false, 
+      itemsProcessed: itemsToProcess.length, 
+      itemsLeft: remainingItems.length 
+    };
+
+  } catch (error) {
+    console.error('Error processing batch:', error);
+    await adminDb.collection('contents').doc(contentId).update({
+      status: 'error',
+    });
+    throw error;
+  }
+}
+
+export async function createContent(title: string, transcript: string, language: string, audioUrl?: string) {
+  try {
+    const docRef = adminDb.collection('contents').doc();
+    const content: Content = {
+      id: docRef.id,
+      title,
+      transcript,
+      language,
+      status: 'draft',
+      relatedItemIds: [],
+      candidatesQueue: [],
+      metadata: {
+        createdAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+    };
+
+    if (audioUrl) {
+      content.audioUrl = audioUrl;
+    }
+
+    await docRef.set(content);
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error('Error creating content:', error);
+    return { success: false, error };
+  }
+}

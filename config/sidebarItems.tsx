@@ -14,7 +14,8 @@ import {
   UserCircle,
   UserStar,
   Book,
-  BellDotIcon
+  BellDotIcon,
+  FileText
 } from "lucide-react";
 
 // Define os links para cada papel
@@ -141,10 +142,31 @@ const studentItems: SidebarItemType[] = [
   },
 ];
 
+  const managerItems = [
+    {
+      href: "/[locale]/hub/manager/my-profile",
+      label: "Meu Perfil",
+      labelKey: "myProfile",
+      icon: <UserCircle className="w-6 h-6" />,
+    },
+    {
+      href: "/[locale]/hub/manager/contents",
+      label: "Contents",
+      labelKey: "contents",
+      icon: <FileText className="w-6 h-6" />,
+    },
+    {
+      href: "/[locale]/hub/manager/vocabulary",
+      label: "Vocabulary",
+      labelKey: "vocabulary",
+      icon: <Book className="w-6 h-6" />,
+    },
+  ];
+
 // Mapeia os papéis para suas respectivas listas de itens
 export const sidebarItemsByRole: Record<string, SidebarItemType[]> = {
   [UserRoles.ADMIN]: adminItems,
-  [UserRoles.MANAGER]: adminItems,
+  [UserRoles.MANAGER]: managerItems,
   [UserRoles.TEACHER]: teacherItems,
   [UserRoles.STUDENT]: studentItems,
 };
