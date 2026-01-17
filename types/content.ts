@@ -50,11 +50,18 @@ export interface LearningItem {
   };
 }
 
+export interface TranscriptSegment {
+  start: number;
+  end: number;
+  text: string;
+}
+
 // 2. O Conteúdo (antigo Podcast) com a Fila de Processamento (Salvo na collection contents)
 export interface Content {
   id: string;
   title: string;
   transcript: string;
+  transcriptSegments?: TranscriptSegment[];
   audioUrl?: string;
   language?: string;
   level?: CEFRLevel;

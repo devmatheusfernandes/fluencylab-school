@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import { Content } from '@/types/content';
-import { generateCandidates, processBatch } from '@/actions/content-processing';
+import { generateCandidates, processBatch, generateTranscriptWithTimestamps } from '@/actions/content-processing';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Play, CheckCircle, AlertCircle, Volume2 } from 'lucide-react';
+import { Loader2, Play, CheckCircle, AlertCircle, Volume2, FileAudio, ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
@@ -15,13 +15,16 @@ interface ContentProcessorProps {
 }
 
 export function ContentProcessor({ content }: ContentProcessorProps) {
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isProcessingBatch, setIsProcessingBatch] = useState(false);
+  const [isGeneratingTimestamps, setIsGeneratingTimestamps] = useState(false);
   const [progress, setProgress] = useState<string>('');
   const router = useRouter();
+  const isBusy = isAnalyzing || isProcessingBatch || isGeneratingTimestamps;
 
   const handleAnalyze = async () => {
     try {
-      setIsProcessing(true);
+      setIsAnalyzing(true);
       setProgress('Analyzing text with Gemini (Level Detection + Vocabulary)...');
       
       const result = await generateCandidates(content.id, content.transcript);
@@ -36,14 +39,14 @@ export function ContentProcessor({ content }: ContentProcessorProps) {
       console.error(error);
       toast.error('An error occurred during analysis');
     } finally {
-      setIsProcessing(false);
+      setIsAnalyzing(false);
       setProgress('');
     }
   };
 
   const handleProcessBatch = async () => {
     try {
-      setIsProcessing(true);
+      setIsProcessingBatch(true);
       let completed = false;
       let totalProcessed = 0;
 
@@ -68,7 +71,29 @@ export function ContentProcessor({ content }: ContentProcessorProps) {
       console.error(error);
       toast.error('Error processing batch');
     } finally {
-      setIsProcessing(false);
+      setIsProcessingBatch(false);
+      setProgress('');
+    }
+  };
+
+  const handleGenerateTimestamps = async () => {
+    try {
+      setIsGeneratingTimestamps(true);
+      setProgress('Generating transcript with timestamps (Gemini Audio)...');
+      
+      const result = await generateTranscriptWithTimestamps(content.id);
+      
+      if (result.success) {
+        toast.success(`Transcript with timestamps generated. ${result.count} segments.`);
+        router.refresh();
+      } else {
+        toast.error('Failed to generate timestamps');
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error('An error occurred');
+    } finally {
+      setIsGeneratingTimestamps(false);
       setProgress('');
     }
   };
@@ -108,33 +133,60 @@ export function ContentProcessor({ content }: ContentProcessorProps) {
           
           <div className="flex gap-2 items-center">
             {content.status === 'draft' && (
-              <Button 
-                onClick={handleAnalyze} 
-                disabled={isProcessing}
-                size="sm"
-              >
-                {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Play className="mr-2 h-4 w-4" />}
-                Analyze Text
-              </Button>
+              <>
+                <Button 
+                  onClick={handleAnalyze} 
+                  disabled={isBusy}
+                  size="sm"
+                >
+                  {isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Play className="mr-2 h-4 w-4" />}
+                  Analyze Text
+                </Button>
+
+                {content.audioUrl && (
+                  <Button
+                    onClick={handleGenerateTimestamps}
+                    disabled={isBusy}
+                    size="sm"
+                    variant="outline"
+                  >
+                    {isGeneratingTimestamps ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileAudio className="mr-2 h-4 w-4" />}
+                    Generate Timestamps
+                  </Button>
+                )}
+              </>
             )}
 
             {content.status === 'processing_items' && (
               <Button 
                 onClick={handleProcessBatch} 
-                disabled={isProcessing}
+                disabled={isBusy}
                 size="sm"
                 variant="secondary"
               >
-                {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Loader2 className="mr-2 h-4 w-4" />}
+                {isProcessingBatch ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRight className="mr-2 h-4 w-4" />}
                 Process Queue ({content.candidatesQueue?.length || 0})
               </Button>
             )}
 
             {content.status === 'ready' && (
+              <>
               <div className="flex items-center text-green-600 text-sm">
                 <CheckCircle className="mr-2 h-4 w-4" />
                 Processing Complete
               </div>
+              {content.audioUrl && (
+                  <Button
+                    onClick={handleGenerateTimestamps}
+                    disabled={isBusy}
+                    size="sm"
+                    variant="outline"
+                  >
+                    {isGeneratingTimestamps ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileAudio className="mr-2 h-4 w-4" />}
+                    Generate Timestamps
+                  </Button>
+                )}
+              </>
             )}
             
             {content.status === 'error' && (
@@ -146,7 +198,7 @@ export function ContentProcessor({ content }: ContentProcessorProps) {
             )}
           </div>
 
-          {isProcessing && progress && (
+          {progress && (
             <div className="text-xs text-muted-foreground mt-2">
               {progress}
             </div>

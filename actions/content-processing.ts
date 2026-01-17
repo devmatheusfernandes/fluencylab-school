@@ -3,7 +3,7 @@
 import { adminDb } from '@/lib/firebase/admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { Content, LearningItem, CEFRLevel } from '@/types/content';
+import { Content, LearningItem, CEFRLevel, TranscriptSegment } from '@/types/content';
 
 const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || '');
 
@@ -267,6 +267,87 @@ export async function createContent(title: string, transcript: string, language:
     return { success: true, id: docRef.id };
   } catch (error) {
     console.error('Error creating content:', error);
+    return { success: false, error };
+  }
+}
+
+export async function generateTranscriptWithTimestamps(contentId: string) {
+  try {
+    const contentRef = adminDb.collection('contents').doc(contentId);
+    const contentSnap = await contentRef.get();
+    const contentData = contentSnap.data() as Content | undefined;
+    const contentLanguage = contentData?.language || 'en';
+
+    if (!contentData?.audioUrl) {
+      throw new Error('No audio URL found');
+    }
+
+    // Fetch audio
+    const audioResponse = await fetch(contentData.audioUrl);
+    if (!audioResponse.ok) throw new Error('Failed to fetch audio');
+    const arrayBuffer = await audioResponse.arrayBuffer();
+    const base64Audio = Buffer.from(arrayBuffer).toString('base64');
+
+    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+
+    const prompt = `
+You are a speech transcription assistant.
+
+The content metadata language is "${contentLanguage}".
+The audio may be in English or Portuguese.
+
+Requirements:
+- Detect automatically whether the audio is in English or Portuguese.
+- Transcribe in the SAME language as the audio. Do NOT translate.
+- Split the transcript into segments with precise timestamps.
+
+Output format:
+- Return ONLY a valid JSON array (no markdown, no explanations), for example:
+[
+  {
+    "start": 0.0,
+    "end": 2.5,
+    "text": "Olá, bem-vindo à aula de hoje."
+  }
+]
+
+Rules:
+- "start" and "end" must be numbers in seconds (not strings).
+- Segments must be ordered by time and non-overlapping.
+- "text" must contain only what is spoken in that time range, in the original language.
+`;
+
+    const result = await model.generateContent([
+      prompt,
+      {
+        inlineData: {
+          mimeType: 'audio/mp3', 
+          data: base64Audio
+        }
+      }
+    ]);
+
+    const responseText = result.response.text();
+    // Clean markdown code blocks if any
+    const jsonString = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+    
+    let segments: TranscriptSegment[] = [];
+    try {
+        segments = JSON.parse(jsonString);
+    } catch (e) {
+        console.error('Failed to parse JSON from Gemini:', jsonString);
+        throw new Error('Invalid JSON response from Gemini');
+    }
+
+    await contentRef.update({
+      transcriptSegments: segments,
+      'metadata.updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    return { success: true, count: segments.length };
+
+  } catch (error) {
+    console.error('Error generating timestamps:', error);
     return { success: false, error };
   }
 }
