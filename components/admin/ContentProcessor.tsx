@@ -6,7 +6,8 @@ import { generateCandidates, processBatch, generateTranscriptWithTimestamps } fr
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Play, CheckCircle, AlertCircle, Volume2, FileAudio, ArrowRight } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Loader2, Play, CheckCircle, AlertCircle, Volume2, FileAudio, ArrowRight, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
@@ -101,43 +102,54 @@ export function ContentProcessor({ content }: ContentProcessorProps) {
   const getStatusBadge = (status: Content['status']) => {
     switch (status) {
       case 'draft': return <Badge variant="secondary">Draft</Badge>;
-      case 'analyzing': return <Badge variant="outline" className="animate-pulse">Analyzing</Badge>;
-      case 'processing_items': return <Badge variant="default">Processing</Badge>;
-      case 'ready': return <Badge className="bg-green-500">Ready</Badge>;
+      case 'analyzing': return <Badge variant="outline" className="animate-pulse border-amber-400 text-amber-600">Analyzing</Badge>;
+      case 'processing_items': return <Badge variant="default" className="animate-pulse">Processing</Badge>;
+      case 'ready': return <Badge className="bg-green-500 hover:bg-green-600">Ready</Badge>;
       case 'error': return <Badge variant="destructive">Error</Badge>;
       default: return <Badge variant="outline">{status}</Badge>;
     }
   };
 
   return (
-    <Card className="w-full mb-4">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
+    <Card className="w-full mb-4 overflow-hidden transition-all">
+      <CardHeader className="flex flex-row items-center justify-between pb-2 bg-muted/20">
         <div className="flex items-center gap-2">
-          <CardTitle className="text-lg font-bold">{content.title}</CardTitle>
+          <CardTitle className="text-lg font-bold truncate max-w-[300px] sm:max-w-md">
+            {content.title}
+          </CardTitle>
           {content.audioUrl && (
-             <Volume2 className="h-4 w-4 text-muted-foreground" />
+             <Volume2 className="h-4 w-4 text-muted-foreground shrink-0" />
           )}
         </div>
         {getStatusBadge(content.status)}
       </CardHeader>
-      <CardContent>
-        <div className="flex flex-col gap-2">
-          <div className="text-sm text-gray-500 mb-2">
-            Level: {content.level || <span className="italic">Pending AI Detection</span>} | Items: {content.relatedItemIds?.length || 0}
+      
+      <CardContent className="pt-4">
+        <div className="flex flex-col gap-4">
+          {/* Metadata Section */}
+          <div className={`text-sm text-muted-foreground flex items-center gap-2 flex-wrap transition-opacity duration-300 ${isBusy ? 'opacity-50' : 'opacity-100'}`}>
+            <span className="flex items-center gap-1">
+              Level: {content.level ? <Badge variant="outline" className="text-xs">{content.level}</Badge> : <span className="italic text-xs">Pending</span>}
+            </span>
+            <span className="text-border">|</span>
+            <span>Items: {content.relatedItemIds?.length || 0}</span>
+            
             {content.candidatesQueue && content.candidatesQueue.length > 0 && (
-              <span className="ml-2 text-amber-600 font-medium">
-                ({content.candidatesQueue.length} pending)
+              <span className="ml-auto text-amber-600 font-medium text-xs bg-amber-50 px-2 py-1 rounded-full border border-amber-100">
+                {content.candidatesQueue.length} pending
               </span>
             )}
           </div>
           
-          <div className="flex gap-2 items-center">
+          {/* Actions Section */}
+          <div className="flex flex-wrap gap-2 items-center">
             {content.status === 'draft' && (
               <>
                 <Button 
                   onClick={handleAnalyze} 
                   disabled={isBusy}
                   size="sm"
+                  className="transition-all"
                 >
                   {isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Play className="mr-2 h-4 w-4" />}
                   Analyze Text
@@ -163,6 +175,7 @@ export function ContentProcessor({ content }: ContentProcessorProps) {
                 disabled={isBusy}
                 size="sm"
                 variant="secondary"
+                className="w-full sm:w-auto"
               >
                 {isProcessingBatch ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRight className="mr-2 h-4 w-4" />}
                 Process Queue ({content.candidatesQueue?.length || 0})
@@ -171,38 +184,68 @@ export function ContentProcessor({ content }: ContentProcessorProps) {
 
             {content.status === 'ready' && (
               <>
-              <div className="flex items-center text-green-600 text-sm">
-                <CheckCircle className="mr-2 h-4 w-4" />
-                Processing Complete
-              </div>
-              {content.audioUrl && (
+                <div className="flex items-center text-green-600 text-sm font-medium px-2 py-1 rounded bg-green-50">
+                  <CheckCircle className="mr-2 h-4 w-4" />
+                  Processing Complete
+                </div>
+                {content.audioUrl && (
                   <Button
                     onClick={handleGenerateTimestamps}
                     disabled={isBusy}
                     size="sm"
-                    variant="outline"
+                    variant="ghost"
+                    className="ml-auto"
                   >
                     {isGeneratingTimestamps ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileAudio className="mr-2 h-4 w-4" />}
-                    Generate Timestamps
+                    Re-generate Timestamps
                   </Button>
                 )}
               </>
             )}
             
             {content.status === 'error' && (
-               <div className="flex items-center text-red-600 text-sm">
+              <div className="flex items-center gap-2 text-red-600 text-sm w-full bg-red-50 p-2 rounded-md">
                 <AlertCircle className="mr-2 h-4 w-4" />
                 Error occurred
-                <Button variant="outline" size="sm" className="ml-2" onClick={handleAnalyze}>Retry Analysis</Button>
+                <Button variant="outline" size="sm" className="ml-auto bg-white hover:bg-red-50" onClick={handleAnalyze}>Retry Analysis</Button>
               </div>
             )}
           </div>
 
+          {/* Enhanced Progress Indicator */}
           {progress && (
-            <div className="text-xs text-muted-foreground mt-2">
-              {progress}
+            <div className="flex items-center gap-3 p-3 mt-2 rounded-md bg-secondary/50 border border-secondary text-sm text-secondary-foreground animate-in fade-in slide-in-from-top-2 duration-300">
+              <Loader2 className="h-4 w-4 animate-spin shrink-0 text-primary" />
+              <span className="font-medium">{progress}</span>
             </div>
           )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// Exported Skeleton component for parent usage
+export function ContentProcessorSkeleton() {
+  return (
+    <Card className="w-full mb-4">
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <div className="flex items-center gap-2 w-2/3">
+          <Skeleton className="h-6 w-3/4 max-w-[200px]" />
+          <Skeleton className="h-4 w-4 rounded-full" />
+        </div>
+        <Skeleton className="h-6 w-16" />
+      </CardHeader>
+      <CardContent className="pt-4">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+          <div className="flex gap-2">
+            <Skeleton className="h-9 w-32" />
+            <Skeleton className="h-9 w-40" />
+          </div>
         </div>
       </CardContent>
     </Card>

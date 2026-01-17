@@ -146,7 +146,7 @@ export function CreateContentForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 border p-4 rounded-lg bg-card/50 text-card-foreground shadow-sm">
+    <form onSubmit={handleSubmit} className="space-y-4 border p-4 card-base">
       <h3 className="text-lg font-semibold">New Content</h3>
       
       <div className="space-y-2">
