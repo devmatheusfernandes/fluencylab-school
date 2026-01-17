@@ -75,6 +75,8 @@ export interface Content {
   // A FILA: O Gemini deposita aqui, o Batch processa e remove daqui
   candidatesQueue: Array<Omit<LearningItem, 'id' | 'metadata' | 'language'>>;
 
+  quiz?: Quiz;
+
   metadata: {
     createdAt: any;
     updatedAt: any;
@@ -102,4 +104,26 @@ export interface ContentSet {
     createdAt: any;
     updatedAt: any;
   };
+}
+
+// 4. Quiz Types
+export interface QuizQuestion {
+  text: string;
+  options: string[];
+  correctIndex: number;
+  explanation?: string;
+}
+
+export interface QuizSection {
+  type: 'vocabulary' | 'grammar' | 'timestamps' | 'context' | 'comprehension';
+  questions: QuizQuestion[];
+}
+
+export interface Quiz {
+  quiz_metadata: {
+    title: string;
+    level: string;
+    dateGenerated: string;
+  };
+  quiz_sections: QuizSection[];
 }

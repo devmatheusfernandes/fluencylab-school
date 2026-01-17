@@ -341,3 +341,29 @@ export type FileUploadInput = z.infer<typeof fileUploadValidationSchema>;
 export type SearchInput = z.infer<typeof searchValidationSchema>;
 export type AuthInput = z.infer<typeof authValidationSchema>;
 export type PasswordResetInput = z.infer<typeof passwordResetValidationSchema>;
+
+/**
+ * Schema para validação de Quiz
+ */
+export const quizQuestionSchema = z.object({
+  text: z.string(),
+  options: z.array(z.string()).length(4),
+  correctIndex: z.number().min(0).max(3),
+  explanation: z.string().optional(),
+});
+
+export const quizSectionSchema = z.object({
+  type: z.enum(['vocabulary', 'grammar', 'timestamps', 'context', 'comprehension']),
+  questions: z.array(quizQuestionSchema),
+});
+
+export const quizSchema = z.object({
+  quiz_metadata: z.object({
+    title: z.string(),
+    level: z.string(),
+    dateGenerated: z.string(),
+  }),
+  quiz_sections: z.array(quizSectionSchema),
+});
+
+export type QuizInput = z.infer<typeof quizSchema>;

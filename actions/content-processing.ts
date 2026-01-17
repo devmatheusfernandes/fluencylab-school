@@ -3,7 +3,9 @@
 import { adminDb } from '@/lib/firebase/admin';
 import { FieldValue, FieldPath } from 'firebase-admin/firestore';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { Content, LearningItem, CEFRLevel, TranscriptSegment } from '@/types/content';
+import { Content, LearningItem, CEFRLevel, TranscriptSegment, Quiz } from '@/types/content';
+import { quizSchema } from '@/lib/validation/schemas';
+import { z } from 'zod';
 
 const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || '');
 
@@ -295,6 +297,154 @@ export async function createContent(title: string, transcript: string, language:
     return { success: true, id: docRef.id };
   } catch (error) {
     console.error('Error creating content:', error);
+    return { success: false, error };
+  }
+}
+
+// Zod Schemas for Quiz Validation
+const QuizQuestionSchema = z.object({
+  text: z.string(),
+  options: z.array(z.string()).length(4),
+  correctIndex: z.number().min(0).max(3),
+  explanation: z.string().optional(),
+});
+
+const QuizSectionSchema = z.object({
+  type: z.enum(['vocabulary', 'grammar', 'timestamps', 'context', 'comprehension']),
+  questions: z.array(QuizQuestionSchema),
+});
+
+const QuizSchema = z.object({
+  quiz_metadata: z.object({
+    title: z.string(),
+    level: z.string(),
+    dateGenerated: z.string(),
+  }),
+  quiz_sections: z.array(QuizSectionSchema),
+});
+
+export async function generateQuiz(contentId: string) {
+  try {
+    const contentRef = adminDb.collection('contents').doc(contentId);
+    const contentSnap = await contentRef.get();
+    
+    if (!contentSnap.exists) {
+      throw new Error('Content not found');
+    }
+
+    const contentData = contentSnap.data() as Content;
+    const level = contentData.level || 'B1'; // Default to B1 if not set
+    
+    const hasAudio = !!contentData.audioUrl;
+    const hasSegments = !!contentData.transcriptSegments && contentData.transcriptSegments.length > 0;
+    const includeTimestamps = hasAudio && hasSegments;
+
+    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+
+    const prompt = `
+      Você é um especialista em criação de material didático de idiomas.
+      Crie um Quiz estruturado baseado no texto fornecido.
+      
+      Nível Alvo: ${level} (CEFR)
+      Idioma do Texto: ${contentData.language || 'en'}
+      
+      Estrutura do Quiz (Gere estritamente este JSON):
+      
+      1. Seção de Vocabulário (5-6 perguntas):
+         - Tradução de palavras individuais e frases completas.
+         - 4 opções de resposta.
+      
+      2. Seção de Gramática (5-6 perguntas):
+         - Tempos verbais, concordância, artigos, preposições.
+         - 4 opções de resposta.
+      
+      ${includeTimestamps ? `
+      3. Seção de Timestamps (5-6 perguntas):
+         - Perguntas sobre o que foi dito em trechos específicos.
+         - Use os timestamps fornecidos abaixo.
+         - O texto da pergunta deve indicar o timestamp, ex: "No trecho 00:15 - 00:20..."
+         - 4 opções de resposta.
+      ` : ''}
+      
+      4. Seção de Contexto (5-6 perguntas):
+         - Frases ambíguas, formalidade, expressões idiomáticas.
+         - 4 opções de resposta.
+      
+      5. Seção de Compreensão (3-6 perguntas):
+         - Ideias principais, inferência, relação entre conceitos.
+         - 4 opções de resposta.
+      
+      Formato de Saída JSON:
+      {
+        "quiz_metadata": {
+          "title": "Quiz: ${contentData.title}",
+          "level": "${level}",
+          "dateGenerated": "${new Date().toISOString()}"
+        },
+        "quiz_sections": [
+          {
+            "type": "vocabulary", // ou grammar, timestamps, context, comprehension
+            "questions": [
+              {
+                "text": "Pergunta aqui",
+                "options": ["Opção 1", "Opção 2", "Opção 3", "Opção 4"],
+                "correctIndex": 0, // Índice da resposta correta (0-3)
+                "explanation": "Explicação breve (opcional)"
+              }
+            ]
+          }
+        ]
+      }
+      
+      Conteúdo do Texto:
+      """
+      ${contentData.transcript}
+      """
+      
+      ${includeTimestamps ? `
+      Segmentos de Timestamp disponíveis:
+      ${JSON.stringify(contentData.transcriptSegments?.slice(0, 50))} // Limitando para não estourar contexto se for muito grande
+      ` : ''}
+    `;
+
+    const result = await model.generateContent(prompt);
+    const responseText = result.response.text();
+    const jsonString = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+    
+    const quizData = JSON.parse(jsonString);
+    
+    // Validate with Zod
+    const validatedQuiz = QuizSchema.parse(quizData);
+
+    // Save to Firestore
+    await contentRef.update({
+      quiz: validatedQuiz,
+      'metadata.updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    return { success: true, quiz: validatedQuiz };
+
+  } catch (error) {
+    console.error('Error generating quiz:', error);
+    return { success: false, error };
+  }
+}
+
+export async function updateQuiz(contentId: string, quiz: Quiz) {
+  try {
+    const contentRef = adminDb.collection('contents').doc(contentId);
+    
+    // Validate with Zod before saving
+    const validatedQuiz = quizSchema.parse(quiz);
+
+    await contentRef.update({
+      quiz: validatedQuiz,
+      'metadata.updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating quiz:', error);
     return { success: false, error };
   }
 }

@@ -2,14 +2,16 @@
 
 import { useState } from 'react';
 import { Content } from '@/types/content';
-import { generateCandidates, processBatch, generateTranscriptWithTimestamps } from '@/actions/content-processing';
+import { generateCandidates, processBatch, generateTranscriptWithTimestamps, generateQuiz } from '@/actions/content-processing';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Loader2, Play, CheckCircle, AlertCircle, Volume2, FileAudio, ArrowRight, Sparkles } from 'lucide-react';
+import { Loader2, Play, CheckCircle, AlertCircle, Volume2, FileAudio, ArrowRight, Sparkles, BookOpen } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import Link from 'next/link';
 
 interface ContentProcessorProps {
   content: Content;
@@ -19,9 +21,14 @@ export function ContentProcessor({ content }: ContentProcessorProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isProcessingBatch, setIsProcessingBatch] = useState(false);
   const [isGeneratingTimestamps, setIsGeneratingTimestamps] = useState(false);
+  const [isGeneratingQuiz, setIsGeneratingQuiz] = useState(false);
   const [progress, setProgress] = useState<string>('');
   const router = useRouter();
-  const isBusy = isAnalyzing || isProcessingBatch || isGeneratingTimestamps;
+  const isBusy = isAnalyzing || isProcessingBatch || isGeneratingTimestamps || isGeneratingQuiz;
+  const totalQuizQuestions = content.quiz
+    ? content.quiz.quiz_sections.reduce((sum, section) => sum + section.questions.length, 0)
+    : 0;
+  const hasTimestamps = !!content.transcriptSegments && content.transcriptSegments.length > 0;
 
   const handleAnalyze = async () => {
     try {
@@ -99,6 +106,28 @@ export function ContentProcessor({ content }: ContentProcessorProps) {
     }
   };
 
+  const handleGenerateQuiz = async () => {
+    try {
+      setIsGeneratingQuiz(true);
+      setProgress('Generating Quiz with Gemini...');
+      
+      const result = await generateQuiz(content.id);
+      
+      if (result.success) {
+        toast.success(`Quiz generated successfully!`);
+        router.refresh();
+      } else {
+        toast.error('Failed to generate quiz');
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error('An error occurred');
+    } finally {
+      setIsGeneratingQuiz(false);
+      setProgress('');
+    }
+  };
+
   const getStatusBadge = (status: Content['status']) => {
     switch (status) {
       case 'draft': return <Badge variant="secondary">Draft</Badge>;
@@ -133,6 +162,35 @@ export function ContentProcessor({ content }: ContentProcessorProps) {
             </span>
             <span className="text-border">|</span>
             <span>Items: {content.relatedItemIds?.length || 0}</span>
+            <span className="text-border">|</span>
+            {content.quiz ? (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link 
+                      href={`/hub/admin/contents/${content.id}/quiz`}
+                      className="hover:underline hover:text-primary transition-colors cursor-pointer flex items-center gap-1"
+                    >
+                      Quiz: {totalQuizQuestions} questions
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Click to View/Edit Quiz</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : (
+              <span>Quiz: Not generated</span>
+            )}
+            
+            {hasTimestamps && (
+              <>
+                <span className="text-border">|</span>
+                <Badge variant="outline">
+                  Timestamps
+                </Badge>
+              </>
+            )}
             
             {content.candidatesQueue && content.candidatesQueue.length > 0 && (
               <span className="ml-auto text-amber-600 font-medium text-xs bg-amber-50 px-2 py-1 rounded-full border border-amber-100">
@@ -211,6 +269,17 @@ export function ContentProcessor({ content }: ContentProcessorProps) {
                 >
                   {isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
                   Find More Items
+                </Button>
+
+                <Button 
+                  onClick={handleGenerateQuiz} 
+                  disabled={isGeneratingQuiz}
+                  size="sm"
+                  variant="outline"
+                  className="ml-2"
+                >
+                  {isGeneratingQuiz ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <BookOpen className="mr-2 h-4 w-4" />}
+                  Gerar Quiz
                 </Button>
 
                 {content.audioUrl && (
