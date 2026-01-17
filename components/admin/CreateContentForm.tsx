@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { createContent } from '@/actions/content-processing';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-import { Upload, Loader2, X } from 'lucide-react';
+import { Upload, Loader2, X, FileAudio } from 'lucide-react';
 
 export function CreateContentForm() {
   const [title, setTitle] = useState('');
@@ -24,9 +24,11 @@ export function CreateContentForm() {
   const [language, setLanguage] = useState('en');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  const MAX_AUDIO_SIZE_BYTES = 6 * 1024 * 1024;
+  const MAX_AUDIO_SIZE_BYTES = 6* 1024 * 1024;
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024 * 1024) {
@@ -35,11 +37,39 @@ export function CreateContentForm() {
     return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
   };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      if (!file.type.startsWith('audio/')) {
+        toast.error('Please upload an audio file');
+        return;
+      }
+      if (file.size > MAX_AUDIO_SIZE_BYTES) {
+        toast.error('Audio file is too large. Max size is 10MB.');
+        return;
+      }
+      setAudioFile(file);
+    }
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       if (file.size > MAX_AUDIO_SIZE_BYTES) {
-        toast.error('Audio file is too large. Max size is 6MB.');
+        toast.error('Audio file is too large. Max size is 10MB.');
         e.target.value = '';
         return;
       }
@@ -145,48 +175,61 @@ export function CreateContentForm() {
 
       <div className="space-y-2">
         <Label htmlFor="audio">Audio File (Optional)</Label>
-        <p className="text-xs text-muted-foreground">Max size: 6MB</p>
-        <div className="flex items-center gap-2">
-          <Input 
-            id="audio" 
-            type="file" 
-            accept="audio/*"
-            onChange={handleFileChange}
-            className="hidden" 
-          />
-          <Label
-            htmlFor="audio"
-            className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-md text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+        
+        {!audioFile ? (
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`
+              border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
+              ${isDragging ? 'border-primary bg-primary/5' : 'border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50'}
+            `}
           >
-            {isUploading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Uploading...
-              </>
-            ) : (
-              <>
-                <Upload className="w-4 h-4" />
-                {audioFile ? 'Change File' : 'Upload Audio'}
-              </>
-            )}
-          </Label>
-          {audioFile && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="truncate max-w-[200px]">
-                {audioFile.name} • {formatFileSize(audioFile.size)}
-              </span>
-              <Button 
-                type="button" 
-                variant="ghost" 
-                size="icon" 
-                className="h-6 w-6"
+            <Input 
+              id="audio" 
+              type="file" 
+              ref={fileInputRef}
+              accept="audio/*"
+              onChange={handleFileChange}
+              className="hidden" 
+            />
+            <div className="flex flex-col items-center gap-2 text-muted-foreground">
+              <div className="p-4 rounded-full bg-muted">
+                <Upload className="w-6 h-6" />
+              </div>
+              <div className="text-sm">
+                <span className="font-semibold text-primary">Click to upload</span> or drag and drop
+              </div>
+              <p className="text-xs">MP3, WAV, OGG up to 10MB</p>
+            </div>
+          </div>
+        ) : (
+          <div className="border rounded-lg p-4 flex items-center justify-between bg-card">
+            <div className="flex items-center gap-4">
+              <div className="p-2 rounded-md bg-primary/10 text-primary">
+                <FileAudio className="w-6 h-6" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium leading-none">{audioFile.name}</p>
+                <p className="text-xs text-muted-foreground">{formatFileSize(audioFile.size)}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {isUploading && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
                 onClick={() => setAudioFile(null)}
+                disabled={isUploading}
               >
                 <X className="w-4 h-4" />
               </Button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       <div className="space-y-2">
