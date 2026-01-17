@@ -140,7 +140,7 @@ export function ContentSetsList({ sets }: ContentSetsListProps) {
 
       {/* Edit Modal */}
       <Modal open={!!editingSet} onOpenChange={(open) => !open && setEditingSet(null)}>
-        <ModalContent className="sm:max-w-[500px]">
+      <ModalContent className="sm:max-w-[600px] w-full max-h-[90vh] flex flex-col p-0 gap-0 overflow-y-auto">
           <ModalIcon type="edit" />
           <ModalHeader>
             <ModalTitle>Edit Content Set</ModalTitle>

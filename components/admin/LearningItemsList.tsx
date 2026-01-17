@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useMemo, useRef } from 'react';
-import { LearningItem } from '@/types/content';
-import { updateLearningItem } from '@/actions/learning-items';
-import { handleImageUpload, deleteImageByUrl } from '@/lib/tiptap-utils';
-import { toast } from 'sonner';
-import Image from 'next/image';
+import { useState, useMemo, useRef } from "react";
+import { LearningItem } from "@/types/content";
+import { updateLearningItem } from "@/actions/learning-items";
+import { handleImageUpload, deleteImageByUrl } from "@/lib/tiptap-utils";
+import { toast } from "sonner";
+import Image from "next/image";
 import {
   Table,
   TableBody,
@@ -13,33 +13,41 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import {
-  Modal,
-  ModalContent,
-  ModalTrigger,
-} from '@/components/ui/modal';
-import { ScrollArea } from '@/components/ui/scroll-area';
+} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Modal, ModalContent, ModalTrigger } from "@/components/ui/modal";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Search, Eye, Volume2, FilterX, BookOpen, Layers, Settings, Loader2, Upload, X, Edit } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
-import { Header } from '@/components/ui/header';
-import { Checkbox } from '@/components/ui/checkbox';
-import Link from 'next/link';
-import { CreateContentSetModal } from './CreateContentSetModal';
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Search,
+  Eye,
+  Volume2,
+  FilterX,
+  BookOpen,
+  Layers,
+  Settings,
+  Loader2,
+  Upload,
+  X,
+  Edit,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { Header } from "@/components/ui/header";
+import { Checkbox } from "@/components/ui/checkbox";
+import Link from "next/link";
+import { CreateContentSetModal } from "./CreateContentSetModal";
 
 interface LearningItemsListProps {
   items: LearningItem[];
@@ -49,68 +57,101 @@ interface LearningItemsListProps {
 // Componente para badge de nível com cores consistentes
 const LevelBadge = ({ level }: { level: string }) => {
   const colors: Record<string, string> = {
-    A1: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-    A2: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-    B1: 'bg-blue-100 text-blue-700 border-blue-200',
-    B2: 'bg-blue-100 text-blue-700 border-blue-200',
-    C1: 'bg-purple-100 text-purple-700 border-purple-200',
-    C2: 'bg-pink-100 text-pink-700 border-pink-200',
+    A1: "bg-emerald-100 text-emerald-700 border-emerald-200",
+    A2: "bg-emerald-100 text-emerald-700 border-emerald-200",
+    B1: "bg-blue-100 text-blue-700 border-blue-200",
+    B2: "bg-blue-100 text-blue-700 border-blue-200",
+    C1: "bg-purple-100 text-purple-700 border-purple-200",
+    C2: "bg-pink-100 text-pink-700 border-pink-200",
   };
 
   return (
-    <Badge variant="outline" className={cn("font-semibold", colors[level] || 'bg-gray-100')}>
+    <Badge
+      variant="outline"
+      className={cn("font-semibold", colors[level] || "bg-gray-100")}
+    >
       {level}
     </Badge>
   );
 };
 
-export function LearningItemsList({ items: initialItems, isLoading = false }: LearningItemsListProps) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedLanguage, setSelectedLanguage] = useState('all');
-  const [selectedLevel, setSelectedLevel] = useState('all');
-  const [selectedType, setSelectedType] = useState('all');
+export function LearningItemsList({
+  items: initialItems,
+  isLoading = false,
+}: LearningItemsListProps) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState("all");
+  const [selectedLevel, setSelectedLevel] = useState("all");
+  const [selectedType, setSelectedType] = useState("all");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   // Extrair valores únicos para os filtros
-  const uniqueLanguages = useMemo(() => Array.from(new Set(initialItems.map(i => i.language).filter(Boolean))), [initialItems]);
-  const uniqueLevels = useMemo(() => Array.from(new Set(initialItems.map(i => i.level).filter(Boolean))).sort(), [initialItems]);
-  const uniqueTypes = useMemo(() => Array.from(new Set(initialItems.map(i => i.type).filter(Boolean))).sort(), [initialItems]);
+  const uniqueLanguages = useMemo(
+    () =>
+      Array.from(new Set(initialItems.map((i) => i.language).filter(Boolean))),
+    [initialItems]
+  );
+  const uniqueLevels = useMemo(
+    () =>
+      Array.from(
+        new Set(initialItems.map((i) => i.level).filter(Boolean))
+      ).sort(),
+    [initialItems]
+  );
+  const uniqueTypes = useMemo(
+    () =>
+      Array.from(
+        new Set(initialItems.map((i) => i.type).filter(Boolean))
+      ).sort(),
+    [initialItems]
+  );
 
   // Lógica de Filtragem
   const filteredItems = useMemo(() => {
-    return initialItems.filter(item => {
+    return initialItems.filter((item) => {
       const matchesSearch =
         item.mainText.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.meanings.some(m => m.translation.toLowerCase().includes(searchTerm.toLowerCase()));
+        item.meanings.some((m) =>
+          m.translation.toLowerCase().includes(searchTerm.toLowerCase())
+        );
 
-      const matchesLanguage = selectedLanguage === 'all' || item.language === selectedLanguage;
-      const matchesLevel = selectedLevel === 'all' || item.level === selectedLevel;
-      const matchesType = selectedType === 'all' || item.type === selectedType;
+      const matchesLanguage =
+        selectedLanguage === "all" || item.language === selectedLanguage;
+      const matchesLevel =
+        selectedLevel === "all" || item.level === selectedLevel;
+      const matchesType = selectedType === "all" || item.type === selectedType;
 
       return matchesSearch && matchesLanguage && matchesLevel && matchesType;
     });
   }, [initialItems, searchTerm, selectedLanguage, selectedLevel, selectedType]);
 
   const clearFilters = () => {
-    setSearchTerm('');
-    setSelectedLanguage('all');
-    setSelectedLevel('all');
-    setSelectedType('all');
+    setSearchTerm("");
+    setSelectedLanguage("all");
+    setSelectedLevel("all");
+    setSelectedType("all");
   };
 
-  const hasActiveFilters = searchTerm !== '' || selectedLanguage !== 'all' || selectedLevel !== 'all' || selectedType !== 'all';
+  const hasActiveFilters =
+    searchTerm !== "" ||
+    selectedLanguage !== "all" ||
+    selectedLevel !== "all" ||
+    selectedType !== "all";
 
   const toggleSelectAll = () => {
-    if (selectedIds.length === filteredItems.length && filteredItems.length > 0) {
+    if (
+      selectedIds.length === filteredItems.length &&
+      filteredItems.length > 0
+    ) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(filteredItems.map(i => i.id));
+      setSelectedIds(filteredItems.map((i) => i.id));
     }
   };
 
   const toggleSelect = (id: string) => {
-    setSelectedIds(prev => 
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     );
   };
 
@@ -155,41 +196,29 @@ export function LearningItemsList({ items: initialItems, isLoading = false }: Le
               icon={
                 <div className="flex items-center gap-2">
                   <BookOpen className="h-6 w-6 text-primary" />
-                  <Badge variant="secondary" className="ml-2">{filteredItems.length}</Badge>
+                  <Badge variant="secondary" className="ml-2">
+                    {filteredItems.length}
+                  </Badge>
                 </div>
               }
               className="w-full"
             />
-            
-            <div className="flex flex-wrap gap-2">
-               <Link href="/hub/admin/content-sets">
-                  <Button variant="outline">
-                    <Settings className="mr-2 h-4 w-4" />
-                    Manage Sets
-                  </Button>
-               </Link>
-               
-               <CreateContentSetModal 
-                 selectedItemIds={selectedIds} 
-                 trigger={
-                   <Button variant="outline">
-                     <Layers className="mr-2 h-4 w-4" />
-                     {selectedIds.length > 0 ? `Create Set (${selectedIds.length})` : 'Create Set'}
-                   </Button>
-                 }
-               />
 
-               {hasActiveFilters && (
-                <Button variant="ghost" size="sm" onClick={clearFilters} className="text-destructive hover:text-destructive/90 hover:bg-destructive/10">
-                  <FilterX className="h-4 w-4 mr-2" />
-                  Clear Filters
-                </Button>
-              )}
-            </div>
+            {hasActiveFilters && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearFilters}
+                className="text-destructive hover:text-destructive/90 hover:bg-destructive/10"
+              >
+                <FilterX className="h-4 w-4 mr-2" />
+                Clear Filters
+              </Button>
+            )}
           </div>
 
           {/* Filters Area */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full pb-2s">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 w-full pb-2s">
             <div className="relative sm:col-span-2 lg:col-span-1">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
@@ -200,14 +229,19 @@ export function LearningItemsList({ items: initialItems, isLoading = false }: Le
               />
             </div>
 
-            <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+            <Select
+              value={selectedLanguage}
+              onValueChange={setSelectedLanguage}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Language" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Languages</SelectItem>
-                {uniqueLanguages.map(lang => (
-                  <SelectItem key={lang} value={lang}>{lang.toUpperCase()}</SelectItem>
+                {uniqueLanguages.map((lang) => (
+                  <SelectItem key={lang} value={lang}>
+                    {lang.toUpperCase()}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -218,8 +252,10 @@ export function LearningItemsList({ items: initialItems, isLoading = false }: Le
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Levels</SelectItem>
-                {uniqueLevels.map(level => (
-                  <SelectItem key={level} value={level}>{level}</SelectItem>
+                {uniqueLevels.map((level) => (
+                  <SelectItem key={level} value={level}>
+                    {level}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -230,22 +266,39 @@ export function LearningItemsList({ items: initialItems, isLoading = false }: Le
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
-                {uniqueTypes.map(type => (
-                  <SelectItem key={type} value={type}>{type}</SelectItem>
+                {uniqueTypes.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {type}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            <CreateContentSetModal
+              selectedItemIds={selectedIds}
+              trigger={
+                <Button variant="outline">
+                  <Layers className="mr-2 h-4 w-4" />
+                  {selectedIds.length > 0
+                    ? `Create Set (${selectedIds.length})`
+                    : "Create Set"}
+                </Button>
+              }
+            />
           </div>
         </div>
       </CardHeader>
-      
+
       <CardContent>
         {filteredItems.length === 0 ? (
           <div className="text-center py-12 bg-muted/20 rounded-lg border border-dashed">
             <Layers className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
             <h3 className="text-lg font-medium">No vocabulary found</h3>
-            <p className="text-muted-foreground text-sm mt-1">Try adjusting your filters or search terms.</p>
-            <Button variant="link" onClick={clearFilters} className="mt-2">Clear all filters</Button>
+            <p className="text-muted-foreground text-sm mt-1">
+              Try adjusting your filters or search terms.
+            </p>
+            <Button variant="link" onClick={clearFilters} className="mt-2">
+              Clear all filters
+            </Button>
           </div>
         ) : (
           <>
@@ -255,8 +308,11 @@ export function LearningItemsList({ items: initialItems, isLoading = false }: Le
                 <TableHeader className="bg-muted/50">
                   <TableRow>
                     <TableHead className="w-[50px]">
-                      <Checkbox 
-                        checked={selectedIds.length === filteredItems.length && filteredItems.length > 0}
+                      <Checkbox
+                        checked={
+                          selectedIds.length === filteredItems.length &&
+                          filteredItems.length > 0
+                        }
                         onCheckedChange={toggleSelectAll}
                       />
                     </TableHead>
@@ -278,25 +334,43 @@ export function LearningItemsList({ items: initialItems, isLoading = false }: Le
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.2 }}
-                        className={selectedIds.includes(item.id) ? "bg-muted/50" : ""}
+                        className={
+                          selectedIds.includes(item.id) ? "bg-muted/50" : ""
+                        }
                       >
                         <TableCell>
-                          <Checkbox 
+                          <Checkbox
                             checked={selectedIds.includes(item.id)}
                             onCheckedChange={() => toggleSelect(item.id)}
                           />
                         </TableCell>
                         <TableCell className="font-medium">
                           <div className="flex flex-col">
-                            <span className="text-base text-foreground font-semibold">{item.mainText}</span>
-                            {item.phonetic && <span className="text-xs text-muted-foreground font-mono">{item.phonetic}</span>}
+                            <span className="text-base text-foreground font-semibold">
+                              {item.mainText}
+                            </span>
+                            {item.phonetic && (
+                              <span className="text-xs text-muted-foreground font-mono">
+                                {item.phonetic}
+                              </span>
+                            )}
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="secondary" className="uppercase text-[10px] tracking-wider">{item.language}</Badge>
+                          <Badge
+                            variant="secondary"
+                            className="uppercase text-[10px] tracking-wider"
+                          >
+                            {item.language}
+                          </Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline" className="text-muted-foreground">{item.type}</Badge>
+                          <Badge
+                            variant="outline"
+                            className="text-muted-foreground"
+                          >
+                            {item.type}
+                          </Badge>
                         </TableCell>
                         <TableCell>
                           <LevelBadge level={item.level} />
@@ -317,10 +391,14 @@ export function LearningItemsList({ items: initialItems, isLoading = false }: Le
             {/* MOBILE VIEW: Grid of Cards */}
             <div className="grid grid-cols-1 gap-4 md:hidden">
               <div className="flex justify-between items-center mb-2 px-2">
-                 <span className="text-sm text-muted-foreground">{selectedIds.length} selected</span>
-                 <Button variant="ghost" size="sm" onClick={toggleSelectAll}>
-                    {selectedIds.length === filteredItems.length ? 'Deselect All' : 'Select All'}
-                 </Button>
+                <span className="text-sm text-muted-foreground">
+                  {selectedIds.length} selected
+                </span>
+                <Button variant="ghost" size="sm" onClick={toggleSelectAll}>
+                  {selectedIds.length === filteredItems.length
+                    ? "Deselect All"
+                    : "Select All"}
+                </Button>
               </div>
               <AnimatePresence mode="popLayout">
                 {filteredItems.map((item) => (
@@ -332,33 +410,50 @@ export function LearningItemsList({ items: initialItems, isLoading = false }: Le
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <Card className={cn(selectedIds.includes(item.id) && "border-primary")}>
+                    <Card
+                      className={cn(
+                        selectedIds.includes(item.id) && "border-primary"
+                      )}
+                    >
                       <CardContent className="p-4">
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex gap-3">
-                            <Checkbox 
-                                checked={selectedIds.includes(item.id)}
-                                onCheckedChange={() => toggleSelect(item.id)}
-                                className="mt-1"
+                            <Checkbox
+                              checked={selectedIds.includes(item.id)}
+                              onCheckedChange={() => toggleSelect(item.id)}
+                              className="mt-1"
                             />
                             <div>
-                                <div className="flex items-center gap-2">
-                                <h3 className="text-lg font-bold">{item.mainText}</h3>
-                                <Badge variant="secondary" className="text-[10px] uppercase">{item.language}</Badge>
-                                </div>
-                                {item.phonetic && <span className="text-xs text-muted-foreground font-mono">{item.phonetic}</span>}
+                              <div className="flex items-center gap-2">
+                                <h3 className="text-lg font-bold">
+                                  {item.mainText}
+                                </h3>
+                                <Badge
+                                  variant="secondary"
+                                  className="text-[10px] uppercase"
+                                >
+                                  {item.language}
+                                </Badge>
+                              </div>
+                              {item.phonetic && (
+                                <span className="text-xs text-muted-foreground font-mono">
+                                  {item.phonetic}
+                                </span>
+                              )}
                             </div>
                           </div>
                           <DetailModal item={item} />
                         </div>
-                        
+
                         <div className="flex gap-2 mb-3 ml-8">
                           <LevelBadge level={item.level} />
                           <Badge variant="outline">{item.type}</Badge>
                         </div>
-                        
+
                         <div className="text-sm text-muted-foreground border-t pt-2 mt-2 ml-8">
-                          <span className="font-medium text-foreground">Meaning: </span>
+                          <span className="font-medium text-foreground">
+                            Meaning:{" "}
+                          </span>
                           {item.meanings[0]?.translation}
                         </div>
                       </CardContent>
@@ -386,13 +481,13 @@ function DetailModal({ item }: { item: LearningItem }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleInputChange = (field: keyof LearningItem, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleMeaningChange = (index: number, field: string, value: string) => {
     const newMeanings = [...(formData.meanings || [])];
     newMeanings[index] = { ...newMeanings[index], [field]: value };
-    setFormData(prev => ({ ...prev, meanings: newMeanings }));
+    setFormData((prev) => ({ ...prev, meanings: newMeanings }));
   };
 
   const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -402,16 +497,16 @@ function DetailModal({ item }: { item: LearningItem }) {
     try {
       setIsUploading(true);
       const url = await handleImageUpload(file);
-      
+
       // If there was a previous image and it's different, we might want to delete it
       // But we only delete on "Save" or explicit delete to avoid losing images on cancel
       // Actually, for better UX, let's just update the state and handle cleanup on save/cancel logic if needed
-      // Ideally, we delete the old image immediately if it was just uploaded in this session, 
+      // Ideally, we delete the old image immediately if it was just uploaded in this session,
       // but if it's the committed image, we wait for save.
-      // For simplicity: just set the new URL. 
+      // For simplicity: just set the new URL.
       // Cleanup of unused images is a separate maintenance task or we can do it if we are sure.
-      
-      setFormData(prev => ({ ...prev, imageUrl: url }));
+
+      setFormData((prev) => ({ ...prev, imageUrl: url }));
       toast.success("Image uploaded successfully");
     } catch (error) {
       toast.error("Failed to upload image");
@@ -427,29 +522,33 @@ function DetailModal({ item }: { item: LearningItem }) {
     // If it's a newly uploaded image (not saved yet), we could delete it directly.
     // If it's the original image, we might want to wait until "Save" to delete it from storage?
     // Current requirement: "Remover imagem do storage ao deletar imagem de item com confirmação"
-    
-    if (confirm("Are you sure you want to remove this image? This cannot be undone.")) {
-       try {
-         await deleteImageByUrl(formData.imageUrl);
-         setFormData(prev => ({ ...prev, imageUrl: null }));
-         toast.success("Image removed");
-       } catch (error) {
-         toast.error("Failed to remove image");
-       }
+
+    if (
+      confirm(
+        "Are you sure you want to remove this image? This cannot be undone."
+      )
+    ) {
+      try {
+        await deleteImageByUrl(formData.imageUrl);
+        setFormData((prev) => ({ ...prev, imageUrl: null }));
+        toast.success("Image removed");
+      } catch (error) {
+        toast.error("Failed to remove image");
+      }
     }
   };
 
   const handleSave = async () => {
     try {
       setIsSaving(true);
-      
+
       // If the image URL changed and the original item had a DIFFERENT image URL,
       // we should delete the old one to keep storage clean.
       if (item.imageUrl && formData.imageUrl !== item.imageUrl) {
-         // The user replaced the image. We should delete the old one.
-         // Note: We already handle explicit delete in handleRemoveImage.
-         // This is for when they upload a NEW one directly over the old one.
-         await deleteImageByUrl(item.imageUrl);
+        // The user replaced the image. We should delete the old one.
+        // Note: We already handle explicit delete in handleRemoveImage.
+        // This is for when they upload a NEW one directly over the old one.
+        await deleteImageByUrl(item.imageUrl);
       }
 
       const result = await updateLearningItem(item.id, formData);
@@ -472,42 +571,61 @@ function DetailModal({ item }: { item: LearningItem }) {
   };
 
   return (
-    <Modal open={undefined} onOpenChange={(open) => {
-      if (!open) {
-        setIsEditing(false);
-        setFormData(item);
-      }
-    }}>
+    <Modal
+      open={undefined}
+      onOpenChange={(open) => {
+        if (!open) {
+          setIsEditing(false);
+          setFormData(item);
+        }
+      }}
+    >
       <ModalTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 hover:bg-primary/10 hover:text-primary"
+        >
           <Eye className="h-4 w-4" />
         </Button>
       </ModalTrigger>
-      <ModalContent showHandle={false} className="bg-black! max-w-2xl max-h-[85vh] flex flex-col p-0 overflow-hidden">
+      <ModalContent
+        showHandle={false}
+        className="bg-black! max-w-2xl max-h-[85vh] flex flex-col p-0 overflow-hidden"
+      >
         <div className="px-6 pt-6 pb-2">
           <div className="flex justify-between items-start">
             <div className="space-y-1 w-full">
               {isEditing ? (
-                 <div className="flex gap-2 items-center w-full">
-                    <Input 
-                      value={formData.mainText} 
-                      onChange={(e) => handleInputChange('mainText', e.target.value)}
-                      className="text-2xl font-bold h-10 w-1/2"
-                    />
-                    <Input 
-                      value={formData.phonetic || ''} 
-                      onChange={(e) => handleInputChange('phonetic', e.target.value)}
-                      placeholder="Phonetic"
-                      className="font-mono h-10 w-1/4"
-                    />
-                 </div>
+                <div className="flex gap-2 items-center w-full">
+                  <Input
+                    value={formData.mainText}
+                    onChange={(e) =>
+                      handleInputChange("mainText", e.target.value)
+                    }
+                    className="text-2xl font-bold h-10 w-1/2"
+                  />
+                  <Input
+                    value={formData.phonetic || ""}
+                    onChange={(e) =>
+                      handleInputChange("phonetic", e.target.value)
+                    }
+                    placeholder="Phonetic"
+                    className="font-mono h-10 w-1/4"
+                  />
+                </div>
               ) : (
                 <h2 className="flex items-center gap-3 text-3xl font-bold text-primary">
                   {item.mainText}
-                  <Badge variant="secondary" className="text-sm font-normal uppercase align-middle">{item.language}</Badge>
+                  <Badge
+                    variant="secondary"
+                    className="text-sm font-normal uppercase align-middle"
+                  >
+                    {item.language}
+                  </Badge>
                 </h2>
               )}
-              
+
               <div className="flex items-center gap-3 mt-2">
                 {!isEditing && item.phonetic && (
                   <div className="text-muted-foreground flex items-center gap-2 bg-muted/50 px-2 py-1 rounded-md text-sm font-mono">
@@ -517,19 +635,32 @@ function DetailModal({ item }: { item: LearningItem }) {
                 )}
                 <Badge variant="outline">{item.type}</Badge>
                 <LevelBadge level={item.level} />
-                
+
                 <div className="flex-1" />
-                
+
                 {isEditing ? (
                   <div className="flex gap-2">
-                    <Button variant="ghost" size="sm" onClick={handleCancel} disabled={isSaving}>Cancel</Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleCancel}
+                      disabled={isSaving}
+                    >
+                      Cancel
+                    </Button>
                     <Button size="sm" onClick={handleSave} disabled={isSaving}>
-                      {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      {isSaving && (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      )}
                       Save
                     </Button>
                   </div>
                 ) : (
-                  <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsEditing(true)}
+                  >
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </Button>
@@ -541,70 +672,96 @@ function DetailModal({ item }: { item: LearningItem }) {
 
         <ScrollArea className="flex-1 px-6 pb-6">
           <div className="space-y-6 mt-2">
-            
             {/* Image Section */}
             <div className="space-y-2">
-               <h4 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground border-b pb-2">Illustration</h4>
-               {isEditing ? (
-                 <div className="flex items-center gap-4 p-4 border rounded-lg border-dashed bg-muted/20">
-                    {formData.imageUrl ? (
-                      <div className="relative group">
-                        <div className="relative h-32 w-32 rounded-md overflow-hidden border">
-                          <Image src={formData.imageUrl} alt="Preview" fill className="object-cover" />
-                        </div>
-                        <Button 
-                          variant="destructive" 
-                          size="icon" 
-                          className="absolute -top-2 -right-2 h-6 w-6 rounded-full shadow-md"
-                          onClick={handleRemoveImage}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
+              <h4 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground border-b pb-2">
+                Illustration
+              </h4>
+              {isEditing ? (
+                <div className="flex items-center gap-4 p-4 border rounded-lg border-dashed bg-muted/20">
+                  {formData.imageUrl ? (
+                    <div className="relative group">
+                      <div className="relative h-32 w-32 rounded-md overflow-hidden border">
+                        <Image
+                          src={formData.imageUrl}
+                          alt="Preview"
+                          fill
+                          className="object-cover"
+                        />
                       </div>
-                    ) : (
-                      <div className="h-32 w-32 rounded-md border border-dashed flex items-center justify-center bg-muted/30 text-muted-foreground">
-                        <span className="text-xs">No image</span>
-                      </div>
-                    )}
-                    
-                    <div className="flex flex-col gap-2">
-                      <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
-                        {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-                        Upload Image
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="absolute -top-2 -right-2 h-6 w-6 rounded-full shadow-md"
+                        onClick={handleRemoveImage}
+                      >
+                        <X className="h-3 w-3" />
                       </Button>
-                      <input 
-                        type="file" 
-                        ref={fileInputRef} 
-                        className="hidden" 
-                        accept="image/*"
-                        onChange={handleImageSelect}
-                      />
-                      <p className="text-xs text-muted-foreground">Max 5MB. Supports JPG, PNG, WEBP.</p>
                     </div>
-                 </div>
-               ) : (
-                 item.imageUrl ? (
-                   <div className="relative h-48 w-full rounded-lg overflow-hidden border">
-                      <Image src={item.imageUrl} alt={item.mainText} fill className="object-cover" />
-                   </div>
-                 ) : (
-                   <p className="text-sm text-muted-foreground italic">No image available.</p>
-                 )
-               )}
+                  ) : (
+                    <div className="h-32 w-32 rounded-md border border-dashed flex items-center justify-center bg-muted/30 text-muted-foreground">
+                      <span className="text-xs">No image</span>
+                    </div>
+                  )}
+
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading}
+                    >
+                      {isUploading ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Upload className="mr-2 h-4 w-4" />
+                      )}
+                      Upload Image
+                    </Button>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Max 5MB. Supports JPG, PNG, WEBP.
+                    </p>
+                  </div>
+                </div>
+              ) : item.imageUrl ? (
+                <div className="relative h-48 w-full rounded-lg overflow-hidden border">
+                  <Image
+                    src={item.imageUrl}
+                    alt={item.mainText}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground italic">
+                  No image available.
+                </p>
+              )}
             </div>
 
             {/* Forms Section */}
             {item.forms && (
               <div className="p-4 bg-muted/30 rounded-lg border border-border/50">
                 <h4 className="font-semibold mb-3 text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                  <Layers className="h-3 w-3" /> 
+                  <Layers className="h-3 w-3" />
                   Conjugations / Forms
                 </h4>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-2 text-sm">
                   {Object.entries(item.forms).map(([key, value]) => (
                     <div key={key} className="flex flex-col">
-                      <span className="text-[10px] text-muted-foreground uppercase">{key}</span>
-                      <span className="font-medium text-foreground">{value}</span>
+                      <span className="text-[10px] text-muted-foreground uppercase">
+                        {key}
+                      </span>
+                      <span className="font-medium text-foreground">
+                        {value}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -613,61 +770,102 @@ function DetailModal({ item }: { item: LearningItem }) {
 
             {/* Meanings Section */}
             <div className="space-y-4">
-              <h4 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground border-b pb-2">Meanings & Contexts</h4>
-              {(isEditing ? formData.meanings : item.meanings)?.map((meaning, index) => (
-                <div key={index} className="space-y-3 pb-4 border-b border-dashed last:border-0">
-                  <div className="flex items-start gap-3">
-                    <Badge className="mt-1 shrink-0" variant="secondary">{meaning.context}</Badge>
-                    <div className="space-y-1 w-full">
+              <h4 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground border-b pb-2">
+                Meanings & Contexts
+              </h4>
+              {(isEditing ? formData.meanings : item.meanings)?.map(
+                (meaning, index) => (
+                  <div
+                    key={index}
+                    className="space-y-3 pb-4 border-b border-dashed last:border-0"
+                  >
+                    <div className="flex items-start gap-3">
+                      <Badge className="mt-1 shrink-0" variant="secondary">
+                        {meaning.context}
+                      </Badge>
+                      <div className="space-y-1 w-full">
+                        {isEditing ? (
+                          <>
+                            <Input
+                              value={meaning.translation}
+                              onChange={(e) =>
+                                handleMeaningChange(
+                                  index,
+                                  "translation",
+                                  e.target.value
+                                )
+                              }
+                              className="font-bold"
+                              placeholder="Translation"
+                            />
+                            <Textarea
+                              value={meaning.definition}
+                              onChange={(e) =>
+                                handleMeaningChange(
+                                  index,
+                                  "definition",
+                                  e.target.value
+                                )
+                              }
+                              className="text-sm min-h-[60px]"
+                              placeholder="Definition"
+                            />
+                          </>
+                        ) : (
+                          <>
+                            <p className="font-bold text-lg leading-none text-foreground">
+                              {meaning.translation}
+                            </p>
+                            <p className="text-muted-foreground text-sm">
+                              {meaning.definition}
+                            </p>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="ml-2 sm:ml-12 p-3 bg-primary/5 rounded-r-lg border-l-2 border-primary">
                       {isEditing ? (
-                        <>
-                          <Input 
-                            value={meaning.translation} 
-                            onChange={(e) => handleMeaningChange(index, 'translation', e.target.value)}
-                            className="font-bold"
-                            placeholder="Translation"
+                        <div className="space-y-2">
+                          <Input
+                            value={meaning.example}
+                            onChange={(e) =>
+                              handleMeaningChange(
+                                index,
+                                "example",
+                                e.target.value
+                              )
+                            }
+                            className="text-sm italic"
+                            placeholder="Example sentence"
                           />
-                          <Textarea 
-                            value={meaning.definition}
-                            onChange={(e) => handleMeaningChange(index, 'definition', e.target.value)}
-                            className="text-sm min-h-[60px]"
-                            placeholder="Definition"
+                          <Input
+                            value={meaning.exampleTranslation}
+                            onChange={(e) =>
+                              handleMeaningChange(
+                                index,
+                                "exampleTranslation",
+                                e.target.value
+                              )
+                            }
+                            className="text-sm text-muted-foreground"
+                            placeholder="Example translation"
                           />
-                        </>
+                        </div>
                       ) : (
                         <>
-                          <p className="font-bold text-lg leading-none text-foreground">{meaning.translation}</p>
-                          <p className="text-muted-foreground text-sm">{meaning.definition}</p>
+                          <p className="text-sm font-medium italic text-foreground/90">
+                            "{meaning.example}"
+                          </p>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {meaning.exampleTranslation}
+                          </p>
                         </>
                       )}
                     </div>
                   </div>
-                  
-                  <div className="ml-2 sm:ml-12 p-3 bg-primary/5 rounded-r-lg border-l-2 border-primary">
-                     {isEditing ? (
-                        <div className="space-y-2">
-                           <Input 
-                              value={meaning.example} 
-                              onChange={(e) => handleMeaningChange(index, 'example', e.target.value)}
-                              className="text-sm italic"
-                              placeholder="Example sentence"
-                            />
-                            <Input 
-                              value={meaning.exampleTranslation} 
-                              onChange={(e) => handleMeaningChange(index, 'exampleTranslation', e.target.value)}
-                              className="text-sm text-muted-foreground"
-                              placeholder="Example translation"
-                            />
-                        </div>
-                     ) : (
-                        <>
-                          <p className="text-sm font-medium italic text-foreground/90">"{meaning.example}"</p>
-                          <p className="text-sm text-muted-foreground mt-1">{meaning.exampleTranslation}</p>
-                        </>
-                     )}
-                  </div>
-                </div>
-              ))}
+                )
+              )}
             </div>
           </div>
         </ScrollArea>

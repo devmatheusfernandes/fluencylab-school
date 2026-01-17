@@ -112,7 +112,7 @@ export function ContentProcessor({ content }: ContentProcessorProps) {
 
   return (
     <Card className="w-full mb-4 overflow-hidden transition-all">
-      <CardHeader className="flex flex-row items-center justify-between pb-2 bg-muted/20">
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div className="flex items-center gap-2">
           <CardTitle className="text-lg font-bold truncate max-w-[300px] sm:max-w-md">
             {content.title}
@@ -184,7 +184,7 @@ export function ContentProcessor({ content }: ContentProcessorProps) {
 
             {content.status === 'ready' && (
               <>
-                <div className="flex items-center text-green-600 text-sm font-medium px-2 py-1 rounded bg-green-50">
+                <div className="flex items-center text-emerald-600 text-sm font-medium px-2 py-1 rounded-md bg-emerald-100">
                   <CheckCircle className="mr-2 h-4 w-4" />
                   Processing Complete
                 </div>

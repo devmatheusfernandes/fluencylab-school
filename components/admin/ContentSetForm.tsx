@@ -24,14 +24,16 @@ import {
   CommandGroup,
   CommandItem,
 } from '@/components/ui/command';
+import { Modal, ModalFooter, ModalPrimaryButton, ModalSecondaryButton } from '../ui/modal';
 
 interface ContentSetFormProps {
   initialData?: ContentSet;
   onSuccess?: () => void;
-  selectedItemIds?: string[]; // IDs passed from selection
+  onCancel?: () => void;
+  selectedItemIds?: string[];
 }
 
-export function ContentSetForm({ initialData, onSuccess, selectedItemIds = [] }: ContentSetFormProps) {
+export function ContentSetForm({ initialData, onSuccess, onCancel, selectedItemIds = [] }: ContentSetFormProps) {
   const [title, setTitle] = useState(initialData?.title || '');
   const [description, setDescription] = useState(initialData?.description || '');
   const [language, setLanguage] = useState(initialData?.language || 'en');
@@ -122,7 +124,6 @@ export function ContentSetForm({ initialData, onSuccess, selectedItemIds = [] }:
         if (result.success) {
           toast.success('Content Set created successfully');
           onSuccess?.();
-          // Reset form
           setTitle('');
           setDescription('');
           setLanguage('en');
@@ -142,187 +143,192 @@ export function ContentSetForm({ initialData, onSuccess, selectedItemIds = [] }:
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="title">Title</Label>
-        <Input 
-          id="title"
-          placeholder="e.g. Travel Essentials" 
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
-        <Textarea 
-          id="description"
-          placeholder="Describe this collection..." 
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
+      
+      <div className="space-y-3">
         <div className="space-y-2">
-          <Label>Language</Label>
-          <Select value={language} onValueChange={setLanguage}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select language" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="en">English</SelectItem>
-              <SelectItem value="pt">Português</SelectItem>
-              <SelectItem value="es">Español</SelectItem>
-            </SelectContent>
-          </Select>
+          <Label htmlFor="title">Title</Label>
+          <Input 
+            id="title"
+            placeholder="e.g. Travel Essentials" 
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full"
+          />
         </div>
 
         <div className="space-y-2">
-          <Label>Level</Label>
-          <Select value={level} onValueChange={(val) => setLevel(val as CEFRLevel)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select level" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="A1">A1</SelectItem>
-              <SelectItem value="A2">A2</SelectItem>
-              <SelectItem value="B1">B1</SelectItem>
-              <SelectItem value="B2">B2</SelectItem>
-              <SelectItem value="C1">C1</SelectItem>
-              <SelectItem value="C2">C2</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="pt-2 text-sm text-muted-foreground space-y-2">
-        <div className="flex items-center justify-between gap-2">
-          <span>
-            Items included:{' '}
-            <span className="font-medium text-foreground">{itemIds.length}</span>
-          </span>
-          {itemIds.length > 0 && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-7 px-2 text-xs"
-              onClick={() => setItemIds([])}
-            >
-              Clear all
-            </Button>
-          )}
+          <Label htmlFor="description">Description</Label>
+          <Textarea 
+            id="description"
+            placeholder="Describe this collection..." 
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="min-h-[80px] resize-none"
+          />
         </div>
 
-        {itemIds.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {itemIds
-              .map((id) => availableItems.find((it) => it.id === id) || { id } as any)
-              .map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() =>
-                    setItemIds((prev) => prev.filter((itemId) => itemId !== item.id))
-                  }
-                  className="inline-flex items-center gap-1 rounded-full border bg-background px-2 py-0.5 text-xs text-foreground hover:bg-muted transition-colors"
-                >
-                  <span className="max-w-[160px] truncate">
-                    {item.slug || item.mainText || item.id}
-                  </span>
-                  <span className="text-muted-foreground">&times;</span>
-                </button>
-              ))}
+        {/* Grid responsivo: 1 coluna no mobile, 2 no desktop */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label>Language</Label>
+            <Select value={language} onValueChange={setLanguage}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select language" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="en">English</SelectItem>
+                <SelectItem value="pt">Português</SelectItem>
+                <SelectItem value="es">Español</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-        )}
 
-        <div className="space-y-1">
-          <Label className="text-xs">Add items by search</Label>
-          <div className="flex flex-wrap gap-2 mb-2">
-            <div className="w-full sm:w-auto">
-              <Select
-                value={languageFilter}
-                onValueChange={setLanguageFilter}
+          <div className="space-y-2">
+            <Label>Level</Label>
+            <Select value={level} onValueChange={(val) => setLevel(val as CEFRLevel)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select level" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="A1">A1</SelectItem>
+                <SelectItem value="A2">A2</SelectItem>
+                <SelectItem value="B1">B1</SelectItem>
+                <SelectItem value="B2">B2</SelectItem>
+                <SelectItem value="C1">C1</SelectItem>
+                <SelectItem value="C2">C2</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="pt-2 text-sm space-y-3">
+          <div className="flex items-center justify-between gap-2 border-b pb-2">
+            <span className="text-muted-foreground">
+              Items included:{' '}
+              <span className="font-medium text-foreground">{itemIds.length}</span>
+            </span>
+            {itemIds.length > 0 && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2 text-xs text-destructive hover:text-destructive"
+                onClick={() => setItemIds([])}
               >
-                <SelectTrigger className="h-8 text-xs w-[140px]">
+                Clear all
+              </Button>
+            )}
+          </div>
+
+          {itemIds.length > 0 && (
+            <div className="flex flex-wrap gap-2 max-h-[100px] overflow-y-auto p-1 bg-muted/20 rounded-md">
+              {itemIds
+                .map((id) => availableItems.find((it) => it.id === id) || { id } as any)
+                .map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() =>
+                      setItemIds((prev) => prev.filter((itemId) => itemId !== item.id))
+                    }
+                    className="inline-flex items-center gap-1 rounded-full border bg-background px-2 py-1 text-xs font-medium transition-colors hover:bg-destructive hover:text-destructive-foreground hover:border-destructive"
+                  >
+                    <span className="max-w-[120px] truncate">
+                      {item.slug || item.mainText || item.id}
+                    </span>
+                    <span>&times;</span>
+                  </button>
+                ))}
+            </div>
+          )}
+
+          <div className="space-y-2 rounded-lg border p-3 bg-muted/10">
+            <Label className="text-xs font-semibold uppercase text-muted-foreground">Add items</Label>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Select value={languageFilter} onValueChange={setLanguageFilter}>
+                <SelectTrigger className="h-8 text-xs flex-1 sm:flex-none sm:w-[130px]">
                   <SelectValue placeholder="Language" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All languages</SelectItem>
                   {languageOptions.map((lang) => (
-                    <SelectItem key={lang} value={lang}>
-                      {lang.toUpperCase()}
-                    </SelectItem>
+                    <SelectItem key={lang} value={lang}>{lang.toUpperCase()}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            <div className="w-full sm:w-auto">
+              
               <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="h-8 text-xs w-[140px]">
+                <SelectTrigger className="h-8 text-xs flex-1 sm:flex-none sm:w-[130px]">
                   <SelectValue placeholder="Type" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All types</SelectItem>
                   {typeOptions.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
+                    <SelectItem key={type} value={type}>{type}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
+            
+            <Command className="border rounded-md shadow-sm">
+              <CommandInput
+                placeholder="Search vocabulary..."
+                value={newItemQuery}
+                onValueChange={setNewItemQuery}
+                className="h-9 text-sm"
+              />
+              <CommandList className="max-h-[130px]"> {/* Altura limitada para não estourar a tela */}
+                <CommandEmpty className="py-2 text-center text-xs text-muted-foreground">
+                  {isLoadingItems ? 'Loading items...' : 'No items found.'}
+                </CommandEmpty>
+                {!isLoadingItems && (
+                  <CommandGroup heading="Vocabulary items">
+                    {filteredItems.map((item) => {
+                      const label = `${item.mainText} (${item.slug})`;
+                      const alreadyIncluded = itemIds.includes(item.id);
+                      return (
+                        <CommandItem
+                          key={item.id}
+                          value={label}
+                          disabled={alreadyIncluded}
+                          onSelect={() => {
+                            if (!alreadyIncluded) {
+                              setItemIds((prev) => [...prev, item.id]);
+                            }
+                          }}
+                          className="text-sm"
+                        >
+                          <div className="flex flex-col">
+                            <span className="font-medium text-foreground">
+                              {item.mainText}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground">
+                              {item.slug}
+                            </span>
+                          </div>
+                        </CommandItem>
+                      );
+                    })}
+                  </CommandGroup>
+                )}
+              </CommandList>
+            </Command>
           </div>
-          <Command>
-            <CommandInput
-              placeholder="Search by word or slug..."
-              value={newItemQuery}
-              onValueChange={setNewItemQuery}
-            />
-            <CommandList>
-              <CommandEmpty>
-                {isLoadingItems ? 'Loading items...' : 'No items found.'}
-              </CommandEmpty>
-              {!isLoadingItems && (
-                <CommandGroup heading="Vocabulary items">
-                  {filteredItems.map((item) => {
-                    const label = `${item.mainText} (${item.slug})`;
-                    const alreadyIncluded = itemIds.includes(item.id);
-                    return (
-                      <CommandItem
-                        key={item.id}
-                        value={label}
-                        disabled={alreadyIncluded}
-                        onSelect={() => {
-                          if (!alreadyIncluded) {
-                            setItemIds((prev) => [...prev, item.id]);
-                          }
-                        }}
-                      >
-                        <div className="flex flex-col">
-                          <span className="font-medium text-foreground">
-                            {item.mainText}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {item.slug}
-                          </span>
-                        </div>
-                      </CommandItem>
-                    );
-                  })}
-                </CommandGroup>
-              )}
-            </CommandList>
-          </Command>
         </div>
       </div>
 
-      <div className="flex justify-end gap-2">
-         <Button type="submit" disabled={isSubmitting}>
-           {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-           {initialData ? 'Update Set' : 'Create Set'}
-         </Button>
-      </div>
+      <ModalFooter className="mt-4 pt-2 border-t sm:justify-end">
+        {onCancel && (
+          <ModalSecondaryButton type="button" onClick={onCancel}>
+            Cancel
+          </ModalSecondaryButton>
+        )}
+        <ModalPrimaryButton type="submit" disabled={isSubmitting}>
+          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {initialData ? 'Update Set' : 'Create Set'}
+        </ModalPrimaryButton>
+      </ModalFooter>
+
     </form>
   );
 }
