@@ -147,7 +147,7 @@ export function ContentProcessor({ content }: ContentProcessorProps) {
               <>
                 <Button 
                   onClick={handleAnalyze} 
-                  disabled={isBusy}
+                  disabled={isAnalyzing}
                   size="sm"
                   className="transition-all"
                 >
@@ -158,7 +158,7 @@ export function ContentProcessor({ content }: ContentProcessorProps) {
                 {content.audioUrl && (
                   <Button
                     onClick={handleGenerateTimestamps}
-                    disabled={isBusy}
+                    disabled={isGeneratingTimestamps}
                     size="sm"
                     variant="outline"
                   >
@@ -170,16 +170,29 @@ export function ContentProcessor({ content }: ContentProcessorProps) {
             )}
 
             {content.status === 'processing_items' && (
-              <Button 
-                onClick={handleProcessBatch} 
-                disabled={isBusy}
-                size="sm"
-                variant="secondary"
-                className="w-full sm:w-auto"
-              >
-                {isProcessingBatch ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRight className="mr-2 h-4 w-4" />}
-                Process Queue ({content.candidatesQueue?.length || 0})
-              </Button>
+              <>
+                <Button 
+                  onClick={handleProcessBatch} 
+                  disabled={isProcessingBatch}
+                  size="sm"
+                  variant="secondary"
+                  className="w-full sm:w-auto"
+                >
+                  {isProcessingBatch ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRight className="mr-2 h-4 w-4" />}
+                  Process Queue ({content.candidatesQueue?.length || 0})
+                </Button>
+
+                <Button 
+                  onClick={handleAnalyze} 
+                  disabled={isAnalyzing}
+                  size="sm"
+                  variant="outline"
+                  className="w-full sm:w-auto"
+                >
+                  {isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                  Find More Items
+                </Button>
+              </>
             )}
 
             {content.status === 'ready' && (
@@ -188,10 +201,22 @@ export function ContentProcessor({ content }: ContentProcessorProps) {
                   <CheckCircle className="mr-2 h-4 w-4" />
                   Processing Complete
                 </div>
+
+                <Button 
+                  onClick={handleAnalyze} 
+                  disabled={isAnalyzing}
+                  size="sm"
+                  variant="outline"
+                  className="ml-2"
+                >
+                  {isAnalyzing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                  Find More Items
+                </Button>
+
                 {content.audioUrl && (
                   <Button
                     onClick={handleGenerateTimestamps}
-                    disabled={isBusy}
+                    disabled={isGeneratingTimestamps}
                     size="sm"
                     variant="ghost"
                     className="ml-auto"

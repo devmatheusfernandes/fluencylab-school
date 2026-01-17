@@ -1,7 +1,7 @@
 'use server';
 
 import { adminDb } from '@/lib/firebase/admin';
-import { FieldValue } from 'firebase-admin/firestore';
+import { FieldValue, FieldPath } from 'firebase-admin/firestore';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Content, LearningItem, CEFRLevel, TranscriptSegment } from '@/types/content';
 
@@ -23,6 +23,26 @@ export async function generateCandidates(contentId: string, transcript: string) 
     const contentSnap = await contentRef.get();
     const contentData = contentSnap.data() as Content | undefined;
     const contentLanguage = contentData?.language || 'en';
+
+    const currentQueue = contentData?.candidatesQueue || [];
+    const relatedItemIds = contentData?.relatedItemIds || [];
+    const existingSlugs = new Set<string>();
+
+    currentQueue.forEach((item: any) => existingSlugs.add(item.slug));
+
+    if (relatedItemIds.length > 0) {
+      const recentIds = relatedItemIds.slice(-100);
+      const itemsSnap = await adminDb.collection('learningItems')
+        .where(FieldPath.documentId(), 'in', recentIds)
+        .get();
+      
+      itemsSnap.forEach(doc => {
+        const data = doc.data();
+        if (data.slug) existingSlugs.add(data.slug);
+      });
+    }
+
+    const ignoredList = Array.from(existingSlugs).join(', ');
 
     // 2. Instancie o modelo Gemini Flash
     const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
@@ -131,15 +151,23 @@ Transcrição: """ ${transcript} """
     const cleanedText = text.replace(/```json/g, '').replace(/```/g, '').trim();
     const analysis = JSON.parse(cleanedText) as AnalysisResult;
 
+    const trulyNewItems = analysis.items.filter(item => !existingSlugs.has(item.slug));
+
+    const latestSnap = await contentRef.get();
+    const latestQueue = latestSnap.data()?.candidatesQueue || [];
+    const latestSlugs = new Set(latestQueue.map((i: any) => i.slug));
+
+    const finalNewItems = trulyNewItems.filter(item => !latestSlugs.has(item.slug));
+
     // 6. Salve o array resultante no campo candidatesQueue e o nível detectado
     // 7. Mude o status para 'processing_items'
     await contentRef.update({
-      level: analysis.level, // Atualiza o nível com a detecção da IA
-      candidatesQueue: analysis.items,
+      level: analysis.level,
+      candidatesQueue: [...latestQueue, ...finalNewItems],
       status: 'processing_items',
     });
 
-    return { success: true, count: analysis.items.length, level: analysis.level };
+    return { success: true, count: finalNewItems.length, level: analysis.level };
 
   } catch (error) {
     console.error('Error generating candidates:', error);
