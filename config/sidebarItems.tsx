@@ -15,7 +15,7 @@ import {
   UserStar,
   Book,
   BellDotIcon,
-  FileText
+  FileText,
 } from "lucide-react";
 
 // Define os links para cada papel
@@ -55,7 +55,7 @@ const adminItems: SidebarItemType[] = [
     label: "Configurações",
     labelKey: "settings",
     icon: <Settings className="w-6 h-6" />,
-  }
+  },
 ];
 
 const teacherItems: SidebarItemType[] = [
@@ -94,7 +94,7 @@ const teacherItems: SidebarItemType[] = [
     label: "Configurações",
     labelKey: "settings",
     icon: <Settings className="w-6 h-6" />,
-  }
+  },
 ];
 
 const studentItems: SidebarItemType[] = [
@@ -142,26 +142,53 @@ const studentItems: SidebarItemType[] = [
   },
 ];
 
-  const managerItems = [
-    {
-      href: "/[locale]/hub/manager/my-profile",
-      label: "Meu Perfil",
-      labelKey: "myProfile",
-      icon: <UserCircle className="w-6 h-6" />,
-    },
-    {
-      href: "/[locale]/hub/manager/contents",
-      label: "Contents",
-      labelKey: "contents",
-      icon: <FileText className="w-6 h-6" />,
-    },
-    {
-      href: "/[locale]/hub/manager/vocabulary",
-      label: "Vocabulary",
-      labelKey: "vocabulary",
-      icon: <Book className="w-6 h-6" />,
-    },
-  ];
+const managerItems = [
+  {
+    href: "/[locale]/hub/manager/my-profile",
+    label: "Meu Perfil",
+    labelKey: "myProfile",
+    icon: <UserCircle className="w-6 h-6" />,
+  },
+  {
+    href: "/[locale]/hub/manager/contents",
+    label: "Contents",
+    labelKey: "contents",
+    icon: <FileText className="w-6 h-6" />,
+  },
+  {
+    href: "/[locale]/hub/manager/vocabulary",
+    label: "Vocabulary",
+    labelKey: "vocabulary",
+    icon: <Book className="w-6 h-6" />,
+  },
+];
+
+const materialManagerItems = [
+  {
+    href: "/[locale]/hub/material-manager/my-profile",
+    label: "Meu Perfil",
+    labelKey: "myProfile",
+    icon: <UserCircle className="w-6 h-6" />,
+  },
+  {
+    href: "/[locale]/hub/material-manager/plans",
+    label: "Plans",
+    labelKey: "plans",
+    icon: <DollarSign className="w-6 h-6" />,
+  },
+  {
+    href: "/[locale]/hub/material-manager/lessons",
+    label: "Lessons",
+    labelKey: "lessons",
+    icon: <FileText className="w-6 h-6" />,
+  },
+  {
+    href: "/[locale]/hub/material-manager/components",
+    label: "Components",
+    labelKey: "components",
+    icon: <Book className="w-6 h-6" />,
+  },
+];
 
 // Mapeia os papéis para suas respectivas listas de itens
 export const sidebarItemsByRole: Record<string, SidebarItemType[]> = {
@@ -169,6 +196,7 @@ export const sidebarItemsByRole: Record<string, SidebarItemType[]> = {
   [UserRoles.MANAGER]: managerItems,
   [UserRoles.TEACHER]: teacherItems,
   [UserRoles.STUDENT]: studentItems,
+  [UserRoles.MATERIAL_MANAGER]: materialManagerItems,
 };
 
 // Helper to build locale-aware hrefs
@@ -189,7 +217,7 @@ function buildHrefWithLocale(href: string, locale: string): string {
 // Public API: get items by role with locale-aware hrefs
 export function getSidebarItemsByRole(
   role: UserRoles | string,
-  locale: string
+  locale: string,
 ): SidebarItemType[] {
   const raw = sidebarItemsByRole[role] || [];
   return raw.map((it) => ({

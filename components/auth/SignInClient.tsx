@@ -24,7 +24,7 @@ export function SignInClient({ messages }: SignInClientProps) {
   const isAuthenticated = status === "authenticated";
   const locale = useLocale();
   const callbackUrl = searchParams.get("callbackUrl") || "/hub";
-
+  const t = messages?.Auth ?? {};
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [localError, setLocalError] = React.useState<string | null>(null);
@@ -111,9 +111,6 @@ export function SignInClient({ messages }: SignInClientProps) {
   };
 
   if (isAuthenticated && !showTransition) return null;
-
-  const t = messages?.Auth ?? {};
-
   if (showTransition) return <TransitionAnimation />;
 
   return (

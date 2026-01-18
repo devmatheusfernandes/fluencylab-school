@@ -19,7 +19,9 @@ Todo modal de confirmação ou ação deve seguir esta hierarquia de componentes
 *   **NÃO** use o componente `Button` padrão ou `ModalClose` diretamente no footer.
 *   Use **`ModalSecondaryButton`** para ações de cancelamento/voltar.
 *   Use **`ModalPrimaryButton`** para a ação principal.
-    *   Para ações destrutivas (ex: excluir), use a prop `variant="destructive"`.
+*   Para ações destrutivas (ex: excluir), use a prop `variant="destructive"`.
+*   Use **`ModalInput`** para campos de entrada dentro do modal.
+*   Se houver um botão no footer de cancelar, não use o `ModalClose` para fechar o modal.
 
 ## Exemplo de Código
 
