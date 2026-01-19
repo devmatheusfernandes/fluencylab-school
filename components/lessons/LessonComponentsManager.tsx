@@ -11,7 +11,6 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,9 +21,8 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  Eye, Volume2, Loader2, Upload, X, Edit, Layers, BookOpen, BrainCircuit
+  Loader2, Upload, X, Edit, BookOpen, BrainCircuit
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface LessonComponentsManagerProps {
   vocabulary: LearningItem[];
@@ -420,7 +418,7 @@ function ItemDetailModal({ item }: { item: LearningItem }) {
   return (
     <Modal open={undefined} onOpenChange={(open) => { if(!open) setIsEditing(false); }}>
       <ModalTrigger asChild>
-        <Button variant="ghost" size="icon"><Eye className="h-4 w-4" /></Button>
+        <Button variant="ghost" size="icon"><Edit className="h-4 w-4" /></Button>
       </ModalTrigger>
       <ModalContent className="max-w-2xl max-h-[85vh] flex flex-col p-0 overflow-hidden">
         <div className="p-6 border-b flex justify-between items-center">
@@ -600,7 +598,7 @@ function StructureDetailModal({ structure }: { structure: LearningStructure }) {
       <ModalTrigger asChild>
         <Button variant="ghost" size="sm">
           <Edit className="h-4 w-4 mr-2" />
-          {t("structure.enableEditing")}
+          {/* {t("structure.enableEditing")} */}
         </Button>
       </ModalTrigger>
       <ModalContent className="max-w-3xl max-h-[85vh] flex flex-col p-0 overflow-hidden bg-white">

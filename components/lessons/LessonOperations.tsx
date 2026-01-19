@@ -224,17 +224,17 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
   const getStatusColor = (s: string) => {
     switch (s) {
       case "ready":
-        return "bg-emerald-100 text-emerald-800";
+        return "bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200";
       case "processing_items":
-        return "bg-indigo-100 text-indigo-800";
+        return "bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200";
       case "analyzing":
-        return "bg-purple-100 text-purple-800";
+        return "bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200";
       case "reviewing":
-        return "bg-amber-100 text-amber-800";
+        return "bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200";
       case "error":
-        return "bg-rose-100 text-rose-800";
+        return "bg-rose-100 dark:bg-rose-900 text-rose-800 dark:text-rose-200";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200";
     }
   };
 
@@ -243,13 +243,17 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
       <div className="space-y-2">
         <div className="flex justify-between items-start">
            <h2 className="text-xl font-bold">{lesson.title}</h2>
+           <div className="flex flex-row gap-2">
+           <span className={`px-2 py-1 rounded text-xs font-medium uppercase bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200`}>
+            {lesson.language}
+           </span>
+           <span className={`px-2 py-1 rounded text-xs font-medium uppercase bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200`}>
+            {lesson.level}
+           </span>
            <span className={`px-2 py-1 rounded text-xs font-medium uppercase ${getStatusColor(lesson.status)}`}>
              {lesson.status}
            </span>
-        </div>
-        <div className="text-sm text-muted-foreground flex gap-4">
-          <span>{lesson.language.toUpperCase()}</span>
-          <span>{lesson.level || 'Nível n/a'}</span>
+           </div>
         </div>
         
         {/* Approve Action */}

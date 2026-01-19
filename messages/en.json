@@ -127,7 +127,9 @@
     "level": "Level",
     "noLessons": "No lessons found.",
     "lessonNotFound": "Lesson not found.",
-    "levelNotAvailable": "Level n/a"
+    "levelNotAvailable": "Level n/a",
+    "detailTabOperations": "Operations",
+    "detailTabEditor": "Content"
   },
 
   "LessonEditor": {
@@ -268,6 +270,10 @@
       "cancel": "Cancel",
       "confirm": "Delete"
     }
+  },
+
+  "LessonQuizPage": {
+    "subheading": "Manage and edit the quiz questions for this lesson."
   },
 
   "LessonComponentsPage": {

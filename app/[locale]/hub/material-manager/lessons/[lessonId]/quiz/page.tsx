@@ -36,7 +36,7 @@ export default async function Page({ params }: { params: Promise<{ lessonId: str
   };
 
   return (
-    <div className="p-4 md:p-8 space-y-8 max-w-7xl">
+    <div className="p-4 space-y-6">
       <Header
         heading={lesson.title}
         subheading={tPage("subheading")}

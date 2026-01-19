@@ -9,12 +9,14 @@ import LessonEditor from "@/components/lessons/LessonEditor";
 import { Spinner } from "@/components/ui/spinner";
 import ErrorAlert from "@/components/ui/error-alert";
 import { Header } from "@/components/ui/header";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTranslations } from "next-intl";
 
 export default function LessonDetailPage({ params }: { params: Promise<{ lessonId: string }> }) {
   const { lessonId } = use(params);
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeMobileView, setActiveMobileView] = useState<"operations" | "editor">("operations");
   const t = useTranslations("MaterialManager");
 
   useEffect(() => {
@@ -52,32 +54,50 @@ export default function LessonDetailPage({ params }: { params: Promise<{ lessonI
     );
 
   return (
-    <div className="p-4 md:p-8 space-y-6">
+    <div className="p-4 space-y-6 overflow-hidden">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <Header
           heading={lesson.title}
           subheading={t("description")}
           backHref="/hub/material-manager/lessons"
         />
-        <div className="flex flex-col items-start md:items-end text-xs text-muted-foreground space-y-1">
-          <span className="px-2 py-1 rounded-full bg-muted text-muted-foreground">
-            ID: {lesson.id}
-          </span>
-          <span>
-            {lesson.language.toUpperCase()} •{" "}
-            {lesson.level || t("levelNotAvailable")}
-          </span>
-        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-220px)]">
-        <div className="lg:col-span-4 h-full">
-          <div className="h-full bg-card border rounded-xl shadow-sm overflow-hidden">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <div className="lg:hidden">
+          <Tabs
+            value={activeMobileView}
+            onValueChange={(value) =>
+              setActiveMobileView(value as "operations" | "editor")
+            }
+            className="w-full mb-4"
+          >
+            <TabsList className="w-full">
+              <TabsTrigger value="operations" className="flex-1">
+                {t("detailTabOperations")}
+              </TabsTrigger>
+              <TabsTrigger value="editor" className="flex-1">
+                {t("detailTabEditor")}
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+
+        <div
+          className={`${
+            activeMobileView === "operations" ? "block" : "hidden"
+          } lg:block lg:col-span-4 h-[calc(100vh-13rem)]`}
+        >
+          <div className="h-full bg-card border rounded-xl overflow-hidden">
             <LessonOperations lesson={lesson} />
           </div>
         </div>
-        <div className="lg:col-span-8 h-full">
-          <div className="h-full bg-card border rounded-xl shadow-sm flex flex-col overflow-hidden">
+        <div
+          className={`${
+            activeMobileView === "editor" ? "block" : "hidden"
+          } lg:block lg:col-span-8 h-[calc(100vh-13rem)]`}
+        >
+          <div className="h-full bg-card border rounded-xl overflow-hidden">
             <LessonEditor lessonId={lesson.id} initialContent={lesson.content} />
           </div>
         </div>

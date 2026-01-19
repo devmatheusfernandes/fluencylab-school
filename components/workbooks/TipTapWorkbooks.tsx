@@ -88,7 +88,7 @@ const Tiptap = ({ onChange, content, isEditable }: any) => {
             return headingPlaceholders[node.attrs.level];
           }
           if (node.type.name === 'paragraph') {
-            return "..."
+            return "/"
           }
           return '/'
         },
@@ -97,7 +97,7 @@ const Tiptap = ({ onChange, content, isEditable }: any) => {
     editorProps: {
       attributes: {
         class:
-          "h-full p-6 outline-none bg-background",
+          "p-6 outline-none",
       },
     },
     immediatelyRender: false,
@@ -112,9 +112,8 @@ const Tiptap = ({ onChange, content, isEditable }: any) => {
     return null;
   }
   return (
-    <div className='no-scrollbar flex flex-col min-w-full min-h-full gap-8 justify-center items-center text-black dark:text-white'>
-      <EditorContent editor={editor} className="no-scrollbar" />
-
+    <div className='flex flex-col gap-8 justify-center items-center text-black dark:text-white '>
+      <EditorContent editor={editor} className="no-scrollbar w-full h-max" />
       {isEditable && <FloatingToolbar editor={editor} />}
     </div>
   );

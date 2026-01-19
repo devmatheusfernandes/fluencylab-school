@@ -127,7 +127,9 @@
     "level": "Nível",
     "noLessons": "Nenhuma aula encontrada.",
     "lessonNotFound": "Lição não encontrada.",
-    "levelNotAvailable": "Nível n/a"
+    "levelNotAvailable": "Nível n/a",
+    "detailTabOperations": "Operações",
+    "detailTabEditor": "Conteúdo"
   },
 
   "LessonEditor": {
@@ -268,6 +270,10 @@
       "cancel": "Cancelar",
       "confirm": "Excluir"
     }
+  },
+
+  "LessonQuizPage": {
+    "subheading": "Gerencie e edite as perguntas do quiz para esta aula."
   },
 
   "LessonComponentsPage": {

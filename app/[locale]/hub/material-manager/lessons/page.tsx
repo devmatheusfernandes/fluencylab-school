@@ -107,10 +107,10 @@ export default function LessonsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'ready': return 'bg-emerald-100 text-emerald-700';
-      case 'reviewing': return 'bg-amber-100 text-amber-800';
-      case 'error': return 'bg-rose-100 text-rose-700';
-      default: return 'bg-gray-100 text-gray-600';
+      case 'ready': return 'bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300';
+      case 'reviewing': return 'bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-300';
+      case 'error': return 'bg-rose-100 dark:bg-rose-900 text-rose-700 dark:text-rose-300';
+      default: return 'bg-gray-100 dark:bg-gray-900 text-gray-600 dark:text-gray-300';
     }
   };
 
@@ -162,10 +162,10 @@ export default function LessonsPage() {
               className="bg-card p-6 rounded-xl border hover:shadow-md transition cursor-pointer flex flex-col gap-4 group relative overflow-hidden"
               onClick={() => router.push(`/hub/material-manager/lessons/${lesson.id}`)}
             >
-              <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition" />
+              <div className="absolute top-0 left-0 w-1 h-full bg-primary opacity-0 group-hover:opacity-100 transition-all ease-in-out duration-300" />
               
               <div className="flex justify-between items-start">
-                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                <div className="p-2 bg-primary text-foreground rounded-lg">
                   <BookOpen className="w-6 h-6" />
                 </div>
                 <span className={`text-[10px] px-2 py-1 rounded uppercase font-bold tracking-wider ${getStatusColor(lesson.status)}`}>
@@ -182,7 +182,7 @@ export default function LessonsPage() {
 
               <div className="mt-auto pt-4 border-t text-xs text-muted-foreground flex justify-between items-center">
                  <span className="flex items-center gap-1">
-                   {(lesson.learningItensQueue?.length || 0) + (lesson.learningStructuresQueue?.length || 0)} {t('items')}
+                   {(lesson.relatedLearningItemIds?.length || 0) + (lesson.relatedLearningStructureIds?.length || 0)} {t('items')}
                  </span>
                  <span>{formatDate(lesson.metadata?.updatedAt)}</span>
               </div>
