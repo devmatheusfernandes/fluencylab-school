@@ -1,18 +1,24 @@
 import { adminDb } from "@/lib/firebase/admin";
 import { Lesson } from "@/types/lesson";
 import { LessonQuizEditor } from "@/components/lessons/LessonQuizEditor";
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Header } from "@/components/ui/header";
+import ErrorAlert from "@/components/ui/error-alert";
+import { getTranslations } from "next-intl/server";
 
 export default async function Page({ params }: { params: Promise<{ lessonId: string }> }) {
   const { lessonId } = await params;
-  
+  const tMaterial = await getTranslations("MaterialManager");
+  const tPage = await getTranslations("LessonQuizPage");
+
   const lessonRef = adminDb.collection("lessons").doc(lessonId);
   const lessonSnap = await lessonRef.get();
   
   if (!lessonSnap.exists) {
-    return <div>Lição não encontrada</div>;
+    return (
+      <div className="p-4 md:p-8">
+        <ErrorAlert message={tMaterial("lessonNotFound")} />
+      </div>
+    );
   }
 
   const rawLesson = lessonSnap.data() as any;
@@ -30,15 +36,13 @@ export default async function Page({ params }: { params: Promise<{ lessonId: str
   };
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
-       <div className="mb-8">
-        <Link href={`/hub/material-manager/lessons/${lessonId}`}>
-          <Button variant="ghost" className="mb-4 pl-0 hover:pl-2 transition-all">
-            <ArrowLeft className="w-4 h-4 mr-2" /> Voltar para Aula
-          </Button>
-        </Link>
-      </div>
-      
+    <div className="p-4 md:p-8 space-y-8 max-w-7xl">
+      <Header
+        heading={lesson.title}
+        subheading={tPage("subheading")}
+        backHref={`/hub/material-manager/lessons/${lessonId}`}
+      />
+
       <LessonQuizEditor lesson={lesson} />
     </div>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { LearningItem, LearningStructure, GrammaticalRole } from "@/types/lesson";
 import { updateLearningItem, updateLearningStructure } from "@/actions/lesson-updating";
 import { handleImageUpload, deleteImageByUrl } from "@/lib/tiptap-utils";
@@ -31,12 +32,18 @@ interface LessonComponentsManagerProps {
 }
 
 export default function LessonComponentsManager({ vocabulary, structures }: LessonComponentsManagerProps) {
+  const t = useTranslations("LessonComponentsManager");
+
   return (
     <div className="space-y-6">
       <Tabs defaultValue="vocabulary" className="w-full">
         <TabsList className="grid w-full grid-cols-2 max-w-[400px]">
-          <TabsTrigger value="vocabulary">Vocabulário ({vocabulary.length})</TabsTrigger>
-          <TabsTrigger value="structures">Estruturas ({structures.length})</TabsTrigger>
+          <TabsTrigger value="vocabulary">
+            {t("tabs.vocabulary", { count: vocabulary.length })}
+          </TabsTrigger>
+          <TabsTrigger value="structures">
+            {t("tabs.structures", { count: structures.length })}
+          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="vocabulary" className="mt-6">
@@ -56,6 +63,7 @@ function VocabularyList({ items }: { items: LearningItem[] }) {
   const [levelFilter, setLevelFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [languageFilter, setLanguageFilter] = useState<string>("all");
+  const t = useTranslations("LessonComponentsManager");
 
   const levels = Array.from(new Set(items.map((i) => i.level))).sort();
   const types = Array.from(new Set(items.map((i) => i.type))).sort();
@@ -86,7 +94,9 @@ function VocabularyList({ items }: { items: LearningItem[] }) {
     return (
       <div className="text-center py-12 bg-muted/20 rounded-lg border border-dashed">
         <BookOpen className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
-        <h3 className="text-lg font-medium">Nenhum vocabulário encontrado</h3>
+        <h3 className="text-lg font-medium">
+          {t("empty.vocabularyTitle")}
+        </h3>
       </div>
     );
   }
@@ -96,7 +106,7 @@ function VocabularyList({ items }: { items: LearningItem[] }) {
       <CardContent className="p-4 space-y-4">
         <div className="flex flex-wrap gap-3">
           <Input
-            placeholder="Buscar termo ou tradução..."
+            placeholder={t("filters.searchVocabularyPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full md:w-1/3"
@@ -106,10 +116,12 @@ function VocabularyList({ items }: { items: LearningItem[] }) {
             onValueChange={setLanguageFilter}
           >
             <SelectTrigger className="w-full md:w-[130px]">
-              <SelectValue placeholder="Idioma" />
+              <SelectValue placeholder={t("filters.languagePlaceholder")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todos Idiomas</SelectItem>
+              <SelectItem value="all">
+                {t("filters.allLanguages")}
+              </SelectItem>
               {languages.map((lang) => (
                 <SelectItem key={lang} value={lang}>
                   {lang.toUpperCase()}
@@ -122,10 +134,12 @@ function VocabularyList({ items }: { items: LearningItem[] }) {
             onValueChange={setLevelFilter}
           >
             <SelectTrigger className="w-full md:w-[130px]">
-              <SelectValue placeholder="Nível" />
+              <SelectValue placeholder={t("filters.levelPlaceholder")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todos Níveis</SelectItem>
+              <SelectItem value="all">
+                {t("filters.allLevels")}
+              </SelectItem>
               {levels.map((lvl) => (
                 <SelectItem key={lvl} value={lvl}>
                   {lvl}
@@ -138,10 +152,12 @@ function VocabularyList({ items }: { items: LearningItem[] }) {
             onValueChange={setTypeFilter}
           >
             <SelectTrigger className="w-full md:w-[180px]">
-              <SelectValue placeholder="Tipo" />
+              <SelectValue placeholder={t("filters.typePlaceholder")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todos Tipos</SelectItem>
+              <SelectItem value="all">
+                {t("filters.allTypes")}
+              </SelectItem>
               {types.map((t) => (
                 <SelectItem key={t} value={t}>
                   {t}
@@ -155,11 +171,13 @@ function VocabularyList({ items }: { items: LearningItem[] }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Termo</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Nível</TableHead>
-                <TableHead>Tradução Principal</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
+                <TableHead>{t("table.term")}</TableHead>
+                <TableHead>{t("table.type")}</TableHead>
+                <TableHead>{t("table.level")}</TableHead>
+                <TableHead>{t("table.mainTranslation")}</TableHead>
+                <TableHead className="text-right">
+                  {t("table.actions")}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -203,6 +221,7 @@ function StructuresList({ items }: { items: LearningStructure[] }) {
   const [search, setSearch] = useState("");
   const [levelFilter, setLevelFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
+  const t = useTranslations("LessonComponentsManager");
 
   const levels = Array.from(new Set(items.map((i) => i.level))).sort();
   const types = Array.from(new Set(items.map((i) => i.type))).sort();
@@ -227,7 +246,9 @@ function StructuresList({ items }: { items: LearningStructure[] }) {
     return (
       <div className="text-center py-12 bg-muted/20 rounded-lg border border-dashed">
         <BrainCircuit className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
-        <h3 className="text-lg font-medium">Nenhuma estrutura encontrada</h3>
+        <h3 className="text-lg font-medium">
+          {t("empty.structuresTitle")}
+        </h3>
       </div>
     );
   }
@@ -236,7 +257,7 @@ function StructuresList({ items }: { items: LearningStructure[] }) {
     <div className="space-y-4">
       <div className="flex flex-wrap gap-3">
         <Input
-          placeholder="Buscar frase..."
+          placeholder={t("filters.searchStructuresPlaceholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full md:w-1/3"
@@ -246,10 +267,12 @@ function StructuresList({ items }: { items: LearningStructure[] }) {
           onValueChange={setLevelFilter}
         >
           <SelectTrigger className="w-full md:w-[130px]">
-            <SelectValue placeholder="Nível" />
+            <SelectValue placeholder={t("filters.levelPlaceholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos Níveis</SelectItem>
+            <SelectItem value="all">
+              {t("filters.allLevels")}
+            </SelectItem>
             {levels.map((lvl) => (
               <SelectItem key={lvl} value={lvl}>
                 {lvl}
@@ -262,10 +285,12 @@ function StructuresList({ items }: { items: LearningStructure[] }) {
           onValueChange={setTypeFilter}
         >
           <SelectTrigger className="w-full md:w-[200px]">
-            <SelectValue placeholder="Tipo" />
+            <SelectValue placeholder={t("filters.typePlaceholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos Tipos</SelectItem>
+            <SelectItem value="all">
+              {t("filters.allTypes")}
+            </SelectItem>
             {types.map((t) => (
               <SelectItem key={t} value={t}>
                 {t}
@@ -280,11 +305,11 @@ function StructuresList({ items }: { items: LearningStructure[] }) {
           <Card key={struct.id}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <div className="flex flex-col gap-1">
-                <CardTitle className="text-base font-medium font-mono bg-slate-100 px-2 py-1 rounded w-fit">
+                <CardTitle className="text-base font-medium font-mono bg-card px-2 py-1 rounded w-fit">
                   {struct.type}
                 </CardTitle>
                 <span className="text-xs text-muted-foreground">
-                  Nível: {struct.level}
+                      {t("structure.levelLabel", { level: struct.level })}
                 </span>
               </div>
               <StructureDetailModal structure={struct} />
@@ -303,7 +328,7 @@ function StructuresList({ items }: { items: LearningStructure[] }) {
                         .map((w, wIdx) => (
                           <div
                             key={wIdx}
-                            className="flex flex-col items-center bg-white border px-2 py-1 rounded"
+                            className="flex flex-col items-center bg-accent border px-2 py-1 rounded"
                           >
                             <span className="font-bold">{w.word}</span>
                             <span className="text-[10px] text-blue-600 uppercase tracking-tighter">
@@ -332,6 +357,7 @@ function ItemDetailModal({ item }: { item: LearningItem }) {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+   const t = useTranslations("LessonComponentsManager");
 
   const handleInputChange = (field: keyof LearningItem, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -350,9 +376,9 @@ function ItemDetailModal({ item }: { item: LearningItem }) {
       setIsUploading(true);
       const url = await handleImageUpload(file);
       setFormData((prev) => ({ ...prev, imageUrl: url }));
-      toast.success("Imagem enviada!");
+      toast.success(t("vocabulary.imageUploadSuccess"));
     } catch (error) {
-      toast.error("Falha no upload.");
+      toast.error(t("vocabulary.imageUploadError"));
     } finally {
       setIsUploading(false);
     }
@@ -360,13 +386,13 @@ function ItemDetailModal({ item }: { item: LearningItem }) {
 
   const handleRemoveImage = async () => {
     if (!formData.imageUrl) return;
-    if (confirm("Remover imagem permanentemente?")) {
+    if (confirm(t("vocabulary.confirmRemoveImage"))) {
       try {
         await deleteImageByUrl(formData.imageUrl);
         setFormData((prev) => ({ ...prev, imageUrl: null }));
-        toast.success("Imagem removida.");
+        toast.success(t("vocabulary.imageRemoveSuccess"));
       } catch (error) {
-        toast.error("Erro ao remover imagem.");
+        toast.error(t("vocabulary.imageRemoveError"));
       }
     }
   };
@@ -379,13 +405,13 @@ function ItemDetailModal({ item }: { item: LearningItem }) {
       }
       const result = await updateLearningItem(item.id, formData);
       if (result.success) {
-        toast.success("Item atualizado!");
+        toast.success(t("vocabulary.updateSuccess"));
         setIsEditing(false);
       } else {
-        toast.error("Erro ao atualizar.");
+        toast.error(t("vocabulary.updateError"));
       }
     } catch (error) {
-      toast.error("Erro desconhecido.");
+      toast.error(t("vocabulary.updateUnknownError"));
     } finally {
       setIsSaving(false);
     }
@@ -396,8 +422,8 @@ function ItemDetailModal({ item }: { item: LearningItem }) {
       <ModalTrigger asChild>
         <Button variant="ghost" size="icon"><Eye className="h-4 w-4" /></Button>
       </ModalTrigger>
-      <ModalContent className="max-w-2xl max-h-[85vh] flex flex-col p-0 overflow-hidden bg-white">
-        <div className="p-6 border-b bg-gray-50 flex justify-between items-center">
+      <ModalContent className="max-w-2xl max-h-[85vh] flex flex-col p-0 overflow-hidden">
+        <div className="p-6 border-b flex justify-between items-center">
             {isEditing ? (
                  <Input value={formData.mainText} onChange={e => handleInputChange("mainText", e.target.value)} className="font-bold text-xl" />
             ) : (
@@ -406,13 +432,19 @@ function ItemDetailModal({ item }: { item: LearningItem }) {
             <div className="flex gap-2">
                 {isEditing ? (
                     <>
-                        <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)}>Cancelar</Button>
+                        <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)}>
+                          {t("structure.cancel")}
+                        </Button>
                         <Button size="sm" onClick={handleSave} disabled={isSaving}>
-                            {isSaving && <Loader2 className="w-4 h-4 animate-spin mr-2"/>} Salvar
+                            {isSaving && <Loader2 className="w-4 h-4 animate-spin mr-2"/>}
+                            {t("structure.save")}
                         </Button>
                     </>
                 ) : (
-                    <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}><Edit className="w-4 h-4 mr-2"/> Editar</Button>
+                    <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+                      <Edit className="w-4 h-4 mr-2"/>
+                      {t("structure.enableEditing")}
+                    </Button>
                 )}
             </div>
         </div>
@@ -420,7 +452,9 @@ function ItemDetailModal({ item }: { item: LearningItem }) {
         <ScrollArea className="flex-1 p-6">
             {/* Image Section */}
             <div className="mb-6 space-y-2">
-                <h4 className="text-xs font-bold uppercase text-gray-500">Imagem</h4>
+                <h4 className="text-xs font-bold uppercase text-gray-500">
+                  {t("vocabulary.sectionImage")}
+                </h4>
                 {isEditing ? (
                     <div className="border border-dashed p-4 rounded-lg flex items-center gap-4">
                         {formData.imageUrl ? (
@@ -430,11 +464,16 @@ function ItemDetailModal({ item }: { item: LearningItem }) {
                                     <X className="w-3 h-3" />
                                 </Button>
                             </div>
-                        ) : <div className="w-24 h-24 bg-gray-100 rounded flex items-center justify-center text-xs text-gray-400">Sem imagem</div>}
+                        ) : (
+                          <div className="w-24 h-24 bg-gray-100 rounded flex items-center justify-center text-xs text-gray-400">
+                            {t("vocabulary.noImage")}
+                          </div>
+                        )}
                         
                         <div className="flex flex-col gap-2">
                             <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
-                                {isUploading ? <Loader2 className="w-4 h-4 animate-spin mr-2"/> : <Upload className="w-4 h-4 mr-2"/>} Upload
+                                {isUploading ? <Loader2 className="w-4 h-4 animate-spin mr-2"/> : <Upload className="w-4 h-4 mr-2"/>}
+                                {t("vocabulary.upload")}
                             </Button>
                             <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageSelect} />
                         </div>
@@ -444,43 +483,65 @@ function ItemDetailModal({ item }: { item: LearningItem }) {
                         <div className="relative w-full h-48 rounded-lg overflow-hidden border">
                             <Image src={item.imageUrl} alt={item.mainText} fill className="object-cover" />
                         </div>
-                    ) : <p className="text-sm text-gray-400 italic">Sem imagem.</p>
+                    ) : (
+                      <p className="text-sm text-gray-400 italic">
+                        {t("vocabulary.noImage")}
+                      </p>
+                    )
                 )}
             </div>
 
             {/* Meanings */}
             <div className="space-y-4">
-                <h4 className="text-xs font-bold uppercase text-gray-500">Significados</h4>
+                <h4 className="text-xs font-bold uppercase text-gray-500">
+                  {t("vocabulary.meanings")}
+                </h4>
                 {(isEditing ? formData.meanings : item.meanings)?.map((meaning, idx) => (
-                    <div key={idx} className="p-4 bg-gray-50 rounded border space-y-3">
+                    <div key={idx} className="p-4 bg-card/70 rounded border space-y-3">
                         <div className="grid grid-cols-2 gap-2">
                             <div className="col-span-2">
-                                <label className="text-xs text-gray-400">Contexto</label>
+                                <label className="text-xs text-gray-400">
+                                  {t("vocabulary.context")}
+                                </label>
                                 {isEditing ? (
                                     <Input value={meaning.context} onChange={e => handleMeaningChange(idx, 'context', e.target.value)} className="h-8" />
                                 ) : <p className="text-sm font-medium">{meaning.context}</p>}
                             </div>
                             <div>
-                                <label className="text-xs text-gray-400">Tradução</label>
+                                <label className="text-xs text-gray-400">
+                                  {t("vocabulary.translation")}
+                                </label>
                                 {isEditing ? (
                                     <Input value={meaning.translation} onChange={e => handleMeaningChange(idx, 'translation', e.target.value)} className="h-8 font-bold" />
                                 ) : <p className="text-sm font-bold">{meaning.translation}</p>}
                             </div>
                             <div>
-                                <label className="text-xs text-gray-400">Definição</label>
+                                <label className="text-xs text-gray-400">
+                                  {t("vocabulary.definition")}
+                                </label>
                                 {isEditing ? (
                                     <Input value={meaning.definition} onChange={e => handleMeaningChange(idx, 'definition', e.target.value)} className="h-8" />
                                 ) : <p className="text-sm">{meaning.definition}</p>}
                             </div>
                         </div>
                         <div className="border-t pt-2 mt-2">
-                            <label className="text-xs text-gray-400">Exemplo</label>
+                            <label className="text-xs text-gray-400">
+                              {t("vocabulary.example")}
+                            </label>
                             {isEditing ? (
                                 <Input value={meaning.example} onChange={e => handleMeaningChange(idx, 'example', e.target.value)} className="h-8 italic mb-1" />
                             ) : <p className="text-sm italic">"{meaning.example}"</p>}
                             {isEditing ? (
-                                <Input value={meaning.exampleTranslation} onChange={e => handleMeaningChange(idx, 'exampleTranslation', e.target.value)} className="h-8 text-gray-500" />
-                            ) : <p className="text-sm text-gray-500">{meaning.exampleTranslation}</p>}
+                                <Input
+                                  value={meaning.exampleTranslation}
+                                  onChange={e => handleMeaningChange(idx, "exampleTranslation", e.target.value)}
+                                  className="h-8 text-gray-500"
+                                />
+                            ) : (
+                              <p className="text-sm text-gray-500">
+                                {meaning.exampleTranslation}
+                              </p>
+                            )}
                         </div>
                     </div>
                 ))}
@@ -498,6 +559,7 @@ function StructureDetailModal({ structure }: { structure: LearningStructure }) {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<LearningStructure>(structure);
   const [isSaving, setIsSaving] = useState(false);
+  const t = useTranslations("LessonComponentsManager");
 
   const roles: GrammaticalRole[] = [
     'subject', 'verb', 'object', 'indirect_object', 'adjective', 'adverb', 
@@ -521,13 +583,13 @@ function StructureDetailModal({ structure }: { structure: LearningStructure }) {
       setIsSaving(true);
       const result = await updateLearningStructure(structure.id, formData);
       if (result.success) {
-        toast.success("Estrutura atualizada!");
+        toast.success(t("structure.updateSuccess"));
         setIsEditing(false);
       } else {
-        toast.error("Erro ao atualizar.");
+        toast.error(t("structure.updateError"));
       }
     } catch (error) {
-      toast.error("Erro desconhecido.");
+      toast.error(t("structure.updateUnknownError"));
     } finally {
       setIsSaving(false);
     }
@@ -536,21 +598,31 @@ function StructureDetailModal({ structure }: { structure: LearningStructure }) {
   return (
     <Modal open={undefined} onOpenChange={(open) => { if(!open) setIsEditing(false); }}>
       <ModalTrigger asChild>
-        <Button variant="ghost" size="sm"><Edit className="h-4 w-4 mr-2" /> Editar</Button>
+        <Button variant="ghost" size="sm">
+          <Edit className="h-4 w-4 mr-2" />
+          {t("structure.enableEditing")}
+        </Button>
       </ModalTrigger>
       <ModalContent className="max-w-3xl max-h-[85vh] flex flex-col p-0 overflow-hidden bg-white">
         <ModalHeader className="px-6 py-4 border-b">
            <ModalTitle className="flex justify-between items-center w-full">
-              <span>Editando Estrutura: {structure.type}</span>
+              <span>
+                {t("structure.editTitle", { type: structure.type })}
+              </span>
               {isEditing ? (
                 <div className="flex gap-2">
-                    <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)}>Cancelar</Button>
+                    <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)}>
+                      {t("structure.cancel")}
+                    </Button>
                     <Button size="sm" onClick={handleSave} disabled={isSaving}>
-                        {isSaving && <Loader2 className="w-4 h-4 animate-spin mr-2"/>} Salvar
+                        {isSaving && <Loader2 className="w-4 h-4 animate-spin mr-2"/>}
+                        {t("structure.save")}
                     </Button>
                 </div>
               ) : (
-                <Button size="sm" onClick={() => setIsEditing(true)}>Habilitar Edição</Button>
+                <Button size="sm" onClick={() => setIsEditing(true)}>
+                  {t("structure.enableEditing")}
+                </Button>
               )}
            </ModalTitle>
         </ModalHeader>
@@ -558,19 +630,23 @@ function StructureDetailModal({ structure }: { structure: LearningStructure }) {
         <ScrollArea className="flex-1 p-6">
            <div className="space-y-6">
               {formData.sentences.map((sent, sIdx) => (
-                 <div key={sIdx} className="p-4 border rounded-lg bg-slate-50">
+                 <div key={sIdx} className="p-4 border rounded-lg bg-card/70">
                     <div className="mb-4">
-                        <label className="text-xs font-bold text-gray-500 uppercase">Frase Completa</label>
+                        <label className="text-xs font-bold text-gray-500 uppercase">
+                          {t("structure.fullSentence")}
+                        </label>
                         {isEditing ? (
                              <Input value={sent.whole_sentence} onChange={e => handleSentenceChange(sIdx, 'whole_sentence', e.target.value)} />
                         ) : <p className="font-medium text-lg">{sent.whole_sentence}</p>}
                     </div>
 
                     <div>
-                        <label className="text-xs font-bold text-gray-500 uppercase mb-2 block">Análise Gramatical (Ordem & Funções)</label>
+                        <label className="text-xs font-bold text-gray-500 uppercase mb-2 block">
+                          {t("structure.analysisLabel")}
+                        </label>
                         <div className="flex flex-wrap gap-2">
                            {sent.order.sort((a,b) => a.order - b.order).map((wordObj, wIdx) => (
-                               <div key={wIdx} className="bg-white border p-2 rounded min-w-[100px] flex flex-col gap-1">
+                               <div key={wIdx} className="bg-accent border p-2 rounded min-w-[100px] flex flex-col gap-1">
                                    <span className="font-bold text-center border-b pb-1">{wordObj.word}</span>
                                    {isEditing ? (
                                        <Select 
@@ -585,9 +661,13 @@ function StructureDetailModal({ structure }: { structure: LearningStructure }) {
                                          </SelectContent>
                                        </Select>
                                    ) : (
-                                       <span className="text-[10px] text-center text-blue-600 uppercase font-bold">{wordObj.role || 'N/A'}</span>
+                                       <span className="text-[10px] text-center text-blue-600 uppercase font-bold">
+                                         {wordObj.role || "N/A"}
+                                       </span>
                                    )}
-                                   <span className="text-[10px] text-gray-400 text-center">Pos: {wordObj.order}</span>
+                                  <span className="text-[10px] text-gray-400 text-center">
+                                    {t("structure.positionLabel", { order: wordObj.order })}
+                                  </span>
                                </div>
                            ))}
                         </div>

@@ -90,17 +90,12 @@ export async function updateLessonQuiz(lessonId: string, quizData: Quiz) {
 
     // Prepara o objeto de atualização
     // Aqui atualizamos o campo 'quiz' inteiro e o 'updatedAt' da lição
-    const updates = {
-      quiz: quizData,
-      'metadata.updatedAt': FieldValue.serverTimestamp()
-    };
+    const cleanQuiz = JSON.parse(JSON.stringify(quizData));
 
-    // Removemos undefined de dentro do objeto quiz recursivamente se necessário,
-    // mas geralmente JSON.parse(JSON.stringify(quizData)) resolve rápido para deep clean,
-    // ou assumimos que o frontend enviou o objeto completo correto.
-    const cleanUpdates = JSON.parse(JSON.stringify(updates));
-
-    await lessonRef.update(cleanUpdates);
+    await lessonRef.update({
+      quiz: cleanQuiz,
+      'metadata.updatedAt': FieldValue.serverTimestamp(),
+    });
 
     revalidatePath('/hub/admin/lessons');
     revalidatePath(`/hub/admin/lessons/${lessonId}`);

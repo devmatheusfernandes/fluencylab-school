@@ -1,12 +1,16 @@
 import { adminDb } from "@/lib/firebase/admin";
 import { LearningItem, LearningStructure } from "@/types/lesson";
 import LessonComponentsManager from "@/components/lessons/LessonComponentsManager";
+import { Header } from "@/components/ui/header";
+import { getTranslations } from "next-intl/server";
 
 export const metadata = {
   title: "Componentes Globais | FluencyLab",
 };
 
 export default async function Page() {
+  const tPage = await getTranslations("LessonComponentsPage");
+
   let vocabulary: LearningItem[] = [];
   let structures: LearningStructure[] = [];
 
@@ -64,13 +68,11 @@ export default async function Page() {
   }
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Componentes Globais</h1>
-        <p className="text-gray-500">
-          Todos os itens de vocabulário e estruturas com possibilidade de edição.
-        </p>
-      </div>
+    <div className="p-4 md:p-8 space-y-8 max-w7xl">
+      <Header
+        heading={tPage("globalHeading")}
+        subheading={tPage("globalSubheading")}
+      />
 
       <LessonComponentsManager vocabulary={vocabulary} structures={structures} />
     </div>

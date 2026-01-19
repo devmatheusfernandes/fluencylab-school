@@ -29,7 +29,6 @@ export async function createLesson(title: string, language: string, contentHtml:
   try {
     const docRef = adminDb.collection('lessons').doc();
     
-    // Tratamento básico para garantir que não salvamos undefined
     const lesson: Lesson = {
       id: docRef.id,
       title,
@@ -50,10 +49,7 @@ export async function createLesson(title: string, language: string, contentHtml:
       lesson.audioUrl = audioUrl;
     }
 
-    // Remove campos undefined antes de salvar (segurança pro Firestore)
-    const cleanLesson = JSON.parse(JSON.stringify(lesson));
-
-    await docRef.set(cleanLesson);
+    await docRef.set(lesson);
     return { success: true, id: docRef.id };
   } catch (error) {
     console.error('Error creating lesson:', error);
@@ -273,14 +269,15 @@ export async function processLessonBatch(lessonId: string) {
           newIds.push(existingMap.get(item.slug)!);
         } else {
           const newRef = adminDb.collection('learningItems').doc();
-          // Remove undefineds para evitar erros do Firestore
-          const newItem = JSON.parse(JSON.stringify({
+          const newItem = {
             ...item,
             id: newRef.id,
             language,
-            metadata: { createdAt: FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp() }
-          }));
-          
+            metadata: {
+              createdAt: FieldValue.serverTimestamp(),
+              updatedAt: FieldValue.serverTimestamp(),
+            },
+          };
           batch.set(newRef, newItem);
           newIds.push(newRef.id);
         }
@@ -310,13 +307,15 @@ export async function processLessonBatch(lessonId: string) {
 
       for (const struct of itemsToProcess) {
         const newRef = adminDb.collection('learningStructures').doc();
-        const newStruct = JSON.parse(JSON.stringify({
+        const newStruct = {
           ...struct,
           id: newRef.id,
           language,
-          metadata: { createdAt: FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp() }
-        }));
-        
+          metadata: {
+            createdAt: FieldValue.serverTimestamp(),
+            updatedAt: FieldValue.serverTimestamp(),
+          },
+        };
         batch.set(newRef, newStruct);
         newIds.push(newRef.id);
       }

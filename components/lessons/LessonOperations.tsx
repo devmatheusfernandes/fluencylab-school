@@ -4,19 +4,40 @@ import { useState } from "react";
 import { Lesson } from "@/types/lesson";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { 
-  analyzeLessonContent, 
-  processLessonBatch, 
-  generateLessonQuiz, 
+import {
+  analyzeLessonContent,
+  processLessonBatch,
+  generateLessonQuiz,
   generateLessonTranscript,
-  createLesson 
+  createLesson,
 } from "@/actions/lesson-processing";
 import { approveLesson } from "@/actions/lesson-updating";
-import { Modal, ModalContent, ModalHeader, ModalFooter } from "@/components/ui/modal";
-import { Loader2, Play, Trash2, Wand2, FileText, CheckCircle, AlertCircle, Eye, ThumbsUp } from "lucide-react";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalTitle,
+  ModalDescription,
+  ModalFooter,
+  ModalIcon,
+  ModalPrimaryButton,
+  ModalSecondaryButton,
+} from "@/components/ui/modal";
+import {
+  Loader2,
+  Play,
+  Trash2,
+  Wand2,
+  FileText,
+  CheckCircle,
+  AlertCircle,
+  Eye,
+  ThumbsUp,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { updateDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
+import { useTranslations } from "next-intl";
 
 interface LessonOperationsProps {
   lesson: Lesson;
@@ -26,6 +47,7 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
   const [loading, setLoading] = useState<string | null>(null);
   const [isDeleteAudioOpen, setIsDeleteAudioOpen] = useState(false);
   const router = useRouter();
+  const t = useTranslations("LessonOperations");
 
   // Helper: Strip HTML
   const stripHtml = (html: string) => {
@@ -36,7 +58,7 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
   // 1. Analyze
   const handleAnalyze = async () => {
     if (!lesson.content) {
-      toast.error("Adicione conteúdo antes de analisar.");
+      toast.error(t("toastAddContent"));
       return;
     }
     setLoading("analyze");
@@ -44,12 +66,17 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
       const text = stripHtml(lesson.content);
       const res = await analyzeLessonContent(lesson.id, text);
       if (res.success) {
-        toast.success(`Análise completa! ${res.vocabCount} vocabulários e ${res.structCount} estruturas encontradas.`);
+        toast.success(
+          t("toastAnalyzeSuccess", {
+            vocabCount: res.vocabCount ?? 0,
+            structCount: res.structCount ?? 0,
+          })
+        );
       } else {
-        toast.error("Erro na análise.");
+        toast.error(t("toastAnalyzeError"));
       }
     } catch (e) {
-      toast.error("Erro ao conectar com o servidor.");
+      toast.error(t("toastServerError"));
     } finally {
       setLoading(null);
     }
@@ -61,12 +88,17 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
     try {
       const res = await processLessonBatch(lesson.id);
       if (res.completed) {
-        toast.success("Processamento finalizado!");
+        toast.success(t("toastProcessDone"));
       } else {
-        toast.success(`Lote processado! Restam: ${res.remainingVocab} vocabulários, ${res.remainingStruct} estruturas.`);
+        toast.success(
+          t("toastProcessPartial", {
+            remainingVocab: res.remainingVocab ?? 0,
+            remainingStruct: res.remainingStruct ?? 0,
+          })
+        );
       }
     } catch (e) {
-      toast.error("Erro ao processar lote.");
+      toast.error(t("toastProcessError"));
     } finally {
       setLoading(null);
     }
@@ -78,12 +110,12 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
     try {
       const res = await generateLessonQuiz(lesson.id);
       if (res.success) {
-        toast.success("Quiz gerado com sucesso!");
+        toast.success(t("toastQuizSuccess"));
       } else {
-        toast.error("Erro ao gerar quiz.");
+        toast.error(t("toastQuizError"));
       }
     } catch (e) {
-      toast.error("Erro desconhecido.");
+      toast.error(t("toastUnknownError"));
     } finally {
       setLoading(null);
     }
@@ -92,19 +124,23 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
   // 4. Generate Transcript
   const handleTranscript = async () => {
     if (!lesson.audioUrl) {
-      toast.error("Nenhum áudio disponível.");
+      toast.error(t("toastNoAudio"));
       return;
     }
     setLoading("transcript");
     try {
       const res = await generateLessonTranscript(lesson.id);
       if (res.success) {
-        toast.success(`Transcrição gerada! ${res.count} segmentos.`);
+        toast.success(
+          t("toastTranscriptSuccess", {
+            count: res.count ?? 0,
+          })
+        );
       } else {
-        toast.error("Erro ao gerar transcrição.");
+        toast.error(t("toastTranscriptError"));
       }
     } catch (e) {
-      toast.error("Erro desconhecido.");
+      toast.error(t("toastUnknownError"));
     } finally {
       setLoading(null);
     }
@@ -128,18 +164,16 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
       const data = await res.json();
       
       if (res.ok) {
-        // Update local firestore (though server usually handles this, the API returns URL)
-        // We need to update the lesson doc with the new audioUrl
         await updateDoc(doc(db, "lessons", lesson.id), {
            audioUrl: data.url
         });
-        toast.success("Áudio enviado com sucesso!");
+        toast.success(t("toastUploadSuccess"));
       } else {
-        toast.error(data.error || "Erro no upload.");
+        toast.error(data.error || t("toastUploadError"));
       }
     } catch (error) {
       console.error(error);
-      toast.error("Erro no envio.");
+      toast.error(t("toastUploadSendError"));
     } finally {
       setLoading(null);
     }
@@ -147,14 +181,8 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
 
   // 6. Delete Audio
   const handleDeleteAudio = async () => {
-    // This assumes an API exists or we just clear the field.
-    // The user mentioned `/api/lesson/delete-audio` exists.
     setLoading("delete-audio");
     try {
-       // Since the API route implementation wasn't fully checked, assuming standard POST/DELETE
-       // But wait, I only listed it, didn't read it. Let's assume it needs lessonId or fileUrl.
-       // Safest is to just clear the field in Firestore if the API is just for file deletion.
-       // Or call the API. Let's try to call the API.
        const res = await fetch("/api/lesson/delete-audio", {
          method: "POST", // or DELETE
          headers: { "Content-Type": "application/json" },
@@ -163,13 +191,13 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
        
        if (res.ok) {
          await updateDoc(doc(db, "lessons", lesson.id), { audioUrl: null, transcriptSegments: null });
-         toast.success("Áudio removido.");
+         toast.success(t("toastDeleteSuccess"));
          setIsDeleteAudioOpen(false);
        } else {
-         toast.error("Falha ao remover arquivo.");
+         toast.error(t("toastDeleteError"));
        }
     } catch (e) {
-      toast.error("Erro ao deletar áudio.");
+      toast.error(t("toastDeleteRequestError"));
     } finally {
       setLoading(null);
     }
@@ -181,12 +209,12 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
     try {
       const res = await approveLesson(lesson.id);
       if (res.success) {
-        toast.success("Lição aprovada e publicada!");
+        toast.success(t("toastApproveSuccess"));
       } else {
-        toast.error("Erro ao aprovar lição.");
+        toast.error(t("toastApproveError"));
       }
     } catch (e) {
-      toast.error("Erro desconhecido.");
+      toast.error(t("toastUnknownError"));
     } finally {
       setLoading(null);
     }
@@ -195,12 +223,18 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
   // Status Badge Helper
   const getStatusColor = (s: string) => {
     switch (s) {
-      case 'ready': return 'bg-green-100 text-green-800';
-      case 'processing_items': return 'bg-blue-100 text-blue-800';
-      case 'analyzing': return 'bg-purple-100 text-purple-800';
-      case 'reviewing': return 'bg-yellow-100 text-yellow-800';
-      case 'error': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "ready":
+        return "bg-emerald-100 text-emerald-800";
+      case "processing_items":
+        return "bg-indigo-100 text-indigo-800";
+      case "analyzing":
+        return "bg-purple-100 text-purple-800";
+      case "reviewing":
+        return "bg-amber-100 text-amber-800";
+      case "error":
+        return "bg-rose-100 text-rose-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -213,28 +247,28 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
              {lesson.status}
            </span>
         </div>
-        <div className="text-sm text-gray-500 flex gap-4">
+        <div className="text-sm text-muted-foreground flex gap-4">
           <span>{lesson.language.toUpperCase()}</span>
           <span>{lesson.level || 'Nível n/a'}</span>
         </div>
         
         {/* Approve Action */}
-        {lesson.status === 'reviewing' && (
-          <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-200 mt-2">
-            <h4 className="text-sm font-semibold text-yellow-800 flex items-center gap-2 mb-2">
-              <Eye className="w-4 h-4" /> Revisão Pendente
+        {lesson.status === "reviewing" && (
+          <div className="bg-amber-50 p-3 rounded-lg border border-amber-200 mt-2">
+            <h4 className="text-sm font-semibold text-amber-800 flex items-center gap-2 mb-2">
+              <Eye className="w-4 h-4" /> {t("reviewBadgeTitle")}
             </h4>
-            <p className="text-xs text-yellow-700 mb-3">
-              Verifique os itens gerados antes de liberar para os alunos.
+            <p className="text-xs text-amber-700 mb-3">
+              {t("reviewBadgeDescription")}
             </p>
             <Button 
               size="sm" 
-              className="w-full bg-yellow-600 hover:bg-yellow-700 text-white"
+              className="w-full bg-amber-600 hover:bg-amber-700 text-white"
               onClick={handleApprove}
               disabled={!!loading}
             >
               {loading === 'approve' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ThumbsUp className="mr-2 h-4 w-4" />}
-              Aprovar e Publicar
+              {t("approvePublish")}
             </Button>
           </div>
         )}
@@ -245,29 +279,36 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
             size="sm"
             onClick={() => router.push(`/hub/material-manager/lessons/${lesson.id}/components`)}
           >
-            Componentes
+            {t("navComponents")}
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => router.push(`/hub/material-manager/lessons/${lesson.id}/quiz`)}
           >
-            Quiz
+            {t("navQuiz")}
           </Button>
         </div>
       </div>
 
       <hr />
 
-      {/* 1. Analysis */}
       <div className="space-y-3">
         <h3 className="font-semibold flex items-center gap-2">
-          <Wand2 className="w-4 h-4" /> Análise e Processamento
+          <Wand2 className="w-4 h-4" /> {t("analyzeTitle")}
         </h3>
         
-        <div className="grid grid-cols-2 gap-2 text-sm text-gray-600 bg-gray-50 p-2 rounded">
-          <div>Vocab Fila: {lesson.learningItensQueue?.length || 0}</div>
-          <div>Struct Fila: {lesson.learningStructuresQueue?.length || 0}</div>
+        <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground bg-muted/40 p-2 rounded">
+          <div>
+            {t("queueVocab", {
+              count: lesson.learningItensQueue?.length || 0,
+            })}
+          </div>
+          <div>
+            {t("queueStruct", {
+              count: lesson.learningStructuresQueue?.length || 0,
+            })}
+          </div>
         </div>
 
         <Button 
@@ -277,7 +318,7 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
           disabled={!!loading}
         >
           {loading === 'analyze' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileText className="mr-2 h-4 w-4" />}
-          1. Analisar Conteúdo
+          {t("analyzeButton")}
         </Button>
 
         <Button 
@@ -286,16 +327,15 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
           disabled={!!loading || (lesson.learningItensQueue?.length === 0 && lesson.learningStructuresQueue?.length === 0)}
         >
           {loading === 'process' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle className="mr-2 h-4 w-4" />}
-          2. Processar Fila (Batch)
+          {t("processButton")}
         </Button>
       </div>
 
       <hr />
 
-      {/* 2. Quiz */}
       <div className="space-y-3">
         <h3 className="font-semibold flex items-center gap-2">
-          <AlertCircle className="w-4 h-4" /> Quiz
+          <AlertCircle className="w-4 h-4" /> {t("quizSectionTitle")}
         </h3>
         <Button 
           variant="outline" 
@@ -304,24 +344,31 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
           disabled={!!loading}
         >
           {loading === 'quiz' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
-          Gerar Quiz AI
+          {t("quizGenerate")}
         </Button>
         {lesson.quiz && (
-          <p className="text-xs text-green-600">Quiz disponível (Gerado em: {new Date(lesson.metadata.updatedAt as any).toLocaleDateString()})</p>
+          <p className="text-xs text-emerald-600">
+            {t("quizAvailable", {
+              date: new Date(
+                lesson.quiz?.quiz_metadata.dateGenerated as any
+              ).toLocaleDateString(),
+            })}
+          </p>
         )}
       </div>
 
       <hr />
 
-      {/* 3. Audio */}
       <div className="space-y-3">
         <h3 className="font-semibold flex items-center gap-2">
-          <Play className="w-4 h-4" /> Áudio
+          <Play className="w-4 h-4" /> {t("audioSectionTitle")}
         </h3>
         
         {!lesson.audioUrl ? (
           <div className="flex flex-col gap-2">
-            <label className="text-xs text-gray-500">Upload MP3/WAV</label>
+            <label className="text-xs text-muted-foreground">
+              {t("uploadLabel")}
+            </label>
             <input 
               type="file" 
               accept="audio/*"
@@ -329,7 +376,11 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
               disabled={!!loading}
               className="text-xs"
             />
-            {loading === 'upload' && <span className="text-xs text-blue-500">Enviando...</span>}
+            {loading === "upload" && (
+              <span className="text-xs text-indigo-500">
+                {t("uploadSending")}
+              </span>
+            )}
           </div>
         ) : (
           <div className="flex flex-col gap-2">
@@ -341,30 +392,52 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
               onClick={handleTranscript}
               disabled={!!loading}
             >
-              {loading === 'transcript' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Gerar Transcrição"}
+              {loading === "transcript" ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                t("transcriptButton")
+              )}
             </Button>
 
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="sm"
-              className="text-red-500 hover:text-red-700 hover:bg-red-50"
+              className="text-rose-500 hover:text-rose-700 hover:bg-rose-50"
               onClick={() => setIsDeleteAudioOpen(true)}
             >
-              <Trash2 className="mr-2 h-4 w-4" /> Remover Áudio
+              <Trash2 className="mr-2 h-4 w-4" /> {t("removeAudioButton")}
             </Button>
           </div>
         )}
       </div>
 
-      {/* Confirmation Modal for Audio Delete */}
       <Modal open={isDeleteAudioOpen} onOpenChange={setIsDeleteAudioOpen}>
         <ModalContent>
-          <ModalHeader title="Remover Áudio"/>
-          <ModalFooter>
-            <Button variant="outline" onClick={() => setIsDeleteAudioOpen(false)}>Cancelar</Button>
-            <Button variant="destructive" onClick={handleDeleteAudio} disabled={!!loading}>
-              {loading === 'delete-audio' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Confirmar Exclusão"}
-            </Button>
+          <ModalIcon type="delete" />
+          <ModalHeader>
+            <ModalTitle>{t("modalDeleteTitle")}</ModalTitle>
+            <ModalDescription>
+              {t("modalDeleteDescription")}
+            </ModalDescription>
+          </ModalHeader>
+          <ModalFooter className="flex justify-end gap-3">
+            <ModalSecondaryButton
+              type="button"
+              onClick={() => setIsDeleteAudioOpen(false)}
+              disabled={!!loading}
+            >
+              {t("modalCancel")}
+            </ModalSecondaryButton>
+            <ModalPrimaryButton
+              variant="destructive"
+              onClick={handleDeleteAudio}
+              disabled={!!loading}
+            >
+              {loading === "delete-audio" ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : null}
+              {t("modalConfirmDelete")}
+            </ModalPrimaryButton>
           </ModalFooter>
         </ModalContent>
       </Modal>

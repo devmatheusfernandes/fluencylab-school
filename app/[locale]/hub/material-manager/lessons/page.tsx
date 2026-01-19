@@ -4,16 +4,33 @@ import { useState, useEffect } from "react";
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { Lesson } from "@/types/lesson";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Modal, ModalContent, ModalHeader, ModalFooter } from "@/components/ui/modal";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalTitle,
+  ModalDescription,
+  ModalFooter,
+  ModalIcon,
+  ModalPrimaryButton,
+  ModalSecondaryButton,
+  ModalBody,
+  ModalField,
+  ModalInput,
+} from "@/components/ui/modal";
 import { createLesson } from "@/actions/lesson-processing";
 import { useRouter } from "next/navigation";
 import { Plus, BookOpen, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Header } from "@/components/ui/header";
+import { NoResults } from "@/components/ui/no-results";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
 
 export default function LessonsPage() {
+  const t = useTranslations("MaterialManager");
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -48,7 +65,7 @@ export default function LessonsPage() {
   }, []);
 
   const handleCreate = async () => {
-    if (!newTitle) return toast.error("Título é obrigatório");
+    if (!newTitle) return toast.error(t('errorTitleRequired'));
     
     setCreating(true);
     try {
@@ -56,79 +73,116 @@ export default function LessonsPage() {
       const res = await createLesson(newTitle, newLang);
       
       if (res.success && res.id) {
-        toast.success("Aula criada!");
+        toast.success(t('successCreated'));
         setIsCreateOpen(false);
         setNewTitle("");
         router.push(`/hub/material-manager/lessons/${res.id}`);
       } else {
-        toast.error("Erro ao criar aula.");
+        toast.error(t('errorCreate'));
       }
     } catch (e) {
-      toast.error("Erro no servidor.");
+      toast.error(t('serverError'));
     } finally {
       setCreating(false);
     }
   };
 
-  const formatDate = (timestamp: any) => {
-    if (!timestamp) return "-";
-    if (timestamp.seconds) return new Date(timestamp.seconds * 1000).toLocaleDateString();
-    return new Date(timestamp).toLocaleDateString();
+  const formatDate = (value: any) => {
+    if (!value) return "-";
+    let date: Date;
+    if (value instanceof Date) {
+      date = value;
+    } else if (typeof value?.toDate === "function") {
+      date = value.toDate();
+    } else if (typeof value === "object" && typeof value.seconds === "number") {
+      date = new Date(value.seconds * 1000);
+    } else if (typeof value === "object" && typeof value._seconds === "number") {
+      date = new Date(value._seconds * 1000);
+    } else {
+      date = new Date(value);
+    }
+    if (isNaN(date.getTime())) return "-";
+    return date.toLocaleDateString();
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'ready': return 'bg-emerald-100 text-emerald-700';
+      case 'reviewing': return 'bg-amber-100 text-amber-800';
+      case 'error': return 'bg-rose-100 text-rose-700';
+      default: return 'bg-gray-100 text-gray-600';
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    // @ts-ignore
+    return t(`status.${status}`) || status;
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Gerenciador de Aulas</h1>
-          <p className="text-gray-500">Crie, edite e processe conteúdo de aulas.</p>
-        </div>
+    <div className="p-4 md:p-8 space-y-8">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <Header 
+          heading={t('title')} 
+          subheading={t('description')} 
+        />
         <Button onClick={() => setIsCreateOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" /> Nova Aula
+          <Plus className="w-4 h-4 mr-2" /> {t('newLesson')}
         </Button>
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-20"><Loader2 className="animate-spin text-gray-400" /></div>
-      ) : lessons.length === 0 ? (
-        <div className="text-center py-20 bg-gray-50 rounded-lg border border-dashed">
-           <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-           <p className="text-gray-500">Nenhuma aula encontrada.</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="bg-card p-6 rounded-xl border space-y-4">
+              <div className="flex justify-between items-start">
+                <Skeleton className="skeleton-base h-10 w-10 rounded-lg" />
+                <Skeleton className="skeleton-base h-6 w-16 rounded" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="skeleton-base h-6 w-3/4" />
+                <Skeleton className="skeleton-sub h-4 w-1/2" />
+              </div>
+              <div className="pt-4 border-t flex justify-between">
+                 <Skeleton className="skeleton-sub h-4 w-16" />
+                 <Skeleton className="skeleton-sub h-4 w-20" />
+              </div>
+            </div>
+          ))}
         </div>
+      ) : lessons.length === 0 ? (
+        <NoResults 
+          customMessage={{ withoutSearch: t('noLessons') }}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {lessons.map(lesson => (
             <div 
               key={lesson.id} 
-              className="bg-white p-6 rounded-xl border hover:shadow-md transition cursor-pointer flex flex-col gap-4 group relative overflow-hidden"
+              className="bg-card p-6 rounded-xl border hover:shadow-md transition cursor-pointer flex flex-col gap-4 group relative overflow-hidden"
               onClick={() => router.push(`/hub/material-manager/lessons/${lesson.id}`)}
             >
-              <div className="absolute top-0 left-0 w-1 h-full bg-blue-500 opacity-0 group-hover:opacity-100 transition" />
+              <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition" />
               
               <div className="flex justify-between items-start">
-                <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
                   <BookOpen className="w-6 h-6" />
                 </div>
-                <span className={`text-[10px] px-2 py-1 rounded uppercase font-bold tracking-wider ${
-                  lesson.status === 'ready' ? 'bg-green-100 text-green-700' : 
-                  lesson.status === 'reviewing' ? 'bg-yellow-100 text-yellow-800' :
-                  lesson.status === 'error' ? 'bg-red-100 text-red-700' :
-                  'bg-gray-100 text-gray-600'
-                }`}>
-                  {lesson.status}
+                <span className={`text-[10px] px-2 py-1 rounded uppercase font-bold tracking-wider ${getStatusColor(lesson.status)}`}>
+                  {getStatusLabel(lesson.status)}
                 </span>
               </div>
               
               <div>
-                <h3 className="font-semibold text-lg line-clamp-2 group-hover:text-blue-600 transition">{lesson.title}</h3>
-                <p className="text-sm text-gray-500 mt-1">
-                  {lesson.language === 'en' ? 'Inglês' : 'Português'} • {lesson.level || 'Nível ?'}
+                <h3 className="font-semibold text-lg line-clamp-2 group-hover:text-indigo-600 transition text-foreground">{lesson.title}</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {lesson.language === 'en' ? t('english') : t('portuguese')} • {lesson.level || `${t('level')} ?`}
                 </p>
               </div>
 
-              <div className="mt-auto pt-4 border-t text-xs text-gray-400 flex justify-between items-center">
+              <div className="mt-auto pt-4 border-t text-xs text-muted-foreground flex justify-between items-center">
                  <span className="flex items-center gap-1">
-                   {(lesson.learningItensQueue?.length || 0) + (lesson.learningStructuresQueue?.length || 0)} items
+                   {(lesson.learningItensQueue?.length || 0) + (lesson.learningStructuresQueue?.length || 0)} {t('items')}
                  </span>
                  <span>{formatDate(lesson.metadata?.updatedAt)}</span>
               </div>
@@ -137,41 +191,51 @@ export default function LessonsPage() {
         </div>
       )}
 
-      {/* Create Modal */}
       <Modal open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <ModalContent>
-          <ModalHeader title="Nova Aula" />
-          
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Título</label>
-              <Input 
-                placeholder="Ex: Introdução ao Present Perfect" 
-                value={newTitle} 
-                onChange={e => setNewTitle(e.target.value)} 
-              />
+          <ModalIcon type="document" />
+
+          <ModalHeader>
+            <ModalTitle>{t("newLesson")}</ModalTitle>
+            <ModalDescription>{t("createLessonDescription")}</ModalDescription>
+          </ModalHeader>
+
+          <ModalBody>
+            <div className="space-y-4">
+              <ModalField label={t("titleLabel")} required>
+                <ModalInput
+                  placeholder={t("titlePlaceholder")}
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                />
+              </ModalField>
+
+              <ModalField label={t("languageLabel")}>
+                <Select value={newLang} onValueChange={setNewLang}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="en">{t("english")}</SelectItem>
+                    <SelectItem value="pt">{t("portuguese")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </ModalField>
             </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Idioma Base</label>
-              <Select value={newLang} onValueChange={setNewLang}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="en">Inglês (Alvo)</SelectItem>
-                  <SelectItem value="pt">Português (Alvo)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          </ModalBody>
 
           <ModalFooter>
-            <Button variant="ghost" onClick={() => setIsCreateOpen(false)}>Cancelar</Button>
-            <Button onClick={handleCreate} disabled={creating}>
+            <ModalSecondaryButton
+              type="button"
+              onClick={() => setIsCreateOpen(false)}
+              disabled={creating}
+            >
+              {t("cancel")}
+            </ModalSecondaryButton>
+            <ModalPrimaryButton onClick={handleCreate} disabled={creating}>
               {creating ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              Criar Aula
-            </Button>
+              {t("createLesson")}
+            </ModalPrimaryButton>
           </ModalFooter>
         </ModalContent>
       </Modal>

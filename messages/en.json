@@ -98,8 +98,185 @@
     "resetEmailSent": "Reset email sent!",
     "resetEmailSentDesc": "Check your inbox (and spam) to reset your password.",
     "emailRequired": "Email is required.",
-    "emailInvalid": "Invalid email."
+      "emailInvalid": "Invalid email."
   },
+  "MaterialManager": {
+    "title": "Lesson Manager",
+    "description": "Create, edit, and process lesson content.",
+    "newLesson": "New Lesson",
+    "createLesson": "Create Lesson",
+    "createLessonDescription": "Fill in the basic details to create a new lesson.",
+    "cancel": "Cancel",
+    "titleLabel": "Title",
+    "titlePlaceholder": "Ex: Introduction to Present Perfect",
+    "languageLabel": "Target Language (Learning)",
+    "english": "English",
+    "portuguese": "Portuguese",
+    "errorTitleRequired": "Title is required",
+    "successCreated": "Lesson created!",
+    "errorCreate": "Error creating lesson.",
+    "serverError": "Server error.",
+    "items": "items",
+    "status": {
+      "ready": "Ready",
+      "reviewing": "Reviewing",
+      "error": "Error",
+      "processing": "Processing",
+      "draft": "Draft"
+    },
+    "level": "Level",
+    "noLessons": "No lessons found.",
+    "lessonNotFound": "Lesson not found.",
+    "levelNotAvailable": "Level n/a"
+  },
+
+  "LessonEditor": {
+    "title": "Content Editor",
+    "statusSaving": "Saving...",
+    "statusError": "Error saving",
+    "statusSaved": "Saved",
+    "toastError": "Error saving changes."
+  },
+
+  "LessonOperations": {
+    "analyzeTitle": "Analysis and Processing",
+    "queueVocab": "Vocab queue: {count}",
+    "queueStruct": "Struct queue: {count}",
+    "analyzeButton": "1. Analyze Content",
+    "processButton": "2. Process Queue (Batch)",
+    "quizSectionTitle": "Quiz",
+    "quizGenerate": "Generate AI Quiz",
+    "quizAvailable": "Quiz available (Generated on: {date})",
+    "audioSectionTitle": "Audio",
+    "uploadLabel": "Upload MP3/WAV",
+    "uploadSending": "Uploading...",
+    "transcriptButton": "Generate Transcript",
+    "removeAudioButton": "Remove Audio",
+    "reviewBadgeTitle": "Pending Review",
+    "reviewBadgeDescription": "Check the generated items before releasing them to students.",
+    "approvePublish": "Approve and Publish",
+    "navComponents": "Components",
+    "navQuiz": "Quiz",
+    "toastAddContent": "Add content before analyzing.",
+    "toastAnalyzeSuccess": "Analysis complete! {vocabCount} vocabulary items and {structCount} structures found.",
+    "toastAnalyzeError": "Error during analysis.",
+    "toastServerError": "Error connecting to the server.",
+    "toastProcessDone": "Processing completed!",
+    "toastProcessPartial": "Batch processed! Remaining: {remainingVocab} vocabulary, {remainingStruct} structures.",
+    "toastProcessError": "Error processing batch.",
+    "toastQuizSuccess": "Quiz generated successfully!",
+    "toastQuizError": "Error generating quiz.",
+    "toastUnknownError": "Unknown error.",
+    "toastNoAudio": "No audio available.",
+    "toastTranscriptSuccess": "Transcript generated! {count} segments.",
+    "toastTranscriptError": "Error generating transcript.",
+    "toastUploadSuccess": "Audio uploaded successfully!",
+    "toastUploadError": "Upload error.",
+    "toastUploadSendError": "Error sending file.",
+    "toastDeleteSuccess": "Audio removed.",
+    "toastDeleteError": "Failed to remove file.",
+    "toastDeleteRequestError": "Error deleting audio.",
+    "toastApproveSuccess": "Lesson approved and published!",
+    "toastApproveError": "Error approving lesson.",
+    "modalDeleteTitle": "Remove Audio",
+    "modalDeleteDescription": "Are you sure you want to remove this lesson's audio? This action cannot be undone.",
+    "modalCancel": "Cancel",
+    "modalConfirmDelete": "Confirm Deletion"
+  },
+
+  "LessonComponentsManager": {
+    "tabs": {
+      "vocabulary": "Vocabulary ({count})",
+      "structures": "Structures ({count})"
+    },
+    "filters": {
+      "searchVocabularyPlaceholder": "Search term or translation...",
+      "searchStructuresPlaceholder": "Search sentence...",
+      "languagePlaceholder": "Language",
+      "levelPlaceholder": "Level",
+      "typePlaceholder": "Type",
+      "allLanguages": "All languages",
+      "allLevels": "All levels",
+      "allTypes": "All types"
+    },
+    "table": {
+      "term": "Term",
+      "type": "Type",
+      "level": "Level",
+      "mainTranslation": "Main translation",
+      "actions": "Actions"
+    },
+    "empty": {
+      "vocabularyTitle": "No vocabulary found",
+      "structuresTitle": "No structures found"
+    },
+    "vocabulary": {
+      "sectionImage": "Image",
+      "noImage": "No image",
+      "upload": "Upload",
+      "meanings": "Meanings",
+      "context": "Context",
+      "translation": "Translation",
+      "definition": "Definition",
+      "example": "Example",
+      "exampleTranslation": "Example translation",
+      "imageUploadSuccess": "Image uploaded!",
+      "imageUploadError": "Upload failed.",
+      "confirmRemoveImage": "Remove image permanently?",
+      "imageRemoveSuccess": "Image removed.",
+      "imageRemoveError": "Error removing image.",
+      "updateSuccess": "Item updated!",
+      "updateError": "Error updating item.",
+      "updateUnknownError": "Unknown error."
+    },
+    "structure": {
+      "editTitle": "Editing structure: {type}",
+      "cancel": "Cancel",
+      "save": "Save",
+      "enableEditing": "Enable editing",
+      "fullSentence": "Full sentence",
+      "analysisLabel": "Grammatical analysis (order and roles)",
+      "levelLabel": "Level: {level}",
+      "positionLabel": "Pos: {order}",
+      "updateSuccess": "Structure updated!",
+      "updateError": "Error updating structure.",
+      "updateUnknownError": "Unknown error."
+    }
+  },
+
+  "LessonQuizEditor": {
+    "title": "Quiz Editor",
+    "subtitle": "Manage quiz questions for: {title}",
+    "saveButton": "Save changes",
+    "sectionTitle": "Section: {type}",
+    "sectionDescription": "Manage the questions for this section.",
+    "questionLabel": "Q{index}: {text}",
+    "newQuestion": "New question",
+    "questionPromptLabel": "Prompt",
+    "questionPromptPlaceholder": "Type the question...",
+    "optionLabel": "Option {index}",
+    "optionPlaceholder": "Option {index}",
+    "explanationLabel": "Explanation (optional)",
+    "explanationPlaceholder": "Explain why the answer is correct...",
+    "emptyState": "No quiz found. Generate a quiz first.",
+    "toastSuccess": "Quiz updated successfully!",
+    "toastError": "Failed to update quiz.",
+    "toastUnknownError": "An error occurred.",
+    "deleteModal": {
+      "title": "Delete question",
+      "description": "Are you sure you want to delete this question? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    }
+  },
+
+  "LessonComponentsPage": {
+    "globalHeading": "Global Components",
+    "globalSubheading": "All vocabulary and structure items with editing capabilities.",
+    "lessonHeading": "Manage components",
+    "lessonSubheading": "Vocabulary and structures generated for: {title}"
+  },
+
   "MyStudentsPage": {
     "title": "My Students",
     "searchPlaceholder": "Search your students...",

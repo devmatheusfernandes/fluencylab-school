@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Lesson, Quiz, QuizQuestion } from '@/types/lesson'; // Usando tipo Lesson/Quiz corretos
-import { updateLessonQuiz } from '@/actions/lesson-updating'; // Action correta
+import { Lesson, Quiz, QuizQuestion } from '@/types/lesson';
+import { updateLessonQuiz } from '@/actions/lesson-updating';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -13,7 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Loader2, Save, ArrowLeft, Plus, Trash2, GripVertical } from 'lucide-react';
+import { Loader2, Save, Plus, Trash2, GripVertical } from 'lucide-react';
 import { Modal, ModalContent, ModalHeader, ModalTitle, ModalDescription, ModalFooter, ModalPrimaryButton, ModalSecondaryButton, ModalIcon } from '@/components/ui/modal';
 
 interface LessonQuizEditorProps {
@@ -22,6 +23,7 @@ interface LessonQuizEditorProps {
 
 export function LessonQuizEditor({ lesson }: LessonQuizEditorProps) {
   const router = useRouter();
+  const t = useTranslations('LessonQuizEditor');
   const [isSaving, setIsSaving] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState<{ isOpen: boolean; sectionIndex: number; questionIndex: number } | null>(null);
   
@@ -55,19 +57,17 @@ export function LessonQuizEditor({ lesson }: LessonQuizEditorProps) {
 
     try {
       setIsSaving(true);
-      // Validar manualmente se necessário ou usar Zod Schema compatível
-      // Aqui enviamos direto, assumindo que a UI garante a estrutura
       const result = await updateLessonQuiz(lesson.id, quizData);
       
       if (result.success) {
-        toast.success('Quiz atualizado com sucesso!');
+        toast.success(t('toastSuccess'));
         router.refresh();
       } else {
-        toast.error('Falha ao atualizar quiz.');
+        toast.error(t('toastError'));
       }
     } catch (error) {
       console.error(error);
-      toast.error('Ocorreu um erro.');
+      toast.error(t('toastUnknownError'));
     } finally {
       setIsSaving(false);
     }
@@ -135,25 +135,32 @@ export function LessonQuizEditor({ lesson }: LessonQuizEditorProps) {
     return (
       <div className="flex flex-col items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <p className="mt-2 text-sm text-gray-500">Nenhum quiz encontrado. Gere um quiz primeiro.</p>
+        <p className="mt-2 text-sm text-gray-500">
+          {t('emptyState')}
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto pb-20">
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" size="icon" onClick={() => router.back()}>
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
+    <div className="space-y-6 pb-20">
+      <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Editor de Quiz</h1>
-          <p className="text-muted-foreground text-sm">{lesson.title}</p>
+          <h2 className="text-xl font-semibold tracking-tight">
+            {t('title')}
+          </h2>
+          <p className="text-muted-foreground text-sm">
+            {t('subtitle', { title: lesson.title })}
+          </p>
         </div>
-        <div className="ml-auto flex gap-2">
+        <div className="mt-4 md:mt-0 md:ml-auto flex gap-2">
           <Button onClick={handleSave} disabled={isSaving}>
-            {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-            Salvar Alterações
+            {isSaving ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="mr-2 h-4 w-4" />
+            )}
+            {t('saveButton')}
           </Button>
         </div>
       </div>
@@ -179,14 +186,14 @@ export function LessonQuizEditor({ lesson }: LessonQuizEditorProps) {
             <Card>
               <CardHeader>
                 <CardTitle className="capitalize flex items-center gap-2">
-                  Seção: {section.type}
+                  {t('sectionTitle', { type: section.type })}
                 </CardTitle>
                 <CardDescription>
-                  Gerencie as perguntas desta seção.
+                  {t('sectionDescription')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-4">
+                <div className="space-y-4 mt-4">
                   <Accordion type="multiple" className="w-full space-y-4">
                     {section.questions.map((question, questionIndex) => (
                       <AccordionItem 
@@ -198,7 +205,10 @@ export function LessonQuizEditor({ lesson }: LessonQuizEditorProps) {
                           <GripVertical className="h-4 w-4 text-muted-foreground cursor-grab active:cursor-grabbing" />
                           <AccordionTrigger className="hover:no-underline flex-1 py-2">
                             <span className="text-left font-medium line-clamp-1 mr-4">
-                              {`Q${questionIndex + 1}: ${question.text || 'Nova Pergunta'}`}
+                              {t('questionLabel', {
+                                index: questionIndex + 1,
+                                text: question.text || t('newQuestion'),
+                              })}
                             </span>
                           </AccordionTrigger>
                           <Button 
@@ -216,11 +226,13 @@ export function LessonQuizEditor({ lesson }: LessonQuizEditorProps) {
                         
                         <AccordionContent className="pt-2 pb-4 space-y-4 border-t">
                           <div className="space-y-2">
-                            <label className="text-sm font-medium">Enunciado</label>
+                            <label className="text-sm font-medium">
+                              {t('questionPromptLabel')}
+                            </label>
                             <Textarea 
                               value={question.text}
                               onChange={(e) => handleUpdateQuestion(sectionIndex, questionIndex, 'text', e.target.value)}
-                              placeholder="Digite a pergunta..."
+                              placeholder={t('questionPromptPlaceholder')}
                               className="resize-y"
                             />
                           </div>
@@ -229,7 +241,9 @@ export function LessonQuizEditor({ lesson }: LessonQuizEditorProps) {
                             {question.options.map((option, optionIndex) => (
                               <div key={optionIndex} className="space-y-2">
                                 <div className="flex items-center justify-between">
-                                  <label className="text-xs font-medium text-muted-foreground">Opção {optionIndex + 1}</label>
+                                  <label className="text-xs font-medium text-muted-foreground">
+                                    {t('optionLabel', { index: optionIndex + 1 })}
+                                  </label>
                                   <input 
                                     type="radio"
                                     name={`correct-${sectionIndex}-${questionIndex}`}
@@ -241,18 +255,20 @@ export function LessonQuizEditor({ lesson }: LessonQuizEditorProps) {
                                 <Input 
                                   value={option}
                                   onChange={(e) => handleUpdateQuestion(sectionIndex, questionIndex, 'options', e.target.value, optionIndex)}
-                                  placeholder={`Opção ${optionIndex + 1}`}
+                                  placeholder={t('optionPlaceholder', { index: optionIndex + 1 })}
                                 />
                               </div>
                             ))}
                           </div>
 
                           <div className="space-y-2">
-                            <label className="text-sm font-medium">Explicação (Opcional)</label>
+                            <label className="text-sm font-medium">
+                              {t('explanationLabel')}
+                            </label>
                             <Textarea 
                               value={question.explanation || ''}
                               onChange={(e) => handleUpdateQuestion(sectionIndex, questionIndex, 'explanation', e.target.value)}
-                              placeholder="Explique por que a resposta está correta..."
+                              placeholder={t('explanationPlaceholder')}
                               className="h-20 resize-y"
                             />
                           </div>
@@ -281,17 +297,17 @@ export function LessonQuizEditor({ lesson }: LessonQuizEditorProps) {
         <ModalContent>
           <ModalHeader>
             <ModalIcon type="delete" />
-            <ModalTitle>Excluir Pergunta</ModalTitle>
+            <ModalTitle>{t('deleteModal.title')}</ModalTitle>
             <ModalDescription>
-              Tem certeza que deseja excluir esta pergunta? Esta ação não pode ser desfeita.
+              {t('deleteModal.description')}
             </ModalDescription>
           </ModalHeader>
           <ModalFooter>
             <ModalSecondaryButton onClick={() => setDeleteConfirmation(null)}>
-              Cancelar
+              {t('deleteModal.cancel')}
             </ModalSecondaryButton>
             <ModalPrimaryButton variant="destructive" onClick={confirmDeleteQuestion}>
-              Excluir
+              {t('deleteModal.confirm')}
             </ModalPrimaryButton>
           </ModalFooter>
         </ModalContent>

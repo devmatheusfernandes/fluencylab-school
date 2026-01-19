@@ -2,19 +2,25 @@ import { adminDb } from "@/lib/firebase/admin";
 import { Lesson, LearningItem, LearningStructure } from "@/types/lesson";
 import { FieldPath } from "firebase-admin/firestore";
 import LessonComponentsManager from "@/components/lessons/LessonComponentsManager";
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Header } from "@/components/ui/header";
+import ErrorAlert from "@/components/ui/error-alert";
+import { getTranslations } from "next-intl/server";
 
 export default async function Page({ params }: { params: Promise<{ lessonId: string }> }) {
   const { lessonId } = await params;
+  const tMaterial = await getTranslations("MaterialManager");
+  const tPage = await getTranslations("LessonComponentsPage");
   
   // 1. Fetch Lesson
   const lessonRef = adminDb.collection("lessons").doc(lessonId);
   const lessonSnap = await lessonRef.get();
   
   if (!lessonSnap.exists) {
-    return <div>Lição não encontrada</div>;
+    return (
+      <div className="p-4 md:p-8">
+        <ErrorAlert message={tMaterial("lessonNotFound")} />
+      </div>
+    );
   }
 
   const rawLesson = lessonSnap.data() as any;
@@ -107,18 +113,12 @@ export default async function Page({ params }: { params: Promise<{ lessonId: str
   }
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
-      <div className="mb-8">
-        <Link href={`/hub/material-manager/lessons/${lessonId}`}>
-          <Button variant="ghost" className="mb-4 pl-0 hover:pl-2 transition-all">
-            <ArrowLeft className="w-4 h-4 mr-2" /> Voltar para Aula
-          </Button>
-        </Link>
-        <h1 className="text-3xl font-bold">Gerenciar Componentes</h1>
-        <p className="text-gray-500">
-          Vocabulário e Estruturas gerados para: <span className="font-semibold text-black">{lesson.title}</span>
-        </p>
-      </div>
+    <div className="p-4 md:p-8 space-y-8 max-w-7xl">
+      <Header
+        heading={tPage("lessonHeading")}
+        subheading={tPage("lessonSubheading", { title: lesson.title })}
+        backHref={`/hub/material-manager/lessons/${lessonId}`}
+      />
 
       <LessonComponentsManager vocabulary={vocabulary} structures={structures} />
     </div>
