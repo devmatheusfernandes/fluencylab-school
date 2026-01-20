@@ -86,7 +86,6 @@ export default function UserScheduleManager({
   }, [schedule, savedSchedule]);
 
   const [selectedTeacherId, setSelectedTeacherId] = useState<string>("");
-  const [selectedLanguage, setSelectedLanguage] = useState<string>("");
   const [availableSlots, setAvailableSlots] = useState<UniqueScheduleSlot[]>([]);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
   const [showScheduleSelection, setShowScheduleSelection] = useState(false);
@@ -138,7 +137,7 @@ export default function UserScheduleManager({
   }
 
   const fetchTeacherAvailability = async () => {
-    if (!selectedTeacherId || !selectedLanguage) return;
+    if (!selectedTeacherId) return;
     setIsLoadingSlots(true);
     try {
       const response = await fetch(`/api/admin/teacher-availability/${selectedTeacherId}`);
@@ -147,18 +146,26 @@ export default function UserScheduleManager({
         const uniqueSlots: UniqueScheduleSlot[] = [];
         const seenSlots = new Set<string>();
 
+        const teacher = allTeachers.find((t) => t.id === selectedTeacherId);
+        const teacherLanguages =
+          teacher?.languages && teacher.languages.length > 0
+            ? teacher.languages
+            : languageOptions; // Fallback to all options if none defined
+
         data.slots.forEach((slot: TeacherAvailabilitySlot) => {
-          const key = `${slot.day}-${slot.startTime}`;
-          if (!seenSlots.has(key)) {
-            seenSlots.add(key);
-            uniqueSlots.push({
-              day: slot.day,
-              startTime: slot.startTime,
-              slotId: slot.id,
-              teacherId: selectedTeacherId,
-              language: selectedLanguage,
-            });
-          }
+          teacherLanguages.forEach((lang) => {
+            const key = `${slot.day}-${slot.startTime}-${lang}`;
+            if (!seenSlots.has(key)) {
+              seenSlots.add(key);
+              uniqueSlots.push({
+                day: slot.day,
+                startTime: slot.startTime,
+                slotId: slot.id,
+                teacherId: selectedTeacherId,
+                language: lang,
+              });
+            }
+          });
         });
         setAvailableSlots(uniqueSlots);
         setShowScheduleSelection(true);
@@ -201,7 +208,6 @@ export default function UserScheduleManager({
         setAvailableSlots((prev) => prev.filter((s) => s.slotId !== slot.slotId));
         setShowScheduleSelection(false);
         setSelectedTeacherId("");
-        setSelectedLanguage("");
       } else {
         const error = await response.json();
         toast.error(t("errors.assignWithMsg", { error: error.error }));
@@ -242,7 +248,6 @@ export default function UserScheduleManager({
     setSchedule(savedSchedule.map((e) => ({ ...e })));
     setShowScheduleSelection(false);
     setSelectedTeacherId("");
-    setSelectedLanguage("");
     setAvailableSlots([]);
     toast.info(t("info.undo"));
   };
@@ -473,7 +478,7 @@ export default function UserScheduleManager({
                      <Text   className="text-muted-foreground">{t("selectInstructions")}</Text>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4">
                     <Select value={selectedTeacherId} onValueChange={setSelectedTeacherId}>
                       <SelectTrigger className="w-full h-11">
                         <SelectValue placeholder={t("teacherPlaceholder")} />
@@ -489,24 +494,11 @@ export default function UserScheduleManager({
                         })}
                       </SelectContent>
                     </Select>
-
-                    <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-                      <SelectTrigger className="w-full h-11">
-                        <SelectValue placeholder={t("languagePlaceholder")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {languageOptions.map((lang) => (
-                          <SelectItem key={lang} value={lang}>
-                            {t(`languages.${lang}`)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
                   </div>
 
                   <Button
                     onClick={fetchTeacherAvailability}
-                    disabled={!selectedTeacherId || !selectedLanguage || isLoadingSlots}
+                    disabled={!selectedTeacherId || isLoadingSlots}
                     className="w-full h-11 sm:w-auto sm:min-w-[200px]"
                     size="lg"
                   >
@@ -590,10 +582,6 @@ export default function UserScheduleManager({
                          <Text weight="semibold" className="text-lg leading-tight">
                             {t("availableSlotsTitle", { teacher: getTeacherName(selectedTeacherId) })}
                          </Text>
-                         <div className="flex items-center gap-2 text-muted-foreground mt-1">
-                            <Globe className="w-3 h-3" />
-                            <Text  >{t("languageLabel", { language: selectedLanguage })}</Text>
-                         </div>
                       </div>
                    </div>
                 </div>
@@ -609,7 +597,7 @@ export default function UserScheduleManager({
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                     {availableSlots.map((slot) => (
                       <button
-                        key={`${slot.day}-${slot.startTime}`}
+                        key={`${slot.day}-${slot.startTime}-${slot.language}`}
                         onClick={() => handleSelectSchedule(slot)}
                         disabled={isSaving}
                         className="flex flex-col items-center justify-center p-4 rounded-xl border bg-card hover:border-primary hover:bg-primary/5 hover:shadow-md transition-all active:scale-95 text-center gap-2 group"
@@ -620,6 +608,11 @@ export default function UserScheduleManager({
                          <span className="text-xl font-bold text-foreground group-hover:text-primary">
                             {slot.startTime}
                          </span>
+                         {slot.language && (
+                           <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full mt-1">
+                             {slot.language}
+                           </span>
+                         )}
                          <CheckCircle2 className="w-5 h-5 text-primary opacity-0 group-hover:opacity-100 transition-opacity absolute top-2 right-2" />
                       </button>
                     ))}
