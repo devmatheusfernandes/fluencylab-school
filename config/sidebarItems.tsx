@@ -150,16 +150,16 @@ const managerItems = [
     icon: <UserCircle className="w-6 h-6" />,
   },
   {
-    href: "/[locale]/hub/manager/contents",
-    label: "Contents",
-    labelKey: "contents",
-    icon: <FileText className="w-6 h-6" />,
+    href: "/[locale]/hub/manager/users",
+    label: "Usuários",
+    labelKey: "users",
+    icon: <Users className="w-6 h-6" />,
   },
   {
-    href: "/[locale]/hub/manager/vocabulary",
-    label: "Vocabulary",
-    labelKey: "vocabulary",
-    icon: <Book className="w-6 h-6" />,
+    href: "/[locale]/hub/manager/settings",
+    label: "Configurações",
+    labelKey: "settings",
+    icon: <Settings className="w-6 h-6" />,
   },
 ];
 
@@ -187,6 +187,12 @@ const materialManagerItems = [
     label: "Components",
     labelKey: "components",
     icon: <Book className="w-6 h-6" />,
+  },
+  {
+    href: "/[locale]/hub/material-manager/settings",
+    label: "Configurações",
+    labelKey: "settings",
+    icon: <Settings className="w-6 h-6" />,
   },
 ];
 
