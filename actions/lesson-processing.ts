@@ -135,6 +135,7 @@ export async function analyzeLessonContent(lessonId: string, contentText: string
          - Tipos permitidos: ${structureTypesList}.
          - "words": A frase no idioma alvo.
          - "order": Mapeamento da posição de cada palavra.
+         - "slug": SE a palavra corresponder a um dos itens de VOCABULÁRIO extraídos (mesmo lemma/raiz), inclua o "slug" correspondente. Isso é CRUCIAL para criar links.
          - "role": Classifique a função gramatical de CADA palavra no contexto.
            - Use ESTRITAMENTE um destes valores: subject, verb, object, indirect_object, adjective, adverb, preposition, auxiliary, modal, connector, article, other.
 
@@ -166,13 +167,12 @@ export async function analyzeLessonContent(lessonId: string, contentText: string
             "type": "s-v-o",
             "sentences": [
               {
-                "whole_sentence": "I am a doctor",
                 "words": "I am a doctor",
                 "order": [
-                  { "word": "I", "order": 0, "role": "subject" },
-                  { "word": "am", "order": 1, "role": "verb" },
+                  { "word": "I", "order": 0, "role": "subject", "slug": "i_pronoun" },
+                  { "word": "am", "order": 1, "role": "verb", "slug": "be_verb" },
                   { "word": "a", "order": 2, "role": "article" },
-                  { "word": "doctor", "order": 3, "role": "object" }
+                  { "word": "doctor", "order": 3, "role": "object", "slug": "doctor_noun" }
                 ]
               }
             ]
@@ -305,10 +305,55 @@ export async function processLessonBatch(lessonId: string) {
       const remainingItems = structQueue.slice(batchSize);
       const newIds: string[] = [];
 
+      // 1. Coletar slugs necessários para vincular Vocabulário -> Estrutura
+      const neededSlugs = new Set<string>();
+      itemsToProcess.forEach((struct: any) => {
+        struct.sentences?.forEach((sent: any) => {
+          sent.order?.forEach((wordObj: any) => {
+            if (wordObj.slug) neededSlugs.add(wordObj.slug);
+          });
+        });
+      });
+
+      // 2. Buscar IDs correspondentes aos Slugs
+      const slugToIdMap = new Map<string, string>();
+      if (neededSlugs.size > 0) {
+        const allSlugs = Array.from(neededSlugs);
+        // Firestore 'in' suporta até 30 itens
+        for (let i = 0; i < allSlugs.length; i += 30) {
+            const chunk = allSlugs.slice(i, i + 30);
+            const snap = await adminDb.collection('learningItems')
+                .where('slug', 'in', chunk)
+                .select('slug') 
+                .get();
+            snap.forEach(doc => {
+                 const d = doc.data();
+                 if (d.slug) slugToIdMap.set(d.slug, doc.id);
+            });
+        }
+      }
+
       for (const struct of itemsToProcess) {
+        // 3. Enriquecer estrutura com IDs
+        const enrichedSentences = struct.sentences?.map((sent: any) => {
+            // Remove whole_sentence se ainda existir (limpeza)
+            const { whole_sentence, ...rest } = sent;
+            
+            return {
+             ...rest,
+             order: sent.order?.map((wordObj: any) => {
+                 if (wordObj.slug && slugToIdMap.has(wordObj.slug)) {
+                     return { ...wordObj, learningItemId: slugToIdMap.get(wordObj.slug) };
+                 }
+                 return wordObj;
+             })
+            };
+        }) || [];
+
         const newRef = adminDb.collection('learningStructures').doc();
         const newStruct = {
           ...struct,
+          sentences: enrichedSentences,
           id: newRef.id,
           language,
           metadata: {

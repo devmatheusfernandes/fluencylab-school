@@ -229,7 +229,7 @@ function StructuresList({ items }: { items: LearningStructure[] }) {
     const matchesSearch =
       term.length === 0 ||
       struct.sentences.some((s) =>
-        s.whole_sentence.toLowerCase().includes(term)
+        s.words.toLowerCase().includes(term)
       );
 
     const matchesLevel =
@@ -319,17 +319,17 @@ function StructuresList({ items }: { items: LearningStructure[] }) {
                     key={idx}
                     className="p-3 bg-muted/30 rounded border text-sm"
                   >
-                    <p className="font-medium mb-2">{sent.whole_sentence}</p>
+                    <p className="font-medium mb-2">{sent.words}</p>
                     <div className="flex flex-wrap gap-2">
                       {sent.order
                         .sort((a, b) => a.order - b.order)
                         .map((w, wIdx) => (
                           <div
                             key={wIdx}
-                            className="flex flex-col items-center bg-accent border px-2 py-1 rounded"
+                            className={`flex flex-col items-center border px-2 py-1 rounded ${w.learningItemId ? 'bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-800' : 'bg-accent'}`}
                           >
-                            <span className="font-bold">{w.word}</span>
-                            <span className="text-[10px] text-blue-600 uppercase tracking-tighter">
+                            <span className={`font-bold ${w.learningItemId ? 'text-blue-700 dark:text-blue-300' : ''}`}>{w.word}</span>
+                            <span className="text-[10px] text-muted-foreground uppercase tracking-tighter">
                               {w.role || "?"}
                             </span>
                           </div>
@@ -634,8 +634,8 @@ function StructureDetailModal({ structure }: { structure: LearningStructure }) {
                           {t("structure.fullSentence")}
                         </label>
                         {isEditing ? (
-                             <Input value={sent.whole_sentence} onChange={e => handleSentenceChange(sIdx, 'whole_sentence', e.target.value)} />
-                        ) : <p className="font-medium text-lg">{sent.whole_sentence}</p>}
+                             <Input value={sent.words} onChange={e => handleSentenceChange(sIdx, 'words', e.target.value)} />
+                        ) : <p className="font-medium text-lg">{sent.words}</p>}
                     </div>
 
                     <div>
@@ -644,8 +644,8 @@ function StructureDetailModal({ structure }: { structure: LearningStructure }) {
                         </label>
                         <div className="flex flex-wrap gap-2">
                            {sent.order.sort((a,b) => a.order - b.order).map((wordObj, wIdx) => (
-                               <div key={wIdx} className="bg-accent border p-2 rounded min-w-[100px] flex flex-col gap-1">
-                                   <span className="font-bold text-center border-b pb-1">{wordObj.word}</span>
+                               <div key={wIdx} className={`border p-2 rounded min-w-[100px] flex flex-col gap-1 ${wordObj.learningItemId ? 'bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-800' : 'bg-accent'}`}>
+                                   <span className={`font-bold text-center border-b pb-1 ${wordObj.learningItemId ? 'text-blue-700 dark:text-blue-300' : ''}`}>{wordObj.word}</span>
                                    {isEditing ? (
                                        <Select 
                                          value={wordObj.role || 'other'} 

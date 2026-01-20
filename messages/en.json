@@ -142,6 +142,7 @@
 
   "LessonOperations": {
     "analyzeTitle": "Analysis and Processing",
+    "analyzeAgainButton": "Scan for new items",
     "queueVocab": "Vocab queue: {count}",
     "queueStruct": "Struct queue: {count}",
     "analyzeButton": "1. Analyze Content",

@@ -117,10 +117,11 @@ export interface LearningStructure {
   type: LearningStructureType;
   
   sentences: Array<{ //Serão criadas com base no type (podemos escolher mais de um)
-    whole_sentence: string;       // "Physical activity"
-    words: string;    // "I eat a lot"
+    words: string;    // "I eat a lot" The whole sentence
     order: Array<{ //Assim conseguimos fazer o usuário praticar a ordem das palavras corretamente
       word: string; // "I" | "eat" | "a" | "lot"
+      learningItemId?: string; // ID do LearningItem (opcional)
+      slug?: string; // Slug temporário para vínculo durante criação
       order: number; // 0 | 1 | 2 | 3
       role: GrammaticalRole;
     }>

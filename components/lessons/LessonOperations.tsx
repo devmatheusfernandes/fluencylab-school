@@ -38,6 +38,8 @@ import { useRouter } from "next/navigation";
 import { updateDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { useTranslations } from "next-intl";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { Progress } from "../ui/progress";
 
 interface LessonOperationsProps {
   lesson: Lesson;
@@ -48,6 +50,7 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
   const [isDeleteAudioOpen, setIsDeleteAudioOpen] = useState(false);
   const router = useRouter();
   const t = useTranslations("LessonOperations");
+  const tStatus = useTranslations("MaterialManager");
 
   // Helper: Strip HTML
   const stripHtml = (html: string) => {
@@ -238,6 +241,23 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
     }
   };
 
+  const queueVocab = lesson.learningItensQueue?.length || 0;
+  const queueStruct = lesson.learningStructuresQueue?.length || 0;
+  const totalQueue = queueVocab + queueStruct;
+
+  const relatedVocab = lesson.relatedLearningItemIds?.length || 0;
+  const relatedStruct = lesson.relatedLearningStructureIds?.length || 0;
+  const totalProcessed = relatedVocab + relatedStruct;
+
+  const totalAll = totalQueue + totalProcessed;
+  const progress = totalAll > 0 ? (totalProcessed / totalAll) * 100 : 0;
+  const hasAnalyzed = totalAll > 0 || lesson.status !== 'draft';
+
+  const getStatusLabel = (status: string) => {
+    // @ts-ignore
+    return tStatus(`status.${status}`) || status;
+  };
+
   return (
     <div className="flex flex-col gap-6 p-4 h-full overflow-y-auto">
       <div className="space-y-2">
@@ -251,30 +271,29 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
             {lesson.level}
            </span>
            <span className={`px-2 py-1 rounded text-xs font-medium uppercase ${getStatusColor(lesson.status)}`}>
-             {lesson.status}
+             {getStatusLabel(lesson.status)}
            </span>
            </div>
         </div>
         
         {/* Approve Action */}
         {lesson.status === "reviewing" && (
-          <div className="bg-amber-50 p-3 rounded-lg border border-amber-200 mt-2">
-            <h4 className="text-sm font-semibold text-amber-800 flex items-center gap-2 mb-2">
-              <Eye className="w-4 h-4" /> {t("reviewBadgeTitle")}
-            </h4>
-            <p className="text-xs text-amber-700 mb-3">
-              {t("reviewBadgeDescription")}
-            </p>
-            <Button 
-              size="sm" 
-              className="w-full bg-amber-600 hover:bg-amber-700 text-white"
-              onClick={handleApprove}
-              disabled={!!loading}
-            >
-              {loading === 'approve' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ThumbsUp className="mr-2 h-4 w-4" />}
-              {t("approvePublish")}
-            </Button>
-          </div>
+          <Alert className="bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-900/30 dark:border-amber-800 dark:text-amber-300">
+            <Eye className="w-4 h-4" />
+            <AlertTitle>{t("reviewBadgeTitle")}</AlertTitle>
+            <AlertDescription className="text-amber-700 dark:text-amber-400 mt-2">
+              <p className="mb-3">{t("reviewBadgeDescription")}</p>
+              <Button 
+                size="sm" 
+                className="w-full bg-amber-600 hover:bg-amber-700 text-white border-0"
+                onClick={handleApprove}
+                disabled={!!loading}
+              >
+                {loading === 'approve' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ThumbsUp className="mr-2 h-4 w-4" />}
+                {t("approvePublish")}
+              </Button>
+            </AlertDescription>
+          </Alert>
         )}
 
         <div className="flex gap-2 pt-1">
@@ -302,15 +321,25 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
           <Wand2 className="w-4 h-4" /> {t("analyzeTitle")}
         </h3>
         
+        {totalAll > 0 && (
+          <div className="space-y-2">
+             <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                <span>{Math.round(progress)}%</span>
+                <span>{totalProcessed}/{totalAll}</span>
+             </div>
+             <Progress value={progress} className="h-2" />
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground bg-muted/40 p-2 rounded">
           <div>
             {t("queueVocab", {
-              count: lesson.learningItensQueue?.length || 0,
+              count: queueVocab,
             })}
           </div>
           <div>
             {t("queueStruct", {
-              count: lesson.learningStructuresQueue?.length || 0,
+              count: queueStruct,
             })}
           </div>
         </div>
@@ -322,13 +351,13 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
           disabled={!!loading}
         >
           {loading === 'analyze' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileText className="mr-2 h-4 w-4" />}
-          {t("analyzeButton")}
+          {hasAnalyzed ? t("analyzeAgainButton") : t("analyzeButton")}
         </Button>
 
         <Button 
           className="w-full justify-start" 
           onClick={handleProcess}
-          disabled={!!loading || (lesson.learningItensQueue?.length === 0 && lesson.learningStructuresQueue?.length === 0)}
+          disabled={!!loading || totalQueue === 0}
         >
           {loading === 'process' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle className="mr-2 h-4 w-4" />}
           {t("processButton")}
@@ -345,19 +374,22 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
           variant="outline" 
           className="w-full justify-start"
           onClick={handleQuiz}
-          disabled={!!loading}
+          disabled={!!loading || !!lesson.quiz?.quiz_metadata.dateGenerated}
         >
           {loading === 'quiz' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
           {t("quizGenerate")}
         </Button>
         {lesson.quiz && (
-          <p className="text-xs text-emerald-600">
-            {t("quizAvailable", {
-              date: new Date(
-                lesson.quiz?.quiz_metadata.dateGenerated as any
-              ).toLocaleDateString(),
-            })}
-          </p>
+          <Alert className="border-emerald-200 bg-emerald-50 text-emerald-800 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-300">
+            <CheckCircle className="h-4 w-4" />
+            <AlertDescription className="text-emerald-700 dark:text-emerald-400">
+              {t("quizAvailable", {
+                date: new Date(
+                  lesson.quiz?.quiz_metadata.dateGenerated as any
+                ).toLocaleDateString(),
+              })}
+            </AlertDescription>
+          </Alert>
         )}
       </div>
 

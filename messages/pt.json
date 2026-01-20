@@ -142,6 +142,7 @@
 
   "LessonOperations": {
     "analyzeTitle": "Análise e Processamento",
+    "analyzeAgainButton": "Procurar novos itens",
     "queueVocab": "Vocab Fila: {count}",
     "queueStruct": "Struct Fila: {count}",
     "analyzeButton": "1. Analisar Conteúdo",

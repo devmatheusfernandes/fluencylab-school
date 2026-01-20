@@ -10,19 +10,12 @@ import { revalidatePath } from "next/cache";
  * O Firestore lança erro se receber { campo: undefined }
  */
 function cleanData<T extends Record<string, any>>(data: T): Record<string, any> {
-  const updates: any = { ...data };
-  
-  // Remove objeto metadata completo para não sobrescrever createdAt acidentalmente
-  // O update de data será injetado manualmente
-  delete updates.metadata;
+  // Remove metadados para evitar sobrescrita acidental
+  const { metadata, ...rest } = data;
 
-  Object.keys(updates).forEach(key => {
-    if (updates[key] === undefined) {
-      delete updates[key];
-    }
-  });
-
-  return updates;
+  // Truque para remover todos os 'undefined' profundamente
+  // Firestore não aceita undefined
+  return JSON.parse(JSON.stringify(rest));
 }
 
 /**
