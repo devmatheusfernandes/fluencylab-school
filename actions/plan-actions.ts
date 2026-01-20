@@ -121,18 +121,14 @@ export async function createPlan(data: Partial<Plan>) {
 
     const planData = {
       ...data,
-      learningItemsIds: [],
-      learningStructureIds: [],
       learnedComponentsIds: [],
       reviewLearnedComponentsIds: [],
       // Ensure lessons have necessary structure
-      lessons: data.lessons.map(l => ({
+      lessons: data.lessons?.map(l => ({
         ...l,
-        learningItemsIds: [],
-        learningStructureIds: [],
-        learnedComponentsIds: [],
-        reviewLearnedComponentsIds: []
-      }))
+        learningItemsIds: l.learningItemsIds || [],
+        learningStructureIds: l.learningStructureIds || [],
+      })) || []
     };
 
     const id = await planRepository.create(planData as any); // Type casting due to some missing props being optional in interface but required in creation logic
