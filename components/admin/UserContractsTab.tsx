@@ -25,6 +25,7 @@ import {
   ModalPrimaryButton,
   ModalSecondaryButton,
 } from "@/components/ui/modal";
+import { Alert, AlertDescription } from "../ui/alert";
 
 interface UserContractsTabProps {
   user: User;
@@ -256,11 +257,9 @@ export default function UserContractsTab({
 
   if (error) {
     return (
-      <Card className="p-6">
-        <Text variant="error">
-          {t("errorLoading", { error })}
-        </Text>
-      </Card>
+      <Alert variant="destructive" className="p-6">
+        <AlertDescription>{t("errorLoading", { error })}</AlertDescription>
+      </Alert>
     );
   }
 

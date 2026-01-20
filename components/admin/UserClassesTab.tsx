@@ -22,10 +22,8 @@ import {
   ModalHeader,
   ModalTitle,
   ModalDescription,
-  ModalFooter,
-  ModalClose,
+  ModalFooter
 } from "@/components/ui/modal";
-import { ButtonGroup } from "../ui/button-group";
 import { Spinner } from "../ui/spinner";
 
 interface UserClassesTabProps {
@@ -360,6 +358,21 @@ export default function UserClassesTab({
                       <div>
                         <p className="subtitle-base">{formattedDate}</p>
                         <p className="text-sm paragraph-base">{formattedTime}</p>
+                        
+                        {/* Display Plan and Lesson Info */}
+                        {cls.planName && (
+                          <div className="mt-2 text-sm text-primary font-medium">
+                            <span className="text-xs text-muted-foreground block">Plano:</span>
+                            {cls.planName}
+                          </div>
+                        )}
+                        {cls.lessonTitle && (
+                          <div className="mt-1 text-sm font-semibold">
+                             <span className="text-xs text-muted-foreground block">Lição:</span>
+                             {cls.lessonTitle}
+                          </div>
+                        )}
+
                         {cls.notes && (
                           <p className="text-sm mt-2 italic text-subtitle">
                             {cls.notes}

@@ -972,7 +972,16 @@ export class SchedulingService {
     }
 
     // Validar se contractStartDate é uma data válida
-    const contractStartDate = new Date(student.contractStartDate);
+    let contractStartDate: Date;
+    
+    // Verifica se é um Timestamp do Firestore (tem o método toDate)
+    if (student.contractStartDate && typeof (student.contractStartDate as any).toDate === 'function') {
+      contractStartDate = (student.contractStartDate as any).toDate();
+    } else {
+      // Caso contrário, tenta converter diretamente (Date ou string)
+      contractStartDate = new Date(student.contractStartDate);
+    }
+
     if (isNaN(contractStartDate.getTime())) {
       throw new Error(
         `A data de início do contrato para o aluno ${studentId} é inválida.`

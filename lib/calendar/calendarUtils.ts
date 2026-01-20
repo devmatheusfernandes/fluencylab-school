@@ -9,6 +9,7 @@ import {
 } from "@/types/classes/class";
 import { CalendarEvent } from "@/types/calendar/calendar";
 import { createDateTimeKey } from "@/utils/utils";
+import { getTranslations } from "next-intl/server";
 
 /**
  * Maps teacher availability data to calendar events

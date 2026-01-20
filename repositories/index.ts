@@ -16,6 +16,7 @@ import { AchievementRepository } from './achievementRepository';
 import { CourseRepository } from './courseRepository';
 import { FlashcardRepository } from './flashcardRepository';
 import { DeckRepository } from './deckRepository';
+import { PlanRepository } from './planRepository';
 
 // ============================================================================
 // INSTÂNCIAS SINGLETON CENTRALIZADAS
@@ -78,6 +79,7 @@ export const achievementRepository = new AchievementRepository();
 export const courseRepository = new CourseRepository();
 export const flashcardRepository = new FlashcardRepository();
 export const deckRepository = new DeckRepository();
+export const planRepository = new PlanRepository();
 
 // ============================================================================
 // EXPORTAÇÕES LEGACY (para compatibilidade)

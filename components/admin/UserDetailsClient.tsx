@@ -15,22 +15,28 @@ import { useSession } from "next-auth/react";
 import { UserRoles } from "@/types/users/userRoles";
 import { useTranslations } from "next-intl";
 import { BackButton } from "../ui/back-button";
+import UserPlanTab from "./UserPlanTab";
+import { Plan } from "@/types/plan";
 
 interface UserDetailsClientProps {
   user: FullUserDetails;
   allTeachers: User[];
+  activePlan: Plan | null;
+  templates: Plan[];
 }
 
 export default function UserDetailsClient({
   user,
   allTeachers,
+  activePlan,
+  templates,
 }: UserDetailsClientProps) {
   const { data: session } = useSession();
   const currentUserRole = session?.user?.role as UserRoles | undefined;
   const t = useTranslations("UserDetails.tabs");
 
   return (
-    <div className="p-3 px-6">
+    <div className="p-3 px-6 ">
       
       <Tabs defaultValue="overview">
         <div className="flex flex-col items-center md:flex-row md:items-center md:justify-between gap-4">
@@ -53,6 +59,7 @@ export default function UserDetailsClient({
 
             {user.role === "student" && (
               <>
+                <TabsTrigger value="plan">{t("plan") || "Plano"}</TabsTrigger>
                 <TabsTrigger value="schedule">{t("schedule")}</TabsTrigger>
                 <TabsTrigger value="classes">{t("classes")}</TabsTrigger>
                 <TabsTrigger value="credits">{t("credits")}</TabsTrigger>
@@ -69,6 +76,16 @@ export default function UserDetailsClient({
 
         <TabsContent value="overview" className="mt-4">
           <UserOverviewTab user={user} />
+        </TabsContent>
+
+        <TabsContent value="plan" className="mt-4">
+          <UserPlanTab 
+            studentId={user.id} 
+            activePlan={activePlan} 
+            templates={templates} 
+            hasClasses={!!(user.scheduledClasses && user.scheduledClasses.length > 0)}
+            totalScheduledClasses={user.scheduledClasses?.length || 0}
+          />
         </TabsContent>
 
         <TabsContent value="classes" className="mt-4">

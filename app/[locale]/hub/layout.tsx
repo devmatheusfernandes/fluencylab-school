@@ -152,7 +152,7 @@ function HubLayoutContent({ children, session }: { children: React.ReactNode, se
                 <SidebarWrapper items={items} />
 
                 {/* Main content area */}
-                <div className="flex-1 flex flex-col gap-[1.5px] overflow-x-hidden pb-14 md:pb-0">
+                <div className="flex-1 flex flex-col gap-[1.5px] overflow-x-hidden pb-14 md:pb-0"> {/*pb-14 md:pb-0*/}
                   <div className="sticky -top-0.5 z-20">
                     <HubHeader />
                   </div>

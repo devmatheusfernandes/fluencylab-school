@@ -30,11 +30,17 @@ export type ClassTemplate = {
 };
 
 export type StudentClass = {
-  name?: any; //ADICIONEI AGORA MAS NEM SEI SE DEVIA
+  name?: any; 
   id: string; // id da aula
   studentId: string;
   teacherId?: string;
   language: string; // Campo adicionado conforme checklist
+
+  // Learning Content Links
+  planId?: string;    // ID do plano ativo
+  planName?: string;  // Nome do plano (Denormalizado)
+  lessonId?: string;  // ID da lição vinculada
+  lessonTitle?: string; // Título da lição (Denormalizado)
 
   scheduledAt: Date;
   durationMinutes: number;
