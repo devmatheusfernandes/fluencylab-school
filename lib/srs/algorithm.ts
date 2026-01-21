@@ -1,4 +1,4 @@
-import { SRSData, ReviewGrade } from "@/types/srs";
+import { ReviewGrade, SRSData } from "@/types/plan";
 
 /**
  * Calculates the next review schedule using a simplified SM-2 algorithm.

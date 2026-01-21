@@ -2,7 +2,6 @@
 
 import { AchievementRepository } from "@/repositories/achievementRepository";
 import { classRepository } from "@/repositories";
-import { flashcardRepository } from "@/repositories/flashcardRepository";
 import { StudentAchievement } from "@/types/users/achievements";
 import { ClassStatus } from "@/types/classes/class";
 import { achievementDefinitions } from "@/config/achievementDefinitions";
@@ -78,16 +77,9 @@ export class AchievementService {
         (c) => c.status === ClassStatus.COMPLETED || !!c.completedAt
       ).length;
 
-      const flashcards = await flashcardRepository.getAllCards(studentId);
-      const cardsStudiedCount = flashcards.filter((f) => !!f.srsData).length;
-      const cardsMasteredCount = flashcards.filter(
-        (f) => (f.srsData?.repetition ?? 0) >= 5
-      ).length;
 
       const stats = {
-        completedClassesCount,
-        cardsStudiedCount,
-        cardsMasteredCount,
+        completedClassesCount
       };
 
       const byId = new Map(existing.map((a) => [a.achievementId, a]));
@@ -118,19 +110,6 @@ export class AchievementService {
         }
         if (def.id === "dez_aulas_concluidas") {
           result.progress = completedClassesCount;
-          result.progressMax = 10;
-        }
-
-        if (def.id === "primeiro_deck_estudado") {
-          result.progress = cardsStudiedCount;
-          result.progressMax = 1;
-        }
-        if (def.id === "mestre_dos_flashcards") {
-          result.progress = cardsStudiedCount;
-          result.progressMax = 50;
-        }
-        if (def.id === "memoria_de_elefante") {
-          result.progress = cardsMasteredCount;
           result.progressMax = 10;
         }
 

@@ -16,6 +16,12 @@ export interface SRSData {
   dueDate: Date | string; // Next review date
 }
 
+export interface PracticeResult {
+  itemId: string;
+  grade: ReviewGrade;
+  type: 'item' | 'structure';
+}
+
 export type ReviewGrade = 0 | 1 | 2 | 3 | 4 | 5; 
 // 0-2: Fail (Again)
 // 3: Hard

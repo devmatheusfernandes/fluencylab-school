@@ -2,8 +2,7 @@
 
 import { adminDb as db } from "@/lib/firebase/admin";
 import { Transaction } from "firebase-admin/firestore";
-import { Plan } from "@/types/plan";
-import { PracticeResult, SRSData } from "@/types/srs";
+import { Plan, PracticeResult, SRSData } from "@/types/plan";
 import { calculateNextReview } from "@/lib/srs/algorithm";
 import { startOfWeek, endOfWeek, isWithinInterval, parseISO, startOfDay, addDays } from "date-fns";
 

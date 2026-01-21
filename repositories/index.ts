@@ -14,8 +14,6 @@ import { VacationRepository } from './VacationRepository';
 import { AnnouncementRepository } from './announcementRepository';
 import { AchievementRepository } from './achievementRepository';
 import { CourseRepository } from './courseRepository';
-import { FlashcardRepository } from './flashcardRepository';
-import { DeckRepository } from './deckRepository';
 import { PlanRepository } from './planRepository';
 
 // ============================================================================
@@ -77,8 +75,6 @@ export const announcementRepository = new AnnouncementRepository();
  */
 export const achievementRepository = new AchievementRepository();
 export const courseRepository = new CourseRepository();
-export const flashcardRepository = new FlashcardRepository();
-export const deckRepository = new DeckRepository();
 export const planRepository = new PlanRepository();
 
 // ============================================================================
@@ -106,8 +102,6 @@ export type RepositoryInstances = {
   announcementRepository: AnnouncementRepository;
   achievementRepository: AchievementRepository;
   courseRepository: CourseRepository;
-  flashcardRepository: FlashcardRepository;
-  deckRepository: DeckRepository;
 };
 
 /**
@@ -127,9 +121,7 @@ export function getAllRepositories(): RepositoryInstances {
     vacationRepository,
     announcementRepository,
     achievementRepository,
-    courseRepository,
-    flashcardRepository,
-    deckRepository,
+    courseRepository
   };
 }
 
