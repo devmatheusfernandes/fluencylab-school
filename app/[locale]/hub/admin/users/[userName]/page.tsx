@@ -2,7 +2,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { UserService } from "@/services/userService";
-import { userAdminRepository } from "@/repositories";
+import { userAdminRepository, planRepository } from "@/repositories";
 import { redirect } from "next/navigation";
 import { NoResults } from "@/components/ui/no-results";
 import UserDetailsClient from "@/components/admin/UserDetailsClient";
@@ -35,9 +35,11 @@ export default async function UserDetailsPage({
   }
 
   // Busca os detalhes do utilizador e a lista de todos os professores em paralelo
-  const [userDetails, allTeachers] = await Promise.all([
+  const [userDetails, allTeachers, activePlan, templates] = await Promise.all([
     userService.getFullUserDetails(userId),
     userAdminRepo.findUsersByRole("teacher"),
+    planRepository.findActivePlanByStudent(userId),
+    planRepository.findTemplates(),
   ]);
 
   const plainUserDetails = JSON.parse(JSON.stringify(userDetails));
@@ -52,6 +54,11 @@ export default async function UserDetailsPage({
   }
 
   return (
-    <UserDetailsClient user={plainUserDetails} allTeachers={allTeachers} activePlan={null} templates={[]} />
+    <UserDetailsClient 
+      user={plainUserDetails} 
+      allTeachers={allTeachers} 
+      activePlan={JSON.parse(JSON.stringify(activePlan))} 
+      templates={JSON.parse(JSON.stringify(templates))} 
+    />
   );
 }

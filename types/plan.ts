@@ -20,6 +20,7 @@ export interface PracticeResult {
   itemId: string;
   grade: ReviewGrade;
   type: 'item' | 'structure';
+  timestamp?: Date | string;
 }
 
 export type ReviewGrade = 0 | 1 | 2 | 3 | 4 | 5; 
@@ -53,6 +54,9 @@ export interface Plan {
     // Conexão com a Agenda
     scheduledClassId?: string; // ID da aula agendada (StudentClass) vinculada a esta lição
     scheduledDate?: Date | string; // Data agendada (redundância útil para UI)
+    
+    // Controle de Progresso
+    completedPracticeDays?: number; // Quantos dias de prática foram concluídos para esta lição (0-6)
 
     //Vou tratar os LearningItens e LearningStructure como Components, para ser mais fácil se referir aos dois de uma vez. 
     //Acho que não vou precisar de um campo type, já que cada um deles tem um type específico. É mais para facilitar as explicaçoes nesse contexto

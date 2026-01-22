@@ -120,7 +120,8 @@ function HubLayoutContent({ children, session }: { children: React.ReactNode, se
     (pathname?.startsWith(`/${locale}/hub/teacher/my-students/`) &&
       pathname?.includes("/notebook/")) ||
     (pathname?.startsWith(`/${locale}/hub/student/my-notebook/`) &&
-      pathname?.includes("/notebook/"));
+      pathname?.includes("/notebook/")) ||
+    pathname?.startsWith(`/${locale}/hub/student/my-practice`);
 
   const isChatPage = pathname?.includes("/my-chat") || pathname?.includes("/workbooks");
 

@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useTranslations } from "next-intl";
@@ -47,6 +48,7 @@ export default function UserPlanTab({
   totalScheduledClasses,
 }: UserPlanTabProps) {
   const t = useTranslations("UserDetails.plan");
+  const router = useRouter();
   const [isAssignOpen, setIsAssignOpen] = useState(false);
   const [editorMode, setEditorMode] = useState<"template" | "custom" | "edit" | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<Plan | null>(null);
@@ -76,6 +78,7 @@ export default function UserPlanTab({
       await archivePlan(activePlan.id, studentId);
       toast.success(t("planArchived"));
       setIsArchiveModalOpen(false);
+      router.refresh();
     } catch (error) {
       toast.error(t("errorArchiving"));
       console.error(error);
@@ -85,24 +88,27 @@ export default function UserPlanTab({
   const processSave = async (planData: Partial<Plan>) => {
     try {
       if (editorMode === "edit" && activePlan) {
-        await updatePlan(activePlan.id, planData);
+        const result = await updatePlan(activePlan.id, planData);
+        if (!result.success) throw new Error(result.error || t("errorSaving"));
         toast.success(t("planUpdated"));
       } else {
-        await createPlan({
+        const result = await createPlan({
           ...planData,
           type: "student",
           studentId,
           status: "active",
         });
+        if (!result.success) throw new Error(result.error || t("errorSaving"));
         toast.success(t("planCreated"));
       }
       setIsAssignOpen(false);
       setEditorMode(null);
       setPendingSaveData(null);
       setIsSyncConfirmOpen(false);
-    } catch (error) {
+      router.refresh();
+    } catch (error: any) {
       console.error(error);
-      toast.error(t("errorSaving"));
+      toast.error(error.message || t("errorSaving"));
       // Don't re-throw here to avoid unhandled promise rejection in the UI
     }
   };

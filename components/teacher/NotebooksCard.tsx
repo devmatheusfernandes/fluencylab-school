@@ -149,7 +149,7 @@ export default function NotebooksCard({
   };
 
   return (
-    <SubContainer>
+    <SubContainer className="h-full max-h-[calc(100vh-105px)] overflow-auto">
       <div className="flex flex-row gap-2 mb-4 relative">
         <SearchBar
           placeholder={t("searchPlaceholder")}

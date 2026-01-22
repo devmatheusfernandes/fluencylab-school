@@ -19,11 +19,15 @@ export async function searchLessons(query: string) {
       return [];
     }
 
-    const lessons = snapshot.docs.map(doc => ({
-      id: doc.id,
-      title: doc.data().title || "Untitled Lesson",
-      // We can return more fields if needed
-    }));
+    const lessons = snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        title: data.title || "Untitled Lesson",
+        relatedLearningItemIds: data.relatedLearningItemIds || [],
+        relatedLearningStructureIds: data.relatedLearningStructureIds || [],
+      };
+    });
 
     // 2. Filter in-memory if there is a query
     if (query && query.trim().length > 0) {
@@ -41,10 +45,15 @@ export async function searchLessons(query: string) {
     // Fallback: If sorting by metadata.updatedAt fails (e.g. missing index), try a simple fetch
     try {
         const snapshot = await adminDb.collection("lessons").limit(20).get();
-        const lessons = snapshot.docs.map(doc => ({
-            id: doc.id,
-            title: doc.data().title || "Untitled Lesson",
-        }));
+        const lessons = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                title: data.title || "Untitled Lesson",
+                relatedLearningItemIds: data.relatedLearningItemIds || [],
+                relatedLearningStructureIds: data.relatedLearningStructureIds || [],
+            };
+        });
         
         if (query && query.trim().length > 0) {
             const lowerQuery = query.toLowerCase().trim();

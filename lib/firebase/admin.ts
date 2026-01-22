@@ -31,6 +31,11 @@ if (!getApps().length) {
 }
 
 const adminDb = admin.firestore();
+try {
+  adminDb.settings({ ignoreUndefinedProperties: true });
+} catch (error) {
+  // Ignore error if settings are already locked/initialized (common in HMR/Dev)
+}
 const adminAuth = getAuth(app);
 const adminStorage = getStorage(app);
 

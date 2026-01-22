@@ -140,6 +140,8 @@ export interface TranscriptSegment {
   end: number;
   text: string;
   speaker?: string;
+  learningItemIds?: string[];
+  learningStructureIds?: string[];
 }
 
 // 4. Quiz Types
@@ -148,6 +150,8 @@ export interface QuizQuestion {
   options: string[];
   correctIndex: number;
   explanation?: string;
+  relatedLearningItemId?: string;
+  relatedLearningStructureId?: string;
 }
 
 export interface QuizSection {

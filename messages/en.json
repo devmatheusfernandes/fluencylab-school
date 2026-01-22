@@ -1,4 +1,19 @@
 {
+  "LearningPath": {
+    "noLessonsTitle": "No lessons this week!",
+    "noLessonsMessage": "Take time to review or relax. You are all caught up!"
+  },
+  "ProgressHero": {
+    "onTrackTitle": "Keep going!",
+    "onTrackMessage": "You are doing great on day {currentDay}.",
+    "delayedTitle": "Let's catch up?",
+    "delayedMessage": "You are on day {currentDay}, but {daysSinceClass} days have passed since start.",
+    "statusOnTrack": "On Track",
+    "statusDelayed": "Delayed",
+    "freeWeekTitle": "Free Week!",
+    "freeWeekMessage": "No lessons scheduled for this week. Enjoy your break!",
+    "statusFree": "Free"
+  },
   "PlanTemplates": {
     "title": "Lesson Plan Templates",
     "description": "Manage lesson plan templates that can be assigned to students.",

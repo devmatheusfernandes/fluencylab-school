@@ -20,8 +20,6 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { searchLessons } from "@/actions/lesson-search";
 import { cn } from "@/lib/utils";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-
 interface PlanEditorProps {
   initialPlan?: Partial<Plan>;
   mode: "create" | "edit";
@@ -30,12 +28,6 @@ interface PlanEditorProps {
   onSave: (plan: Partial<Plan>) => Promise<void>;
   onCancel: () => void;
 }
-
-// Mock search function until we implement the real one
-// We'll replace this with a server action call
-const mockSearchLessons = async (query: string) => {
-  return []; 
-};
 
 export function PlanEditor({
   initialPlan,
@@ -56,7 +48,7 @@ export function PlanEditor({
 
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<Array<{ id: string; title: string }>>([]);
+  const [searchResults, setSearchResults] = useState<Array<{ id: string; title: string; relatedLearningItemIds?: string[]; relatedLearningStructureIds?: string[] }>>([]);
   const [searching, setSearching] = useState(false);
 
   const isPast = (dateStr?: string | Date) => {
@@ -93,17 +85,18 @@ export function PlanEditor({
     }
   };
 
-  const addLesson = (lesson: { id: string; title: string }) => {
+  const addLesson = (lesson: { id: string; title: string; relatedLearningItemIds?: string[]; relatedLearningStructureIds?: string[] }) => {
     if (lessons.find((l) => l.id === lesson.id)) {
       toast.warning("Lição já adicionada ao plano");
       return;
     }
     // Create a new PlanLesson object
     const newLesson: Plan['lessons'][0] = {
-      ...lesson,
+      id: lesson.id,
+      title: lesson.title,
       order: lessons.length,
-      learningItemsIds: [],
-      learningStructureIds: [],
+      learningItemsIds: lesson.relatedLearningItemIds?.map(id => ({ id, updatedAt: new Date() })) || [],
+      learningStructureIds: lesson.relatedLearningStructureIds?.map(id => ({ id, updatedAt: new Date() })) || [],
     };
     setLessons([...lessons, newLesson]);
     setSearchResults([]); // Clear search after adding

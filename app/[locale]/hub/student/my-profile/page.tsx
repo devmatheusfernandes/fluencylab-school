@@ -14,6 +14,7 @@ import Badges from "@/components/placement/Badges/Badges";
 import { Skeleton } from "@/components/ui/skeleton";
 import { collection, query, where, orderBy, limit, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
+import { ProgressHero } from "@/components/notebook/ProgressHero";
 
 const ProfileHeaderSkeleton = () => (
   <Skeleton className="skeleton-base rounded-xl p-4 w-full">
@@ -122,7 +123,7 @@ export default function MeuPerfil() {
   const handleLogout = () => {
     signOut({ callbackUrl: "/" });
   };
-
+ 
   return (
     <ContainerCard
       className="
@@ -169,6 +170,7 @@ export default function MeuPerfil() {
         {isLoading ? <NextClassCardSkeleton /> : <NextClassCard />}
       </SubContainer>
 
+            
       <SubContainer
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}

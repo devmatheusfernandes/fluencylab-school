@@ -237,6 +237,7 @@ export async function processLessonBatch(lessonId: string) {
     const structQueue = data.learningStructuresQueue || [];
 
     if (vocabQueue.length === 0 && structQueue.length === 0) {
+      await linkTranscriptToItems(lessonId);
       await lessonRef.update({ status: 'reviewing' });
       return { completed: true };
     }
@@ -384,6 +385,10 @@ export async function processLessonBatch(lessonId: string) {
     const remainingVocabCount = vocabQueue.length > 0 ? Math.max(0, vocabQueue.length - batchSize) : 0;
     const remainingStructCount = vocabQueue.length === 0 ? Math.max(0, structQueue.length - batchSize) : structQueue.length;
 
+    if (remainingVocabCount === 0 && remainingStructCount === 0) {
+      await linkTranscriptToItems(lessonId);
+    }
+
     return { 
       completed: remainingVocabCount === 0 && remainingStructCount === 0, 
       type: typeProcessed,
@@ -437,19 +442,47 @@ export async function generateLessonQuiz(lessonId: string) {
     const isBeginner = ['A1', 'A2'].includes(level);
     const isTargetEnglish = targetLang === 'en';
     
+    // --- CONTEXTO DE APRENDIZADO (Vocabulário e Estruturas) ---
+    let vocabContext = '';
+    let structContext = '';
+    
+    if (data.relatedLearningItemIds?.length || data.relatedLearningStructureIds?.length) {
+       const fetchSubset = async (ids: string[], col: string) => {
+          if (!ids?.length) return [];
+          const subset = ids.slice(-30); // Limit to 30 for Firestore 'in' query
+          const s = await adminDb.collection(col).where(FieldPath.documentId(), 'in', subset).get();
+          return s.docs.map(d => ({ id: d.id, ...d.data() }));
+       };
+
+       const items = await fetchSubset(data.relatedLearningItemIds, 'learningItems');
+       const structs = await fetchSubset(data.relatedLearningStructureIds, 'learningStructures');
+
+       vocabContext = items.map((i: any) => `- ID: ${i.id} | Termo: ${i.mainText} | Tradução: ${i.meanings?.[0]?.translation}`).join('\n');
+       structContext = structs.map((s: any) => `- ID: ${s.id} | Exemplo: ${s.sentences?.[0]?.words} | Tipo: ${s.type}`).join('\n');
+    }
+
     // Se for iniciante, instruções em Português. Se avançado, em Inglês.
     const instructionLang = isBeginner 
       ? (isTargetEnglish ? 'Português' : 'Inglês') 
       : (isTargetEnglish ? 'Inglês' : 'Português');
 
     const prompt = `
-      Crie um Quiz educacional baseado no texto de aula fornecido.
+      Crie um Quiz educacional baseado no texto de aula fornecido e nos itens de aprendizado listados.
       
       CONFIGURAÇÃO:
       - Nível da Aula: ${level}
       - Idioma Alvo (Aprendizado): ${targetLang}
       - Contexto do Aluno: ${isBeginner ? 'Iniciante' : 'Intermediário/Avançado'}
       
+      ITENS DE APRENDIZADO PRIORITÁRIOS:
+      Sempre que possível, crie perguntas que testem estes itens específicos.
+      
+      VOCABULÁRIO:
+      ${vocabContext}
+      
+      ESTRUTURAS:
+      ${structContext}
+
       REGRA IMPORTANTE DE IDIOMA:
       - Como o nível é ${level}, o ENUNCIADO das perguntas e a EXPLICAÇÃO devem estar em ${instructionLang}.
       - As OPÇÕES de resposta devem estar no Idioma Alvo (${targetLang}) para testar o conhecimento.
@@ -470,7 +503,9 @@ export async function generateLessonQuiz(lessonId: string) {
                 "text": "Enunciado da pergunta aqui (${instructionLang})", 
                 "options": ["Opção 1 (Alvo)", "Opção 2 (Alvo)", "Opção 3 (Alvo)", "Opção 4 (Alvo)"], 
                 "correctIndex": 0, 
-                "explanation": "Explicação breve em ${instructionLang}."
+                "explanation": "Explicação breve em ${instructionLang}.",
+                "relatedLearningItemId": "ID_DO_ITEM (Opcional, se a pergunta for sobre um item da lista)",
+                "relatedLearningStructureId": "ID_DA_ESTRUTURA (Opcional, se a pergunta for sobre uma estrutura)"
               }
             ]
           }
@@ -531,6 +566,95 @@ export async function generateLessonQuiz(lessonId: string) {
 }
 
 /**
+ * 6. VINCULAR TRANSCRIÇÃO A ITENS (POST-PROCESSING)
+ * Varre os segmentos de transcrição e adiciona IDs de itens/estruturas encontrados neles.
+ */
+export async function linkTranscriptToItems(lessonId: string) {
+  try {
+    const lessonRef = adminDb.collection('lessons').doc(lessonId);
+    const lessonSnap = await lessonRef.get();
+    if (!lessonSnap.exists) throw new Error('Lesson not found');
+    const lesson = lessonSnap.data() as Lesson;
+
+    if (!lesson.transcriptSegments || lesson.transcriptSegments.length === 0) {
+      return { success: true, message: 'No transcript segments to link' };
+    }
+
+    const itemIds = lesson.relatedLearningItemIds || [];
+    const structIds = lesson.relatedLearningStructureIds || [];
+
+    if (itemIds.length === 0 && structIds.length === 0) {
+      return { success: true, message: 'No items to link' };
+    }
+
+    // Helper to fetch docs in chunks (Firestore limit 30 for 'in')
+    const fetchDocs = async (ids: string[], collection: string) => {
+        const docs: any[] = [];
+        // Process unique IDs only
+        const uniqueIds = Array.from(new Set(ids));
+        
+        for (let i = 0; i < uniqueIds.length; i += 30) {
+            const chunk = uniqueIds.slice(i, i + 30);
+            if (chunk.length === 0) continue;
+            
+            const snap = await adminDb.collection(collection)
+                .where(FieldPath.documentId(), 'in', chunk).get();
+            docs.push(...snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        }
+        return docs;
+    };
+
+    const items = await fetchDocs(itemIds, 'learningItems');
+    const structures = await fetchDocs(structIds, 'learningStructures');
+
+    let matchCount = 0;
+
+    const updatedSegments = lesson.transcriptSegments.map(segment => {
+      const segText = segment.text.toLowerCase();
+      const matchedItemIds: string[] = [];
+      const matchedStructIds: string[] = [];
+
+      // Match Vocabulary
+      items.forEach(item => {
+        if (item.mainText && segText.includes(item.mainText.toLowerCase())) {
+          matchedItemIds.push(item.id);
+        }
+      });
+
+      // Match Structures
+      structures.forEach(struct => {
+        // Verifica se alguma frase de exemplo da estrutura aparece no segmento
+        const matched = struct.sentences?.some((s: any) => s.words && segText.includes(s.words.toLowerCase()));
+        if (matched) matchedStructIds.push(struct.id);
+      });
+
+      if (matchedItemIds.length > 0 || matchedStructIds.length > 0) {
+        matchCount++;
+      }
+
+      return {
+        ...segment,
+        learningItemIds: matchedItemIds.length > 0 ? matchedItemIds : undefined,
+        learningStructureIds: matchedStructIds.length > 0 ? matchedStructIds : undefined
+      };
+    });
+
+    if (matchCount > 0) {
+        await lessonRef.update({ 
+            transcriptSegments: updatedSegments,
+            'metadata.updatedAt': FieldValue.serverTimestamp()
+        });
+    }
+
+    return { success: true, matches: matchCount };
+
+  } catch (error) {
+    console.error('Error linking transcript:', error);
+    return { success: false, error };
+  }
+}
+
+/**
  * 5. GERAÇÃO DE TRANSCRIÇÃO (TIMESTAMPS)
  */
 export async function generateLessonTranscript(lessonId: string) {
@@ -546,7 +670,7 @@ export async function generateLessonTranscript(lessonId: string) {
     const arrayBuffer = await audioResponse.arrayBuffer();
     const base64Audio = Buffer.from(arrayBuffer).toString('base64');
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Use o 1.5 Flash explicitamente se possível, é melhor em áudio
+    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' }); // Use o 1.5 Flash explicitamente se possível, é melhor em áudio
 
     const prompt = `
       Atue como um transcritor de áudio profissional.
@@ -601,6 +725,9 @@ export async function generateLessonTranscript(lessonId: string) {
       transcriptSegments: segments,
       'metadata.updatedAt': FieldValue.serverTimestamp(),
     });
+
+    // Link items automatically after generating transcript
+    await linkTranscriptToItems(lessonId);
 
     return { success: true, count: segments.length };
 

@@ -1,4 +1,19 @@
 {
+  "LearningPath": {
+    "noLessonsTitle": "Sem aulas esta semana!",
+    "noLessonsMessage": "Aproveite para revisar o conteúdo ou descansar. Você está em dia!"
+  },
+  "ProgressHero": {
+    "onTrackTitle": "Keep going!",
+    "onTrackMessage": "Você está indo super bem no dia {currentDay}.",
+    "delayedTitle": "Vamos recuperar?",
+    "delayedMessage": "Você está no dia {currentDay}, mas já se passaram {daysSinceClass} dias desde o início.",
+    "statusOnTrack": "Em dia",
+    "statusDelayed": "Atrasado",
+    "freeWeekTitle": "Semana Livre!",
+    "freeWeekMessage": "Nenhuma aula programada para esta semana. Aproveite o descanso!",
+    "statusFree": "Livre"
+  },
   "PlanTemplates": {
     "title": "Modelos de Planos de Aula",
     "description": "Gerencie os modelos de planos de aula que podem ser atribuídos aos alunos.",

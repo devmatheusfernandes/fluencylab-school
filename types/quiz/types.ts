@@ -4,6 +4,8 @@ export interface QuizQuestion {
   question: string;
   options: string[];
   correctAnswer: string;
+  relatedLearningItemId?: string;
+  relatedLearningStructureId?: string;
 }
 
 export interface QuizResult {
