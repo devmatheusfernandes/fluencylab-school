@@ -15,6 +15,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { collection, query, where, orderBy, limit, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { ProgressHero } from "@/components/notebook/ProgressHero";
+import { motion } from "framer-motion";
+import { getStudentLearningStats, getActivePlanId } from "@/actions/srs-actions";
 
 const ProfileHeaderSkeleton = () => (
   <Skeleton className="skeleton-base rounded-xl p-4 w-full">
@@ -75,6 +77,34 @@ export default function MeuPerfil() {
   const { user, isLoading } = useCurrentUser();
   const [placementBadgeLevel, setPlacementBadgeLevel] = useState<number | null>(null);
   const [isPlacementLoading, setIsPlacementLoading] = useState(true);
+  const [stats, setStats] = useState({ 
+    reviewedToday: 0, 
+    dueToday: 0, 
+    totalLearned: 0, 
+    currentDay: 1, 
+    daysSinceClass: 7,
+    hasActiveLesson: true
+  });
+  const [statsLoading, setStatsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchStats() {
+      if (user?.id) {
+        try {
+          const planId = await getActivePlanId(user.id);
+          if (planId) {
+            const data = await getStudentLearningStats(planId);
+            setStats(data);
+          }
+        } catch (err) {
+          console.error("Failed to load stats", err);
+        } finally {
+          setStatsLoading(false);
+        }
+      }
+    }
+    fetchStats();
+  }, [user?.id]);
 
   useEffect(() => {
     const loadLatestPlacementResult = async () => {
@@ -162,13 +192,30 @@ export default function MeuPerfil() {
       </SubContainer>
 
       <SubContainer
-        className="md:col-span-2"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.5 }}
       >
         {isLoading ? <NextClassCardSkeleton /> : <NextClassCard />}
       </SubContainer>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.6 }}
+        className="p-0 bg-transparent dark:bg-transparent border-none"
+      >
+        {statsLoading ? (
+          <Skeleton className="w-full h-full min-h-[140px] rounded-md" />
+        ) : (
+          <ProgressHero
+            className="rounded-md!"
+            currentDay={stats.currentDay}
+            daysSinceClass={stats.daysSinceClass}
+            hasActiveLesson={stats.hasActiveLesson}
+          />
+        )}
+      </motion.div>
 
             
       <SubContainer
