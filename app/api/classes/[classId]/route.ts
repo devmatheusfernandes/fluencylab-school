@@ -17,14 +17,14 @@ async function updateClassStatusHandler(
   { params, authContext }: { params?: { classId: string }; authContext: any }
 ) {
   try {
-    console.log('=== DEBUG updateClassStatusHandler ===' );
-    console.log('params:', params);
+    //console.log('=== DEBUG updateClassStatusHandler ===' );
+    //console.log('params:', params);
     
     const resolvedParams = await params;
-    console.log('resolvedParams:', resolvedParams);
+    //console.log('resolvedParams:', resolvedParams);
     
     if (!resolvedParams?.classId) {
-      console.log('ERROR: classId não encontrado');
+      //console.log('ERROR: classId não encontrado');
       return NextResponse.json(
         { error: 'ID da aula é obrigatório.' },
         { status: 400 }

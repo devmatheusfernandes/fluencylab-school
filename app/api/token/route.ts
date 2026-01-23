@@ -4,23 +4,23 @@ export async function POST(request: Request) {
   try {
     const apiKey = process.env.NEXT_PUBLIC_STREAM_API_KEY;
     if (!apiKey) {
-      console.error('API key is missing.');
+      //console.error('API key is missing.');
       return new Response('API key is missing.', { status: 500 });
     }
 
     const streamSecret = process.env.STREAM_SECRET;
     if (!streamSecret) {
-      console.error('Stream secret is missing.');
+      //console.error('Stream secret is missing.');
       return new Response('Stream secret is missing.', { status: 500 });
     }
 
     const serverClient = new StreamClient(apiKey, streamSecret);
     const body = await request.json();
-    console.log('[/api/token] Request body:', body);
+    //console.log('[/api/token] Request body:', body);
 
     const userId = body?.userId;
     if (!userId || typeof userId !== 'string' || userId.trim() === '') {
-      console.error('Invalid user ID:', userId);
+      //console.error('Invalid user ID:', userId);
       return new Response('Invalid user ID.', { status: 400 });
     }
 
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
 
     return Response.json(response);
   } catch (error) {
-    console.error('Error generating token:', error);
+    //console.error('Error generating token:', error);
     return new Response('Internal server error.', { status: 500 });
   }
 }

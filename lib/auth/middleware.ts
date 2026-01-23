@@ -43,10 +43,10 @@ export function withAuth(
     request: NextRequest,
     context: { params?: any }
   ): Promise<NextResponse> {
-    console.log("=== DEBUG withAuth INÍCIO ===");
-    console.log("request.method:", request.method);
-    console.log("request.url:", request.url);
-    console.log("context:", context);
+    // console.log("=== DEBUG withAuth INÍCIO ===");
+    // console.log("request.method:", request.method);
+    // console.log("request.url:", request.url);
+    // console.log("context:", context);
     const startTime = Date.now();
     let authResult: AuthMiddlewareResult | null = null;
 
@@ -130,13 +130,13 @@ async function executeAuthValidation(
     // 2. Extrair resourceId se necessário
     let resourceId: string | undefined;
     if (options.extractResourceId && context.params) {
-      console.log("=== DEBUG MIDDLEWARE ===");
-      console.log("context.params:", context.params);
+      // console.log("=== DEBUG MIDDLEWARE ===");
+      // console.log("context.params:", context.params);
       try {
         resourceId = options.extractResourceId(context.params);
-        console.log("resourceId extraído:", resourceId);
+        // console.log("resourceId extraído:", resourceId);
       } catch (error) {
-        console.error("Erro ao extrair resourceId:", error);
+        // console.error("Erro ao extrair resourceId:", error);
         throw error;
       }
     }
@@ -320,7 +320,7 @@ function logAuthSuccess(
     clientIp: getClientIp(request),
   };
 
-  console.log("Auth Success:", JSON.stringify(logData));
+//  console.log("Auth Success:", JSON.stringify(logData));
 }
 
 /**
@@ -490,10 +490,10 @@ export function createStudentConfig(
     },
     resourceType: resourceType as any,
     extractResourceId: (params) => {
-      console.log("=== DEBUG extractResourceId ===");
-      console.log("params recebido:", params);
+      // console.log("=== DEBUG extractResourceId ===");
+      // console.log("params recebido:", params);
       const resourceId = params?.classId || params?.id;
-      console.log("resourceId final:", resourceId);
+      // console.log("resourceId final:", resourceId);
       return resourceId;
     },
   };
