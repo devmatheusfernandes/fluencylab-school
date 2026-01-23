@@ -39,6 +39,46 @@ export default withAuth(
       return NextResponse.redirect(new URL(hubPath, req.url));
     }
 
+    // Validação de Roles
+    if (token) {
+      const userRole = token.role as string;
+      // Remove o locale da URL para verificação (ex: /pt/hub/admin -> /hub/admin)
+      const cleanPath = currentLocale ? pathname.replace(`/${currentLocale}`, "") : pathname;
+
+      // Mapa de rotas protegidas e roles permitidas
+      const protectedRoutes = [
+        { 
+          prefix: "/hub/admin", 
+          allowed: ["admin"] 
+        },
+        { 
+          prefix: "/hub/manager", 
+          allowed: ["manager", "admin"] 
+        },
+        { 
+          prefix: "/hub/teacher", 
+          allowed: ["teacher", "admin"] 
+        },
+        { 
+          prefix: "/hub/student", 
+          allowed: ["student", "guarded_student", "admin"] 
+        },
+        { 
+          prefix: "/hub/material-manager", 
+          allowed: ["material_manager", "admin"] 
+        },
+      ];
+
+      for (const route of protectedRoutes) {
+        if (cleanPath.startsWith(route.prefix) && !route.allowed.includes(userRole)) {
+          // Se não tiver permissão, redireciona para o hub principal
+          // O HubEntryPoint cuidará do redirecionamento correto baseado na role
+          const hubPath = currentLocale ? `/${currentLocale}/hub` : "/hub";
+          return NextResponse.redirect(new URL(hubPath, req.url));
+        }
+      }
+    }
+
     // Se não autenticado e acessando rotas do hub, redireciona para signin com locale
     if (!token && isHubRoute(pathname)) {
       const signInPath = currentLocale ? `/${currentLocale}/signin` : "/signin";
