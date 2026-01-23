@@ -56,8 +56,6 @@ export default function StudentClassesComponent({
         label: new Date(0, i + 1, 0).toLocaleString(dateLocale, {
           month: "long",
         }),
-        // Using day 0 of next month or fixed date to avoid overflow issues with February if current day is 30/31
-        // Actually new Date(0, i) is fine (1900-01-01, 1900-02-01...)
       })),
     [dateLocale],
   );
@@ -260,7 +258,7 @@ export default function StudentClassesComponent({
       <Header
         heading={t("headerTitle")}
         subheading={t("headerSubtitle")}
-        className="mb-8"
+        className="mb-3"
       />
       {/* Modals */}
       {classToCancel && (

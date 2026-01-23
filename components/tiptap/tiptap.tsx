@@ -107,9 +107,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
       CommentMark,
       QuestionsNode,
       MusicNode,
-
       //Teaching Extensions
-
       //Default Extensions
       Placeholder.configure({
         placeholder: ({ node }) => {
@@ -213,7 +211,6 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         // eslint-disable-next-line no-console
         // console.log("Tiptap marks:", Object.keys((editor as any).schema?.marks || {}));
       } catch {}
-      // Define o conteúdo inicial, inclusive em modo colaboração, apenas se o editor estiver vazio
       if (content && content !== "<p></p>" && editor.isEmpty) {
         editor.commands.setContent(content);
         lastSavedContentRef.current = content;

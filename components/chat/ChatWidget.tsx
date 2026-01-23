@@ -27,6 +27,8 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { useSession } from "next-auth/react";
 import { UserAvatarBubble } from "../ui/user-avatar-bubble";
 import { useTranslations } from "next-intl";
+import { CustomAttachment } from "./ModernAudioPlayer";
+import { ModernMessageInput } from "./ModernMessageInput";
 
 // --- COMPONENTE: Preview do Canal (Item da Lista) ---
 const CustomChannelPreview = (props: ChannelPreviewUIComponentProps) => {
@@ -35,11 +37,11 @@ const CustomChannelPreview = (props: ChannelPreviewUIComponentProps) => {
   const { client } = useChatContext();
 
   const members = Object.values(channel.state.members).filter(
-    (m) => m.user_id !== client.userID
+    (m) => m.user_id !== client.userID,
   );
   const otherMember = members[0]?.user;
   const { userProfile } = useUserProfile(otherMember?.id);
-  
+
   const lastMessage = channel.state.messages[channel.state.messages.length - 1];
 
   return (
@@ -49,7 +51,7 @@ const CustomChannelPreview = (props: ChannelPreviewUIComponentProps) => {
         "flex w-full items-center gap-3 p-4 text-left rounded-lg my-1 transition-all duration-200 ease-in-out cursor-pointer",
         active
           ? "bg-foreground/8 transition-all duration-200 ease-in-out cursor-pointer"
-          : "hover:bg-primary/15 hover:border-r hover:border-primary/25 transition-all duration-200 ease-in-out cursor-pointer"
+          : "hover:bg-primary/15 hover:border-r hover:border-primary/25 transition-all duration-200 ease-in-out cursor-pointer",
       )}
     >
       <UserAvatar
@@ -76,7 +78,7 @@ const CustomChannelPreview = (props: ChannelPreviewUIComponentProps) => {
             "text-xs truncate",
             channel.countUnread() > 0
               ? "text-foreground font-bold"
-              : "text-[#a1a1aa]"
+              : "text-[#a1a1aa]",
           )}
         >
           {lastMessage?.text || t("noMessages")}
@@ -96,13 +98,13 @@ const CustomChannelHeader = () => {
   const { user } = useCurrentUser();
 
   const members = Object.values(channel?.state.members || {}).filter(
-    (m) => m.user_id !== client.userID
+    (m) => m.user_id !== client.userID,
   );
   const otherMember = members[0]?.user;
 
   // Filtra quem está digitando (excluindo o próprio usuário)
   const typingUsers = Object.values(typing || {}).filter(
-    (user) => user.user?.id !== client.userID
+    (user) => user.user?.id !== client.userID,
   );
   const isTyping = typingUsers.length > 0;
 
@@ -159,23 +161,23 @@ const ChatLayout = () => {
       type: "messaging",
       members: { $in: [client.userID as string] },
     }),
-    [client.userID]
+    [client.userID],
   );
 
   const sort = useMemo(() => ({ last_message_at: -1 as const }), []);
   const options = useMemo(
     () => ({ limit: 20, watch: true, presence: true }),
-    []
+    [],
   );
 
   return (
-    <div className="flex w-full h-full header-color overflow-hidden">
+    <div className="flex w-full h-full bg-background overflow-hidden">
       {/* --- COLUNA ESQUERDA: LISTA --- */}
       <div
         className={cn(
           "flex-col border-r border-r-[2px] border-primary/40 h-full",
           isMobile ? "w-full" : "w-[340px] shrink-0",
-          showList ? "flex" : "hidden"
+          showList ? "flex" : "hidden",
         )}
       >
         <div className="p-4 border-b border-primary/20 h-[60px] flex items-center justify-center shrink-0">
@@ -195,36 +197,29 @@ const ChatLayout = () => {
       {/* --- COLUNA DIREITA: CHAT --- */}
       <div
         className={cn(
-          "flex-col flex-1 h-full bg-background w-full min-w-0", // min-w-0 evita overflow flex
-          showChat ? "flex" : "hidden"
+          "flex-col flex-1 h-full bg-background w-full min-w-0",
+          showChat ? "flex" : "hidden",
         )}
       >
         {channel ? (
-          <Channel TypingIndicator={() => null} Avatar={UserAvatarBubble}>
-            {/* ESTRUTURA FLEX CORRIGIDA:
-                - h-full: Ocupa toda altura disponível
-                - flex-col: Empilha Header, Lista, Input
-            */}
+          <Channel
+            TypingIndicator={() => null}
+            Avatar={UserAvatarBubble}
+            Attachment={CustomAttachment}
+          >
             <Window>
               <div className="flex flex-col h-full w-full overflow-hidden">
-                {/* 1. Header (Fixo no topo) */}
                 <div className="flex-none z-10 sm:border-none border-t border-primary/20">
                   <CustomChannelHeader />
                 </div>
 
-                {/* 2. Lista de Mensagens (Ocupa o meio)
-                    - flex-1: Cresce para ocupar espaço
-                    - min-h-0: CRUCIAL para o scroll funcionar dentro do flexbox
-                    - relative: Para posicionamento interno
-                */}
                 <div className="flex-1 min-h-0 w-full relative">
                   <MessageList disableDateSeparator={false} />
                 </div>
-
-                {/* 3. Input (Fixo no fundo) */}
-                <div className="flex-none z-10 bg-[#09090b]">
-                  <MessageInput focus maxRows={5} audioRecordingEnabled />
-                </div>
+<MessageInput 
+    focus={true}
+    audioRecordingEnabled={true}
+/>
               </div>
             </Window>
             <Thread />
@@ -249,7 +244,6 @@ export default function ChatWidget() {
   const { contacts } = useChatContacts();
   const [channelsCreated, setChannelsCreated] = useState(false);
 
-  // CORREÇÃO 2: Trazendo de volta a lógica que cria os canais com seus contatos
   useEffect(() => {
     if (
       !client ||
@@ -268,7 +262,7 @@ export default function ChatWidget() {
         const existingChannels = await client.queryChannels(
           filter,
           {},
-          { limit: 30 }
+          { limit: 30 },
         );
 
         const existingMemberIds = new Set<string>();
@@ -283,7 +277,7 @@ export default function ChatWidget() {
 
         // Filtra contatos que ainda não tem canal
         const contactsNeedingChannel = contacts.filter(
-          (contact) => !existingMemberIds.has(contact.id)
+          (contact) => !existingMemberIds.has(contact.id),
         );
 
         if (contactsNeedingChannel.length === 0) {
@@ -298,7 +292,7 @@ export default function ChatWidget() {
               members: [currentUserId, contact.id],
             });
             await channel.watch();
-          })
+          }),
         );
 
         setChannelsCreated(true);

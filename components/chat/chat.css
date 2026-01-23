@@ -1,24 +1,25 @@
 @import "stream-chat-react/dist/css/v2/index.css";
-
-/* =========================================
-   FORÇAR DARK MODE & ESTILO MODERNO
-   ========================================= */
+/* ==========================================================================
+   1. CONFIGURAÇÕES GERAIS & VARIÁVEIS (.str-chat)
+   ========================================================================== */
 .str-chat {
+  
+  /* Fontes */
   --font-primary: var(--font-sans), "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   
   /* Cores de Fundo (Mapeado para globals.css) */
-  --bg-app: var(--header-color);
+  --bg-app: var(--background);
   --bg-panel: var(--header-color);
   --bg-hover: var(--accent);
   --border-color: var(--border);
 
   /* Cores de Texto */
-  --text-primary: var(--foreground); /*COR DO TEXTO DO INPUT DE MENSAGEM E BUSCA*/
+  --text-primary: var(--foreground); /* COR DO TEXTO DO INPUT DE MENSAGEM E BUSCA */
 
-  /* Cores do Chat */
-  --accent-color: var(--primary); /*COR DO AVATAR NO HEADER DO CHAT*/
-  --str-chat__message-bubble-background-color: var(--received-message-bg); /*COR DO BUBBLE DAS OUTRAS MENSAGENS*/
-  --str-chat__message-bubble-color: white; /*COR DO TEXTO DAS OUTRAS MENSAGENS*/
+  /* Cores do Chat (Avatar, Bubbles) */
+  --accent-color: var(--primary); /* COR DO AVATAR NO HEADER DO CHAT */
+  --str-chat__message-bubble-background-color: var(--received-message-bg); /* COR DO BUBBLE DAS OUTRAS MENSAGENS */
+  --str-chat__message-bubble-color: white; /* COR DO TEXTO DAS OUTRAS MENSAGENS */
   
   /* Variáveis Nativas da Stream (Override) */
   --str-chat__background-color: var(--bg-app);
@@ -34,97 +35,17 @@
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
+
+  
 }
 
-/* --- LISTA DE CANAIS (Sidebar) --- */
-.str-chat__channel-list {
-  background-color: var(--bg-app);
-  border-right: 1px solid var(--border-color);
-}
 
-.str-chat__channel-preview {
-  background: transparent;
-  border-bottom: 1px solid var(--border-color);
-  transition: background 0.2s;
-}
 
-/* --- HEADER --- */
-.custom-channel-header {
-  height: 60px;
-  display: flex;
-  align-items: center;
-  padding: 0 16px;
-  background-color: var(--bg-app); /*COR DO HEADER*/
-  border-bottom: 1px solid var(--border-color);
-}
+/* ==========================================================================
+   2. LAYOUT GLOBAL, SCROLLBARS E MOBILE FIXES
+   ========================================================================== */
 
-/* --- LISTA DE MENSAGENS --- */
-.str-chat__list {
-  background-color: var(--bg-app); /*COR DE FUNDO DE ONDE APARECEM AS MENSAGENS*/
-}
-
-/* Balões de Mensagem */
-.str-chat__message-bubble {
-  border: none !important;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
-
-/* Minhas Mensagens (Direita) */
-.str-chat__message-simple--me .str-chat__message-bubble {
-  background-color: var(--primary) !important; /*COR DO BUBBLE DAS MINHAS MENSAGENS*/
-  color: white !important; /*COR DO TEXTO DAS MINHAS MENSAGENS*/
-  border-radius: var(--radius-lg) var(--radius-lg) 2px var(--radius-lg) !important;
-}
-
-/* --- INPUT DE MENSAGEM --- */
-.str-chat__message-input {
-  background-color: var(--bg-app); /*COR DO BACKGROUND AO REDOR DO INPUT DE BUSCA*/
-  padding: .4rem 1rem 1rem 1rem !important;
-  /* border-top: 1px solid var(--border-color);*/
-}
-
-.str-chat__message-input-inner {
-  border: 2px solid var(--border-color);
-  background-color: var(--bg-app);
-  border-radius: 20px;
-}
-
-.str-chat__message-input-inner:focus-within {
-  border-color: var(--accent-color);
-  box-shadow: 0 0 0 1px var(--accent-color);
-  border: 1px;
-  border-radius: 20px;
-}
-
-/* Container do Gravador de Áudio (Ajuste para coincidir com o input) */
-.str-chat__audio_recorder-container {
-  background-color: var(--bg-app);
-  padding: 0 1rem 1rem 1rem !important;
-  border-top: none !important;
-}
-
-/* Visual do Gravador */
-.str-chat__audio_recorder {
-  background-color: var(--panel) !important;
-  border: 2px solid var(--border-color);
-  border-radius: 20px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  flex-grow: 1;
-  padding: 0.4rem 0.5rem;
-  display: flex;
-  justify-content: space-between;
-}
-
-/* Botão de Gravar */
-.str-chat__start-recording-audio-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-}
-
-/* Remover scrolls feios */
+/* Customização da Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -136,75 +57,151 @@
   border-radius: 10px;
 }
 
-/* =========================================
-   FIX PARA LAYOUT FLEXÍVEL (MOBILE & DESKTOP)
-   ========================================= */
-
-/* Garante que o container principal do chat ocupe altura total */
+/* Garante que o container principal ocupe altura total */
 .str-chat-channel {
-    height: 100%;
+  height: 100%;
 }
 
 .str-chat__main-panel {
-    height: 100%;
-    padding: 0; /* Remove padding padrão que atrapalha o full width */
+  height: 100%;
+  padding: 0; /* Remove padding padrão */
 }
 
-/* Força a lista de mensagens a respeitar o container pai (flex-1) 
-   e ativa o scroll interno 
-*/
-.str-chat__list {
-    height: 100%;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch; /* Scroll suave no iOS */
-}
-
-/* Remove margens extras do input para ele colar no fundo perfeitamente */
-.str-chat__message-input {
-    border-radius: 0;
-    margin: 0;
-}
-
-/* Ajuste Crítico para Mobile Safari (iOS):
-   Usa 100dvh para evitar problemas com a barra de endereço do navegador 
-*/
+/* Ajuste Crítico para Mobile Safari (iOS) - 100dvh */
 @media (max-width: 768px) {
   .str-chat-channel {
     height: 88.8dvh; 
   }
-  
-  /* Ajuste fino para o container pai se necessário */
   .str-chat {
     height: 88.8dvh;
   }
 }
 
-/*IMAGEM A LADO DAS MENSAGENS RECEBIDAS*/
-.str-chat__message.str-chat__message--other, .str-chat__message.str-chat__quoted-message-preview, .str-chat__quoted-message-preview.str-chat__message--other, .str-chat__quoted-message-preview.str-chat__quoted-message-preview--other {
+/* ==========================================================================
+   3. SIDEBAR (LISTA DE CANAIS)
+   ========================================================================== */
+.str-chat__channel-list {
+  background-color: var(--bg-app);
+  border-right: 1px solid var(--border-color);
+}
+
+.str-chat__channel-list-react .str-chat__channel-list-messenger-react {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.str-chat__channel-preview {
+  background: transparent;
+  border-bottom: 1px solid var(--border-color);
+  transition: background 0.2s;
+}
+
+/* ==========================================================================
+   4. HEADER DO CHAT
+   ========================================================================== */
+.custom-channel-header {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  background-color: var(--bg-app);
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* ==========================================================================
+   5. ÁREA DE MENSAGENS (CONTAINER E LISTA)
+   ========================================================================== */
+
+/*
+
+.str-chat__list {
+  background-color: var(--bg-app);
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.str-chat__message-list-scroll {
+  height: 100dvh;
+}
+
+.str-chat__list-notifications {
+  display: none;
+}
+*/
+
+/* ==========================================================================
+   6. ESTILO DOS BALÕES DE MENSAGEM & ALINHAMENTO
+   ========================================================================== */
+
+/* Configuração base do Bubble */
+.str-chat__message-bubble {
+  border: none !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    border-radius: var(--radius-xl) var(--radius-xl) var(--radius-xl) var(--radius-xl) !important;
+}
+
+/* Alinhamento e display para mensagens recebidas (Outros) */
+.str-chat__message.str-chat__message--other, 
+.str-chat__message.str-chat__quoted-message-preview, 
+.str-chat__quoted-message-preview.str-chat__message--other, 
+.str-chat__quoted-message-preview.str-chat__quoted-message-preview--other {
   display: flex;
   place-items: center;
   align-items: stretch;
 }
 
-/* Cor dos botões de reação recebidas*/
+/* Minhas Mensagens (Direita) - Estilo Específico */
+.str-chat__message-simple--me .str-chat__message-bubble {
+  background-color: var(--primary) !important;
+  color: white !important;
+  border-radius: var(--radius-xl) var(--radius-xl) var(--radius-xl) var(--radius-xl) !important;
+}
+
+/* ==========================================================================
+   7. META DADOS (NOME E TIMESTAMP)
+   ========================================================================== */
+.str-chat__message-simple-timestamp {
+  color: var(--muted-foreground);
+  font-size: 0.7rem;
+  opacity: 0.5;
+}
+
+.str-chat__message-simple-name {
+  display: none;
+}
+
+/* ==========================================================================
+   8. REAÇÕES E AÇÕES DA MENSAGEM
+   ========================================================================== */
+
+/* Cores dos botões de reação (Recebidas e Enviadas) */
 .str-chat__message-reactions-container .str-chat__message-reactions .str-chat__message-reaction.str-chat__message-reaction-own {
   background-color: var(--accent);
 }
 
-/* Cor dos botões de reação enviadas*/
 .str-chat__message-reactions-container .str-chat__message-reactions .str-chat__message-reaction {
   background-color: var(--accent);
 }
 
-/* Cor do botão de reação selecionada */
+/* Cor do botão de reação selecionada no seletor */
 .str-chat__reaction-selector .str-chat__message-reactions-options .str-chat__message-reactions-option.str-chat__message-reactions-option-selected {
   background-color: var(--accent);
 }
 
+/* Hover nos ícones de ação ao lado da mensagem */
+.str-chat__message .str-chat__message-options .str-chat__message-actions-box-button:hover, 
+.str-chat__message .str-chat__message-options .str-chat__message-reply-in-thread-button:hover, 
+.str-chat__message .str-chat__message-options .str-chat__message-reactions-button:hover {
+  background-color: var(--accent);
+}
+
 /* ==========================================================================
-   7. SEPARADOR DE DATA (BADGE)
+   9. SEPARADOR DE DATA (BADGE)
    ========================================================================== */
-.str-chat__date-separator-line { display: none; }
+.str-chat__date-separator-line { 
+  display: none; 
+}
 
 .str-chat__date-separator {
   padding: 1.5rem 0;
@@ -230,47 +227,60 @@
   border: 1px solid var(--border);
 }
 
-/*NOME E HORA QUE FICA ENTRE AS MENSAGENS*/
-/* .str-chat__message .str-chat__message-metadata, .str-chat__message .str-chat__custom-message-metadata img {
-} */
-
-.str-chat__message-simple-timestamp {
-  color: var(--muted-foreground);
-  font-size: 0.7rem;
-  opacity: 0.5;
+/* ==========================================================================
+   10. INPUT DE MENSAGEM E GRAVADOR DE ÁUDIO
+   ========================================================================== */
+/* 1. Container do Input 
+.str-chat__message-input {
+  background-color: var(--bg-app);
+  padding: .4rem .5rem .5rem .5rem !important;
+  border-radius: 0;
+  margin: 0;
 }
 
-.str-chat__message-simple-name{
-  display: none;
+.str-chat__message-input-inner {
+  border: 2px solid var(--border-color);
+  background-color: var(--bg-app);
+  border-radius: 22px;
 }
 
-/*ICONES DE REAÇÃO AO LADO DA MENSAGEM*/
-.str-chat__message .str-chat__message-options .str-chat__message-actions-box-button:hover, .str-chat__message .str-chat__message-options .str-chat__message-reply-in-thread-button:hover, .str-chat__message .str-chat__message-options .str-chat__message-reactions-button:hover {
-  background-color: var(--accent);
+.str-chat__message-input-inner:focus-within {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 1px var(--accent-color);
+  border: 1px;
+  border-radius: 22px;
 }
 
-.str-chat__message-list-scroll {
-  height: 100dvh;
+.str-chat__audio_recorder {
+  background-color: var(--panel) !important;
+  border: 2px solid var(--border-color);
+  border-radius: 22px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  flex-grow: 1;
+  padding: 0.4rem 0.5rem;
+  display: flex;
+  justify-content: space-between;
 }
 
-.str-chat__list-notifications {
-  display: none;
+.str-chat__start-recording-audio-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
+  */
 
-.str-chat__channel-list-react .str-chat__channel-list-messenger-react {
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
+/* ==========================================================================
+   11. ANIMAÇÕES
+   ========================================================================== */
 
+/* Aplicação da animação na mensagem */
 .str-chat__li {
-  /* Aplica animação suave em cada mensagem nova */
   animation: messageSlideIn 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
-
-/* ==========================================================================
-   4. ANIMAÇÕES (MENSAGENS)
-   ========================================================================== */
+/* Keyframes: Slide In da Mensagem */
 @keyframes messageSlideIn {
   from {
     opacity: 0;
@@ -282,9 +292,7 @@
   }
 }
 
-/* ==========================================================================
-   5. ANIMAÇÕES (BOTÃO DE SAIR DA BUSCA)
-   ========================================================================== */
+/* Keyframes: Saída do Botão de Busca */
 @keyframes exitSearchButton {
   from {
     opacity: 0;
@@ -295,17 +303,116 @@
     transform: translateY(0) scale(1);
   }
 }
+/* ==========================================================================
+   META / THREADS STYLE OVERRIDES
+   ========================================================================== */
 
-
-
-.str-chat__li {
-  /* Aplica animação suave em cada mensagem nova */
-  animation: messageSlideIn 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+/* 1. Reset do Textarea (Transparente) */
+.str-chat__message-input .str-chat__textarea,
+.str-chat__textarea textarea {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  color: var(--foreground) !important;
+  font-family: inherit !important;
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
 
-.str-chat__channel-search-bar-button.str-chat__channel-search-bar-button--exit-search svg {
-  background-color: var(--accent);
-  border-radius: 100%;
-  padding: 0.25rem;	
-  animation: exitSearchButton 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+.str-chat__textarea textarea:focus {
+  outline: none !important;
+}
+
+.str-chat__textarea textarea::placeholder {
+  color: var(--muted-foreground) !important;
+  opacity: 0.6;
+}
+/* ==========================================================================
+   CORREÇÃO BLINDADA DO GRAVADOR DE ÁUDIO
+   ========================================================================== */
+
+/* Container Principal do Gravador */
+.str-chat__audio-recorder {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    position: relative !important;
+    z-index: 50 !important; /* Garante que fique acima de tudo */
+}
+
+/* --- DESTRAVANDO OS BOTÕES (CRUCIAL) --- */
+
+/* Classe genérica para todos os botões redondos do gravador (Play, Pause, Check) */
+.str-chat__audio-recorder .str-chat__circle-fab {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: none !important;
+    cursor: pointer !important;
+    pointer-events: auto !important; /* FORÇA O CLIQUE A FUNCIONAR */
+    position: relative !important;
+    z-index: 51 !important; /* Fica acima do container */
+    background-color: var(--secondary) !important; /* Fundo padrão */
+    color: var(--foreground) !important;
+    border-radius: 50% !important;
+    width: 32px !important;
+    height: 32px !important;
+    border: 1px solid var(--border-color, rgba(0,0,0,0.1)) !important;
+}
+
+/* Botão de ENVIAR (Check) - Destaque em Verde/Primary */
+.str-chat__audio-recorder-check-button {
+    background-color: var(--primary) !important;
+    color: var(--primary-foreground, white) !important;
+    border: none !important;
+    margin-left: 10px !important;
+}
+
+/* Botão de PLAY/PAUSE (Quando está revisando) */
+.str-chat__audio-player-button {
+    background-color: var(--secondary) !important;
+}
+
+/* Ícones dentro dos botões (Garante que não capturem o clique errado) */
+.str-chat__audio-recorder .str-chat__circle-fab svg {
+    pointer-events: none !important;
+    width: 16px !important;
+    height: 16px !important;
+}
+
+/* --- VISUALIZAÇÃO DA ONDA E TIMER --- */
+
+/* Barra de progresso da onda */
+.str-chat__wave-progress-bar {
+    background-color: var(--primary) !important;
+    opacity: 0.3;
+    pointer-events: none; /* Deixa o clique passar se necessário */
+}
+
+/* Timer */
+.str-chat__audio-recorder-timer {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--foreground);
+    margin-left: 8px;
+    margin-right: auto; /* Empurra os botões para a direita */
+    z-index: 50;
+}
+
+/* Botão de Lixeira nativo (Escondemos pois usamos o nosso X externo) */
+.str-chat__audio-recorder-delete-button {
+    display: none !important; 
+}
+/* Remove elementos extras da Stream */
+.str-chat__input-flat-emojiselect,
+.str-chat__fileupload-wrapper {
+  display: none !important;
 }

@@ -27,7 +27,7 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor }) => {
     const calculateVisibleButtons = () => {
       if (!toolbarRef.current) return;
 
-      const containerWidth = window.innerWidth - 120; // Espaço para o botão "Mais"
+      const containerWidth = window.innerWidth - 1; // Espaço para o botão "Mais"
       let accumulatedWidth = 0;
       const visible: string[] = [];
       const hidden: string[] = [];
@@ -158,10 +158,10 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor }) => {
         transition={{ duration: 0.4, ease: "easeOut" }}
         className="bg-background border-t border-border shadow-lg"
       >
-        <div className="p-2 flex items-center justify-between gap-2">
+        <div className="p-1 flex items-center justify-between gap-2">
           {/* Esquerda */}
           <div className="flex items-center gap-1 min-w-0">
-            <BackButton />
+            <BackButton href="/hub/student/my-notebook" />
           </div>
 
           {/* Centro */}
