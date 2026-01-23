@@ -265,7 +265,7 @@ export default function TasksCard({
     <>
       <SubContainer className="h-[50vh] sm:h-full flex flex-col relative overflow-hidden">
         {/* Progress bar at the top */}
-        <div className="absolute top-0 left-0 right-0 h-3 bg-slate-700 dark:bg-slate-950 overflow-hidden rounded-t-xl">
+        <div className="absolute top-0 left-0 right-0 h-3 bg-slate-700 dark:bg-gray-700 overflow-hidden rounded-t-xl">
           <motion.div
             className="h-full bg-primary"
             initial={{ width: 0 }}
@@ -275,7 +275,7 @@ export default function TasksCard({
         </div>
 
         <div className="flex flex-row sm:flex-row justify-between items-start sm:items-center gap-4 mb-2 pt-2">
-          <h2 className="text-2xl font-bold title-base">{t("title")}</h2>
+          <h2 className="text-xl font-bold text-primary">{t("title")}</h2>
           <div className="flex items-center gap-2">
             {/* Google Calendar Sync Button */}
             {onSyncWithGoogleCalendar && (
@@ -290,7 +290,7 @@ export default function TasksCard({
                   <Spinner />
                 ) : (
                   <>
-                    <RefreshCcw className="w-3 h-3" />
+                    <RefreshCcw className="w-2 h-2" />
                     <span className="hidden group-hover:inline-block text-xs">
                       {t("syncCalendar")}
                     </span>
@@ -363,7 +363,7 @@ export default function TasksCard({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.3 }}
-                  className="flex items-center p-3 card-base"
+                  className="flex items-center p-2 card-base"
                 >
                   <Checkbox
                     checked={task.completed}

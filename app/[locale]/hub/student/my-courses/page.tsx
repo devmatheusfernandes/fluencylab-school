@@ -1,21 +1,23 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Clock, BookOpen, Layers, ArrowRight, Search, LayoutGrid, CheckCircle2 } from "lucide-react";
-import { Toaster, toast } from "sonner";
+import { Clock, BookOpen, Layers, ArrowRight, Search, CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Header } from "@/components/ui/header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 
 // Firestore removido do cliente; dados agora vêm de APIs
 import { Course } from "../../../../../types/quiz/types";
@@ -69,7 +71,7 @@ export default function StudentCoursesPage() {
 
   if (loading) {
     return (
-      <Container className="p-4 md:p-8 max-w-7xl mx-auto space-y-8">
+      <Container className="p-4 md:p-8 mx-auto space-y-8">
         <div className="flex flex-col gap-4">
             <Skeleton className="h-10 w-48" />
             <Skeleton className="h-10 w-full max-w-sm" />
@@ -90,43 +92,48 @@ export default function StudentCoursesPage() {
   }
 
   return (
-    <Container className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 min-h-screen">
-      <Toaster position="top-center" />
-      
+    <Container className="p-4 md:p-6 space-y-6">
       <motion.div 
         initial={{ opacity: 0, y: -10 }} 
         animate={{ opacity: 1, y: 0 }} 
-        className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
       >
-        <div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                <LayoutGrid className="w-8 h-8 text-primary" /> {t("title")}
-            </h1>
-            <p className="text-muted-foreground mt-1">{t("subtitle")}</p>
-        </div>
-
-        <div className="relative w-full md:w-72">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input 
-                placeholder={t("searchPlaceholder")}
-                className="pl-9 bg-background/50 backdrop-blur-sm"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-            />
-        </div>
+        <Header 
+          heading={t("title")}
+          subheading={t("subtitle")}
+          className="flex-col md:flex-row md:items-center"
+          icon={
+            <div className="relative w-72">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-primary" />
+              <Input 
+                  placeholder={t("searchPlaceholder")}
+                  className="pl-9"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+          }
+        />
       </motion.div>
 
       {filteredCourses.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 border-2 border-dashed rounded-xl bg-muted/10">
-          <BookOpen className="w-12 h-12 text-muted-foreground/50 mb-4" />
-          <h3 className="text-lg font-medium text-foreground">{t("noCoursesFound")}</h3>
-          <p className="text-sm text-muted-foreground mt-1">
-            {search ? t("trySearching") : t("comingSoon")}
-          </p>
+        <Empty className="py-24 bg-muted/10">
+          <EmptyMedia>
+            <BookOpen className="size-12 text-primary/50" />
+          </EmptyMedia>
+          <EmptyHeader>
+            <EmptyTitle>{t("noCoursesFound")}</EmptyTitle>
+            <EmptyDescription>
+              {search ? t("trySearching") : t("comingSoon")}
+            </EmptyDescription>
+          </EmptyHeader>
           {search && (
-              <Button variant="link" onClick={() => setSearch("")} className="mt-2">{t("clearSearch")}</Button>
+            <EmptyContent>
+              <Button variant="link" onClick={() => setSearch("")}>
+                {t("clearSearch")}
+              </Button>
+            </EmptyContent>
           )}
-        </div>
+        </Empty>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredCourses.map((course, index) => (

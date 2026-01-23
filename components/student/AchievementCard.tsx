@@ -30,7 +30,7 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="border rounded-xl p-4 bg-gray-50 border-gray-200 dark:bg-gray-900 dark:border-gray-800"
+        className="border rounded-lg p-4 bg-gray-50 border-gray-200 dark:bg-gray-900 dark:border-gray-800"
       >
         <div className="text-center text-gray-500 dark:text-gray-400 text-sm">
           <p>{t("notFound", { id: studentAchievement.achievementId })}</p>
@@ -87,7 +87,7 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
       // MUDANÇA PRINCIPAL: Remoção de gradientes de fundo.
       // Uso de cores sólidas (bg-white/bg-gray-50) e bordas para diferenciação.
       className={`
-        relative border rounded-xl p-4 transition-all duration-200 overflow-hidden group
+        relative border rounded-xl p-3 transition-all duration-200 overflow-hidden group h-full flex flex-col
         ${
           isUnlocked
             ? "bg-emerald-100/40 border-green-500/30 dark:border-green-500/20 shadow-sm"
@@ -95,7 +95,7 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
         }
       `}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex gap-2 flex-1">
         {/* Ícone: Cores planas em vez de depender do fundo do card */}
         <div
           className={`
@@ -110,7 +110,7 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
           {definition.icon}
         </div>
 
-        <div className="flex-1 min-w-0 space-y-1">
+        <div className="flex-1 min-w-0 flex flex-col gap-1">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h3
               className={`
@@ -138,7 +138,7 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
           </p>
 
           {/* Footer com Data ou Status */}
-          <div className="pt-2 flex items-center text-xs font-medium">
+          <div className="mt-auto pt-2 flex items-center text-xs font-medium">
             {isUnlocked ? (
               <p className="text-green-600 dark:text-green-400 flex items-center gap-1">
                 <svg

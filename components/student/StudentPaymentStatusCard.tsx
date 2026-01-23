@@ -1,28 +1,38 @@
-// components/student/StudentPaymentStatusCard.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/config/pricing";
 import { PaymentStatus } from "@/types/financial/subscription";
 import { toast } from "sonner";
 import Image from "next/image";
-import { Calendar, CheckCircle, Clock, Clock1, Copy, FileWarning, MailWarning, X } from "lucide-react";
+import {
+  Calendar,
+  CheckCircle2,
+  Clock,
+  Copy,
+  AlertTriangle,
+  XCircle,
+  CreditCard,
+  QrCode,
+  Loader2,
+  Wallet,
+} from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
 import { useTranslations, useLocale } from "next-intl";
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
-interface StudentPaymentStatusCardProps {
-  className?: string;
+// Utilitário para classes
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
 }
 
-export function StudentPaymentStatusCard({
-  className,
-}: StudentPaymentStatusCardProps) {
+export function StudentPaymentStatusCard() {
   const t = useTranslations("StudentPaymentStatusCard");
   const locale = useLocale();
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | null>(
-    null
+    null,
   );
   const [loading, setLoading] = useState(true);
   const [generatingPix, setGeneratingPix] = useState(false);
@@ -68,7 +78,7 @@ export function StudentPaymentStatusCard({
                 pixQrCode: data.pixQrCode,
                 pixExpiresAt: new Date(data.expiresAt),
               }
-            : null
+            : null,
         );
         toast.success(t("generateSuccess"));
       } else {
@@ -96,322 +106,327 @@ export function StudentPaymentStatusCard({
 
   const getDaysUntilDue = () => {
     if (!paymentStatus?.nextPaymentDue) return null;
-
     const dueDate = new Date(paymentStatus.nextPaymentDue);
     const now = new Date();
     const diffTime = dueDate.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    return diffDays;
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
-  const getStatusInfo = (status: string) => {
+  const getStatusConfig = (status: string) => {
     switch (status) {
       case "active":
         return {
-          color: "success" as const,
-          text: t("active"),
-          icon: CheckCircle,
-          description: t("activeDesc"),
+          bg: "bg-teal-100/50 dark:bg-teal-900/20",
+          text: "text-teal-700 dark:text-teal-400",
+          border: "border-teal-200 dark:border-teal-800",
+          icon: CheckCircle2,
+          label: t("active"),
         };
       case "overdue":
         return {
-          color: "destructive" as const,
-          text: t("overdue"),
-          icon: FileWarning,
-          description: t("overdueDesc"),
+          bg: "bg-red-100/50 dark:bg-red-900/20",
+          text: "text-red-700 dark:text-red-400",
+          border: "border-red-200 dark:border-red-800",
+          icon: AlertTriangle,
+          label: t("overdue"),
         };
       case "canceled":
         return {
-          color: "warning" as const,
-          text: t("canceled"),
-          icon: X,
-          description: t("canceledDesc"),
-        };
-      case "pending":
-        return {
-          color: "warning" as const,
-          text: t("pending"),
-          icon: Clock,
-          description: t("pendingDesc"),
+          bg: "bg-zinc-100/50 dark:bg-zinc-800/50",
+          text: "text-zinc-600 dark:text-zinc-400",
+          border: "border-zinc-200 dark:border-zinc-700",
+          icon: XCircle,
+          label: t("canceled"),
         };
       default:
         return {
-          color: "secondary" as const,
-          text: t("undefined"),
-          icon: MailWarning,
-          description: t("undefinedDesc"),
+          bg: "bg-amber-100/50 dark:bg-amber-900/20",
+          text: "text-amber-700 dark:text-amber-400",
+          border: "border-amber-200 dark:border-amber-800",
+          icon: Clock,
+          label: t("pending"),
         };
     }
   };
 
+  // ----------------------------------------------------------------------
+  // LOADING STATE
+  // ----------------------------------------------------------------------
   if (loading) {
     return (
-      <Skeleton className="p-3">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Skeleton
-                className="skeleton-base w-5 h-5 rounded-full"
-              />
-              <Skeleton
-                className="skeleton-base h-6 w-48 rounded"
-              />
+      <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 bg-white dark:bg-zinc-900 shadow-sm space-y-6 h-full">
+        <div className="flex justify-between items-center">
+          <div className="flex gap-3">
+            <Skeleton className="w-10 h-10 rounded-full" />
+            <div className="space-y-2">
+              <Skeleton className="w-32 h-4" />
+              <Skeleton className="w-20 h-3" />
             </div>
           </div>
-          <Skeleton
-            className="skeleton-base h-4 w-32 rounded mx-auto"
-          />
-          <Skeleton className="h-32 rounded" />
-          <div className="flex justify-between">
-            <Skeleton
-               
-               
-              className="skeleton-base h-4 w-20 rounded"
-            />
-            <Skeleton
-               
-               
-              className="skeleton-base h-4 w-16 rounded"
-            />
-          </div>
-          <div className="flex justify-between">
-            <Skeleton
-               
-               
-              className="skeleton-base h-4 w-32 rounded"
-            />
-            <Skeleton
-               
-               
-              className="skeleton-base h-4 w-24 rounded"
-            />
-          </div>
-          <div className="flex justify-between">
-            <Skeleton
-               
-               
-              className="skeleton-base h-4 w-28 rounded"
-            />
-            <Skeleton
-               
-               
-              className="skeleton-base h-4 w-20 rounded"
-            />
-          </div>
+          <Skeleton className="w-24 h-8 rounded-full" />
         </div>
-      </Skeleton>
+        <Skeleton className="w-full h-40 rounded-lg" />
+        <div className="flex justify-between pt-4 border-t dark:border-zinc-800">
+          <Skeleton className="w-20 h-10" />
+          <Skeleton className="w-20 h-10" />
+          <Skeleton className="w-20 h-10" />
+        </div>
+      </div>
     );
   }
 
+  // ----------------------------------------------------------------------
+  // EMPTY STATE
+  // ----------------------------------------------------------------------
   if (!paymentStatus || !paymentStatus.subscriptionId) {
     return (
-      <div className="flex flex-col items-center gap-2">
-        <div className="text-center">
-          <MailWarning className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-          <p className="text-gray-600">{t("noSubscription")}</p>
+      <div className="flex flex-col items-center justify-center p-8 card-base h-full">
+        <div className="p-3 bg-zinc-100 dark:bg-zinc-800 rounded-full mb-3">
+          <Wallet className="w-6 h-6 text-zinc-400" />
         </div>
+        <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-1">
+          {t("noSubscription")}
+        </h3>
+        <p className="text-sm text-zinc-500 mb-4 max-w-xs">
+          {t("undefinedDesc")}
+        </p>
         <Button
-          variant="secondary"
+          variant="outline"
           size="sm"
-          onClick={() =>
-            (window.location.href = "/hub/student/my-payments")
-          }
-          className="w-full flex items-center gap-2"
+          onClick={() => (window.location.href = "/hub/student/my-payments")}
+          className="gap-2"
         >
-          <Calendar className="w-4 h-4" />
+          <CreditCard className="w-4 h-4 mr-2" />
           {t("managePayments")}
         </Button>
       </div>
     );
   }
 
-  const statusInfo = getStatusInfo(paymentStatus.subscriptionStatus);
-  const StatusIcon = statusInfo.icon;
+  const statusConfig = getStatusConfig(paymentStatus.subscriptionStatus);
+  const StatusIcon = statusConfig.icon;
   const daysUntilDue = getDaysUntilDue();
+  const isPix = paymentStatus.paymentMethod === "pix";
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <StatusIcon className="w-5 h-5"    />
-          <h3 className="flex flex-row items-center gap-1 text-lg font-semibold">
-            {t("title")}{" "}
-            {paymentStatus.paymentMethod === "credit_card" ? (
-              <p className="ml-1">{t("creditCard")}</p>
-            ) : (
-              <p className="ml-1">{t("pix")}</p>
+      <div className="flex flex-col items-center justify-center p-8 card-base h-full">
+      {/* HEADER */}
+      <div className="p-5 flex items-start justify-between border-b border-zinc-100 dark:border-zinc-800">
+        <div className="flex items-center gap-3">
+          <div
+            className={cn(
+              "p-2.5 rounded-lg",
+              isPix
+                ? "bg-emerald-100/50 text-emerald-600 dark:bg-emerald-900/20"
+                : "bg-indigo-100/50 text-indigo-600 dark:bg-indigo-900/20",
             )}
-          </h3>
+          >
+            {isPix ? (
+              <QrCode className="w-5 h-5" />
+            ) : (
+              <CreditCard className="w-5 h-5" />
+            )}
+          </div>
+          <div>
+            <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 text-lg leading-none">
+              {t("title")}
+            </h3>
+            <p className="text-sm text-zinc-500 mt-1.5">
+              {isPix ? t("pix") : t("creditCard")}
+            </p>
+          </div>
         </div>
-        <Badge   >
-          {statusInfo.text}
-          {paymentStatus.overdueDays && paymentStatus.overdueDays > 0 && (
-            <span className="ml-1">({paymentStatus.overdueDays}d)</span>
+
+        <div
+          className={cn(
+            "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border",
+            statusConfig.bg,
+            statusConfig.text,
+            statusConfig.border,
           )}
-        </Badge>
+        >
+          <StatusIcon className="w-3.5 h-3.5" />
+          <span>{statusConfig.label}</span>
+          {paymentStatus.overdueDays && paymentStatus.overdueDays > 0 && (
+            <span className="ml-1 opacity-80">
+              ({paymentStatus.overdueDays}d)
+            </span>
+          )}
+        </div>
       </div>
 
-      <p className={`hidden text-sm text-center text-${statusInfo.color} mb-4`}>
-        {statusInfo.description}
-      </p>
-
-      {/* PIX Payment Section */}
-      {paymentStatus.paymentMethod === "pix" && (
-        <div className="mb-4">
-          {/* Show QR Code when 5 days or less until due or overdue */}
-          {(daysUntilDue !== null && daysUntilDue <= 5) ||
-          paymentStatus.subscriptionStatus === "overdue" ? (
-            <>
-              {paymentStatus.pixCode ? (
-                <div className="space-y-4">
-                  {(daysUntilDue !== null && daysUntilDue <= 2) ||
-                  paymentStatus.subscriptionStatus === "overdue" ? (
-                    <>
+      {/* BODY CONTENT */}
+      <div className="p-5">
+        {/* === PIX LOGIC === */}
+        {isPix && (
+          <div className="w-full">
+            {/* Logic: Show QR Code when <= 5 days or Overdue */}
+            {(daysUntilDue !== null && daysUntilDue <= 5) ||
+            paymentStatus.subscriptionStatus === "overdue" ? (
+              <div className="space-y-6">
+                {paymentStatus.pixCode ? (
+                  // STATE: PIX GENERATED
+                  <div className="flex flex-col md:flex-row gap-6 items-center">
+                    {/* QR Code Container */}
+                    <div className="relative group bg-white p-2 rounded-xl border-2 border-dashed border-zinc-200 dark:border-zinc-700">
                       {paymentStatus.pixQrCode && (
-                        <div className="flex justify-center">
-                          <Image
-                            src={`data:image/png;base64,${paymentStatus.pixQrCode}`}
-                            alt="QR Code PIX"
-                            className="w-48 h-48 border rounded-lg"
-                            width={100}
-                            height={100}
-                          />
-                        </div>
+                        <Image
+                          src={`data:image/png;base64,${paymentStatus.pixQrCode}`}
+                          alt="QR Code PIX"
+                          width={140}
+                          height={140}
+                          className="rounded-lg mix-blend-multiply dark:mix-blend-normal dark:bg-white"
+                        />
                       )}
-                      <div className="text-center text-sm text-gray-600">
-                        {t("pixInstructions")}
+                      <div className="absolute -bottom-2 -right-2 bg-emerald-500 text-white p-1 rounded-full shadow-lg">
+                        <QrCode className="w-4 h-4" />
                       </div>
-                    </>
-                  ) : (
-                    <div className="text-center p-3 bg-card rounded-lg">
-                      <Clock1 className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-                      <p className="text-sm text-blue-800">
-                        {t("pixRelease", { days: daysUntilDue ?? 0 })}
-                      </p>
                     </div>
-                  )}
 
-                  {/* PIX Code */}
-                  <div className="flex flex-row justify-between p-3 rounded-lg">
-                    <div className="flex justify-between items-center">
-                      {paymentStatus.pixExpiresAt && (
-                        <span className="text-xs text-paragraph">
-                          {t("pixExpires")}{" "}
-                          {new Date(
-                            paymentStatus.pixExpiresAt
-                          ).toLocaleDateString("pt-BR")}
-                        </span>
-                      )}
+                    {/* Copy Paste Info */}
+                    <div className="flex-1 w-full space-y-3">
+                      <div className="text-center md:text-left space-y-1">
+                        <p className="font-medium text-zinc-900 dark:text-zinc-100">
+                          {t("pixInstructions")}
+                        </p>
+                        {paymentStatus.pixExpiresAt && (
+                          <p className="text-xs text-red-500 flex items-center justify-center md:justify-start gap-1">
+                            <Clock className="w-3 h-3" />
+                            {t("pixExpires")}{" "}
+                            {new Date(
+                              paymentStatus.pixExpiresAt,
+                            ).toLocaleDateString("pt-BR", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2 p-1 pl-3 bg-zinc-100 dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700">
+                        <code className="flex-1 text-xs font-mono text-zinc-600 dark:text-zinc-400 truncate max-w-[200px] md:max-w-xs">
+                          {paymentStatus.pixCode}
+                        </code>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 hover:bg-white dark:hover:bg-zinc-700 shadow-sm"
+                          onClick={copyPixCode}
+                        >
+                          <Copy className="w-3.5 h-3.5 mr-2" />
+                          {t("copyPix")}
+                        </Button>
+                      </div>
                     </div>
-                    <code className="hidden text-xs break-all font-mono">
-                      {paymentStatus.pixCode}
-                    </code>
+                  </div>
+                ) : (
+                  // STATE: READY TO GENERATE
+                  <div className="text-center py-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-100 dark:border-zinc-800">
+                    <div className="mb-3 flex justify-center">
+                      <div className="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-full">
+                        <QrCode className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                      </div>
+                    </div>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-4 max-w-sm mx-auto">
+                      {paymentStatus.subscriptionStatus === "overdue"
+                        ? t("generatePixOverdue")
+                        : t("generatePixNext")}
+                    </p>
                     <Button
-                      size="sm"
-                      variant="glass"
-                      onClick={copyPixCode}
-                      className="flex items-center gap-1"
+                      onClick={generatePixPayment}
+                      disabled={generatingPix}
+                      className="w-full max-w-xs bg-emerald-600 hover:bg-emerald-700 text-white"
                     >
-                      <Copy className="w-4 h-4 mr-1" />
-                      {t("copyPix")}
+                      {generatingPix ? (
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      ) : (
+                        <QrCode className="w-4 h-4 mr-2" />
+                      )}
+                      {generatingPix ? t("generating") : t("generatePix")}
                     </Button>
                   </div>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <p className="text-sm text-gray-600">
-                    {paymentStatus.subscriptionStatus === "overdue"
-                      ? t("generatePixOverdue")
-                      : t("generatePixNext")}
-                  </p>
-                  <Button
-                    size="sm"
-                    onClick={generatePixPayment}
-                    disabled={generatingPix}
-                    className="w-full"
-                  >
-                    {generatingPix ? t("generating") : t("generatePix")}
-                  </Button>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="text-center p-20">
-              <Calendar className="w-6 h-6 text-gray-600 mx-auto mb-2" />
-              <p className="hidden text-sm text-gray-700">
-                {t("dueIn", { days: daysUntilDue ?? 0 })}
-              </p>
-              <p className="text-xs text-gray-700 dark:text-gray-300 font-bold mt-1">
-                {t("pixAvailability")}
-              </p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Credit Card Status */}
-      {paymentStatus.paymentMethod === "credit_card" && (
-        <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              {paymentStatus.subscriptionStatus === "active" ? (
-                <>
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                  <span className="text-sm">{t("autoPaymentActive")}</span>
-                </>
-              ) : paymentStatus.subscriptionStatus === "overdue" ? (
-                <>
-                  <MailWarning className="w-4 h-4 text-red-600" />
-                  <span className="text-sm">{t("paymentProblem")}</span>
-                </>
-              ) : (
-                <>
-                  <Clock1 className="w-4 h-4 text-yellow-600" />
-                  <span className="text-sm">{t("paymentPending")}</span>
-                </>
-              )}
-            </div>
-
-            {paymentStatus.subscriptionStatus === "overdue" && (
-              <p className="text-xs text-red-600">
-                {t("problemDesc")}
-              </p>
+                )}
+              </div>
+            ) : (
+              // STATE: TOO EARLY
+              <div className="flex flex-col items-center justify-center py-8 text-zinc-400">
+                <Clock className="w-8 h-8 mb-3 opacity-20" />
+                <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                  {t("pixAvailability")}
+                </p>
+                <p className="text-xs text-zinc-400 mt-1">
+                  {t("pixRelease", { days: daysUntilDue ?? 0 })}
+                </p>
+              </div>
             )}
           </div>
+        )}
+
+        {/* === CREDIT CARD LOGIC === */}
+        {!isPix && (
+          <div className="flex items-center gap-4 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800">
+            <div className={cn("p-2 rounded-full", statusConfig.bg)}>
+              <StatusIcon className={cn("w-5 h-5", statusConfig.text)} />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                {paymentStatus.subscriptionStatus === "overdue"
+                  ? t("paymentProblem")
+                  : t("autoPaymentActive")}
+              </p>
+              {paymentStatus.subscriptionStatus === "overdue" && (
+                <p className="text-xs text-red-500 mt-1">{t("problemDesc")}</p>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* FOOTER DETAILS - GRID LAYOUT */}
+      <div className="bg-zinc-50 dark:bg-zinc-950/50 border-t border-zinc-200 dark:border-zinc-800 p-5">
+        <div className="grid grid-cols-3 gap-4">
+          {/* Amount */}
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase tracking-wider font-semibold text-zinc-400 mb-1">
+              {t("value")}
+            </span>
+            <span className="text-sm md:text-base font-semibold text-zinc-900 dark:text-zinc-100">
+              {paymentStatus.amount ? formatPrice(paymentStatus.amount) : "-"}
+            </span>
+          </div>
+
+          {/* Next Due */}
+          <div className="flex flex-col border-l border-zinc-200 dark:border-zinc-800 pl-4">
+            <span className="text-[10px] uppercase tracking-wider font-semibold text-zinc-400 mb-1">
+              {t("nextDue")}
+            </span>
+            <div className="flex items-center gap-1.5 text-zinc-900 dark:text-zinc-100">
+              <Calendar className="w-3.5 h-3.5 text-zinc-400" />
+              <span className="text-sm font-medium">
+                {paymentStatus.nextPaymentDue
+                  ? new Date(paymentStatus.nextPaymentDue).toLocaleDateString(
+                      locale,
+                      { day: "2-digit", month: "short" },
+                    )
+                  : "-"}
+              </span>
+            </div>
+          </div>
+
+          {/* Last Payment */}
+          <div className="hidden md:flex flex-col border-l border-zinc-200 dark:border-zinc-800 pl-4">
+            <span className="text-[10px] uppercase tracking-wider font-semibold text-zinc-400 mb-1">
+              {t("lastPayment")}
+            </span>
+            <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+              {paymentStatus.lastPaymentDate
+                ? new Date(paymentStatus.lastPaymentDate).toLocaleDateString(
+                    locale,
+                  )
+                : "-"}
+            </span>
+          </div>
         </div>
-      )}
-
-      {/* Payment Information */}
-      <div className="hidden space-y-2 text-sm border-t pt-3">
-        {paymentStatus.amount && (
-          <div className="flex justify-between">
-            <span className="font-medium">{t("value")}</span>
-            <span>{formatPrice(paymentStatus.amount)}</span>
-          </div>
-        )}
-
-        {paymentStatus.nextPaymentDue && (
-          <div className="flex justify-between">
-            <span className="font-medium">{t("nextDue")}</span>
-            <span>
-              {new Date(paymentStatus.nextPaymentDue).toLocaleDateString(
-                locale
-              )}
-            </span>
-          </div>
-        )}
-
-        {paymentStatus.lastPaymentDate && (
-          <div className="flex justify-between">
-            <span className="font-medium">{t("lastPayment")}</span>
-            <span>
-              {new Date(paymentStatus.lastPaymentDate).toLocaleDateString(
-                locale
-              )}
-            </span>
-          </div>
-        )}
       </div>
     </div>
   );

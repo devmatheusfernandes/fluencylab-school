@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 
 import { toast } from "sonner";
+import { Header } from "@/components/ui/header";
 import {
   Modal,
   ModalContent,
@@ -26,7 +27,6 @@ import {
 } from "@/components/ui/modal";
 
 import { StudentClass } from "@/types/classes/class";
-import { SubContainer } from "@/components/ui/sub-container";
 import { NoResults } from "@/components/ui/no-results";
 
 import StudentClassCard from "@/components/student/StudentClassCard";
@@ -34,6 +34,7 @@ import { ClassCancellationModal } from "@/components/student/ClassCancellationMo
 import RescheduleModal from "@/components/student/RescheduleModal";
 import { Clock } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
+import { motion } from "framer-motion";
 
 interface StudentClassesComponentProps {
   showTitle?: boolean;
@@ -41,7 +42,6 @@ interface StudentClassesComponentProps {
 }
 
 export default function StudentClassesComponent({
-  showTitle = false,
   className = "",
 }: StudentClassesComponentProps) {
   const t = useTranslations("StudentClassesComponent");
@@ -49,12 +49,18 @@ export default function StudentClassesComponent({
   const dateLocale = locale === "pt" ? "pt-BR" : "en-US";
 
   // Helper functions for date filtering
-  const monthOptions = useMemo(() => Array.from({ length: 12 }, (_, i) => ({
-    value: i,
-    label: new Date(0, i + 1, 0).toLocaleString(dateLocale, { month: "long" }),
-    // Using day 0 of next month or fixed date to avoid overflow issues with February if current day is 30/31
-    // Actually new Date(0, i) is fine (1900-01-01, 1900-02-01...)
-  })), [dateLocale]);
+  const monthOptions = useMemo(
+    () =>
+      Array.from({ length: 12 }, (_, i) => ({
+        value: i,
+        label: new Date(0, i + 1, 0).toLocaleString(dateLocale, {
+          month: "long",
+        }),
+        // Using day 0 of next month or fixed date to avoid overflow issues with February if current day is 30/31
+        // Actually new Date(0, i) is fine (1900-01-01, 1900-02-01...)
+      })),
+    [dateLocale],
+  );
 
   const currentYear = new Date().getFullYear();
   const yearOptions = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
@@ -70,10 +76,10 @@ export default function StudentClassesComponent({
 
   // Filter states
   const [selectedMonth, setSelectedMonth] = useState<number | "all">(
-    new Date().getMonth()
+    new Date().getMonth(),
   );
   const [selectedYear, setSelectedYear] = useState<number | "all">(
-    new Date().getFullYear()
+    new Date().getFullYear(),
   );
   const [monthlyRescheduleData, setMonthlyRescheduleData] = useState<{
     month: string;
@@ -177,14 +183,16 @@ export default function StudentClassesComponent({
         if (result.suggestReschedule) {
           // Show reschedule suggestion
           toast.info(
-            t("rescheduleSuggestion", { remaining: result.rescheduleInfo.remaining }),
+            t("rescheduleSuggestion", {
+              remaining: result.rescheduleInfo.remaining,
+            }),
             {
               duration: 8000,
               action: {
                 label: "OK",
                 onClick: () => {},
               },
-            }
+            },
           );
         } else {
           toast.success(t("cancelSuccess"));
@@ -226,8 +234,34 @@ export default function StudentClassesComponent({
     }
   };
 
+  // Animação container
+  const containerVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.4,
+        ease: "easeOut" as const,
+        staggerChildren: 0.1,
+      },
+    },
+    exit: { opacity: 0, y: -20 },
+  };
+
   return (
-    <SubContainer className={`space-y-4 ${className}`}>
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      className="p-4 md:p-6 space-y-6"
+    >
+      <Header
+        heading={t("headerTitle")}
+        subheading={t("headerSubtitle")}
+        className="mb-8"
+      />
       {/* Modals */}
       {classToCancel && (
         <ClassCancellationModal
@@ -288,7 +322,7 @@ export default function StudentClassesComponent({
                 >
                   {t("availableReschedules", {
                     count: rescheduleInfo.limit - rescheduleInfo.count,
-                    limit: rescheduleInfo.limit
+                    limit: rescheduleInfo.limit,
                   })}
                 </Text>
               </div>
@@ -380,7 +414,7 @@ export default function StudentClassesComponent({
               ? t("reschedulesTitle")
               : t("reschedulesMonthTitle", {
                   month: monthOptions[selectedMonth as number]?.label,
-                  year: selectedYear
+                  year: selectedYear,
                 })}
           </Text>
           <Text className="font-bold text-lg">
@@ -433,15 +467,17 @@ export default function StudentClassesComponent({
                 selectedMonth === "all" && selectedYear === "all"
                   ? t("noClassesTitle")
                   : t("noClassesFiltered", {
-                      month: selectedMonth !== "all"
-                        ? monthOptions[selectedMonth as number]?.label
-                        : t("allMonths"),
-                      year: selectedYear !== "all" ? selectedYear : t("allYears")
+                      month:
+                        selectedMonth !== "all"
+                          ? monthOptions[selectedMonth as number]?.label
+                          : t("allMonths"),
+                      year:
+                        selectedYear !== "all" ? selectedYear : t("allYears"),
                     }),
             }}
           />
         )
       )}
-    </SubContainer>
+    </motion.div>
   );
 }

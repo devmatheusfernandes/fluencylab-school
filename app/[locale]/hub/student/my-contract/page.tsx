@@ -10,8 +10,9 @@ import SignatureModal from "@/components/contract/SignatureModal";
 import { toast } from "sonner";
 import { SignatureFormData, Student } from "@/types/contract";
 import { Spinner } from "@/components/ui/spinner";
-import { FileWarning, Printer, AlertCircle, CheckCircle2, AlertTriangle, Ban, RefreshCw } from "lucide-react";
+import { FileWarning, Printer, AlertCircle, CheckCircle2, AlertTriangle, Ban, RefreshCw, EyeOff, Eye } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { Header } from "@/components/ui/header";
 
 const ContratoPage: React.FC = () => {
   const t = useTranslations("StudentContract");
@@ -28,7 +29,20 @@ const ContratoPage: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [isRenewing, setIsRenewing] = React.useState(false);
+  const [showContract, setShowContract] = React.useState(false);
   const contractRef = useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (contractStatus) {
+      const isExpired = contractStatus.expiresAt && new Date(contractStatus.expiresAt) < new Date();
+      const isCancelled = !!contractStatus.cancelledAt;
+      const isSigned = !!contractStatus.signed;
+      
+      if (!isSigned && !isCancelled && !isExpired) {
+        setShowContract(true);
+      }
+    }
+  }, [contractStatus]);
 
   const displayData: Student | null = React.useMemo(() => {
     if (!student) return null;
@@ -254,97 +268,91 @@ const ContratoPage: React.FC = () => {
           </motion.div>
         );
       default:
-        return (
-          <motion.div
-            key="unsigned-status"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-          >
-            <h1 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-slate-100">
-              {t("pageTitle")}
-            </h1>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-              {t("pageSubtitle")}
-            </p>
-          </motion.div>
-        );
+        return null;
     }
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="p-4 md:p-6 space-y-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="container mx-auto p-4 md:p-8"
       >
-        {/* Header with Status and Action Button */}
+        <Header 
+          heading={t("pageTitle")} 
+          subheading={status === 'pending' ? t("pageSubtitle") : t("headerSubtitle")}
+          className="mb-8"
+          icon={
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowContract(!showContract)}
+              className="gap-2"
+            >
+              {showContract ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {showContract ? t("hideContract") : t("viewContract")}
+            </Button>
+          }
+        />
+
+        {/* Status Alert */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="flex flex-col justify-between items-start sm:items-center gap-4 mb-6"
+          className="mb-6"
         >
           <AnimatePresence mode="wait">
             {renderStatusAlert()}
           </AnimatePresence>
-
-          {/* Action Button */}
-          <AnimatePresence mode="wait">
-            {status !== 'pending' ? (
-              <motion.div
-                key="print-button"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                whileTap={{ scale: 0.95 }} className="flex-1 w-full"
-              >
-                <Button
-                  disabled={isLoading || isSigning}
-                  onClick={handlePrint}
-                  className="flex-1 w-full"
-                  size="lg"
-                  variant="outline"
-                >
-                  <Printer size={18} className="mr-2"/>
-                  {t("printButton")}
-                </Button>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="sign-button"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                whileTap={{ scale: 0.95 }} className="flex-1 w-full"
-              >
-                <Button
-                  onClick={() => setIsModalOpen(true)}
-                  disabled={isLoading || isSigning}
-                  isLoading={isSigning}
-                  className="gap-2 flex-1 w-full"
-                  size="lg"
-                >
-                  <Printer size={18} />
-                  {isSigning ? t("signingButton") : t("signButton")}
-                </Button>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </motion.div>
 
-        {/* Contract PDF */}
-        <motion.div
-          ref={contractRef}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="p-6 md:p-8"
-        >
-          <ContratoPDF alunoData={displayData} contractStatus={contractStatus} />
-        </motion.div>
+        <AnimatePresence>
+          {showContract && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden"
+            >
+              {/* Action Buttons */}
+              <div className="flex justify-end mb-4">
+                {status !== 'pending' ? (
+                  <Button
+                    disabled={isLoading || isSigning}
+                    onClick={handlePrint}
+                    className="w-full sm:w-auto"
+                    size="lg"
+                    variant="outline"
+                  >
+                    <Printer size={18} className="mr-2"/>
+                    {t("printButton")}
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => setIsModalOpen(true)}
+                    disabled={isLoading || isSigning}
+                    isLoading={isSigning}
+                    className="gap-2 w-full sm:w-auto"
+                    size="lg"
+                  >
+                    <Printer size={18} />
+                    {isSigning ? t("signingButton") : t("signButton")}
+                  </Button>
+                )}
+              </div>
+
+              {/* Contract PDF */}
+              <div
+                ref={contractRef}
+                className="p-6 md:p-8 border rounded-lg bg-card text-card-foreground shadow-sm"
+              >
+                <ContratoPDF alunoData={displayData} contractStatus={contractStatus} />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
 
       {/* Signature Modal */}

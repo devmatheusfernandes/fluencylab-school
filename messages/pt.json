@@ -1,4 +1,8 @@
 {
+  "StudentNotebook": {
+    "title": "Meu Caderno",
+    "subtitle": "Acompanhe seu progresso e revise seu aprendizado."
+  },
   "LearningPath": {
     "noLessonsTitle": "Sem aulas esta semana!",
     "noLessonsMessage": "Aproveite para revisar o conteúdo ou descansar. Você está em dia!"
@@ -39,6 +43,12 @@
     "continue": "Continuar",
     "selected": "Selecionado",
     "testDuration": "O teste leva cerca de 10 minutos. As perguntas ficam mais difíceis ou fáceis com base nas suas respostas. Boa sorte!",
+    "infoDurationTitle": "15 Minutos",
+    "infoDurationDesc": "Duração média",
+    "infoAdaptiveTitle": "Adaptativo",
+    "infoAdaptiveDesc": "Ajusta ao seu nível",
+    "infoResultTitle": "Resultado Imediato",
+    "infoResultDesc": "Sem tempo de espera",
     "startTest": "Iniciar Teste de Nivelamento",
     "viewHistory": "Ver Resultados Anteriores",
     "historyTitle": "Histórico",
@@ -1815,6 +1825,8 @@
     "redirecting": "Redirecionando..."
   },
   "PaymentManagementClient": {
+    "headerTitle": "Gerenciamento de Assinatura",
+    "headerSubtitle": "Visualize e gerencie seus pagamentos e status da assinatura",
     "paymentStatusError": "Erro ao carregar status do pagamento",
     "dataError": "Erro ao carregar dados",
     "historyError": "Erro ao carregar histórico de pagamentos",
@@ -1969,6 +1981,8 @@
     }
   },
   "StudentClassesComponent": {
+    "headerTitle": "Minhas Aulas",
+    "headerSubtitle": "Gerencie sua agenda e acompanhe suas aulas.",
     "rescheduleSuggestion": "Você ainda tem {remaining} reagendamentos disponíveis este mês. Que tal reagendar esta aula ao invés de cancelar?",
     "cancelSuccess": "Aula cancelada com sucesso!",
     "cancelError": "Erro ao cancelar aula",
@@ -1990,6 +2004,8 @@
     "noClassesFiltered": "Nenhuma aula encontrada para {month} de {year}."
   },
   "SubscriptionCreationClient": {
+    "headerTitle": "Assinatura",
+    "headerSubtitle": "Escolha o melhor plano para você",
     "selectMethod": "Selecione um método de pagamento",
     "billingDayError": "O dia de vencimento deve estar entre 1 e 28",
     "pixCreated": "Assinatura criada! Código PIX gerado.",
@@ -2041,13 +2057,14 @@
     "billingDayTitle": "Dia de vencimento",
     "billingDayDesc": "Escolha o dia do mês que você prefere que sua mensalidade seja cobrada (entre 1 e 28)",
     "billingDayPlaceholder": "Dia do vencimento",
-    "billingDayTip": "Recomendamos escolher um dia entre 5 e 25 para evitar problemas com finais de mês",
+    "billingDayTip": "Recomendamos escolher um dia entre 1 e 10 para evitar problemas com finais de mês",
     "noLoyalty": "✅ Sem fidelidade: Você pode cancelar a qualquer momento",
     "support247": "✅ Suporte 24/7: Nossa equipe está sempre disponível",
     "cancellationFee": "⚠️ Taxa de cancelamento: Assinaturas canceladas em menos de 6 meses podem ter taxa de R$ 50,00",
     "securePayment": "🔒 Pagamento Seguro: Você será redirecionado para o checkout seguro do Mercado Pago para inserir os dados do cartão",
     "creating": "Criando assinatura...",
-    "createButton": "Criar assinatura {months} meses - {price}/mês",
+    "createButton": "Assinar",
+    "value": "Valor mensal:",
     "termsAgreement": "Ao criar a assinatura, você concorda com nossos <linkTerms>Termos de Uso</linkTerms> e <linkPrivacy>Política de Privacidade</linkPrivacy>"
   },
   "StudentCourses": {
@@ -2134,6 +2151,9 @@
     "renewingButton": "Renovando...",
     "pageTitle": "Contrato",
     "pageSubtitle": "Revise e assine o contrato abaixo",
+    "headerSubtitle": "Gerencie os detalhes do seu contrato",
+    "viewContract": "Ver Contrato",
+    "hideContract": "Ocultar Contrato",
     "printButton": "Imprimir Contrato",
     "signButton": "Assinar Contrato",
     "signingButton": "Assinando..."

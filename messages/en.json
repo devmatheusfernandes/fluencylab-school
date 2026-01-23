@@ -1,4 +1,8 @@
 {
+  "StudentNotebook": {
+    "title": "My Notebook",
+    "subtitle": "Track your progress and review your learning."
+  },
   "LearningPath": {
     "noLessonsTitle": "No lessons this week!",
     "noLessonsMessage": "Take time to review or relax. You are all caught up!"
@@ -39,6 +43,12 @@
     "continue": "Continue",
     "selected": "Selected",
     "testDuration": "The test takes about 10 minutes. Questions get harder or easier based on your answers. Good luck!",
+    "infoDurationTitle": "15 Minutes",
+    "infoDurationDesc": "Average duration",
+    "infoAdaptiveTitle": "Adaptive",
+    "infoAdaptiveDesc": "Adjusts to your level",
+    "infoResultTitle": "Immediate Result",
+    "infoResultDesc": "No waiting time",
     "startTest": "Start Placement Test",
     "viewHistory": "View Past Results",
     "historyTitle": "History",
@@ -1816,6 +1826,8 @@
     "redirecting": "Redirecting..."
   },
   "PaymentManagementClient": {
+    "headerTitle": "Subscription Management",
+    "headerSubtitle": "View and manage your payments and subscription status",
     "paymentStatusError": "Error loading payment status",
     "dataError": "Error loading data",
     "historyError": "Error loading payment history",
@@ -1970,6 +1982,8 @@
     }
   },
   "StudentClassesComponent": {
+    "headerTitle": "My Classes",
+    "headerSubtitle": "Manage your schedule and track your classes.",
     "rescheduleSuggestion": "You still have {remaining} reschedules available this month. How about rescheduling this class instead of canceling?",
     "cancelSuccess": "Class canceled successfully!",
     "cancelError": "Error canceling class",
@@ -1991,6 +2005,8 @@
     "noClassesFiltered": "No classes found for {month} {year}."
   },
   "SubscriptionCreationClient": {
+    "headerTitle": "Subscription",
+    "headerSubtitle": "Choose the best plan for you",
     "selectMethod": "Select a payment method",
     "billingDayError": "Billing day must be between 1 and 28",
     "pixCreated": "Subscription created! PIX code generated.",
@@ -2042,13 +2058,14 @@
     "billingDayTitle": "Billing day",
     "billingDayDesc": "Choose the day of the month you prefer your monthly fee to be charged (between 1 and 28)",
     "billingDayPlaceholder": "Billing day",
-    "billingDayTip": "We recommend choosing a day between 5 and 25 to avoid issues with month ends",
+    "billingDayTip": "We recommend choosing a day between 1 and 10 to avoid issues with month ends",
     "noLoyalty": "✅ No loyalty: You can cancel at any time",
     "support247": "✅ 24/7 Support: Our team is always available",
     "cancellationFee": "⚠️ Cancellation fee: Subscriptions canceled in less than 6 months may have a R$ 50.00 fee",
     "securePayment": "🔒 Secure Payment: You will be redirected to the secure Mercado Pago checkout to enter card details",
     "creating": "Creating subscription...",
-    "createButton": "Create subscription {months} months - {price}/month",
+    "createButton": "Create",
+    "value": "Monthly value:",
     "termsAgreement": "By creating the subscription, you agree to our <linkTerms>Terms of Use</linkTerms> and <linkPrivacy>Privacy Policy</linkPrivacy>"
   },
   "StudentCourses": {
@@ -2135,6 +2152,9 @@
     "renewingButton": "Renewing...",
     "pageTitle": "Contract",
     "pageSubtitle": "Review and sign the contract below",
+    "headerSubtitle": "Manage your contract details",
+    "viewContract": "View Contract",
+    "hideContract": "Hide Contract",
     "printButton": "Print Contract",
     "signButton": "Sign Contract",
     "signingButton": "Signing..."

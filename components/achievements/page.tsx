@@ -2,22 +2,22 @@
 
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import AchievementList from "@/components/student/AchievementList";
-import { Container } from "../ui/container";
-import { SubContainer } from "../ui/sub-container";
 import { Skeleton } from "../ui/skeleton";
+import { Header } from "../ui/header";
+import { motion } from "framer-motion";
 
 export default function AchievementsPage() {
   const { user, isLoading } = useCurrentUser();
 
   return (
-    <Container className="grid gap-2 grid-cols-1">
-      <SubContainer
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
+        className="p-4 md:p-6 space-y-6"
       >
-        <div className="p-6">
-          <h1 className="text-2xl font-bold mb-6">Todas as Conquistas</h1>
+        <div >
+          <Header heading="Todas as Conquistas" className="mb-6" />
           {isLoading ? (
             <div className="space-y-4">
               <Skeleton className="h-10 w-1/3 mb-6" />
@@ -45,7 +45,6 @@ export default function AchievementsPage() {
             <AchievementList userId={user?.id} />
           )}
         </div>
-      </SubContainer>
-    </Container>
+      </motion.div>
   );
 }

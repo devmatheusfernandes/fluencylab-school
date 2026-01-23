@@ -33,14 +33,17 @@ const AchievementList: React.FC<AchievementListProps> = ({ userId, limit }) => {
     : filteredAchievements;
 
   // Reusable grid class to ensure Skeleton and Content match perfectly
-  const gridClassName = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4";
+  const gridClassName = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2";
 
   if (loading) {
     return (
       <div className="w-full">
-        {/* Skeleton Filters (optional visual placeholder) */}
-        {!limit && <div className="flex gap-2 mb-4 overflow-hidden"><Skeleton className="h-10 w-24 rounded-xl" /><Skeleton className="h-10 w-24 rounded-xl" /></div>}
-        
+        {!limit && 
+        <div className="flex gap-2 mb-4 overflow-hidden">
+          <Skeleton className="h-10 w-24 rounded-xl" />
+          <Skeleton className="h-10 w-24 rounded-xl" />
+        </div>}
+
         <div className={gridClassName}>
           {Array.from({ length: limit || 6 }).map((_, index) => (
             <div key={index} className="skeleton-base rounded-2xl p-5 border border-gray-100 dark:border-gray-800">
@@ -77,8 +80,6 @@ const AchievementList: React.FC<AchievementListProps> = ({ userId, limit }) => {
   return (
     <div className="space-y-4 w-full">
       {!limit && (
-        // Mobile Optimization: Horizontal scroll container for filters
-        // -mx-4 px-4 allows scrolling edge-to-edge on mobile while respecting container padding
         <div className="relative">
           <div className="flex overflow-x-auto pb-2 gap-2 scrollbar-hide -mx-1 px-1 snap-x">
             <motion.button
@@ -165,7 +166,7 @@ const AchievementList: React.FC<AchievementListProps> = ({ userId, limit }) => {
         </motion.div>
       ) : (
         <motion.div
-          layout // Smooth layout transition when filtering
+          layout
           className={gridClassName}
         >
           {displayedAchievements.map((achievement, index) => (
@@ -175,9 +176,10 @@ const AchievementList: React.FC<AchievementListProps> = ({ userId, limit }) => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.2, delay: index * 0.05 }}
+              className="h-full" // Ensure grid item wrapper is full height
               {...(limit && {
                 onClick: () => router.push("/hub/student/my-achievements"),
-                className: "cursor-pointer active:scale-95 transition-transform", // Better touch feedback
+                className: "cursor-pointer active:scale-95 transition-transform h-full", // Better touch feedback + h-full
               })}
             >
               <AchievementCard studentAchievement={achievement} />

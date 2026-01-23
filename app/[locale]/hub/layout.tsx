@@ -142,7 +142,6 @@ function HubLayoutContent({ children, session }: { children: React.ReactNode, se
   }
 
   // Layout padrão
-
   return (
     <OnboardingWrapper>
       <TeacherOnboardingWrapper>

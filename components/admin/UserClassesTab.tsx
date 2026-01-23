@@ -121,35 +121,6 @@ export default function UserClassesTab({
     return <Text>{t("noClassesScheduled")}</Text>;
   }
 
-  // Function to update class teacher
-  const updateClassTeacher = async (classId: string, teacherId: string) => {
-    // Handle the "none" case by setting teacherId to null
-    const actualTeacherId = teacherId === "none" ? null : teacherId;
-
-    try {
-      const response = await fetch(`/api/classes/${classId}/teacher`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ teacherId: actualTeacherId }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || t("toasts.updateFailed"));
-      }
-
-      toast.success(t("toasts.updateSuccess"));
-
-      // Reload classes to reflect the change
-      window.location.reload();
-    } catch (error: any) {
-      toast.error(`${t("toasts.updateError")} ${error.message}`);
-    }
-  };
-
   // Function to confirm and update class teacher
   const confirmUpdateClassTeacher = async () => {
     if (!pendingTeacherUpdate) return;

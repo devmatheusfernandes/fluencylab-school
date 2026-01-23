@@ -14,6 +14,7 @@ import Image from "next/image";
 import { Link } from "lucide-react";
 import { Spinner } from "../ui/spinner";
 import { useTranslations, useLocale } from "next-intl";
+import { Header } from "../ui/header";
 
 export function PaymentManagementClient() {
   const t = useTranslations("PaymentManagementClient");
@@ -358,12 +359,15 @@ export function PaymentManagementClient() {
   const StatusIcon = statusInfo.icon;
 
   return (
-    <div className="space-y-6">
+    <div className="p-4 md:p-6 space-y-6">
+      <Header 
+        heading={t("headerTitle")} 
+        subheading={t("headerSubtitle")} 
+      />
       {/* Subscription Overview */}
       <Card className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <StatusIcon className="w-6 h-6" />
             <div>
               <h2 className="text-xl font-semibold">{t("subscriptionStatusTitle")}</h2>
               <p className="text-gray-600">{t("subscriptionStatusDesc")}</p>
@@ -372,7 +376,7 @@ export function PaymentManagementClient() {
           <Badge className="text-sm">
             {statusInfo.text}
             {paymentStatus.overdueDays && paymentStatus.overdueDays > 0 && (
-              <span className="ml-1">({paymentStatus.overdueDays} dias)</span>
+              <span className="ml-1">({paymentStatus.overdueDays} {t("overdueDays")})</span>
             )}
           </Badge>
         </div>
@@ -416,7 +420,7 @@ export function PaymentManagementClient() {
                     <span>{t("creditCard")}</span>
                   </>
                 ) : (
-                  <span className="text-blue-600 font-semibold">PIX</span>
+                  <span className="text-primary font-semibold">PIX</span>
                 )}
               </div>
             </div>
@@ -605,7 +609,7 @@ export function PaymentManagementClient() {
             onClick={exportPaymentHistory}
             disabled={paymentHistory.length === 0}
           >
-            <Link className="w-4 h-4" />
+            <Link className="w-4 h-4 mr-2" />
             {t("export")}
           </Button>
         </div>

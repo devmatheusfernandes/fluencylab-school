@@ -162,48 +162,50 @@ export default function MeuPerfil() {
         md:grid-cols-3
         "
     >
-      <SubContainer
+      <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4 }}
+        className="card-base p-3"
       >
         {!isLoading && user ? (
           <UserProfileHeader user={user} onLogout={handleLogout} />
         ) : (
           <ProfileHeaderSkeleton />
         )}
-      </SubContainer>
+      </motion.div>
 
-      <SubContainer
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.1 }}
       >
         <ProgressStatusCard />
-      </SubContainer>
+      </motion.div>
 
-      <SubContainer
+      <motion.div
         className="md:row-span-2"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.2 }}
       >
         <StudentPaymentStatusCard />
-      </SubContainer>
+      </motion.div>
 
-      <SubContainer
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.5 }}
+        className="card-base p-4"
       >
         {isLoading ? <NextClassCardSkeleton /> : <NextClassCard />}
-      </SubContainer>
+      </motion.div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.6 }}
-        className="p-0 bg-transparent dark:bg-transparent border-none"
+        className="p-0 bg-transparent dark:bg-transparent border-none min-h-[140px]"
       >
         {statsLoading ? (
           <Skeleton className="w-full h-full min-h-[140px] rounded-md" />
@@ -217,30 +219,30 @@ export default function MeuPerfil() {
         )}
       </motion.div>
 
-            
-      <SubContainer
+      <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4, delay: 0.3 }}
+        className="card-base p-3"
       >
         <Badges
           level={placementBadgeLevel ?? 0}
           isLoading={isLoading || isPlacementLoading}
         />
-      </SubContainer>
+      </motion.div>
 
-      <SubContainer
+      <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.4 }}
-        className="md:col-span-2"
+        className="md:col-span-2 card-base p-2"
       >
         {isLoading || !user ? (
           <AchievementsSkeleton limit={3} />
         ) : (
           <AchievementList userId={user?.id} limit={3} />
         )}
-      </SubContainer>
+      </motion.div>
     </ContainerCard>
   );
 }

@@ -149,17 +149,16 @@ export default function NotebooksCard({
   };
 
   return (
-    <SubContainer className="h-full max-h-[calc(100vh-105px)] overflow-auto">
-      <div className="flex flex-row gap-2 mb-4 relative">
+    <div className="card-base h-full max-h-[calc(100vh-105px)] overflow-auto p-2">
+      <div className="sticky top-0 z-10 flex flex-row gap-2 mb-4 relative">
         <SearchBar
           placeholder={t("searchPlaceholder")}
           value={searchQuery}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setSearchQuery(e.target.value)
           }
-          className="w-full pl-10 pr-12" // Added padding to accommodate the button
+          className="w-full pl-10 pr-12 dark:bg-slate-900!"
         />
-        {/* Only show the add button for teachers */}
         {userRole === "teacher" && (
           <Plus
             height={24}
@@ -184,7 +183,7 @@ export default function NotebooksCard({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
                 whileHover={{ scale: 1.01 }}
-                className="flex flex-row items-start justify-between overflow-hidden p-4 card-base"
+                className="flex flex-row items-start justify-between overflow-hidden p-4 input-base"
               >
                 <Link
                   href={
@@ -288,6 +287,6 @@ export default function NotebooksCard({
           </ModalContent>
         </Modal>
       )}
-    </SubContainer>
+    </div>
   );
 }

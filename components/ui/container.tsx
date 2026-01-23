@@ -10,7 +10,7 @@ export const Container = ({ children, className = "" }: ContainerProps) => {
   return (
     <div
       className={cn(
-        "container-base w-full p-2 sm:p-3 rounded-b-lg transition-colors duration-300 overflow-y-scroll no-scrollbar gap-2",
+        "container-base w-full p-2 sm:p-2 rounded-b-lg transition-colors duration-300 overflow-y-scroll no-scrollbar gap-2",
         className
       )}
     >

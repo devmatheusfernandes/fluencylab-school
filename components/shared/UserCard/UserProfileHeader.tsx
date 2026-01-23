@@ -51,7 +51,6 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({
   };
 
   return (
-    <Card>
       <div
         className={`flex flex-row justify-between items-center ${className}`}
       >
@@ -101,7 +100,6 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({
           disabled={isUploading}
         />
       </div>
-    </Card>
   );
 };
 

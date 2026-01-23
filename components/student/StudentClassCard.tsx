@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useState } from "react";
 import RescheduleModal from "./RescheduleModal";
 import { useTranslations, useLocale } from "next-intl";
+import { BookAlert } from "lucide-react";
 
 // Mapeamento de status para cores dos badges
 const statusVariants: Record<
@@ -103,10 +104,10 @@ export default function StudentClassCard({
     // Tenta obter a tradução do status, fallback para o status original se não encontrar
     // Normaliza keys com underscore para hifen se necessário, mas o JSON tem ambos
     const statusKey = cls.status;
-    const translatedStatus = t.has(`status.${statusKey}`) 
-      ? t(`status.${statusKey}`) 
+    const translatedStatus = t.has(`status.${statusKey}`)
+      ? t(`status.${statusKey}`)
       : cls.status;
-      
+
     const statusVariant = statusVariants[cls.status] || "default";
     return (
       <>
@@ -134,18 +135,25 @@ export default function StudentClassCard({
                 {cls.teacherName}
               </h3>
               <p className="text-sm font-semibold text-subtitle">
-                {new Date(cls.scheduledAt).toLocaleDateString(locale === "pt" ? "pt-BR" : "en-US", {
-                  weekday: "long",
-                  day: "2-digit",
-                  month: "long",
-                })}
+                {new Date(cls.scheduledAt).toLocaleDateString(
+                  locale === "pt" ? "pt-BR" : "en-US",
+                  {
+                    weekday: "long",
+                    day: "2-digit",
+                    month: "long",
+                  },
+                )}
               </p>
               <p className="text-sm text-subtitle">
-                {new Date(cls.scheduledAt).toLocaleTimeString(locale === "pt" ? "pt-BR" : "en-US", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+                {new Date(cls.scheduledAt).toLocaleTimeString(
+                  locale === "pt" ? "pt-BR" : "en-US",
+                  {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  },
+                )}
               </p>
+
               {cls.rescheduledFrom && (
                 <p className="text-xs text-blue-600 font-medium mt-1">
                   📅 {t("rescheduledBadge")}
@@ -160,31 +168,52 @@ export default function StudentClassCard({
           </div>
           <div className="flex items-center gap-2">{getStatusBadge()}</div>
         </div>
-
-        {!isOverdue && (
-          <div className="flex justify-center sm:justify-end gap-2">
-            {isCancelable && onCancel && (
-              <Button
-                size="sm"
-                variant="warning"
-                onClick={handleCancelClick}
-                disabled={isCanceling}
-              >
-                {isCanceling ? t("canceling") : t("cancel")}
-              </Button>
+        <div className="flex flex-row justify-between w-full items-end">
+          <div className="flex flex-row items-start justify-between gap-4 mt-2">
+            {/* Display Plan and Lesson Info */}
+            {cls.planName && (
+              <div className="text-sm text-primary font-medium">
+                <span className="text-xs text-muted-foreground block">
+                  Plano:
+                </span>
+                {cls.planName}
+              </div>
             )}
-            {isReschedulable && (
-              <Button
-                size="sm"
-                onClick={handleRescheduleClick}
-                disabled={!isReschedulable}
-                variant={isTeacherMakeup ? "success" : "primary"}
-              >
-                {isTeacherMakeup ? t("rescheduleCredit") : t("reschedule")}
-              </Button>
+            {cls.lessonTitle && (
+              <div className="text-sm font-semibold">
+                <span className="text-xs text-muted-foreground block">
+                  Lição:
+                </span>
+                {cls.lessonTitle}
+              </div>
             )}
           </div>
-        )}
+
+          {!isOverdue && (
+            <div className="flex justify-center sm:justify-end gap-2">
+              {isCancelable && onCancel && (
+                <Button
+                  size="sm"
+                  variant="warning"
+                  onClick={handleCancelClick}
+                  disabled={isCanceling}
+                >
+                  {isCanceling ? t("canceling") : t("cancel")}
+                </Button>
+              )}
+              {isReschedulable && (
+                <Button
+                  size="sm"
+                  onClick={handleRescheduleClick}
+                  disabled={!isReschedulable}
+                  variant={isTeacherMakeup ? "success" : "primary"}
+                >
+                  {isTeacherMakeup ? t("rescheduleCredit") : t("reschedule")}
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
       </Card>
 
       <RescheduleModal
