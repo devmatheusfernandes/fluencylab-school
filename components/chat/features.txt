@@ -1,3 +1,5 @@
+novas features
+
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
@@ -14,7 +16,7 @@ import {
   ChannelPreviewUIComponentProps,
   useTypingContext,
 } from "stream-chat-react";
-import { Menu, ArrowLeft, Image as ImageIcon, FileText, X, PanelRight } from "lucide-react";
+import { Menu, ArrowLeft } from "lucide-react";
 import "./chat.css";
 
 import { useChatContacts } from "@/hooks/useChatContacts";
@@ -89,145 +91,8 @@ const CustomChannelPreview = (props: ChannelPreviewUIComponentProps) => {
   );
 };
 
-// --- COMPONENTE: Painel de Galeria de Mídia ---
-const MediaGalleryPanel = () => {
-  const t = useTranslations("ChatWidget");
-  const { channel } = useChatContext();
-  const [mediaItems, setMediaItems] = useState<any[]>([]);
-  const [selectedMedia, setSelectedMedia] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'images' | 'files'>('images');
-
-  useEffect(() => {
-    if (!channel) return;
-
-    const loadMedia = async () => {
-      const messages = await channel.query({
-        messages: { limit: 100 }
-      });
-
-      const items = messages.messages
-        .flatMap(msg => msg.attachments || [])
-        .filter(att => {
-          if (activeTab === 'images') {
-            return att.type === 'image';
-          }
-          return att.type === 'file';
-        });
-
-      setMediaItems(items);
-    };
-
-    loadMedia();
-  }, [channel, activeTab]);
-
-  if (!channel) return null;
-
-  return (
-    <div className="flex flex-col h-full bg-background">
-      {/* Header com Tabs */}
-      <div className="p-4 border-b border-primary/20">
-        <h2 className="font-bold text-lg mb-3">{t("sharedMedia")}</h2>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setActiveTab('images')}
-            className={cn(
-              "flex-1 py-2 px-4 rounded-lg transition-colors",
-              activeTab === 'images'
-                ? "bg-primary text-primary-foreground"
-                : "bg-secondary/20 hover:bg-secondary/30"
-            )}
-          >
-            <ImageIcon size={18} className="inline mr-2" />
-            {t("images")}
-          </button>
-          <button
-            onClick={() => setActiveTab('files')}
-            className={cn(
-              "flex-1 py-2 px-4 rounded-lg transition-colors",
-              activeTab === 'files'
-                ? "bg-primary text-primary-foreground"
-                : "bg-secondary/20 hover:bg-secondary/30"
-            )}
-          >
-            <FileText size={18} className="inline mr-2" />
-            {t("files")}
-          </button>
-        </div>
-      </div>
-
-      {/* Grid de Mídia */}
-      <div className="flex-1 overflow-y-auto p-4">
-        {activeTab === 'images' ? (
-          <div className="grid grid-cols-3 gap-2">
-            {mediaItems.map((item, idx) => (
-              <button
-                key={idx}
-                onClick={() => setSelectedMedia(item)}
-                className="aspect-square rounded-lg overflow-hidden hover:opacity-80 transition-opacity"
-              >
-                <img
-                  src={item.image_url || item.thumb_url}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-              </button>
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {mediaItems.map((item, idx) => (
-              <a
-                key={idx}
-                href={item.asset_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-secondary/20 transition-colors"
-              >
-                <FileText size={24} className="text-primary" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{item.title}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {(item.file_size / 1024).toFixed(0)} KB
-                  </p>
-                </div>
-              </a>
-            ))}
-          </div>
-        )}
-
-        {mediaItems.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-            {activeTab === 'images' ? <ImageIcon size={48} /> : <FileText size={48} />}
-            <p className="mt-2">{t("noMedia")}</p>
-          </div>
-        )}
-      </div>
-
-      {/* Modal de Preview */}
-      {selectedMedia && (
-        <div
-          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-          onClick={() => setSelectedMedia(null)}
-        >
-          <button
-            className="absolute top-4 right-4 text-white hover:text-gray-300"
-            onClick={() => setSelectedMedia(null)}
-          >
-            <X size={32} />
-          </button>
-          <img
-            src={selectedMedia.image_url}
-            alt=""
-            className="max-w-full max-h-full object-contain"
-          />
-        </div>
-      )}
-    </div>
-  );
-};
-
 // --- COMPONENTE: Header Personalizado ---
-const CustomChannelHeader = ({ onToggleGallery, showGallery }: { onToggleGallery?: () => void; showGallery?: boolean }) => {
+const CustomChannelHeader = () => {
   const t = useTranslations("ChatWidget");
   const { channel, client } = useChatContext();
   const { setActiveChannel } = useChatContext();
@@ -280,19 +145,7 @@ const CustomChannelHeader = ({ onToggleGallery, showGallery }: { onToggleGallery
           </span>
         </div>
       </div>{" "}
-      <div className="flex items-center gap-2">
-        <button
-          onClick={onToggleGallery}
-          className={cn(
-            "p-2 rounded-full transition-colors",
-            showGallery ? "bg-primary/20 text-primary" : "hover:bg-secondary/20 text-foreground"
-          )}
-          title={t("mediaGallery")}
-        >
-          <PanelRight size={20} />
-        </button>
-        <ThemeSwitcher />
-      </div>
+      <ThemeSwitcher />
     </div>
   );
 };
@@ -302,7 +155,6 @@ const ChatLayout = () => {
   const { channel, client } = useChatContext();
   const isMobile = useIsMobile();
   const t = useTranslations("ChatWidget");
-  const [showGallery, setShowGallery] = useState(false);
 
   const showList = !isMobile || !channel;
   const showChat = !isMobile || !!channel;
@@ -361,10 +213,7 @@ const ChatLayout = () => {
             <Window>
               <div className="flex flex-col min-h-[94vh] w-full overflow-hidden">
                 <div className="flex-none z-10 sm:border-none border-t border-primary/20">
-                  <CustomChannelHeader 
-                    onToggleGallery={() => setShowGallery(!showGallery)}
-                    showGallery={showGallery}
-                  />
+                  <CustomChannelHeader />
                 </div>
 
                 <div className="flex-1 min-h-0 w-full relative">
@@ -388,28 +237,6 @@ const ChatLayout = () => {
           </div>
         )}
       </div>
-
-      {/* --- COLUNA DA GALERIA --- */}
-      {showGallery && channel && (
-        <div
-          className={cn(
-            "border-l border-primary/20 bg-background h-full transition-all duration-300 ease-in-out",
-            isMobile ? "fixed inset-0 z-50 w-full" : "w-[320px] shrink-0"
-          )}
-        >
-          {isMobile && (
-            <div className="absolute top-4 right-4 z-50">
-              <button
-                onClick={() => setShowGallery(false)}
-                className="p-2 bg-background/80 rounded-full shadow-sm"
-              >
-                <X size={20} />
-              </button>
-            </div>
-          )}
-          <MediaGalleryPanel />
-        </div>
-      )}
     </div>
   );
 };
@@ -497,3 +324,145 @@ export default function ChatWidget() {
     </div>
   );
 }
+
+
+
+import { useState, useEffect } from 'react';
+import { useChatContext } from 'stream-chat-react';
+import { Image as ImageIcon, FileText, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+export const MediaGalleryPanel = () => {
+  const { channel } = useChatContext();
+  const [mediaItems, setMediaItems] = useState<any[]>([]);
+  const [selectedMedia, setSelectedMedia] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState<'images' | 'files'>('images');
+
+  useEffect(() => {
+    if (!channel) return;
+
+    const loadMedia = async () => {
+      const messages = await channel.query({
+        messages: { limit: 100 }
+      });
+
+      const items = messages.messages
+        .flatMap(msg => msg.attachments || [])
+        .filter(att => {
+          if (activeTab === 'images') {
+            return att.type === 'image';
+          }
+          return att.type === 'file';
+        });
+
+      setMediaItems(items);
+    };
+
+    loadMedia();
+  }, [channel, activeTab]);
+
+  if (!channel) return null;
+
+  return (
+    <div className="flex flex-col h-full bg-background">
+      {/* Header com Tabs */}
+      <div className="p-4 border-b border-primary/20">
+        <h2 className="font-bold text-lg mb-3">Mídia Compartilhada</h2>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setActiveTab('images')}
+            className={cn(
+              "flex-1 py-2 px-4 rounded-lg transition-colors",
+              activeTab === 'images'
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary/20 hover:bg-secondary/30"
+            )}
+          >
+            <ImageIcon size={18} className="inline mr-2" />
+            Imagens
+          </button>
+          <button
+            onClick={() => setActiveTab('files')}
+            className={cn(
+              "flex-1 py-2 px-4 rounded-lg transition-colors",
+              activeTab === 'files'
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary/20 hover:bg-secondary/30"
+            )}
+          >
+            <FileText size={18} className="inline mr-2" />
+            Arquivos
+          </button>
+        </div>
+      </div>
+
+      {/* Grid de Mídia */}
+      <div className="flex-1 overflow-y-auto p-4">
+        {activeTab === 'images' ? (
+          <div className="grid grid-cols-3 gap-2">
+            {mediaItems.map((item, idx) => (
+              <button
+                key={idx}
+                onClick={() => setSelectedMedia(item)}
+                className="aspect-square rounded-lg overflow-hidden hover:opacity-80 transition-opacity"
+              >
+                <img
+                  src={item.image_url || item.thumb_url}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {mediaItems.map((item, idx) => (
+              <a
+                key={idx}
+                href={item.asset_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 p-3 rounded-lg hover:bg-secondary/20 transition-colors"
+              >
+                <FileText size={24} className="text-primary" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{item.title}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {(item.file_size / 1024).toFixed(0)} KB
+                  </p>
+                </div>
+              </a>
+            ))}
+          </div>
+        )}
+
+        {mediaItems.length === 0 && (
+          <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+            {activeTab === 'images' ? <ImageIcon size={48} /> : <FileText size={48} />}
+            <p className="mt-2">Nenhuma mídia compartilhada</p>
+          </div>
+        )}
+      </div>
+
+      {/* Modal de Preview */}
+      {selectedMedia && (
+        <div
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          onClick={() => setSelectedMedia(null)}
+        >
+          <button
+            className="absolute top-4 right-4 text-white hover:text-gray-300"
+            onClick={() => setSelectedMedia(null)}
+          >
+            <X size={32} />
+          </button>
+          <img
+            src={selectedMedia.image_url}
+            alt=""
+            className="max-w-full max-h-full object-contain"
+          />
+        </div>
+      )}
+    </div>
+  );
+};

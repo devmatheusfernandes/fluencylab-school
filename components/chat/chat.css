@@ -35,11 +35,7 @@
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
-
-  
 }
-
-
 
 /* ==========================================================================
    2. LAYOUT GLOBAL, SCROLLBARS E MOBILE FIXES
@@ -107,29 +103,6 @@
   background-color: var(--bg-app);
   border-bottom: 1px solid var(--border-color);
 }
-
-/* ==========================================================================
-   5. ÁREA DE MENSAGENS (CONTAINER E LISTA)
-   ========================================================================== */
-
-/*
-
-.str-chat__list {
-  background-color: var(--bg-app);
-  height: 100%;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.str-chat__message-list-scroll {
-  height: 100dvh;
-}
-
-.str-chat__list-notifications {
-  display: none;
-}
-*/
-
 /* ==========================================================================
    6. ESTILO DOS BALÕES DE MENSAGEM & ALINHAMENTO
    ========================================================================== */
@@ -228,50 +201,6 @@
 }
 
 /* ==========================================================================
-   10. INPUT DE MENSAGEM E GRAVADOR DE ÁUDIO
-   ========================================================================== */
-/* 1. Container do Input 
-.str-chat__message-input {
-  background-color: var(--bg-app);
-  padding: .4rem .5rem .5rem .5rem !important;
-  border-radius: 0;
-  margin: 0;
-}
-
-.str-chat__message-input-inner {
-  border: 2px solid var(--border-color);
-  background-color: var(--bg-app);
-  border-radius: 22px;
-}
-
-.str-chat__message-input-inner:focus-within {
-  border-color: var(--accent-color);
-  box-shadow: 0 0 0 1px var(--accent-color);
-  border: 1px;
-  border-radius: 22px;
-}
-
-.str-chat__audio_recorder {
-  background-color: var(--panel) !important;
-  border: 2px solid var(--border-color);
-  border-radius: 22px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  flex-grow: 1;
-  padding: 0.4rem 0.5rem;
-  display: flex;
-  justify-content: space-between;
-}
-
-.str-chat__start-recording-audio-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-}
-  */
-
-/* ==========================================================================
    11. ANIMAÇÕES
    ========================================================================== */
 
@@ -302,117 +231,4 @@
     opacity: 1;
     transform: translateY(0) scale(1);
   }
-}
-/* ==========================================================================
-   META / THREADS STYLE OVERRIDES
-   ========================================================================== */
-
-/* 1. Reset do Textarea (Transparente) */
-.str-chat__message-input .str-chat__textarea,
-.str-chat__textarea textarea {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  color: var(--foreground) !important;
-  font-family: inherit !important;
-  font-size: 0.95rem;
-  line-height: 1.5;
-}
-
-.str-chat__textarea textarea:focus {
-  outline: none !important;
-}
-
-.str-chat__textarea textarea::placeholder {
-  color: var(--muted-foreground) !important;
-  opacity: 0.6;
-}
-/* ==========================================================================
-   CORREÇÃO BLINDADA DO GRAVADOR DE ÁUDIO
-   ========================================================================== */
-
-/* Container Principal do Gravador */
-.str-chat__audio-recorder {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    position: relative !important;
-    z-index: 50 !important; /* Garante que fique acima de tudo */
-}
-
-/* --- DESTRAVANDO OS BOTÕES (CRUCIAL) --- */
-
-/* Classe genérica para todos os botões redondos do gravador (Play, Pause, Check) */
-.str-chat__audio-recorder .str-chat__circle-fab {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    box-shadow: none !important;
-    cursor: pointer !important;
-    pointer-events: auto !important; /* FORÇA O CLIQUE A FUNCIONAR */
-    position: relative !important;
-    z-index: 51 !important; /* Fica acima do container */
-    background-color: var(--secondary) !important; /* Fundo padrão */
-    color: var(--foreground) !important;
-    border-radius: 50% !important;
-    width: 32px !important;
-    height: 32px !important;
-    border: 1px solid var(--border-color, rgba(0,0,0,0.1)) !important;
-}
-
-/* Botão de ENVIAR (Check) - Destaque em Verde/Primary */
-.str-chat__audio-recorder-check-button {
-    background-color: var(--primary) !important;
-    color: var(--primary-foreground, white) !important;
-    border: none !important;
-    margin-left: 10px !important;
-}
-
-/* Botão de PLAY/PAUSE (Quando está revisando) */
-.str-chat__audio-player-button {
-    background-color: var(--secondary) !important;
-}
-
-/* Ícones dentro dos botões (Garante que não capturem o clique errado) */
-.str-chat__audio-recorder .str-chat__circle-fab svg {
-    pointer-events: none !important;
-    width: 16px !important;
-    height: 16px !important;
-}
-
-/* --- VISUALIZAÇÃO DA ONDA E TIMER --- */
-
-/* Barra de progresso da onda */
-.str-chat__wave-progress-bar {
-    background-color: var(--primary) !important;
-    opacity: 0.3;
-    pointer-events: none; /* Deixa o clique passar se necessário */
-}
-
-/* Timer */
-.str-chat__audio-recorder-timer {
-    font-variant-numeric: tabular-nums;
-    font-weight: 600;
-    color: var(--foreground);
-    margin-left: 8px;
-    margin-right: auto; /* Empurra os botões para a direita */
-    z-index: 50;
-}
-
-/* Botão de Lixeira nativo (Escondemos pois usamos o nosso X externo) */
-.str-chat__audio-recorder-delete-button {
-    display: none !important; 
-}
-/* Remove elementos extras da Stream */
-.str-chat__input-flat-emojiselect,
-.str-chat__fileupload-wrapper {
-  display: none !important;
 }

@@ -2127,7 +2127,12 @@
     "offline": "Offline",
     "messagesTitle": "Mensagens",
     "selectChatPrompt": "Selecione uma conversa para começar",
-    "defaultChatName": "Chat"
+    "defaultChatName": "Chat",
+    "mediaGallery": "Galeria de Mídia",
+    "sharedMedia": "Mídia Compartilhada",
+    "images": "Imagens",
+    "files": "Arquivos",
+    "noMedia": "Nenhuma mídia compartilhada"
   },
   "StudentContract": {
     "signedSuccess": "Contrato assinado com sucesso por ambas as partes!",
