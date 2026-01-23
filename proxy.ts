@@ -24,6 +24,17 @@ export default withAuth(
   function middleware(req) {
     // Primeiro aplica i18n para manter prefixo de locale
     const res = intlMiddleware(req);
+
+    // Ajuste de segurança para o cookie NEXT_LOCALE
+    const nextLocaleCookie = res.cookies.get("NEXT_LOCALE");
+    if (nextLocaleCookie) {
+      res.cookies.set("NEXT_LOCALE", nextLocaleCookie.value, {
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+      });
+    }
+
     const { token } = (req as any).nextauth || {};
 
     const pathname = req.nextUrl.pathname;

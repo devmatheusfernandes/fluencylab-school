@@ -1,4 +1,9 @@
 {
+  "CookieConsent": {
+    "message": "Nós usamos cookies para melhorar sua experiência. Ao continuar navegando, você concorda com nossa política de privacidade.",
+    "accept": "Aceitar",
+    "decline": "Recusar"
+  },
   "StudentNotebook": {
     "title": "Meu Caderno",
     "subtitle": "Acompanhe seu progresso e revise seu aprendizado."

@@ -1,5 +1,6 @@
 import { NextIntlClientProvider } from 'next-intl';
 import type {ReactNode} from 'react';
+import CookieConsent from '@/components/ui/cookie-consent';
 
 export default async function LocaleLayout({
   children,
@@ -16,6 +17,7 @@ export default async function LocaleLayout({
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
       {children}
+      <CookieConsent />
     </NextIntlClientProvider>
   );
 }
