@@ -7,6 +7,13 @@ import {
   confirmPasswordReset,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Skeleton } from '@/components/ui/skeleton';
+import { CheckCircle2, AlertCircle } from 'lucide-react';
 
 export default function CreatePasswordPage() {
   const searchParams = useSearchParams();
@@ -87,83 +94,93 @@ export default function CreatePasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-900 p-6">
-      <div className="w-full max-w-md card-base p-6">
-        <h1 className="title-base mb-2">Definir sua senha</h1>
-        <p className="paragraph-base mb-6">
-          Utilize o formulário abaixo para criar sua senha de acesso.
-        </p>
+    <div className="min-h-screen min-w-screen flex items-center justify-center bg-slate-100 dark:bg-slate-900 p-4">
+      <Card className="w-full max-w-[400px]">
+        <CardHeader className='text-center space-y-2'>
+          <CardTitle className='text-2xl font-bold'>Definir sua senha</CardTitle>
+          <CardDescription>
+            Utilize o formulário abaixo para criar sua senha de acesso.
+          </CardDescription>
+        </CardHeader>
 
-        {loading && (
-          <div className="skeleton-sub h-8 rounded-md" />
-        )}
-
-        {!loading && !codeValid && (
-          <div className="text-red-600 dark:text-red-400 mb-4">
-            {error || 'Link inválido.'}
-          </div>
-        )}
-
-        {!loading && codeValid && !success && (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {email && (
-              <div className="paragraph-base">
-                Criando senha para: <span className="font-semibold">{email}</span>
+        <CardContent className='mt-4'>
+          {loading ? (
+            <div className="space-y-4">
+               <Skeleton className="h-4 w-3/4 bg-slate-200 dark:bg-slate-800" />
+               <Skeleton className="h-10 w-full bg-slate-200 dark:bg-slate-800" />
+               <Skeleton className="h-10 w-full bg-slate-200 dark:bg-slate-800" />
+               <Skeleton className="h-10 w-full bg-slate-200 dark:bg-slate-800" />
+            </div>
+          ) : !codeValid ? (
+             <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  {error || 'Link inválido.'}
+                </AlertDescription>
+             </Alert>
+          ) : success ? (
+            <div className="space-y-6 text-center">
+              <div className="flex flex-col items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                <CheckCircle2 className="h-12 w-12" />
+                <p className="font-medium">Senha definida com sucesso!</p>
               </div>
-            )}
-
-            <div>
-              <label className="paragraph-base mb-1 block">Nova senha</label>
-              <input
-                type="password"
-                className="w-full input-base px-3 py-2"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Mínimo de 8 caracteres"
-                required
-              />
+              <p className="text-sm text-muted-foreground">
+                Agora você já pode fazer login com sua nova senha.
+              </p>
+              <Button onClick={goToLogin} className="w-full">
+                Ir para o login
+              </Button>
             </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {email && (
+                <div className="text-sm text-muted-foreground bg-muted/50 p-2 rounded-md text-center">
+                  Criando senha para: <span className="font-medium text-foreground">{email}</span>
+                </div>
+              )}
 
-            <div>
-              <label className="paragraph-base mb-1 block">Confirmar senha</label>
-              <input
-                type="password"
-                className="w-full input-base px-3 py-2"
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
-                placeholder="Repita a senha"
-                required
-              />
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Nova senha</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Mínimo de 8 caracteres"
+                  required
+                />
+              </div>
 
-            {error && (
-              <div className="text-red-600 dark:text-red-400">{error}</div>
-            )}
+              <div className="space-y-2">
+                <Label htmlFor="confirm">Confirmar senha</Label>
+                <Input
+                  id="confirm"
+                  type="password"
+                  value={confirm}
+                  onChange={(e) => setConfirm(e.target.value)}
+                  placeholder="Repita a senha"
+                  required
+                />
+              </div>
 
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full rounded-lg bg-primary text-primary-foreground py-2 font-semibold hover:opacity-90 disabled:opacity-50"
-            >
-              {submitting ? 'Salvando...' : 'Definir senha'}
-            </button>
-          </form>
-        )}
+              {error && (
+                <Alert variant="destructive">
+                   <AlertCircle className="h-4 w-4" />
+                   <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
 
-        {success && (
-          <div className="space-y-4">
-            <div className="text-green-700 dark:text-green-400">
-              Senha definida com sucesso. Agora você já pode fazer login.
-            </div>
-            <button
-              onClick={goToLogin}
-              className="w-full rounded-lg bg-primary text-primary-foreground py-2 font-semibold hover:opacity-90"
-            >
-              Ir para o login
-            </button>
-          </div>
-        )}
-      </div>
+              <Button
+                type="submit"
+                isLoading={submitting}
+                className="w-full"
+              >
+                Definir senha
+              </Button>
+            </form>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -181,6 +181,24 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const showRightIcon = !isLoading && rightIcon;
     const showChildren = size !== "icon" || !isLoading;
 
+    if (asChild) {
+      return (
+        <Comp
+          className={twMerge(
+            getButtonClasses({ variant, size, fullWidth, animation }),
+            className
+          )}
+          data-variant={variant}
+          data-size={size}
+          ref={ref}
+          disabled={isLoading || props.disabled}
+          {...props}
+        >
+          {children}
+        </Comp>
+      );
+    }
+
     return (
       <Comp
         className={twMerge(

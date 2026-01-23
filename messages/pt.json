@@ -4,6 +4,16 @@
     "accept": "Aceitar",
     "decline": "Recusar"
   },
+  "NotFound": {
+    "title": "Página não encontrada",
+    "description": "Desculpe, não conseguimos encontrar a página que você está procurando.",
+    "backButton": "Voltar para o Início"
+  },
+  "NotAllowed": {
+    "title": "Acesso Negado",
+    "description": "Você não tem permissão para acessar esta página.",
+    "backButton": "Voltar para o Início"
+  },
   "StudentNotebook": {
     "title": "Meu Caderno",
     "subtitle": "Acompanhe seu progresso e revise seu aprendizado."

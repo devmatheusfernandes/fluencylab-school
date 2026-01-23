@@ -86,6 +86,10 @@ export default withAuth(
           // O HubEntryPoint cuidará do redirecionamento correto baseado na role
           const hubPath = currentLocale ? `/${currentLocale}/hub` : "/hub";
           return NextResponse.redirect(new URL(hubPath, req.url));
+
+          // Se não tiver permissão, redireciona para a página de acesso negado
+          // const notAllowedPath = currentLocale ? `/${currentLocale}/not-allowed` : "/not-allowed";
+          // return NextResponse.redirect(new URL(notAllowedPath, req.url));
         }
       }
     }
