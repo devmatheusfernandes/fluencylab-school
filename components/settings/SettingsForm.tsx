@@ -81,7 +81,12 @@ export default function SettingsForm({
   const t = useTranslations("Settings");
   const router = useRouter();
   const pathname = usePathname();
-  const [language, setLanguage] = useState(currentLanguage);
+
+  // Get language from URL to ensure UI sync
+  const urlLocale = pathname.split("/")[1];
+  const initialLanguage = ["pt", "en"].includes(urlLocale) ? urlLocale : currentLanguage;
+
+  const [language, setLanguage] = useState(initialLanguage);
   const [themeColor, setThemeColor] = useState<
     "violet" | "rose" | "orange" | "yellow" | "green"
   >(currentThemeColor || "violet");

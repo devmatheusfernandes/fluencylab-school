@@ -184,7 +184,7 @@ export function StudentPaymentStatusCard() {
         <div className="p-3 bg-zinc-100 dark:bg-zinc-800 rounded-full mb-3">
           <Wallet className="w-6 h-6 text-zinc-400" />
         </div>
-        <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-1">
+        <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-1 text-center">
           {t("noSubscription")}
         </h3>
         <p className="text-sm text-zinc-500 mb-4 max-w-xs">
