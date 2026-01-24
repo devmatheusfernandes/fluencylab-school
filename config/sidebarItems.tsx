@@ -1,5 +1,11 @@
 // config/sidebarItems.tsx
 import { SidebarItemType } from "@/components/shared/Sidebar/Sidebar";
+import { DollarSignIcon } from "@/public/animated/finances";
+import { BellIcon } from "@/public/animated/notification";
+import { PeopleIcon } from "@/public/animated/people";
+import { UserIcon } from "@/public/animated/person";
+import { SettingsIcon } from "@/public/animated/settings";
+import { ClapIcon } from "@/public/animated/video";
 import { UserRoles } from "@/types/users/userRoles";
 import {
   Home,
@@ -24,37 +30,37 @@ const adminItems: SidebarItemType[] = [
     href: "/[locale]/hub/admin/my-profile",
     label: "Meu Perfil",
     labelKey: "myProfile",
-    icon: <UserCircle className="w-6 h-6" />,
+    icon: <UserIcon size={20} />,
   },
   {
     href: "/[locale]/hub/admin/users",
     label: "Usuários",
     labelKey: "users",
-    icon: <Users className="w-6 h-6" />,
+    icon: <PeopleIcon size={20} />,
   },
   {
     href: "/[locale]/hub/admin/finances",
     label: "Financeiro",
     labelKey: "finances",
-    icon: <DollarSign className="w-6 h-6" />,
+    icon: <DollarSignIcon size={20} />,
   },
   {
     href: "/[locale]/hub/admin/courses",
     label: "Cursos",
     labelKey: "courses",
-    icon: <Video className="w-6 h-6" />,
+    icon: <ClapIcon size={20} />,
   },
   {
     href: "/[locale]/hub/admin/notification",
     label: "Notificações",
     labelKey: "notification",
-    icon: <BellDotIcon className="w-6 h-6" />,
+    icon: <BellIcon size={20} />,
   },
   {
     href: "/[locale]/hub/admin/settings",
     label: "Configurações",
     labelKey: "settings",
-    icon: <Settings className="w-6 h-6" />,
+    icon: <SettingsIcon size={20} />,
   },
 ];
 

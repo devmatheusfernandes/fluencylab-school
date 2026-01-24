@@ -47,6 +47,16 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ item, isCollapsed }) => {
   const pathname = usePathname();
   const isActive = pathname === item.href;
 
+  const iconRef = React.useRef<any>(null);
+
+  const handleMouseEnter = () => {
+    iconRef.current?.startAnimation?.();
+  };
+
+  const handleMouseLeave = () => {
+    iconRef.current?.stopAnimation?.();
+  };
+
   if (item.subItems) {
     return (
       <Collapsible.Root className="w-full">
@@ -155,6 +165,8 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ item, isCollapsed }) => {
       <motion.div
         whileHover={{ x: isCollapsed ? 0 : 4, scale: isCollapsed ? 1.05 : 1 }}
         whileTap={{ scale: 0.98 }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         className={twMerge(
           "flex items-center h-12 px-3 py-3 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/15 transition-all ease-in-out duration-300",
           isActive && "bg-primary/30 text-primary font-semibold",
@@ -165,7 +177,11 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ item, isCollapsed }) => {
           whileHover={{ rotate: isCollapsed ? 0 : 5 }}
           className="w-5 h-5 flex items-center justify-center relative"
         >
-          {item.icon}
+          {React.isValidElement(item.icon)
+            ? React.cloneElement(item.icon as React.ReactElement<any>, {
+                ref: iconRef,
+              })
+            : item.icon}
           {isCollapsed && item.badgeCount && item.badgeCount > 0 ? (
             <div className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-background">
               {item.badgeCount > 9 ? "9+" : item.badgeCount}

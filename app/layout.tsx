@@ -36,8 +36,8 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${quicksand.className} ${themeColorClass}`}>
+    <html lang="en" suppressHydrationWarning className={themeColorClass}>
+      <body className={quicksand.className}>
         <AuthProvider>
           <ThemeProvider
             attribute="class"
