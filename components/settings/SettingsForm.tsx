@@ -114,7 +114,7 @@ export default function SettingsForm({
   };
 
   const applyThemeColorClass = (color: typeof themeColor) => {
-    const root = document.documentElement;
+    const root = document.body;
     root.classList.remove(
       "theme-violet",
       "theme-rose",
