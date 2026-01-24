@@ -156,6 +156,12 @@ const managerItems = [
     icon: <Users className="w-6 h-6" />,
   },
   {
+    href: "/[locale]/hub/manager/students",
+    label: "Perfil",
+    labelKey: "profile",
+    icon: <Users className="w-6 h-6" />,
+  },
+  {
     href: "/[locale]/hub/manager/settings",
     label: "Configurações",
     labelKey: "settings",
