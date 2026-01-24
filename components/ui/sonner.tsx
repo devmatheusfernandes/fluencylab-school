@@ -26,7 +26,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       toastOptions={{
         style: {
-          background: "var(--card)",
+          background: "var(--accent)",
           color: "var(--primary)",
           border: "1px solid var(--border)",
           borderRadius: "var(--radius)",
