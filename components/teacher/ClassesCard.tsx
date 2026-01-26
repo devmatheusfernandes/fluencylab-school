@@ -3,7 +3,6 @@
 import { useTranslations, useLocale } from "next-intl";
 import { useState, useEffect } from "react";
 import { ClassStatus, StudentClass } from "@/types/classes/class";
-import { SubContainer } from "@/components/ui/sub-container";
 import {
   Select,
   SelectContent,
@@ -298,7 +297,7 @@ export default function ClassesCard({
   };
 
   return (
-    <SubContainer className="min-h-[60vh] lg:h-full">
+    <Card className="min-h-[60vh] lg:h-full">
       {/* Enhanced Feedback Modal - only for teachers */}
       {onUpdateClassFeedback && (
         <Modal
@@ -691,6 +690,6 @@ export default function ClassesCard({
           </div>
         )}
       </div>
-    </SubContainer>
+    </Card>
   );
 }

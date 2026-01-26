@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { ContainerCard } from "@/components/ui/container";
-import { SubContainer } from "@/components/ui/sub-container";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { signOut } from "next-auth/react";
 import NextClassCard from "@/components/student/NextClassCard";

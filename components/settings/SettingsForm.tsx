@@ -195,8 +195,7 @@ export default function SettingsForm({
 
           <div className="space-y-4">
             <motion.div 
-              className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-lg subcontainer-base"
-              whileHover={{ scale: 1.01 }}
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-lg item-base"
               transition={{ type: "spring", stiffness: 400 }}
             >
               <div className="flex items-center gap-2">
@@ -226,7 +225,7 @@ export default function SettingsForm({
             </motion.div>
 
             <motion.div 
-              className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-lg subcontainer-base"
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-lg item-base"
               whileHover={{ scale: 1.01 }}
               transition={{ type: "spring", stiffness: 400 }}
             >
@@ -260,7 +259,7 @@ export default function SettingsForm({
             </motion.div>
 
             <motion.div 
-              className="flex items-center justify-between p-4 rounded-lg subcontainer-base"
+              className="flex items-center justify-between p-4 rounded-lg item-base"
               whileHover={{ scale: 1.01 }}
               transition={{ type: "spring", stiffness: 400 }}
             >
@@ -295,7 +294,7 @@ export default function SettingsForm({
 
             <div className="space-y-4">
               <motion.div 
-                className="flex items-center justify-between p-4 rounded-lg subcontainer-base"
+                className="flex items-center justify-between p-4 rounded-lg item-base"
                 whileHover={{ scale: 1.01 }}
                 transition={{ type: "spring", stiffness: 400 }}
               >
@@ -430,7 +429,7 @@ export default function SettingsForm({
                   {dayNames.map(({ key, label }) => (
                     <motion.div
                       key={key}
-                      className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-lg subcontainer-base"
+                      className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-lg item-base"
                       whileHover={{ scale: 1.01 }}
                       transition={{ type: "spring", stiffness: 400 }}
                     >

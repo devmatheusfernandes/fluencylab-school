@@ -261,7 +261,7 @@ export default function AdminAnnouncementsPage() {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="p-4 md:p-8 space-y-8"
+      className="p-4 md:p-6 space-y-6"
     >
       <Header
         heading={t("title")}

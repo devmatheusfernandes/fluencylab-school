@@ -13,7 +13,7 @@ export default async function CreateStudentProfilePage() {
   const users = [...students, ...guarded];
   
   return (
-    <Container>
+    <Container className="p-4 md:p-6 space-y-6">
       <Header 
         heading={t("createTitle")} 
         subheading={t("createDescription")}

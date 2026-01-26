@@ -8,127 +8,109 @@ import { ClassStatus } from "@/types/classes/class";
 import TasksCard from "@/components/teacher/TaskCard";
 import NotebooksCard from "@/components/teacher/NotebooksCard";
 import ClassesCard from "@/components/teacher/ClassesCard";
-import StudentInfoCard from "@/components/teacher/StudentInfoCard";
+import PlanCalendarCard from "@/components/teacher/PlanCalendarCard";
 
 import { Container } from "@/components/ui/container";
-import { SubContainer } from "@/components/ui/sub-container";
 import ErrorAlert from "@/components/ui/error-alert";
 import { ContainerCard } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 // Skeleton component for the student panel
 const StudentPanelSkeleton = () => (
-  <Container className="flex flex-col sm:flex-row gap-2">
-    <div className="w-full sm:w-fit h-full flex flex-col gap-2">
-      <SubContainer className="skeleton-base flex flex-row items-center justify-start !py-6 gap-2">
-        {/* Avatar skeleton */}
-        <Skeleton className="skeleton-sub w-16 h-16 rounded-xl" />
-
-        {/* Action cards skeletons */}
-        <div className="flex gap-2">
-          {[...Array(3)].map((_, index) => (
-            <Skeleton
-              key={index}
-              className="skeleton-sub w-16 h-16 rounded-lg"
-            />
-          ))}
-        </div>
-      </SubContainer>
-
-      {/* Notebooks card skeleton */}
-      <Skeleton className="skeleton-base rounded-xl p-4 min-h-[300px]">
-        <div className="flex flex-col gap-3">
-          {/* Search bar skeleton */}
-          <Skeleton className="skeleton-sub h-10 rounded-lg mb-4" />
-
-          {/* Notebook items skeletons */}
-          {[...Array(3)].map((_, index) => (
-            <div
-              key={index}
-              className="skeleton-sub p-2 flex flex-row items-start justify-between rounded-lg overflow-hidden"
-            >
-              <div className="flex-1 space-y-2">
-                <Skeleton className="skeleton-base h-5 rounded w-3/4" />
-                <Skeleton className="skeleton-base h-3 rounded w-1/2" />
-              </div>
-              <Skeleton className="skeleton-base h-5 w-5 rounded" />
-            </div>
-          ))}
-        </div>
-      </Skeleton>
-    </div>
-
-    {/* Tasks card skeleton */}
-    <Skeleton className="skeleton-base rounded-xl p-4 flex-1">
-      <div className="flex flex-col gap-3">
-        {/* Header with progress bar skeleton */}
-        <div className="flex justify-between items-center mb-2">
-          <Skeleton className="skeleton-sub h-6 rounded w-1/4" />
-          <Skeleton className="skeleton-sub h-6 rounded w-10" />
-        </div>
-        <Skeleton className="skeleton-sub h-4 rounded w-full mb-4" />
-
-        {/* Task input skeleton */}
-        <Skeleton className="skeleton-sub h-12 rounded-lg mb-4" />
-
-        {/* Task items skeletons */}
+  <ContainerCard className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    {/* Notebooks card skeleton */}
+    <Skeleton className="skeleton-base rounded-xl p-4 min-h-[300px] flex flex-col gap-4">
+      <Skeleton className="skeleton-sub h-10 rounded-lg" />
+      <div className="space-y-3">
         {[...Array(3)].map((_, index) => (
           <div
             key={index}
-            className="skeleton-sub flex items-center justify-between p-3 rounded-lg"
+            className="skeleton-sub p-3 flex items-center justify-between rounded-lg"
           >
-            <div className="flex items-center space-x-3">
-              <Skeleton className="skeleton-base h-5 w-5 rounded" />
-              <Skeleton className="h-5 rounded w-32" />
+            <div className="space-y-2 w-full max-w-[70%]">
+              <Skeleton className="skeleton-base h-4 w-3/4 rounded" />
+              <Skeleton className="skeleton-base h-3 w-1/2 rounded" />
             </div>
-            <div className="flex space-x-2">
-              <Skeleton className="skeleton-sub h-5 w-5 rounded" />
-              <Skeleton className="skeleton-sub h-5 w-5 rounded" />
-            </div>
+            <Skeleton className="skeleton-base h-8 w-8 rounded-full" />
+          </div>
+        ))}
+      </div>
+    </Skeleton>
+
+    {/* Tasks card skeleton */}
+    <Skeleton className="skeleton-base rounded-xl p-4 min-h-[300px] flex flex-col gap-4">
+      <div className="flex justify-between items-center">
+        <Skeleton className="skeleton-sub h-6 w-1/3 rounded" />
+        <Skeleton className="skeleton-sub h-6 w-12 rounded" />
+      </div>
+      <Skeleton className="skeleton-sub h-2 w-full rounded-full" />
+      <Skeleton className="skeleton-sub h-10 rounded-lg" />
+      <div className="space-y-3">
+        {[...Array(3)].map((_, index) => (
+          <div key={index} className="flex items-center gap-3">
+            <Skeleton className="skeleton-sub h-5 w-5 rounded shrink-0" />
+            <Skeleton className="skeleton-sub h-4 w-full rounded" />
           </div>
         ))}
       </div>
     </Skeleton>
 
     {/* Classes card skeleton */}
-    <Skeleton className="skeleton-base rounded-xl p-4 flex-1">
-      <div className="flex flex-col gap-3">
-        {/* Month/year selector skeleton */}
-        <div className="flex gap-2 mb-4">
-          <Skeleton className="skeleton-sub h-10 rounded-lg flex-1" />
-          <Skeleton className="skeleton-sub h-10 rounded-lg flex-1" />
-        </div>
+    <Skeleton className="skeleton-base rounded-xl p-4 min-h-[400px] flex flex-col gap-4">
+      <div className="flex gap-2">
+        <Skeleton className="skeleton-sub h-10 flex-1 rounded-lg" />
+        <Skeleton className="skeleton-sub h-10 flex-1 rounded-lg" />
+      </div>
+      <div className="space-y-4">
+        {[...Array(4)].map((_, index) => (
+          <div key={index} className="skeleton-sub p-3 rounded-lg flex justify-between gap-4">
+            <div className="space-y-2 flex-1">
+              <Skeleton className="skeleton-base h-4 w-24 rounded" />
+              <Skeleton className="skeleton-base h-3 w-16 rounded" />
+            </div>
+            <Skeleton className="skeleton-base h-8 w-32 rounded" />
+          </div>
+        ))}
+      </div>
+    </Skeleton>
 
-        {/* Class items skeletons */}
-        {[...Array(5)].map((_, index) => (
-          <div key={index} className="skeleton-sub rounded-lg p-3 sm:p-4 ">
-            <div className="flex flex-col gap-3">
-              <div className="flex flex-row w-full justify-between gap-2">
-                <div className="flex flex-col space-y-2">
-                  <Skeleton className="skeleton-base h-5 rounded w-24" />
-                  <Skeleton className="skeleton-base h-4 rounded w-16" />
-                </div>
-                <Skeleton className="skeleton-base h-8 w-full xs:w-32 sm:w-40 rounded" />
-              </div>
+    {/* Plan card skeleton */}
+    <Skeleton className="skeleton-base rounded-xl p-4 min-h-[400px] flex flex-col gap-4">
+      <div className="flex justify-between items-center">
+        <div className="flex gap-2 items-center">
+          <Skeleton className="skeleton-sub h-5 w-5 rounded" />
+          <Skeleton className="skeleton-sub h-5 w-32 rounded" />
+        </div>
+        <Skeleton className="skeleton-sub h-8 w-8 rounded" />
+      </div>
+      <div className="flex gap-2">
+        <Skeleton className="skeleton-sub h-10 flex-1 rounded-lg" />
+        <Skeleton className="skeleton-sub h-10 flex-1 rounded-lg" />
+      </div>
+      <div className="space-y-3">
+        {[...Array(4)].map((_, index) => (
+          <div key={index} className="skeleton-sub p-3 rounded-lg space-y-2">
+            <div className="flex justify-between">
+              <Skeleton className="skeleton-base h-4 w-3/4 rounded" />
+              <Skeleton className="skeleton-base h-5 w-16 rounded-full" />
             </div>
           </div>
         ))}
       </div>
     </Skeleton>
-  </Container>
+  </ContainerCard>
 );
 
 export default function StudentDetailsPanel() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id") || "";
   const { data: session } = useSession();
-  const isMobile = useIsMobile();
   const {
     student,
     notebooks,
     tasks,
     classes,
+    plan,
     loading,
     error,
     fetchClasses,
@@ -139,12 +121,13 @@ export default function StudentDetailsPanel() {
     updateTask: updateTaskAction,
     deleteTask: deleteTaskAction,
     deleteAllTasks: deleteAllTasksAction,
+    fetchPlan,
   } = useStudentPanel(id);
 
   // Handle updating class status
   const handleUpdateClassStatus = async (
     classId: string,
-    newStatus: ClassStatus
+    newStatus: ClassStatus,
   ) => {
     const success = await updateClassStatus(classId, newStatus);
     if (success) {
@@ -156,7 +139,7 @@ export default function StudentDetailsPanel() {
   // Handle updating class feedback
   const handleUpdateClassFeedback = async (
     classId: string,
-    feedback: string
+    feedback: string,
   ) => {
     const success = await updateClassFeedback(classId, feedback);
     if (success) {
@@ -174,19 +157,15 @@ export default function StudentDetailsPanel() {
   }
 
   return (
-    <ContainerCard className="flex flex-col sm:flex-row gap-4">
-      <div className="w-full flex flex-col gap-2">
-        <StudentInfoCard isMobile={isMobile} student={student} />
-
-        <NotebooksCard
-          student={student}
-          notebooks={notebooks}
-          onCreateNotebook={createNotebookAction}
-          userRole={session?.user?.role}
-          onAddTask={addTaskAction}
-          loading={loading}
-        />
-      </div>
+    <ContainerCard className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <NotebooksCard
+        student={student}
+        notebooks={notebooks}
+        onCreateNotebook={createNotebookAction}
+        userRole={session?.user?.role}
+        onAddTask={addTaskAction}
+        loading={loading}
+      />
 
       <TasksCard
         tasks={tasks}
@@ -203,6 +182,13 @@ export default function StudentDetailsPanel() {
         onUpdateClassFeedback={handleUpdateClassFeedback}
         onFetchClasses={fetchClasses}
         loading={loading}
+      />
+
+      <PlanCalendarCard 
+        plan={plan} 
+        loading={loading} 
+        studentId={id} 
+        onRefresh={fetchPlan}
       />
     </ContainerCard>
   );

@@ -5,6 +5,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { User } from '@/types/users/users';
 import { StudentClass, ClassStatus } from '@/types/classes/class';
 import { Notebook } from '@/types/notebooks/notebooks';
+import { Plan } from '@/types/plan';
 
 // Use global Notebook type
 
@@ -34,11 +35,36 @@ const parseClassDates = (cls: any): StudentClass => {
   };
 };
 
+// Parse plan dates utility
+const parsePlanDates = (plan: any): Plan | null => {
+  if (!plan) return null;
+  
+  return {
+    ...plan,
+    createdAt: plan.createdAt ? new Date(plan.createdAt) : undefined,
+    updatedAt: plan.updatedAt ? new Date(plan.updatedAt) : undefined,
+    lessons: plan.lessons.map((lesson: any) => ({
+      ...lesson,
+      scheduledDate: lesson.scheduledDate ? new Date(lesson.scheduledDate) : undefined,
+      learningItemsIds: lesson.learningItemsIds?.map((item: any) => ({
+        ...item,
+        updatedAt: item.updatedAt ? new Date(item.updatedAt) : undefined,
+        lastReviewedAt: item.lastReviewedAt ? new Date(item.lastReviewedAt) : undefined,
+        srsData: item.srsData ? {
+          ...item.srsData,
+          dueDate: item.srsData.dueDate ? new Date(item.srsData.dueDate) : undefined
+        } : undefined
+      })) || [],
+    })),
+  };
+};
+
 export const useStudentPanel = (studentId: string) => {
   const [student, setStudent] = useState<Partial<User> | null>(null);
   const [notebooks, setNotebooks] = useState<Notebook[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [classes, setClasses] = useState<StudentClass[]>([]);
+  const [plan, setPlan] = useState<Plan | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -177,6 +203,38 @@ export const useStudentPanel = (studentId: string) => {
       setClasses(data.map(parseClassDates));
     } catch (err: any) {
       setError(err.message);
+    }
+  }, [studentId]);
+
+  const fetchPlan = useCallback(async () => {
+    if (!studentId) return;
+
+    try {
+      // For students, use their own endpoint (TODO: Implement if needed)
+      if (typeof window !== 'undefined') {
+        const sessionResponse = await fetch('/api/auth/session');
+        const session = await sessionResponse.json();
+        
+        if (session?.user?.id === studentId && session?.user?.role === 'student') {
+           // Skip for now or implement student specific endpoint
+           return;
+        }
+      }
+
+      // For teachers/admins accessing student data
+      const response = await fetch(`/api/teacher/students/${studentId}/plan`);
+      if (response.ok) {
+        const data = await response.json();
+        setPlan(parsePlanDates(data));
+      } else {
+        // If 404, it just means no plan, which is fine
+        if (response.status === 404) {
+             setPlan(null);
+        }
+      }
+    } catch (err: any) {
+       console.error("Error fetching plan:", err);
+       // Don't set error state as plan might not exist and that's not a critical error for the whole panel
     }
   }, [studentId]);
 
@@ -479,82 +537,35 @@ export const useStudentPanel = (studentId: string) => {
 
   // Load initial data
   useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      try {
-        await Promise.all([
-          fetchStudentInfo(),
-          fetchNotebooks(),
-          fetchTasks(),
-          fetchClasses(new Date().getMonth(), new Date().getFullYear())
-        ]);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     if (studentId) {
-      loadData();
+      Promise.all([
+        fetchStudentInfo(),
+        fetchNotebooks(),
+        fetchTasks(),
+        fetchClasses(new Date().getMonth(), new Date().getFullYear()),
+        fetchPlan()
+      ]).finally(() => {
+        setLoading(false);
+      });
     }
-  }, [studentId, fetchStudentInfo, fetchNotebooks, fetchTasks, fetchClasses]);
+  }, [studentId, fetchStudentInfo, fetchNotebooks, fetchTasks, fetchClasses, fetchPlan]);
 
   return {
-    // Data
     student,
     notebooks,
     tasks,
     classes,
-    
-    // Loading and error states
+    plan,
     loading,
     error,
-    
-    // Actions
-    fetchStudentInfo,
-    fetchNotebooks,
-    fetchTasks,
     fetchClasses,
     addTask,
     createNotebook,
     updateClassStatus,
-    updateClassFeedback,
     updateTask,
     deleteTask,
     deleteAllTasks,
-    
-    // Setters for local state management
-    setNotebooks,
-    setTasks,
-    setClasses,
+    updateClassFeedback,
+    fetchPlan
   };
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

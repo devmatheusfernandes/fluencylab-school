@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/modal";
 import { SearchBar } from "@/components/ui/search-bar";
 import { NoResults } from "@/components/ui/no-results";
-import { SubContainer } from "@/components/ui/sub-container";
 import { Notebook } from "@/types/notebooks/notebooks";
 import { generateNotebookPDF } from "@/utils/pdfGenerator";
 import { FileTextIcon, Luggage, PaperclipIcon, Plus } from "lucide-react";
@@ -149,7 +148,7 @@ export default function NotebooksCard({
   };
 
   return (
-    <div className="card-base h-full max-h-[calc(100vh-105px)] overflow-auto p-2">
+    <div className="card-base w-full h-full max-h-[calc(100vh-105px)] overflow-auto p-2">
       <div className="sticky top-0 z-10 flex flex-row gap-2 mb-4 relative">
         <SearchBar
           placeholder={t("searchPlaceholder")}

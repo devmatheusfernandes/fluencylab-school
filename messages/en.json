@@ -33,6 +33,15 @@
     "firstImpressions": "First Impressions",
     "saving": "Saving..."
   },
+  "PlanCalendarCard": {
+    "title": "Lesson Plan",
+    "noPlan": "No active plan found for this student.",
+    "noLessons": "No lessons scheduled for this month.",
+    "lesson": "Lesson {order}: {title}",
+    "scheduledFor": "Scheduled for {date}",
+    "createPlan": "Create Plan",
+    "editPlan": "Edit Plan"
+  },
   "NotFound": {
     "title": "Page Not Found",
     "description": "Sorry, we couldn't find the page you're looking for.",
@@ -366,6 +375,7 @@
 
   "MyStudentsPage": {
     "title": "My Students",
+    "subheading": "Manage and track your students' progress.",
     "searchPlaceholder": "Search your students...",
     "errorLoading": "Error loading students. Please try again.",
     "genericError": "Something went wrong",
@@ -493,7 +503,8 @@
     "chat": "Chat",
     "myPlacement": "Placement",
     "contents": "Contents",
-    "vocabulary": "Vocabulary"
+    "vocabulary": "Vocabulary",
+    "studentProfile": "Student Profiles"
   },
   "UserProfileHeader": {
     "profilePicture": "Profile picture",
@@ -2322,6 +2333,8 @@
     }
   },
   "TeacherSchedule": {
+    "pageTitle": "My Schedule",
+    "pageSubtitle": "Manage your scheduling settings, vacation, and available slots.",
     "tabs": {
       "settings": "Settings",
       "vacation": "Vacation",
@@ -2530,5 +2543,10 @@
         "monthly": "Monthly"
       }
     }
+  },
+  "WorkbookScreen": {
+    "title": "Learning Material",
+    "subtitle": "Access workbooks, lessons, and extra resources.",
+    "searchPlaceholder": "Search lessons..."
   }
 }

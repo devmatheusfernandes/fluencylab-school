@@ -9,18 +9,13 @@ import { ClapIcon } from "@/public/animated/video";
 import { UserRoles } from "@/types/users/userRoles";
 import {
   Home,
-  Users,
   Calendar,
-  Settings,
   DollarSign,
-  Video,
   BookOpen,
-  Gamepad2,
   Monitor,
   UserCircle,
   UserStar,
   Book,
-  BellDotIcon,
   FileText,
 } from "lucide-react";
 
@@ -75,7 +70,7 @@ const teacherItems: SidebarItemType[] = [
     href: "/[locale]/hub/teacher/my-students",
     label: "Alunos",
     labelKey: "students",
-    icon: <Users className="w-6 h-6" />,
+    icon: <PeopleIcon size={20} />,
   },
   {
     href: "/[locale]/hub/teacher/my-schedule",
@@ -99,7 +94,7 @@ const teacherItems: SidebarItemType[] = [
     href: "/[locale]/hub/teacher/settings",
     label: "Configurações",
     labelKey: "settings",
-    icon: <Settings className="w-6 h-6" />,
+    icon: <SettingsIcon size={20} />,
   },
 ];
 
@@ -138,7 +133,7 @@ const studentItems: SidebarItemType[] = [
     href: "/[locale]/hub/student/settings",
     label: "Configurações",
     labelKey: "settings",
-    icon: <Settings className="w-6 h-6" />,
+    icon: <SettingsIcon size={20} />,
   },
 ];
 
@@ -153,19 +148,19 @@ const managerItems = [
     href: "/[locale]/hub/manager/users",
     label: "Usuários",
     labelKey: "users",
-    icon: <Users className="w-6 h-6" />,
+    icon: <PeopleIcon className="w-6 h-6" />,
   },
   {
-    href: "/[locale]/hub/manager/students",
-    label: "Perfil",
-    labelKey: "profile",
-    icon: <Users className="w-6 h-6" />,
+    href: "/[locale]/hub/manager/student-profiles",
+    label: "Perfil de Estudantes",
+    labelKey: "studentProfile",
+    icon: <PeopleIcon className="w-6 h-6" />,
   },
   {
     href: "/[locale]/hub/manager/settings",
     label: "Configurações",
     labelKey: "settings",
-    icon: <Settings className="w-6 h-6" />,
+    icon: <SettingsIcon className="w-6 h-6" />,
   },
 ];
 
@@ -198,7 +193,7 @@ const materialManagerItems = [
     href: "/[locale]/hub/material-manager/settings",
     label: "Configurações",
     labelKey: "settings",
-    icon: <Settings className="w-6 h-6" />,
+    icon: <SettingsIcon className="w-6 h-6" />,
   },
 ];
 

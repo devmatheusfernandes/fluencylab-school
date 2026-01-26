@@ -201,16 +201,20 @@
   @apply text-xs font-medium text-secondary-foreground/80;
 }
 
-.subcontainer-base {
-  @apply bg-slate-400/20 dark:bg-slate-800;
-}
-
 /* Cards */
 .card-base {
-  @apply duration-150 ease-in-out transition-all rounded-lg 
+  @apply duration-100 ease-in-out transition-all rounded-lg 
          border border-slate-200/50 dark:border-slate-700/50 
-         bg-slate-400/10 dark:bg-slate-950/40  /*era bg-slate-400/20*/
-         hover:border-slate-300 dark:hover:border-slate-600;
+         bg-slate-400/10 dark:bg-slate-950/40 /* TODO: MUDAR PARA 950/85*/
+         hover:border-slate-600/10 dark:hover:border-slate-600/50;
+}
+
+.item-base {
+  @apply duration-150 ease-in-out transition-all rounded-md 
+         border border-slate-200/50 dark:border-slate-700/50 
+         bg-white/15 dark:bg-slate-950/75  
+         hover:border-slate-500/30 dark:hover:border-slate-600
+         hover:bg-white/5 dark:hover:bg-gray-950 
 }
 
 /* Skeleton Loaders */

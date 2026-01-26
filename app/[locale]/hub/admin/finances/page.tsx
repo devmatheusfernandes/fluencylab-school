@@ -791,7 +791,7 @@ export default function AdminFinancesPage() {
   };
 
   return (
-    <div className="p-4 md:p-8 space-y-8">
+    <div className="p-4 md:p-6 space-y-6">
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}

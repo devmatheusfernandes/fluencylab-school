@@ -18,6 +18,7 @@ import { BadgePoundSterling, Calendar, Ear, Settings } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
 import { getTranslations } from "next-intl/server";
+import { Header } from "@/components/ui/header";
 
 const userAdminRepo = new UserAdminRepository();
 const schedulingService = new SchedulingService();
@@ -77,14 +78,15 @@ export default async function TeacherSettingsPage() {
   const serializedScheduleData = serializeForClientComponent(scheduleData);
 
   return (
-    <Tabs defaultValue="settings">
-      <div className="flex flex-row items-center justify-center w-full">
-        <TabsList className="flex flex-wrap bg-slate-200 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-1 shadow-sm">
+    <Tabs defaultValue="settings" className="p-4 md:p-6 space-y-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <Header heading={t("pageTitle")} subheading={t("pageSubtitle")} />
+        <TabsList className="flex flex-wrap bg-slate-200 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-1 shadow-sm w-full md:w-auto justify-center md:justify-start">
           <TabsTrigger
             value="settings"
-            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 rounded-lg font-medium"
+            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 rounded-lg font-medium flex-1 md:flex-none"
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 justify-center">
               <Settings className="w-4 h-4" />
               <span className="hidden sm:inline">{t("tabs.settings")}</span>
               <span className="sm:hidden">{t("tabs.settings")}</span>
@@ -92,9 +94,9 @@ export default async function TeacherSettingsPage() {
           </TabsTrigger>
           <TabsTrigger
             value="vacation"
-            className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 rounded-lg font-medium"
+            className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 rounded-lg font-medium flex-1 md:flex-none"
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 justify-center">
               <Ear className="w-4 h-4" />
               <span className="hidden sm:inline">{t("tabs.vacation")}</span>
               <span className="sm:hidden">{t("tabs.vacation")}</span>
@@ -102,9 +104,9 @@ export default async function TeacherSettingsPage() {
           </TabsTrigger>
           <TabsTrigger
             value="schedule"
-            className="data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 rounded-lg font-medium"
+            className="data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 rounded-lg font-medium flex-1 md:flex-none"
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 justify-center">
               <Calendar className="w-4 h-4" />
               <span className="hidden sm:inline">{t("tabs.schedule")}</span>
               <span className="sm:hidden">{t("tabs.schedule")}</span>

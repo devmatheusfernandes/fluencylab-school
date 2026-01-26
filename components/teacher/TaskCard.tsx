@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
-import { SubContainer } from "@/components/ui/sub-container";
 import { NoResults } from "@/components/ui/no-results";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -263,7 +262,7 @@ export default function TasksCard({
 
   return (
     <>
-      <SubContainer className="h-[50vh] sm:h-full flex flex-col relative overflow-hidden">
+      <div className="card-base w-full p-2 overflow-y-scroll h-[50vh] sm:h-full flex flex-col relative overflow-hidden">
         {/* Progress bar at the top */}
         <div className="absolute top-0 left-0 right-0 h-3 bg-slate-700 dark:bg-gray-700 overflow-hidden rounded-t-xl">
           <motion.div
@@ -363,7 +362,7 @@ export default function TasksCard({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.3 }}
-                  className="flex items-center p-2 card-base"
+                  className="flex items-center p-2 item-base"
                 >
                   <Checkbox
                     checked={task.completed}
@@ -423,7 +422,7 @@ export default function TasksCard({
             )}
           </div>
         </div>
-      </SubContainer>
+      </div>
 
       {/* Only show delete all tasks modal if onDeleteAllTasks is provided and is a function */}
       {onDeleteAllTasks && typeof onDeleteAllTasks === "function" && (

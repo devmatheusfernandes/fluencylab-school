@@ -20,21 +20,21 @@ export default async function HomePage({
   return (
     <BubbleBackground interactive={true}>
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center gap-3">
-        <h1 className="text-3xl font-bold">{title}</h1>
-        <div className="flex flex-row items-center gap-2">
+        <h1 className="text-3xl font-bold text-center">{title}</h1>
+        <div className="flex flex-wrap flex-row items-center justify-center gap-2">
           <LanguageSwitcher />
           <ThemeSwitcher />
-        </div>
-        <div className="mt-4">
+           <div>
           {session?.user ? (
             <Link href={`/${locale}/hub`}>
               <Button variant="glass">Continuar como {session.user.name}</Button>
             </Link>
           ) : (
             <Link href={`/${locale}/signin`}>
-              <Button>Entrar</Button>
+              <Button variant="glass">Entrar</Button>
             </Link>
           )}
+        </div>
         </div>
       </div>
     </BubbleBackground>

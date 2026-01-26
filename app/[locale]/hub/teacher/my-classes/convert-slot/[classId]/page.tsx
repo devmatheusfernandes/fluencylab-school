@@ -6,7 +6,6 @@ import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { Container } from "@/components/ui/container";
 import { toast } from "sonner";
-import { SubContainer } from "@/components/ui/sub-container";
 import { Spinner } from "@/components/ui/spinner";
 
 export default function ConvertSlotPage() {
@@ -86,7 +85,7 @@ export default function ConvertSlotPage() {
   }
 
   return (
-    <SubContainer className="flex flex-col items-center justify-center w-full h-full">
+    <Card className="flex flex-col items-center justify-center w-full h-full">
       <Card className="flex flex-col items-center justify-center p-8 py-18 max-w-md mx-auto text-center">
         <div className="mb-6">
           <div className="w-16 h-16 bg-subcontainer rounded-full flex items-center justify-center mx-auto mb-4">
@@ -127,6 +126,6 @@ export default function ConvertSlotPage() {
           </Button>
         </div>
       </Card>
-    </SubContainer>
+    </Card>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   collection,
   doc,
@@ -23,6 +24,7 @@ import EditWorkbookModal from "./EditWorkbook";
 import CreateMaterialModal from "./CreateWorkbookModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Header } from "@/components/ui/header";
 import Image from "next/image";
 import { motion } from "framer-motion"; // Import motion
 import { useRouter } from "next/navigation";
@@ -46,6 +48,7 @@ export default function Home() {
   const [organizedNotebooks, setOrganizedNotebooks] =
     useState<OrganizedNotebooks>({});
   const { data: session } = useSession();
+  const t = useTranslations("WorkbookScreen");
 
   // Fallback para capas que falharem ao carregar
   const [failedCoverIds, setFailedCoverIds] = useState<Record<string, boolean>>({});
@@ -313,27 +316,32 @@ export default function Home() {
 
   return (
     <>
-      <div className="min-h-screen p-6 transition-colors duration-300">
-        {/* Search Bar */}
-        <div className="flex flex-row gap-6 mb-6 w-full">
-          <Input
-            type="text"
-            placeholder="Buscar lições..."
-            value={searchQuery}
-            className="w-full"
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          {session?.user.role === "admin" && (
-            <div className="flex flex-row justify-end gap-2 w-full">
-              <Button onClick={handleOpenCreateModal}>Criar</Button>
-              <Button variant="glass" onClick={() => router.push("blog")}>
-                Criar Post
-              </Button>
-              <Button variant="glass" onClick={() => router.push("podcast")}>
-                Criar Podcast
-              </Button>
+      <div className="p-4 md:p-8 space-y-6">
+        {/* Header & Search */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+          <Header heading={t("title")} subheading={t("subtitle")} />
+          <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto items-stretch sm:items-center">
+            <div className="w-full md:w-[300px]">
+              <Input
+                type="text"
+                placeholder={t("searchPlaceholder")}
+                value={searchQuery}
+                className="w-full"
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
-          )}
+            {session?.user.role === "admin" && (
+              <div className="flex flex-row gap-2 overflow-x-auto">
+                <Button onClick={handleOpenCreateModal}>Criar</Button>
+                <Button variant="glass" onClick={() => router.push("blog")}>
+                  Criar Post
+                </Button>
+                <Button variant="glass" onClick={() => router.push("podcast")}>
+                  Criar Podcast
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Search Results */}

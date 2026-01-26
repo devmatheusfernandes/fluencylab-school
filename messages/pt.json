@@ -33,6 +33,15 @@
     "firstImpressions": "Primeiras Impressões",
     "saving": "Salvando..."
   },
+  "PlanCalendarCard": {
+    "title": "Plano de Aulas",
+    "noPlan": "Nenhum plano ativo encontrado para este aluno.",
+    "noLessons": "Nenhuma lição agendada para este mês.",
+    "lesson": "Lição {order}: {title}",
+    "scheduledFor": "Agendado para {date}",
+    "createPlan": "Criar Plano",
+    "editPlan": "Editar Plano"
+  },
   "NotFound": {
     "title": "Página não encontrada",
     "description": "Desculpe, não conseguimos encontrar a página que você está procurando.",
@@ -366,6 +375,7 @@
 
   "MyStudentsPage": {
     "title": "Meus Alunos",
+    "subheading": "Gerencie e acompanhe o progresso dos seus alunos.",
     "searchPlaceholder": "Procure seus alunos...",
     "errorLoading": "Erro ao carregar os alunos. Por favor, tente novamente.",
     "genericError": "Algo deu errado",
@@ -493,7 +503,8 @@
     "chat": "Conversas",
     "myPlacement": "Nivelamento",
     "contents": "Conteúdos",
-    "vocabulary": "Vocabulário"
+    "vocabulary": "Vocabulário",
+    "studentProfile": "Perfil de Estudantes"
   },
   "UserProfileHeader": {
     "profilePicture": "Foto de perfil",
@@ -2321,6 +2332,8 @@
     }
   },
   "TeacherSchedule": {
+    "pageTitle": "Minha Agenda",
+    "pageSubtitle": "Gerencie suas configurações de agendamento, férias e horários disponíveis.",
     "tabs": {
       "settings": "Configurações",
       "vacation": "Férias",
@@ -2529,5 +2542,10 @@
         "monthly": "Mensalmente"
       }
     }
+  },
+  "WorkbookScreen": {
+    "title": "Material Didático",
+    "subtitle": "Acesse apostilas, lições e recursos extras.",
+    "searchPlaceholder": "Buscar lições..."
   }
 }

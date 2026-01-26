@@ -12,7 +12,7 @@ Use sempre estes princípios ao criar ou atualizar telas.
 ## 1. Estrutura Geral de Páginas
 
 - **Container principal**
-  - Use sempre espaçamento padrão: `p-4 md:p-8 space-y-8`.
+  - Use sempre espaçamento padrão: `p-4 md:p-6 space-y-6`.
   - Quando existir limite de largura, siga o padrão:
     - `max-w-4xl mx-auto` / `max-w-5xl mx-auto` / `max-w-7xl mx-auto` conforme o contexto.
   - Exemplos atuais:
@@ -161,7 +161,7 @@ Boas práticas:
 
 Antes de finalizar uma nova página, verifique:
 
-1. [ ] Página usando `p-4 md:p-8 space-y-8` (ou padrão equivalente do Container).
+1. [ ] Página usando `p-4 md:p-6 space-y-6` (ou padrão equivalente do Container).
 2. [ ] `Header` utilizado com `heading`/`subheading` traduzidos e `backHref` quando for página secundária.
 3. [ ] Cores seguindo tokens de tema + preferências (indigo/emerald/rose/amber).
 4. [ ] Estados de erro usam `ErrorAlert`.

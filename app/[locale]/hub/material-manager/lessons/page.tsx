@@ -120,7 +120,7 @@ export default function LessonsPage() {
   };
 
   return (
-    <div className="p-4 md:p-8 space-y-8">
+    <div className="p-4 md:p-6 space-y-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <Header 
           heading={t('title')} 

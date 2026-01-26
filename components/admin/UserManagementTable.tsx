@@ -190,7 +190,7 @@ export default function UserManagementTable() {
   );
 
   return (
-    <>
+    <div className="p-4 md:p-6 space-y-6">
      <Header
         heading={tHeader("heading")}
         subheading={tHeader("subheading")}
@@ -395,6 +395,6 @@ export default function UserManagementTable() {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </>
+    </div>
   );
 }

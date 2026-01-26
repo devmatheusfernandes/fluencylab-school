@@ -68,7 +68,7 @@ export default async function Page() {
   }
 
   return (
-    <div className="p-4 md:p-8 space-y-8 max-w7xl">
+    <div className="p-4 md:p-6 space-y-6 max-w7xl">
       <Header
         heading={tPage("globalHeading")}
         subheading={tPage("globalSubheading")}

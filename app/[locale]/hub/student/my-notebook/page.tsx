@@ -12,8 +12,6 @@ import {
   getActivePlanId,
 } from "@/actions/srs-actions";
 import ErrorAlert from "@/components/ui/error-alert";
-import { SubContainer } from "@/components/ui/sub-container";
-import { ProgressHero } from "@/components/notebook/ProgressHero";
 import { Header } from "@/components/ui/header";
 import { useTranslations } from "next-intl";
 import TasksCard from "@/components/teacher/TaskCard";

@@ -62,17 +62,18 @@ export default function MyProfile() {
   }, [myClasses]);
 
   return (
-    <>
+    <div className="p-4 md:p-6 space-y-6">
       {isLoading ? (
         <Skeleton className="w-full h-36" />
       ) : (
         <>
+        <Card>
           <UserProfileHeader
             user={user!}
             onLogout={handleLogout}
             className="w-full"
           />
-
+        </Card>
           <div className="mt-4">
             <TeacherContractStatusCard />
           </div>
@@ -154,6 +155,6 @@ export default function MyProfile() {
           </Card>
         </>
       )}
-    </>
+    </div>
   );
 }
