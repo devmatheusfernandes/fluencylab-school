@@ -23,6 +23,7 @@ declare module "next-auth" {
     permissions?: string[];
     tutorialCompleted?: boolean;
     twoFactorEnabled?: boolean;
+    languages?: string[];
   }
 }
 

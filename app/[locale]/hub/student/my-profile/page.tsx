@@ -16,6 +16,7 @@ import { db } from "@/lib/firebase/config";
 import { ProgressHero } from "@/components/notebook/ProgressHero";
 import { motion } from "framer-motion";
 import { getStudentLearningStats, getActivePlanId } from "@/actions/srs-actions";
+import { WordOfTheDayModal } from "@/components/word-of-the-day/word-of-the-day-modal";
 
 const ProfileHeaderSkeleton = () => (
   <Skeleton className="skeleton-base rounded-xl p-4 w-full">
@@ -161,6 +162,7 @@ export default function MeuPerfil() {
         md:grid-cols-3
         "
     >
+      <WordOfTheDayModal language={user?.languages?.[0] || 'en'} />
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}

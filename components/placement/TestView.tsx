@@ -111,7 +111,7 @@ export const TestView = ({
                                 ${
                                   isSelected
                                     ? "border-indigo-400 bg-indigo-50/50 dark:bg-black/40 text-indigo-600"
-                                    : "border-slate-200 dark:border-black/40 bg-card hover:bg-slate-50 hover:border-slate-300 hover:dark:border-black/50 hover:dark:bg-black/40 text-foreground"
+                                    : "border-slate-200 dark:border-black/40 bg-accent hover:bg-slate-50 hover:border-slate-300 hover:dark:border-black/50 hover:dark:bg-black/40 text-foreground"
                                 }
                             `}
                           >

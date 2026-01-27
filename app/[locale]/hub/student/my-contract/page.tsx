@@ -290,7 +290,7 @@ const ContratoPage: React.FC = () => {
               onClick={() => setShowContract(!showContract)}
               className="gap-2"
             >
-              {showContract ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {showContract ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
               {showContract ? t("hideContract") : t("viewContract")}
             </Button>
           }
