@@ -54,10 +54,10 @@ const nextConfig: NextConfig = {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=(), browsing-topics=()'
           },
-          {
-            key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://firebasestorage.googleapis.com https://storage.googleapis.com https://getstream.io https://*.stream-io-api.com https://www.transparenttextures.com https://*.stream-io-cdn.com https://getstream.imgix.net; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.stream-io-api.com https://*.getstream.io wss://*.stream-io-api.com; media-src 'self' blob: https://*.stream-io-api.com https://*.getstream.io https://*.stream-io-cdn.com https://firebasestorage.googleapis.com https://storage.googleapis.com"
-          }
+          // {
+          //   key: 'Content-Security-Policy',
+          //   value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://firebasestorage.googleapis.com https://storage.googleapis.com https://getstream.io https://*.stream-io-api.com https://www.transparenttextures.com https://*.stream-io-cdn.com https://getstream.imgix.net https://i.ytimg.com; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; frame-src 'self' https://www.youtube.com https://youtube.com; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.stream-io-api.com https://*.getstream.io wss://*.stream-io-api.com https://lrclib.net; media-src 'self' blob: https://*.stream-io-api.com https://*.getstream.io https://*.stream-io-cdn.com https://lrclib.net https://api.dictionaryapi.dev https://firebasestorage.googleapis.com https://storage.googleapis.com"
+          // }
         ]
       }
     ]

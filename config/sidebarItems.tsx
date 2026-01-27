@@ -1,23 +1,16 @@
 // config/sidebarItems.tsx
 import { SidebarItemType } from "@/components/shared/Sidebar/Sidebar";
+import { CalendarDaysIcon } from "@/public/animated/calendar";
+import { CoffeeIcon } from "@/public/animated/coffee";
 import { DollarSignIcon } from "@/public/animated/finances";
+import { BookTextIcon } from "@/public/animated/lesson";
+import { LayoutPanelTopIcon } from "@/public/animated/notebook";
 import { BellIcon } from "@/public/animated/notification";
 import { PeopleIcon } from "@/public/animated/people";
 import { UserIcon } from "@/public/animated/person";
 import { SettingsIcon } from "@/public/animated/settings";
 import { ClapIcon } from "@/public/animated/video";
 import { UserRoles } from "@/types/users/userRoles";
-import {
-  Home,
-  Calendar,
-  DollarSign,
-  BookOpen,
-  Monitor,
-  UserCircle,
-  UserStar,
-  Book,
-  FileText,
-} from "lucide-react";
 
 // Define os links para cada papel
 const adminItems: SidebarItemType[] = [
@@ -64,7 +57,7 @@ const teacherItems: SidebarItemType[] = [
     href: "/[locale]/hub/teacher/my-profile",
     label: "Meu Perfil",
     labelKey: "myProfile",
-    icon: <UserStar className="w-6 h-6" />,
+    icon: <UserIcon size={20} />,
   },
   {
     href: "/[locale]/hub/teacher/my-students",
@@ -76,19 +69,19 @@ const teacherItems: SidebarItemType[] = [
     href: "/[locale]/hub/teacher/my-schedule",
     label: "Minha Agenda",
     labelKey: "mySchedule",
-    icon: <Calendar className="w-6 h-6" />,
+    icon: <CalendarDaysIcon size={20} />,
   },
   {
     href: "/[locale]/hub/teacher/workbooks",
     label: "Material",
     labelKey: "workbooks",
-    icon: <Book className="w-6 h-6" />,
+    icon: <LayoutPanelTopIcon size={20} />,
   },
   {
     href: "/[locale]/hub/teacher/my-chat",
     label: "Conversas",
     labelKey: "chat",
-    icon: <BookOpen className="w-6 h-6" />,
+    icon: <CoffeeIcon size={20} />,
   },
   {
     href: "/[locale]/hub/teacher/settings",
@@ -103,31 +96,31 @@ const studentItems: SidebarItemType[] = [
     href: "/[locale]/hub/student/my-profile",
     label: "Meu Perfil",
     labelKey: "myProfile",
-    icon: <Home className="w-6 h-6" />,
+    icon: <UserIcon size={20} />,
   },
   {
     href: "/[locale]/hub/student/my-notebook",
     label: "Caderno",
     labelKey: "notebook",
-    icon: <BookOpen className="w-6 h-6" />,
+    icon: <LayoutPanelTopIcon size={20} />,
   },
   {
     href: "/[locale]/hub/student/my-classes",
     label: "Calendário",
     labelKey: "calendar",
-    icon: <Calendar className="w-6 h-6" />,
+    icon: <CalendarDaysIcon size={20} />,
   },
   {
     href: "/[locale]/hub/student/my-courses",
     label: "Cursos",
     labelKey: "courses",
-    icon: <Monitor className="w-6 h-6" />,
+    icon: <ClapIcon size={20} />,
   },
   {
     href: "/[locale]/hub/student/my-chat",
     label: "Conversas",
     labelKey: "chat",
-    icon: <BookOpen className="w-6 h-6" />,
+    icon: <CoffeeIcon size={20} />,
   },
   {
     href: "/[locale]/hub/student/settings",
@@ -142,25 +135,25 @@ const managerItems = [
     href: "/[locale]/hub/manager/my-profile",
     label: "Meu Perfil",
     labelKey: "myProfile",
-    icon: <UserCircle className="w-6 h-6" />,
+    icon: <UserIcon size={20} />,
   },
   {
     href: "/[locale]/hub/manager/users",
     label: "Usuários",
     labelKey: "users",
-    icon: <PeopleIcon className="w-6 h-6" />,
+    icon: <PeopleIcon size={20} />,
   },
   {
     href: "/[locale]/hub/manager/student-profiles",
     label: "Perfil de Estudantes",
     labelKey: "studentProfile",
-    icon: <PeopleIcon className="w-6 h-6" />,
+    icon: <PeopleIcon size={20} />,
   },
   {
     href: "/[locale]/hub/manager/settings",
     label: "Configurações",
     labelKey: "settings",
-    icon: <SettingsIcon className="w-6 h-6" />,
+    icon: <SettingsIcon size={20} />,
   },
 ];
 
@@ -169,31 +162,31 @@ const materialManagerItems = [
     href: "/[locale]/hub/material-manager/my-profile",
     label: "Meu Perfil",
     labelKey: "myProfile",
-    icon: <UserCircle className="w-6 h-6" />,
+    icon: <UserIcon size={20} />,
   },
   {
     href: "/[locale]/hub/material-manager/plans",
     label: "Plans",
     labelKey: "plans",
-    icon: <DollarSign className="w-6 h-6" />,
+    icon: <DollarSignIcon size={20} />,
   },
   {
     href: "/[locale]/hub/material-manager/lessons",
     label: "Lessons",
     labelKey: "lessons",
-    icon: <FileText className="w-6 h-6" />,
+    icon: <BookTextIcon size={20} />,
   },
   {
     href: "/[locale]/hub/material-manager/components",
     label: "Components",
     labelKey: "components",
-    icon: <Book className="w-6 h-6" />,
+    icon: <LayoutPanelTopIcon size={20} />,
   },
   {
     href: "/[locale]/hub/material-manager/settings",
     label: "Configurações",
     labelKey: "settings",
-    icon: <SettingsIcon className="w-6 h-6" />,
+    icon: <SettingsIcon size={20} />,
   },
 ];
 
