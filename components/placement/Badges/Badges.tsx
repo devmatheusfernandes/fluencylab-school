@@ -12,6 +12,7 @@ import NaldoBennyImage from "../../../public/images/badges/naldobenny.png";
 import { Spinner } from "@/components/ui/spinner";
 import { EyeClosed } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { SpinnerLoading } from "@/components/transitions/spinner-loading";
 
 const badgesConfig = [
   {
@@ -71,7 +72,7 @@ export default function Badges({
   const closeModal = () => setModalOpen(false);
 
   if (isLoading) {
-    return <Spinner />;
+    return <SpinnerLoading />;
   }
 
   return (

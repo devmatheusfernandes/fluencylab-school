@@ -36,14 +36,7 @@ import { Clock } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { motion } from "framer-motion";
 
-interface StudentClassesComponentProps {
-  showTitle?: boolean;
-  className?: string;
-}
-
-export default function StudentClassesComponent({
-  className = "",
-}: StudentClassesComponentProps) {
+export default function StudentClassesComponent() {
   const t = useTranslations("StudentClassesComponent");
   const locale = useLocale();
   const dateLocale = locale === "pt" ? "pt-BR" : "en-US";

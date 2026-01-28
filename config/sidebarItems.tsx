@@ -1,9 +1,9 @@
 // config/sidebarItems.tsx
 import { SidebarItemType } from "@/components/shared/Sidebar/Sidebar";
 import { CalendarDaysIcon } from "@/public/animated/calendar";
-import { CoffeeIcon } from "@/public/animated/coffee";
 import { DollarSignIcon } from "@/public/animated/finances";
 import { BookTextIcon } from "@/public/animated/lesson";
+import { MessageSquareIcon } from "@/public/animated/message-square";
 import { LayoutPanelTopIcon } from "@/public/animated/notebook";
 import { BellIcon } from "@/public/animated/notification";
 import { PeopleIcon } from "@/public/animated/people";
@@ -81,7 +81,7 @@ const teacherItems: SidebarItemType[] = [
     href: "/[locale]/hub/teacher/my-chat",
     label: "Conversas",
     labelKey: "chat",
-    icon: <CoffeeIcon size={20} />,
+    icon: <MessageSquareIcon size={20} />,
   },
   {
     href: "/[locale]/hub/teacher/settings",
@@ -120,7 +120,7 @@ const studentItems: SidebarItemType[] = [
     href: "/[locale]/hub/student/my-chat",
     label: "Conversas",
     labelKey: "chat",
-    icon: <CoffeeIcon size={20} />,
+    icon: <MessageSquareIcon size={20} />,
   },
   {
     href: "/[locale]/hub/student/settings",

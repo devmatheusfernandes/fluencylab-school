@@ -5,12 +5,16 @@ import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { useIsStandalone } from "@/hooks/useIsStandalone";
 
 export function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const t = useTranslations("Theme");
+  
+  // 2. Verifica se é PWA
+  const isStandalone = useIsStandalone();
 
   useEffect(() => {
     setMounted(true);
@@ -24,6 +28,20 @@ export function ThemeSwitcher() {
 
   const currentTheme = themes.find((t) => t.value === theme) || themes[0];
   const CurrentIcon = currentTheme.icon;
+
+  // 3. Função inteligente de Toggle
+  const handleToggle = () => {
+    if (isStandalone) {
+      // Lógica de Ciclo: Próximo tema da lista
+      const currentIndex = themes.findIndex((t) => t.value === theme);
+      // Se não achar (index -1), vai para o 0. Se achar, vai para o próximo. O % faz o loop voltar ao início.
+      const nextIndex = (currentIndex + 1) % themes.length;
+      setTheme(themes[nextIndex].value);
+    } else {
+      // Comportamento padrão (Menu Dropdown)
+      setIsOpen(!isOpen);
+    }
+  };
 
   if (!mounted) {
     return (
@@ -39,7 +57,7 @@ export function ThemeSwitcher() {
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleToggle} // <--- 4. Usa a nova função aqui
         aria-label={t("toggle")}
         className="relative flex h-10 w-10 items-center justify-center rounded-lg border-none border-slate-200/50 dark:border-slate-700/50 bg-white/20 dark:bg-slate-900/35 hover:bg-white/40 dark:hover:bg-slate-800/50 transition-colors duration-200"
       >
@@ -56,9 +74,9 @@ export function ThemeSwitcher() {
         </AnimatePresence>
       </motion.button>
 
-      {/* Dropdown Menu */}
+      {/* Dropdown Menu - Só renderiza se não for standalone (segurança visual extra) e estiver aberto */}
       <AnimatePresence>
-        {isOpen && (
+        {isOpen && !isStandalone && (
           <>
             {/* Backdrop */}
             <motion.div

@@ -5,6 +5,7 @@ import { Image as ImageIcon, Ear, Shuffle, Brain, FileQuestion, Headphones, Lock
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
+import { CoffeeIcon } from '@/public/animated/coffee';
 
 // --- Interfaces ---
 interface DayNode {
@@ -33,7 +34,7 @@ export function LearningPath({ currentDay, daysSinceClass, hasActiveLesson = tru
     return (
       <div className="w-full flex flex-col items-center justify-center py-12 text-center space-y-4">
         <div className="w-24 h-24 bg-indigo-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-2">
-            <Coffee className="w-12 h-12 text-indigo-400 dark:text-indigo-300" />
+            <CoffeeIcon size={48} className="text-primary" />
         </div>
         <h3 className="text-xl font-bold text-slate-700 dark:text-slate-200">
             {t('noLessonsTitle')}

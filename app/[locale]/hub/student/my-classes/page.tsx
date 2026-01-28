@@ -3,6 +3,6 @@ import StudentClassesComponent from "@/components/student/StudentClassesComponen
 
 export default function StudentMyClassesPage() {
   return (
-    <StudentClassesComponent showTitle={true} />
+    <StudentClassesComponent />
   );
 }

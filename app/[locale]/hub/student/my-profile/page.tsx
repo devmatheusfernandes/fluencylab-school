@@ -11,38 +11,48 @@ import AchievementList from "@/components/student/AchievementList";
 import UserProfileHeader from "@/components/shared/UserCard/UserProfileHeader";
 import Badges from "@/components/placement/Badges/Badges";
 import { Skeleton } from "@/components/ui/skeleton";
-import { collection, query, where, orderBy, limit, getDocs } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  orderBy,
+  limit,
+  getDocs,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { ProgressHero } from "@/components/notebook/ProgressHero";
 import { motion } from "framer-motion";
-import { getStudentLearningStats, getActivePlanId } from "@/actions/srs-actions";
+import {
+  getStudentLearningStats,
+  getActivePlanId,
+} from "@/actions/srs-actions";
 import { WordOfTheDayModal } from "@/components/word-of-the-day/word-of-the-day-modal";
 
 const ProfileHeaderSkeleton = () => (
-  <Skeleton className="skeleton-base rounded-xl p-4 w-full">
+  <Skeleton className="rounded-xl p-4 w-full">
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <Skeleton className="skeleton-sub w-16 h-16 rounded-xl" />
+        <Skeleton className="w-16 h-16 rounded-xl" />
         <div className="space-y-2">
-          <Skeleton className="skeleton-sub h-5 w-40" />
-          <Skeleton className="skeleton-sub h-4 w-56" />
-          <Skeleton className="skeleton-sub h-5 w-20" />
+          <Skeleton className="h-5 w-40" />
+          <Skeleton className="h-4 w-56" />
+          <Skeleton className="h-5 w-20" />
         </div>
       </div>
-      <Skeleton className="skeleton-sub w-9 h-9 rounded-lg" />
+      <Skeleton className="w-9 h-9 rounded-lg" />
     </div>
   </Skeleton>
 );
 
 const NextClassCardSkeleton = () => (
-  <Skeleton className="skeleton-base rounded-xl p-4 w-full">
+  <Skeleton className="rounded-xl p-4 w-full">
     <div className="flex justify-between items-start">
-      <Skeleton className="skeleton-sub h-5 w-24" />
-      <Skeleton className="skeleton-sub w-9 h-9 rounded-lg" />
+      <Skeleton className="h-5 w-24" />
+      <Skeleton className="w-9 h-9 rounded-lg" />
     </div>
     <div className="flex flex-col mt-2 space-y-2">
-      <Skeleton className="skeleton-sub h-4 w-32" />
-      <Skeleton className="skeleton-sub h-4 w-24" />
+      <Skeleton className="h-4 w-32" />
+      <Skeleton className="h-4 w-24" />
     </div>
   </Skeleton>
 );
@@ -50,16 +60,16 @@ const NextClassCardSkeleton = () => (
 const AchievementsSkeleton = ({ limit = 3 }: { limit?: number }) => (
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
     {Array.from({ length: limit }).map((_, index) => (
-      <div key={index} className="skeleton-base rounded-2xl p-5">
+      <Skeleton key={index} className=" rounded-2xl p-5 min-h-[160px]">
         <div className="flex items-start gap-4">
-          <Skeleton className="skeleton-sub w-14 h-14 rounded-lg" />
+          <Skeleton className=" w-14 h-14 rounded-lg" />
           <div className="flex-1 min-w-0 space-y-2">
-            <Skeleton className="skeleton-sub h-5 w-3/4" />
-            <Skeleton className="skeleton-sub h-4 w-full" />
-            <Skeleton className="skeleton-sub h-3 w-1/2" />
+            <Skeleton className=" h-5 w-3/4" />
+            <Skeleton className=" h-4 w-full" />
+            <Skeleton className=" h-3 w-1/2" />
           </div>
         </div>
-      </div>
+      </Skeleton>
     ))}
   </div>
 );
@@ -75,15 +85,17 @@ const LEVEL_INDEX: Record<string, number> = {
 
 export default function MeuPerfil() {
   const { user, isLoading } = useCurrentUser();
-  const [placementBadgeLevel, setPlacementBadgeLevel] = useState<number | null>(null);
+  const [placementBadgeLevel, setPlacementBadgeLevel] = useState<number | null>(
+    null,
+  );
   const [isPlacementLoading, setIsPlacementLoading] = useState(true);
-  const [stats, setStats] = useState({ 
-    reviewedToday: 0, 
-    dueToday: 0, 
-    totalLearned: 0, 
-    currentDay: 1, 
+  const [stats, setStats] = useState({
+    reviewedToday: 0,
+    dueToday: 0,
+    totalLearned: 0,
+    currentDay: 1,
     daysSinceClass: 7,
-    hasActiveLesson: true
+    hasActiveLesson: true,
   });
   const [statsLoading, setStatsLoading] = useState(true);
 
@@ -121,7 +133,7 @@ export default function MeuPerfil() {
           collection(db, "placement_results"),
           where("userId", "==", user.id),
           orderBy("completedAt", "desc"),
-          limit(1)
+          limit(1),
         );
         const snap = await getDocs(q);
 
@@ -153,7 +165,7 @@ export default function MeuPerfil() {
   const handleLogout = () => {
     signOut({ callbackUrl: "/" });
   };
- 
+
   return (
     <ContainerCard
       className="
@@ -162,19 +174,19 @@ export default function MeuPerfil() {
         md:grid-cols-3
         "
     >
-      <WordOfTheDayModal language={user?.languages?.[0] || 'en'} />
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.4 }}
-        className="card-base p-3"
-      >
-        {!isLoading && user ? (
+      <WordOfTheDayModal language={user?.languages?.[0] || "en"} />
+      {!isLoading && user ? (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4 }}
+          className="card-base p-3"
+        >
           <UserProfileHeader user={user} onLogout={handleLogout} />
-        ) : (
-          <ProfileHeaderSkeleton />
-        )}
-      </motion.div>
+        </motion.div>
+      ) : (
+        <ProfileHeaderSkeleton />
+      )}
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -193,23 +205,27 @@ export default function MeuPerfil() {
         <StudentPaymentStatusCard />
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.5 }}
-        className="card-base p-4"
-      >
-        {isLoading ? <NextClassCardSkeleton /> : <NextClassCard />}
-      </motion.div>
+      {isLoading || !user ? (
+          <NextClassCardSkeleton />
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.5 }}
+          className="card-base p-4"
+        >
+          <NextClassCard />
+        </motion.div>
+      )}
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.6 }}
-        className="p-0 bg-transparent dark:bg-transparent border-none min-h-[140px]"
+        className="p-0 bg-transparent dark:bg-transparent border-none min-h-[140px] max-h-[300px]"
       >
         {statsLoading ? (
-          <Skeleton className="w-full h-full min-h-[140px] rounded-md" />
+          <Skeleton className="w-full h-full rounded-md min-h-[140px]" />
         ) : (
           <ProgressHero
             className="rounded-md!"
@@ -232,18 +248,24 @@ export default function MeuPerfil() {
         />
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.4 }}
-        className="md:col-span-2 card-base p-2"
-      >
-        {isLoading || !user ? (
-          <AchievementsSkeleton limit={3} />
-        ) : (
+      {!isLoading || !user ? (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.4 }}
+          className="md:col-span-2"
+        >
           <AchievementList userId={user?.id} limit={3} />
-        )}
-      </motion.div>
+        </motion.div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.4 }}
+          className="md:col-span-2 p-1"
+        >
+        <AchievementsSkeleton limit={3} /></motion.div>
+      )}
     </ContainerCard>
   );
 }

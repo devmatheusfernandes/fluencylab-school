@@ -1,8 +1,6 @@
 "use client";
 import { useSession } from "next-auth/react";
 import { useStudentPanel } from "@/hooks/useStudentPanel";
-import { Spinner } from "@/components/ui/spinner";
-import { Container } from "@/components/ui/container";
 import NotebooksCard from "@/components/teacher/NotebooksCard";
 import { LearningPath } from "@/components/notebook/LearningPath";
 import { StatsDashboard } from "@/components/notebook/StatsDashboard";
@@ -16,6 +14,7 @@ import { Header } from "@/components/ui/header";
 import { useTranslations } from "next-intl";
 import TasksCard from "@/components/teacher/TaskCard";
 import { useGoogleCalendarSync } from "@/hooks/useGoogleCalendarSync";
+import { SpinnerLoading } from "@/components/transitions/spinner-loading";
 
 export default function Caderno() {
   const t = useTranslations("StudentNotebook");
@@ -58,7 +57,7 @@ export default function Caderno() {
   const { isSyncing: isSyncingWithGoogleCalendar, syncWithGoogleCalendar } =
     useGoogleCalendarSync(studentId as string);
 
-  if (loading) return <Spinner />;
+  if (loading) return <SpinnerLoading />;
   if (error) return <ErrorAlert message={error} />;
 
   return (
@@ -83,7 +82,7 @@ export default function Caderno() {
         <div className="lg:col-span-3 order-3 lg:order-2 flex flex-col gap-4 max-h-[calc(100vh-180px)] overflow-auto">
           <div className="flex-none flex flex-col">
             {statsLoading ? (
-              <Spinner />
+              <SpinnerLoading />
             ) : (
               <StatsDashboard
                 reviewedToday={stats.reviewedToday}
@@ -110,7 +109,7 @@ export default function Caderno() {
             </h3>
             {statsLoading ? (
               <div className="flex justify-center p-4">
-                <Spinner />
+                <SpinnerLoading />
               </div>
             ) : (
               <LearningPath

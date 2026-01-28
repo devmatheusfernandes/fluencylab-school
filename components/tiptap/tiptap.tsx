@@ -247,7 +247,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   }
 
   return (
-    <div className={`bg-slate-100 dark:bg-black ${className}`}>
+    <div className={`bg-white dark:bg-black ${className}`}>
       <div className="relative h-screen overflow-y-auto no-scrollbar">
         {!isMobile && (
           <Toolbar

@@ -4,7 +4,7 @@
 import React from "react";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { OnboardingModal } from "../OnboardingModal";
-import { Spinner } from "../../ui/spinner";
+import { SpinnerLoading } from "@/components/transitions/spinner-loading";
 
 interface OnboardingWrapperProps {
   children: React.ReactNode;
@@ -24,7 +24,7 @@ export const OnboardingWrapper: React.FC<OnboardingWrapperProps> = ({
   if (isChecking) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Spinner />
+        <SpinnerLoading />
       </div>
     );
   }

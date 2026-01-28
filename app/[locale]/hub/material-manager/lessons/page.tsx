@@ -136,16 +136,16 @@ export default function LessonsPage() {
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="bg-card p-6 rounded-xl border space-y-4">
               <div className="flex justify-between items-start">
-                <Skeleton className="skeleton-base h-10 w-10 rounded-lg" />
-                <Skeleton className="skeleton-base h-6 w-16 rounded" />
+                <Skeleton className=" h-10 w-10 rounded-lg" />
+                <Skeleton className=" h-6 w-16 rounded" />
               </div>
               <div className="space-y-2">
-                <Skeleton className="skeleton-base h-6 w-3/4" />
-                <Skeleton className="skeleton-sub h-4 w-1/2" />
+                <Skeleton className=" h-6 w-3/4" />
+                <Skeleton className=" h-4 w-1/2" />
               </div>
               <div className="pt-4 border-t flex justify-between">
-                 <Skeleton className="skeleton-sub h-4 w-16" />
-                 <Skeleton className="skeleton-sub h-4 w-20" />
+                 <Skeleton className=" h-4 w-16" />
+                 <Skeleton className=" h-4 w-20" />
               </div>
             </div>
           ))}

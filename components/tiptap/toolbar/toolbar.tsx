@@ -15,6 +15,7 @@ import "@/components/tiptap-node/heading-node/heading-node.scss";
 import "@/components/tiptap-node/blockquote-node/blockquote-node.scss";
 import "@/components/tiptap-node/image-node/image-node.scss";
 import "@/components/tiptap-node/image-upload-node/image-upload-node.scss";
+import { useSession } from "next-auth/react";
  
 interface ToolbarProps {
   editor: Editor | null;
@@ -25,6 +26,7 @@ interface ToolbarProps {
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({ editor, title, onTitleChange, studentID, notebookId }) => {
+  const { data: session } = useSession();
   const [openModalId, setOpenModalId] = useState<string | null>(null);
   if (!editor) {
     return null;
@@ -34,13 +36,13 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, title, onTitleChange, student
 
   const ActiveModal = openModalId ? MODAL_COMPONENTS[openModalId] : null;
   return (
-    <div className="sticky top-0 z-50 bg-slate-100 dark:bg-black border-b border-secondary-foreground/10">
+    <div className="sticky top-0 z-50 bg-white dark:bg-black border-b border-secondary-foreground/10">
       <div className="p-2">
         <div className="flex items-center justify-between gap-4">
           {/* Esquerda */}
           <div className="flex items-center gap-1 min-w-0">
             <BackButton routerBack={true} />
-            {title !== undefined && onTitleChange && (
+            {title !== undefined && onTitleChange && session?.user.role === 'teacher' && (
               <TitleEditor title={title} onTitleChange={onTitleChange} />
             )}
           </div>
@@ -62,11 +64,13 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, title, onTitleChange, student
           {/* Direita */}
           <div className="flex items-center gap-1 min-w-0">
             <ThemeSwitcher />
-            <ToolbarToolsSheet
-              onOpenDialog={(toolId) => setOpenModalId(toolId)}
-              modalTools={Object.keys(MODAL_COMPONENTS)}
-              side="right"
-            />
+            {session?.user.role === 'teacher' && (
+              <ToolbarToolsSheet
+                onOpenDialog={(toolId) => setOpenModalId(toolId)}
+                modalTools={Object.keys(MODAL_COMPONENTS)}
+                side="right"
+              />
+            )}
           </div>
         </div>
       </div>

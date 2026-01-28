@@ -504,7 +504,8 @@
     "myPlacement": "Placement",
     "contents": "Contents",
     "vocabulary": "Vocabulary",
-    "studentProfile": "Student Profiles"
+    "studentProfile": "Student Profiles",
+    "myContract": "Contract"
   },
   "UserProfileHeader": {
     "profilePicture": "Profile picture",

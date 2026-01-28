@@ -119,16 +119,16 @@ export default function NextClassCard({ className = "" }: NextClassCardProps) {
       <Skeleton className="p-2">
         <div className="flex justify-between items-start">
           <Skeleton
-            className="skeleton-base h-5 w-24 rounded"
+            className=" h-5 w-24 rounded"
           />
           <Skeleton  className="w-10 h-10 rounded-xl" />
         </div>
         <div className="flex flex-col mt-2 space-y-2">
           <Skeleton
-            className="skeleton-base h-4 w-32 rounded"
+            className=" h-4 w-32 rounded"
           />
           <Skeleton
-            className="skeleton-base h-4 w-24 rounded"
+            className=" h-4 w-24 rounded"
           />
         </div>
       </Skeleton>

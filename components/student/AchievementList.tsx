@@ -46,13 +46,13 @@ const AchievementList: React.FC<AchievementListProps> = ({ userId, limit }) => {
 
         <div className={gridClassName}>
           {Array.from({ length: limit || 6 }).map((_, index) => (
-            <div key={index} className="skeleton-base rounded-2xl p-5 border border-gray-100 dark:border-gray-800">
+            <div key={index} className=" rounded-2xl p-5 border border-gray-100 dark:border-gray-800">
               <div className="flex items-start gap-4">
-                <Skeleton className="skeleton-sub w-14 h-14 rounded-lg flex-shrink-0" />
+                <Skeleton className=" w-14 h-14 rounded-lg flex-shrink-0" />
                 <div className="flex-1 min-w-0 space-y-2">
-                  <Skeleton className="skeleton-sub h-5 w-3/4" />
-                  <Skeleton className="skeleton-sub h-4 w-full" />
-                  <Skeleton className="skeleton-sub h-3 w-1/2" />
+                  <Skeleton className=" h-5 w-3/4" />
+                  <Skeleton className=" h-4 w-full" />
+                  <Skeleton className=" h-3 w-1/2" />
                 </div>
               </div>
             </div>

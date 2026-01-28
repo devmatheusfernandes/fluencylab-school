@@ -19,80 +19,80 @@ import { Skeleton } from "@/components/ui/skeleton";
 const StudentPanelSkeleton = () => (
   <ContainerCard className="grid grid-cols-1 lg:grid-cols-2 gap-4">
     {/* Notebooks card skeleton */}
-    <Skeleton className="skeleton-base rounded-xl p-4 min-h-[300px] flex flex-col gap-4">
-      <Skeleton className="skeleton-sub h-10 rounded-lg" />
+    <Skeleton className=" rounded-xl p-4 min-h-[300px] flex flex-col gap-4">
+      <Skeleton className=" h-10 rounded-lg" />
       <div className="space-y-3">
         {[...Array(3)].map((_, index) => (
           <div
             key={index}
-            className="skeleton-sub p-3 flex items-center justify-between rounded-lg"
+            className=" p-3 flex items-center justify-between rounded-lg"
           >
             <div className="space-y-2 w-full max-w-[70%]">
-              <Skeleton className="skeleton-base h-4 w-3/4 rounded" />
-              <Skeleton className="skeleton-base h-3 w-1/2 rounded" />
+              <Skeleton className=" h-4 w-3/4 rounded" />
+              <Skeleton className=" h-3 w-1/2 rounded" />
             </div>
-            <Skeleton className="skeleton-base h-8 w-8 rounded-full" />
+            <Skeleton className=" h-8 w-8 rounded-full" />
           </div>
         ))}
       </div>
     </Skeleton>
 
     {/* Tasks card skeleton */}
-    <Skeleton className="skeleton-base rounded-xl p-4 min-h-[300px] flex flex-col gap-4">
+    <Skeleton className=" rounded-xl p-4 min-h-[300px] flex flex-col gap-4">
       <div className="flex justify-between items-center">
-        <Skeleton className="skeleton-sub h-6 w-1/3 rounded" />
-        <Skeleton className="skeleton-sub h-6 w-12 rounded" />
+        <Skeleton className=" h-6 w-1/3 rounded" />
+        <Skeleton className=" h-6 w-12 rounded" />
       </div>
-      <Skeleton className="skeleton-sub h-2 w-full rounded-full" />
-      <Skeleton className="skeleton-sub h-10 rounded-lg" />
+      <Skeleton className=" h-2 w-full rounded-full" />
+      <Skeleton className=" h-10 rounded-lg" />
       <div className="space-y-3">
         {[...Array(3)].map((_, index) => (
           <div key={index} className="flex items-center gap-3">
-            <Skeleton className="skeleton-sub h-5 w-5 rounded shrink-0" />
-            <Skeleton className="skeleton-sub h-4 w-full rounded" />
+            <Skeleton className=" h-5 w-5 rounded shrink-0" />
+            <Skeleton className=" h-4 w-full rounded" />
           </div>
         ))}
       </div>
     </Skeleton>
 
     {/* Classes card skeleton */}
-    <Skeleton className="skeleton-base rounded-xl p-4 min-h-[400px] flex flex-col gap-4">
+    <Skeleton className=" rounded-xl p-4 min-h-[400px] flex flex-col gap-4">
       <div className="flex gap-2">
-        <Skeleton className="skeleton-sub h-10 flex-1 rounded-lg" />
-        <Skeleton className="skeleton-sub h-10 flex-1 rounded-lg" />
+        <Skeleton className=" h-10 flex-1 rounded-lg" />
+        <Skeleton className=" h-10 flex-1 rounded-lg" />
       </div>
       <div className="space-y-4">
         {[...Array(4)].map((_, index) => (
-          <div key={index} className="skeleton-sub p-3 rounded-lg flex justify-between gap-4">
+          <div key={index} className=" p-3 rounded-lg flex justify-between gap-4">
             <div className="space-y-2 flex-1">
-              <Skeleton className="skeleton-base h-4 w-24 rounded" />
-              <Skeleton className="skeleton-base h-3 w-16 rounded" />
+              <Skeleton className=" h-4 w-24 rounded" />
+              <Skeleton className=" h-3 w-16 rounded" />
             </div>
-            <Skeleton className="skeleton-base h-8 w-32 rounded" />
+            <Skeleton className=" h-8 w-32 rounded" />
           </div>
         ))}
       </div>
     </Skeleton>
 
     {/* Plan card skeleton */}
-    <Skeleton className="skeleton-base rounded-xl p-4 min-h-[400px] flex flex-col gap-4">
+    <Skeleton className=" rounded-xl p-4 min-h-[400px] flex flex-col gap-4">
       <div className="flex justify-between items-center">
         <div className="flex gap-2 items-center">
-          <Skeleton className="skeleton-sub h-5 w-5 rounded" />
-          <Skeleton className="skeleton-sub h-5 w-32 rounded" />
+          <Skeleton className=" h-5 w-5 rounded" />
+          <Skeleton className=" h-5 w-32 rounded" />
         </div>
-        <Skeleton className="skeleton-sub h-8 w-8 rounded" />
+        <Skeleton className=" h-8 w-8 rounded" />
       </div>
       <div className="flex gap-2">
-        <Skeleton className="skeleton-sub h-10 flex-1 rounded-lg" />
-        <Skeleton className="skeleton-sub h-10 flex-1 rounded-lg" />
+        <Skeleton className=" h-10 flex-1 rounded-lg" />
+        <Skeleton className=" h-10 flex-1 rounded-lg" />
       </div>
       <div className="space-y-3">
         {[...Array(4)].map((_, index) => (
-          <div key={index} className="skeleton-sub p-3 rounded-lg space-y-2">
+          <div key={index} className=" p-3 rounded-lg space-y-2">
             <div className="flex justify-between">
-              <Skeleton className="skeleton-base h-4 w-3/4 rounded" />
-              <Skeleton className="skeleton-base h-5 w-16 rounded-full" />
+              <Skeleton className=" h-4 w-3/4 rounded" />
+              <Skeleton className=" h-5 w-16 rounded-full" />
             </div>
           </div>
         ))}

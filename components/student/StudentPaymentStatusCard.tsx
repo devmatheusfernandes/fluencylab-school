@@ -154,7 +154,7 @@ export function StudentPaymentStatusCard() {
   // ----------------------------------------------------------------------
   if (loading) {
     return (
-      <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 bg-white dark:bg-zinc-900 shadow-sm space-y-6 h-full">
+      <Skeleton className="p-6 space-y-6 h-full">
         <div className="flex justify-between items-center">
           <div className="flex gap-3">
             <Skeleton className="w-10 h-10 rounded-full" />
@@ -171,7 +171,7 @@ export function StudentPaymentStatusCard() {
           <Skeleton className="w-20 h-10" />
           <Skeleton className="w-20 h-10" />
         </div>
-      </div>
+      </Skeleton>
     );
   }
 

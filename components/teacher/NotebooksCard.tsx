@@ -19,9 +19,10 @@ import { SearchBar } from "@/components/ui/search-bar";
 import { NoResults } from "@/components/ui/no-results";
 import { Notebook } from "@/types/notebooks/notebooks";
 import { generateNotebookPDF } from "@/utils/pdfGenerator";
-import { FileTextIcon, Luggage, PaperclipIcon, Plus } from "lucide-react";
+import { Luggage, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { CloudDownloadIcon } from "@/public/animated/cloud-download";
 
 interface NotebooksCardProps {
   student: {
@@ -182,7 +183,7 @@ export default function NotebooksCard({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
                 whileHover={{ scale: 1.01 }}
-                className="flex flex-row items-start justify-between overflow-hidden p-4 input-base"
+                className="flex flex-row items-start justify-between overflow-hidden p-4 item-base"
               >
                 <Link
                   href={
@@ -192,7 +193,7 @@ export default function NotebooksCard({
                   }
                   className="block flex-1"
                 >
-                  <h3 className="subtitle-base">
+                  <h3 className="subtitle-base hover:text-primary! duration-300! easy-in-out! transition-all!">
                     {notebook.title}
                   </h3>
                   <div className="paragraph-base opacity-70">
@@ -203,10 +204,10 @@ export default function NotebooksCard({
                 {/* Action buttons - only show for teachers */}
 
                 <div className="flex items-center gap-2">
-                  <FileTextIcon
-                    height={24}
-                    className="w-5 h-5 hover:text-destructive/70 duration-300 easy-in-out transition-all cursor-pointer"
-                    onClick={(e: React.MouseEvent<SVGSVGElement>) => {
+                  <CloudDownloadIcon
+                    size={24}
+                    className="hover:text-primary duration-300 easy-in-out transition-all"
+                    onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
                       handleDownloadNotebookPDF(notebook);

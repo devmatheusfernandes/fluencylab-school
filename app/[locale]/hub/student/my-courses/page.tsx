@@ -18,9 +18,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
-
-// Firestore removido do cliente; dados agora vêm de APIs
 import { Course } from "../../../../../types/quiz/types";
+import { BookmarkIcon } from "@/public/animated/bookmark";
 
 // Extensão do tipo Course para incluir dados calculados
 type StudentCourse = Course & {
@@ -71,7 +70,7 @@ export default function StudentCoursesPage() {
 
   if (loading) {
     return (
-      <Container className="p-4 md:p-8 mx-auto space-y-8">
+      <div className="p-4 md:p-8 mx-auto space-y-8">
         <div className="flex flex-col gap-4">
             <Skeleton className="h-10 w-48" />
             <Skeleton className="h-10 w-full max-w-sm" />
@@ -87,12 +86,12 @@ export default function StudentCoursesPage() {
             </div>
           ))}
         </div>
-      </Container>
+      </div>
     );
   }
 
   return (
-    <Container className="p-4 md:p-6 space-y-6">
+    <div className="p-4 md:p-6 space-y-6">
       <motion.div 
         initial={{ opacity: 0, y: -10 }} 
         animate={{ opacity: 1, y: 0 }} 
@@ -116,9 +115,9 @@ export default function StudentCoursesPage() {
       </motion.div>
 
       {filteredCourses.length === 0 ? (
-        <Empty className="py-24 bg-muted/10">
+        <Empty className="py-24">
           <EmptyMedia>
-            <BookOpen className="size-12 text-primary/50" />
+            <BookmarkIcon size={48} className="text-primary" />
           </EmptyMedia>
           <EmptyHeader>
             <EmptyTitle>{t("noCoursesFound")}</EmptyTitle>
@@ -204,6 +203,6 @@ export default function StudentCoursesPage() {
           ))}
         </div>
       )}
-    </Container>
+    </div>
   );
 }

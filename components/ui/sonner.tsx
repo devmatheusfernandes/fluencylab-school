@@ -1,5 +1,6 @@
 "use client"
 
+import { useIsStandalone } from "@/hooks/useIsStandalone"
 import {
   CircleCheckIcon,
   InfoIcon,
@@ -12,11 +13,13 @@ import { Toaster as Sonner, type ToasterProps } from "sonner"
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme } = useTheme()
+  const isPWA = useIsStandalone();
 
   return (
     <Sonner
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
+      position={isPWA ? "bottom-center" : "top-center"}
       icons={{
         success: <CircleCheckIcon className="size-4" />,
         info: <InfoIcon className="size-4" />,

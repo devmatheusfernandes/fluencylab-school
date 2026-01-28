@@ -8,6 +8,7 @@ import { TOOL_ITEMS, ToolItem } from "./toolsConfig";
 import ToolbarToolsSheet, { MODAL_COMPONENTS } from "./tools";
 import { BackButton } from "@/components/ui/back-button";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { useSession } from "next-auth/react";
 
 interface ToolbarProps {
   editor: Editor | null;
@@ -19,7 +20,8 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor }) => {
   const [visibleButtons, setVisibleButtons] = useState<string[]>([]);
   const [hiddenButtons, setHiddenButtons] = useState<string[]>([]);
   const toolbarRef = useRef<HTMLDivElement>(null);
-
+  const { data: session } = useSession();
+  
   // Configuração compartilhada de botões
   const allButtons: ToolItem[] = TOOL_ITEMS;
 
@@ -90,7 +92,7 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor }) => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50">
+    <div className="fixed -bottom-0.5 left-0 right-0 z-50">
       {/* Camada expandida (animada) */}
       <AnimatePresence>
         {isExpanded && (
@@ -123,6 +125,7 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor }) => {
                   {renderButton(buttonId)}
                 </motion.div>
               ))}
+              {session?.user.role === 'teacher' && (
               <motion.div
                 key="tools-sheet-expanded"
                 initial={{ opacity: 0, scale: 0.8 }}
@@ -135,7 +138,8 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor }) => {
                   modalTools={Object.keys(MODAL_COMPONENTS)}
                   side="bottom"
                 />
-              </motion.div>
+              </motion.div>)}
+
               <motion.div
                 key="theme-switcher-expanded"
                 initial={{ opacity: 0, scale: 0.8 }}
@@ -161,7 +165,7 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor }) => {
         <div className="p-1 flex items-center justify-between gap-2">
           {/* Esquerda */}
           <div className="flex items-center gap-1 min-w-0">
-            <BackButton href="/hub/student/my-notebook" />
+            <BackButton href={session?.user.role === 'teacher' ? "/hub/teacher/my-notebook" : "/hub/student/my-notebook"} />
           </div>
 
           {/* Centro */}

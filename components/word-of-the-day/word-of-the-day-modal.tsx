@@ -1,7 +1,5 @@
 "use client";
-
-import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getRandomWord } from "@/lib/vocabulary";
 import {
   Modal,
@@ -19,42 +17,68 @@ interface WordOfTheDayModalProps {
   language?: string;
 }
 
+// Interface para o que vamos salvar no Storage
+interface DailyWordStorage {
+  date: string;
+  data: { word: string; translation: string };
+}
+
 export const WordOfTheDayModal = ({ language }: WordOfTheDayModalProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [wordData, setWordData] = useState<{ word: string; translation: string } | null>(null);
+  
+  // Ref para evitar execução dupla estrita (Race condition lock)
+  const isFetchingRef = useRef(false);
 
   useEffect(() => {
     async function checkAndFetchWord() {
-      console.log("1. Iniciando check. Language recebida:", language);
+      if (!language) return;
 
-      if (!language) {
-        console.log("2. Abortado: Idioma indefinido.");
-        return;
-      }
-
-      const lastShown = localStorage.getItem("lastWordOfTheDay");
       const today = new Date().toDateString();
-      console.log(`3. Storage: Último visto: ${lastShown} | Hoje: ${today}`);
+      const storageKey = `wordOfTheDay_${language}`; // Chave única por idioma
+      const storedItem = localStorage.getItem(storageKey);
 
-      // COMENTE ESTA LINHA ABAIXO PARA TESTAR SE FOR O STORAGE
-      if (lastShown === today) {
-        console.log("4. Abortado: Já visto hoje.");
-        return;
+      // 1. VERIFICAÇÃO INTELIGENTE:
+      // Se já temos dados salvos E a data é de hoje, usamos o cache.
+      if (storedItem) {
+        try {
+          const parsedItem: DailyWordStorage = JSON.parse(storedItem);
+          if (parsedItem.date === today) {
+            console.log("Recuperado do cache (não mostra modal novamente se já fechou, ou mostra se quiser persistir a lógica visual):");
+            // Se você quiser que o modal apareça APENAS na primeira vez,
+            // aqui você retornaria sem fazer nada. 
+            // Se quiser que o modal não reapareça após o refresh se o usuário já viu, mantenha o return abaixo:
+            return; 
+          }
+        } catch (e) {
+          console.error("Erro ao ler storage, limpando...", e);
+          localStorage.removeItem(storageKey);
+        }
       }
+
+      // Evita chamadas duplicadas simultâneas (React Strict Mode)
+      if (isFetchingRef.current) return;
+      isFetchingRef.current = true;
 
       try {
+        console.log("Buscando nova palavra na API...");
         const data = await getRandomWord(language);
-        console.log("5. Dados retornados da API:", data);
         
         if (data) {
           setWordData(data);
           setIsOpen(true);
-          localStorage.setItem("lastWordOfTheDay", today);
-        } else {
-          console.log("6. Falha: getRandomWord retornou null (verifique o arquivo JSON)");
+          
+          // 2. SALVAR O OBJETO COMPLETO:
+          const newStorageItem: DailyWordStorage = {
+            date: today,
+            data: data
+          };
+          localStorage.setItem(storageKey, JSON.stringify(newStorageItem));
         }
       } catch (error) {
         console.error("Erro ao buscar palavra:", error);
+      } finally {
+        isFetchingRef.current = false;
       }
     }
 

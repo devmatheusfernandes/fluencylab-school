@@ -18,10 +18,6 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// ----------------------------------------------------------------------
-// TYPES & CONFIG
-// ----------------------------------------------------------------------
-
 interface StatusUIProps {
   text: string;
   variant: "success" | "pending" | "warning" | "neutral";
@@ -57,10 +53,6 @@ const STATUS_CONFIG = {
     icon: Clock,
   },
 };
-
-// ----------------------------------------------------------------------
-// COMPONENTS
-// ----------------------------------------------------------------------
 
 const StatusItem: React.FC<StatusUIProps> = ({ text, variant, link, icon: CustomIcon }) => {
   const config = STATUS_CONFIG[variant] || STATUS_CONFIG.neutral;
@@ -107,10 +99,6 @@ const StatusItem: React.FC<StatusUIProps> = ({ text, variant, link, icon: Custom
     </Link>
   );
 };
-
-// ----------------------------------------------------------------------
-// MAIN CONTAINER
-// ----------------------------------------------------------------------
 
 interface ProgressStatusCardProps {
   placementTestIcon?: React.ReactNode;
@@ -222,13 +210,13 @@ const ProgressStatusCard: React.FC<ProgressStatusCardProps> = ({
     return (
       <div className="flex flex-col gap-3 w-full">
         {[...Array(2)].map((_, index) => (
-          <div key={index} className="flex items-center gap-3 p-4 border rounded-xl dark:border-zinc-800">
+          <Skeleton key={index} className="flex items-center gap-3 p-4">
              <Skeleton className="h-10 w-10 rounded-lg" />
              <div className="flex flex-col gap-2 flex-1">
                 <Skeleton className="h-4 w-32" />
                 <Skeleton className="h-3 w-16" />
              </div>
-          </div>
+          </Skeleton>
         ))}
       </div>
     );

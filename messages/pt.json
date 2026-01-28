@@ -504,7 +504,8 @@
     "myPlacement": "Nivelamento",
     "contents": "Conteúdos",
     "vocabulary": "Vocabulário",
-    "studentProfile": "Perfil de Estudantes"
+    "studentProfile": "Perfil de Estudantes",
+    "myContract": "Contrato"
   },
   "UserProfileHeader": {
     "profilePicture": "Foto de perfil",

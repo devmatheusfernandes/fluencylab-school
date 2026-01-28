@@ -217,19 +217,6 @@
          hover:bg-white/5 dark:hover:bg-gray-950 
 }
 
-/* Skeleton Loaders */
-.skeleton-base {
-  @apply bg-linear-to-r from-slate-400/60 via-slate-400/30 to-slate-400/60
-         dark:from-slate-800 dark:via-slate-700/90 dark:to-slate-800
-         bg-size-[200%_2%] animate-shimmer;
-}
-
-.skeleton-sub {
-  @apply bg-linear-to-r from-white/20 via-slate-300/30 to-white/20
-         dark:from-slate-800 dark:via-slate-700/60 dark:to-slate-800
-         bg-size-[200%_50%] animate-shimmer;
-}
-
 /* Inputs Gerais */
 .input-base {
   @apply duration-150 ease-in-out transition-all rounded-md 
