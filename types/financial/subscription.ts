@@ -90,6 +90,11 @@ export interface CreateSubscriptionParams {
   paymentMethod: 'pix';
   billingDay: number;
   contractLengthMonths: 6 | 12; // Contract duration
+  contractStartDate?: Date;
+  initialPaymentAmount?: number;
+  initialPaymentDueDate?: Date;
+  addLateCredits?: boolean;
+  lateCreditsAmount?: number;
 }
 
 /**

@@ -40,6 +40,7 @@ interface AddUserModalProps {
     email: string;
     role: UserRoles;
     birthDate?: Date;
+    contractStartDate?: Date;
     guardian?: {
       name: string;
       email: string;
@@ -63,6 +64,7 @@ export default function AddUserModal({
   const [email, setEmail] = useState("");
   const [role, setRole] = useState(UserRoles.TEACHER);
   const [birthDate, setBirthDate] = useState<Date | null>(null);
+  const [contractStartDate, setContractStartDate] = useState<Date | null>(null);
   const [isMinor, setIsMinor] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
@@ -120,6 +122,10 @@ export default function AddUserModal({
     }
 
     if (!birthDate) errors.push(t("validation.birthDateRequired"));
+
+    if ((role === UserRoles.STUDENT || role === UserRoles.GUARDED_STUDENT) && !contractStartDate) {
+      errors.push("Data de início das aulas é obrigatória");
+    }
 
     // Validate age restriction for non-guarded students
     if (birthDate) {
@@ -183,6 +189,10 @@ export default function AddUserModal({
 
     if (birthDate) {
       userData.birthDate = birthDate;
+    }
+
+    if (contractStartDate) {
+      userData.contractStartDate = contractStartDate;
     }
 
     if (isMinor && guardianName && guardianEmail) {
@@ -282,6 +292,17 @@ export default function AddUserModal({
                 required
               />
             </ModalField>
+
+            {(role === UserRoles.STUDENT || role === UserRoles.GUARDED_STUDENT) && (
+              <ModalField label="Data de Início das Aulas" required>
+                <DatePicker
+                  value={contractStartDate}
+                  onChange={(date) => setContractStartDate(date)}
+                  placeholder="Selecione a data de início"
+                  required
+                />
+              </ModalField>
+            )}
 
             <ModalField label={t("type")} required>
               <Select

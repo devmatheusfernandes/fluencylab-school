@@ -6,7 +6,8 @@ import { OnboardingStepProps } from "../../OnboardingModal";
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
@@ -17,6 +18,8 @@ import {
   Info,
   Link,
   QrCode,
+  AlertTriangle,
+  Clock
 } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 
@@ -121,11 +124,18 @@ export const PaymentStep: React.FC<OnboardingStepProps> = ({
   onNext,
   isLoading: parentLoading,
 }) => {
-  const [billingDay, setBillingDay] = useState(5);
+  const [billingDay, setBillingDay] = useState<number | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingMessage, setProcessingMessage] = useState("");
   const [checkingPaymentStatus, setCheckingPaymentStatus] = useState(true);
   const { data: session } = useSession();
+
+  // New State for Contract Start Date and Late Entry Logic
+  const [contractStartDate, setContractStartDate] = useState<Date | null>(null);
+  const [isLateEntry, setIsLateEntry] = useState(false);
+  const [lateEntryOption, setLateEntryOption] = useState<"pro_rated" | "full_plus_credits" | null>(null);
+  const [proRatedAmount, setProRatedAmount] = useState<number>(0);
+  const [lateCreditsAmount, setLateCreditsAmount] = useState<number>(0);
 
   const basePrice = 29900;
   const monthlyPrice =
@@ -146,15 +156,60 @@ export const PaymentStep: React.FC<OnboardingStepProps> = ({
     },
   ];
 
+  // Fetch User Data to get Contract Start Date
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch("/api/users/me");
+        if (response.ok) {
+          const user = await response.json();
+          if (user.contractStartDate) {
+            const startDate = new Date(user.contractStartDate);
+            setContractStartDate(startDate);
+            
+            // Check if Late Entry
+            const today = new Date();
+            const isSameMonth = 
+              startDate.getMonth() === today.getMonth() && 
+              startDate.getFullYear() === today.getFullYear();
+            
+            // Late entry if start date is in current month AND today is after start date (or just implies starting now)
+            // User requirement: "se for no mes corrente"
+            if (isSameMonth) {
+              setIsLateEntry(true);
+              
+              // Calculate Logic
+              const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+              // Days remaining from TODAY (assuming they pay now to access now)
+              // Or from Start Date? If start date is 1st and today is 20th. They missed 20 days.
+              // Pro-rated should be for remaining days: today to end of month.
+              const remainingDays = daysInMonth - today.getDate() + 1;
+              const calculatedProRated = Math.round((monthlyPrice / 30) * remainingDays);
+              setProRatedAmount(calculatedProRated > 0 ? calculatedProRated : 0);
+
+              // Calculate Credits (Approximate missed classes)
+              // Assuming 1 class per week.
+              // Days missed = today.getDate() - 1.
+              // Weeks missed = Math.floor(daysMissed / 7).
+              // Or simple logic: 4 classes total.
+              // Remaining classes = Math.floor(remainingDays / 7).
+              // Missed = 4 - remaining.
+              // Let's use a simpler logic: 1 credit for every 7 days missed.
+              const daysMissed = today.getDate() - 1;
+              const credits = Math.floor(daysMissed / 7);
+              setLateCreditsAmount(credits > 0 ? credits : 1); // At least 1 if they are late enough to trigger this
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+    fetchUserData();
+  }, [monthlyPrice]);
+
   const handleMethodSelect = (method: "pix") => {
     onDataChange({ paymentMethod: method });
-  };
-
-  const handleBillingDayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const day = parseInt(e.target.value);
-    if (day >= 1 && day <= 28) {
-      setBillingDay(day);
-    }
   };
 
   const processPayment = async () => {
@@ -163,8 +218,13 @@ export const PaymentStep: React.FC<OnboardingStepProps> = ({
       return;
     }
 
-    if (billingDay < 1 || billingDay > 28) {
-      toast.error("O dia de vencimento deve estar entre 1 e 28");
+    if (!billingDay) {
+      toast.error("Selecione um dia de vencimento");
+      return;
+    }
+
+    if (isLateEntry && !lateEntryOption) {
+      toast.error("Selecione uma opção de pagamento para o primeiro mês");
       return;
     }
 
@@ -173,14 +233,29 @@ export const PaymentStep: React.FC<OnboardingStepProps> = ({
     try {
       setProcessingMessage("Criando sua assinatura PIX...");
 
+      const payload: any = {
+        paymentMethod: data.paymentMethod,
+        billingDay,
+        contractLengthMonths: data.contractLengthMonths,
+        contractStartDate: contractStartDate // Pass the admin defined date
+      };
+
+      if (isLateEntry) {
+        if (lateEntryOption === 'pro_rated') {
+          payload.initialPaymentAmount = proRatedAmount;
+          payload.initialPaymentDueDate = new Date(); // Pay now
+        } else if (lateEntryOption === 'full_plus_credits') {
+          payload.initialPaymentAmount = monthlyPrice; // Pay full
+          payload.initialPaymentDueDate = new Date(); // Pay now
+          payload.addLateCredits = true;
+          payload.lateCreditsAmount = lateCreditsAmount;
+        }
+      }
+
       const response = await fetch("/api/onboarding/create-subscription", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          paymentMethod: data.paymentMethod,
-          billingDay,
-          contractLengthMonths: data.contractLengthMonths,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -359,26 +434,92 @@ export const PaymentStep: React.FC<OnboardingStepProps> = ({
             <Text size="lg">Dia de Vencimento</Text>
           </div>
 
-          <Text className="text-gray-600 dark:text-gray-300 mb-4">
-            Escolha o dia do mês em que prefere receber sua cobrança (entre 1 e
-            28).
+          <Text className="text-gray-600 dark:text-gray-300 mb-6">
+            Escolha o melhor dia para o vencimento da sua fatura:
           </Text>
 
-          <div className="flex items-center gap-4">
-            <Text>Dia:</Text>
-            <Input
-              type="number"
-              min="1"
-              max="28"
-              value={billingDay}
-              onChange={handleBillingDayChange}
-              className="w-20"
-            />
-            <Text size="sm" className="text-gray-500">
+          <div className="flex flex-wrap justify-center gap-4">
+            {[1, 5, 10, 12].map((day) => (
+              <Button
+                key={day}
+                onClick={() => setBillingDay(day)}
+                variant={billingDay === day ? "primary" : "outline"}
+                className={`w-16 h-16 rounded-full text-lg font-bold ${
+                  billingDay === day 
+                    ? "ring-4 ring-primary/20 scale-110" 
+                    : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                }`}
+              >
+                {day}
+              </Button>
+            ))}
+          </div>
+          {billingDay && (
+            <Text size="sm" className="text-center text-gray-500 mt-4">
               A cobrança será feita todo dia {billingDay} do mês
             </Text>
-          </div>
+          )}
         </Card>
+
+        {/* Late Entry Options */}
+        {isLateEntry && (
+          <Card className="p-6 mb-8 border-yellow-200 bg-yellow-50 dark:bg-yellow-900/10 dark:border-yellow-900/30">
+            <div className="flex items-center gap-3 mb-4">
+              <Clock className="w-6 h-6 text-yellow-600 dark:text-yellow-500" />
+              <Text size="lg" className="font-semibold text-yellow-800 dark:text-yellow-200">
+                Início das Aulas
+              </Text>
+            </div>
+            
+            <Text className="mb-6 text-yellow-800 dark:text-yellow-200">
+              Como suas aulas começam no mês corrente ({contractStartDate?.toLocaleDateString()}), 
+              você pode escolher como deseja realizar o primeiro pagamento:
+            </Text>
+
+            <RadioGroup 
+              value={lateEntryOption || ""} 
+              onValueChange={(val) => setLateEntryOption(val as any)}
+              className="space-y-4"
+            >
+              {/* Option A: Pro-rated */}
+              <div className={`flex items-start space-x-3 p-4 rounded-lg border-2 transition-all cursor-pointer ${
+                lateEntryOption === 'pro_rated' 
+                  ? 'border-yellow-500 bg-white dark:bg-gray-800' 
+                  : 'border-transparent bg-white/50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-800'
+              }`}>
+                <RadioGroupItem value="pro_rated" id="pro_rated" className="mt-1" />
+                <Label htmlFor="pro_rated" className="flex-1 cursor-pointer">
+                  <div className="font-semibold text-gray-900 dark:text-gray-100">
+                    Pagar Proporcional ({formatPrice(proRatedAmount)})
+                  </div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Você paga apenas pelos dias restantes deste mês. O valor integral será cobrado a partir do próximo vencimento.
+                  </div>
+                </Label>
+              </div>
+
+              {/* Option B: Full + Credits */}
+              <div className={`flex items-start space-x-3 p-4 rounded-lg border-2 transition-all cursor-pointer ${
+                lateEntryOption === 'full_plus_credits' 
+                  ? 'border-yellow-500 bg-white dark:bg-gray-800' 
+                  : 'border-transparent bg-white/50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-800'
+              }`}>
+                <RadioGroupItem value="full_plus_credits" id="full_plus_credits" className="mt-1" />
+                <Label htmlFor="full_plus_credits" className="flex-1 cursor-pointer">
+                  <div className="font-semibold text-gray-900 dark:text-gray-100">
+                    Pagar Integral ({formatPrice(monthlyPrice)}) + Ganhar Créditos
+                  </div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Você paga o valor cheio do mês e recebe <strong>{lateCreditsAmount} crédito(s) de aula</strong> para repor as aulas que perdeu.
+                  </div>
+                  <div className="mt-2 inline-flex items-center px-2 py-1 rounded bg-green-100 text-green-700 text-xs font-bold">
+                    Recomendado
+                  </div>
+                </Label>
+              </div>
+            </RadioGroup>
+          </Card>
+        )}
 
         {/* Payment Method Details */}
         {data.paymentMethod && (
@@ -440,11 +581,11 @@ export const PaymentStep: React.FC<OnboardingStepProps> = ({
         <div className="text-center">
           <Button
             onClick={processPayment}
-            disabled={!data.paymentMethod || isProcessing || parentLoading}
+            disabled={!data.paymentMethod || !billingDay || (isLateEntry && !lateEntryOption) || isProcessing || parentLoading}
             size="lg"
             isLoading={isProcessing}
             className={`px-8 py-3 font-semibold transition-all duration-200 ${
-              data.paymentMethod
+              data.paymentMethod && billingDay && (!isLateEntry || lateEntryOption)
                 ? "bg-gradient-to-r from-primary/90 to-primary/70 hover:bg-primary-hover text-white"
                 : "bg-gray-300 dark:bg-gray-600 text-gray-500 cursor-not-allowed"
             }`}

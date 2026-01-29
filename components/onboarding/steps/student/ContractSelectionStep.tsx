@@ -166,7 +166,31 @@ export const ContractSelectionStep: React.FC<OnboardingStepProps> = ({
   onNext,
 }) => {
   const [isCheckingContract, setIsCheckingContract] = useState(true);
+  const [contractStartDate, setContractStartDate] = useState<Date | null>(null);
   const basePrice = 29900; // in centavos
+
+  // Fetch user data to get contractStartDate
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch("/api/users/me");
+        if (response.ok) {
+          const userData = await response.json();
+          if (userData.contractStartDate) {
+            // Handle both ISO string and Firestore timestamp
+            const dateValue = userData.contractStartDate;
+            const date = typeof dateValue === 'object' && '_seconds' in dateValue 
+              ? new Date(dateValue._seconds * 1000)
+              : new Date(dateValue);
+            setContractStartDate(date);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+    fetchUserData();
+  }, []);
 
   // Check if contract is already signed when component mounts
   useEffect(() => {
@@ -284,6 +308,17 @@ export const ContractSelectionStep: React.FC<OnboardingStepProps> = ({
             aprendizado. Ambos os planos incluem as mesmas funcionalidades
             principais.
           </Text>
+
+          {contractStartDate && (
+            <div className="mb-8 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg inline-block border border-blue-200 dark:border-blue-800">
+              <Text className="font-semibold text-blue-800 dark:text-blue-200">
+                Data de Início das Aulas: {contractStartDate.toLocaleDateString()}
+              </Text>
+              <Text size="sm" className="text-blue-600 dark:text-blue-300 mt-1">
+                Seu contrato terá validade a partir desta data.
+              </Text>
+            </div>
+          )}
         </div>
 
         {/* Contract Options */}

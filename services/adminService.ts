@@ -14,6 +14,7 @@ export class AdminService {
     email: string;
     role: UserRoles;
     birthDate?: Date;
+    contractStartDate?: Date;
     guardian?: {
       name: string;
       email: string;
@@ -21,7 +22,7 @@ export class AdminService {
       relationship?: string;
     };
   }) {
-    const { name, email, role, birthDate, guardian } = userData;
+    const { name, email, role, birthDate, contractStartDate, guardian } = userData;
 
     // Determina qual email usar para autenticação (responsável para menores)
     const authEmail = guardian?.email || email;
@@ -50,6 +51,7 @@ export class AdminService {
       interfaceLanguage: "pt-BR",
       tutorialCompleted: false,
       ...(birthDate && { birthDate }),
+      ...(contractStartDate && { contractStartDate }),
       ...(guardian && { guardian }),
       ...(role === UserRoles.TEACHER && { vacationDaysRemaining: 30 }),
     };

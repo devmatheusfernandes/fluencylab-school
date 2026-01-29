@@ -19,8 +19,16 @@ export class SubscriptionService {
    * Creates a new subscription for a user
    */
   async createSubscription(params: CreateSubscriptionParams) {
-    const { userId, userEmail, userRole, paymentMethod, billingDay, contractLengthMonths } =
-      params;
+    const { 
+      userId, 
+      userEmail, 
+      userRole, 
+      paymentMethod, 
+      billingDay, 
+      contractLengthMonths,
+      contractStartDate,
+      initialPaymentAmount
+    } = params;
     
     // Validate user role
     if (userRole !== UserRoles.STUDENT && userRole !== UserRoles.GUARDED_STUDENT) {
@@ -41,6 +49,8 @@ export class SubscriptionService {
       description,
       billingDay,
       contractLengthMonths,
+      contractStartDate,
+      initialPaymentAmount
     });
   }
 
@@ -54,13 +64,24 @@ export class SubscriptionService {
     description: string;
     billingDay: number;
     contractLengthMonths: 6 | 12;
+    contractStartDate?: Date;
+    initialPaymentAmount?: number;
   }) {
-    const { userId, userEmail, amount, description, billingDay, contractLengthMonths } = params;
+    const { 
+      userId, 
+      userEmail, 
+      amount, 
+      description, 
+      billingDay, 
+      contractLengthMonths,
+      contractStartDate: customStartDate,
+      initialPaymentAmount
+    } = params;
 
     console.log("Creating PIX subscription with webhook URL:", ABACATEPAY_CONFIG.WEBHOOK_URL);
 
     // Calculate contract dates
-    const contractStartDate = new Date();
+    const contractStartDate = customStartDate ? new Date(customStartDate) : new Date();
     const contractEndDate = new Date(contractStartDate);
     contractEndDate.setMonth(contractEndDate.getMonth() + contractLengthMonths);
 
@@ -87,7 +108,7 @@ export class SubscriptionService {
     await this.saveSubscription(subscription);
     
     // Generate all contract payments in advance
-    await this.generateContractPayments(subscription);
+    await this.generateContractPayments(subscription, initialPaymentAmount);
     
     // Create the first PIX payment (make it available immediately)
     const firstPayment = await this.makePaymentAvailable(subscription.id, 1);
@@ -607,11 +628,15 @@ export class SubscriptionService {
   /**
    * Generates all payments for the contract in advance
    */
-  private async generateContractPayments(subscription: MonthlySubscription) {
+  private async generateContractPayments(
+    subscription: MonthlySubscription, 
+    initialPaymentAmount?: number,
+    initialPaymentDueDate?: Date
+  ) {
     const payments: MonthlyPayment[] = [];
     
     for (let i = 1; i <= subscription.totalPayments; i++) {
-      const dueDate = new Date(subscription.contractStartDate);
+      let dueDate = new Date(subscription.contractStartDate);
       dueDate.setMonth(dueDate.getMonth() + (i - 1));
       dueDate.setDate(subscription.billingDay);
       
@@ -622,11 +647,23 @@ export class SubscriptionService {
       
       const monthName = dueDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
       
+      let amount = subscription.amount;
+      
+      // Override first payment if custom amount/date provided
+      if (i === 1) {
+        if (initialPaymentAmount !== undefined) {
+          amount = initialPaymentAmount;
+        }
+        if (initialPaymentDueDate) {
+          dueDate = new Date(initialPaymentDueDate);
+        }
+      }
+
       const payment: MonthlyPayment = {
         id: crypto.randomUUID(),
         subscriptionId: subscription.id,
         userId: subscription.userId,
-        amount: subscription.amount,
+        amount: amount,
         dueDate,
         status: 'pending',
         paymentMethod: 'pix',
@@ -686,7 +723,7 @@ export class SubscriptionService {
     
     const expiresInSeconds = ABACATEPAY_CONFIG.PIX_EXPIRATION_DAYS * 24 * 60 * 60;
     const qr = await createAbacatePayPixQrCode({
-      amountCents: subscription.amount,
+      amountCents: payment.amount,
       expiresInSeconds,
       description: payment.description.slice(0, 37),
       metadata: {
@@ -717,7 +754,7 @@ export class SubscriptionService {
       pixCode: qr.brCode,
       pixQrCode: qr.brCodeBase64,
       expiresAt: updatedPayment.pixExpiresAt,
-      amount: subscription.amount,
+      amount: payment.amount,
       dueDate: payment.dueDate
     };
   }

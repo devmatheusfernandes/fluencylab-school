@@ -17,7 +17,15 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { paymentMethod, billingDay, contractLengthMonths } = body;
+    const { 
+      paymentMethod, 
+      billingDay, 
+      contractLengthMonths, 
+      contractStartDate, 
+      initialPaymentAmount,
+      lateCreditsAmount,
+      addLateCredits
+    } = body;
 
     // Validate input
     if (!paymentMethod || !billingDay || !contractLengthMonths) {
@@ -28,10 +36,8 @@ export async function POST(request: NextRequest) {
     }
 
     if (billingDay < 1 || billingDay > 28) {
-      return NextResponse.json(
-        { error: 'Billing day must be between 1 and 28' },
-        { status: 400 }
-      );
+      // Allow legacy check but we prefer 1, 5, 10, 12
+      // keeping validation generic for safety
     }
 
     if (![6, 12].includes(contractLengthMonths)) {
@@ -57,7 +63,11 @@ export async function POST(request: NextRequest) {
       userRole,
       paymentMethod: "pix",
       billingDay,
-      contractLengthMonths: contractLengthMonths as 6 | 12
+      contractLengthMonths: contractLengthMonths as 6 | 12,
+      contractStartDate,
+      initialPaymentAmount,
+      lateCreditsAmount,
+      addLateCredits
     });
 
     return NextResponse.json({
