@@ -13,7 +13,6 @@ import { toast } from "sonner";
 import { formatPrice } from "@/config/pricing";
 import {
   Calendar,
-  Car,
   SquareCheck,
   Info,
   Link,
@@ -22,7 +21,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 
 interface PaymentMethodCardProps {
-  method: "pix" | "credit_card";
+  method: "pix";
   title: string;
   description: string;
   icon: React.ReactNode;
@@ -124,7 +123,6 @@ export const PaymentStep: React.FC<OnboardingStepProps> = ({
 }) => {
   const [billingDay, setBillingDay] = useState(5);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentRedirecting, setPaymentRedirecting] = useState(false);
   const [processingMessage, setProcessingMessage] = useState("");
   const [checkingPaymentStatus, setCheckingPaymentStatus] = useState(true);
   const { data: session } = useSession();
@@ -146,21 +144,9 @@ export const PaymentStep: React.FC<OnboardingStepProps> = ({
         "Comprovante automático",
       ],
     },
-    {
-      method: "credit_card" as const,
-      title: "Cartão de Crédito",
-      description: "Pagamento recorrente automático",
-      icon: <Car className="w-8 h-8" />,
-      benefits: [
-        "Pagamento automático mensal",
-        "Processo seguro e criptografado",
-        "Sem necessidade de lembrar",
-        "Fácil cancelamento",
-      ],
-    },
   ];
 
-  const handleMethodSelect = (method: "pix" | "credit_card") => {
+  const handleMethodSelect = (method: "pix") => {
     onDataChange({ paymentMethod: method });
   };
 
@@ -183,14 +169,9 @@ export const PaymentStep: React.FC<OnboardingStepProps> = ({
     }
 
     setIsProcessing(true);
-    setPaymentRedirecting(false);
 
     try {
-      if (data.paymentMethod === "pix") {
-        setProcessingMessage("Criando sua assinatura PIX...");
-      } else {
-        setProcessingMessage("Redirecionando para pagamento seguro...");
-      }
+      setProcessingMessage("Criando sua assinatura PIX...");
 
       const response = await fetch("/api/onboarding/create-subscription", {
         method: "POST",
@@ -208,33 +189,18 @@ export const PaymentStep: React.FC<OnboardingStepProps> = ({
 
       const result = await response.json();
 
-      if (data.paymentMethod === "pix") {
-        // PIX payment created - mark as completed and continue
-        onDataChange({
-          paymentCompleted: true,
-          subscriptionId: result.subscription.id,
-        });
-        toast.success("Assinatura PIX criada! QR Code gerado com sucesso.");
-        onNext();
-      } else {
-        // Credit card - redirect to external payment
-        if (result.checkoutUrl) {
-          setProcessingMessage("Redirecionando para pagamento...");
-          setPaymentRedirecting(true);
-
-          // Simulate processing for user feedback
-          setTimeout(() => {
-            window.location.href = result.checkoutUrl;
-          }, 2000);
-        } else {
-          throw new Error("No checkout URL received");
-        }
-      }
+      // PIX payment created - mark as completed and continue
+      onDataChange({
+        paymentCompleted: true,
+        subscriptionId: result.subscription.id,
+        paymentMethod: "pix",
+      });
+      toast.success("Assinatura PIX criada! QR Code gerado com sucesso.");
+      onNext();
     } catch (error) {
       console.error("Error processing payment:", error);
       toast.error("Erro ao processar pagamento. Tente novamente.");
       setIsProcessing(false);
-      setPaymentRedirecting(false);
       setProcessingMessage("");
     }
   };
@@ -262,24 +228,7 @@ export const PaymentStep: React.FC<OnboardingStepProps> = ({
       }
     };
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const success = urlParams.get("payment_success");
-    const cancelled = urlParams.get("payment_cancelled");
-
-    if (success === "true") {
-      onDataChange({ paymentCompleted: true });
-      toast.success("Pagamento processado com sucesso!");
-      // Clean URL
-      window.history.replaceState({}, document.title, window.location.pathname);
-      setCheckingPaymentStatus(false);
-    } else if (cancelled === "true") {
-      toast.error("Pagamento cancelado. Tente novamente.");
-      // Clean URL
-      window.history.replaceState({}, document.title, window.location.pathname);
-      setCheckingPaymentStatus(false);
-    } else {
-      checkPaymentStatus();
-    }
+    checkPaymentStatus();
   }, [session?.user?.id, onDataChange]);
 
   // Auto-advance when payment is completed and status checking is done
@@ -323,9 +272,8 @@ export const PaymentStep: React.FC<OnboardingStepProps> = ({
           </Text>
 
           <Text size="lg" className="text-green-700 dark:text-green-200 mb-8">
-            {data.paymentMethod === "pix"
-              ? "Sua assinatura PIX foi criada com sucesso! Você pode acessar o QR Code na área de pagamentos."
-              : "Seu pagamento foi processado com sucesso! Sua assinatura está ativa."}
+            Sua assinatura PIX foi criada com sucesso! Você pode acessar o QR Code
+            na área de pagamentos.
           </Text>
 
           <Button onClick={onNext} size="lg" variant="success">
@@ -341,31 +289,16 @@ export const PaymentStep: React.FC<OnboardingStepProps> = ({
       <div className="p-8 text-center">
         <div className="max-w-2xl mx-auto">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-100 dark:bg-indigo-800 rounded-full mb-6">
-            {paymentRedirecting ? (
-              <Link className="w-8 h-8 text-indigo-600 dark:text-indigo-300" />
-            ) : (
-              <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-            )}
+            <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
           </div>
 
           <Text size="xl" className="mb-4">
-            {paymentRedirecting ? "Redirecionando..." : "Processando Pagamento"}
+            Processando Pagamento
           </Text>
 
           <Text className="text-gray-600 dark:text-gray-300 mb-6">
             {processingMessage}
           </Text>
-
-          {paymentRedirecting && (
-            <Card className="p-4 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-700">
-              <div className="flex items-center justify-center gap-2 text-indigo-700 dark:text-indigo-200">
-                <Link className="w-5 h-5" />
-                <Text size="sm">
-                  Você será redirecionado para uma página segura do Mercado Pago
-                </Text>
-              </div>
-            </Card>
-          )}
         </div>
       </div>
     );
@@ -452,75 +385,36 @@ export const PaymentStep: React.FC<OnboardingStepProps> = ({
           <Card className="p-6 mb-8 bg-gradient-to-r from-gray-50 to-indigo-50 dark:from-gray-900 dark:to-indigo-900/30">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-800 rounded-lg flex items-center justify-center">
-                {data.paymentMethod === "pix" ? (
-                  <Link className="w-6 h-6 text-indigo-600 dark:text-indigo-300" />
-                ) : (
-                  <Link className="w-6 h-6 text-indigo-600 dark:text-indigo-300" />
-                )}
+                <Link className="w-6 h-6 text-indigo-600 dark:text-indigo-300" />
               </div>
 
               <div className="flex-1">
                 <Text className="font-semibold mb-2">
-                  {data.paymentMethod === "pix"
-                    ? "Como funciona o PIX:"
-                    : "Como funciona o Cartão de Crédito:"}
+                  Como funciona o PIX:
                 </Text>
 
-                {data.paymentMethod === "pix" ? (
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 bg-indigo-100 dark:bg-indigo-800 rounded-full flex items-center justify-center text-xs font-bold text-indigo-600 dark:text-indigo-300">
-                        1
-                      </div>
-                      <Text size="sm">
-                        Um QR Code será gerado para cada mensalidade
-                      </Text>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-indigo-100 dark:bg-indigo-800 rounded-full flex items-center justify-center text-xs font-bold text-indigo-600 dark:text-indigo-300">
+                      1
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 bg-indigo-100 dark:bg-indigo-800 rounded-full flex items-center justify-center text-xs font-bold text-indigo-600 dark:text-indigo-300">
-                        2
-                      </div>
-                      <Text size="sm">
-                        Você será notificado 2 dias antes do vencimento
-                      </Text>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 bg-indigo-100 dark:bg-indigo-800 rounded-full flex items-center justify-center text-xs font-bold text-indigo-600 dark:text-indigo-300">
-                        3
-                      </div>
-                      <Text size="sm">
-                        Pagamento confirmado automaticamente após o PIX
-                      </Text>
-                    </div>
+                    <Text size="sm">Um QR Code será gerado para cada mensalidade</Text>
                   </div>
-                ) : (
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 bg-indigo-100 dark:bg-indigo-800 rounded-full flex items-center justify-center text-xs font-bold text-indigo-600 dark:text-indigo-300">
-                        1
-                      </div>
-                      <Text size="sm">
-                        Você será redirecionado para uma página segura
-                      </Text>
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-indigo-100 dark:bg-indigo-800 rounded-full flex items-center justify-center text-xs font-bold text-indigo-600 dark:text-indigo-300">
+                      2
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 bg-indigo-100 dark:bg-indigo-800 rounded-full flex items-center justify-center text-xs font-bold text-indigo-600 dark:text-indigo-300">
-                        2
-                      </div>
-                      <Text size="sm">
-                        Digite os dados do cartão uma única vez
-                      </Text>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 bg-indigo-100 dark:bg-indigo-800 rounded-full flex items-center justify-center text-xs font-bold text-indigo-600 dark:text-indigo-300">
-                        3
-                      </div>
-                      <Text size="sm">
-                        Cobrança automática todo mês no dia {billingDay}
-                      </Text>
-                    </div>
+                    <Text size="sm">
+                      Você será notificado 2 dias antes do vencimento
+                    </Text>
                   </div>
-                )}
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-indigo-100 dark:bg-indigo-800 rounded-full flex items-center justify-center text-xs font-bold text-indigo-600 dark:text-indigo-300">
+                      3
+                    </div>
+                    <Text size="sm">Pagamento confirmado automaticamente após o PIX</Text>
+                  </div>
+                </div>
               </div>
             </div>
           </Card>
@@ -536,8 +430,7 @@ export const PaymentStep: React.FC<OnboardingStepProps> = ({
               </Text>
               <Text size="sm" className="text-green-700 dark:text-green-200">
                 Utilizamos criptografia de ponta e processamos pagamentos
-                através do Mercado Pago, uma das plataformas mais seguras do
-                Brasil.
+                através do AbacatePay (PIX).
               </Text>
             </div>
           </div>
@@ -558,9 +451,7 @@ export const PaymentStep: React.FC<OnboardingStepProps> = ({
           >
             {!data.paymentMethod
               ? "Selecione um método de pagamento"
-              : data.paymentMethod === "pix"
-                ? "Criar assinatura PIX"
-                : "Prosseguir com cartão de crédito"}
+              : "Criar assinatura PIX"}
           </Button>
         </div>
       </div>

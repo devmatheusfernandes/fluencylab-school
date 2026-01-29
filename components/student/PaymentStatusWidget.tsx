@@ -262,16 +262,7 @@ export function PaymentStatusWidget({ className }: PaymentStatusWidgetProps) {
           <div className="flex justify-between">
             <span className="font-medium">{t("paymentMethod")}</span>
             <div className="flex items-center gap-1">
-              {paymentStatus.paymentMethod === "credit_card" ? (
-                <>
-                  <Link className="w-4 h-4" />
-                  <span>{t("creditCard")}</span>
-                </>
-              ) : (
-                <>
-                  <span className="text-blue-600 font-semibold">PIX</span>
-                </>
-              )}
+              <span className="text-blue-600 font-semibold">PIX</span>
             </div>
           </div>
         )}
@@ -283,7 +274,7 @@ export function PaymentStatusWidget({ className }: PaymentStatusWidgetProps) {
           variant="secondary"
           size="sm"
           onClick={() =>
-            (window.location.href = "/hub/plataforma/student/payments")
+            (window.location.href = `/${locale}/hub/student/my-payments`)
           }
           className="w-full flex items-center gap-2"
         >

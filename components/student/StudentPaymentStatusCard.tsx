@@ -13,11 +13,9 @@ import {
   Copy,
   AlertTriangle,
   XCircle,
-  CreditCard,
   QrCode,
   Loader2,
   Wallet,
-  ArrowRight,
 } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
 import { useTranslations, useLocale } from "next-intl";
@@ -174,10 +172,10 @@ export function StudentPaymentStatusCard() {
         </p>
         <Button
           variant="outline"
-          onClick={() => (window.location.href = "/hub/student/my-payments")}
+          onClick={() => (window.location.href = `/${locale}/hub/student/my-payments`)}
           className="gap-2"
         >
-          <CreditCard className="w-4 h-4" />
+          <QrCode className="w-4 h-4" />
           {t("managePayments")}
         </Button>
       </div>
@@ -187,7 +185,6 @@ export function StudentPaymentStatusCard() {
   const statusConfig = getStatusConfig(paymentStatus.subscriptionStatus);
   const StatusIcon = statusConfig.icon;
   const daysUntilDue = getDaysUntilDue();
-  const isPix = paymentStatus.paymentMethod === "pix";
   const isOverdue = paymentStatus.subscriptionStatus === "overdue";
 
   return (
@@ -205,23 +202,17 @@ export function StudentPaymentStatusCard() {
           <div
             className={cn(
               "p-2.5 rounded-xl shadow-sm border",
-              isPix
-                ? "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-950/30 dark:border-emerald-900/50 dark:text-emerald-400"
-                : "bg-indigo-50 text-indigo-600 border-indigo-100 dark:bg-indigo-950/30 dark:border-indigo-900/50 dark:text-indigo-400"
+              "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-950/30 dark:border-emerald-900/50 dark:text-emerald-400"
             )}
           >
-            {isPix ? (
-              <QrCode className="w-5 h-5" />
-            ) : (
-              <CreditCard className="w-5 h-5" />
-            )}
+            <QrCode className="w-5 h-5" />
           </div>
           <div>
             <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 text-lg leading-tight">
               {t("title")}
             </h3>
             <p className="text-xs text-zinc-500 mt-1">
-              {isPix ? t("pix") : t("creditCard")}
+              {t("pix")}
             </p>
           </div>
         </div>
@@ -241,143 +232,108 @@ export function StudentPaymentStatusCard() {
 
       {/* BODY CONTENT - FLEX GROWS TO FILL SPACE */}
       <div className="flex-1 p-5 flex flex-col justify-center">
-        {/* === PIX LOGIC === */}
-        {isPix && (
-          <div className="w-full">
-            {(daysUntilDue !== null && daysUntilDue <= 5) || isOverdue ? (
-              <div className="space-y-5 animate-in fade-in zoom-in-95 duration-300">
-                {paymentStatus.pixCode ? (
-                  // STATE: PIX GENERATED
-                  <div className="flex flex-col lg:flex-row gap-5 items-center lg:items-start">
-                    {/* QR Code */}
-                    <div className="relative shrink-0 group bg-white p-2 rounded-xl border-2 border-dashed border-zinc-200 dark:border-zinc-700 shadow-sm">
-                      {paymentStatus.pixQrCode && (
-                        <Image
-                          src={`data:image/png;base64,${paymentStatus.pixQrCode}`}
-                          alt="QR Code PIX"
-                          width={120}
-                          height={120}
-                          className="rounded-lg mix-blend-multiply dark:mix-blend-normal dark:bg-white"
-                        />
-                      )}
-                      {/* Timer Overlay */}
-                      {paymentStatus.pixExpiresAt && (
-                         <div className="absolute inset-x-0 -bottom-3 flex justify-center">
-                            <span className="bg-zinc-900 text-white text-[10px] px-2 py-0.5 rounded-full shadow-md flex items-center gap-1">
-                                <Clock className="w-3 h-3"/> Expira em breve
-                            </span>
-                         </div>
-                      )}
-                    </div>
-
-                    {/* Copy/Paste Section */}
-                    <div className="flex-1 w-full space-y-3 min-w-0">
-                      <div className="text-center lg:text-left">
-                        <p className="font-medium text-zinc-900 dark:text-zinc-100">
-                          {t("pixInstructions")}
-                        </p>
-                        <p className="text-xs text-zinc-500 mt-1">
-                          Use o app do seu banco para escanear ou copie o código abaixo.
-                        </p>
-                      </div>
-
-                      <div className="relative flex items-center">
-                         <div className="w-full flex items-center gap-2 p-1.5 pl-3 bg-zinc-100 dark:bg-zinc-800/80 rounded-lg border border-zinc-200 dark:border-zinc-700 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all">
-                            <code className="flex-1 text-xs font-mono text-zinc-600 dark:text-zinc-400 truncate select-all">
-                              {paymentStatus.pixCode}
-                            </code>
-                            <Button
-                              size="sm"
-                              className="h-8 shadow-sm bg-white dark:bg-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-600 text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-600"
-                              onClick={copyPixCode}
-                            >
-                              <Copy className="w-3.5 h-3.5 mr-2" />
-                              {t("copyPix")}
-                            </Button>
-                          </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  // STATE: READY TO GENERATE
-                  <div className="flex flex-col items-center text-center py-2">
-                    <div className="mb-4 p-4 bg-emerald-50 dark:bg-emerald-900/10 rounded-full">
-                        <QrCode className="w-8 h-8 text-emerald-600 dark:text-emerald-500" />
-                    </div>
-                    <h4 className="font-medium text-zinc-900 dark:text-zinc-100 mb-2">
-                        {isOverdue ? t("pixOverdueTitle") : t("pixReadyTitle")}
-                    </h4>
-                    <p className="text-sm text-zinc-500 mb-6 max-w-sm mx-auto">
-                      {isOverdue
-                        ? t("generatePixOverdue")
-                        : t("generatePixNext")}
-                    </p>
-                    <Button
-                      onClick={generatePixPayment}
-                      disabled={generatingPix}
-                      className={cn(
-                        "w-full sm:w-auto min-w-[200px] font-semibold shadow-lg shadow-emerald-500/10",
-                        isOverdue 
-                            ? "bg-red-600 hover:bg-red-700 text-white" 
-                            : "bg-emerald-600 hover:bg-emerald-700 text-white"
-                      )}
-                    >
-                      {generatingPix ? (
-                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                      ) : (
-                        <QrCode className="w-4 h-4 mr-2" />
-                      )}
-                      {generatingPix ? t("generating") : t("generatePix")}
-                    </Button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              // STATE: TOO EARLY
-              <div className="flex flex-col items-center justify-center py-6 text-zinc-400">
-                <div className="w-12 h-12 rounded-full bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center mb-3">
-                    <Clock className="w-6 h-6 opacity-40" />
-                </div>
-                <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
-                  {t("pixAvailability")}
-                </p>
-                <p className="text-xs text-zinc-400 mt-1">
-                  {t("pixRelease", { days: daysUntilDue ?? 0 })}
-                </p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* === CREDIT CARD LOGIC === */}
-        {!isPix && (
-          <div className="flex flex-col gap-4">
-             <div className={cn(
-                "flex items-start gap-4 p-4 rounded-xl border",
-                isOverdue 
-                    ? "bg-red-50 dark:bg-red-900/10 border-red-100 dark:border-red-900/20" 
-                    : "bg-zinc-50 dark:bg-zinc-800/50 border-zinc-100 dark:border-zinc-800"
-             )}>
-                <div className={cn("p-2 rounded-full mt-0.5", statusConfig.bg)}>
-                    <StatusIcon className={cn("w-4 h-4", statusConfig.text)} />
-                </div>
-                <div className="flex-1">
-                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                    {isOverdue ? t("paymentProblem") : t("autoPaymentActive")}
-                    </p>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed">
-                    {isOverdue ? t("problemDesc") : t("autoPaymentDesc")}
-                    </p>
-                    
-                    {isOverdue && (
-                        <Button variant="link" className="h-auto p-0 text-red-600 text-xs mt-2" onClick={() => window.location.href="/hub/student/my-payments"}>
-                            {t("updateCard")} <ArrowRight className="w-3 h-3 ml-1"/>
-                        </Button>
+        <div className="w-full">
+          {(daysUntilDue !== null && daysUntilDue <= 5) || isOverdue ? (
+            <div className="space-y-5 animate-in fade-in zoom-in-95 duration-300">
+              {paymentStatus.pixCode ? (
+                // STATE: PIX GENERATED
+                <div className="flex flex-col lg:flex-row gap-5 items-center lg:items-start">
+                  {/* QR Code */}
+                  <div className="relative shrink-0 group bg-white p-2 rounded-xl border-2 border-dashed border-zinc-200 dark:border-zinc-700 shadow-sm">
+                    {paymentStatus.pixQrCode && (
+                      <Image
+                        src={`data:image/png;base64,${paymentStatus.pixQrCode}`}
+                        alt="QR Code PIX"
+                        width={120}
+                        height={120}
+                        className="rounded-lg mix-blend-multiply dark:mix-blend-normal dark:bg-white"
+                      />
                     )}
+                    {/* Timer Overlay */}
+                    {paymentStatus.pixExpiresAt && (
+                      <div className="absolute inset-x-0 -bottom-3 flex justify-center">
+                        <span className="bg-zinc-900 text-white text-[10px] px-2 py-0.5 rounded-full shadow-md flex items-center gap-1">
+                          <Clock className="w-3 h-3" /> Expira em breve
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Copy/Paste Section */}
+                  <div className="flex-1 w-full space-y-3 min-w-0">
+                    <div className="text-center lg:text-left">
+                      <p className="font-medium text-zinc-900 dark:text-zinc-100">
+                        {t("pixInstructions")}
+                      </p>
+                      <p className="text-xs text-zinc-500 mt-1">
+                        Use o app do seu banco para escanear ou copie o código abaixo.
+                      </p>
+                    </div>
+
+                    <div className="relative flex items-center">
+                      <div className="w-full flex items-center gap-2 p-1.5 pl-3 bg-zinc-100 dark:bg-zinc-800/80 rounded-lg border border-zinc-200 dark:border-zinc-700 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all">
+                        <code className="flex-1 text-xs font-mono text-zinc-600 dark:text-zinc-400 truncate select-all">
+                          {paymentStatus.pixCode}
+                        </code>
+                        <Button
+                          size="sm"
+                          className="h-8 shadow-sm bg-white dark:bg-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-600 text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-600"
+                          onClick={copyPixCode}
+                        >
+                          <Copy className="w-3.5 h-3.5 mr-2" />
+                          {t("copyPix")}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+              ) : (
+                // STATE: READY TO GENERATE
+                <div className="flex flex-col items-center text-center py-2">
+                  <div className="mb-4 p-4 bg-emerald-50 dark:bg-emerald-900/10 rounded-full">
+                    <QrCode className="w-8 h-8 text-emerald-600 dark:text-emerald-500" />
+                  </div>
+                  <h4 className="font-medium text-zinc-900 dark:text-zinc-100 mb-2">
+                    {isOverdue ? t("pixOverdueTitle") : t("pixReadyTitle")}
+                  </h4>
+                  <p className="text-sm text-zinc-500 mb-6 max-w-sm mx-auto">
+                    {isOverdue ? t("generatePixOverdue") : t("generatePixNext")}
+                  </p>
+                  <Button
+                    onClick={generatePixPayment}
+                    disabled={generatingPix}
+                    className={cn(
+                      "w-full sm:w-auto min-w-[200px] font-semibold shadow-lg shadow-emerald-500/10",
+                      isOverdue
+                        ? "bg-red-600 hover:bg-red-700 text-white"
+                        : "bg-emerald-600 hover:bg-emerald-700 text-white",
+                    )}
+                  >
+                    {generatingPix ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    ) : (
+                      <QrCode className="w-4 h-4 mr-2" />
+                    )}
+                    {generatingPix ? t("generating") : t("generatePix")}
+                  </Button>
+                </div>
+              )}
             </div>
-          </div>
-        )}
+          ) : (
+            // STATE: TOO EARLY
+            <div className="flex flex-col items-center justify-center py-6 text-zinc-400">
+              <div className="w-12 h-12 rounded-full bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center mb-3">
+                <Clock className="w-6 h-6 opacity-40" />
+              </div>
+              <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                {t("pixAvailability")}
+              </p>
+              <p className="text-xs text-zinc-400 mt-1">
+                {t("pixRelease", { days: daysUntilDue ?? 0 })}
+              </p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* FOOTER DETAILS - RESPONSIVE GRID */}

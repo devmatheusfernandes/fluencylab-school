@@ -50,10 +50,13 @@ const serverEnvSchema = z.object({
     .min(1, "NEXT_PUBLIC_FIREBASE_APP_ID é obrigatório"),
 
   // Payment Configuration
-  MERCADO_PAGO_ACCESS_TOKEN: z
+  ABACATEPAY_API_KEY: z.string().min(1, "ABACATEPAY_API_KEY é obrigatório"),
+  ABACATEPAY_WEBHOOK_SECRET: z
     .string()
-    .min(1, "MERCADO_PAGO_ACCESS_TOKEN é obrigatório"),
-  MERCADO_PAGO_WEBHOOK_SECRET: z.string().optional(),
+    .min(1, "ABACATEPAY_WEBHOOK_SECRET é obrigatório"),
+  ABACATEPAY_PUBLIC_KEY: z
+    .string()
+    .min(1, "ABACATEPAY_PUBLIC_KEY é obrigatório"),
 
   // Email Configuration
   RESEND_API_KEY: z

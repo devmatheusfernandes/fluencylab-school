@@ -30,7 +30,6 @@ export function PaymentManagementClient() {
   const [cancellationReason, setCancellationReason] = useState("");
   const [canceling, setCanceling] = useState(false);
   const [generatingPix, setGeneratingPix] = useState(false);
-  const [loadingCheckout, setLoadingCheckout] = useState(false);
 
   useEffect(() => {
     fetchPaymentStatus();
@@ -152,77 +151,6 @@ export function PaymentManagementClient() {
     }
   };
 
-  const handleReturnToCheckout = async () => {
-    if (!paymentStatus?.subscriptionId) return;
-
-    setLoadingCheckout(true);
-    try {
-      const response = await fetch("/api/student/checkout-url", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subscriptionId: paymentStatus.subscriptionId }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.checkoutUrl) {
-          // Open in the same window to maintain the flow
-          window.location.href = data.checkoutUrl;
-        } else {
-          toast.error(t("checkoutUrlError"));
-        }
-      } else {
-        const error = await response.json();
-
-        // If the checkout URL is not available, try to recreate it
-        if (response.status === 404 || error.message?.includes("expired")) {
-          console.log("Checkout URL not available, attempting to recreate...");
-          await handleRecreateCheckout();
-        } else {
-          toast.error(error.message || t("checkoutUrlLoadError"));
-        }
-      }
-    } catch (error) {
-      console.error("Error getting checkout URL:", error);
-      toast.error(t("checkoutLoadError"));
-    } finally {
-      setLoadingCheckout(false);
-    }
-  };
-
-  const handleRecreateCheckout = async () => {
-    if (!paymentStatus?.subscriptionId) return;
-
-    try {
-      toast.info(t("recreatingSession"));
-
-      const response = await fetch("/api/student/recreate-checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subscriptionId: paymentStatus.subscriptionId }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.checkoutUrl) {
-          toast.success(t("sessionRecreated"));
-          // Small delay to show the message
-          setTimeout(() => {
-            window.location.href = data.checkoutUrl;
-          }, 1000);
-        } else {
-          toast.error(t("sessionRecreateError"));
-        }
-      } else {
-        const error = await response.json();
-        toast.error(error.message || t("sessionRecreateError"));
-      }
-    } catch (error) {
-      console.error("Error recreating checkout:", error);
-      toast.error(t("sessionRecreateError"));
-    }
-  };
-
   const copyPixCode = async () => {
     if (paymentStatus?.pixCode) {
       try {
@@ -312,7 +240,7 @@ export function PaymentManagementClient() {
           payment.paidAt
             ? new Date(payment.paidAt).toLocaleDateString(locale === "pt" ? "pt-BR" : "en-US")
             : "-",
-          payment.paymentMethod === "pix" ? "PIX" : t("creditCard"),
+          "PIX",
         ].join(",")
       ),
     ].join("\n");
@@ -346,7 +274,7 @@ export function PaymentManagementClient() {
         </p>
         <Button
           onClick={() =>
-            (window.location.href = "/hub/plataforma/student/subscription")
+            (window.location.href = `/${locale}/hub/student/my-subscription`)
           }
         >
           {t("createSubscription")}
@@ -414,14 +342,7 @@ export function PaymentManagementClient() {
                 {t("paymentMethod")}
               </span>
               <div className="flex items-center gap-2 mt-1">
-                {paymentStatus.paymentMethod === "credit_card" ? (
-                  <>
-                    <Link className="w-4 h-4" />
-                    <span>{t("creditCard")}</span>
-                  </>
-                ) : (
-                  <span className="text-primary font-semibold">PIX</span>
-                )}
+                <span className="text-primary font-semibold">PIX</span>
               </div>
             </div>
 
@@ -524,80 +445,6 @@ export function PaymentManagementClient() {
           </Card>
         )}
 
-      {/* Pending Credit Card Subscription Section */}
-      {paymentStatus.subscriptionStatus === "pending" &&
-        paymentStatus.paymentMethod === "credit_card" && (
-          <Card className="p-6 border-l-4 border-l-orange-500">
-            <div className="flex items-center gap-2 mb-4">
-              <Link className="w-5 h-5 text-orange-600" />
-              <h3 className="text-lg font-semibold text-orange-800">
-                {t("paymentPendingTitle")}
-              </h3>
-            </div>
-
-            <div className="space-y-4">
-              <p className="text-gray-700">
-                {t("paymentPendingDesc")}
-              </p>
-
-              <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-                <div className="flex items-start gap-3">
-                  <Link className="w-5 h-5 text-orange-600 mt-0.5" />
-                  <div>
-                    <h4 className="font-medium text-orange-800 mb-1">
-                      {t("whatToDo")}
-                    </h4>
-                    <ul className="text-sm text-orange-700 space-y-1">
-                      <li>• {t("step1")}</li>
-                      <li>• {t("step2")}</li>
-                      <li>
-                        • {t("step3")}
-                      </li>
-                      <li>
-                        • {t("step4")}
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button
-                  onClick={handleReturnToCheckout}
-                  disabled={loadingCheckout}
-                  className="flex-1"
-                  size="lg"
-                >
-                  {loadingCheckout ? (
-                    <>
-                      <Spinner />
-                      {t("loadingCheckout")}
-                    </>
-                  ) : (
-                    <>
-                      <Link className="w-4 h-4 mr-2" />
-                      {t("backToCheckout")}
-                    </>
-                  )}
-                </Button>
-
-                <Button
-                  onClick={handleRecreateCheckout}
-                  disabled={loadingCheckout}
-                  variant="secondary"
-                  size="lg"
-                  className="flex-1 sm:flex-initial"
-                >
-                  <Link
-                    className={`w-4 h-4 mr-2 ${loadingCheckout ? "animate-spin" : ""}`}
-                  />
-                  {t("recreateSession")}
-                </Button>
-              </div>
-            </div>
-          </Card>
-        )}
-
       {/* Payment History */}
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
@@ -667,9 +514,7 @@ export function PaymentManagementClient() {
                             {t("paymentMethod")}
                           </span>
                           <p>
-                            {payment.paymentMethod === "pix"
-                              ? "PIX"
-                              : t("creditCard")}
+                            PIX
                           </p>
                         </div>
 

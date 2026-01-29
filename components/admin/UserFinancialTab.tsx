@@ -17,7 +17,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { User } from "@/types/users/users";
-import { MonthlyPayment } from "@/types/financial/subscription";
 import { Calendar, Clock, Coins } from "lucide-react";
 import { ButtonGroup } from "../ui/button-group";
 import { Spinner } from "../ui/spinner";
@@ -37,8 +36,19 @@ interface TeacherClassStats {
 interface StudentFinancialData {
   paymentMethod: string;
   subscriptionStatus: string;
-  payments: MonthlyPayment[];
+  payments: StudentPaymentRow[];
 }
+
+type StudentPaymentRow = {
+  id: string;
+  amount: number;
+  status: string;
+  paymentMethod: string;
+  description: string;
+  createdAt: string | Date;
+  paidAt: string | Date | null;
+  dueDate: string | Date;
+};
 
 const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
   const t = useTranslations("UserDetails.financial");
@@ -111,19 +121,15 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
 
       const data = await response.json();
 
-      // Map the API response to MonthlyPayment objects
-      const payments: MonthlyPayment[] = data.payments.map((payment: any) => ({
+      const payments: StudentPaymentRow[] = (data.payments || []).map((payment: any) => ({
         id: payment.id,
-        subscriptionId: payment.subscriptionId,
         amount: payment.amount,
-        currency: payment.currency,
         status: payment.status,
         paymentMethod: payment.paymentMethod,
-        paidAt: payment.paidAt ? new Date(payment.paidAt) : null,
-        dueDate: new Date(payment.dueDate),
-        createdAt: new Date(payment.createdAt),
-        updatedAt: new Date(payment.updatedAt),
-        metadata: payment.metadata || {},
+        description: payment.description || t("defaultDescription"),
+        createdAt: payment.createdAt,
+        paidAt: payment.paidAt ?? null,
+        dueDate: payment.dueDate,
       }));
 
       setStudentFinancials({
@@ -319,12 +325,7 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
             <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg mt-4">
               <div>
                 <p className="font-medium">
-                  {studentFinancials?.paymentMethod === "pix"
-                    ? t("paymentMethods.pix")
-                    : studentFinancials?.paymentMethod === "credit_card"
-                    ? t("paymentMethods.credit_card")
-                    : studentFinancials?.paymentMethod ||
-                      t("paymentMethods.undefined")}
+                  {t("paymentMethods.pix")}
                 </p>
                 {user.subscriptionBillingDay && (
                   <p className="text-sm text-muted-foreground">
@@ -379,7 +380,7 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {studentFinancials.payments.map((payment: MonthlyPayment) => (
+                  {studentFinancials.payments.map((payment: StudentPaymentRow) => (
                     <TableRow key={payment.id}>
                       <TableCell>
                         {new Date(payment.dueDate).toLocaleDateString("pt-BR")}
@@ -412,12 +413,7 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {payment.paymentMethod === "pix"
-                          ? t("paymentMethods.pix")
-                          : payment.paymentMethod === "credit_card"
-                          ? t("paymentMethods.credit_card")
-                          : payment.paymentMethod ||
-                            t("paymentMethods.undefined")}
+                        {t("paymentMethods.pix")}
                       </TableCell>
                     </TableRow>
                   ))}

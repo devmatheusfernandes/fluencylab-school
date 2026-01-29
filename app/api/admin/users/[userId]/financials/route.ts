@@ -24,30 +24,33 @@ export async function GET(
   try {
     const { userId } = await params;
     
-    // 1. Buscar o usuário para obter o mercadoPagoSubscriptionId
+    // 1. Buscar o usuário para obter o subscriptionId (PIX / AbacatePay)
     const userDoc = await adminDb.collection('users').doc(userId).get();
     if (!userDoc.exists) {
       return NextResponse.json({ error: "Usuário não encontrado." }, { status: 404 });
     }
     
     const userData = userDoc.data();
-    const mercadoPagoSubscriptionId = userData?.mercadoPagoSubscriptionId;
+    const subscriptionId =
+      userData?.mercadoPagoSubscriptionId ||
+      userData?.subscriptionId ||
+      userData?.subscription?.id;
     
-    if (!mercadoPagoSubscriptionId) {
+    if (!subscriptionId) {
       // Retorna dados vazios se não há subscription
       return NextResponse.json({
-        paymentMethod: userData?.paymentMethod || 'Não definido',
+        paymentMethod: userData?.subscriptionPaymentMethod || "pix",
         subscriptionStatus: userData?.subscriptionStatus || 'inactive',
         payments: []
       });
     }
     
-    // 2. Buscar a subscription usando o mercadoPagoSubscriptionId como documento ID
-    const subscriptionDoc = await adminDb.collection('subscriptions').doc(mercadoPagoSubscriptionId).get();
+    // 2. Buscar a subscription usando o subscriptionId como documento ID
+    const subscriptionDoc = await adminDb.collection('subscriptions').doc(subscriptionId).get();
     
     if (!subscriptionDoc.exists) {
       return NextResponse.json({
-        paymentMethod: userData?.paymentMethod || 'Não definido',
+        paymentMethod: userData?.subscriptionPaymentMethod || "pix",
         subscriptionStatus: userData?.subscriptionStatus || 'inactive',
         payments: []
       });
@@ -57,7 +60,7 @@ export async function GET(
     
     // 3. Buscar os pagamentos da subscription na coleção monthlyPayments
     const paymentsSnapshot = await adminDb.collection('monthlyPayments')
-      .where('subscriptionId', '==', mercadoPagoSubscriptionId)
+      .where('subscriptionId', '==', subscriptionId)
       .orderBy('createdAt', 'desc')
       .get();
     
@@ -67,7 +70,7 @@ export async function GET(
         id: doc.id,
         amount: data.amount,
         status: data.status,
-        paymentMethod: subscriptionData?.paymentMethod?.type || 'Não definido',
+        paymentMethod: subscriptionData?.paymentMethod?.type || "pix",
         description: data.description || 'Pagamento mensal',
         createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(data.createdAt),
         paidAt: data.paidAt?.toDate ? data.paidAt.toDate() : (data.paidAt ? new Date(data.paidAt) : null),
@@ -77,7 +80,7 @@ export async function GET(
     
     // 4. Retornar os dados formatados
     return NextResponse.json({
-      paymentMethod: subscriptionData?.paymentMethod?.type || 'Não definido',
+      paymentMethod: subscriptionData?.paymentMethod?.type || "pix",
       subscriptionStatus: subscriptionData?.status || 'inactive',
       payments: payments
     });

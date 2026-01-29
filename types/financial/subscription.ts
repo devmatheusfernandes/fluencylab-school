@@ -6,7 +6,7 @@
 export interface MonthlySubscription {
   id: string;
   userId: string;
-  planType: 'pix' | 'credit_card';
+  planType: 'pix';
   amount: number; // Amount in centavos
   currency: 'BRL';
   status: 'active' | 'pending' | 'overdue' | 'canceled' | 'suspended';
@@ -17,7 +17,6 @@ export interface MonthlySubscription {
   canceledAt?: Date;
   cancellationReason?: string;
   cancellationFee?: number; // Fee in centavos if applicable
-  mercadoPagoSubscriptionId?: string; // For credit card subscriptions
   
   // Contract information
   contractLengthMonths: 6 | 12; // Contract duration
@@ -31,11 +30,7 @@ export interface MonthlySubscription {
  * Payment method information
  */
 export interface PaymentMethod {
-  type: 'pix' | 'credit_card';
-  cardId?: string; // For saved credit cards
-  lastFourDigits?: string;
-  brand?: string; // visa, mastercard, etc.
-  cardholderName?: string;
+  type: 'pix';
 }
 
 /**
@@ -49,8 +44,9 @@ export interface MonthlyPayment {
   dueDate: Date;
   paidAt?: Date;
   status: 'pending' | 'paid' | 'overdue' | 'canceled' | 'failed' | 'available';
-  paymentMethod: 'pix' | 'credit_card';
-  mercadoPagoPaymentId?: string;
+  paymentMethod: 'pix';
+  provider: 'abacatepay';
+  providerPaymentId?: string; // AbacatePay PixQRCode id
   pixCode?: string;
   pixQrCode?: string; // Base64 QR code
   pixExpiresAt?: Date;
@@ -80,7 +76,7 @@ export interface PaymentStatus {
   pixQrCode?: string;
   pixExpiresAt?: Date;
   amount?: number;
-  paymentMethod?: 'pix' | 'credit_card';
+  paymentMethod?: 'pix';
   overdueDays?: number;
 }
 
@@ -91,9 +87,8 @@ export interface CreateSubscriptionParams {
   userId: string;
   userEmail: string;
   userRole: string;
-  paymentMethod: 'pix' | 'credit_card';
+  paymentMethod: 'pix';
   billingDay: number;
-  cardToken?: string; // For credit card subscriptions
   contractLengthMonths: 6 | 12; // Contract duration
 }
 
@@ -123,30 +118,9 @@ export interface SubscriptionOverview {
   };
 }
 
-/**
- * Mercado Pago webhook event types
- */
-export type MercadoPagoEventType = 
-  | 'payment'
-  | 'subscription'
-  | 'subscription_preapproval'
-  | 'subscription_authorized_payment'
-  | 'invoice';
-
-/**
- * Mercado Pago webhook payload
- */
-export interface MercadoPagoWebhookPayload {
+export type AbacatePayWebhookEvent = {
   id: string;
-  live_mode: boolean;
-  type: MercadoPagoEventType;
-  date_created: string;
-  application_id: string;
-  user_id: string;
-  version: string;
-  api_version: string;
-  action: string;
-  data: {
-    id: string;
-  };
-}
+  event: string; // e.g. "billing.paid"
+  devMode?: boolean;
+  data?: any;
+};

@@ -1,4 +1,4 @@
-// app/hub/plataforma/student/subscription/page.tsx
+// app/[locale]/hub/student/my-subscription/page.tsx
 import { SubscriptionCreationClient } from "@/components/student/SubscriptionCreationClient";
 
 export default function SubscriptionPage() {

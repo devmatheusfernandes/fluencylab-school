@@ -1,6 +1,5 @@
 // services/subscriptionService.ts
-import { Payment, Preference, PreApproval } from 'mercadopago';
-import { mercadoPagoClient, MERCADO_PAGO_CONFIG, generateIdempotencyKey } from '@/lib/mercadopago/config';
+import { ABACATEPAY_CONFIG, createAbacatePayPixQrCode } from "@/lib/abacatepay/config";
 import { getSubscriptionPrice, getSubscriptionDescription, SUBSCRIPTION_PRICING } from '@/config/pricing';
 import { adminDb } from '@/lib/firebase/admin';
 import { 
@@ -14,21 +13,14 @@ import {
 import { UserRoles } from '@/types/users/userRoles';
 
 export class SubscriptionService {
-  private payment: Payment;
-  private preference: Preference;
-  private preApproval: PreApproval;
-
-  constructor() {
-    this.payment = new Payment(mercadoPagoClient);
-    this.preference = new Preference(mercadoPagoClient);
-    this.preApproval = new PreApproval(mercadoPagoClient);
-  }
+  constructor() {}
 
   /**
    * Creates a new subscription for a user
    */
   async createSubscription(params: CreateSubscriptionParams) {
-    const { userId, userEmail, userRole, paymentMethod, billingDay, cardToken, contractLengthMonths } = params;
+    const { userId, userEmail, userRole, paymentMethod, billingDay, contractLengthMonths } =
+      params;
     
     // Validate user role
     if (userRole !== UserRoles.STUDENT && userRole !== UserRoles.GUARDED_STUDENT) {
@@ -38,26 +30,18 @@ export class SubscriptionService {
     const amount = getSubscriptionPrice(userRole as UserRoles);
     const description = getSubscriptionDescription(userRole as UserRoles);
     
-    if (paymentMethod === 'pix') {
-      return this.createPixSubscription({
-        userId,
-        userEmail,
-        amount,
-        description,
-        billingDay,
-        contractLengthMonths
-      });
-    } else {
-      return this.createCardSubscription({
-        userId,
-        userEmail,
-        amount,
-        description,
-        billingDay,
-        cardToken,
-        contractLengthMonths
-      });
+    if (paymentMethod !== "pix") {
+      throw new Error("Only PIX payments are supported");
     }
+
+    return this.createPixSubscription({
+      userId,
+      userEmail,
+      amount,
+      description,
+      billingDay,
+      contractLengthMonths,
+    });
   }
 
   /**
@@ -73,7 +57,7 @@ export class SubscriptionService {
   }) {
     const { userId, userEmail, amount, description, billingDay, contractLengthMonths } = params;
 
-    console.log('Creating PIX subscription with webhook URL:', MERCADO_PAGO_CONFIG.WEBHOOK_URL);
+    console.log("Creating PIX subscription with webhook URL:", ABACATEPAY_CONFIG.WEBHOOK_URL);
 
     // Calculate contract dates
     const contractStartDate = new Date();
@@ -120,90 +104,7 @@ export class SubscriptionService {
     };
   }
 
-  /**
-   * Creates a credit card subscription (automatic recurring)
-   */
-  private async createCardSubscription(params: {
-    userId: string;
-    userEmail: string;
-    amount: number;
-    description: string;
-    billingDay: number;
-    cardToken?: string;
-    contractLengthMonths: 6 | 12;
-  }) {
-    const { userId, userEmail, amount, description, billingDay, cardToken, contractLengthMonths } = params;
-
-    console.log('Creating card subscription with webhook URL:', MERCADO_PAGO_CONFIG.WEBHOOK_URL);
-
-    // Calculate start date (next billing date) - ensure it's at least 1 hour in the future
-    const startDate = this.calculateNextBillingDate(billingDay);
-    const now = new Date();
-    if (startDate.getTime() - now.getTime() < 60 * 60 * 1000) { // Less than 1 hour
-      startDate.setMonth(startDate.getMonth() + 1); // Move to next month
-    }
-    
-    // Calculate contract dates
-    const contractStartDate = new Date();
-    const contractEndDate = new Date(contractStartDate);
-    contractEndDate.setMonth(contractEndDate.getMonth() + contractLengthMonths);
-
-    // Create pre-approval (subscription) with Mercado Pago
-    const preApprovalData = {
-      reason: description,
-      auto_recurring: {
-        frequency: MERCADO_PAGO_CONFIG.SUBSCRIPTION_FREQUENCY,
-        frequency_type: MERCADO_PAGO_CONFIG.SUBSCRIPTION_FREQUENCY_TYPE,
-        transaction_amount: amount / 100, // Convert from centavos to reais
-        currency_id: 'BRL',
-        start_date: startDate.toISOString(),
-      },
-      payer_email: userEmail,
-      back_url: MERCADO_PAGO_CONFIG.SUCCESS_URL, // PreApproval uses singular back_url
-      notification_url: MERCADO_PAGO_CONFIG.WEBHOOK_URL,
-      external_reference: userId,
-      payment_methods_allowed: {
-        payment_types: [{ id: 'credit_card' }],
-        payment_methods: []
-      }
-    };
-
-    // Create the subscription with Mercado Pago
-    const mpSubscription = await this.preApproval.create({
-      body: preApprovalData,
-      requestOptions: {
-        idempotencyKey: generateIdempotencyKey()
-      }
-    });
-
-    // Create local subscription record
-    const subscription: MonthlySubscription = {
-      id: crypto.randomUUID(),
-      userId,
-      planType: 'credit_card',
-      amount,
-      currency: 'BRL',
-      status: 'pending', // Will be updated via webhook
-      paymentMethod: { type: 'credit_card' },
-      billingDay,
-      nextBillingDate: startDate,
-      createdAt: contractStartDate,
-      mercadoPagoSubscriptionId: mpSubscription.id?.toString(),
-      contractLengthMonths,
-      contractStartDate,
-      contractEndDate,
-      totalPayments: contractLengthMonths,
-      paymentsCompleted: 0
-    };
-
-    await this.saveSubscription(subscription);
-
-    return {
-      subscription,
-      checkoutUrl: mpSubscription.init_point,
-      subscriptionId: mpSubscription.id
-    };
-  }
+  // Credit card subscriptions removed (PIX only).
 
   /**
    * Generates a PIX payment for a specific payment number (legacy method for contract system)
@@ -252,23 +153,6 @@ export class SubscriptionService {
       ? SUBSCRIPTION_PRICING.CANCELLATION_FEE.amount 
       : 0;
 
-    // Cancel Mercado Pago subscription if it's credit card
-    if (subscription.planType === 'credit_card' && subscription.mercadoPagoSubscriptionId) {
-      try {
-        // Note: Mercado Pago PreApproval update to cancel
-        await this.preApproval.update({
-          id: subscription.mercadoPagoSubscriptionId,
-          body: { status: 'cancelled' },
-          requestOptions: {
-            idempotencyKey: generateIdempotencyKey()
-          }
-        });
-      } catch (error) {
-        console.error('Error canceling Mercado Pago subscription:', error);
-        // Continue with local cancellation even if MP fails
-      }
-    }
-
     // Update local subscription
     const updatedSubscription: MonthlySubscription = {
       ...subscription,
@@ -297,156 +181,7 @@ export class SubscriptionService {
     };
   }
 
-  /**
-   * Gets checkout URL for pending credit card subscription
-   */
-  async getCheckoutUrl(subscriptionId: string): Promise<string | null> {
-    console.log('Getting checkout URL for subscription:', subscriptionId);
-    
-    const subscription = await this.getSubscriptionPrivate(subscriptionId);
-    
-    if (!subscription) {
-      console.log('Subscription not found:', subscriptionId);
-      return null;
-    }
-    
-    console.log('Subscription found:', {
-      id: subscription.id,
-      planType: subscription.planType,
-      status: subscription.status,
-      mercadoPagoSubscriptionId: subscription.mercadoPagoSubscriptionId
-    });
-    
-    if (subscription.planType !== 'credit_card') {
-      console.log('Subscription is not credit card type:', subscription.planType);
-      return null;
-    }
-    
-    if (subscription.status !== 'pending') {
-      console.log('Subscription status is not pending:', subscription.status);
-      return null;
-    }
-
-    if (!subscription.mercadoPagoSubscriptionId) {
-      console.log('No Mercado Pago subscription ID found');
-      return null;
-    }
-
-    try {
-      console.log('Fetching Mercado Pago subscription:', subscription.mercadoPagoSubscriptionId);
-      
-      // Get the current preapproval from Mercado Pago
-      const mpSubscription = await this.preApproval.get({ 
-        id: subscription.mercadoPagoSubscriptionId 
-      });
-      
-      console.log('Mercado Pago subscription response:', {
-        id: mpSubscription.id,
-        status: mpSubscription.status,
-        init_point: mpSubscription.init_point ? 'Present' : 'Missing',
-        reason: mpSubscription.reason || 'No reason'
-      });
-      
-      const checkoutUrl = mpSubscription.init_point || null;
-      console.log('Final checkout URL:', checkoutUrl ? 'Present' : 'Missing');
-      
-      return checkoutUrl;
-    } catch (error) {
-      console.error('Error getting checkout URL from Mercado Pago:', {
-        subscriptionId,
-        mercadoPagoId: subscription.mercadoPagoSubscriptionId,
-        error: error instanceof Error ? error.message : error
-      });
-      
-      // If the error is about the subscription not being found or expired,
-      // we might need to create a new one
-      if (error instanceof Error && error.message.includes('not_found')) {
-        console.log('Mercado Pago subscription not found, may have expired');
-      }
-      
-      return null;
-    }
-  }
-
-  /**
-   * Recreates a credit card subscription if the original has expired
-   */
-  async recreateCreditCardSubscription(subscriptionId: string): Promise<string | null> {
-    console.log('Recreating credit card subscription:', subscriptionId);
-    
-    const subscription = await this.getSubscriptionPrivate(subscriptionId);
-    
-    if (!subscription || subscription.planType !== 'credit_card') {
-      console.log('Invalid subscription for recreation:', {
-        found: !!subscription,
-        planType: subscription?.planType
-      });
-      return null;
-    }
-    
-    // Get user details
-    const user = await this.getUser(subscription.userId);
-    if (!user) {
-      console.log('User not found for subscription recreation:', subscription.userId);
-      return null;
-    }
-    
-    try {
-      // Create new PreApproval with same parameters
-      const startDate = new Date(subscription.nextBillingDate);
-      const now = new Date();
-      if (startDate.getTime() - now.getTime() < 60 * 60 * 1000) { // Less than 1 hour
-        startDate.setMonth(startDate.getMonth() + 1); // Move to next month
-      }
-      
-      const preApprovalData = {
-        reason: `Recriação - ${getSubscriptionDescription(user.role)}`,
-        auto_recurring: {
-          frequency: MERCADO_PAGO_CONFIG.SUBSCRIPTION_FREQUENCY,
-          frequency_type: MERCADO_PAGO_CONFIG.SUBSCRIPTION_FREQUENCY_TYPE,
-          transaction_amount: subscription.amount / 100, // Convert from centavos to reais
-          currency_id: 'BRL',
-          start_date: startDate.toISOString(),
-        },
-        payer_email: user.email,
-        back_url: MERCADO_PAGO_CONFIG.SUCCESS_URL,
-        notification_url: MERCADO_PAGO_CONFIG.WEBHOOK_URL,
-        external_reference: subscription.userId,
-        payment_methods_allowed: {
-          payment_types: [{ id: 'credit_card' }],
-          payment_methods: []
-        }
-      };
-      
-      console.log('Creating new Mercado Pago PreApproval for recreation');
-      const mpSubscription = await this.preApproval.create({
-        body: preApprovalData,
-        requestOptions: {
-          idempotencyKey: generateIdempotencyKey()
-        }
-      });
-      
-      // Update subscription with new Mercado Pago ID
-      await this.updateSubscription(subscriptionId, {
-        mercadoPagoSubscriptionId: mpSubscription.id?.toString(),
-        nextBillingDate: startDate
-      });
-      
-      console.log('Credit card subscription recreated successfully:', {
-        subscriptionId,
-        newMercadoPagoId: mpSubscription.id,
-        initPoint: mpSubscription.init_point ? 'Present' : 'Missing'
-      });
-      
-      return mpSubscription.init_point || null;
-    } catch (error) {
-      console.error('Error recreating credit card subscription:', {
-        subscriptionId,
-        error: error instanceof Error ? error.message : error
-      });
-      return null;
-    }
-  }
+  // Credit card flows have been removed (PIX only).
 
   /**
    * Gets payment status for a user with contract-based logic
@@ -458,32 +193,7 @@ export class SubscriptionService {
       return { subscriptionStatus: 'canceled' };
     }
 
-    // For PIX subscriptions, use the new contract-based logic
-    if (subscription.planType === 'pix') {
-      return this.getPixPaymentStatus(subscription);
-    }
-
-    // For credit card subscriptions, use existing logic
-    const latestPayment = await this.getLatestPayment(subscription.id);
-    
-    const now = new Date();
-    const nextBillingDate = new Date(subscription.nextBillingDate);
-    const isOverdue = nextBillingDate < now && subscription.status === 'active';
-    const overdueDays = isOverdue 
-      ? Math.floor((now.getTime() - nextBillingDate.getTime()) / (1000 * 60 * 60 * 24))
-      : 0;
-
-    const status: PaymentStatus = {
-      subscriptionId: subscription.id,
-      subscriptionStatus: isOverdue ? 'overdue' : (subscription.status === 'suspended' ? 'canceled' : subscription.status),
-      nextPaymentDue: nextBillingDate,
-      lastPaymentDate: latestPayment?.paidAt ? new Date(latestPayment.paidAt) : undefined,
-      amount: subscription.amount,
-      paymentMethod: subscription.paymentMethod.type,
-      overdueDays: overdueDays > 0 ? overdueDays : undefined
-    };
-
-    return status;
+    return this.getPixPaymentStatus(subscription);
   }
   
   /**
@@ -544,71 +254,37 @@ export class SubscriptionService {
   }
 
   /**
-   * Processes webhook notifications from Mercado Pago
+   * Processes webhook notifications from AbacatePay.
    */
   async processWebhookEvent(eventData: any) {
-    const { type, data } = eventData;
+    const event = eventData?.event;
 
-    switch (type) {
-      case 'payment':
-        await this.handlePaymentEvent(data.id);
+    switch (event) {
+      case "billing.paid": {
+        const providerPaymentId = eventData?.data?.pixQrCode?.id;
+        if (typeof providerPaymentId !== "string" || providerPaymentId.length === 0) {
+          console.log("billing.paid received without pixQrCode.id");
+          return;
+        }
+
+        await this.handleProviderPaymentPaid(providerPaymentId);
         break;
-      case 'subscription_preapproval':
-        await this.handleSubscriptionEvent(data.id);
-        break;
+      }
       default:
-        console.log(`Unhandled webhook event type: ${type}`);
+        console.log(`Unhandled webhook event: ${event}`);
     }
   }
 
   // Private helper methods
+  private async handleProviderPaymentPaid(providerPaymentId: string) {
+    const payment = await this.updatePaymentStatusByProviderPaymentId(
+      providerPaymentId,
+      "PAID",
+    );
 
-  private async handlePaymentEvent(paymentId: string) {
-    try {
-      const mpPayment = await this.payment.get({ id: paymentId });
-      const metadata = mpPayment.metadata;
-      
-      if (metadata?.payment_type === 'monthly_subscription') {
-        // Update the specific payment record
-        await this.updatePaymentStatusByMercadoPagoId(paymentId, mpPayment.status || 'pending');
-        
-        if (mpPayment.status === 'approved') {
-          await this.handleSuccessfulPayment(metadata.subscription_id, metadata.user_id);
-        }
-      }
-    } catch (error) {
-      console.error('Error handling payment event:', error);
-    }
-  }
+    if (!payment) return;
 
-  private async handleSubscriptionEvent(subscriptionId: string) {
-    try {
-      const mpSubscription = await this.preApproval.get({ id: subscriptionId });
-      const subscription = await this.getSubscriptionByMercadoPagoId(subscriptionId);
-      
-      if (subscription) {
-        let status: MonthlySubscription['status'] = 'pending';
-        
-        switch (mpSubscription.status) {
-          case 'authorized':
-            status = 'active';
-            break;
-          case 'cancelled':
-            status = 'canceled';
-            break;
-          case 'paused':
-            status = 'suspended';
-            break;
-        }
-
-        await this.updateSubscriptionStatus(subscription.id, status);
-        await this.updateUserSubscriptionStatus(subscription.userId, {
-          subscriptionStatus: status === 'active' ? 'active' : status
-        });
-      }
-    } catch (error) {
-      console.error('Error handling subscription event:', error);
-    }
+    await this.handleSuccessfulPayment(payment.subscriptionId, payment.userId);
   }
 
   private async handleSuccessfulPayment(subscriptionId: string, userId: string) {
@@ -620,22 +296,6 @@ export class SubscriptionService {
       await this.handlePixPaymentSuccess(subscriptionId, userId);
       return;
     }
-
-    // For credit card subscriptions (existing logic)
-    const nextBillingDate = this.calculateNextBillingDate(subscription.billingDay);
-    await this.updateSubscription(subscriptionId, {
-      nextBillingDate,
-      status: 'active'
-    });
-
-    // Update user status
-    await this.updateUserSubscriptionStatus(userId, {
-      subscriptionStatus: 'active'
-    });
-
-    // Send payment confirmation email
-    // TODO: Implement email service call
-    console.log(`Payment successful for user ${userId}, subscription ${subscriptionId}`);
   }
   
   /**
@@ -817,46 +477,6 @@ export class SubscriptionService {
     };
   }
 
-  private async getSubscriptionByMercadoPagoId(mpId: string): Promise<MonthlySubscription | null> {
-    const snapshot = await adminDb.collection('subscriptions')
-      .where('mercadoPagoSubscriptionId', '==', mpId)
-      .limit(1)
-      .get();
-    
-    if (snapshot.empty) return null;
-    
-    const data = snapshot.docs[0].data() as MonthlySubscription;
-    // Ensure dates are properly converted
-    return {
-      ...data,
-      nextBillingDate: new Date(data.nextBillingDate),
-      createdAt: new Date(data.createdAt),
-      canceledAt: data.canceledAt ? new Date(data.canceledAt) : undefined
-    };
-  }
-
-  private async getLatestPayment(subscriptionId: string): Promise<MonthlyPayment | null> {
-    const snapshot = await adminDb.collection('monthlyPayments')
-      .where('subscriptionId', '==', subscriptionId)
-      .where('status', '==', 'paid')
-      .orderBy('paidAt', 'desc')
-      .limit(1)
-      .get();
-    
-    if (snapshot.empty) return null;
-    
-    const data = snapshot.docs[0].data() as MonthlyPayment;
-    // Ensure dates are properly converted
-    return {
-      ...data,
-      dueDate: new Date(data.dueDate),
-      createdAt: new Date(data.createdAt),
-      updatedAt: new Date(data.updatedAt),
-      paidAt: data.paidAt ? new Date(data.paidAt) : undefined,
-      pixExpiresAt: data.pixExpiresAt ? new Date(data.pixExpiresAt) : undefined
-    };
-  }
-
   private async getPendingPixPayment(subscriptionId: string): Promise<MonthlyPayment | null> {
     const snapshot = await adminDb.collection('monthlyPayments')
       .where('subscriptionId', '==', subscriptionId)
@@ -903,62 +523,63 @@ export class SubscriptionService {
     await subscriptionRef.update(updates);
   }
 
-  private async updatePaymentStatusByMercadoPagoId(paymentId: string, status: string) {
-    const snapshot = await adminDb.collection('monthlyPayments')
-      .where('mercadoPagoPaymentId', '==', paymentId)
+  private async updatePaymentStatusByProviderPaymentId(
+    providerPaymentId: string,
+    providerStatus: string,
+  ): Promise<MonthlyPayment | null> {
+    const snapshot = await adminDb
+      .collection("monthlyPayments")
+      .where("providerPaymentId", "==", providerPaymentId)
       .limit(1)
       .get();
-    
-    if (!snapshot.empty) {
-      const paymentRef = snapshot.docs[0].ref;
-      const now = new Date();
-      
-      // Validate the date before using it
-      if (isNaN(now.getTime())) {
-        console.error('Invalid date generated for update operation:', now);
-        throw new Error('Invalid date value for update operation');
-      }
-      
-      const updateData: any = { 
-        status: this.mapMercadoPagoStatus(status),
-        updatedAt: now
-      };
-      
-      if (status === 'approved') {
-        updateData.paidAt = now;
-      }
-      
-      await paymentRef.update(updateData);
+
+    if (snapshot.empty) return null;
+
+    const paymentRef = snapshot.docs[0].ref;
+    const existing = snapshot.docs[0].data() as MonthlyPayment;
+    const now = new Date();
+
+    // Validate the date before using it
+    if (isNaN(now.getTime())) {
+      console.error("Invalid date generated for update operation:", now);
+      throw new Error("Invalid date value for update operation");
     }
+
+    const mappedStatus: MonthlyPayment["status"] =
+      providerStatus === "PAID"
+        ? "paid"
+        : providerStatus === "PENDING"
+          ? "available"
+          : providerStatus === "EXPIRED" || providerStatus === "CANCELLED"
+            ? "failed"
+            : "pending";
+
+    const updateData: any = {
+      status: mappedStatus,
+      updatedAt: now,
+    };
+
+    if (mappedStatus === "paid") {
+      updateData.paidAt = now;
+    }
+
+    await paymentRef.update(updateData);
+    return { ...existing, ...updateData } as MonthlyPayment;
   }
 
   private async generateCancellationFeePayment(userId: string, feeAmount: number) {
     const user = await this.getUser(userId);
     if (!user) return;
 
-    const paymentData = {
-      transaction_amount: feeAmount / 100,
-      description: 'Taxa de Cancelamento',
-      payment_method_id: 'pix',
-      payer: {
-        email: user.email,
-        first_name: user.name.split(' ')[0],
-        last_name: user.name.split(' ').slice(1).join(' ') || ''
-      },
-      notification_url: MERCADO_PAGO_CONFIG.WEBHOOK_URL,
-      external_reference: `${userId}-cancellation-${Date.now()}`,
-      date_of_expiration: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
+    const expiresInSeconds = 30 * 24 * 60 * 60; // 30 days
+    const qr = await createAbacatePayPixQrCode({
+      amountCents: feeAmount,
+      expiresInSeconds,
+      description: "Taxa de Cancelamento".slice(0, 37),
       metadata: {
         user_id: userId,
-        payment_type: 'cancellation_fee'
-      }
-    };
-
-    const mpPayment = await this.payment.create({
-      body: paymentData,
-      requestOptions: {
-        idempotencyKey: generateIdempotencyKey()
-      }
+        payment_type: "cancellation_fee",
+      },
     });
 
     const cancellationPayment: MonthlyPayment = {
@@ -969,10 +590,11 @@ export class SubscriptionService {
       dueDate: new Date(),
       status: 'available', // PIX is immediately available
       paymentMethod: 'pix',
-      mercadoPagoPaymentId: mpPayment.id?.toString(),
-      pixCode: mpPayment.point_of_interaction?.transaction_data?.qr_code,
-      pixQrCode: mpPayment.point_of_interaction?.transaction_data?.qr_code_base64,
-      pixExpiresAt: new Date(paymentData.date_of_expiration),
+      provider: "abacatepay",
+      providerPaymentId: qr.id,
+      pixCode: qr.brCode,
+      pixQrCode: qr.brCodeBase64,
+      pixExpiresAt: qr.expiresAt ? new Date(qr.expiresAt) : undefined,
       createdAt: new Date(),
       updatedAt: new Date(),
       paymentNumber: 1, // Single payment
@@ -980,20 +602,6 @@ export class SubscriptionService {
     };
 
     await this.saveMonthlyPayment(cancellationPayment);
-  }
-
-  private mapMercadoPagoStatus(mpStatus: string): MonthlyPayment['status'] {
-    switch (mpStatus) {
-      case 'approved':
-        return 'paid';
-      case 'pending':
-        return 'available'; // PIX payment is generated and available for payment
-      case 'cancelled':
-      case 'rejected':
-        return 'failed';
-      default:
-        return 'pending';
-    }
   }
 
   /**
@@ -1022,6 +630,7 @@ export class SubscriptionService {
         dueDate,
         status: 'pending',
         paymentMethod: 'pix',
+        provider: "abacatepay",
         paymentNumber: i,
         description: `Mensalidade ${monthName} (${i}/${subscription.totalPayments})`,
         createdAt: new Date(),
@@ -1075,54 +684,38 @@ export class SubscriptionService {
     const user = await this.getUser(subscription.userId);
     if (!user) throw new Error('User not found');
     
-    // Create PIX payment with Mercado Pago
-    const paymentData = {
-      transaction_amount: subscription.amount / 100,
-      description: payment.description,
-      payment_method_id: 'pix',
-      payer: {
-        email: user.email,
-        first_name: user.name.split(' ')[0],
-        last_name: user.name.split(' ').slice(1).join(' ') || ''
-      },
-      notification_url: MERCADO_PAGO_CONFIG.WEBHOOK_URL,
-      external_reference: `${subscription.userId}-${paymentNumber}-${Date.now()}`,
-      date_of_expiration: new Date(
-        Date.now() + MERCADO_PAGO_CONFIG.PIX_EXPIRATION_DAYS * 24 * 60 * 60 * 1000
-      ).toISOString(),
+    const expiresInSeconds = ABACATEPAY_CONFIG.PIX_EXPIRATION_DAYS * 24 * 60 * 60;
+    const qr = await createAbacatePayPixQrCode({
+      amountCents: subscription.amount,
+      expiresInSeconds,
+      description: payment.description.slice(0, 37),
       metadata: {
         subscription_id: subscriptionId,
         user_id: subscription.userId,
-        payment_type: 'monthly_subscription',
-        payment_number: paymentNumber.toString()
-      }
-    };
-    
-    const mpPayment = await this.payment.create({
-      body: paymentData,
-      requestOptions: {
-        idempotencyKey: generateIdempotencyKey()
-      }
+        payment_type: "monthly_subscription",
+        payment_number: paymentNumber.toString(),
+      },
     });
     
     // Update payment with PIX details
     const updatedPayment: MonthlyPayment = {
       ...payment,
       status: 'available',
-      mercadoPagoPaymentId: mpPayment.id?.toString(),
-      pixCode: mpPayment.point_of_interaction?.transaction_data?.qr_code,
-      pixQrCode: mpPayment.point_of_interaction?.transaction_data?.qr_code_base64,
-      pixExpiresAt: new Date(paymentData.date_of_expiration),
+      provider: "abacatepay",
+      providerPaymentId: qr.id,
+      pixCode: qr.brCode,
+      pixQrCode: qr.brCodeBase64,
+      pixExpiresAt: qr.expiresAt ? new Date(qr.expiresAt) : undefined,
       updatedAt: new Date()
     };
     
     await this.saveMonthlyPayment(updatedPayment);
     
     return {
-      paymentId: mpPayment.id,
+      paymentId: qr.id,
       paymentNumber,
-      pixCode: mpPayment.point_of_interaction?.transaction_data?.qr_code,
-      pixQrCode: mpPayment.point_of_interaction?.transaction_data?.qr_code_base64,
+      pixCode: qr.brCode,
+      pixQrCode: qr.brCodeBase64,
       expiresAt: updatedPayment.pixExpiresAt,
       amount: subscription.amount,
       dueDate: payment.dueDate

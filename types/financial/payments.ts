@@ -4,7 +4,7 @@ export interface Payment {
   amount: number;
   currency: string;
   status: "completed" | "pending" | "failed";
-  provider: "mercadopago";
+  provider: "abacatepay";
   providerTransactionId: string;
   description: string;
   createdAt: Date;

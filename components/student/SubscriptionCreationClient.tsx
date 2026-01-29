@@ -24,6 +24,7 @@ import {
   Star,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Header } from "../ui/header";
@@ -35,11 +36,10 @@ function cn(...inputs: ClassValue[]) {
 
 export function SubscriptionCreationClient() {
   const t = useTranslations("SubscriptionCreationClient");
+  const locale = useLocale();
   const { data: session } = useSession();
 
-  const [selectedMethod, setSelectedMethod] = useState<
-    "pix" | "credit_card" | null
-  >(null);
+  const [selectedMethod, setSelectedMethod] = useState<"pix" | null>("pix");
   const [billingDay, setBillingDay] = useState<number>(5);
   const [contractLength, setContractLength] = useState<6 | 12>(6);
   const [creating, setCreating] = useState(false);
@@ -99,20 +99,8 @@ export function SubscriptionCreationClient() {
 
       if (response.ok) {
         const result = await response.json();
-        if (selectedMethod === "pix") {
-          toast.success(t("pixCreated"));
-          window.location.href = "/hub/student/my-payments";
-        } else {
-          if (result.checkoutUrl) {
-            toast.success(t("redirecting"));
-            setTimeout(() => {
-              window.location.href = result.checkoutUrl;
-            }, 1500);
-          } else {
-            toast.success(t("createdSuccess"));
-            window.location.href = "/hub/student/my-payments";
-          }
-        }
+        toast.success(t("pixCreated"));
+        window.location.href = `/${locale}/hub/student/my-payments`;
       } else {
         const error = await response.json();
         toast.error(error.message || t("createError"));
@@ -233,7 +221,7 @@ export function SubscriptionCreationClient() {
           )}
 
           <Button
-            onClick={() => (window.location.href = "/hub/student/my-payments")}
+            onClick={() => (window.location.href = `/${locale}/hub/student/my-payments`)}
             size="lg"
             className={cn(
               "w-full md:w-auto font-semibold shadow-lg transition-all",
@@ -272,7 +260,7 @@ export function SubscriptionCreationClient() {
               </div>
               {t("chooseMethod")}
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               {/* Pix Card */}
               <div
                 onClick={() => setSelectedMethod("pix")}
@@ -324,53 +312,6 @@ export function SubscriptionCreationClient() {
                 >
                   {t("mostPopular")}
                 </Badge>
-              </div>
-
-              {/* Credit Card Card */}
-              <div
-                onClick={() => setSelectedMethod("credit_card")}
-                className={cn(
-                  "relative group p-6 rounded-xl border-2 cursor-pointer transition-all duration-200",
-                  selectedMethod === "credit_card"
-                    ? "border-purple-500 bg-purple-50/50 dark:bg-purple-900/10 dark:border-purple-500"
-                    : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-purple-200 dark:hover:border-purple-900",
-                )}
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <div
-                    className={cn(
-                      "p-2.5 rounded-lg transition-colors",
-                      selectedMethod === "credit_card"
-                        ? "bg-purple-100 text-purple-600"
-                        : "bg-zinc-100 text-zinc-500 group-hover:bg-purple-50 group-hover:text-purple-500",
-                    )}
-                  >
-                    <CreditCard className="w-6 h-6" />
-                  </div>
-                  {selectedMethod === "credit_card" && (
-                    <CheckCircle2 className="w-5 h-5 text-purple-500" />
-                  )}
-                </div>
-                <h4 className="font-semibold text-zinc-900 dark:text-zinc-100">
-                  {t("creditCardTitle")}
-                </h4>
-                <p className="text-sm text-zinc-500 mt-1 mb-4">
-                  {t("creditCardDesc")}
-                </p>
-
-                <div className="space-y-1.5">
-                  {[t("autoBilling"), t("noWorries"), t("secureCheckout")].map(
-                    (item, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-400"
-                      >
-                        <Check className="w-3 h-3 text-purple-500" />
-                        {item}
-                      </div>
-                    ),
-                  )}
-                </div>
               </div>
             </div>
           </section>
@@ -507,9 +448,7 @@ export function SubscriptionCreationClient() {
                   <span className="font-medium">
                     {selectedMethod === "pix"
                       ? "PIX"
-                      : selectedMethod === "credit_card"
-                        ? t("creditCardTitle")
-                        : "-"}
+                      : "-"}
                   </span>
                 </div>
                 <div className="flex justify-between py-2 items-center">

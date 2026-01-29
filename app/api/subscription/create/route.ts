@@ -10,8 +10,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { paymentMethod, billingDay, cardToken, contractLengthMonths } =
-      await request.json();
+    const { paymentMethod, billingDay, contractLengthMonths } = await request.json();
 
     // Log the request for debugging
     console.log("Subscription creation request:", {
@@ -34,10 +33,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate payment method
-    if (!["pix", "credit_card"].includes(paymentMethod)) {
+    // Validate payment method (PIX only)
+    if (paymentMethod !== "pix") {
       return NextResponse.json(
-        { error: "Invalid payment method" },
+        { error: "Only PIX is supported" },
         { status: 400 }
       );
     }
@@ -58,25 +57,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Note: cardToken is optional for credit card payments as Mercado Pago
-    // uses preapproval flow that redirects to their secure checkout page
-
     const subscriptionService = new SubscriptionService();
     const result = await subscriptionService.createSubscription({
       userId: session.user.id,
       userEmail: session.user.email!,
       userRole: session.user.role!,
-      paymentMethod,
-      billingDay: parseInt(billingDay),
-      cardToken,
+      paymentMethod: "pix",
+      billingDay: Number(billingDay),
       contractLengthMonths,
     });
 
     console.log("Subscription creation successful:", {
       subscriptionId: result.subscription?.id,
-      checkoutUrl:
-        "checkoutUrl" in result && result.checkoutUrl ? "Present" : "Missing",
-      paymentMethod,
+      paymentMethod: "pix",
     });
 
     return NextResponse.json(result);

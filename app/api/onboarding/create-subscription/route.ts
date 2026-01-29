@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { paymentMethod, billingDay, contractLengthMonths, cardToken } = body;
+    const { paymentMethod, billingDay, contractLengthMonths } = body;
 
     // Validate input
     if (!paymentMethod || !billingDay || !contractLengthMonths) {
@@ -41,6 +41,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (paymentMethod !== "pix") {
+      return NextResponse.json({ error: "Only PIX is supported" }, { status: 400 });
+    }
+
     // Determine user role for pricing
     const userRole = session.user.role as UserRoles || UserRoles.STUDENT;
     
@@ -51,19 +55,10 @@ export async function POST(request: NextRequest) {
       userId: session.user.id,
       userEmail: session.user.email,
       userRole,
-      paymentMethod: paymentMethod as 'pix' | 'credit_card',
+      paymentMethod: "pix",
       billingDay,
-      cardToken,
       contractLengthMonths: contractLengthMonths as 6 | 12
     });
-
-    if (paymentMethod === 'credit_card' && 'checkoutUrl' in result && result.checkoutUrl) {
-      return NextResponse.json({
-        success: true,
-        checkoutUrl: result.checkoutUrl,
-        subscription: result.subscription
-      });
-    }
 
     return NextResponse.json({
       success: true,

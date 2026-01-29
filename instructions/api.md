@@ -83,7 +83,7 @@ Este documento lista as rotas de API presentes em `app/api`, com seus caminhos e
 
 ## Payment
 
-- `POST, GET, PUT, DELETE` — `/api/payment/mercadopago/webhook`
+- `POST, GET` — `/api/payment/abacatepay/webhook`
 
 ## Student
 
@@ -91,7 +91,7 @@ Este documento lista as rotas de API presentes em `app/api`, com seus caminhos e
 - `GET` — `/api/student/achievements`
 - `PUT` — `/api/student/achievements/[id]`
 - `GET` — `/api/student/can-reschedule`
-- `POST` — `/api/student/checkout-url`
+- `POST` — `/api/student/checkout-url` (desativado — PIX only)
 - `POST` — `/api/student/classes`
 - `GET` — `/api/student/classes/list`
 - `POST` — `/api/student/classes/reschedule`
@@ -107,7 +107,7 @@ Este documento lista as rotas de API presentes em `app/api`, com seus caminhos e
 - `GET` — `/api/student/payment-history`
 - `GET` — `/api/student/payment-status`
 - `GET` — `/api/student/placement`
-- `POST` — `/api/student/recreate-checkout`
+- `POST` — `/api/student/recreate-checkout` (desativado — PIX only)
 - `GET` — `/api/student/reschedule-availability`
 - `GET` — `/api/student/subscription-status`
 - `GET` — `/api/student/tasks`

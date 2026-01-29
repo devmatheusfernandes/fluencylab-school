@@ -44,7 +44,7 @@ export interface OnboardingData {
   contractData?: any;
 
   // Payment
-  paymentMethod: "pix" | "credit_card" | null;
+  paymentMethod: "pix" | null;
   paymentCompleted: boolean;
   subscriptionId?: string;
 }
