@@ -32,7 +32,7 @@ export class EmailService {
           const locale = lang.split("-")[0];
           const base = process.env.NEXTAUTH_URL || "http://localhost:3000";
           if (!oobCode) return link;
-          return `${base}/${locale}/auth/create-password?oobCode=${encodeURIComponent(
+          return `${base}/${locale}/create-password?oobCode=${encodeURIComponent(
             oobCode
           )}&lang=${encodeURIComponent(lang)}`;
         } catch {

@@ -107,6 +107,16 @@ export default function MeuPerfil() {
           if (planId) {
             const data = await getStudentLearningStats(planId);
             setStats(data);
+            console.log("Stats:", data);
+          } else {
+            setStats({
+              reviewedToday: 0,
+              dueToday: 0,
+              totalLearned: 0,
+              currentDay: 1,
+              daysSinceClass: 7,
+              hasActiveLesson: false,
+            });
           }
         } catch (err) {
           console.error("Failed to load stats", err);
@@ -206,7 +216,7 @@ export default function MeuPerfil() {
       </motion.div>
 
       {isLoading || !user ? (
-          <NextClassCardSkeleton />
+        <NextClassCardSkeleton />
       ) : (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -264,7 +274,8 @@ export default function MeuPerfil() {
           transition={{ duration: 0.4, delay: 0.4 }}
           className="md:col-span-2 p-1"
         >
-        <AchievementsSkeleton limit={3} /></motion.div>
+          <AchievementsSkeleton limit={3} />
+        </motion.div>
       )}
     </ContainerCard>
   );

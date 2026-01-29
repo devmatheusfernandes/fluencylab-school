@@ -38,7 +38,7 @@ export function ProgressHero({ currentDay, daysSinceClass, className, hasActiveL
       )}
     >
       {/* Background Pattern */}
-      <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none"></div>
+      <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none"></div>
       
       {/* Dynamic Icon with Animation */}
       <div className="relative z-10 mb-2 md:mb-4">

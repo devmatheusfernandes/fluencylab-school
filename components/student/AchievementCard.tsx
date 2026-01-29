@@ -87,7 +87,7 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
       // MUDANÇA PRINCIPAL: Remoção de gradientes de fundo.
       // Uso de cores sólidas (bg-white/bg-gray-50) e bordas para diferenciação.
       className={`
-        relative border rounded-xl p-3 transition-all duration-200 overflow-hidden group h-full flex flex-col
+        relative border rounded-xl p-3 transition-all duration-200 overflow-hidden group h-full flex flex-col card-base
         ${
           isUnlocked
             ? "bg-emerald-100/40 border-green-500/30 dark:border-green-500/20 shadow-sm"

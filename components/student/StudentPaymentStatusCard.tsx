@@ -17,6 +17,7 @@ import {
   QrCode,
   Loader2,
   Wallet,
+  ArrowRight,
 } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
 import { useTranslations, useLocale } from "next-intl";
@@ -31,9 +32,7 @@ function cn(...inputs: ClassValue[]) {
 export function StudentPaymentStatusCard() {
   const t = useTranslations("StudentPaymentStatusCard");
   const locale = useLocale();
-  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | null>(
-    null,
-  );
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [generatingPix, setGeneratingPix] = useState(false);
 
@@ -78,7 +77,7 @@ export function StudentPaymentStatusCard() {
                 pixQrCode: data.pixQrCode,
                 pixExpiresAt: new Date(data.expiresAt),
               }
-            : null,
+            : null
         );
         toast.success(t("generateSuccess"));
       } else {
@@ -116,7 +115,7 @@ export function StudentPaymentStatusCard() {
     switch (status) {
       case "active":
         return {
-          bg: "bg-teal-100/50 dark:bg-teal-900/20",
+          bg: "bg-teal-50 dark:bg-teal-900/10",
           text: "text-teal-700 dark:text-teal-400",
           border: "border-teal-200 dark:border-teal-800",
           icon: CheckCircle2,
@@ -124,7 +123,7 @@ export function StudentPaymentStatusCard() {
         };
       case "overdue":
         return {
-          bg: "bg-red-100/50 dark:bg-red-900/20",
+          bg: "bg-red-50 dark:bg-red-900/10",
           text: "text-red-700 dark:text-red-400",
           border: "border-red-200 dark:border-red-800",
           icon: AlertTriangle,
@@ -132,7 +131,7 @@ export function StudentPaymentStatusCard() {
         };
       case "canceled":
         return {
-          bg: "bg-zinc-100/50 dark:bg-zinc-800/50",
+          bg: "bg-zinc-100 dark:bg-zinc-800/50",
           text: "text-zinc-600 dark:text-zinc-400",
           border: "border-zinc-200 dark:border-zinc-700",
           icon: XCircle,
@@ -140,7 +139,7 @@ export function StudentPaymentStatusCard() {
         };
       default:
         return {
-          bg: "bg-amber-100/50 dark:bg-amber-900/20",
+          bg: "bg-amber-50 dark:bg-amber-900/10",
           text: "text-amber-700 dark:text-amber-400",
           border: "border-amber-200 dark:border-amber-800",
           icon: Clock,
@@ -154,24 +153,7 @@ export function StudentPaymentStatusCard() {
   // ----------------------------------------------------------------------
   if (loading) {
     return (
-      <Skeleton className="p-6 space-y-6 h-full">
-        <div className="flex justify-between items-center">
-          <div className="flex gap-3">
-            <Skeleton className="w-10 h-10 rounded-full" />
-            <div className="space-y-2">
-              <Skeleton className="w-32 h-4" />
-              <Skeleton className="w-20 h-3" />
-            </div>
-          </div>
-          <Skeleton className="w-24 h-8 rounded-full" />
-        </div>
-        <Skeleton className="w-full h-40 rounded-lg" />
-        <div className="flex justify-between pt-4 border-t dark:border-zinc-800">
-          <Skeleton className="w-20 h-10" />
-          <Skeleton className="w-20 h-10" />
-          <Skeleton className="w-20 h-10" />
-        </div>
-      </Skeleton>
+      <Skeleton className="w-full h-full min-h-[320px] rounded-xl" />
     );
   }
 
@@ -180,23 +162,22 @@ export function StudentPaymentStatusCard() {
   // ----------------------------------------------------------------------
   if (!paymentStatus || !paymentStatus.subscriptionId) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 card-base h-full">
-        <div className="p-3 bg-zinc-100 dark:bg-zinc-800 rounded-full mb-3">
-          <Wallet className="w-6 h-6 text-zinc-400" />
+      <div className="flex flex-col items-center justify-center p-8 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl h-full shadow-sm">
+        <div className="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-full mb-4 ring-1 ring-zinc-200 dark:ring-zinc-700">
+          <Wallet className="w-8 h-8 text-zinc-400" />
         </div>
-        <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-1 text-center">
+        <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 text-lg mb-2 text-center">
           {t("noSubscription")}
         </h3>
-        <p className="text-sm text-zinc-500 mb-4 max-w-xs">
+        <p className="text-sm text-zinc-500 mb-6 text-center max-w-[250px]">
           {t("undefinedDesc")}
         </p>
         <Button
           variant="outline"
-          size="sm"
           onClick={() => (window.location.href = "/hub/student/my-payments")}
           className="gap-2"
         >
-          <CreditCard className="w-4 h-4 mr-2" />
+          <CreditCard className="w-4 h-4" />
           {t("managePayments")}
         </Button>
       </div>
@@ -207,18 +188,26 @@ export function StudentPaymentStatusCard() {
   const StatusIcon = statusConfig.icon;
   const daysUntilDue = getDaysUntilDue();
   const isPix = paymentStatus.paymentMethod === "pix";
+  const isOverdue = paymentStatus.subscriptionStatus === "overdue";
 
   return (
-      <div className="flex flex-col items-center justify-center p-8 card-base h-full">
+    <div
+      className={cn(
+        "flex flex-col h-full rounded-xl border shadow-sm transition-all duration-300",
+        isOverdue
+          ? "border-red-200 dark:border-red-900/50 shadow-red-100 dark:shadow-none"
+          : "border-zinc-200 dark:border-zinc-800"
+      )}
+    >
       {/* HEADER */}
-      <div className="p-5 flex items-start justify-between border-b border-zinc-100 dark:border-zinc-800">
+      <div className="p-5 flex items-start justify-between border-b border-zinc-100 dark:border-zinc-800/50">
         <div className="flex items-center gap-3">
           <div
             className={cn(
-              "p-2.5 rounded-lg",
+              "p-2.5 rounded-xl shadow-sm border",
               isPix
-                ? "bg-emerald-100/50 text-emerald-600 dark:bg-emerald-900/20"
-                : "bg-indigo-100/50 text-indigo-600 dark:bg-indigo-900/20",
+                ? "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-950/30 dark:border-emerald-900/50 dark:text-emerald-400"
+                : "bg-indigo-50 text-indigo-600 border-indigo-100 dark:bg-indigo-950/30 dark:border-indigo-900/50 dark:text-indigo-400"
             )}
           >
             {isPix ? (
@@ -228,10 +217,10 @@ export function StudentPaymentStatusCard() {
             )}
           </div>
           <div>
-            <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 text-lg leading-none">
+            <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 text-lg leading-tight">
               {t("title")}
             </h3>
-            <p className="text-sm text-zinc-500 mt-1.5">
+            <p className="text-xs text-zinc-500 mt-1">
               {isPix ? t("pix") : t("creditCard")}
             </p>
           </div>
@@ -239,103 +228,99 @@ export function StudentPaymentStatusCard() {
 
         <div
           className={cn(
-            "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border",
+            "flex items-center gap-1.5 pl-2.5 pr-3 py-1 rounded-full text-xs font-semibold border transition-colors",
             statusConfig.bg,
             statusConfig.text,
-            statusConfig.border,
+            statusConfig.border
           )}
         >
           <StatusIcon className="w-3.5 h-3.5" />
           <span>{statusConfig.label}</span>
-          {paymentStatus.overdueDays && paymentStatus.overdueDays > 0 && (
-            <span className="ml-1 opacity-80">
-              ({paymentStatus.overdueDays}d)
-            </span>
-          )}
         </div>
       </div>
 
-      {/* BODY CONTENT */}
-      <div className="p-5">
+      {/* BODY CONTENT - FLEX GROWS TO FILL SPACE */}
+      <div className="flex-1 p-5 flex flex-col justify-center">
         {/* === PIX LOGIC === */}
         {isPix && (
           <div className="w-full">
-            {/* Logic: Show QR Code when <= 5 days or Overdue */}
-            {(daysUntilDue !== null && daysUntilDue <= 5) ||
-            paymentStatus.subscriptionStatus === "overdue" ? (
-              <div className="space-y-6">
+            {(daysUntilDue !== null && daysUntilDue <= 5) || isOverdue ? (
+              <div className="space-y-5 animate-in fade-in zoom-in-95 duration-300">
                 {paymentStatus.pixCode ? (
                   // STATE: PIX GENERATED
-                  <div className="flex flex-col md:flex-row gap-6 items-center">
-                    {/* QR Code Container */}
-                    <div className="relative group bg-white p-2 rounded-xl border-2 border-dashed border-zinc-200 dark:border-zinc-700">
+                  <div className="flex flex-col lg:flex-row gap-5 items-center lg:items-start">
+                    {/* QR Code */}
+                    <div className="relative shrink-0 group bg-white p-2 rounded-xl border-2 border-dashed border-zinc-200 dark:border-zinc-700 shadow-sm">
                       {paymentStatus.pixQrCode && (
                         <Image
                           src={`data:image/png;base64,${paymentStatus.pixQrCode}`}
                           alt="QR Code PIX"
-                          width={140}
-                          height={140}
+                          width={120}
+                          height={120}
                           className="rounded-lg mix-blend-multiply dark:mix-blend-normal dark:bg-white"
                         />
                       )}
-                      <div className="absolute -bottom-2 -right-2 bg-emerald-500 text-white p-1 rounded-full shadow-lg">
-                        <QrCode className="w-4 h-4" />
-                      </div>
+                      {/* Timer Overlay */}
+                      {paymentStatus.pixExpiresAt && (
+                         <div className="absolute inset-x-0 -bottom-3 flex justify-center">
+                            <span className="bg-zinc-900 text-white text-[10px] px-2 py-0.5 rounded-full shadow-md flex items-center gap-1">
+                                <Clock className="w-3 h-3"/> Expira em breve
+                            </span>
+                         </div>
+                      )}
                     </div>
 
-                    {/* Copy Paste Info */}
-                    <div className="flex-1 w-full space-y-3">
-                      <div className="text-center md:text-left space-y-1">
+                    {/* Copy/Paste Section */}
+                    <div className="flex-1 w-full space-y-3 min-w-0">
+                      <div className="text-center lg:text-left">
                         <p className="font-medium text-zinc-900 dark:text-zinc-100">
                           {t("pixInstructions")}
                         </p>
-                        {paymentStatus.pixExpiresAt && (
-                          <p className="text-xs text-red-500 flex items-center justify-center md:justify-start gap-1">
-                            <Clock className="w-3 h-3" />
-                            {t("pixExpires")}{" "}
-                            {new Date(
-                              paymentStatus.pixExpiresAt,
-                            ).toLocaleDateString("pt-BR", {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </p>
-                        )}
+                        <p className="text-xs text-zinc-500 mt-1">
+                          Use o app do seu banco para escanear ou copie o código abaixo.
+                        </p>
                       </div>
 
-                      <div className="flex items-center gap-2 p-1 pl-3 bg-zinc-100 dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700">
-                        <code className="flex-1 text-xs font-mono text-zinc-600 dark:text-zinc-400 truncate max-w-[200px] md:max-w-xs">
-                          {paymentStatus.pixCode}
-                        </code>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-8 hover:bg-white dark:hover:bg-zinc-700 shadow-sm"
-                          onClick={copyPixCode}
-                        >
-                          <Copy className="w-3.5 h-3.5 mr-2" />
-                          {t("copyPix")}
-                        </Button>
+                      <div className="relative flex items-center">
+                         <div className="w-full flex items-center gap-2 p-1.5 pl-3 bg-zinc-100 dark:bg-zinc-800/80 rounded-lg border border-zinc-200 dark:border-zinc-700 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all">
+                            <code className="flex-1 text-xs font-mono text-zinc-600 dark:text-zinc-400 truncate select-all">
+                              {paymentStatus.pixCode}
+                            </code>
+                            <Button
+                              size="sm"
+                              className="h-8 shadow-sm bg-white dark:bg-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-600 text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-600"
+                              onClick={copyPixCode}
+                            >
+                              <Copy className="w-3.5 h-3.5 mr-2" />
+                              {t("copyPix")}
+                            </Button>
+                          </div>
                       </div>
                     </div>
                   </div>
                 ) : (
                   // STATE: READY TO GENERATE
-                  <div className="text-center py-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-100 dark:border-zinc-800">
-                    <div className="mb-3 flex justify-center">
-                      <div className="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-full">
-                        <QrCode className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-                      </div>
+                  <div className="flex flex-col items-center text-center py-2">
+                    <div className="mb-4 p-4 bg-emerald-50 dark:bg-emerald-900/10 rounded-full">
+                        <QrCode className="w-8 h-8 text-emerald-600 dark:text-emerald-500" />
                     </div>
-                    <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-4 max-w-sm mx-auto">
-                      {paymentStatus.subscriptionStatus === "overdue"
+                    <h4 className="font-medium text-zinc-900 dark:text-zinc-100 mb-2">
+                        {isOverdue ? t("pixOverdueTitle") : t("pixReadyTitle")}
+                    </h4>
+                    <p className="text-sm text-zinc-500 mb-6 max-w-sm mx-auto">
+                      {isOverdue
                         ? t("generatePixOverdue")
                         : t("generatePixNext")}
                     </p>
                     <Button
                       onClick={generatePixPayment}
                       disabled={generatingPix}
-                      className="w-full max-w-xs bg-emerald-600 hover:bg-emerald-700 text-white"
+                      className={cn(
+                        "w-full sm:w-auto min-w-[200px] font-semibold shadow-lg shadow-emerald-500/10",
+                        isOverdue 
+                            ? "bg-red-600 hover:bg-red-700 text-white" 
+                            : "bg-emerald-600 hover:bg-emerald-700 text-white"
+                      )}
                     >
                       {generatingPix ? (
                         <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -349,8 +334,10 @@ export function StudentPaymentStatusCard() {
               </div>
             ) : (
               // STATE: TOO EARLY
-              <div className="flex flex-col items-center justify-center py-8 text-zinc-400">
-                <Clock className="w-8 h-8 mb-3 opacity-20" />
+              <div className="flex flex-col items-center justify-center py-6 text-zinc-400">
+                <div className="w-12 h-12 rounded-full bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center mb-3">
+                    <Clock className="w-6 h-6 opacity-40" />
+                </div>
                 <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
                   {t("pixAvailability")}
                 </p>
@@ -364,64 +351,86 @@ export function StudentPaymentStatusCard() {
 
         {/* === CREDIT CARD LOGIC === */}
         {!isPix && (
-          <div className="flex items-center gap-4 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800">
-            <div className={cn("p-2 rounded-full", statusConfig.bg)}>
-              <StatusIcon className={cn("w-5 h-5", statusConfig.text)} />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                {paymentStatus.subscriptionStatus === "overdue"
-                  ? t("paymentProblem")
-                  : t("autoPaymentActive")}
-              </p>
-              {paymentStatus.subscriptionStatus === "overdue" && (
-                <p className="text-xs text-red-500 mt-1">{t("problemDesc")}</p>
-              )}
+          <div className="flex flex-col gap-4">
+             <div className={cn(
+                "flex items-start gap-4 p-4 rounded-xl border",
+                isOverdue 
+                    ? "bg-red-50 dark:bg-red-900/10 border-red-100 dark:border-red-900/20" 
+                    : "bg-zinc-50 dark:bg-zinc-800/50 border-zinc-100 dark:border-zinc-800"
+             )}>
+                <div className={cn("p-2 rounded-full mt-0.5", statusConfig.bg)}>
+                    <StatusIcon className={cn("w-4 h-4", statusConfig.text)} />
+                </div>
+                <div className="flex-1">
+                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                    {isOverdue ? t("paymentProblem") : t("autoPaymentActive")}
+                    </p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed">
+                    {isOverdue ? t("problemDesc") : t("autoPaymentDesc")}
+                    </p>
+                    
+                    {isOverdue && (
+                        <Button variant="link" className="h-auto p-0 text-red-600 text-xs mt-2" onClick={() => window.location.href="/hub/student/my-payments"}>
+                            {t("updateCard")} <ArrowRight className="w-3 h-3 ml-1"/>
+                        </Button>
+                    )}
+                </div>
             </div>
           </div>
         )}
       </div>
 
-      {/* FOOTER DETAILS - GRID LAYOUT */}
-      <div className="bg-zinc-50 dark:bg-zinc-950/50 border-t border-zinc-200 dark:border-zinc-800 p-5">
-        <div className="grid grid-cols-3 gap-4">
-          {/* Amount */}
-          <div className="flex flex-col">
-            <span className="text-[10px] uppercase tracking-wider font-semibold text-zinc-400 mb-1">
+      {/* FOOTER DETAILS - RESPONSIVE GRID */}
+      <div className="bg-zinc-50/50 dark:bg-zinc-950/30 border-t border-zinc-100 dark:border-zinc-800 p-4 lg:p-5 rounded-b-xl">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-6">
+          
+          {/* Amount - Always Visible */}
+          <div className="flex flex-col col-span-1">
+            <span className="text-[10px] uppercase tracking-wider font-bold text-zinc-400 mb-1">
               {t("value")}
             </span>
-            <span className="text-sm md:text-base font-semibold text-zinc-900 dark:text-zinc-100">
+            <span className="text-base lg:text-lg font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">
               {paymentStatus.amount ? formatPrice(paymentStatus.amount) : "-"}
             </span>
           </div>
 
-          {/* Next Due */}
-          <div className="flex flex-col border-l border-zinc-200 dark:border-zinc-800 pl-4">
-            <span className="text-[10px] uppercase tracking-wider font-semibold text-zinc-400 mb-1">
+          {/* Next Due - Always Visible */}
+          <div className="flex flex-col col-span-1 border-l border-zinc-200 dark:border-zinc-800 pl-4 lg:pl-6">
+            <span className="text-[10px] uppercase tracking-wider font-bold text-zinc-400 mb-1">
               {t("nextDue")}
             </span>
             <div className="flex items-center gap-1.5 text-zinc-900 dark:text-zinc-100">
-              <Calendar className="w-3.5 h-3.5 text-zinc-400" />
-              <span className="text-sm font-medium">
-                {paymentStatus.nextPaymentDue
-                  ? new Date(paymentStatus.nextPaymentDue).toLocaleDateString(
-                      locale,
-                      { day: "2-digit", month: "short" },
-                    )
-                  : "-"}
-              </span>
+               {isOverdue ? (
+                   <span className="text-sm font-semibold text-red-600 dark:text-red-400 flex items-center gap-1.5">
+                       <AlertTriangle className="w-3.5 h-3.5" />
+                       {t("expired")}
+                   </span>
+               ) : (
+                  <>
+                    <Calendar className="w-3.5 h-3.5 text-zinc-400" />
+                    <span className="text-sm font-medium">
+                        {paymentStatus.nextPaymentDue
+                        ? new Date(paymentStatus.nextPaymentDue).toLocaleDateString(
+                            locale,
+                            { day: "2-digit", month: "short" }
+                            )
+                        : "-"}
+                    </span>
+                  </>
+               )}
             </div>
           </div>
 
-          {/* Last Payment */}
-          <div className="hidden md:flex flex-col border-l border-zinc-200 dark:border-zinc-800 pl-4">
-            <span className="text-[10px] uppercase tracking-wider font-semibold text-zinc-400 mb-1">
+          {/* Last Payment - Desktop Only or Full Width on Mobile if space permits */}
+          <div className="hidden lg:flex flex-col border-l border-zinc-200 dark:border-zinc-800 pl-6">
+            <span className="text-[10px] uppercase tracking-wider font-bold text-zinc-400 mb-1">
               {t("lastPayment")}
             </span>
             <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
               {paymentStatus.lastPaymentDate
                 ? new Date(paymentStatus.lastPaymentDate).toLocaleDateString(
                     locale,
+                    { day: "2-digit", month: "short", year: "2-digit" }
                   )
                 : "-"}
             </span>

@@ -43,6 +43,15 @@ export default function Caderno() {
           if (planId) {
             const data = await getStudentLearningStats(planId);
             setStats(data);
+          } else {
+            setStats({
+              reviewedToday: 0,
+              dueToday: 0,
+              totalLearned: 0,
+              currentDay: 1,
+              daysSinceClass: 7,
+              hasActiveLesson: false,
+            });
           }
         } catch (err) {
           console.error("Failed to load stats", err);

@@ -58,7 +58,7 @@ export class AdminService {
 
     // 3. Gera o link para o usuário DEFINIR sua senha pela primeira vez
     const actionLink = await adminAuth.generatePasswordResetLink(authEmail, {
-      url: `${process.env.NEXTAUTH_URL}/auth/create-password`,
+      url: `${process.env.NEXTAUTH_URL}/create-password`,
       handleCodeInApp: true,
     });
 

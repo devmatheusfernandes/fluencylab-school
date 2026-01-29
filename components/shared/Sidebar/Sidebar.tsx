@@ -5,7 +5,7 @@ import * as Collapsible from "@radix-ui/react-collapsible";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { twMerge } from "tailwind-merge";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { useSidebar } from "@/context/SidebarContext";
 import { UserCard, UserData } from "../UserCard/UserCard";
 import {
@@ -230,11 +230,11 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({
   const badgeCount = notificationCount || item.badgeCount;
 
   return (
-    <Link href={item.href}>
+    <Link href={item.href} className="flex-1">
       <motion.div
         whileTap={{ scale: 0.9 }}
         className={twMerge(
-          "relative flex items-center justify-center transition-colors duration-200",
+          "relative flex items-center justify-center transition-colors duration-200 w-full h-full",
           isActive
             ? "bg-primary/15 rounded-full px-4 py-2 gap-2"
             : "p-2 text-muted-foreground hover:text-primary"
@@ -247,13 +247,15 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({
         >
           {item.icon}
         </motion.div>
+        {/* Only show label if active and ample space, otherwise icon only on mobile usually looks cleaner, 
+            but adhering to original design to show label on active */}
         <AnimatePresence>
           {isActive && (
             <motion.span
               initial={{ opacity: 0, width: 0 }}
               animate={{ opacity: 1, width: "auto" }}
               exit={{ opacity: 0, width: 0 }}
-              className="text-sm font-medium text-foreground whitespace-nowrap overflow-hidden"
+              className="text-sm font-medium text-foreground whitespace-nowrap overflow-hidden ml-2"
             >
               {item.label}
             </motion.span>
@@ -269,7 +271,6 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({
 
 // --- Mobile Bottom Drawer Component ---
 interface MobileBottomDrawerProps {
-  isOpen: boolean;
   onClose: () => void;
   items: SidebarItemType[];
   user?: UserData;
@@ -278,10 +279,10 @@ interface MobileBottomDrawerProps {
   onMarkAllAsRead: () => void;
   onDeleteNotification: (id: string) => void;
   onClearAllNotifications: () => void;
+  layoutId: string;
 }
 
 const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
-  isOpen,
   onClose,
   items,
   user,
@@ -290,6 +291,7 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
   onMarkAllAsRead,
   onDeleteNotification,
   onClearAllNotifications,
+  layoutId,
 }) => {
   const pathname = usePathname();
   const tSidebar = (useMessages()?.Sidebar ?? {}) as Record<string, string>;
@@ -299,269 +301,259 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
   );
 
   React.useEffect(() => {
-    if (isOpen) {
-      const activeSection = items.find((item) =>
-        item.subItems?.some((sub) => pathname === sub.href)
-      );
-      if (activeSection) {
-        setOpenSection(activeSection.label);
-      }
+    // Determine active section based on current path
+    const activeSection = items.find((item) =>
+      item.subItems?.some((sub) => pathname === sub.href)
+    );
+    if (activeSection) {
+      setOpenSection(activeSection.label);
     }
-  }, [isOpen, pathname, items]);
+  }, [pathname, items]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-slate-500/20 backdrop-blur-sm z-99 md:hidden"
-            onClick={onClose}
-          />
+    <>
+      {/* Backdrop - Fades in separately */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-slate-500/20 backdrop-blur-sm z-40 md:hidden"
+        onClick={onClose}
+      />
 
-          {/* Bottom Drawer */}
-          <motion.div
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 bg-background rounded-t-2xl z-199 md:hidden"
-          >
-            {/* Handle */}
-            <div className="flex justify-center pt-3 pb-2">
-              <motion.div
-                animate={{ scaleX: [1, 1.2, 1] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-                className="w-12 h-1 bg-muted-foreground/30 rounded-full"
-              />
+      {/* The Drawer itself - Morphs from the Navbar using layoutId */}
+      <motion.div
+        layoutId={layoutId}
+        className="fixed bottom-0 left-0 right-0 bg-background dark:bg-slate-950 border-t border-primary rounded-t-2xl z-50 md:hidden overflow-hidden flex flex-col shadow-2xl"
+        transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+      >
+        {/* Content Wrapper - Fades in slightly after morph starts */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+          className="flex flex-col h-full max-h-[85vh]"
+        >
+          {/* Handle */}
+          <div className="flex justify-center pt-3 pb-2 shrink-0">
+            <motion.div className="w-12 h-1 bg-muted-foreground/30 rounded-full" />
+          </div>
+
+          {/* Header with User Card */}
+          <div className="px-4 py-3 shrink-0">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold text-foreground">
+                {activeTab === "menu"
+                  ? tSidebar.menu ?? "Menu"
+                  : tSidebar.notifications ?? "Notificações"}
+              </h2>
+              <motion.button
+                whileHover={{ scale: 1.1, rotate: 180 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={onClose}
+                className="p-2 rounded-lg hover:bg-muted transition-colors"
+              >
+                <ArrowDownFromLine className="w-5 h-5" />
+              </motion.button>
             </div>
+            <AnimatePresence mode="wait">
+              {user && activeTab === "menu" && (
+                <UserCard
+                  user={user}
+                  variant="mobile"
+                  onLogout={handleLogout}
+                />
+              )}
+            </AnimatePresence>
+          </div>
 
-            {/* Header with User Card */}
-            <div className="px-4 py-3">
-              <div className="flex items-center justify-between mb-3">
-                <motion.h2
+          {/* Tabs */}
+          <div className="flex border-b border-border shrink-0">
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setActiveTab("menu")}
+              className={twMerge(
+                "flex-1 py-3 px-4 text-sm font-medium transition-colors relative",
+                activeTab === "menu"
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-red-500"
+              )}
+            >
+              {tSidebar.menu ?? "Menu"}
+              {activeTab === "menu" && (
+                <motion.div
+                  layoutId="activeTabMobile"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
+                />
+              )}
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setActiveTab("notifications")}
+              className={twMerge(
+                "flex-1 py-3 px-4 text-sm font-medium transition-colors relative flex items-center justify-center gap-2",
+                activeTab === "notifications"
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <span>{tSidebar.notifications ?? "Notificações"}</span>
+              {unreadCount > 0 && (
+                <NotificationBadge
+                  count={unreadCount}
+                  className="relative top-0 right-0"
+                />
+              )}
+              {activeTab === "notifications" && (
+                <motion.div
+                  layoutId="activeTabMobile"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
+                />
+              )}
+            </motion.button>
+          </div>
+
+          {/* Scrollable Content */}
+          <div className="overflow-y-auto flex-1 p-0">
+            <AnimatePresence mode="wait">
+              {activeTab === "menu" ? (
+                <motion.nav
+                  key="menu"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="text-lg font-semibold text-foreground"
+                  exit={{ opacity: 0, x: 20 }}
+                  className="p-4 pb-8"
                 >
-                  {activeTab === "menu"
-                    ? tSidebar.menu ?? "Menu"
-                    : tSidebar.notifications ?? "Notificações"}
-                </motion.h2>
-                <motion.button
-                  whileHover={{ scale: 1.1, rotate: 180 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={onClose}
-                  className="p-2 rounded-lg hover:bg-muted transition-colors"
-                >
-                  <ArrowDownFromLine className="w-5 h-5" />
-                </motion.button>
-              </div>
-              <AnimatePresence mode="wait">
-                {user && activeTab === "menu" && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                  >
-                    <UserCard
-                      user={user}
-                      variant="mobile"
-                      onLogout={handleLogout}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Tabs */}
-            <div className="flex border-b border-border">
-              <motion.button
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setActiveTab("menu")}
-                className={twMerge(
-                  "flex-1 py-3 px-4 text-sm font-medium transition-colors relative",
-                  activeTab === "menu"
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-red-500"
-                )}
-              >
-                {tSidebar.menu ?? "Menu"}
-                {activeTab === "menu" && (
-                  <motion.div
-                    layoutId="activeTab"
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
-                  />
-                )}
-              </motion.button>
-              <motion.button
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setActiveTab("notifications")}
-                className={twMerge(
-                  "flex-1 py-3 px-4 text-sm font-medium transition-colors relative flex items-center justify-center gap-2",
-                  activeTab === "notifications"
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <span>{tSidebar.notifications ?? "Notificações"}</span>
-                {unreadCount > 0 && (
-                  <NotificationBadge
-                    count={unreadCount}
-                    className="relative top-0 right-0"
-                  />
-                )}
-                {activeTab === "notifications" && (
-                  <motion.div
-                    layoutId="activeTab"
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
-                  />
-                )}
-              </motion.button>
-            </div>
-
-            {/* Content */}
-            <div className="min-h-[40vh] max-h-[65vh] overflow-y-auto">
-              <AnimatePresence mode="wait">
-                {activeTab === "menu" ? (
-                  <motion.nav
-                    key="menu"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    className="p-4"
-                  >
-                    <ul className="space-y-2">
-                      {items.map((item, index) => (
-                        <motion.li
-                          key={item.label}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.05 }}
-                        >
-                          {item.subItems ? (
-                            <div>
-                              <motion.button
-                                whileTap={{ scale: 0.98 }}
-                                onClick={() =>
-                                  setOpenSection(
-                                    openSection === item.label
-                                      ? null
-                                      : item.label
-                                  )
-                                }
-                                className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted transition-colors"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <div className="w-5 h-5 flex items-center justify-center text-muted-foreground">
-                                    {item.icon}
-                                  </div>
-                                  <span className="font-medium text-foreground">
-                                    {item.label}
-                                  </span>
-                                </div>
-                                <motion.div
-                                  animate={{
-                                    rotate: openSection === item.label ? 180 : 0,
-                                  }}
-                                  transition={{ duration: 0.2 }}
-                                >
-                                  <ArrowDown className="w-4 h-4 text-muted-foreground" />
-                                </motion.div>
-                              </motion.button>
-
-                              {/* Sub-items */}
-                              <AnimatePresence>
-                                {openSection === item.label && (
-                                  <motion.div
-                                    initial={{ opacity: 0, height: 0 }}
-                                    animate={{ opacity: 1, height: "auto" }}
-                                    exit={{ opacity: 0, height: 0 }}
-                                    className="ml-6 mt-2 space-y-1 border-l-2 border-border pl-4 overflow-hidden"
-                                  >
-                                    {item.subItems.map((subItem, subIndex) => {
-                                      const isActive = pathname === subItem.href;
-                                      return (
-                                        <motion.div
-                                          key={subItem.href}
-                                          initial={{ opacity: 0, x: -10 }}
-                                          animate={{ opacity: 1, x: 0 }}
-                                          transition={{ delay: subIndex * 0.05 }}
-                                        >
-                                          <Link
-                                            href={subItem.href}
-                                            onClick={onClose}
-                                            className={twMerge(
-                                              "flex items-center gap-3 p-2 rounded-lg transition-colors",
-                                              isActive
-                                                ? "bg-muted text-foreground font-medium"
-                                                : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                                            )}
-                                          >
-                                            <div className="w-4 h-4 flex items-center justify-center">
-                                              {subItem.icon}
-                                            </div>
-                                            <span className="text-sm">
-                                              {subItem.label}
-                                            </span>
-                                          </Link>
-                                        </motion.div>
-                                      );
-                                    })}
-                                  </motion.div>
-                                )}
-                              </AnimatePresence>
-                            </div>
-                          ) : (
-                            <Link
-                              href={item.href}
-                              onClick={onClose}
-                              className={twMerge(
-                                "flex items-center gap-3 p-3 rounded-lg transition-colors",
-                                pathname === item.href
-                                  ? "bg-muted text-foreground font-medium"
-                                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                              )}
+                  <ul className="space-y-2">
+                    {items.map((item, index) => (
+                      <motion.li
+                        key={item.label}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                      >
+                        {item.subItems ? (
+                          <div>
+                            <motion.button
+                              whileTap={{ scale: 0.98 }}
+                              onClick={() =>
+                                setOpenSection(
+                                  openSection === item.label ? null : item.label
+                                )
+                              }
+                              className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted transition-colors"
                             >
-                              <div className="w-5 h-5 flex items-center justify-center">
-                                {item.icon}
+                              <div className="flex items-center gap-3">
+                                <div className="w-5 h-5 flex items-center justify-center text-muted-foreground">
+                                  {item.icon}
+                                </div>
+                                <span className="font-medium text-foreground">
+                                  {item.label}
+                                </span>
                               </div>
-                              <span className="font-medium">{item.label}</span>
-                            </Link>
-                          )}
-                        </motion.li>
-                      ))}
-                    </ul>
-                  </motion.nav>
-                ) : (
-                  <motion.div
-                    key="notifications"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className="p-4"
-                  >
-                    <NotificationCard
-                      notifications={notifications}
-                      onMarkAsRead={onMarkAsRead}
-                      onMarkAllAsRead={onMarkAllAsRead}
-                      onDelete={onDeleteNotification}
-                      onClearAll={onClearAllNotifications}
-                      isOpen={true}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+                              <motion.div
+                                animate={{
+                                  rotate:
+                                    openSection === item.label ? 180 : 0,
+                                }}
+                                transition={{ duration: 0.2 }}
+                              >
+                                <ArrowDown className="w-4 h-4 text-muted-foreground" />
+                              </motion.div>
+                            </motion.button>
+
+                            {/* Sub-items */}
+                            <AnimatePresence>
+                              {openSection === item.label && (
+                                <motion.div
+                                  initial={{ opacity: 0, height: 0 }}
+                                  animate={{ opacity: 1, height: "auto" }}
+                                  exit={{ opacity: 0, height: 0 }}
+                                  className="ml-6 mt-2 space-y-1 border-l-2 border-border pl-4 overflow-hidden"
+                                >
+                                  {item.subItems.map((subItem, subIndex) => {
+                                    const isActive =
+                                      pathname === subItem.href;
+                                    return (
+                                      <motion.div
+                                        key={subItem.href}
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{
+                                          delay: subIndex * 0.05,
+                                        }}
+                                      >
+                                        <Link
+                                          href={subItem.href}
+                                          onClick={onClose}
+                                          className={twMerge(
+                                            "flex items-center gap-3 p-2 rounded-lg transition-colors",
+                                            isActive
+                                              ? "bg-muted text-foreground font-medium"
+                                              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                          )}
+                                        >
+                                          <div className="w-4 h-4 flex items-center justify-center">
+                                            {subItem.icon}
+                                          </div>
+                                          <span className="text-sm">
+                                            {subItem.label}
+                                          </span>
+                                        </Link>
+                                      </motion.div>
+                                    );
+                                  })}
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                        ) : (
+                          <Link
+                            href={item.href}
+                            onClick={onClose}
+                            className={twMerge(
+                              "flex items-center gap-3 p-3 rounded-lg transition-colors",
+                              pathname === item.href
+                                ? "bg-muted text-foreground font-medium"
+                                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                            )}
+                          >
+                            <div className="w-5 h-5 flex items-center justify-center">
+                              {item.icon}
+                            </div>
+                            <span className="font-medium">{item.label}</span>
+                          </Link>
+                        )}
+                      </motion.li>
+                    ))}
+                  </ul>
+                </motion.nav>
+              ) : (
+                <motion.div
+                  key="notifications"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="p-4 pb-8"
+                >
+                  <NotificationCard
+                    notifications={notifications}
+                    onMarkAsRead={onMarkAsRead}
+                    onMarkAllAsRead={onMarkAllAsRead}
+                    onDelete={onDeleteNotification}
+                    onClearAll={onClearAllNotifications}
+                    isOpen={true}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </motion.div>
+      </motion.div>
+    </>
   );
 };
 
@@ -592,7 +584,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <>
-      {/* Desktop Sidebar */}
+      {/* Desktop Sidebar (Unchanged) */}
       <motion.aside
         animate={{
           width: isCollapsed ? 48 : 256,
@@ -686,52 +678,74 @@ const Sidebar: React.FC<SidebarProps> = ({
         </motion.div>
       </motion.aside>
 
-      {/* Mobile Bottom Navbar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-slate-300 dark:bg-slate-950 border-t border-primary px-4 py-2 z-50">
-        <div className="flex items-center justify-between">
-          {items
-            .filter((item) => !item.subItems)
-            .slice(0, 4)
-            .map((item) => (
-              <MobileNavItem key={item.label} item={item} />
-            ))}
-
-          {/* More/Notifications button */}
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setIsMobileMenuOpen(true)}
-            className="relative flex items-center justify-center p-2 text-muted-foreground hover:text-primary transition-colors duration-200"
-          >
-            <motion.div
-              animate={
-                unreadCount > 0 ? { rotate: [0, -10, 10, -10, 0] } : {}
-              }
-              transition={{
-                duration: 0.5,
-                repeat: unreadCount > 0 ? Infinity : 0,
-                repeatDelay: 3,
-              }}
-              className="w-6 h-6 flex items-center justify-center"
+      {/* --- Mobile Interaction Section --- */}
+      <LayoutGroup>
+        <AnimatePresence mode="popLayout">
+          {isMobileMenuOpen ? (
+            // State 2: The Expanded Drawer
+            <MobileBottomDrawer
+              key="mobile-drawer"
+              layoutId="mobile-sidebar"
+              onClose={() => setIsMobileMenuOpen(false)}
+              items={items}
+              user={user}
+              notifications={notifications}
+              onMarkAsRead={onMarkAsRead}
+              onMarkAllAsRead={onMarkAllAsRead}
+              onDeleteNotification={onDeleteNotification}
+              onClearAllNotifications={onClearAllNotifications}
+            />
+          ) : (
+            // State 1: The Compact Navbar
+            <motion.nav
+              key="mobile-navbar"
+              layoutId="mobile-sidebar"
+              className="md:hidden fixed bottom-0 left-0 right-0 bg-slate-300 dark:bg-slate-950 border-t border-primary px-4 py-2 z-50 flex items-center justify-between"
+              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
             >
-              <ArrowUp className="text-primary w-6 h-6" />
-            </motion.div>
-            {unreadCount > 0 && <NotificationBadge count={unreadCount} />}
-          </motion.button>
-        </div>
-      </nav>
+              {/* Content Container - Fades out on open */}
+              <motion.div
+                className="flex items-center justify-between w-full"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                {items
+                  .filter((item) => !item.subItems)
+                  .slice(0, 4)
+                  .map((item) => (
+                    <MobileNavItem key={item.label} item={item} />
+                  ))}
 
-      {/* Mobile Bottom Drawer */}
-      <MobileBottomDrawer
-        isOpen={isMobileMenuOpen}
-        onClose={() => setIsMobileMenuOpen(false)}
-        items={items}
-        user={user}
-        notifications={notifications}
-        onMarkAsRead={onMarkAsRead}
-        onMarkAllAsRead={onMarkAllAsRead}
-        onDeleteNotification={onDeleteNotification}
-        onClearAllNotifications={onClearAllNotifications}
-      />
+                {/* More/Open Button */}
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setIsMobileMenuOpen(true)}
+                  className="relative flex items-center justify-center p-2 flex-1 text-muted-foreground hover:text-primary transition-colors duration-200"
+                >
+                  <motion.div
+                    animate={
+                      unreadCount > 0 ? { rotate: [0, -10, 10, -10, 0] } : {}
+                    }
+                    transition={{
+                      duration: 0.5,
+                      repeat: unreadCount > 0 ? Infinity : 0,
+                      repeatDelay: 3,
+                    }}
+                    className="w-6 h-6 flex items-center justify-center"
+                  >
+                    <ArrowUp className="text-primary w-6 h-6" />
+                  </motion.div>
+                  {unreadCount > 0 && (
+                    <NotificationBadge count={unreadCount} />
+                  )}
+                </motion.button>
+              </motion.div>
+            </motion.nav>
+          )}
+        </AnimatePresence>
+      </LayoutGroup>
     </>
   );
 };

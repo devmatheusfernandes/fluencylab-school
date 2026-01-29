@@ -21,14 +21,13 @@ import DatePicker from "@/components/ui/date-picker";
 import { Spinner } from "../ui/spinner";
 import { Plus, RefreshCcw, Trash } from "lucide-react";
 
-// Update the Task interface to include dueDate
 interface Task {
   id: string;
   text: string;
   completed: boolean;
   createdAt: Date | string;
   updatedAt?: Date | string;
-  dueDate?: Date | string; // Add dueDate
+  dueDate?: Date | string;
 }
 
 // Update the TasksCardProps interface
@@ -81,7 +80,7 @@ export default function TasksCard({
   onDeleteAllTasks,
   onSyncWithGoogleCalendar,
   isSyncingWithGoogleCalendar = false,
-  userRole, // Add this line
+  userRole
 }: TasksCardProps) {
   const t = useTranslations("TasksCard");
   const locale = useLocale();

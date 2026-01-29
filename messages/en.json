@@ -1712,7 +1712,7 @@
     "pixInstructions": "Scan the QR Code or copy the PIX code below",
     "pixRelease": "PIX code will be released in {days} day(s)",
     "pixExpires": "Expires in:",
-    "copyPix": "Copy PIX code",
+    "copyPix": "Copy code",
     "copySuccess": "PIX code copied!",
     "copyError": "Error copying PIX code",
     "generatePixOverdue": "Generate a new PIX code to pay your overdue monthly fee:",
@@ -1729,7 +1729,8 @@
     "problemDesc": "There was a problem with the payment. Check your registered data.",
     "value": "Value:",
     "nextDue": "Next due:",
-    "lastPayment": "Last payment:"
+    "lastPayment": "Last payment:",
+    "expired": "Expired"
   },
   "AchievementList": {
     "errorTitle": "Error!",
