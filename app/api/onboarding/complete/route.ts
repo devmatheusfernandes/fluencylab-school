@@ -5,6 +5,7 @@ import { adminDb, adminAuth } from "@/lib/firebase/admin";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { withValidation } from "@/lib/validation";
 import { z } from "zod";
+export const dynamic = 'force-dynamic';
 
 // Schema de validação para dados de onboarding
 const onboardingSchema = z.object({

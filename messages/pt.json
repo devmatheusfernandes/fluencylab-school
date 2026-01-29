@@ -1728,7 +1728,8 @@
     "problemDesc": "Houve um problema com o pagamento. Verifique seus dados cadastrados.",
     "value": "Valor:",
     "nextDue": "Próximo vencimento:",
-    "lastPayment": "Último pagamento:"
+    "lastPayment": "Último pagamento:",
+    "expired": "Expirado"
   },
   "AchievementList": {
     "errorTitle": "Erro!",
