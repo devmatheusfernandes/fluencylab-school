@@ -1,13 +1,13 @@
-// app/api/onboarding/complete/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { adminDb, adminAuth } from "@/lib/firebase/admin";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { withValidation } from "@/lib/validation";
 import { z } from "zod";
+
+// Mantemos o force-dynamic por segurança
 export const dynamic = 'force-dynamic';
 
-// Schema de validação para dados de onboarding
+// Seu Schema original
 const onboardingSchema = z.object({
   nickname: z.string().min(2).max(50).optional(),
   interfaceLanguage: z.enum(["pt", "en", "es"]).optional(),
@@ -20,86 +20,92 @@ const onboardingSchema = z.object({
   subscriptionId: z.string().max(100).optional(),
 });
 
-export const POST = withValidation(
-  async (
-    request: NextRequest,
-    validatedData: { body: z.infer<typeof onboardingSchema> }
-  ) => {
+// EXPORTAÇÃO DIRETA (Sem o withValidation)
+export async function POST(request: NextRequest) {
+  try {
+    // 1. Validação Manual (Substituindo o Wrapper)
+    let body;
     try {
-      const session = await getServerSession(authOptions);
+      body = await request.json();
+    } catch (e) {
+      return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+    }
 
-      if (!session?.user?.id) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-      }
+    const validationResult = onboardingSchema.safeParse(body);
 
-      const {
-        nickname,
-        interfaceLanguage,
-        theme,
-        emailVerified,
-        contractLengthMonths,
-        contractSigned,
-        paymentMethod,
-        paymentCompleted,
-        subscriptionId,
-      } = validatedData.body;
-
-      // Update user document with onboarding completion data
-      const userRef = adminDb.collection("users").doc(session.user.id);
-
-      const updates: any = {
-        tutorialCompleted: true,
-        onboardingCompletedAt: new Date(),
-      };
-
-      // Update basic info if provided
-      if (nickname) updates.nickname = nickname;
-      if (interfaceLanguage) updates.interfaceLanguage = interfaceLanguage;
-      if (theme) updates.theme = theme;
-
-      // Update contract info if completed
-      if (contractLengthMonths) {
-        updates.contractLengthMonths = contractLengthMonths;
-        updates.contractStartDate = new Date();
-      }
-
-      // Update subscription info if completed
-      if (subscriptionId) {
-        updates.mercadoPagoSubscriptionId = subscriptionId;
-        if (paymentMethod) {
-          updates.subscriptionPaymentMethod = paymentMethod;
-        }
-      }
-
-      await userRef.update(updates);
-
-      // Update Firebase Auth custom claims if role was changed
-      if (updates.role) {
-        await adminAuth.setCustomUserClaims(session.user.id, {
-          role: updates.role,
-        });
-      }
-
-      return NextResponse.json({
-        success: true,
-        message: "Onboarding completed successfully",
-        // Include updated user data to help with session refresh
-        user: {
-          tutorialCompleted: true,
-          ...updates,
-        },
-      });
-    } catch (error) {
-      console.error("Error completing onboarding:", error);
+    if (!validationResult.success) {
       return NextResponse.json(
-        { error: "Internal server error" },
-        { status: 500 }
+        { 
+          error: "Validation Error", 
+          details: validationResult.error.flatten() 
+        },
+        { status: 400 }
       );
     }
-  },
-  {
-    bodySchema: onboardingSchema,
-    logAttacks: true,
-    blockAttacks: true,
+
+    // Dados validados
+    const {
+      nickname,
+      interfaceLanguage,
+      theme,
+      contractLengthMonths,
+      paymentMethod,
+      subscriptionId,
+    } = validationResult.data;
+
+    // 2. Autenticação e Lógica (Igual ao anterior)
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userRef = adminDb.collection("users").doc(session.user.id);
+
+    const updates: any = {
+      tutorialCompleted: true,
+      onboardingCompletedAt: new Date(),
+    };
+
+    if (nickname) updates.nickname = nickname;
+    if (interfaceLanguage) updates.interfaceLanguage = interfaceLanguage;
+    if (theme) updates.theme = theme;
+
+    if (contractLengthMonths) {
+      updates.contractLengthMonths = contractLengthMonths;
+      updates.contractStartDate = new Date();
+    }
+
+    if (subscriptionId) {
+      updates.mercadoPagoSubscriptionId = subscriptionId;
+      if (paymentMethod) {
+        updates.subscriptionPaymentMethod = paymentMethod;
+      }
+    }
+
+    await userRef.update(updates);
+
+    // Se houver update de role (embora não esteja no schema acima, mantive sua lógica original)
+    if (updates.role) {
+      await adminAuth.setCustomUserClaims(session.user.id, {
+        role: updates.role,
+      });
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Onboarding completed successfully",
+      user: {
+        tutorialCompleted: true,
+        ...updates,
+      },
+    });
+
+  } catch (error) {
+    console.error("Error completing onboarding:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
-);
+}
