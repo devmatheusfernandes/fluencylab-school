@@ -15,6 +15,9 @@ import { useTranslations } from "next-intl";
 import TasksCard from "@/components/teacher/TaskCard";
 import { useGoogleCalendarSync } from "@/hooks/useGoogleCalendarSync";
 import { SpinnerLoading } from "@/components/transitions/spinner-loading";
+import { WordOfTheDayModal } from "@/components/word-of-the-day/word-of-the-day-modal";
+import { Star } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function Caderno() {
   const t = useTranslations("StudentNotebook");
@@ -34,6 +37,7 @@ export default function Caderno() {
   });
 
   const [statsLoading, setStatsLoading] = useState(true);
+  const [isWordModalOpen, setIsWordModalOpen] = useState(false);
 
   useEffect(() => {
     async function fetchStats() {
@@ -75,6 +79,16 @@ export default function Caderno() {
         heading={t("title")}
         subheading={t("subtitle")}
         className="mb-2"
+        icon={
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsWordModalOpen(true)}
+            title="Word of the Day"
+          >
+            <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+          </Button>
+        }
       />
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         <div className="lg:col-span-5 order-1 lg:order-1 flex flex-col max-h-[calc(100vh-180px)]">
@@ -130,6 +144,11 @@ export default function Caderno() {
           </div>
         </div>
       </div>
+      <WordOfTheDayModal
+        language={student?.languages?.[0] || "en"}
+        isOpen={isWordModalOpen}
+        onOpenChange={setIsWordModalOpen}
+      />
     </div>
   );
 }

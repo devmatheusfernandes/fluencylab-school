@@ -15,6 +15,8 @@ import {
 
 interface WordOfTheDayModalProps {
   language?: string;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 // Interface para o que vamos salvar no Storage
@@ -23,12 +25,24 @@ interface DailyWordStorage {
   data: { word: string; translation: string };
 }
 
-export const WordOfTheDayModal = ({ language }: WordOfTheDayModalProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+export const WordOfTheDayModal = ({ language, isOpen: controlledIsOpen, onOpenChange }: WordOfTheDayModalProps) => {
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
   const [wordData, setWordData] = useState<{ word: string; translation: string } | null>(null);
   
   // Ref para evitar execução dupla estrita (Race condition lock)
   const isFetchingRef = useRef(false);
+
+  // Determine effective open state
+  const isControlled = controlledIsOpen !== undefined;
+  const isOpen = isControlled ? controlledIsOpen : internalIsOpen;
+
+  const handleOpenChange = (open: boolean) => {
+    if (isControlled && onOpenChange) {
+      onOpenChange(open);
+    } else {
+      setInternalIsOpen(open);
+    }
+  };
 
   useEffect(() => {
     async function checkAndFetchWord() {
@@ -45,9 +59,8 @@ export const WordOfTheDayModal = ({ language }: WordOfTheDayModalProps) => {
           const parsedItem: DailyWordStorage = JSON.parse(storedItem);
           if (parsedItem.date === today) {
             console.log("Recuperado do cache (não mostra modal novamente se já fechou, ou mostra se quiser persistir a lógica visual):");
-            // Se você quiser que o modal apareça APENAS na primeira vez,
-            // aqui você retornaria sem fazer nada. 
-            // Se quiser que o modal não reapareça após o refresh se o usuário já viu, mantenha o return abaixo:
+            setWordData(parsedItem.data);
+            // NÃO abrimos automaticamente se já estava no cache (já viu hoje)
             return; 
           }
         } catch (e) {
@@ -66,7 +79,10 @@ export const WordOfTheDayModal = ({ language }: WordOfTheDayModalProps) => {
         
         if (data) {
           setWordData(data);
-          setIsOpen(true);
+          // Se for uma nova palavra, abrimos automaticamente (apenas se não controlado)
+          if (!isControlled) {
+            setInternalIsOpen(true);
+          }
           
           // 2. SALVAR O OBJETO COMPLETO:
           const newStorageItem: DailyWordStorage = {
@@ -83,10 +99,10 @@ export const WordOfTheDayModal = ({ language }: WordOfTheDayModalProps) => {
     }
 
     checkAndFetchWord();
-  }, [language]);
+  }, [language]); // isControlled is stable enough or ignored in deps to prevent loop
 
   const handleClose = () => {
-    setIsOpen(false);
+    handleOpenChange(false);
   };
 
   if (!wordData) return null;
