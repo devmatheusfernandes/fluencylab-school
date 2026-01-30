@@ -356,64 +356,58 @@ export default function SettingsForm({
           </div>
 
           <div className="space-y-4">
-            <Alert className={googleCalendarConnected
-              ? "border-green-500/50 dark:border-green-400/50" 
-              : "border-slate-200/50 dark:border-slate-700/50"
-            }>
-              {googleCalendarConnected ? (
-                <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
-              ) : (
-                <AlertCircle className="h-4 w-4" />
-              )}
-              <AlertDescription>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full">
-                  <div>
-                    <Text weight="medium" className={googleCalendarConnected ? "text-green-700 dark:text-green-300" : ""}>
-                      {googleCalendarConnected
-                        ? t("googleCalendar.connected")
-                        : t("googleCalendar.connect")}
+            <motion.div 
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-lg item-base"
+              whileHover={{ scale: 1.01 }}
+              transition={{ type: "spring", stiffness: 400 }}
+            >
+              <div className="flex items-center gap-3">
+                {googleCalendarConnected ? (
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                ) : (
+                  <AlertCircle className="h-4 w-4 text-muted-foreground" />
+                )}
+                <div>
+                  <Text weight="medium" className={googleCalendarConnected ? "text-emerald-600 dark:text-emerald-400" : ""}>
+                    {googleCalendarConnected
+                      ? t("googleCalendar.connected")
+                      : t("googleCalendar.connect")}
+                  </Text>
+                  {!googleCalendarConnected && (
+                    <Text size="sm" variant="placeholder">
+                      {t("googleCalendar.syncDescription")}
                     </Text>
-                    {!googleCalendarConnected && (
-                      <Text size="sm" variant="placeholder">
-                        {t("googleCalendar.syncDescription")}
-                      </Text>
-                    )}
-                  </div>
-                  <div className="flex gap-2">
-                    {googleCalendarConnected ? (
-                      <>
-                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => {
-                              fetch("/api/student/google-calendar/disconnect", {
-                                method: "POST",
-                              }).then(() => {
-                                window.location.reload();
-                              });
-                            }}
-                          >
-                            {t("googleCalendar.disconnectButton")}
-                          </Button>
-                        </motion.div>
-                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                          <Button size="sm" onClick={handleConnectGoogleCalendar}>
-                            {t("googleCalendar.reconnectButton")}
-                          </Button>
-                        </motion.div>
-                      </>
-                    ) : (
-                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                        <Button size="sm" onClick={handleConnectGoogleCalendar}>
-                          {t("googleCalendar.connectButton")}
-                        </Button>
-                      </motion.div>
-                    )}
-                  </div>
+                  )}
                 </div>
-              </AlertDescription>
-            </Alert>
+              </div>
+
+              <div className="flex gap-2 self-start sm:self-center pt-2 sm:pt-0">
+                {googleCalendarConnected ? (
+                  <>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => {
+                        fetch("/api/student/google-calendar/disconnect", {
+                          method: "POST",
+                        }).then(() => {
+                          window.location.reload();
+                        });
+                      }}
+                    >
+                      {t("googleCalendar.disconnectButton")}
+                    </Button>
+                    <Button size="sm" onClick={handleConnectGoogleCalendar}>
+                      {t("googleCalendar.reconnectButton")}
+                    </Button>
+                  </>
+                ) : (
+                  <Button size="sm" onClick={handleConnectGoogleCalendar}>
+                    {t("googleCalendar.connectButton")}
+                  </Button>
+                )}
+              </div>
+            </motion.div>
 
             {googleCalendarConnected && (
               <motion.div 
