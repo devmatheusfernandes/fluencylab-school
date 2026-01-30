@@ -9,9 +9,21 @@ interface DraggableTaskCardProps {
   assignedUser?: { name: string; avatarUrl?: string };
   showCheckbox?: boolean;
   onStatusToggle?: () => void;
+  onMovePrev?: () => void;
+  onMoveNext?: () => void;
+  moveDirection?: 'vertical' | 'horizontal';
 }
 
-export function DraggableTaskCard({ task, onClick, assignedUser, showCheckbox, onStatusToggle }: DraggableTaskCardProps) {
+export function DraggableTaskCard({ 
+  task, 
+  onClick, 
+  assignedUser, 
+  showCheckbox, 
+  onStatusToggle, 
+  onMovePrev, 
+  onMoveNext, 
+  moveDirection 
+}: DraggableTaskCardProps) {
   const {
     attributes,
     listeners,
@@ -19,13 +31,18 @@ export function DraggableTaskCard({ task, onClick, assignedUser, showCheckbox, o
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: task.id, data: { task } });
+  } = useSortable({ 
+    id: task.id, 
+    data: { task },
+    animateLayoutChanges: () => false // Deixa o framer-motion lidar com animações de layout se necessário, mas evita glitch no drag
+  });
 
   const style = {
-    transform: CSS.Transform.toString(transform),
+    transform: CSS.Translate.toString(transform), // Use Translate ao invés de Transform para melhor performance com scale
     transition,
-    opacity: isDragging ? 0.5 : 1,
-    touchAction: "none" as React.CSSProperties["touchAction"], // Critical for mobile
+    opacity: isDragging ? 0.3 : 1,
+    touchAction: "none" as React.CSSProperties["touchAction"],
+    zIndex: isDragging ? 999 : undefined,
   };
 
   return (
@@ -39,6 +56,9 @@ export function DraggableTaskCard({ task, onClick, assignedUser, showCheckbox, o
       style={style}
       attributes={attributes}
       listeners={listeners}
+      onMovePrev={onMovePrev}
+      onMoveNext={onMoveNext}
+      moveDirection={moveDirection}
     />
   );
 }

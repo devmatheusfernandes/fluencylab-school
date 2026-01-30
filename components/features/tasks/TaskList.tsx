@@ -1,28 +1,64 @@
 import { Task } from "@/types/tasks/task"
-import { TaskCard } from "./TaskCard"
+import { TaskCard, TaskCardSkeleton } from "./TaskCard"
 import { useStaffUsers } from "@/hooks/features/tasks/useStaffUsers"
+import { motion, Variants } from "framer-motion"
 
 interface TaskListProps {
     tasks: Task[]
     onEdit: (task: Task) => void
     onStatusToggle: (task: Task) => void
+    isLoading?: boolean
 }
 
-export function TaskList({ tasks, onEdit, onStatusToggle }: TaskListProps) {
+const container: Variants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05
+    }
+  }
+}
+
+const item: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 }
+}
+
+export function TaskList({ tasks, onEdit, onStatusToggle, isLoading }: TaskListProps) {
     const { users } = useStaffUsers()
     
+    if (isLoading) {
+        return (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto h-full pb-4">
+                 {[1,2,3,4,5,6,7,8].map(i => <TaskCardSkeleton key={i} />)}
+            </div>
+        )
+    }
+
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto h-full pb-4">
+        <motion.div 
+            variants={container}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto h-full pb-4 content-start"
+        >
             {tasks.map(task => (
-                 <TaskCard 
-                    key={task.id} 
-                    task={task} 
-                    onClick={() => onEdit(task)}
-                    assignedUser={users.find(u => u.id === task.assignedToId)}
-                    showCheckbox
-                    onStatusToggle={() => onStatusToggle(task)}
-                />
+                 <motion.div key={task.id} variants={item}>
+                     <TaskCard 
+                        task={task} 
+                        onClick={() => onEdit(task)}
+                        assignedUser={users.find(u => u.id === task.assignedToId)}
+                        showCheckbox
+                        onStatusToggle={() => onStatusToggle(task)}
+                    />
+                 </motion.div>
             ))}
-        </div>
+            {tasks.length === 0 && (
+                <div className="col-span-full h-64 flex flex-col items-center justify-center text-muted-foreground">
+                    <p>Nenhuma tarefa encontrada</p>
+                </div>
+            )}
+        </motion.div>
     )
 }

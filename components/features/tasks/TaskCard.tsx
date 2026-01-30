@@ -1,12 +1,15 @@
 import { Task } from "@/types/tasks/task";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, CheckSquare } from "lucide-react";
+import { Calendar, CheckSquare, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { motion } from "framer-motion";
 
 interface TaskCardProps {
   task: Task;
@@ -20,7 +23,13 @@ interface TaskCardProps {
   isOverlay?: boolean;
   attributes?: any;
   listeners?: any;
+  onMovePrev?: () => void;
+  onMoveNext?: () => void;
+  moveDirection?: 'vertical' | 'horizontal';
 }
+
+// CORREÇÃO: MotionCard deve ser definido FORA do componente
+const MotionCard = motion(Card);
 
 export function TaskCard({ 
   task, 
@@ -33,7 +42,10 @@ export function TaskCard({
   innerRef,
   isOverlay,
   attributes,
-  listeners
+  listeners,
+  onMovePrev,
+  onMoveNext,
+  moveDirection
 }: TaskCardProps) {
   
   const completedSubtasks = task.subTasks?.filter(st => st.completed).length || 0;
@@ -46,79 +58,132 @@ export function TaskCard({
       'done': 'Concluído'
   };
 
-  const priorityMap: Record<string, string> = {
-      'low': 'Baixa',
-      'medium': 'Média',
-      'high': 'Alta'
+  const priorityConfig: Record<string, { label: string, className: string }> = {
+      'low': { label: 'Baixa', className: "text-slate-500 border-slate-200 bg-slate-50" },
+      'medium': { label: 'Média', className: "text-amber-600 border-amber-200 bg-amber-50" },
+      'high': { label: 'Alta', className: "text-red-600 border-red-200 bg-red-50" }
   };
 
+  const priorityInfo = priorityConfig[task.priority] || { label: task.priority, className: "" };
+
   return (
-    <Card 
+    <MotionCard 
       ref={innerRef}
       style={style}
       {...attributes}
       {...listeners}
+      layoutId={!isOverlay ? task.id : undefined}
+      initial={isOverlay ? { scale: 1.05, rotate: 2, boxShadow: "0px 10px 20px rgba(0,0,0,0.15)" } : { scale: 1 }}
+      animate={isOverlay ? { scale: 1.05, rotate: 2 } : { scale: 1 }}
+      whileHover={!isOverlay && onClick ? { y: -2, transition: { duration: 0.2 } } : {}}
       className={cn(
-        "cursor-pointer hover:border-primary/50 transition-colors relative group",
-        task.status === "done" ? "opacity-70 bg-muted/50" : "",
-        isOverlay ? "shadow-xl rotate-2 cursor-grabbing z-50 bg-background" : "",
+        "cursor-pointer border-l-4 transition-all relative group bg-card",
+        task.status === "done" ? "opacity-60 bg-muted/30 border-l-slate-300" : 
+        task.priority === 'high' ? "border-l-red-400" :
+        task.priority === 'medium' ? "border-l-amber-400" : "border-l-green-400",
+        isOverlay ? "z-50 cursor-grabbing border-primary" : "hover:shadow-md",
         className
       )}
       onClick={onClick}
     >
-      <CardContent className="p-3 space-y-2">
-        <div className="flex items-start gap-2">
-          {showCheckbox && (
-            <div className="pt-0.5" onClick={(e) => e.stopPropagation()}>
+      <CardContent className="p-3 flex gap-3">
+        {showCheckbox && (
+            <div className="pt-1" onClick={(e) => e.stopPropagation()}>
                 <Checkbox 
                     checked={task.status === 'done'} 
                     onCheckedChange={() => onStatusToggle && onStatusToggle()} 
+                    className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                 />
             </div>
-          )}
-          <div className="flex-1 min-w-0">
-             <div className="flex items-start justify-between gap-2">
-                <span className={cn("font-medium text-sm line-clamp-2", task.status === "done" && "line-through text-muted-foreground")}>
+        )}
+
+        <div className="flex-1 space-y-2 min-w-0">
+            <div className="flex items-start justify-between gap-2">
+                <span className={cn(
+                    "font-semibold text-sm leading-tight line-clamp-2 text-foreground/90", 
+                    task.status === "done" && "line-through text-muted-foreground"
+                )}>
                     {task.title}
                 </span>
                 {assignedUser && (
-                    <Avatar className="h-6 w-6 shrink-0">
+                    <Avatar className="h-6 w-6 shrink-0 border-2 border-background ring-1 ring-muted">
                         <AvatarImage src={assignedUser.avatarUrl} />
-                        <AvatarFallback className="text-[10px]">{assignedUser.name.substring(0,2).toUpperCase()}</AvatarFallback>
+                        <AvatarFallback className="text-[9px] bg-primary/10 text-primary font-bold">
+                            {assignedUser.name.substring(0,2).toUpperCase()}
+                        </AvatarFallback>
                     </Avatar>
                 )}
-             </div>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-2 pl-6">
-            <Badge variant={task.status === "done" ? "secondary" : task.status === "in-progress" ? "default" : "outline"} className="text-[10px] h-5 px-1.5 shrink-0">
-                {statusMap[task.status] || task.status}
-            </Badge>
-            <Badge variant="outline" className={cn("text-[10px] h-5 px-1.5 shrink-0", 
-                task.priority === 'high' ? "text-red-500 border-red-200" : 
-                task.priority === 'medium' ? "text-amber-500 border-amber-200" : "text-green-500 border-green-200"
-            )}>
-                {priorityMap[task.priority] || task.priority}
-            </Badge>
+            </div>
+            
+            <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="outline" className={cn("text-[10px] h-5 px-1.5 font-normal rounded-md", priorityInfo.className)}>
+                    {priorityInfo.label}
+                </Badge>
+                {task.status !== 'todo' && (
+                     <Badge variant="secondary" className="text-[10px] h-5 px-1.5 bg-muted text-muted-foreground font-normal rounded-md">
+                        {statusMap[task.status] || task.status}
+                    </Badge>
+                )}
+            </div>
+
+            <div className="flex items-center gap-3 text-xs text-muted-foreground pt-1">
+                {task.dueDate && (
+                <div className={cn("flex items-center gap-1.5", 
+                    new Date(task.dueDate) < new Date() && task.status !== 'done' ? "text-red-500 font-medium" : ""
+                )}>
+                    <Clock className="h-3.5 w-3.5" />
+                    <span>{format(parseISO(task.dueDate), 'dd MMM', { locale: ptBR })}</span>
+                </div>
+                )}
+                
+                {totalSubtasks > 0 && (
+                <div className="flex items-center gap-1.5">
+                    <CheckSquare className="h-3.5 w-3.5" />
+                    <span>{completedSubtasks}/{totalSubtasks}</span>
+                </div>
+                )}
+            </div>
         </div>
 
-        <div className="flex items-center gap-3 text-xs text-muted-foreground pl-6">
-            {task.dueDate && (
-            <div className="flex items-center gap-1">
-                <Calendar className="h-3 w-3" />
-                <span>{format(parseISO(task.dueDate), 'dd/MM', { locale: ptBR })}</span>
+        {(onMovePrev || onMoveNext) && (
+            <div className={cn(
+                "flex gap-1 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity", 
+                moveDirection === 'vertical' ? "flex-col justify-center border-l pl-1 ml-1" : "flex-row items-center border-l pl-2 ml-1"
+            )}>
+                {onMovePrev && (
+                    <Button size="icon" variant="ghost" className="h-7 w-7 hover:bg-primary/10 hover:text-primary" onClick={(e) => { e.stopPropagation(); onMovePrev(); }}>
+                        {moveDirection === 'vertical' ? <ChevronUp className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+                    </Button>
+                )}
+                {onMoveNext && (
+                    <Button size="icon" variant="ghost" className="h-7 w-7 hover:bg-primary/10 hover:text-primary" onClick={(e) => { e.stopPropagation(); onMoveNext(); }}>
+                        {moveDirection === 'vertical' ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                    </Button>
+                )}
             </div>
-            )}
-            
-            {totalSubtasks > 0 && (
-            <div className="flex items-center gap-1">
-                <CheckSquare className="h-3 w-3" />
-                <span>{completedSubtasks}/{totalSubtasks}</span>
-            </div>
-            )}
-        </div>
+        )}
       </CardContent>
-    </Card>
+    </MotionCard>
   );
+}
+
+export function TaskCardSkeleton() {
+    return (
+        <Card className="border-l-4 border-l-muted">
+            <CardContent className="p-3 space-y-3">
+                <div className="flex justify-between items-start gap-2">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-6 w-6 rounded-full" />
+                </div>
+                <div className="flex gap-2">
+                    <Skeleton className="h-5 w-16" />
+                    <Skeleton className="h-5 w-20" />
+                </div>
+                <div className="flex gap-4 pt-1">
+                    <Skeleton className="h-3 w-12" />
+                    <Skeleton className="h-3 w-10" />
+                </div>
+            </CardContent>
+        </Card>
+    )
 }

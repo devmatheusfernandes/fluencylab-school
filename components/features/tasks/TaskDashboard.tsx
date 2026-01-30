@@ -59,7 +59,8 @@ export function TaskDashboard() {
     }
   }
 
-  if (loading) return <div>Carregando tarefas...</div>
+  // REMOVIDO: if (loading) return <div>Carregando...</div>
+  // Agora passamos o loading para as views renderizarem os Skeletons
 
   return (
     <div className="space-y-4 h-full flex flex-col">
@@ -89,6 +90,7 @@ export function TaskDashboard() {
                 tasks={tasks} 
                 onTaskClick={handleEdit} 
                 onStatusChange={handleStatusChange}
+                isLoading={loading}
             />
          )}
          {view === 'week' && (
@@ -97,6 +99,7 @@ export function TaskDashboard() {
                 onTaskClick={handleEdit} 
                 onDateChange={handleDateChange}
                 onStatusToggle={handleStatusToggle}
+                isLoading={loading}
             />
          )}
          {view === 'list' && (
@@ -104,6 +107,7 @@ export function TaskDashboard() {
                 tasks={tasks} 
                 onEdit={handleEdit} 
                 onStatusToggle={handleStatusToggle}
+                isLoading={loading}
             />
          )}
       </div>

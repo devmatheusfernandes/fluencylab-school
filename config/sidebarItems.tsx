@@ -1,7 +1,7 @@
 // config/sidebarItems.tsx
 import { SidebarItemType } from "@/components/shared/Sidebar/Sidebar";
-import { CheckSquare } from "lucide-react";
 import { CalendarDaysIcon } from "@/public/animated/calendar";
+import { CircleCheckIcon } from "@/public/animated/circle-check";
 import { DollarSignIcon } from "@/public/animated/finances";
 import { BookTextIcon } from "@/public/animated/lesson";
 import { MessageSquareIcon } from "@/public/animated/message-square";
@@ -49,7 +49,7 @@ const adminItems: SidebarItemType[] = [
     href: "/[locale]/hub/admin/tasks",
     label: "Tarefas",
     labelKey: "tasks",
-    icon: <CheckSquare size={20} />,
+    icon: <CircleCheckIcon size={20} />,
   },
   {
     href: "/[locale]/hub/admin/settings",
@@ -154,7 +154,7 @@ const managerItems = [
     href: "/[locale]/hub/manager/tasks",
     label: "Tarefas",
     labelKey: "tasks",
-    icon: <CheckSquare size={20} />,
+    icon: <CircleCheckIcon size={20} />,
   },
   {
     href: "/[locale]/hub/manager/student-profiles",
@@ -199,7 +199,7 @@ const materialManagerItems = [
     href: "/[locale]/hub/material-manager/tasks",
     label: "Tarefas",
     labelKey: "tasks",
-    icon: <CheckSquare size={20} />,
+    icon: <CircleCheckIcon size={20} />,
   },
   {
     href: "/[locale]/hub/material-manager/settings",
