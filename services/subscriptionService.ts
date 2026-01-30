@@ -15,6 +15,7 @@ import {
   SubscriptionOverview
 } from '@/types/financial/subscription';
 import { UserRoles } from '@/types/users/userRoles';
+import { emailService } from "./emailService";
 
 export class SubscriptionService {
   constructor() {}
@@ -381,6 +382,26 @@ export class SubscriptionService {
     }
 
     await this.handleSuccessfulPayment(payment.subscriptionId, payment.userId);
+
+    // Send confirmation email
+    try {
+      const subscription = await this.getSubscriptionPrivate(payment.subscriptionId);
+      const user = await this.getUser(payment.userId);
+
+      if (subscription && user && user.email && user.name) {
+        await emailService.sendPaymentConfirmationEmail({
+          email: user.email,
+          studentName: user.name,
+          amount: payment.amount,
+          paymentDate: new Date(),
+          paymentMethod: "pix",
+          nextBillingDate: subscription.nextBillingDate,
+          receiptUrl: `${process.env.NEXT_PUBLIC_APP_URL}/hub/financial/receipt/${payment.id}`,
+        });
+      }
+    } catch (error) {
+      console.error("Error sending payment confirmation email:", error);
+    }
   }
 
   private async handleCancellationFeePaid(userId: string) {
@@ -938,6 +959,45 @@ export class SubscriptionService {
     });
   }
   
+  /**
+   * Gets a specific payment by ID
+   */
+  async getPaymentById(paymentId: string): Promise<MonthlyPayment | null> {
+    const doc = await adminDb.collection('monthlyPayments').doc(paymentId).get();
+    if (!doc.exists) return null;
+    
+    const data = doc.data() as MonthlyPayment;
+    
+    // Helper function to safely convert dates
+    const safeConvertDate = (dateValue: any): Date | undefined => {
+      if (!dateValue) return undefined;
+      
+      // If it's already a Date object, validate it
+      if (dateValue instanceof Date) {
+        return isNaN(dateValue.getTime()) ? undefined : dateValue;
+      }
+      
+      // If it's a Firestore Timestamp, convert it
+      if (dateValue && typeof dateValue.toDate === 'function') {
+        const converted = dateValue.toDate();
+        return isNaN(converted.getTime()) ? undefined : converted;
+      }
+      
+      // If it's a string or number, try to convert
+      const converted = new Date(dateValue);
+      return isNaN(converted.getTime()) ? undefined : converted;
+    };
+    
+    return {
+      ...data,
+      dueDate: safeConvertDate(data.dueDate) || new Date(),
+      createdAt: safeConvertDate(data.createdAt) || new Date(),
+      updatedAt: safeConvertDate(data.updatedAt) || new Date(),
+      paidAt: safeConvertDate(data.paidAt),
+      pixExpiresAt: safeConvertDate(data.pixExpiresAt)
+    };
+  }
+
   /**
    * Gets subscription overview for managers
    */

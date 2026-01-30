@@ -7,6 +7,7 @@ import { ClassCanceledEmail } from "@/emails/templates/ClassCanceledEmail";
 import { TeacherVacationEmail } from "@/emails/templates/TeacherVacationEmail";
 import TeacherVacationCancellationEmail from "@/emails/templates/TeacherVacationCancellationEmail";
 import { ContractRenewalEmail } from "@/emails/templates/ContractRenewalEmail";
+import { PaymentConfirmationEmail } from "@/emails/templates/PaymentConfirmationEmail";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -298,6 +299,45 @@ export class EmailService {
     } catch (error) {
       console.error("Falha ao enviar e-mail de renovação de contrato:", error);
       throw new Error("Falha ao enviar o e-mail de renovação de contrato.");
+    }
+  }
+
+  async sendPaymentConfirmationEmail({
+    email,
+    studentName,
+    amount,
+    paymentDate,
+    paymentMethod,
+    nextBillingDate,
+    receiptUrl,
+  }: {
+    email: string;
+    studentName: string;
+    amount: number;
+    paymentDate: Date;
+    paymentMethod: "pix" | "credit_card";
+    nextBillingDate: Date;
+    receiptUrl?: string;
+  }) {
+    try {
+      await resend.emails.send({
+        from: "Pagamento Confirmado <contato@matheusfernandes.me>",
+        to: [email],
+        subject: "Pagamento Confirmado! 🎉 - Fluency Lab",
+        react: await PaymentConfirmationEmail({
+          studentName,
+          amount,
+          paymentDate,
+          paymentMethod,
+          nextBillingDate,
+          receiptUrl,
+        }),
+      });
+
+      console.log(`E-mail de confirmação de pagamento enviado para ${email}`);
+    } catch (error) {
+      console.error("Falha ao enviar e-mail de confirmação de pagamento:", error);
+      // We don't throw error here to avoid breaking the payment flow if email fails
     }
   }
 }
