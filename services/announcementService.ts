@@ -15,7 +15,8 @@ export class AnnouncementService {
     createdBy: string,
     recipientType: "role" | "specific",
     roles?: UserRoles[],
-    userIds?: string[]
+    userIds?: string[],
+    link?: string
   ): Promise<Announcement> {
     const announcement = await announcementRepository.create({
       title,
@@ -27,6 +28,7 @@ export class AnnouncementService {
         roles: recipientType === "role" ? roles : undefined,
         userIds: recipientType === "specific" ? userIds : undefined,
       },
+      link,
       isActive: true,
     });
 
@@ -35,6 +37,25 @@ export class AnnouncementService {
     } catch {}
 
     return announcement;
+  }
+
+  async createSystemAnnouncement(
+    title: string,
+    message: string,
+    recipients: string | string[],
+    link?: string
+  ): Promise<Announcement> {
+    const userIds = Array.isArray(recipients) ? recipients : [recipients];
+    return this.createAnnouncement(
+      title,
+      message,
+      "info",
+      "SYSTEM",
+      "specific",
+      undefined,
+      userIds,
+      link
+    );
   }
 
   async getAllAnnouncements(): Promise<Announcement[]> {

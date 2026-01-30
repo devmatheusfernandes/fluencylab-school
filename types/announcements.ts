@@ -9,6 +9,7 @@ export interface Announcement {
   title: string;
   message: string;
   type: AnnouncementType;
+  link?: string;
   createdAt: Date;
   createdBy: string; // admin user ID
   recipients: {

@@ -1,5 +1,6 @@
 // config/sidebarItems.tsx
 import { SidebarItemType } from "@/components/shared/Sidebar/Sidebar";
+import { CheckSquare } from "lucide-react";
 import { CalendarDaysIcon } from "@/public/animated/calendar";
 import { DollarSignIcon } from "@/public/animated/finances";
 import { BookTextIcon } from "@/public/animated/lesson";
@@ -43,6 +44,12 @@ const adminItems: SidebarItemType[] = [
     label: "Notificações",
     labelKey: "notification",
     icon: <BellIcon size={20} />,
+  },
+  {
+    href: "/[locale]/hub/admin/tasks",
+    label: "Tarefas",
+    labelKey: "tasks",
+    icon: <CheckSquare size={20} />,
   },
   {
     href: "/[locale]/hub/admin/settings",
@@ -144,6 +151,12 @@ const managerItems = [
     icon: <PeopleIcon size={20} />,
   },
   {
+    href: "/[locale]/hub/manager/tasks",
+    label: "Tarefas",
+    labelKey: "tasks",
+    icon: <CheckSquare size={20} />,
+  },
+  {
     href: "/[locale]/hub/manager/student-profiles",
     label: "Perfil de Estudantes",
     labelKey: "studentProfile",
@@ -181,6 +194,12 @@ const materialManagerItems = [
     label: "Components",
     labelKey: "components",
     icon: <LayoutPanelTopIcon size={20} />,
+  },
+  {
+    href: "/[locale]/hub/material-manager/tasks",
+    label: "Tarefas",
+    labelKey: "tasks",
+    icon: <CheckSquare size={20} />,
   },
   {
     href: "/[locale]/hub/material-manager/settings",

@@ -1,5 +1,6 @@
 import webpush from 'web-push';
 import { Announcement } from '@/types/announcements';
+import { Task } from '@/types/tasks/task';
 import { UserAdminRepository } from '@/repositories/user.admin.repository';
 import { PushSubscriptionRepository, StoredSubscription } from '@/repositories/pushSubscriptionRepository';
 
@@ -40,7 +41,7 @@ export class PushService {
       title: announcement.title,
       body: announcement.message,
       type: announcement.type,
-      url: process.env.NEXT_PUBLIC_APP_URL || '/',
+      url: announcement.link || process.env.NEXT_PUBLIC_APP_URL || '/',
     };
     await Promise.all(
       items.flatMap((item) => item.subscriptions.map((s) => this.sendToSubscription(s, payload)))
