@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (subscriptionId) {
-      updates.mercadoPagoSubscriptionId = subscriptionId;
+      updates.currentSubscriptionId = subscriptionId;
       if (paymentMethod) {
         updates.subscriptionPaymentMethod = paymentMethod;
       }

@@ -35,7 +35,7 @@ export const useOnboarding = () => {
       !session?.user?.tutorialCompleted
     ) {
       // Show onboarding for new students who haven't completed tutorial
-      console.log("✅ Showing onboarding modal for user - tutorialCompleted:", session?.user?.tutorialCompleted);
+      //console.log("✅ Showing onboarding modal for user - tutorialCompleted:", session?.user?.tutorialCompleted);
       setShowOnboarding(true);
     } else {
       // console.log("❌ NOT showing onboarding modal - tutorialCompleted:", session?.user?.tutorialCompleted, "role:", session?.user?.role);
@@ -48,7 +48,7 @@ export const useOnboarding = () => {
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
     // Redirect to dashboard after onboarding completion
-    router.push("/hub/plataforma");
+    router.push("/hub");
   };
 
   const handleOnboardingClose = () => {

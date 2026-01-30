@@ -107,9 +107,8 @@ export type User = {
   subscriptionStatus?: "active" | "canceled" | "incomplete" | null;
   lastPaymentIntentId?: string | null;
 
-  // MERCADO PAGO SUBSCRIPTION FIELDS
-  mercadoPagoCustomerId?: string | null;
-  mercadoPagoSubscriptionId?: string | null;
+  // SUBSCRIPTION FIELDS
+  currentSubscriptionId?: string | null;
   subscriptionPaymentMethod?: "pix" | "credit_card" | null;
   subscriptionBillingDay?: number; // Day of month for billing (1-28)
   subscriptionNextBilling?: Date;

@@ -1730,7 +1730,8 @@
     "value": "Value:",
     "nextDue": "Next due:",
     "lastPayment": "Last payment:",
-    "expired": "Expired"
+    "expired": "Expired",
+    "pixReadyTitle": "PIX Code Ready"
   },
   "AchievementList": {
     "errorTitle": "Error!",

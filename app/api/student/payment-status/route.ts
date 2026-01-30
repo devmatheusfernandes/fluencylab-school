@@ -22,6 +22,14 @@ export async function GET(request: NextRequest) {
     const subscriptionService = new SubscriptionService();
     const paymentStatus = await subscriptionService.getPaymentStatus(session.user.id);
 
+    // Fetch user to get active status
+    const { userRepository } = await import('@/repositories');
+    const user = await userRepository.findById(session.user.id);
+
+    if (user) {
+      paymentStatus.userIsActive = user.isActive;
+    }
+
     return NextResponse.json(paymentStatus);
   } catch (error) {
     console.error('Payment status fetch error:', error);

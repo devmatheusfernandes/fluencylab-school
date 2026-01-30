@@ -1729,7 +1729,8 @@
     "value": "Valor:",
     "nextDue": "Próximo vencimento:",
     "lastPayment": "Último pagamento:",
-    "expired": "Expirado"
+    "expired": "Expirado",
+    "pixReadyTitle": "PIX Code Ready"
   },
   "AchievementList": {
     "errorTitle": "Erro!",

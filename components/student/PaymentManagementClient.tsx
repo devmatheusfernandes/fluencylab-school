@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +12,7 @@ import { PaymentStatus, MonthlyPayment } from "@/types/financial/subscription";
 
 import { toast } from "sonner";
 import Image from "next/image";
-import { Link } from "lucide-react";
+import { Link, AlertTriangle } from "lucide-react";
 import { Spinner } from "../ui/spinner";
 import { useTranslations, useLocale } from "next-intl";
 import { Header } from "../ui/header";
@@ -19,6 +20,7 @@ import { Header } from "../ui/header";
 export function PaymentManagementClient() {
   const t = useTranslations("PaymentManagementClient");
   const locale = useLocale();
+  const router = useRouter();
 
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | null>(
     null
@@ -35,6 +37,13 @@ export function PaymentManagementClient() {
     fetchPaymentStatus();
     fetchPaymentHistory();
   }, []);
+
+  useEffect(() => {
+    // Redirect if user is deactivated
+    if (paymentStatus && paymentStatus.userIsActive === false) {
+      router.push(`/${locale}/goodbye`);
+    }
+  }, [paymentStatus, router, locale]);
 
   const fetchPaymentStatus = async () => {
     try {
@@ -280,6 +289,89 @@ export function PaymentManagementClient() {
           {t("createSubscription")}
         </Button>
       </Card>
+    );
+  }
+
+  // Check for Pending Cancellation Fee State
+  if (paymentStatus.subscriptionStatus === "canceled" && paymentStatus.userIsActive) {
+    return (
+      <div className="p-4 md:p-6 space-y-6 max-w-3xl mx-auto mt-8">
+        <Card className="p-8 border-l-4 border-l-yellow-500 shadow-lg">
+          <div className="text-center space-y-6">
+            <div className="flex justify-center">
+              <div className="bg-yellow-100 p-4 rounded-full">
+                <AlertTriangle className="w-12 h-12 text-yellow-600" />
+              </div>
+            </div>
+            
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Contrato Cancelado
+              </h2>
+              <p className="text-gray-600 max-w-md mx-auto">
+                Seu contrato foi cancelado. Para finalizar o processo e encerrar sua assinatura, 
+                por favor realize o pagamento da taxa de cancelamento abaixo.
+              </p>
+            </div>
+
+            <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
+              <p className="text-sm font-medium text-gray-500 mb-1">Valor da Taxa</p>
+              <p className="text-3xl font-bold text-gray-900 mb-6">
+                {paymentStatus.amount ? formatPrice(paymentStatus.amount) : "R$ 0,00"}
+              </p>
+
+              {paymentStatus.pixCode ? (
+                <div className="space-y-6">
+                  {paymentStatus.pixQrCode && (
+                    <div className="flex justify-center">
+                      <Image
+                        src={`data:image/png;base64,${paymentStatus.pixQrCode}`}
+                        alt="QR Code PIX"
+                        className="w-56 h-56 border-4 border-white rounded-xl shadow-sm"
+                        width={224}
+                        height={224}
+                      />
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-gray-700">Código PIX Copia e Cola</p>
+                    <div className="flex gap-2">
+                      <code className="flex-1 text-xs sm:text-sm bg-white p-3 rounded-lg border font-mono break-all text-left">
+                        {paymentStatus.pixCode}
+                      </code>
+                      <Button
+                        onClick={copyPixCode}
+                        variant="secondary"
+                        className="shrink-0 h-auto"
+                      >
+                        <Link className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="text-sm text-yellow-700 bg-yellow-50 p-3 rounded-lg">
+                    <p>Após o pagamento, seu acesso será encerrado automaticamente.</p>
+                  </div>
+                  
+                  <Button 
+                    variant="outline" 
+                    onClick={fetchPaymentStatus}
+                    className="w-full"
+                  >
+                    Já realizei o pagamento
+                  </Button>
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <Spinner className="mx-auto mb-2" />
+                  <p className="text-sm text-gray-500">Gerando cobrança...</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </Card>
+      </div>
     );
   }
 

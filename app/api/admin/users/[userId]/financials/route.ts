@@ -32,7 +32,7 @@ export async function GET(
     
     const userData = userDoc.data();
     const subscriptionId =
-      userData?.mercadoPagoSubscriptionId ||
+      userData?.currentSubscriptionId ||
       userData?.subscriptionId ||
       userData?.subscription?.id;
     

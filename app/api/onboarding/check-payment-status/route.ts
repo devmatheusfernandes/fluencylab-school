@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     const userData = userDoc.data();
     const hasActiveSubscription = !!(
       userData?.subscriptionStatus === "active" ||
-      userData?.mercadoPagoSubscriptionId ||
+      userData?.currentSubscriptionId ||
       userData?.paymentCompleted ||
       userData?.subscription?.status === "active" ||
       userData?.subscription?.id
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
       hasActiveSubscription,
       subscriptionData: hasActiveSubscription ? {
         status: userData?.subscriptionStatus,
-        id: userData?.mercadoPagoSubscriptionId,
+        id: userData?.currentSubscriptionId,
         ...userData?.subscription
       } : null,
     });

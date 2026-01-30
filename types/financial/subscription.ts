@@ -60,6 +60,7 @@ export interface MonthlyPayment {
   // Payment sequence information
   paymentNumber: number; // Which payment in the sequence (1, 2, 3...)
   description: string; // e.g., "Mensalidade Janeiro 2024 (1/12)"
+  type?: 'monthly' | 'cancellation_fee';
 }
 
 /**
@@ -67,6 +68,7 @@ export interface MonthlyPayment {
  */
 export interface PaymentStatus {
   subscriptionId?: string; // Added for API calls
+  userIsActive?: boolean; // Added for cancellation flow
   subscriptionStatus: 'active' | 'overdue' | 'canceled' | 'pending';
   nextPaymentDue?: Date;
   lastPaymentDate?: Date;

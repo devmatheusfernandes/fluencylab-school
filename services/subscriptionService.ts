@@ -2,6 +2,10 @@
 import { ABACATEPAY_CONFIG, createAbacatePayPixQrCode } from "@/lib/abacatepay/config";
 import { getSubscriptionPrice, getSubscriptionDescription, SUBSCRIPTION_PRICING } from '@/config/pricing';
 import { adminDb } from '@/lib/firebase/admin';
+import { creditService } from "@/services/creditService";
+import { contractService } from "@/services/contractService";
+import { userRepository } from "@/repositories";
+import { RegularCreditType } from "@/types/credits/regularClassCredits";
 import { 
   MonthlySubscription, 
   MonthlyPayment, 
@@ -27,7 +31,9 @@ export class SubscriptionService {
       billingDay, 
       contractLengthMonths,
       contractStartDate,
-      initialPaymentAmount
+      initialPaymentAmount,
+      addLateCredits,
+      lateCreditsAmount
     } = params;
     
     // Validate user role
@@ -50,7 +56,9 @@ export class SubscriptionService {
       billingDay,
       contractLengthMonths,
       contractStartDate,
-      initialPaymentAmount
+      initialPaymentAmount,
+      addLateCredits,
+      lateCreditsAmount
     });
   }
 
@@ -66,6 +74,8 @@ export class SubscriptionService {
     contractLengthMonths: 6 | 12;
     contractStartDate?: Date;
     initialPaymentAmount?: number;
+    addLateCredits?: boolean;
+    lateCreditsAmount?: number;
   }) {
     const { 
       userId, 
@@ -75,7 +85,9 @@ export class SubscriptionService {
       billingDay, 
       contractLengthMonths,
       contractStartDate: customStartDate,
-      initialPaymentAmount
+      initialPaymentAmount,
+      addLateCredits,
+      lateCreditsAmount
     } = params;
 
     console.log("Creating PIX subscription with webhook URL:", ABACATEPAY_CONFIG.WEBHOOK_URL);
@@ -116,16 +128,34 @@ export class SubscriptionService {
     // Update user subscription status
     await this.updateUserSubscriptionStatus(userId, {
       subscriptionStatus: 'active',
-      mercadoPagoSubscriptionId: subscription.id
+      currentSubscriptionId: subscription.id
     });
+
+    // Grant credits if applicable (Late Entry Full Payment)
+    if (addLateCredits && lateCreditsAmount && lateCreditsAmount > 0) {
+      try {
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + 90); // 90 days validity
+
+        await creditService.grantCredits({
+          studentId: userId,
+          type: RegularCreditType.LATE_STUDENTS,
+          amount: lateCreditsAmount,
+          expiresAt: expiryDate,
+          reason: "Crédito por entrada tardia no mês (Pagamento Integral)"
+        }, "system-onboarding");
+        
+        console.log(`Granted ${lateCreditsAmount} credits to user ${userId}`);
+      } catch (error) {
+        console.error("Error granting late entry credits:", error);
+      }
+    }
 
     return {
       subscription,
       firstPayment
     };
   }
-
-  // Credit card subscriptions removed (PIX only).
 
   /**
    * Generates a PIX payment for a specific payment number (legacy method for contract system)
@@ -186,13 +216,35 @@ export class SubscriptionService {
     await this.saveSubscription(updatedSubscription);
 
     // Update user status
-    await this.updateUserSubscriptionStatus(subscription.userId, {
-      subscriptionStatus: 'canceled'
-    });
+    // Only update to canceled if there is no fee. If there is a fee, we keep the user active until payment.
+    if (cancellationFee === 0) {
+      await this.updateUserSubscriptionStatus(subscription.userId, {
+        subscriptionStatus: 'canceled'
+      });
+
+      // Deactivate user and cancel contract immediately since there is no fee
+      await userRepository.update(subscription.userId, {
+        isActive: false,
+        deactivatedAt: new Date()
+      });
+      
+      await contractService.cancelContract({
+        studentId: subscription.userId,
+        cancelledBy: "system", // Or user if we had that info, but system is safe here
+        reason: reason || "Cancelamento sem multa",
+        isAdminCancellation: false
+      });
+    } else {
+      // If there is a fee, we set subscription status to canceled (stops monthly payments)
+      // BUT we do NOT deactivate the user yet. They need to pay the fee first.
+      await this.updateUserSubscriptionStatus(subscription.userId, {
+        subscriptionStatus: 'canceled'
+      });
+    }
 
     // Generate cancellation fee payment if applicable
     if (cancellationFee > 0) {
-      await this.generateCancellationFeePayment(subscription.userId, cancellationFee);
+      await this.generateCancellationFeePayment(subscription.userId, cancellationFee, subscription.id);
     }
 
     return {
@@ -202,13 +254,17 @@ export class SubscriptionService {
     };
   }
 
-  // Credit card flows have been removed (PIX only).
-
   /**
    * Gets payment status for a user with contract-based logic
    */
   async getPaymentStatus(userId: string): Promise<PaymentStatus> {
-    const subscription = await this.getActiveSubscription(userId);
+    let subscription = await this.getActiveSubscription(userId);
+    
+    if (!subscription) {
+      // If no active subscription, try to get the last one (even if canceled)
+      // This is important to check for pending cancellation fees
+      subscription = await this.getLastSubscription(userId);
+    }
     
     if (!subscription) {
       return { subscriptionStatus: 'canceled' };
@@ -224,31 +280,44 @@ export class SubscriptionService {
     const payments = await this.getSubscriptionPayments(subscription.id);
     const now = new Date();
     
-    // Find current payment (payment that should be available or due)
-    let currentPayment = payments.find(payment => {
-      const dueDate = new Date(payment.dueDate);
-      const twoDaysBeforeDue = new Date(dueDate);
-      twoDaysBeforeDue.setDate(twoDaysBeforeDue.getDate() - 2);
-      
-      return now >= twoDaysBeforeDue && payment.status !== 'paid';
-    });
+    // Check for unpaid cancellation fee first
+    const cancellationFeePayment = payments.find(p => p.type === 'cancellation_fee' && p.status !== 'paid');
+    
+    let currentPayment = cancellationFeePayment;
+
+    if (!currentPayment) {
+      // Find current payment (payment that should be available or due)
+      currentPayment = payments.find(payment => {
+        // Skip cancellation fees here as we checked above
+        if (payment.type === 'cancellation_fee') return false;
+
+        const dueDate = new Date(payment.dueDate);
+        const twoDaysBeforeDue = new Date(dueDate);
+        twoDaysBeforeDue.setDate(twoDaysBeforeDue.getDate() - 2);
+        
+        return now >= twoDaysBeforeDue && payment.status !== 'paid';
+      });
+    }
     
     // If no current payment found, find the next pending payment
     if (!currentPayment) {
-      currentPayment = payments.find(p => p.status === 'pending');
+      currentPayment = payments.find(p => p.status === 'pending' && p.type !== 'cancellation_fee');
     }
     
     const latestPaidPayment = payments.filter(p => p.status === 'paid').pop();
     
     let subscriptionStatus: PaymentStatus['subscriptionStatus'] = 'active';
     let overdueDays: number | undefined;
-    
-    if (currentPayment) {
+
+    // Check if subscription is canceled
+    if (subscription.status === 'canceled') {
+      subscriptionStatus = 'canceled';
+    } else if (currentPayment) {
       const dueDate = new Date(currentPayment.dueDate);
       const twoDaysAfterDue = new Date(dueDate);
       twoDaysAfterDue.setDate(twoDaysAfterDue.getDate() + 2);
       
-      if (now > twoDaysAfterDue && currentPayment.status !== 'paid') {
+      if (now > twoDaysAfterDue && currentPayment.status !== 'paid' && currentPayment.type !== 'cancellation_fee') {
         subscriptionStatus = 'overdue';
         overdueDays = Math.floor((now.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
       }
@@ -259,7 +328,7 @@ export class SubscriptionService {
       subscriptionStatus,
       nextPaymentDue: currentPayment ? new Date(currentPayment.dueDate) : undefined,
       lastPaymentDate: latestPaidPayment?.paidAt ? new Date(latestPaidPayment.paidAt) : undefined,
-      amount: subscription.amount,
+      amount: currentPayment?.amount || subscription.amount,
       paymentMethod: 'pix',
       overdueDays
     };
@@ -305,7 +374,31 @@ export class SubscriptionService {
 
     if (!payment) return;
 
+    // Check if this is a cancellation fee payment
+    if (payment.type === 'cancellation_fee') {
+      await this.handleCancellationFeePaid(payment.userId);
+      return;
+    }
+
     await this.handleSuccessfulPayment(payment.subscriptionId, payment.userId);
+  }
+
+  private async handleCancellationFeePaid(userId: string) {
+    console.log(`Cancellation fee paid for user ${userId}. Deactivating user.`);
+    
+    // Deactivate user
+    await userRepository.update(userId, {
+      isActive: false,
+      deactivatedAt: new Date()
+    });
+
+    // Cancel contract
+    await contractService.cancelContract({
+      studentId: userId,
+      cancelledBy: "system",
+      reason: "Taxa de cancelamento paga",
+      isAdminCancellation: false
+    });
   }
 
   private async handleSuccessfulPayment(subscriptionId: string, userId: string) {
@@ -478,6 +571,47 @@ export class SubscriptionService {
     };
   }
 
+  async getLastSubscription(userId: string): Promise<MonthlySubscription | null> {
+    const snapshot = await adminDb.collection('subscriptions')
+      .where('userId', '==', userId)
+      .orderBy('createdAt', 'desc')
+      .limit(1)
+      .get();
+    
+    if (snapshot.empty) return null;
+    
+    const data = snapshot.docs[0].data() as MonthlySubscription;
+    
+    // Helper function to safely convert dates
+    const safeConvertDate = (dateValue: any): Date | undefined => {
+      if (!dateValue) return undefined;
+      
+      // If it's already a Date object, validate it
+      if (dateValue instanceof Date) {
+        return isNaN(dateValue.getTime()) ? undefined : dateValue;
+      }
+      
+      // If it's a Firestore Timestamp, convert it
+      if (dateValue && typeof dateValue.toDate === 'function') {
+        const converted = dateValue.toDate();
+        return isNaN(converted.getTime()) ? undefined : converted;
+      }
+      
+      // If it's a string or number, try to convert
+      const converted = new Date(dateValue);
+      return isNaN(converted.getTime()) ? undefined : converted;
+    };
+    
+    return {
+      ...data,
+      nextBillingDate: safeConvertDate(data.nextBillingDate) || new Date(),
+      createdAt: safeConvertDate(data.createdAt) || new Date(),
+      contractStartDate: safeConvertDate(data.contractStartDate) || new Date(),
+      contractEndDate: safeConvertDate(data.contractEndDate) || new Date(),
+      canceledAt: safeConvertDate(data.canceledAt)
+    };
+  }
+
   async getActiveSubscription(userId: string): Promise<MonthlySubscription | null> {
     const snapshot = await adminDb.collection('subscriptions')
       .where('userId', '==', userId)
@@ -528,7 +662,7 @@ export class SubscriptionService {
 
   private async updateUserSubscriptionStatus(userId: string, updates: {
     subscriptionStatus?: string;
-    mercadoPagoSubscriptionId?: string;
+    currentSubscriptionId?: string;
   }) {
     const userRef = adminDb.collection('users').doc(userId);
     await userRef.update(updates);
@@ -588,7 +722,7 @@ export class SubscriptionService {
     return { ...existing, ...updateData } as MonthlyPayment;
   }
 
-  private async generateCancellationFeePayment(userId: string, feeAmount: number) {
+  private async generateCancellationFeePayment(userId: string, feeAmount: number, subscriptionId: string) {
     const user = await this.getUser(userId);
     if (!user) return;
 
@@ -600,12 +734,13 @@ export class SubscriptionService {
       metadata: {
         user_id: userId,
         payment_type: "cancellation_fee",
+        subscription_id: subscriptionId,
       },
     });
 
     const cancellationPayment: MonthlyPayment = {
       id: crypto.randomUUID(),
-      subscriptionId: 'cancellation-fee',
+      subscriptionId: subscriptionId, // Use real subscription ID
       userId,
       amount: feeAmount,
       dueDate: new Date(),
@@ -618,8 +753,9 @@ export class SubscriptionService {
       pixExpiresAt: qr.expiresAt ? new Date(qr.expiresAt) : undefined,
       createdAt: new Date(),
       updatedAt: new Date(),
-      paymentNumber: 1, // Single payment
-      description: 'Taxa de Cancelamento de Assinatura'
+      paymentNumber: 999, // Special number for cancellation fee
+      description: 'Taxa de Cancelamento de Assinatura',
+      type: 'cancellation_fee'
     };
 
     await this.saveMonthlyPayment(cancellationPayment);
