@@ -43,6 +43,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Toggle } from "@/components/ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useTranslations } from "next-intl";
 import { useUsers } from "@/hooks/useUsers";
@@ -364,14 +365,38 @@ export default function AdminAnnouncementsPage() {
                       {/* Conteúdo da Aba: Papéis */}
                       <TabsContent value="role" className="mt-0 space-y-3">
                         <Label className="text-xs text-muted-foreground">{t("form.roleSelectLabel")}</Label>
-                        {/* Uso do ToggleGroup para seleção múltipla estilo "chips" */}
+                        
+                        {/* Mobile View: Separated buttons */}
+                        <div className="flex flex-wrap justify-center gap-2 sm:hidden">
+                          {AVAILABLE_ROLES.map((role) => (
+                            <Toggle
+                              key={role}
+                              pressed={selectedRoles.includes(role)}
+                              onPressedChange={(pressed) => {
+                                if (pressed) {
+                                  setSelectedRoles([...selectedRoles, role]);
+                                } else {
+                                  setSelectedRoles(selectedRoles.filter((r) => r !== role));
+                                }
+                              }}
+                              variant="outline"
+                              disabled={loading}
+                              className="h-9 px-3 text-sm data-[state=on]:bg-primary data-[state=on]:text-primary-foreground transition-all"
+                              aria-label={`Toggle ${role}`}
+                            >
+                              {tRoles(role)}
+                            </Toggle>
+                          ))}
+                        </div>
+
+                        {/* Desktop View: Grouped buttons */}
                         <ToggleGroup
                           type="multiple"
                           variant="outline"
                           value={selectedRoles}
                           onValueChange={(vals) => setSelectedRoles(vals as string[])}
                           disabled={loading}
-                          className="flex flex-wrap justify-start"
+                          className="hidden sm:flex flex-wrap justify-start"
                         >
                           {AVAILABLE_ROLES.map((role) => (
                             <ToggleGroupItem

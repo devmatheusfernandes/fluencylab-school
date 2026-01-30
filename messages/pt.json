@@ -1500,6 +1500,13 @@
         "defaultTimesTitle": "Horários padrão para sincronização",
         "until": "até"
       },
+      "pwa": {
+        "title": "Instalar Aplicativo",
+        "subtitle": "Instale o FluencyLab School no seu dispositivo para uma melhor experiência",
+        "installButton": "Instalar App",
+        "installed": "Aplicativo Instalado",
+        "description": "Acesse suas aulas offline, receba notificações e tenha uma experiência mais fluida."
+      },
       "days": {
         "monday": "Segunda-feira",
         "tuesday": "Terça-feira",
@@ -1552,8 +1559,8 @@
       },
       "recipientsLabel": "Destinatários",
       "tabs": {
-        "role": "Por Papel (Grupo)",
-        "specific": "Usuários Específicos"
+        "role": "Por Grupo",
+        "specific": "Específicos"
       },
       "roleSelectLabel": "Selecione um ou mais grupos para receber o alerta:",
       "noRoleSelected": "* Nenhum papel selecionado.",

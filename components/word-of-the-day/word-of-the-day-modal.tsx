@@ -120,7 +120,7 @@ export const WordOfTheDayModal = ({ language, isOpen: controlledIsOpen, onOpenCh
         <ModalBody>
           <div className="text-center p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
             <p className="text-3xl font-bold text-primary">{wordData.word}</p>
-            <p className="text-lg text-gray-600 dark:text-gray-400">
+            <p className="hidden text-lg text-gray-600 dark:text-gray-400">
               {wordData.translation}
             </p>
           </div>

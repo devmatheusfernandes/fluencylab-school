@@ -25,6 +25,14 @@ import {
   ModalFooter
 } from "@/components/ui/modal";
 import { Spinner } from "../ui/spinner";
+import {
+  Empty,
+  EmptyContent,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import { Calendar1Icon, CalendarDays, Video } from "lucide-react";
 
 interface UserClassesTabProps {
   classes: StudentClass[];
@@ -118,7 +126,18 @@ export default function UserClassesTab({
   }, [classes, selectedMonth, selectedYear]);
 
   if (!classes || classes.length === 0) {
-    return <Text>{t("noClassesScheduled")}</Text>;
+    return (
+      <Empty>
+        <EmptyMedia variant="icon">
+          <Calendar1Icon className="size-6" />
+        </EmptyMedia>
+        <EmptyContent>
+          <EmptyHeader>
+            <EmptyTitle>{t("noClassesScheduled")}</EmptyTitle>
+          </EmptyHeader>
+        </EmptyContent>
+      </Empty>
+    );
   }
 
   // Function to confirm and update class teacher
@@ -413,7 +432,16 @@ export default function UserClassesTab({
               );
             })
         ) : (
-          <Text>{t("noClassesFound")}</Text>
+          <Empty>
+            <EmptyMedia variant="icon">
+              <Video className="size-6" />
+            </EmptyMedia>
+            <EmptyContent>
+              <EmptyHeader>
+                <EmptyTitle>{t("noClassesFound")}</EmptyTitle>
+              </EmptyHeader>
+            </EmptyContent>
+          </Empty>
         )}
       </div>
     </div>

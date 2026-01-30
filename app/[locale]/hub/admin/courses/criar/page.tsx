@@ -5,11 +5,10 @@ import { useTranslations } from "next-intl";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Link from 'next/link';
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { 
-  Save, ArrowLeft, UploadCloud, ImageIcon, 
+  Save, UploadCloud, ImageIcon, 
   Loader2, Globe, Clock, Shield 
 } from "lucide-react";
 
@@ -134,7 +133,6 @@ export default function CreateCoursePage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
           <div className="flex flex-col gap-1 w-full">
-            
             <Header
               heading={t("title")}
               subheading={t("subtitle")}
@@ -149,49 +147,48 @@ export default function CreateCoursePage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {/* Left Column: Main Content */}
             <div className="lg:col-span-2 space-y-6">
                 <Card>
-                    <CardHeader>
-                        <CardTitle>{t("mainDetails")}</CardTitle>
-                        <CardDescription>{t("mainDetailsDesc")}</CardDescription>
+                    <CardHeader className="mb-2">
+                      <CardTitle>{t("mainDetails")}</CardTitle>
+                      <CardDescription>{t("mainDetailsDesc")}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="title">{t("labels.title")}</Label>
-                            <Input
-                                id="title"
-                                name="title"
-                                value={formData.title}
-                                onChange={handleInputChange}
-                                placeholder={t("placeholders.title")}
-                                className="text-lg font-medium"
-                            />
+                          <Label htmlFor="title">{t("labels.title")}</Label>
+                          <Input
+                            id="title"
+                            name="title"
+                            value={formData.title}
+                            onChange={handleInputChange}
+                            placeholder={t("placeholders.title")}
+                          />
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="description">{t("labels.description")}</Label>
-                            <Textarea
-                                id="description"
-                                name="description"
-                                value={formData.description}
-                                onChange={handleInputChange}
-                                rows={8}
-                                placeholder={t("placeholders.description")}
-                                className="resize-none"
-                            />
+                          <Label htmlFor="description">{t("labels.description")}</Label>
+                          <Textarea
+                            id="description"
+                            name="description"
+                            value={formData.description}
+                            onChange={handleInputChange}
+                            rows={8}
+                            placeholder={t("placeholders.description")}
+                            className="resize-none"
+                          />
                         </div>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Right Column: Settings & Media */}
-            <div className="space-y-6">
+            <div className="space-y-4">
                 <Card>
-                    <CardHeader>
+                    <CardHeader className="mb-2">
                         <CardTitle className="text-base flex items-center gap-2">
-                            <ImageIcon className="w-4 h-4" /> {t("labels.cover")}
+                          <ImageIcon className="w-4 h-4" /> {t("labels.cover")}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -217,7 +214,7 @@ export default function CreateCoursePage() {
                 </Card>
 
                 <Card>
-                    <CardHeader>
+                    <CardHeader className="mb-2">
                         <CardTitle className="text-base">{t("settingsTitle")}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">

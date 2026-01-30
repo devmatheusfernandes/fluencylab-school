@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/tooltip";
 import TwoFactorSetup from "./TwoFactorSetup";
 import { GoogleCalendarDefaultTimes } from "@/types/users/users";
+import { usePWAInstall } from "@/hooks/usePWAInstall";
 import { ThemeSwitcher } from "../ThemeSwitcher";
 import { 
   Palette, 
@@ -37,6 +38,7 @@ import {
   Clock,
   FileText,
   RefreshCw,
+  Download,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Header } from "../ui/header";
@@ -96,6 +98,7 @@ export default function SettingsForm({
   const { updateSettings } = useSettings();
   const { contractStatus, toggleAutoRenewal } = useContract();
   const [isTogglingRenewal, setIsTogglingRenewal] = useState(false);
+  const { isInstallable, install } = usePWAInstall();
 
   const handleToggleAutoRenewal = async (enabled: boolean) => {
     setIsTogglingRenewal(true);
@@ -176,6 +179,34 @@ export default function SettingsForm({
         heading={t("header.title")}
         subheading={t("header.subtitle")}
       />
+      
+      {/* PWA Install */}
+      {isInstallable && (
+        <motion.div variants={itemVariants}>
+          <Card className="card-base p-6 border-primary/20 bg-primary/5">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/20 text-primary">
+                  <Download className="h-6 w-6" />
+                </div>
+                <div>
+                  <Text variant="subtitle" size="lg" weight="semibold">
+                    {t("pwa.title")}
+                  </Text>
+                  <Text size="sm" variant="placeholder" className="max-w-md">
+                    {t("pwa.description")}
+                  </Text>
+                </div>
+              </div>
+              <Button onClick={install} className="w-full sm:w-auto shrink-0">
+                <Download className="mr-2 h-4 w-4" />
+                {t("pwa.installButton")}
+              </Button>
+            </div>
+          </Card>
+        </motion.div>
+      )}
+
       {/* Interface Settings */}
       <motion.div variants={itemVariants}>
         <Card className="card-base p-6 space-y-6">

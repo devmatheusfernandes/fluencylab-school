@@ -858,10 +858,9 @@ export default function AdminFinancesPage() {
               onOpenChange={setShowManualPayment}
             >
               <ModalTrigger asChild>
-                <Button className="flex-1 md:flex-initial gap-2">
-                  <Wallet className="w-4 h-4 mr-2" />
-                  <span className="hidden sm:inline">{t("manualPayment.title")}</span>
-                  <span className="sm:hidden">{t("manualPayment.pay")}</span>
+                <Button className="md:flex-initial gap-2">
+                  <Wallet className="w-4 h-4 md:mr-2 mr-0" />
+                  <span className="hidden md:block">{t("manualPayment.title")}</span>
                 </Button>
               </ModalTrigger>
 
