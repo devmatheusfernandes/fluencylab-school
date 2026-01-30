@@ -565,7 +565,7 @@ const ModalPrimaryButton = React.forwardRef<
       whileTap={{ scale: 0.98 }}
       transition={{ type: "spring", stiffness: 400, damping: 17 }}
       className={twMerge(
-        `min-w-fit flex flex-1 items-center justify-center flex-row gap-2 px-6 py-3 text-base font-semibold text-white rounded-xl 
+        `min-w-fit flex flex-1 items-center justify-center flex-row gap-2 px-7 py-3 text-base font-semibold text-white rounded-xl 
         transition-all duration-150 focus:outline-none 
         disabled:opacity-50 disabled:cursor-not-allowed
         ${variantStyles[variant]}`,
@@ -589,7 +589,7 @@ const ModalSecondaryButton = React.forwardRef<
       whileTap={{ scale: 0.98 }}
       transition={{ type: "spring", stiffness: 400, damping: 17 }}
       className={twMerge(
-        `min-w-fit px-6 py-3 text-base font-semibold 
+        `flex items-center justify-center gap-2 flex-row min-w-fit px-6 py-3 text-base font-semibold 
         text-gray-700 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-200
         bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700
         rounded-xl transition-all duration-150
