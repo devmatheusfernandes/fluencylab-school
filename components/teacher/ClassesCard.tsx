@@ -677,7 +677,6 @@ export default function ClassesCard({
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-16 px-4">
-            <div className="text-6xl mb-4">📚</div>
             <NoResults
               customMessage={{
                 withoutSearch: t("noClassesFound", { month: monthNames[selectedMonth], year: selectedYear }),

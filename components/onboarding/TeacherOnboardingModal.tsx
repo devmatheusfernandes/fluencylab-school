@@ -157,6 +157,7 @@ export const TeacherOnboardingModal: React.FC<TeacherOnboardingModalProps> = ({
     theme: "light",
     emailVerified: false,
     bankingInfo: {
+      paymentMethod: "account",
       accountType: "checking",
       bankCode: "",
       bankName: "",

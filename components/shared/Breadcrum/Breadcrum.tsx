@@ -1,7 +1,7 @@
 "use client";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Sidebar } from "lucide-react";
+import { MenuIcon } from "@/public/animated/menu";
 import * as React from "react";
 import { twMerge } from "tailwind-merge";
 
@@ -37,8 +37,9 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>(
         )}
       >
         {onToggleSidebar && !isMobile && (
-          <Sidebar
-            className="text-primary hover:text-secondary duration-300 ease-in-out transition-all cursor-pointer w-6.5 h-6.5"
+          <MenuIcon
+            size={26}
+            className="text-primary hover:text-foreground duration-300 ease-in-out transition-all cursor-pointer"
             onClick={onToggleSidebar}
           />
         )}

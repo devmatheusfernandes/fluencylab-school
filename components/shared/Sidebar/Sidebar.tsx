@@ -17,7 +17,6 @@ import { signOut } from "next-auth/react";
 import { ArrowDown, ArrowDownFromLine, ArrowUp, LogOut } from "lucide-react";
 import { useMessages } from "next-intl";
 
-// --- Type Definitions ---
 export interface SubItem {
   href: string;
   label: string;
@@ -33,7 +32,6 @@ export interface SidebarItemType {
   badgeCount?: number;
 }
 
-// --- Sidebar Item Component ---
 interface SidebarItemProps {
   item: SidebarItemType;
   isCollapsed: boolean;
@@ -584,7 +582,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <>
-      {/* Desktop Sidebar (Unchanged) */}
+      {/* Desktop Sidebar */}
       <motion.aside
         animate={{
           width: isCollapsed ? 48 : 256,

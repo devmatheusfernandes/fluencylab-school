@@ -1,6 +1,6 @@
 // services/userService.ts
 
-import { adminAuth } from "@/lib/firebase/admin";
+import { adminAuth, adminDb } from "@/lib/firebase/admin";
 import {
   userRepository,
   userAdminRepository,
@@ -9,6 +9,7 @@ import {
 } from "@/repositories";
 import { StudentClass } from "@/types/classes/class";
 import { Payment } from "@/types/financial/payments";
+import { BankingInfo } from "@/types/onboarding/teacher";
 import { FullUserDetails } from "@/types/users/user-details";
 import { User } from "@/types/users/users";
 import { UserRoles } from "@/types/users/userRoles";

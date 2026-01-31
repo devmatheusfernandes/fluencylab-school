@@ -12,7 +12,6 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import { Building2, Landmark, QrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -26,6 +25,8 @@ const MAJOR_BANKS = [
   { code: "260", name: "Nubank" },
   { code: "077", name: "Inter" },
 ];
+
+import { BankingInfo } from "@/types/onboarding/teacher";
 
 export const BankingInfoStep: React.FC<TeacherOnboardingStepProps> = ({
   data,

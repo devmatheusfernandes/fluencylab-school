@@ -2,6 +2,7 @@
 
 export { TeacherBasicInfoStep } from "./TeacherBasicInfoStep";
 export { TeacherEmailVerificationStep } from "./TeacherEmailVerificationStep";
-export { BankingInfoStep, type BankingInfo } from "./BankingInfoStep";
+export { BankingInfoStep } from "./BankingInfoStep";
+export type { BankingInfo } from "@/types/onboarding/teacher";
 export { ScheduleSelectionStep, type ScheduleSlot } from "./ScheduleSelectionStep";
 export { TeacherContractStep } from "./TeacherContractStep";

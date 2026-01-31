@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import {
   useMessageInputContext,
   TextareaComposer,
@@ -9,6 +9,7 @@ import { Paperclip, Send, Mic, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CustomAudioRecorder } from "./CustomAudioRecorder";
 import { AnimatePresence, motion } from "framer-motion";
+import { ModalContent, ModalHeader, ModalIcon, ModalTitle, ModalDescription, ModalFooter, ModalSecondaryButton, ModalPrimaryButton, Modal } from "../ui/modal";
 
 export const PillMessageInput = () => {
   const { handleSubmit, recordingController } = useMessageInputContext();
@@ -26,6 +27,7 @@ export const PillMessageInput = () => {
   const recordingEnabled = !!(recorder && navigator.mediaDevices);
   
   const isRecordingMode = !!recordingState;
+  const [showPermissionModal, setShowPermissionModal] = useState(false);
 
   const handleSend = useCallback(
     (e: React.BaseSyntheticEvent) => {
@@ -35,8 +37,15 @@ export const PillMessageInput = () => {
     [handleSubmit],
   );
 
-  const handleStartRecording = useCallback(() => {
-    recorder?.start();
+  const handleStartRecording = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach((track) => track.stop());
+      recorder?.start();
+    } catch (error) {
+      console.error("Microphone permission denied:", error);
+      setShowPermissionModal(true);
+    }
   }, [recorder]);
 
   const handleFileSelect = useCallback(
@@ -203,6 +212,28 @@ export const PillMessageInput = () => {
           )}
         </AnimatePresence>
       </div>
+
+      <Modal open={showPermissionModal} onOpenChange={setShowPermissionModal}>
+        <ModalContent>
+          <ModalHeader>
+            <ModalIcon type="warning" />
+            <ModalTitle>Permissão de Microfone Necessária</ModalTitle>
+            <ModalDescription>
+              Para enviar mensagens de voz, você precisa permitir o acesso ao
+              microfone. Verifique as configurações do seu navegador e tente
+              novamente.
+            </ModalDescription>
+          </ModalHeader>
+          <ModalFooter>
+            <ModalSecondaryButton onClick={() => setShowPermissionModal(false)}>
+              Cancelar
+            </ModalSecondaryButton>
+            <ModalPrimaryButton onClick={handleStartRecording}>
+              Tentar Novamente
+            </ModalPrimaryButton>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 };

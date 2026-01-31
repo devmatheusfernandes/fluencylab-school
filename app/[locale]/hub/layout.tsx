@@ -185,7 +185,6 @@ export default function HubLayout({ children }: { children: React.ReactNode }) {
   if (loading) return null;
   
   if (!session) {
-      // For now, assuming protection is handled by proxy or page wrappers
       return null; 
   }
 

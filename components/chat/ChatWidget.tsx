@@ -322,11 +322,11 @@ const ChatLayout = () => {
   );
 
   return (
-    <div className="flex w-full h-full bg-background overflow-hidden">
+    <div className="flex w-full h-full bg-background rounded-md overflow-hidden">
       {/* --- COLUNA ESQUERDA: LISTA --- */}
       <div
         className={cn(
-          "flex-col border-r border-r-[2px] border-primary/40 h-full",
+          "flex-col  h-full",
           isMobile ? "w-full" : "w-[340px] shrink-0",
           showList ? "flex" : "hidden",
         )}
