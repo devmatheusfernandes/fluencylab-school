@@ -1,12 +1,22 @@
 import { useState, useEffect } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { 
+  Modal, 
+  ModalContent, 
+  ModalHeader, 
+  ModalTitle, 
+  ModalFooter,
+  ModalBody,
+  ModalPrimaryButton,
+  ModalSecondaryButton,
+  ModalIcon
+} from "@/components/ui/modal"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Task, SubTask, TaskStatus, TaskPriority } from "@/types/tasks/task"
-import { Plus, X, Trash2, Check, ChevronsUpDown, Bell, BellOff } from "lucide-react"
+import { Plus, X, Trash2, Check, ChevronsUpDown, Bell, BellOff, Calendar } from "lucide-react"
 import { useStaffUsers } from "@/hooks/features/tasks/useStaffUsers"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
@@ -90,19 +100,22 @@ export function TaskDialog({ open, onOpenChange, task, onSave, onDelete, onToggl
   const selectedUser = staffUsers.find(u => u.id === assignedToId)
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex justify-between items-center pr-8">
-            <DialogTitle>{task ? "Editar Tarefa" : "Nova Tarefa"}</DialogTitle>
+    <Modal open={open} onOpenChange={onOpenChange}>
+      <ModalContent className="max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-center">
+            <ModalIcon type="calendar" />
+        </div>
+        <ModalHeader>
+          <div className="flex justify-between items-center w-full">
+            <ModalTitle>{task ? "Editar Tarefa" : "Nova Tarefa"}</ModalTitle>
             {task && onToggleSubscription && (
                 <Button variant="ghost" size="sm" onClick={() => onToggleSubscription(task.id)}>
                     {isSubscribed ? <Bell className="h-4 w-4 text-primary" /> : <BellOff className="h-4 w-4 text-muted-foreground" />}
                 </Button>
             )}
           </div>
-        </DialogHeader>
-        <div className="space-y-4 py-4">
+        </ModalHeader>
+        <ModalBody className="space-y-4">
           <div className="space-y-2">
             <Label>Título</Label>
             <Input 
@@ -239,22 +252,22 @@ export function TaskDialog({ open, onOpenChange, task, onSave, onDelete, onToggl
               ))}
             </div>
           </div>
-        </div>
-        <DialogFooter className="flex justify-between sm:justify-between">
+        </ModalBody>
+        <ModalFooter className={task && onDelete ? "justify-between" : "justify-end"}>
           {task && onDelete ? (
-             <Button variant="destructive" onClick={() => {
+             <ModalPrimaryButton variant="destructive" onClick={() => {
                onDelete(task.id)
                onOpenChange(false)
-             }}>
+             }} className="flex-none">
                <Trash2 className="h-4 w-4 mr-2" /> Excluir
-             </Button>
-          ) : <div />}
+             </ModalPrimaryButton>
+          ) : null}
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button onClick={handleSave}>Salvar</Button>
+            <ModalSecondaryButton onClick={() => onOpenChange(false)}>Cancelar</ModalSecondaryButton>
+            <ModalPrimaryButton onClick={handleSave} className="flex-none">Salvar</ModalPrimaryButton>
           </div>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   )
 }
