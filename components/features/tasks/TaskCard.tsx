@@ -106,11 +106,9 @@ export function TaskCard({
                     {task.title}
                 </span>
                 {assignedUser && (
-                    <Avatar className="h-6 w-6 shrink-0 border-2 border-background ring-1 ring-muted">
+                    <Avatar size="xs" className="md:block hidden">
                         <AvatarImage src={assignedUser.avatarUrl} />
-                        <AvatarFallback className="text-[9px] bg-primary/10 text-primary font-bold">
-                            {assignedUser.name.substring(0,2).toUpperCase()}
-                        </AvatarFallback>
+                        <AvatarFallback />
                     </Avatar>
                 )}
             </div>

@@ -123,7 +123,7 @@ export function TaskKanbanView({ tasks, onTaskClick, onStatusChange, isLoading }
         collisionDetection={closestCorners}
     >
       <ScrollArea className="h-full w-full whitespace-nowrap rounded-md">
-        <div className={cn("flex h-full gap-4 pb-4 px-2", isMobile ? "flex-col w-full" : "w-max min-w-full")}>
+        <div className={cn("flex h-full gap-4 pb-4", isMobile ? "flex-col w-full" : "w-max min-w-full")}>
             {COLUMNS.map((col, index) => (
             <KanbanColumn
                 key={col.id}
@@ -139,7 +139,6 @@ export function TaskKanbanView({ tasks, onTaskClick, onStatusChange, isLoading }
             />
             ))}
         </div>
-        <ScrollBar orientation="horizontal" />
       </ScrollArea>
 
       {createPortal(

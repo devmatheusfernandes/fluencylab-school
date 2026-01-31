@@ -174,7 +174,7 @@ export function TaskWeekView({ tasks, onTaskClick, onDateChange, onStatusToggle,
         </div>
         
         <Button variant="outline" size="sm" onClick={handleToday} className="gap-2">
-            <CalendarIcon className="h-3.5 w-3.5" />
+            <CalendarIcon className="h-3.5 w-3.5 mr-2" />
             <span>Hoje</span>
         </Button>
       </div>
