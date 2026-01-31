@@ -66,6 +66,8 @@ const STEPS = [
   { id: "finish", title: "Conclusão", component: FinishStep },
 ];
 
+const STUDENT_ONBOARDING_STORAGE_KEY = "fluencylab_student_onboarding_draft";
+
 export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   isOpen,
   onComplete,
@@ -73,6 +75,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   const { data: session } = useSession();
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false); // Controls when auto-save can start
   const [data, setData] = useState<OnboardingData>({
     nickname: session?.user?.name || "",
     interfaceLanguage: "pt",
@@ -84,6 +87,43 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
     paymentMethod: null,
     paymentCompleted: false,
   });
+
+  // Load draft from localStorage on mount
+  React.useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STUDENT_ONBOARDING_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.data) {
+          setData((prev) => ({ ...prev, ...parsed.data }));
+        }
+        if (typeof parsed.step === "number") {
+          setCurrentStep(parsed.step);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to load onboarding draft:", error);
+    } finally {
+      setIsLoaded(true);
+    }
+  }, []);
+
+  // Save draft to localStorage whenever data or step changes
+  React.useEffect(() => {
+    if (!isLoaded) return;
+
+    const timeoutId = setTimeout(() => {
+      localStorage.setItem(
+        STUDENT_ONBOARDING_STORAGE_KEY,
+        JSON.stringify({
+          data,
+          step: currentStep,
+        })
+      );
+    }, 500); // Debounce to avoid excessive writes
+
+    return () => clearTimeout(timeoutId);
+  }, [data, currentStep, isLoaded]);
 
   const handleDataChange = useCallback((updates: Partial<OnboardingData>) => {
     setData((prev) => ({ ...prev, ...updates }));
@@ -139,6 +179,10 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
       if (!response.ok) throw new Error("Falha ao completar onboarding");
       
       await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // Clear draft on success
+      localStorage.removeItem(STUDENT_ONBOARDING_STORAGE_KEY);
+
       toast.success("Tudo pronto! Bem-vindo.");
       onComplete();
     } catch (error) {
@@ -214,7 +258,6 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
             )}
             
             <div>
-               {/* Se for etapa de ação (contrato/pagamento) e ainda não completou, o botão do modal fica desabilitado visualmente ou serve como trigger de validação */}
               <ModalPrimaryButton
                 onClick={isLastStep ? handleCompleteOnboarding : handleNext}
                 disabled={(!stepCompleted && !isActionStep) || isLoading} 

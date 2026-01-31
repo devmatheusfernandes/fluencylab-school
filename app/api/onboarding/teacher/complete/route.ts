@@ -50,19 +50,29 @@ export async function POST(request: NextRequest) {
     // Save banking information (in a real app, this should be encrypted and stored securely)
     console.log("🏦 Saving banking information...");
     const bankingInfoRef = adminDb.collection("teacherBankingInfo");
-    await bankingInfoRef.add({
+    
+    const bankingData: any = {
       teacherId: session.user.id,
       fullName: data.bankingInfo.fullName,
       cpf: data.bankingInfo.cpf,
-      bankCode: data.bankingInfo.bankCode,
-      bankName: data.bankingInfo.bankName,
-      accountType: data.bankingInfo.accountType,
-      agency: data.bankingInfo.agency,
-      accountNumber: data.bankingInfo.accountNumber,
-      accountDigit: data.bankingInfo.accountDigit,
+      paymentMethod: data.bankingInfo.paymentMethod || "account",
       createdAt: FieldValue.serverTimestamp(),
       isActive: true,
-    });
+    };
+
+    if (data.bankingInfo.paymentMethod === "pix") {
+      bankingData.pixKey = data.bankingInfo.pixKey;
+      bankingData.pixKeyType = data.bankingInfo.pixKeyType;
+    } else {
+      bankingData.bankCode = data.bankingInfo.bankCode;
+      bankingData.bankName = data.bankingInfo.bankName;
+      bankingData.accountType = data.bankingInfo.accountType;
+      bankingData.agency = data.bankingInfo.agency;
+      bankingData.accountNumber = data.bankingInfo.accountNumber;
+      bankingData.accountDigit = data.bankingInfo.accountDigit;
+    }
+
+    await bankingInfoRef.add(bankingData);
     console.log("✅ Banking information saved successfully");
 
     // Save availability slots

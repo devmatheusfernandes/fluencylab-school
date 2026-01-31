@@ -1,39 +1,37 @@
-// components/onboarding/steps/teacher/ScheduleSelectionStep.tsx
 "use client";
 
 import React, { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Text } from "@/components/ui/text";
+import { TeacherOnboardingStepProps } from "../../TeacherOnboardingModal";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Info, CheckCircle2, XCircle, Activity } from "lucide-react";
+import { Trash2, Plus, Clock, Info } from "lucide-react";
+import { toast } from "sonner";
 import { AvailabilityType } from "@/types/time/availability";
 
 export interface ScheduleSlot {
   id: string;
-  dayOfWeek: number; // 0 = Sunday, 1 = Monday, etc.
-  startTime: string; // "HH:MM" format
-  endTime: string; // "HH:MM" format
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
   title: string;
-  type: AvailabilityType; // Adicionado para compatibilidade com sistema de disponibilidade
+  type: AvailabilityType;
 }
 
-interface ScheduleSelectionStepProps {
-  data: ScheduleSlot[];
-  onDataChange: (slots: ScheduleSlot[]) => void;
-  onNext: () => void;
-  onBack: () => void;
-  isLoading: boolean;
-}
-
-const DAYS_OF_WEEK = [
-  { value: 1, label: "Segunda-feira", short: "SEG" },
-  { value: 2, label: "Terça-feira", short: "TER" },
-  { value: 3, label: "Quarta-feira", short: "QUA" },
-  { value: 4, label: "Quinta-feira", short: "QUI" },
-  { value: 5, label: "Sexta-feira", short: "SEX" },
-  { value: 6, label: "Sábado", short: "SÁB" },
-  { value: 0, label: "Domingo", short: "DOM" },
+const DAYS = [
+  { value: 1, label: "Segunda", short: "Seg" },
+  { value: 2, label: "Terça", short: "Ter" },
+  { value: 3, label: "Quarta", short: "Qua" },
+  { value: 4, label: "Quinta", short: "Qui" },
+  { value: 5, label: "Sexta", short: "Sex" },
+  { value: 6, label: "Sábado", short: "Sáb" },
+  { value: 0, label: "Domingo", short: "Dom" },
 ];
 
 const TIME_SLOTS = [
@@ -61,480 +59,256 @@ const TIME_SLOTS = [
   "21:45",
 ];
 
-export const ScheduleSelectionStep: React.FC<ScheduleSelectionStepProps> = ({
+export const ScheduleSelectionStep: React.FC<TeacherOnboardingStepProps> = ({
   data,
   onDataChange,
-  onNext,
-  onBack,
-  isLoading,
 }) => {
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [newSlot, setNewSlot] = useState<Partial<ScheduleSlot>>({
-    dayOfWeek: 1,
+  const [newSlot, setNewSlot] = useState<{
+    dayOfWeek: string;
+    startTime: string;
+    type: AvailabilityType;
+  }>({
+    dayOfWeek: "1",
     startTime: "09:00",
-    endTime: "09:45", // Duração padrão de 45 minutos
-    title: "",
-    type: AvailabilityType.REGULAR, // Sempre REGULAR no onboarding
+    type: AvailabilityType.REGULAR,
   });
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const generateSlotId = () => {
-    return `slot_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const calculateEndTime = (start: string) => {
+    const [h, m] = start.split(":").map(Number);
+    const date = new Date();
+    date.setHours(h, m + 45, 0, 0);
+    return date.toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
-  // Função para calcular o horário de fim baseado no início (45 minutos)
-  const calculateEndTime = (startTime: string): string => {
-    const [hours, minutes] = startTime.split(":").map(Number);
-    const startDate = new Date();
-    startDate.setHours(hours, minutes, 0, 0);
-
-    // Adicionar 45 minutos
-    const endDate = new Date(startDate.getTime() + 45 * 60 * 1000);
-
-    return `${endDate.getHours().toString().padStart(2, "0")}:${endDate.getMinutes().toString().padStart(2, "0")}`;
-  };
-
-  const validateNewSlot = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!newSlot.title?.trim()) {
-      newErrors.title = "Título é obrigatório";
-    }
-
-    if (!newSlot.startTime) {
-      newErrors.startTime = "Horário de início é obrigatório";
-    }
-
-    if (!newSlot.type) {
-      newErrors.type = "Tipo de horário é obrigatório";
-    }
-
-    // Validar se o horário de fim está correto (45 minutos após o início)
-    if (newSlot.startTime) {
-      const expectedEndTime = calculateEndTime(newSlot.startTime);
-      if (newSlot.endTime !== expectedEndTime) {
-        newErrors.endTime = "Duração deve ser de 45 minutos";
-      }
-    }
-
-    // Check for conflicts with existing slots
-    if (
-      newSlot.dayOfWeek !== undefined &&
-      newSlot.startTime &&
-      newSlot.endTime
-    ) {
-      const conflicts = data.filter(
-        (slot) =>
-          slot.dayOfWeek === newSlot.dayOfWeek &&
-          ((newSlot.startTime! >= slot.startTime &&
-            newSlot.startTime! < slot.endTime) ||
-            (newSlot.endTime! > slot.startTime &&
-              newSlot.endTime! <= slot.endTime) ||
-            (newSlot.startTime! <= slot.startTime &&
-              newSlot.endTime! >= slot.endTime))
+  const checkConflict = (
+    currentSlots: ScheduleSlot[],
+    candidate: typeof newSlot,
+    candidateEnd: string,
+  ) => {
+    return currentSlots.some((slot) => {
+      if (slot.dayOfWeek !== parseInt(candidate.dayOfWeek)) return false;
+      return (
+        candidate.startTime < slot.endTime && candidateEnd > slot.startTime
       );
+    });
+  };
 
-      if (conflicts.length > 0) {
-        newErrors.startTime = "Conflito com horário existente";
-      }
+  const addSlot = () => {
+    const endTime = calculateEndTime(newSlot.startTime);
+
+    if (checkConflict(data.scheduleSlots, newSlot, endTime)) {
+      toast.error("Este horário entra em conflito com outro já existente.");
+      return;
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const defaultTitle =
+      newSlot.type === AvailabilityType.REGULAR ? "Aula Regular" : "Reposição";
+
+    const slotToAdd: ScheduleSlot = {
+      id: Math.random().toString(36).substr(2, 9),
+      dayOfWeek: parseInt(newSlot.dayOfWeek),
+      startTime: newSlot.startTime,
+      endTime: endTime,
+      title: defaultTitle,
+      type: newSlot.type,
+    };
+
+    onDataChange({ scheduleSlots: [...data.scheduleSlots, slotToAdd] });
+    toast.success("Horário adicionado!");
   };
 
-  const handleAddSlot = () => {
-    if (validateNewSlot()) {
-      const slot: ScheduleSlot = {
-        id: generateSlotId(),
-        dayOfWeek: newSlot.dayOfWeek!,
-        startTime: newSlot.startTime!,
-        endTime: newSlot.endTime!,
-        title: newSlot.title!.trim(),
-        type: newSlot.type || AvailabilityType.REGULAR,
-      };
-
-      onDataChange([...data, slot]);
-      setNewSlot({
-        dayOfWeek: 1,
-        startTime: "09:00",
-        endTime: "09:45",
-        title: "",
-        type: AvailabilityType.REGULAR,
-      });
-      setShowAddForm(false);
-      setErrors({});
-    }
+  const removeSlot = (id: string) => {
+    onDataChange({
+      scheduleSlots: data.scheduleSlots.filter((s) => s.id !== id),
+    });
   };
 
-  const handleRemoveSlot = (slotId: string) => {
-    onDataChange(data.filter((slot) => slot.id !== slotId));
-  };
-
-  // Atualizar horário de fim quando o horário de início mudar
-  const handleStartTimeChange = (startTime: string) => {
-    const endTime = calculateEndTime(startTime);
-    setNewSlot((prev) => ({
-      ...prev,
-      startTime,
-      endTime,
-    }));
-  };
-
-  const formatTime = (time: string) => {
-    return time;
-  };
-
-  const getDayLabel = (dayOfWeek: number) => {
-    return DAYS_OF_WEEK.find((day) => day.value === dayOfWeek)?.label || "";
-  };
-
-  const getDayShort = (dayOfWeek: number) => {
-    return DAYS_OF_WEEK.find((day) => day.value === dayOfWeek)?.short || "";
-  };
-
-  const regularCount = data.filter((s) => s.type === AvailabilityType.REGULAR).length;
-  const makeupCount = data.filter((s) => s.type === AvailabilityType.MAKEUP).length;
-  const canProceed = regularCount >= 3 && makeupCount >= 3;
-
-  const groupedSlots = data.reduce(
-    (acc, slot) => {
-      if (!acc[slot.dayOfWeek]) {
-        acc[slot.dayOfWeek] = [];
-      }
-      acc[slot.dayOfWeek].push(slot);
-      return acc;
-    },
-    {} as Record<number, ScheduleSlot[]>
-  );
-
-  // Sort slots within each day by start time
-  Object.keys(groupedSlots).forEach((day) => {
-    groupedSlots[parseInt(day)].sort((a, b) =>
-      a.startTime.localeCompare(b.startTime)
-    );
-  });
+  const regularCount = data.scheduleSlots.filter(
+    (s) => s.type === AvailabilityType.REGULAR,
+  ).length;
+  const makeupCount = data.scheduleSlots.filter(
+    (s) => s.type === AvailabilityType.MAKEUP,
+  ).length;
+  const isComplete = regularCount >= 3 && makeupCount >= 3;
 
   return (
-    <div className="flex-1 px-8 py-6 overflow-y-auto">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <div className="p-4 bg-purple-100 dark:bg-purple-900/30 rounded-full">
-              <Calendar className="w-8 h-8 text-purple-600 dark:text-purple-400" />
-            </div>
-          </div>
-          <Text variant="title" size="xl" weight="bold" className="mb-2">
-            Seus Horários de Disponibilidade
-          </Text>
-          <Text variant="subtitle" className="max-w-2xl mx-auto">
-            Configure seus horários de disponibilidade. Você precisa de pelo menos <strong>3 horários regulares</strong> e <strong>3 horários de reposição (Makeup)</strong>.
-            Ambos se repetirão por 6 meses.
-          </Text>
+    <div className="max-w-xl mx-auto flex flex-col h-full space-y-6 py-4">
+      <header className="flex justify-between items-end px-1">
+        <div>
+          <h2 className="text-xl font-bold tracking-tight text-foreground">
+            Disponibilidade
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Sessões fixas de 45 minutos.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Badge
+            variant={regularCount >= 3 ? "default" : "secondary"}
+            className="h-6 font-mono"
+          >
+            REG: {regularCount}/3
+          </Badge>
+          <Badge
+            variant={makeupCount >= 3 ? "default" : "secondary"}
+            className="h-6 font-mono"
+          >
+            REP: {makeupCount}/3
+          </Badge>
+        </div>
+      </header>
+
+      <div className="flex flex-col gap-3 p-4 bg-muted/40 rounded-xl border border-border/50 shadow-sm">
+        <div className="flex flex-row items-center gap-2">
+          <Select
+            value={newSlot.dayOfWeek}
+            onValueChange={(v) => setNewSlot({ ...newSlot, dayOfWeek: v })}
+          >
+            <SelectTrigger className="bg-background">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {DAYS.map((d) => (
+                <SelectItem key={d.value} value={d.value.toString()}>
+                  {d.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={newSlot.startTime}
+            onValueChange={(v) => setNewSlot({ ...newSlot, startTime: v })}
+          >
+            <SelectTrigger className="bg-background">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {TIME_SLOTS.map((t) => (
+                <SelectItem key={t} value={t}>
+                  {t}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button onClick={addSlot} size="icon">
+            <Plus className="w-4 h-4" />
+          </Button>
+
+          <span className="text-[11px] font-medium text-primary/50 italic">
+            Termina às {calculateEndTime(newSlot.startTime)}
+          </span>
         </div>
 
-        {/* Progress Indicator */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <Card className="p-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Info className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                <div>
-                  <Text size="sm" weight="medium" className="text-blue-800 dark:text-blue-200">
-                    Horários Regulares
-                  </Text>
-                  <Text size="xs" className="text-blue-600 dark:text-blue-300">
-                    Mínimo: 3
-                  </Text>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                {regularCount >= 3 ? (
-                  <Badge className="bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200">
-                    <CheckCircle2 className="w-4 h-4 mr-1" />
-                    {regularCount} / 3
-                  </Badge>
-                ) : (
-                  <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-200">
-                    Faltam {3 - regularCount}
-                  </Badge>
-                )}
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-4 bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-700">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Info className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                <div>
-                  <Text size="sm" weight="medium" className="text-purple-800 dark:text-purple-200">
-                    Horários de Reposição
-                  </Text>
-                  <Text size="xs" className="text-purple-600 dark:text-purple-300">
-                    Mínimo: 3
-                  </Text>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                {makeupCount >= 3 ? (
-                  <Badge className="bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200">
-                    <CheckCircle2 className="w-4 h-4 mr-1" />
-                    {makeupCount} / 3
-                  </Badge>
-                ) : (
-                  <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-200">
-                    Faltam {3 - makeupCount}
-                  </Badge>
-                )}
-              </div>
-            </div>
-          </Card>
-        </div>
-
-        {/* Current Schedule */}
-        <Card className="p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <Text size="lg" weight="semibold">
-              Seus Horários ({data.length})
-            </Text>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setShowAddForm(true)}
-              className="flex items-center gap-2"
-            >
-              <Activity className="w-4 h-4" />
-              Adicionar Horário
-            </Button>
+        <div className="flex items-center justify-between self-center">
+          <div className="flex gap-4">
+            <label className="flex items-center gap-2 cursor-pointer group">
+              <input
+                type="radio"
+                className="w-3.5 h-3.5 accent-primary cursor-pointer"
+                checked={newSlot.type === AvailabilityType.REGULAR}
+                onChange={() =>
+                  setNewSlot({ ...newSlot, type: AvailabilityType.REGULAR })
+                }
+              />
+              <span className="text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors uppercase tracking-wider">
+                Regular
+              </span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer group">
+              <input
+                type="radio"
+                className="w-3.5 h-3.5 accent-primary cursor-pointer"
+                checked={newSlot.type === AvailabilityType.MAKEUP}
+                onChange={() =>
+                  setNewSlot({ ...newSlot, type: AvailabilityType.MAKEUP })
+                }
+              />
+              <span className="text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors uppercase tracking-wider">
+                Reposição
+              </span>
+            </label>
           </div>
-
-          {data.length === 0 ? (
-            <div className="text-center py-8">
-              <Activity className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-              <Text className="text-gray-500">
-                Nenhum horário adicionado ainda
-              </Text>
-              <Text size="sm" className="text-gray-400 mt-1">
-                Clique em Adicionar Horário para começar
-              </Text>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {DAYS_OF_WEEK.map((day) => {
-                const daySlots = groupedSlots[day.value] || [];
-                if (daySlots.length === 0) return null;
-
-                return (
-                  <div
-                    key={day.value}
-                    className="border border-gray-200 dark:border-gray-700 rounded-lg p-4"
-                  >
-                    <Text weight="semibold" className="mb-3">
-                      {day.label}
-                    </Text>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {daySlots.map((slot) => (
-                        <div
-                          key={slot.id}
-                          className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
-                        >
-                          <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              <Text size="sm" weight="medium">
-                                {slot.title}
-                              </Text>
-                              <Badge 
-                                variant="outline" 
-                                className={
-                                  slot.type === AvailabilityType.REGULAR 
-                                    ? "border-blue-200 text-blue-700 bg-blue-50" 
-                                    : "border-purple-200 text-purple-700 bg-purple-50"
-                                }
-                              >
-                                {slot.type === AvailabilityType.REGULAR ? "Regular" : "Reposição"}
-                              </Badge>
-                            </div>
-                            <Text size="xs" className="text-gray-500">
-                              {formatTime(slot.startTime)} -{" "}
-                              {formatTime(slot.endTime)} (45min)
-                            </Text>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleRemoveSlot(slot.id)}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                          >
-                            <XCircle className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </Card>
-
-        {/* Add Slot Form */}
-        {showAddForm && (
-          <Card className="p-6 mb-6 border-purple-200 dark:border-purple-700">
-            <div className="flex items-center justify-between mb-4">
-              <Text size="lg" weight="semibold">
-                Adicionar Novo Horário (45 minutos)
-              </Text>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setShowAddForm(false);
-                  setErrors({});
-                }}
-              >
-                <XCircle className="w-4 h-4" />
-              </Button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-               <div className="md:col-span-2">
-                <label className="block text-sm font-medium mb-2">
-                  Tipo de Horário
-                </label>
-                <div className="flex gap-4">
-                  <label className="flex items-center gap-2 cursor-pointer p-3 border rounded-lg hover:bg-gray-50 flex-1">
-                    <input
-                      type="radio"
-                      name="slotType"
-                      checked={newSlot.type === AvailabilityType.REGULAR}
-                      onChange={() => setNewSlot(prev => ({ ...prev, type: AvailabilityType.REGULAR }))}
-                      className="w-4 h-4 text-blue-600"
-                    />
-                    <div>
-                      <Text weight="medium">Regular</Text>
-                      <Text size="xs" className="text-gray-500">Para aulas semanais fixas</Text>
-                    </div>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer p-3 border rounded-lg hover:bg-gray-50 flex-1">
-                    <input
-                      type="radio"
-                      name="slotType"
-                      checked={newSlot.type === AvailabilityType.MAKEUP}
-                      onChange={() => setNewSlot(prev => ({ ...prev, type: AvailabilityType.MAKEUP }))}
-                      className="w-4 h-4 text-purple-600"
-                    />
-                     <div>
-                      <Text weight="medium">Reposição (Makeup)</Text>
-                      <Text size="xs" className="text-gray-500">Para reposições eventuais</Text>
-                    </div>
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Dia da Semana
-                </label>
-                <select
-                  value={newSlot.dayOfWeek}
-                  onChange={(e) =>
-                    setNewSlot((prev) => ({
-                      ...prev,
-                      dayOfWeek: parseInt(e.target.value),
-                    }))
-                  }
-                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800"
-                >
-                  {DAYS_OF_WEEK.map((day) => (
-                    <option key={day.value} value={day.value}>
-                      {day.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Horário de Início
-                </label>
-                <select
-                  value={newSlot.startTime}
-                  onChange={(e) => handleStartTimeChange(e.target.value)}
-                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800"
-                >
-                  {TIME_SLOTS.map((time) => (
-                    <option key={time} value={time}>
-                      {time}
-                    </option>
-                  ))}
-                </select>
-                {errors.startTime && (
-                  <Text size="sm" className="text-red-600 mt-1">
-                    {errors.startTime}
-                  </Text>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Título do Horário
-                </label>
-                <input
-                  type="text"
-                  value={newSlot.title}
-                  onChange={(e) =>
-                    setNewSlot((prev) => ({ ...prev, title: e.target.value }))
-                  }
-                  placeholder="Ex: Aula Regular"
-                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800"
-                />
-                {errors.title && (
-                  <Text size="sm" className="text-red-600 mt-1">
-                    {errors.title}
-                  </Text>
-                )}
-              </div>
-            </div>
-
-            {/* Mostrar horário de fim calculado automaticamente */}
-            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <Text size="sm" className="text-blue-800 dark:text-blue-200">
-                <strong>Horário de fim:</strong> {newSlot.endTime} (duração de
-                45 minutos)
-              </Text>
-            </div>
-
-            <div className="flex justify-end gap-3 mt-4">
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  setShowAddForm(false);
-                  setErrors({});
-                }}
-              >
-                Cancelar
-              </Button>
-              <Button onClick={handleAddSlot}>Adicionar</Button>
-            </div>
-          </Card>
-        )}
-
-        {/* Navigation */}
-        <div className="flex justify-between mt-8">
-          <Button variant="secondary" onClick={onBack} disabled={isLoading}>
-            Voltar
-          </Button>
-          <Button onClick={onNext} disabled={isLoading || !canProceed}>
-            {canProceed
-              ? "Continuar"
-              : "Complete os horários mínimos"}
-          </Button>
         </div>
       </div>
+
+      <div className="flex-1 overflow-y-auto space-y-1.5 pr-1 min-h-[250px]">
+        {data.scheduleSlots.length === 0 ? (
+          <div className="h-40 flex flex-col items-center justify-center border-2 border-dashed rounded-xl text-muted-foreground/40">
+            <Clock className="w-6 h-6 mb-2" />
+            <p className="text-xs font-medium uppercase tracking-widest">
+              Nenhum horário
+            </p>
+          </div>
+        ) : (
+          data.scheduleSlots
+            .sort(
+              (a, b) =>
+                a.dayOfWeek - b.dayOfWeek ||
+                a.startTime.localeCompare(b.startTime),
+            )
+            .map((slot) => (
+              <div
+                key={slot.id}
+                className="flex items-center gap-4 p-3 hover:bg-muted/30 rounded-lg border border-transparent hover:border-border transition-all group"
+              >
+                <div
+                  className={`w-1 h-10 rounded-full shrink-0 ${slot.type === AvailabilityType.REGULAR ? "bg-blue-500" : "bg-purple-500"}`}
+                />
+
+                <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 items-center gap-2">
+                  <div className="flex flex-col">
+                    <span className="text-sm font-bold text-foreground">
+                      {DAYS.find((d) => d.value === slot.dayOfWeek)?.label}
+                    </span>
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground/60 tracking-tighter sm:hidden">
+                      {slot.type === AvailabilityType.REGULAR
+                        ? "Regular"
+                        : "Reposição"}
+                    </span>
+                  </div>
+
+                  <span className="text-sm font-medium tabular-nums text-muted-foreground text-center">
+                    {slot.startTime} — {slot.endTime}
+                  </span>
+
+                  <span className="hidden sm:block text-[10px] text-right pr-4 text-muted-foreground/50 uppercase font-black tracking-widest">
+                    {slot.type === AvailabilityType.REGULAR
+                      ? "Regular"
+                      : "Reposição"}
+                  </span>
+                </div>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeSlot(slot.id)}
+                  className="h-8 w-8 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            ))
+        )}
+      </div>
+
+      {!isComplete && (
+        <div className="flex items-start gap-3 p-4 bg-amber-50/50 dark:bg-amber-950/10 rounded-xl border border-amber-200/50 dark:border-amber-900/30">
+          <Info className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+          <div className="space-y-1">
+            <p className="text-xs font-semibold text-amber-900 dark:text-amber-400 uppercase tracking-tight">
+              Requisitos da Agenda
+            </p>
+            <p className="text-[11px] text-amber-700 dark:text-amber-500 leading-relaxed">
+              Adicione pelo menos 3 horários <strong>Regulares</strong> e 3 de{" "}
+              <strong>Reposição</strong> para prosseguir.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

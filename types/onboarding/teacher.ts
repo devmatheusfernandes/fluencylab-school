@@ -1,14 +1,25 @@
 import { AvailabilityType } from "../time/availability";
 
+export type PaymentMethod = "account" | "pix";
+export type PixKeyType = "cpf" | "email" | "phone" | "random";
+
 export interface BankingInfo {
-  accountType: "checking" | "savings";
-  bankCode: string;
-  bankName: string;
-  agency: string;
-  accountNumber: string;
-  accountDigit: string;
+  // Common
   cpf: string;
   fullName: string;
+  paymentMethod: PaymentMethod;
+
+  // Account specific
+  accountType?: "checking" | "savings";
+  bankCode?: string;
+  bankName?: string;
+  agency?: string;
+  accountNumber?: string;
+  accountDigit?: string;
+
+  // PIX specific
+  pixKeyType?: PixKeyType;
+  pixKey?: string;
 }
 
 export interface ScheduleSlot {

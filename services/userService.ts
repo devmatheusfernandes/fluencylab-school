@@ -211,10 +211,41 @@ export class UserService {
     // 2. Busca dados agregados adicionais em paralelo
     // CORREÇÃO: Adiciona o tipo explícito para a variável
     let scheduledClasses: StudentClass[] = [];
+    let bankingInfo: BankingInfo | undefined = undefined;
+
     if (userProfile.role === "student") {
       scheduledClasses = await classRepo.findAllClassesByStudentId(userId);
     } else if (userProfile.role === "teacher") {
       scheduledClasses = await classRepo.findAllClassesByTeacherId(userId);
+      
+      try {
+        const bankingSnapshot = await adminDb
+          .collection("teacherBankingInfo")
+          .where("teacherId", "==", userId)
+          .where("isActive", "==", true)
+          .orderBy("createdAt", "desc")
+          .limit(1)
+          .get();
+
+        if (!bankingSnapshot.empty) {
+          const data = bankingSnapshot.docs[0].data();
+          bankingInfo = {
+            paymentMethod: data.paymentMethod || "account",
+            accountType: data.accountType,
+            bankCode: data.bankCode,
+            bankName: data.bankName,
+            agency: data.agency,
+            accountNumber: data.accountNumber,
+            accountDigit: data.accountDigit,
+            cpf: data.cpf,
+            fullName: data.fullName,
+            pixKey: data.pixKey,
+            pixKeyType: data.pixKeyType,
+          };
+        }
+      } catch (error) {
+        console.error("Erro ao buscar dados bancários:", error);
+      }
     }
     // Adicione outras buscas aqui (contratos, pagamentos, etc.)
 
@@ -222,6 +253,7 @@ export class UserService {
     const fullDetails: FullUserDetails = {
       ...userProfile,
       scheduledClasses,
+      bankingInfo,
     };
 
     return fullDetails;

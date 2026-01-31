@@ -14,13 +14,13 @@ export const SUBSCRIPTION_PRICING = {
     planId: 'regular_student_monthly'
   },
   GUARDED_STUDENT: {
-    amount: 29900, // R$ 299,00 em centavos - Igualado com estudante regular
+    amount: 29900, // TODO: THINK IF THIS SHOULD BE MORE EXPENSIVE SINCE IT INCLUDES MORE WORK FROM THE TEACHER TO GIVE CLASS TO THE GUARDED STUDENT
     currency: 'BRL',
     description: 'Mensalidade Estudante Acompanhado',
     planId: 'guarded_student_monthly'
   },
   CANCELLATION_FEE: {
-    amount: 5000, // R$ 50,00 em centavos
+    amount: 5000, // R$ 50,00 em centavos // TODO: THIS SHOULD BE HALF OF THE PRICE OF ONE MONTH OF SUBSCRIPTION
     currency: 'BRL',
     description: 'Taxa de Cancelamento',
     planId: 'cancellation_fee'

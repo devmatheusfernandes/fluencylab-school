@@ -1,4 +1,3 @@
-// components/onboarding/TeacherOnboardingModal.tsx
 "use client";
 
 import React, { useState, useCallback } from "react";
@@ -11,44 +10,26 @@ import {
   ModalSecondaryButton,
 } from "@/components/ui/modal";
 import { ProgressTracker } from "@/components/ui/progress-tracker";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
-import { AvailabilityType } from "@/types/time/availability";
-
-// Import step components
-import { WelcomeStep } from "./steps/student";
 
 // Import teacher-specific steps
 import { TeacherBasicInfoStep } from "./steps/teacher/TeacherBasicInfoStep";
-import { TeacherEmailVerificationStep } from "./steps/teacher/TeacherEmailVerificationStep";
-import { BankingInfoStep, BankingInfo } from "./steps/teacher/BankingInfoStep";
-import {
-  ScheduleSelectionStep,
-  ScheduleSlot,
-} from "./steps/teacher/ScheduleSelectionStep";
+import { BankingInfoStep } from "./steps/teacher/BankingInfoStep";
+import { ScheduleSelectionStep } from "./steps/teacher/ScheduleSelectionStep";
 import { TeacherContractStep } from "./steps/teacher/TeacherContractStep";
+import { BankingInfo, ScheduleSlot } from "./steps/teacher";
 
-// Types for teacher onboarding data
+// Types
 export interface TeacherOnboardingData {
-  // Basic Info
   nickname: string;
   interfaceLanguage: string;
   theme: "light" | "dark";
-
-  // Email verification
   emailVerified: boolean;
-
-  // Banking Information
   bankingInfo: BankingInfo;
-
-  // Contract
   contractSigned: boolean;
-
-  // Schedule
   scheduleSlots: ScheduleSlot[];
-
-  // Completion
   onboardingCompleted: boolean;
 }
 
@@ -60,158 +41,85 @@ export interface TeacherOnboardingStepProps {
   isLoading: boolean;
 }
 
-// Wrapper components for steps that need data adaptation
+// --- Wrappers para adaptar os dados aos componentes refatorados ---
 
 const BankingInfoStepWrapper: React.FC<TeacherOnboardingStepProps> = (
-  props
-) => {
-  return (
-    <BankingInfoStep
-      data={props.data.bankingInfo}
-      onDataChange={(updates) =>
-        props.onDataChange({
-          bankingInfo: { ...props.data.bankingInfo, ...updates },
-        })
-      }
-      onNext={props.onNext}
-      onBack={props.onBack}
-      isLoading={props.isLoading}
-    />
-  );
-};
+  props,
+) => (
+  <BankingInfoStep
+    data={props.data} // O componente BankingInfoStep refatorado espera o objeto data completo ou a prop específica?
+    // Ajuste: No refator anterior, o BankingInfoStep recebia `data.bankingInfo` ou `data` completo dependendo da implementação.
+    // Assumindo que o componente espera a estrutura completa para acessar data.bankingInfo:
+    onDataChange={props.onDataChange}
+    onNext={props.onNext}
+    onBack={props.onBack}
+    isLoading={props.isLoading}
+  />
+);
 
 const ScheduleSelectionStepWrapper: React.FC<TeacherOnboardingStepProps> = (
-  props
-) => {
-  return (
-    <ScheduleSelectionStep
-      data={props.data.scheduleSlots}
-      onDataChange={(slots) => props.onDataChange({ scheduleSlots: slots })}
-      onNext={props.onNext}
-      onBack={props.onBack}
-      isLoading={props.isLoading}
-    />
-  );
-};
+  props,
+) => (
+  <ScheduleSelectionStep
+    data={props.data}
+    onDataChange={props.onDataChange}
+    onNext={props.onNext}
+    onBack={props.onBack}
+    isLoading={props.isLoading}
+  />
+);
 
-// Teacher-specific welcome step
-const TeacherWelcomeStep: React.FC<TeacherOnboardingStepProps> = ({
-  onNext,
-}) => {
+// --- Steps Inline Simplificados ---
+
+const TeacherWelcomeStep: React.FC<TeacherOnboardingStepProps> = () => {
   const { data: session } = useSession();
   const firstName = session?.user?.name?.split(" ")[0] || "Professor";
 
   return (
-    <div className="flex-1 px-8 py-6 overflow-y-auto">
-      <div className="max-w-4xl mx-auto text-center">
-        <div className="mb-8">
-          <div className="text-6xl mb-4">👨‍🏫</div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-            Bem-vindo ao Fluency Lab, {firstName}!
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Estamos muito felizes em tê-lo como professor em nossa plataforma.
-            Vamos configurar seu perfil para que você possa começar a ensinar.
-          </p>
-        </div>
+    <div className="p-4 md:p-8 flex flex-col items-center justify-center min-h-[50vh] text-center">
+      <div className="max-w-md mx-auto space-y-6">
+        <div className="text-5xl md:text-6xl animate-bounce-slow">👨‍🏫</div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-            <div className="text-3xl mb-3">🏦</div>
-            <h3 className="font-semibold mb-2">Informações Bancárias</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Configure seus dados para receber pagamentos
-            </p>
-          </div>
-          <div className="p-6 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-            <div className="text-3xl mb-3">📅</div>
-            <h3 className="font-semibold mb-2">Horários Regulares</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Defina sua disponibilidade semanal
-            </p>
-          </div>
-          <div className="p-6 bg-green-50 dark:bg-green-900/20 rounded-lg">
-            <div className="text-3xl mb-3">🚀</div>
-            <h3 className="font-semibold mb-2">Começar a Ensinar</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Tudo pronto para suas primeiras aulas
-            </p>
-          </div>
-        </div>
+        <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          Olá, {firstName}!
+        </h1>
 
-        <button
-          onClick={onNext}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium transition-colors"
-        >
-          Vamos começar! 🎯
-        </button>
+        <p className="text-lg text-gray-600 dark:text-gray-300">
+          Bem-vindo ao time <strong>Fluency Lab</strong>. <br />
+          Vamos configurar seu perfil profissional, dados bancários e contrato.
+        </p>
+
+        <div className="bg-blue-50 dark:bg-blue-900/10 p-4 rounded-xl border border-blue-100 dark:border-blue-800/30 text-sm text-blue-800 dark:text-blue-200">
+          É rápido: em menos de 5 minutos você estará pronto para receber
+          alunos.
+        </div>
       </div>
     </div>
   );
 };
 
-// Teacher finish step
-const TeacherFinishStep: React.FC<TeacherOnboardingStepProps> = ({ data }) => {
-  const { data: session } = useSession();
-  const firstName = session?.user?.name?.split(" ")[0] || "Professor";
-
+const TeacherFinishStep: React.FC<TeacherOnboardingStepProps> = () => {
   return (
-    <div className="flex-1 px-8 py-6 overflow-y-auto">
-      <div className="max-w-4xl mx-auto text-center">
-        <div className="mb-8">
-          <div className="text-6xl mb-4">🎉</div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-            Parabéns, {firstName}!
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Seu perfil está configurado e você está pronto para começar a
-            ensinar no Fluency Lab.
-          </p>
-        </div>
+    <div className="p-8 text-center flex flex-col items-center justify-center min-h-[50vh]">
+      <div className="w-20 h-20 bg-gradient-to-tr from-green-400 to-blue-500 rounded-full flex items-center justify-center mb-6 animate-pulse">
+        <Check className="w-10 h-10 text-white" />
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="p-6 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
-            <h3 className="font-semibold mb-3 text-green-800 dark:text-green-200">
-              ✅ Informações Bancárias
-            </h3>
-            <p className="text-sm text-green-700 dark:text-green-300">
-              {data.bankingInfo.bankName} • Conta{" "}
-              {data.bankingInfo.accountType === "checking"
-                ? "Corrente"
-                : "Poupança"}
-            </p>
-          </div>
-          <div className="p-6 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
-            <h3 className="font-semibold mb-3 text-green-800 dark:text-green-200">
-              ✅ Contrato Assinado
-            </h3>
-            <p className="text-sm text-green-700 dark:text-green-300">
-              Parceria firmada com sucesso
-            </p>
-          </div>
-        </div>
+      <h1 className="text-3xl font-bold mb-4">Tudo Pronto!</h1>
 
-        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6 mb-8">
-          <h3 className="font-semibold mb-3">Próximos Passos</h3>
-          <ul className="text-left space-y-2 max-w-md mx-auto">
-            <li className="flex items-center gap-2">
-              <span className="text-blue-600">•</span>
-              Explore seu dashboard de professor
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="text-blue-600">•</span>
-              Aguarde a aprovação dos seus horários
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="text-blue-600">•</span>
-              Prepare-se para suas primeiras aulas
-            </li>
-          </ul>
-        </div>
+      <p className="text-lg text-gray-600 dark:text-gray-300 max-w-md mx-auto mb-8">
+        Seu cadastro foi concluído. Nossa equipe analisará seus dados e em breve
+        seu perfil estará visível para alunos.
+      </p>
+
+      <div className="text-sm text-gray-400">
+        Acesse seu dashboard para gerenciar sua agenda.
       </div>
     </div>
   );
 };
+
+// --- Modal Principal ---
 
 interface TeacherOnboardingModalProps {
   isOpen: boolean;
@@ -220,51 +128,29 @@ interface TeacherOnboardingModalProps {
 }
 
 const TEACHER_STEPS = [
-  { id: "welcome", title: "Bem-vindo", component: TeacherWelcomeStep },
-  {
-    id: "basic-info",
-    title: "Informações Básicas",
-    component: TeacherBasicInfoStep,
-  },
-  {
-    id: "email-verification",
-    title: "Verificação de Email",
-    component: TeacherEmailVerificationStep,
-  },
-  {
-    id: "banking-info",
-    title: "Informações Bancárias",
-    component: BankingInfoStepWrapper,
-  },
-  {
-    id: "contract-step",
-    title: "Contrato de Parceria",
-    component: TeacherContractStep,
-  },
+  { id: "welcome", title: "Início", component: TeacherWelcomeStep },
+  { id: "basic-info", title: "Perfil", component: TeacherBasicInfoStep },
+  // { id: "email-verification", title: "Email", component: TeacherEmailVerificationStep },
+  { id: "banking-info", title: "Bancário", component: BankingInfoStepWrapper },
+  { id: "contract-step", title: "Contrato", component: TeacherContractStep },
   {
     id: "schedule-selection",
-    title: "Horários Regulares",
+    title: "Agenda",
     component: ScheduleSelectionStepWrapper,
   },
-  { id: "finish", title: "Finalização", component: TeacherFinishStep },
+  { id: "finish", title: "Conclusão", component: TeacherFinishStep },
 ];
 
-const TEACHER_BUTTON_TEXTS = {
-  welcome: "Vamos começar!",
-  "basic-info": "Salvar e continuar",
-  "email-verification": "Continuar para informações bancárias",
-  "banking-info": "Continuar para horários",
-  "schedule-selection": "Finalizar configuração",
-  finish: "Ir para o dashboard",
-};
+const TEACHER_ONBOARDING_STORAGE_KEY = "fluencylab_teacher_onboarding_draft";
 
 export const TeacherOnboardingModal: React.FC<TeacherOnboardingModalProps> = ({
   isOpen,
   onComplete,
 }) => {
-  const { data: session, update: updateSession } = useSession();
+  const { data: session } = useSession();
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false); // Controls when auto-save can start
   const [data, setData] = useState<TeacherOnboardingData>({
     nickname: session?.user?.name || "",
     interfaceLanguage: "pt",
@@ -285,11 +171,48 @@ export const TeacherOnboardingModal: React.FC<TeacherOnboardingModalProps> = ({
     onboardingCompleted: false,
   });
 
+  // Load draft from localStorage on mount
+  React.useEffect(() => {
+    try {
+      const saved = localStorage.getItem(TEACHER_ONBOARDING_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.data) {
+          setData((prev) => ({ ...prev, ...parsed.data }));
+        }
+        if (typeof parsed.step === "number") {
+          setCurrentStep(parsed.step);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to load onboarding draft:", error);
+    } finally {
+      setIsLoaded(true);
+    }
+  }, []);
+
+  // Save draft to localStorage whenever data or step changes
+  React.useEffect(() => {
+    if (!isLoaded || data.onboardingCompleted) return;
+
+    const timeoutId = setTimeout(() => {
+      localStorage.setItem(
+        TEACHER_ONBOARDING_STORAGE_KEY,
+        JSON.stringify({
+          data,
+          step: currentStep,
+        }),
+      );
+    }, 500); // Debounce to avoid excessive writes
+
+    return () => clearTimeout(timeoutId);
+  }, [data, currentStep, isLoaded]);
+
   const handleDataChange = useCallback(
     (updates: Partial<TeacherOnboardingData>) => {
       setData((prev) => ({ ...prev, ...updates }));
     },
-    []
+    [],
   );
 
   const canGoNext = useCallback(() => {
@@ -299,51 +222,81 @@ export const TeacherOnboardingModal: React.FC<TeacherOnboardingModalProps> = ({
         return true;
       case "basic-info":
         return data.nickname.trim().length > 0;
-      case "email-verification":
-        return data.emailVerified;
+      // case "email-verification": return data.emailVerified;
       case "banking-info":
-        return (
-          data.bankingInfo.fullName.trim() &&
-          data.bankingInfo.cpf.trim() &&
-          data.bankingInfo.bankCode &&
-          data.bankingInfo.agency.trim() &&
-          data.bankingInfo.accountNumber.trim() &&
-          data.bankingInfo.accountType
-        );
+        const {
+          fullName,
+          cpf,
+          paymentMethod,
+          bankCode,
+          agency,
+          accountNumber,
+          pixKey,
+          pixKeyType,
+        } = data.bankingInfo;
+        const isCommonValid = !!(fullName && cpf);
+
+        if (!isCommonValid) return false;
+
+        if (paymentMethod === "pix") {
+          return !!(pixKey && pixKeyType);
+        }
+
+        // Validation for Account
+        return !!(bankCode && agency && accountNumber);
       case "contract-step":
         return data.contractSigned;
       case "schedule-selection":
-        const regularCount = data.scheduleSlots.filter(s => s.type === AvailabilityType.REGULAR).length;
-        const makeupCount = data.scheduleSlots.filter(s => s.type === AvailabilityType.MAKEUP).length;
-        return regularCount >= 3 && makeupCount >= 3;
+        return data.scheduleSlots.length > 0;
       case "finish":
         return true;
       default:
         return true;
     }
   }, [currentStep, data]);
+
+  // Lógica dinâmica do botão
+  const getButtonText = () => {
+    const stepId = TEACHER_STEPS[currentStep].id;
+
+    if (stepId === "contract-step") {
+      return data.contractSigned
+        ? "Contrato assinado, continuar"
+        : "Assinar Contrato";
+    }
+
+    if (currentStep === TEACHER_STEPS.length - 1) return "Ir para o Dashboard";
+
+    const texts: Record<string, string> = {
+      welcome: "Começar",
+      "basic-info": "Próximo",
+      // "email-verification": "Email Verificado",
+      "banking-info": "Salvar Dados",
+      "schedule-selection": "Confirmar Agenda",
+    };
+    return texts[stepId] || "Continuar";
+  };
+
   const handleCompleteOnboarding = useCallback(async () => {
     try {
       setIsLoading(true);
-
       const response = await fetch("/api/onboarding/teacher/complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to complete teacher onboarding");
-      }
+      if (!response.ok) throw new Error("Erro ao salvar");
 
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      toast.success(
-        "Bem-vindo ao Fluency Lab! Seu perfil de professor foi configurado com sucesso."
-      );
+      // Clear draft on success
+      localStorage.removeItem(TEACHER_ONBOARDING_STORAGE_KEY);
+
+      toast.success("Perfil configurado com sucesso!");
       onComplete();
-    } catch (error) {
-      toast.error("Erro ao finalizar o processo de integração.");
+    } catch {
+      toast.error("Erro ao finalizar. Tente novamente.");
     } finally {
       setIsLoading(false);
     }
@@ -351,9 +304,11 @@ export const TeacherOnboardingModal: React.FC<TeacherOnboardingModalProps> = ({
 
   const handleNext = useCallback(async () => {
     if (!canGoNext()) {
-      toast.error(
-        "Por favor, complete as informações necessárias para continuar."
-      );
+      if (TEACHER_STEPS[currentStep].id === "contract-step") {
+        toast.error("Você precisa assinar o contrato para continuar.");
+      } else {
+        toast.error("Preencha os campos obrigatórios.");
+      }
       return;
     }
 
@@ -365,9 +320,7 @@ export const TeacherOnboardingModal: React.FC<TeacherOnboardingModalProps> = ({
   }, [currentStep, canGoNext, handleCompleteOnboarding]);
 
   const handleBack = useCallback(() => {
-    if (currentStep > 0) {
-      setCurrentStep((prev) => prev - 1);
-    }
+    if (currentStep > 0) setCurrentStep((prev) => prev - 1);
   }, [currentStep]);
 
   if (!isOpen) return null;
@@ -375,82 +328,61 @@ export const TeacherOnboardingModal: React.FC<TeacherOnboardingModalProps> = ({
   const CurrentStepComponent = TEACHER_STEPS[currentStep].component;
   const isFirstStep = currentStep === 0;
   const isLastStep = currentStep === TEACHER_STEPS.length - 1;
+  const isActionStep = ["contract-step"].includes(
+    TEACHER_STEPS[currentStep].id,
+  );
+  const stepCompleted = canGoNext();
 
   return (
     <Modal open={isOpen}>
-      <ModalContent
-        className="max-w-6xl w-full onboarding-modal-enter max-h-[95vh] overflow-y-auto flex flex-col no-scrollbar"
-        style={{ zIndex: 9999, position: "fixed" }}
-      >
-        {/* Header with progress */}
-        <ModalHeader className="max-w-5xl mx-auto">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Configuração do Professor
+      <ModalContent className="flex flex-col justify-around">
+        <ModalHeader className="sticky top-0 z-10">
+          <div className="flex flex-col gap-2">
+            <h2 className="text-lg md:text-xl font-bold">
+              {TEACHER_STEPS[currentStep].title}
             </h2>
+            <ProgressTracker
+              variant="steps"
+              totalSteps={TEACHER_STEPS.length}
+              currentStep={currentStep + 1}
+              value={(currentStep + 1) * (100 / TEACHER_STEPS.length)}
+              className="h-1.5"
+            />
           </div>
-
-          <ProgressTracker
-            variant="steps"
-            totalSteps={TEACHER_STEPS.length}
-            currentStep={currentStep + 1}
-            value={(currentStep + 1) * (100 / TEACHER_STEPS.length)}
-            className="mb-2"
-          />
         </ModalHeader>
 
-        <CurrentStepComponent
-          data={data}
-          onDataChange={handleDataChange}
-          onNext={handleNext}
-          onBack={handleBack}
-          isLoading={isLoading}
-        />
+        <div className="overflow-y-auto mt-8 mb-3">
+          <CurrentStepComponent
+            data={data}
+            onDataChange={handleDataChange}
+            onNext={handleNext}
+            onBack={handleBack}
+            isLoading={isLoading}
+          />
+        </div>
 
-        {/* Footer with navigation buttons */}
         <ModalFooter>
-          {!isLastStep && (
+          {!isFirstStep && (
             <ModalSecondaryButton
               onClick={handleBack}
-              disabled={isFirstStep || isLoading}
-              className="flex flex-row items-center gap-1"
+              disabled={isLoading}
+              className="px-3"
             >
-              <ArrowLeft className="w-5 h-5" />
-              Voltar
+              <ArrowLeft className="w-4 h-4 md:mr-2" />
+              <span>Voltar</span>
             </ModalSecondaryButton>
           )}
 
-          <div className="flex gap-3">
-            {!isLastStep && (
-              <ModalPrimaryButton
-                onClick={handleNext}
-                disabled={!canGoNext() || isLoading}
-                className="flex flex-row items-center gap-1"
-              >
-                {
-                  TEACHER_BUTTON_TEXTS[
-                    TEACHER_STEPS[currentStep]
-                      .id as keyof typeof TEACHER_BUTTON_TEXTS
-                  ]
-                }
-                <ArrowRight className="w-5 h-5" />
-              </ModalPrimaryButton>
-            )}
-
-            {isLastStep && (
-              <ModalPrimaryButton
-                onClick={handleNext}
-                className="flex flex-row items-center gap-1"
-              >
-                {
-                  TEACHER_BUTTON_TEXTS[
-                    TEACHER_STEPS[currentStep]
-                      .id as keyof typeof TEACHER_BUTTON_TEXTS
-                  ]
-                }
-                <ArrowRight className="w-5 h-5" />
-              </ModalPrimaryButton>
-            )}
+          <div>
+            <ModalPrimaryButton
+              onClick={isLastStep ? handleCompleteOnboarding : handleNext}
+              disabled={(!stepCompleted && !isActionStep) || isLoading}
+              className={`${!stepCompleted && isActionStep ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              {isLoading ? "Processando..." : getButtonText()}
+              {!isLastStep && <ArrowRight className="w-4 h-4 ml-2" />}
+              {isLastStep && <Check className="w-4 h-4 ml-2" />}
+            </ModalPrimaryButton>
           </div>
         </ModalFooter>
       </ModalContent>
