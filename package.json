@@ -114,7 +114,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/web-push": "^3.6.4",
-    "baseline-browser-mapping": "^2.9.3",
+    "baseline-browser-mapping": "^2.9.19",
     "eslint": "^9",
     "eslint-config-next": "16.0.7",
     "sass": "^1.93.3",
