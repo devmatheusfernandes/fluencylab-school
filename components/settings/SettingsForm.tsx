@@ -29,11 +29,11 @@ import TwoFactorSetup from "./TwoFactorSetup";
 import { GoogleCalendarDefaultTimes } from "@/types/users/users";
 import { usePWAInstall } from "@/hooks/ui/usePWAInstall";
 import { ThemeSwitcher } from "../ThemeSwitcher";
-import { 
-  Palette, 
-  Globe, 
-  Calendar, 
-  CheckCircle2, 
+import {
+  Palette,
+  Globe,
+  Calendar,
+  CheckCircle2,
   AlertCircle,
   Clock,
   FileText,
@@ -46,7 +46,7 @@ import { Header } from "../ui/header";
 interface SettingsFormProps {
   currentLanguage: string;
   currentTheme: "light" | "dark";
-  currentThemeColor?: "violet" | "rose" | "orange" | "yellow" | "green";
+  currentThemeColor?: "violet" | "rose" | "indigo" | "yellow" | "green";
   googleCalendarConnected?: boolean;
   googleCalendarDefaultTimes?: GoogleCalendarDefaultTimes;
 }
@@ -56,22 +56,22 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1
-    }
-  }
+      staggerChildren: 0.1,
+    },
+  },
 };
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     y: 0,
     transition: {
       type: "spring" as const,
       stiffness: 300,
-      damping: 24
-    }
-  }
+      damping: 24,
+    },
+  },
 };
 
 export default function SettingsForm({
@@ -86,14 +86,16 @@ export default function SettingsForm({
 
   // Get language from URL to ensure UI sync
   const urlLocale = pathname.split("/")[1];
-  const initialLanguage = ["pt", "en"].includes(urlLocale) ? urlLocale : currentLanguage;
+  const initialLanguage = ["pt", "en"].includes(urlLocale)
+    ? urlLocale
+    : currentLanguage;
 
   const [language, setLanguage] = useState(initialLanguage);
   const [themeColor, setThemeColor] = useState<
-    "violet" | "rose" | "orange" | "yellow" | "green"
+    "violet" | "rose" | "indigo" | "yellow" | "green"
   >(currentThemeColor || "violet");
   const [defaultTimes, setDefaultTimes] = useState<GoogleCalendarDefaultTimes>(
-    googleCalendarDefaultTimes || {}
+    googleCalendarDefaultTimes || {},
   );
   const { updateSettings } = useSettings();
   const { contractStatus, toggleAutoRenewal } = useContract();
@@ -121,9 +123,9 @@ export default function SettingsForm({
     root.classList.remove(
       "theme-violet",
       "theme-rose",
-      "theme-orange",
+      "theme-indigo",
       "theme-yellow",
-      "theme-green"
+      "theme-green",
     );
     root.classList.add(`theme-${color}`);
   };
@@ -139,7 +141,7 @@ export default function SettingsForm({
   const handleTimeChange = (
     day: string,
     timeType: "startTime" | "endTime",
-    value: string
+    value: string,
   ) => {
     setDefaultTimes((prev) => ({
       ...prev,
@@ -161,25 +163,38 @@ export default function SettingsForm({
   ];
 
   const themeColors = [
-    { value: "violet", label: t("interface.colors.violet"), color: "bg-purple-500" },
+    {
+      value: "violet",
+      label: t("interface.colors.violet"),
+      color: "bg-purple-500",
+    },
     { value: "rose", label: t("interface.colors.rose"), color: "bg-rose-500" },
-    { value: "orange", label: t("interface.colors.orange"), color: "bg-orange-500" },
-    { value: "yellow", label: t("interface.colors.yellow"), color: "bg-yellow-500" },
-    { value: "green", label: t("interface.colors.green"), color: "bg-green-500" },
+    {
+      value: "indigo",
+      label: t("interface.colors.indigo"),
+      color: "bg-indigo-500",
+    },
+    {
+      value: "yellow",
+      label: t("interface.colors.yellow"),
+      color: "bg-yellow-500",
+    },
+    {
+      value: "green",
+      label: t("interface.colors.green"),
+      color: "bg-green-500",
+    },
   ];
 
   return (
-    <motion.div 
+    <motion.div
       className="p-4 md:p-6 space-y-6"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
-      <Header
-        heading={t("header.title")}
-        subheading={t("header.subtitle")}
-      />
-      
+      <Header heading={t("header.title")} subheading={t("header.subtitle")} />
+
       {/* PWA Install */}
       {isInstallable && (
         <motion.div variants={itemVariants}>
@@ -225,13 +240,15 @@ export default function SettingsForm({
           </div>
 
           <div className="space-y-4">
-            <motion.div 
+            <motion.div
               className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-lg item-base"
               transition={{ type: "spring", stiffness: 400 }}
             >
               <div className="flex items-center gap-2">
                 <Globe className="h-4 w-4 text-muted-foreground" />
-                <label htmlFor="language" className="font-medium">{t("interface.language")}</label>
+                <label htmlFor="language" className="font-medium">
+                  {t("interface.language")}
+                </label>
               </div>
               <Select
                 value={language}
@@ -249,20 +266,26 @@ export default function SettingsForm({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pt">{t("interface.languages.pt")}</SelectItem>
-                  <SelectItem value="en">{t("interface.languages.en")}</SelectItem>
+                  <SelectItem value="pt">
+                    {t("interface.languages.pt")}
+                  </SelectItem>
+                  <SelectItem value="en">
+                    {t("interface.languages.en")}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-lg item-base"
               whileHover={{ scale: 1.01 }}
               transition={{ type: "spring", stiffness: 400 }}
             >
               <div className="flex items-center gap-2">
                 <Palette className="h-4 w-4 text-muted-foreground" />
-                <label htmlFor="themeColor" className="font-medium">{t("interface.themeColor")}</label>
+                <label htmlFor="themeColor" className="font-medium">
+                  {t("interface.themeColor")}
+                </label>
               </div>
               <Select
                 value={themeColor}
@@ -280,7 +303,9 @@ export default function SettingsForm({
                   {themeColors.map((color) => (
                     <SelectItem key={color.value} value={color.value}>
                       <div className="flex items-center gap-2">
-                        <div className={`w-3 h-3 rounded-full ${color.color}`} />
+                        <div
+                          className={`w-3 h-3 rounded-full ${color.color}`}
+                        />
                         {color.label}
                       </div>
                     </SelectItem>
@@ -289,12 +314,14 @@ export default function SettingsForm({
               </Select>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               className="flex items-center justify-between p-4 rounded-lg item-base"
               whileHover={{ scale: 1.01 }}
               transition={{ type: "spring", stiffness: 400 }}
             >
-              <label htmlFor="theme" className="font-medium">{t("interface.theme")}</label>
+              <label htmlFor="theme" className="font-medium">
+                {t("interface.theme")}
+              </label>
               <ThemeSwitcher />
             </motion.div>
           </div>
@@ -303,11 +330,7 @@ export default function SettingsForm({
 
       {/* Contract Settings */}
       {(contractStatus?.signed || contractStatus?.cancelledAt) && (
-        <motion.div 
-          variants={itemVariants}
-          initial="visible" 
-          animate="visible"
-        >
+        <motion.div variants={itemVariants} initial="visible" animate="visible">
           <Card className="card-base p-6 space-y-6">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-primary/10">
@@ -324,7 +347,7 @@ export default function SettingsForm({
             </div>
 
             <div className="space-y-4">
-              <motion.div 
+              <motion.div
                 className="flex items-center justify-between p-4 rounded-lg item-base"
                 whileHover={{ scale: 1.01 }}
                 transition={{ type: "spring", stiffness: 400 }}
@@ -332,12 +355,12 @@ export default function SettingsForm({
                 <div className="flex items-center gap-3">
                   <RefreshCw className="h-4 w-4 text-muted-foreground" />
                   <div>
-                      <label htmlFor="autoRenewal" className="font-medium block">
-                          {t("contract.autoRenewal")}
-                      </label>
-                      <Text size="sm" variant="placeholder">
-                          {t("contract.autoRenewalDescription")}
-                      </Text>
+                    <label htmlFor="autoRenewal" className="font-medium block">
+                      {t("contract.autoRenewal")}
+                    </label>
+                    <Text size="sm" variant="placeholder">
+                      {t("contract.autoRenewalDescription")}
+                    </Text>
                   </div>
                 </div>
                 {contractStatus.cancelledAt ? (
@@ -345,10 +368,7 @@ export default function SettingsForm({
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="cursor-not-allowed opacity-50">
-                          <Switch 
-                            checked={false} 
-                            disabled={true}
-                          />
+                          <Switch checked={false} disabled={true} />
                         </div>
                       </TooltipTrigger>
                       <TooltipContent>
@@ -357,8 +377,8 @@ export default function SettingsForm({
                     </Tooltip>
                   </TooltipProvider>
                 ) : (
-                  <Switch 
-                    checked={contractStatus.autoRenewal !== false} 
+                  <Switch
+                    checked={contractStatus.autoRenewal !== false}
                     onCheckedChange={handleToggleAutoRenewal}
                     disabled={isTogglingRenewal}
                   />
@@ -387,7 +407,7 @@ export default function SettingsForm({
           </div>
 
           <div className="space-y-4">
-            <motion.div 
+            <motion.div
               className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-lg item-base"
               whileHover={{ scale: 1.01 }}
               transition={{ type: "spring", stiffness: 400 }}
@@ -399,7 +419,14 @@ export default function SettingsForm({
                   <AlertCircle className="h-4 w-4 text-muted-foreground" />
                 )}
                 <div>
-                  <Text weight="medium" className={googleCalendarConnected ? "text-emerald-600 dark:text-emerald-400" : ""}>
+                  <Text
+                    weight="medium"
+                    className={
+                      googleCalendarConnected
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : ""
+                    }
+                  >
                     {googleCalendarConnected
                       ? t("googleCalendar.connected")
                       : t("googleCalendar.connect")}
@@ -441,14 +468,16 @@ export default function SettingsForm({
             </motion.div>
 
             {googleCalendarConnected && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 className="space-y-4 pt-2"
               >
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-muted-foreground" />
-                  <Text weight="medium">Horários padrão para sincronização</Text>
+                  <Text weight="medium">
+                    Horários padrão para sincronização
+                  </Text>
                 </div>
                 <div className="space-y-3">
                   {dayNames.map(({ key, label }) => (
@@ -458,25 +487,31 @@ export default function SettingsForm({
                       whileHover={{ scale: 1.01 }}
                       transition={{ type: "spring", stiffness: 400 }}
                     >
-                      <label className="w-full sm:w-32 font-medium text-sm">{label}</label>
+                      <label className="w-full sm:w-32 font-medium text-sm">
+                        {label}
+                      </label>
                       <div className="flex items-center gap-2 flex-1">
                         <Input
                           type="time"
                           value={
-                            defaultTimes[key as keyof GoogleCalendarDefaultTimes]
-                              ?.startTime || "09:00"
+                            defaultTimes[
+                              key as keyof GoogleCalendarDefaultTimes
+                            ]?.startTime || "09:00"
                           }
                           onChange={(e) =>
                             handleTimeChange(key, "startTime", e.target.value)
                           }
                           className="flex-1 sm:w-auto"
                         />
-                        <span className="text-sm text-muted-foreground">{t("googleCalendar.until")}</span>
+                        <span className="text-sm text-muted-foreground">
+                          {t("googleCalendar.until")}
+                        </span>
                         <Input
                           type="time"
                           value={
-                            defaultTimes[key as keyof GoogleCalendarDefaultTimes]
-                              ?.endTime || "10:00"
+                            defaultTimes[
+                              key as keyof GoogleCalendarDefaultTimes
+                            ]?.endTime || "10:00"
                           }
                           onChange={(e) =>
                             handleTimeChange(key, "endTime", e.target.value)

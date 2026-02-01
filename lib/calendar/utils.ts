@@ -8,7 +8,7 @@ import {
   PopulatedStudentClass,
 } from "@/types/classes/class";
 import { CalendarEvent } from "@/types/calendar/calendar";
-import { createDateTimeKey } from "@/utils/utils";
+import { createDateTimeKey } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
 
 /**

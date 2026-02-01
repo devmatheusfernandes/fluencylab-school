@@ -18,7 +18,7 @@ import {
 import { SearchBar } from "@/components/ui/search-bar";
 import { NoResults } from "@/components/ui/no-results";
 import { Notebook } from "@/types/notebooks/notebooks";
-import { generateNotebookPDF } from "@/utils/pdfGenerator";
+import { generateNotebookPDF } from "@/lib/utils/pdfGenerator";
 import { Luggage, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
@@ -69,7 +69,7 @@ export default function NotebooksCard({
   notebooks,
   onCreateNotebook,
   userRole,
-  onAddTask
+  onAddTask,
 }: NotebooksCardProps) {
   const t = useTranslations("NotebooksCard");
   const [searchQuery, setSearchQuery] = useState("");
@@ -91,7 +91,7 @@ export default function NotebooksCard({
   const filteredNotebooks = notebooks.filter(
     (notebook) =>
       notebook.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      notebook.description.toLowerCase().includes(searchQuery.toLowerCase())
+      notebook.description.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   // Handle creating a new notebook
@@ -174,7 +174,7 @@ export default function NotebooksCard({
             .sort(
               (a, b) =>
                 new Date(b.createdAt).getTime() -
-                new Date(a.createdAt).getTime()
+                new Date(a.createdAt).getTime(),
             )
             .map((notebook, index) => (
               <motion.div

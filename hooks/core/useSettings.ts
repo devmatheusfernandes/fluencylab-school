@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { toast } from 'sonner';
-import { useSession } from 'next-auth/react';
-import { GoogleCalendarDefaultTimes } from '@/types/users/users';
+import { useState } from "react";
+import { toast } from "sonner";
+import { useSession } from "next-auth/react";
+import { GoogleCalendarDefaultTimes } from "@/types/users/users";
 
 interface SettingsData {
   interfaceLanguage?: string;
-  theme?: 'light' | 'dark';
-  themeColor?: 'violet' | 'rose' | 'orange' | 'yellow' | 'green';
+  theme?: "light" | "dark";
+  themeColor?: "violet" | "rose" | "indigo" | "yellow" | "green";
   twoFactorEnabled?: boolean;
   googleCalendarDefaultTimes?: GoogleCalendarDefaultTimes;
 }
@@ -20,32 +20,36 @@ export const useSettings = () => {
   const updateSettings = async (settingsData: SettingsData) => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(settingsData),
       });
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || 'Falha ao salvar as configurações.');
+        throw new Error(data.error || "Falha ao salvar as configurações.");
       }
-      
+
       // Update the session with new settings
       if (settingsData.twoFactorEnabled !== undefined) {
         await update({
           ...session,
           user: {
             ...session?.user,
-            twoFactorEnabled: settingsData.twoFactorEnabled
-          }
+            twoFactorEnabled: settingsData.twoFactorEnabled,
+          },
         });
       }
-      
-      toast.success('Configurações salvas com sucesso!');
+
+      toast.success("Configurações salvas com sucesso!");
       // Força um recarregamento da página para aplicar o novo idioma/tema
-      if (settingsData.interfaceLanguage || settingsData.theme || settingsData.themeColor) {
-        window.location.reload(); 
+      if (
+        settingsData.interfaceLanguage ||
+        settingsData.theme ||
+        settingsData.themeColor
+      ) {
+        window.location.reload();
       }
     } catch (error: any) {
       toast.error(error.message);
@@ -55,4 +59,4 @@ export const useSettings = () => {
   };
 
   return { updateSettings, isLoading };
-}
+};

@@ -812,11 +812,11 @@
       "contracts": "Contratos",
       "permission": "Permissões",
       "permissions": {
-      "successUpdate": "Permissões atualizadas com sucesso!",
-      "errorUpdate": "Erro ao atualizar permissões.",
-      "noPermission": "Você não tem permissão para gerenciar este usuário."
-    }
-  },
+        "successUpdate": "Permissões atualizadas com sucesso!",
+        "errorUpdate": "Erro ao atualizar permissões.",
+        "noPermission": "Você não tem permissão para gerenciar este usuário."
+      }
+    },
     "overview": {
       "fullName": "Nome Completo",
       "email": "Email",
@@ -1295,20 +1295,20 @@
       "save": "Salvar"
     },
     "csv": {
-        "headers": {
-            "date": "Data",
-            "description": "Descrição",
-            "type": "Tipo",
-            "amount": "Valor",
-            "method": "Método",
-            "source": "Fonte",
-            "category": "Categoria"
-        },
-        "types": {
-            "income": "Entrada",
-            "expense": "Gasto"
-        },
-        "filename": "transacoes"
+      "headers": {
+        "date": "Data",
+        "description": "Descrição",
+        "type": "Tipo",
+        "amount": "Valor",
+        "method": "Método",
+        "source": "Fonte",
+        "category": "Categoria"
+      },
+      "types": {
+        "income": "Entrada",
+        "expense": "Gasto"
+      },
+      "filename": "transacoes"
     }
   },
   "AdminCourses": {
@@ -1485,7 +1485,8 @@
         "rose": "Rosa",
         "orange": "Laranja",
         "yellow": "Amarelo",
-        "green": "Verde"
+        "green": "Verde",
+        "indigo": "Índigo"
       },
       "languages": {
         "pt": "Português",
@@ -1525,34 +1526,34 @@
       }
     },
     "googleCalendar": {
-        "title": "Calendário Google",
-        "subtitle": "Sincronize suas tarefas com o Google Calendar",
-        "connected": "Conta conectada com sucesso",
-        "connect": "Conecte sua conta do Google Calendar",
-        "syncDescription": "Sincronize tarefas automaticamente",
-        "disconnectButton": "Desconectar",
-        "reconnectButton": "Reconectar",
-        "connectButton": "Conectar",
-        "defaultTimesTitle": "Horários padrão para sincronização",
-        "until": "até"
-      },
-      "pwa": {
-        "title": "Instalar Aplicativo",
-        "subtitle": "Instale o FluencyLab School no seu dispositivo para uma melhor experiência",
-        "installButton": "Instalar App",
-        "installed": "Aplicativo Instalado",
-        "description": "Acesse suas aulas offline, receba notificações e tenha uma experiência mais fluida."
-      },
-      "days": {
-        "monday": "Segunda-feira",
-        "tuesday": "Terça-feira",
-        "wednesday": "Quarta-feira",
-        "thursday": "Quinta-feira",
-        "friday": "Sexta-feira",
-        "saturday": "Sábado",
-        "sunday": "Domingo"
-      }
+      "title": "Calendário Google",
+      "subtitle": "Sincronize suas tarefas com o Google Calendar",
+      "connected": "Conta conectada com sucesso",
+      "connect": "Conecte sua conta do Google Calendar",
+      "syncDescription": "Sincronize tarefas automaticamente",
+      "disconnectButton": "Desconectar",
+      "reconnectButton": "Reconectar",
+      "connectButton": "Conectar",
+      "defaultTimesTitle": "Horários padrão para sincronização",
+      "until": "até"
     },
+    "pwa": {
+      "title": "Instalar Aplicativo",
+      "subtitle": "Instale o FluencyLab School no seu dispositivo para uma melhor experiência",
+      "installButton": "Instalar App",
+      "installed": "Aplicativo Instalado",
+      "description": "Acesse suas aulas offline, receba notificações e tenha uma experiência mais fluida."
+    },
+    "days": {
+      "monday": "Segunda-feira",
+      "tuesday": "Terça-feira",
+      "wednesday": "Quarta-feira",
+      "thursday": "Quinta-feira",
+      "friday": "Sexta-feira",
+      "saturday": "Sábado",
+      "sunday": "Domingo"
+    }
+  },
   "AdminNotifications": {
     "title": "Gerenciar Anúncios",
     "subtitle": "Envie notificações e avisos para grupos de usuários ou indivíduos específicos.",

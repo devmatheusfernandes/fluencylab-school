@@ -7,7 +7,7 @@ import {
   mapTeacherEventsToCalendar,
   mapTeacherClassesToCalendar,
 } from "@/lib/calendar/utils";
-import { serializeForClientComponent } from "@/utils/utils";
+import { serializeForClientComponent } from "@/lib/utils";
 import { useTeacher } from "@/hooks/teacher/useTeacher";
 
 // Utility function to convert ISO strings back to Date objects

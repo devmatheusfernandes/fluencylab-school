@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { serializeForClientComponent } from "@/utils/utils";
+import { serializeForClientComponent } from "@/lib/utils";
 
 export const useTeacherCalendarData = (teacherId: string) => {
   const [isLoading, setIsLoading] = useState(false);

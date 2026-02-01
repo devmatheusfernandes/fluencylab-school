@@ -1,5 +1,5 @@
 // config/pricing.ts
-import { UserRoles } from '@/types/users/userRoles';
+import { UserRoles } from "@/types/users/userRoles";
 
 /**
  * Secure server-side pricing configuration
@@ -8,23 +8,23 @@ import { UserRoles } from '@/types/users/userRoles';
  */
 export const SUBSCRIPTION_PRICING = {
   REGULAR_STUDENT: {
-    amount: 29900, // R$ 299,00 em centavos
-    currency: 'BRL',
-    description: 'Mensalidade Estudante Regular',
-    planId: 'regular_student_monthly'
+    amount: 29900,
+    currency: "BRL",
+    description: "Mensalidade Estudante Regular",
+    planId: "regular_student_monthly",
   },
   GUARDED_STUDENT: {
-    amount: 29900, // TODO: THINK IF THIS SHOULD BE MORE EXPENSIVE SINCE IT INCLUDES MORE WORK FROM THE TEACHER TO GIVE CLASS TO THE GUARDED STUDENT
-    currency: 'BRL',
-    description: 'Mensalidade Estudante Acompanhado',
-    planId: 'guarded_student_monthly'
+    amount: 39900,
+    currency: "BRL",
+    description: "Mensalidade Estudante Acompanhado",
+    planId: "guarded_student_monthly",
   },
   CANCELLATION_FEE: {
-    amount: 5000, // R$ 50,00 em centavos // TODO: THIS SHOULD BE HALF OF THE PRICE OF ONE MONTH OF SUBSCRIPTION
-    currency: 'BRL',
-    description: 'Taxa de Cancelamento',
-    planId: 'cancellation_fee'
-  }
+    amount: 14950,
+    currency: "BRL",
+    description: "Taxa de Cancelamento",
+    planId: "cancellation_fee",
+  },
 } as const;
 
 /**
@@ -79,8 +79,8 @@ export function getSubscriptionPlanId(userRole: UserRoles): string {
  * @returns Formatted price string (e.g., "R$ 299,00")
  */
 export function formatPrice(priceInCentavos: number): string {
-  return new Intl.NumberFormat('pt-BR', { 
-    style: 'currency', 
-    currency: 'BRL' 
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
   }).format(priceInCentavos / 100);
 }

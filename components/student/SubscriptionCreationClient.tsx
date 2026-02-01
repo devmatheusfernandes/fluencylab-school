@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
-import { formatPrice } from "@/config/pricing";
+import { formatPrice, SUBSCRIPTION_PRICING } from "@/config/pricing";
 import { Spinner } from "../ui/spinner";
 import {
   CheckCircle2,
@@ -17,7 +17,6 @@ import {
   CalendarDays,
   CalendarClock,
   ShieldCheck,
-  Crown,
   Zap,
   Lock,
   Check,
@@ -50,9 +49,9 @@ export function SubscriptionCreationClient() {
   // Price based on user role
   const getSubscriptionPrice = () => {
     if (session?.user?.role === "GUARDED_STUDENT") {
-      return 39900; // R$ 399,00
+      return SUBSCRIPTION_PRICING.GUARDED_STUDENT.amount;
     }
-    return 29900; // R$ 299,00
+    return SUBSCRIPTION_PRICING.REGULAR_STUDENT.amount;
   };
 
   useEffect(() => {
@@ -221,7 +220,9 @@ export function SubscriptionCreationClient() {
           )}
 
           <Button
-            onClick={() => (window.location.href = `/${locale}/hub/student/my-payments`)}
+            onClick={() =>
+              (window.location.href = `/${locale}/hub/student/my-payments`)
+            }
             size="lg"
             className={cn(
               "w-full md:w-auto font-semibold shadow-lg transition-all",
@@ -247,7 +248,11 @@ export function SubscriptionCreationClient() {
 
   return (
     <div className="p-4 md:p-6 space-y-6">
-      <Header heading={t("headerTitle")} subheading={t("headerSubtitle")} className="mb-10" />
+      <Header
+        heading={t("headerTitle")}
+        subheading={t("headerSubtitle")}
+        className="mb-10"
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* LEFT COLUMN - CONFIGURATION */}
@@ -446,9 +451,7 @@ export function SubscriptionCreationClient() {
                 <div className="flex justify-between py-2 border-b border-zinc-100 dark:border-zinc-800">
                   <span className="text-zinc-500">{t("methodLabel")}</span>
                   <span className="font-medium">
-                    {selectedMethod === "pix"
-                      ? "PIX"
-                      : "-"}
+                    {selectedMethod === "pix" ? "PIX" : "-"}
                   </span>
                 </div>
                 <div className="flex justify-between py-2 items-center">

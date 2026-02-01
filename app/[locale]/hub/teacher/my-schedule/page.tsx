@@ -12,7 +12,7 @@ import {
   mapTeacherClassesToCalendar,
 } from "@/lib/calendar/utils";
 
-import { serializeForClientComponent } from "@/utils/utils";
+import { serializeForClientComponent } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { BadgePoundSterling, Calendar, Ear, Settings } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

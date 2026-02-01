@@ -3,7 +3,7 @@
 import * as React from "react";
 import { twMerge } from "tailwind-merge";
 import { UserRoles } from "@/types/users/userRoles";
-import { capitalizeFirstLetter } from "@/utils/utils";
+import { capitalizeFirstLetter } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogIn, LogOut } from "lucide-react";
 import { useTranslations } from "next-intl";

@@ -20,6 +20,7 @@ import {
   roleHasPermission,
   isRoleHigherThan,
 } from "@/types/core/auth";
+import { schedulingService } from "@/services/learning/schedulingService";
 
 // ============================================================================
 // CLASSE PRINCIPAL DE VERIFICAÇÃO DE PERMISSÕES
@@ -325,24 +326,16 @@ export class DefaultOwnershipValidator implements OwnershipValidator {
     userId: string,
     classId: string,
   ): Promise<OwnershipValidationResult> {
-    // TODO: Implementar consulta ao banco de dados
-    // Por enquanto, retorna validação mock
-
-    // Simulação: verificar se userId é o studentId da aula
-    // const classData = await schedulingService.getClassById(classId);
-    // return {
-    //   isOwner: classData.studentId === userId,
-    //   hasContext: false,
-    //   reason: classData.studentId === userId ? 'Usuário é o estudante da aula' : 'Usuário não é o estudante da aula'
-    // };
-
-    console.warn(
-      "validateClassOwnership: Implementação mock - substituir por consulta real ao banco",
+    const isOwner = await schedulingService.isStudentOwnerOfClass(
+      userId,
+      classId,
     );
     return {
-      isOwner: true, // Mock: sempre retorna true para desenvolvimento
+      isOwner,
       hasContext: false,
-      reason: "Mock implementation - sempre retorna true",
+      reason: isOwner
+        ? "Usuário é o estudante da aula"
+        : "Usuário não é o estudante da aula",
     };
   }
 
@@ -362,21 +355,17 @@ export class DefaultOwnershipValidator implements OwnershipValidator {
       };
     }
 
-    // TODO: Implementar consulta ao banco de dados
-    // const classData = await schedulingService.getClassById(classId);
-    // return {
-    //   isOwner: false,
-    //   hasContext: classData.teacherId === userId,
-    //   reason: classData.teacherId === userId ? 'Professor leciona esta aula' : 'Professor não leciona esta aula'
-    // };
-
-    console.warn(
-      "validateClassContext: Implementação mock - substituir por consulta real ao banco",
+    const hasContext = await schedulingService.isTeacherOfClass(
+      userId,
+      classId,
     );
+
     return {
       isOwner: false,
-      hasContext: true, // Mock: sempre retorna true para desenvolvimento
-      reason: "Mock implementation - sempre retorna true",
+      hasContext,
+      reason: hasContext
+        ? "Professor leciona esta aula"
+        : "Professor não leciona esta aula",
     };
   }
 
@@ -404,12 +393,15 @@ export class DefaultOwnershipValidator implements OwnershipValidator {
     userId: string,
     settingId: string,
   ): Promise<OwnershipValidationResult> {
-    // TODO: Implementar lógica específica para configurações
-    // Por enquanto, assume que configurações são sempre do próprio usuário
+    // Configurações são sempre vinculadas ao próprio usuário (settingId = userId)
+    const isOwner = userId === settingId;
+
     return {
-      isOwner: true,
+      isOwner,
       hasContext: false,
-      reason: "Configurações são sempre do próprio usuário",
+      reason: isOwner
+        ? "Usuário é proprietário das configurações"
+        : "Usuário não tem permissão para alterar configurações de outro usuário",
     };
   }
 }

@@ -105,7 +105,7 @@ const settingsSchema = z.object({
   timezone: z.string().max(50).optional(),
   theme: z.enum(["light", "dark", "system"]).optional(),
   themeColor: z
-    .enum(["violet", "rose", "orange", "yellow", "green"])
+    .enum(["violet", "rose", "indigo", "yellow", "green"])
     .optional(),
   notifications: z
     .object({

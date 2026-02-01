@@ -45,8 +45,12 @@
   /* Animation definitions */
   --animate-shimmer: shimmer 5.5s ease-in-out infinite;
   @keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
   }
 }
 
@@ -88,7 +92,7 @@
   --content-color: oklch(55.4% 0.042 264 / 0.08);
   --header-color: oklch(55.4% 0.042 264 / 0.08);
   --sidebar-color: oklch(99.385% 0.00297 264.8);
-  --received-message-bg: oklch(46.683% 0.01286 285.839)
+  --received-message-bg: oklch(46.683% 0.01286 285.839);
 }
 
 /* Dark Mode Overrides */
@@ -126,7 +130,7 @@
   --sidebar-ring: oklch(0.38 0.189 293.745);
   --content-color: oklch(17.8% 0.031 264);
   --header-color: oklch(17.8% 0.031 264);
-  --sidebar-color: oklch(7.4% 0.020 264);
+  --sidebar-color: oklch(7.4% 0.02 264);
   --received-message-bg: oklch(0.274 0.006 286.033);
 }
 
@@ -147,14 +151,14 @@
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-ring: oklch(0.69 0.25 22);
 }
-/* TODO: MUDAR ESSE PARA COR AZUL JÁ QUE O AMARELO ESTÁ NA COR AMBAR*/
-.theme-orange { 
-  --primary: oklch(0.74 0.22 55);
-  --primary-foreground: oklch(0.21 0.006 285.885);
-  --ring: oklch(0.74 0.22 55);
-  --sidebar-primary: oklch(0.74 0.22 55);
-  --sidebar-primary-foreground: oklch(0.21 0.006 285.885);
-  --sidebar-ring: oklch(0.74 0.22 55);
+
+.theme-indigo {
+  --primary: oklch(0.45 0.24 270);
+  --primary-foreground: oklch(0.985 0 0);
+  --ring: oklch(0.45 0.24 270);
+  --sidebar-primary: oklch(0.45 0.24 270);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-ring: oklch(0.45 0.24 270);
 }
 .theme-yellow {
   --primary: oklch(76.9% 0.188 70.08);
@@ -172,7 +176,6 @@
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-ring: oklch(0.7 0.15 145);
 }
-
 
 /* --- 5. COMPONENTES CUSTOMIZADOS DO USUÁRIO --- */
 @custom-variant dark (&:is(.dark *));
@@ -214,7 +217,7 @@
          border border-slate-200/50 dark:border-slate-700/50 
          bg-white/15 dark:bg-slate-950/75  
          hover:border-slate-500/30 dark:hover:border-slate-600
-         hover:bg-white/5 dark:hover:bg-gray-950 
+         hover:bg-white/5 dark:hover:bg-gray-950;
 }
 
 /* Inputs Gerais */
@@ -228,17 +231,16 @@
          hover:bg-white/5 dark:hover:bg-gray-800 
          focus:bg-white/25 dark:focus:bg-gray-800 
          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/20 dark:focus-visible:ring-blue-400/20 
-         disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-50 dark:disabled:bg-gray-900 ;
+         disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-50 dark:disabled:bg-gray-900;
 }
-
 
 /* --- 6. BASE LAYER --- */
 @layer base {
   * {
     @apply border-border outline-ring/50;
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-      
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
     .no-scrollbar::-webkit-scrollbar {
       display: none;
     }
