@@ -1,7 +1,7 @@
 "use client";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { useIsMobile } from "@/hooks/ui/useMobile";
-import { MenuIcon } from "@/public/animated/menu";
+import LayoutSidebarRightIcon from "@/public/animated/layout-sidebar-right-icon";
 import * as React from "react";
 import { twMerge } from "tailwind-merge";
 
@@ -33,11 +33,11 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>(
         className={twMerge(
           "header-base flex items-center justify-between w-full text-sm rounded-none sm:rounded-t-lg py-1 px-3",
           className,
-          isMobile && "relative bg-slate-300 dark:bg-slate-950"
+          isMobile && "relative bg-slate-300 dark:bg-slate-950",
         )}
       >
         {onToggleSidebar && !isMobile && (
-          <MenuIcon
+          <LayoutSidebarRightIcon
             size={26}
             className="text-primary hover:text-foreground duration-300 ease-in-out transition-all cursor-pointer"
             onClick={onToggleSidebar}
@@ -46,7 +46,6 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>(
         <span
           className={twMerge(
             "font-semibold text-md text-foreground absolute left-1/2 -translate-x-1/2",
-            
           )}
           aria-current="page"
         >
@@ -57,7 +56,7 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>(
         </div>
       </nav>
     );
-  }
+  },
 );
 
 Breadcrumb.displayName = "Breadcrumb";

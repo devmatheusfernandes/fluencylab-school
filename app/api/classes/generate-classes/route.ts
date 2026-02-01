@@ -10,15 +10,41 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-        const { studentId } = await request.json();
+        const body = await request.json();
+        const { studentId, action, strategy, substituteTeacherId } = body;
 
         if (!studentId) {
             return NextResponse.json({ error: 'O ID do aluno é obrigatório.' }, { status: 400 });
         }
 
-        await schedulingService.generateClassesFromTemplate(studentId);
+        // Action: Check for conflicts only
+        if (action === 'check') {
+            const conflicts = await schedulingService.checkTemplateConflicts(studentId);
+            return NextResponse.json({ conflicts });
+        }
 
-        return NextResponse.json({ message: `Aulas para o aluno ${studentId} geradas com sucesso.` });
+        // Action: Generate (default)
+        const result = await schedulingService.generateClassesFromTemplate(
+            studentId, 
+            strategy, // 'default' | 'skip_and_extend' | 'substitute'
+            substituteTeacherId
+        );
+
+        if (!result.success) {
+            return NextResponse.json({ 
+                error: 'Foram detectados conflitos de férias com o professor titular.',
+                conflicts: result.conflicts,
+                requiresAction: true
+            }, { status: 409 });
+        }
+
+        return NextResponse.json({ 
+            message: `Aulas para o aluno ${studentId} geradas com sucesso.`,
+            details: {
+                skippedCount: result.skippedCount,
+                strategyUsed: strategy || 'default'
+            }
+        });
     } catch (error: any) {
         console.error("Erro ao gerar aulas:", error);
         return NextResponse.json({ error: error.message || 'Erro interno do servidor.' }, { status: 500 });

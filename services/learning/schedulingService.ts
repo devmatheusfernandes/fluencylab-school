@@ -41,17 +41,17 @@ const emailService = new EmailService();
 
 export class SchedulingService {
   async addTeacherAvailability(
-    slot: AvailabilitySlot
+    slot: AvailabilitySlot,
   ): Promise<AvailabilitySlot> {
     // Validação de término > início (já existe)
     if (slot.startTime >= slot.endTime) {
       throw new Error(
-        "O horário de término deve ser após o horário de início."
+        "O horário de término deve ser após o horário de início.",
       );
     }
 
     const existingSlots = await availabilityRepository.findByTeacherId(
-      slot.teacherId
+      slot.teacherId,
     );
 
     // Filtra para encontrar conflitos no mesmo dia da semana
@@ -96,7 +96,7 @@ export class SchedulingService {
 
     if (hasConflict) {
       throw new Error(
-        "Conflito de horário. Você já tem um horário disponível que se sobrepõe a este."
+        "Conflito de horário. Você já tem um horário disponível que se sobrepõe a este.",
       );
     }
 
@@ -149,7 +149,7 @@ export class SchedulingService {
     slotId: string,
     teacherId: string,
     deleteType: "single" | "future",
-    occurrenceDate: Date
+    occurrenceDate: Date,
   ) {
     const slot = await availabilityRepository.findById(slotId);
     if (!slot || slot.teacherId !== teacherId) {
@@ -182,7 +182,7 @@ export class SchedulingService {
       await availabilityRepository.createException(
         slotId,
         teacherId,
-        exceptionDate
+        exceptionDate,
       );
     }
   }
@@ -192,7 +192,7 @@ export class SchedulingService {
     teacherId: string,
     slotId: string,
     scheduledAt: Date,
-    classTopic?: string
+    classTopic?: string,
   ) {
     // === BUSCA DE CONFIGURAÇÕES (ANTES DA TRANSAÇÃO) ===
     const teacher = await userAdminRepository.findUserById(teacherId);
@@ -204,24 +204,24 @@ export class SchedulingService {
     // Regra 1: Antecedência Mínima para Agendamento
     const leadTimeHours = settings.bookingLeadTimeHours || 24; // Padrão: 24 horas
     const earliestBookingTime = new Date(
-      now.getTime() + leadTimeHours * 60 * 60 * 1000
+      now.getTime() + leadTimeHours * 60 * 60 * 1000,
     );
 
     if (scheduledAt < earliestBookingTime) {
       throw new Error(
-        `As aulas devem ser agendadas com pelo menos ${leadTimeHours} horas de antecedência.`
+        `As aulas devem ser agendadas com pelo menos ${leadTimeHours} horas de antecedência.`,
       );
     }
 
     // Regra 3: Horizonte de Agendamento
     const horizonDays = settings.bookingHorizonDays || 30; // Padrão: 30 dias
     const latestBookingDate = new Date(
-      now.getTime() + horizonDays * 24 * 60 * 60 * 1000
+      now.getTime() + horizonDays * 24 * 60 * 60 * 1000,
     );
 
     if (scheduledAt > latestBookingDate) {
       throw new Error(
-        `As aulas só podem ser agendadas para os próximos ${horizonDays} dias.`
+        `As aulas só podem ser agendadas para os próximos ${horizonDays} dias.`,
       );
     }
 
@@ -238,7 +238,7 @@ export class SchedulingService {
         await classRepository.findClassByTeacherAndDateWithTransaction(
           transaction,
           teacherId,
-          scheduledAt
+          scheduledAt,
         );
       if (!existingClassQuery.empty) {
         throw new Error("Desculpe, este horário já foi agendado.");
@@ -262,7 +262,7 @@ export class SchedulingService {
 
       const newClassId = await classRepository.createWithTransaction(
         transaction,
-        newClassData
+        newClassData,
       );
       transaction.update(studentRef, {
         classCredits: FieldValue.increment(-1),
@@ -271,7 +271,7 @@ export class SchedulingService {
         transaction,
         slotId,
         teacherId,
-        scheduledAt
+        scheduledAt,
       );
 
       return { success: true, classData: newClassData };
@@ -282,10 +282,10 @@ export class SchedulingService {
   async cancelClassByStudent(
     studentId: string,
     classId: string,
-    paramScheduledAt?: Date
+    paramScheduledAt?: Date,
   ) {
     console.log(
-      `[cancelClassByStudent] Starting cancellation for class ${classId} by student ${studentId}`
+      `[cancelClassByStudent] Starting cancellation for class ${classId} by student ${studentId}`,
     );
 
     // If scheduledAt is provided, find the specific class instance
@@ -319,7 +319,7 @@ export class SchedulingService {
 
       if (!matchingClass) {
         throw new Error(
-          "Aula específica não encontrada ou não pertence a este aluno."
+          "Aula específica não encontrada ou não pertence a este aluno.",
         );
       }
 
@@ -378,7 +378,7 @@ export class SchedulingService {
       if (classData.availabilitySlotId) {
         await availabilityRepository.findAndDeleteException(
           classData.availabilitySlotId,
-          (classData.scheduledAt as any).toDate() // Convert Timestamp to Date
+          (classData.scheduledAt as any).toDate(), // Convert Timestamp to Date
         );
       }
 
@@ -442,7 +442,7 @@ export class SchedulingService {
           });
 
           console.log(
-            `E-mails de cancelamento enviados para estudante (${student.email}) e professor (${teacher.email})`
+            `E-mails de cancelamento enviados para estudante (${student.email}) e professor (${teacher.email})`,
           );
 
           const titleStudent = "Aula cancelada";
@@ -454,7 +454,7 @@ export class SchedulingService {
             student.id,
             "specific",
             undefined,
-            [student.id]
+            [student.id],
           );
 
           const titleTeacher = "Aula cancelada pelo aluno";
@@ -466,7 +466,7 @@ export class SchedulingService {
             student.id,
             "specific",
             undefined,
-            [teacher.id]
+            [teacher.id],
           );
         }
       } catch (emailError) {
@@ -537,7 +537,7 @@ export class SchedulingService {
           });
 
           console.log(
-            `E-mails de cancelamento (sem crédito) enviados para estudante (${student.email}) e professor (${teacher.email})`
+            `E-mails de cancelamento (sem crédito) enviados para estudante (${student.email}) e professor (${teacher.email})`,
           );
 
           const titleStudent = "Aula cancelada";
@@ -549,7 +549,7 @@ export class SchedulingService {
             student.id,
             "specific",
             undefined,
-            [student.id]
+            [student.id],
           );
 
           const titleTeacher = "Aula cancelada pelo aluno";
@@ -561,7 +561,7 @@ export class SchedulingService {
             student.id,
             "specific",
             undefined,
-            [teacher.id]
+            [teacher.id],
           );
         }
       } catch (emailError) {
@@ -590,10 +590,10 @@ export class SchedulingService {
     teacherId: string,
     classId: string,
     reason?: string,
-    allowMakeup: boolean = true
+    allowMakeup: boolean = true,
   ) {
     console.log(
-      `[cancelClassByTeacher] Starting cancellation process for class ${classId} by teacher ${teacherId}`
+      `[cancelClassByTeacher] Starting cancellation process for class ${classId} by teacher ${teacherId}`,
     );
 
     const classRef = adminDb.collection("classes").doc(classId);
@@ -632,7 +632,7 @@ export class SchedulingService {
     if (classData.availabilitySlotId) {
       await availabilityRepository.findAndDeleteException(
         classData.availabilitySlotId,
-        teacherClassScheduledAt
+        teacherClassScheduledAt,
       );
       console.log(`[cancelClassByTeacher] Availability exception deleted`);
     }
@@ -641,7 +641,7 @@ export class SchedulingService {
     if (newStatus === ClassStatus.CANCELED_TEACHER_MAKEUP) {
       try {
         console.log(
-          `[cancelClassByTeacher] Granting makeup credit to student ${classData.studentId}`
+          `[cancelClassByTeacher] Granting makeup credit to student ${classData.studentId}`,
         );
         // Conceder crédito de reposição ao aluno
         const expiresAt = new Date();
@@ -654,13 +654,13 @@ export class SchedulingService {
             amount: 1,
             expiresAt: expiresAt,
             reason: `Crédito de reposição por cancelamento do professor em ${new Date().toLocaleDateString(
-              "pt-BR"
+              "pt-BR",
             )}`,
           },
-          teacherId
+          teacherId,
         ); // teacherId como quem concedeu o crédito
         console.log(
-          `[cancelClassByTeacher] Makeup credit granted successfully`
+          `[cancelClassByTeacher] Makeup credit granted successfully`,
         );
       } catch (error) {
         console.error("Erro ao conceder crédito de reposição:", error);
@@ -671,7 +671,7 @@ export class SchedulingService {
     // --- ENVIAR NOTIFICAÇÕES POR E-MAIL ---
     try {
       console.log(
-        `[cancelClassByTeacher] Fetching user data for email notifications`
+        `[cancelClassByTeacher] Fetching user data for email notifications`,
       );
       const [student, teacher] = await Promise.all([
         userAdminRepository.findUserById(classData.studentId),
@@ -702,7 +702,7 @@ export class SchedulingService {
           : "";
 
         console.log(
-          `[cancelClassByTeacher] Sending emails to student and teacher`
+          `[cancelClassByTeacher] Sending emails to student and teacher`,
         );
         // Enviar e-mail para o estudante
         await emailService.sendClassCanceledEmail({
@@ -737,7 +737,7 @@ export class SchedulingService {
         });
 
         console.log(
-          `[cancelClassByTeacher] E-mails de cancelamento enviados para estudante (${student.email}) e professor (${teacher.email})`
+          `[cancelClassByTeacher] E-mails de cancelamento enviados para estudante (${student.email}) e professor (${teacher.email})`,
         );
 
         const titleStudent = "Aula cancelada pelo professor";
@@ -753,7 +753,7 @@ export class SchedulingService {
           teacher.id,
           "specific",
           undefined,
-          [student.id]
+          [student.id],
         );
 
         const titleTeacher = "Você cancelou uma aula";
@@ -765,7 +765,7 @@ export class SchedulingService {
           teacher.id,
           "specific",
           undefined,
-          [teacher.id]
+          [teacher.id],
         );
       } else {
         console.log(
@@ -773,13 +773,13 @@ export class SchedulingService {
           {
             studentExists: !!student,
             teacherExists: !!teacher,
-          }
+          },
         );
       }
     } catch (error) {
       console.error(
         "[cancelClassByTeacher] Erro ao enviar e-mails de cancelamento:",
-        error
+        error,
       );
       // Não falha a operação se o e-mail falhar, apenas loga o erro
     }
@@ -801,7 +801,7 @@ export class SchedulingService {
    */
   async convertCanceledClassToAvailableSlot(
     classId: string,
-    teacherId: string
+    teacherId: string,
   ): Promise<boolean> {
     try {
       // Buscar a aula cancelada/reagendada
@@ -820,14 +820,14 @@ export class SchedulingService {
           classData.status !== "rescheduled")
       ) {
         throw new Error(
-          "Apenas aulas canceladas ou reagendadas podem ser convertidas em slots livres"
+          "Apenas aulas canceladas ou reagendadas podem ser convertidas em slots livres",
         );
       }
 
       // Verificar se o professor é o dono da aula
       if (classData.teacherId !== teacherId) {
         throw new Error(
-          "Apenas o professor da aula pode converter em slot livre"
+          "Apenas o professor da aula pode converter em slot livre",
         );
       }
 
@@ -836,7 +836,7 @@ export class SchedulingService {
         ? classData.scheduledAt.toDate()
         : new Date(classData.scheduledAt);
       const endTime = new Date(
-        scheduledAt.getTime() + classData.durationMinutes * 60000
+        scheduledAt.getTime() + classData.durationMinutes * 60000,
       );
 
       // Converter Date para string no formato HH:MM
@@ -877,7 +877,7 @@ export class SchedulingService {
       await adminDb.collection("classes").doc(classId).delete();
 
       console.log(
-        `Aula ${classId} convertida em slot disponível e movida para histórico com sucesso`
+        `Aula ${classId} convertida em slot disponível e movida para histórico com sucesso`,
       );
       return true;
     } catch (error) {
@@ -891,7 +891,7 @@ export class SchedulingService {
    */
   async getClassDetails(
     classId: string,
-    currentUserId: string
+    currentUserId: string,
   ): Promise<FullClassDetails | null> {
     const classData = await classRepository.findClassById(classId);
     if (!classData) return null;
@@ -928,7 +928,7 @@ export class SchedulingService {
 
     if (!student || (classData.teacherId && !teacher)) {
       throw new Error(
-        "Não foi possível encontrar os perfis do aluno ou do professor."
+        "Não foi possível encontrar os perfis do aluno ou do professor.",
       );
     }
 
@@ -947,10 +947,111 @@ export class SchedulingService {
   }
 
   /**
+   * Verifica conflitos de férias antes de gerar as aulas.
+   * @param studentId - O ID do aluno.
+   * @returns Uma lista de conflitos encontrados.
+   */
+  async checkTemplateConflicts(studentId: string): Promise<
+    {
+      date: Date;
+      teacherId: string;
+      teacherName: string;
+    }[]
+  > {
+    const student = await userRepository.findById(studentId);
+    const template = await classTemplateRepository.get(studentId);
+
+    if (
+      !student ||
+      !student.contractStartDate ||
+      !student.contractLengthMonths
+    ) {
+      throw new Error("Dados do contrato do aluno incompletos.");
+    }
+
+    if (!template || !template.days || template.days.length === 0) {
+      throw new Error("Template de horário não encontrado.");
+    }
+
+    // Calcular período
+    let contractStartDate: Date;
+    if (
+      student.contractStartDate &&
+      typeof (student.contractStartDate as any).toDate === "function"
+    ) {
+      contractStartDate = (student.contractStartDate as any).toDate();
+    } else {
+      contractStartDate = new Date(student.contractStartDate);
+    }
+
+    const startDateString = contractStartDate.toISOString().split("T")[0];
+    const [year, month, day] = startDateString.split("-").map(Number);
+    const startDate = new Date(year, month - 1, day);
+    const endDate = new Date(startDate);
+    endDate.setMonth(endDate.getMonth() + student.contractLengthMonths);
+
+    // Buscar férias de todos os professores do template
+    const uniqueTeacherIds = [
+      ...new Set(template.days.map((d) => d.teacherId)),
+    ];
+    const vacationsMap = new Map<string, Vacation[]>();
+    const teachersMap = new Map<string, User>();
+
+    for (const teacherId of uniqueTeacherIds) {
+      const vacations = await vacationRepository.findAllByTeacherId(teacherId);
+      vacationsMap.set(teacherId, vacations);
+      const teacher = await userAdminRepository.findUserById(teacherId);
+      if (teacher) teachersMap.set(teacherId, teacher);
+    }
+
+    const conflicts: { date: Date; teacherId: string; teacherName: string }[] =
+      [];
+    const currentDate = new Date(startDate);
+
+    while (currentDate <= endDate) {
+      const dayIndex = currentDate.getDay();
+      const dayName = daysOfWeekPt[dayIndex];
+      const templateDaysForCurrentDay = template.days.filter(
+        (d) => d.day === dayName,
+      );
+
+      for (const templateDay of templateDaysForCurrentDay) {
+        const [hour, minute] = templateDay.hour.split(":").map(Number);
+        const classScheduledAt = new Date(currentDate);
+        classScheduledAt.setHours(hour, minute, 0, 0);
+
+        const vacations = vacationsMap.get(templateDay.teacherId) || [];
+        const hasVacation = vacations.some(
+          (v) =>
+            classScheduledAt >= v.startDate && classScheduledAt <= v.endDate,
+        );
+
+        if (hasVacation) {
+          conflicts.push({
+            date: new Date(classScheduledAt),
+            teacherId: templateDay.teacherId,
+            teacherName:
+              teachersMap.get(templateDay.teacherId)?.name || "Professor",
+          });
+        }
+      }
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    return conflicts;
+  }
+
+  /**
    * Gera as aulas de um aluno para todo o período de contrato com base em seu template.
    * @param studentId - O ID do aluno.
+   * @param strategy - Estratégia para lidar com conflitos ('default', 'skip_and_extend', 'substitute').
+   * @param substituteTeacherId - ID do professor substituto (obrigatório se strategy === 'substitute').
    */
-  async generateClassesFromTemplate(studentId: string): Promise<void> {
+  async generateClassesFromTemplate(
+    studentId: string,
+    strategy: "default" | "skip_and_extend" | "substitute" = "default",
+    substituteTeacherId?: string,
+  ): Promise<{ success: boolean; conflicts?: any[]; skippedCount?: number }> {
     // 1. Buscar os dados do aluno e do template
     const student = await userRepository.findById(studentId);
     const template = await classTemplateRepository.get(studentId);
@@ -958,7 +1059,7 @@ export class SchedulingService {
       await classRepository.hasFutureScheduledClasses(studentId);
     if (hasExistingClasses) {
       throw new Error(
-        "Este aluno já possui aulas futuras geradas. Para alterar o cronograma, modifique o template e salve as alterações. As aulas serão ajustadas automaticamente."
+        "Este aluno já possui aulas futuras geradas. Para alterar o cronograma, modifique o template e salve as alterações. As aulas serão ajustadas automaticamente.",
       );
     }
     // 2. Validar se os dados necessários existem
@@ -967,15 +1068,18 @@ export class SchedulingService {
     }
     if (!student.contractStartDate || !student.contractLengthMonths) {
       throw new Error(
-        `O aluno ${studentId} não possui data de início ou duração de contrato definidas.`
+        `O aluno ${studentId} não possui data de início ou duração de contrato definidas.`,
       );
     }
 
     // Validar se contractStartDate é uma data válida
     let contractStartDate: Date;
-    
+
     // Verifica se é um Timestamp do Firestore (tem o método toDate)
-    if (student.contractStartDate && typeof (student.contractStartDate as any).toDate === 'function') {
+    if (
+      student.contractStartDate &&
+      typeof (student.contractStartDate as any).toDate === "function"
+    ) {
       contractStartDate = (student.contractStartDate as any).toDate();
     } else {
       // Caso contrário, tenta converter diretamente (Date ou string)
@@ -984,13 +1088,13 @@ export class SchedulingService {
 
     if (isNaN(contractStartDate.getTime())) {
       throw new Error(
-        `A data de início do contrato para o aluno ${studentId} é inválida.`
+        `A data de início do contrato para o aluno ${studentId} é inválida.`,
       );
     }
 
     if (!template || !template.days || template.days.length === 0) {
       throw new Error(
-        `Nenhum template de horário encontrado para o aluno ${studentId}.`
+        `Nenhum template de horário encontrado para o aluno ${studentId}.`,
       );
     }
 
@@ -1001,50 +1105,170 @@ export class SchedulingService {
     const endDate = new Date(startDate);
     endDate.setMonth(endDate.getMonth() + student.contractLengthMonths);
 
-    // 4. Gerar as instâncias de aula
+    // 4. Preparar validação de férias
+    const uniqueTeacherIds = [
+      ...new Set(template.days.map((d) => d.teacherId)),
+    ];
+    const vacationsMap = new Map<string, Vacation[]>();
+
+    // Fetch vacations for all teachers involved
+    for (const teacherId of uniqueTeacherIds) {
+      const vacations = await vacationRepository.findAllByTeacherId(teacherId);
+      vacationsMap.set(teacherId, vacations);
+    }
+
+    // 5. Gerar as instâncias de aula
     const classesToCreate: Omit<StudentClass, "id">[] = [];
     const currentDate = new Date(startDate);
+    let skippedCount = 0;
+    const conflicts: any[] = [];
 
+    // Loop principal: até o fim do contrato
     while (currentDate <= endDate) {
       const dayIndex = currentDate.getDay();
       const dayName = daysOfWeekPt[dayIndex];
       const templateDaysForCurrentDay = template.days.filter(
-        (d) => d.day === dayName
+        (d) => d.day === dayName,
       );
 
       for (const templateDay of templateDaysForCurrentDay) {
         const [hour, minute] = templateDay.hour.split(":").map(Number);
-
         const classScheduledAt = new Date(currentDate);
         classScheduledAt.setHours(hour, minute, 0, 0);
 
-        // =================================================================
-        // ▼▼▼ A CONDIÇÃO "if (scheduledAt >= new Date())" FOI REMOVIDA DAQUI ▼▼▼
-        // =================================================================
-        // O sistema agora irá gerar todas as aulas a partir da data de início do contrato,
-        // independentemente de ser uma data no passado.
+        // Check for vacation conflict
+        const vacations = vacationsMap.get(templateDay.teacherId) || [];
+        const hasVacation = vacations.some(
+          (v) =>
+            classScheduledAt >= v.startDate && classScheduledAt <= v.endDate,
+        );
 
-        const newClass: Omit<StudentClass, "id"> = {
-          studentId: student.id,
-          teacherId: templateDay.teacherId,
-          language: templateDay.language,
-          scheduledAt: classScheduledAt,
-          durationMinutes: 50,
-          status: ClassStatus.SCHEDULED,
-          createdBy: "system",
-          classType: "regular",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
-        classesToCreate.push(newClass);
+        if (hasVacation) {
+          if (strategy === "default") {
+            // Collect conflicts to report
+            conflicts.push({
+              date: new Date(classScheduledAt),
+              teacherId: templateDay.teacherId,
+            });
+          } else if (strategy === "skip_and_extend") {
+            skippedCount++;
+            continue; // Skip creation
+          } else if (strategy === "substitute") {
+            if (!substituteTeacherId) {
+              throw new Error(
+                "ID do professor substituto é obrigatório para a estratégia de substituição.",
+              );
+            }
+            // Use substitute
+            const newClass: Omit<StudentClass, "id"> = {
+              studentId: student.id,
+              teacherId: substituteTeacherId,
+              language: templateDay.language,
+              scheduledAt: classScheduledAt,
+              durationMinutes: 50,
+              status: ClassStatus.SCHEDULED,
+              createdBy: "system",
+              classType: "regular",
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              notes: "Professor substituto devido a férias do titular",
+            };
+            classesToCreate.push(newClass);
+            continue;
+          }
+        }
+
+        // If no conflict or if conflict handled (except skip), create normal class
+        if (!hasVacation) {
+          const newClass: Omit<StudentClass, "id"> = {
+            studentId: student.id,
+            teacherId: templateDay.teacherId,
+            language: templateDay.language,
+            scheduledAt: classScheduledAt,
+            durationMinutes: 50,
+            status: ClassStatus.SCHEDULED,
+            createdBy: "system",
+            classType: "regular",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          };
+          classesToCreate.push(newClass);
+        }
       }
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
-    // 5. Salvar todas as aulas geradas no banco de dados
+    // Se houve conflitos no modo default, não gerar nada e retornar erro/conflitos
+    if (strategy === "default" && conflicts.length > 0) {
+      return { success: false, conflicts };
+    }
+
+    // 6. Extensão para aulas puladas (skip_and_extend)
+    if (strategy === "skip_and_extend" && skippedCount > 0) {
+      console.log(
+        `[Gerador] Estendendo contrato para repor ${skippedCount} aulas puladas por férias.`,
+      );
+      // Continue iterating from where we left off (currentDate is already endDate + 1)
+      let safetyCounter = 0;
+      const MAX_SAFETY_DAYS = 365; // Prevent infinite loop
+
+      while (skippedCount > 0 && safetyCounter < MAX_SAFETY_DAYS) {
+        const dayIndex = currentDate.getDay();
+        const dayName = daysOfWeekPt[dayIndex];
+        const templateDaysForCurrentDay = template.days.filter(
+          (d) => d.day === dayName,
+        );
+
+        for (const templateDay of templateDaysForCurrentDay) {
+          if (skippedCount <= 0) break;
+
+          const [hour, minute] = templateDay.hour.split(":").map(Number);
+          const classScheduledAt = new Date(currentDate);
+          classScheduledAt.setHours(hour, minute, 0, 0);
+
+          // Check for vacation conflict again (even in extension period)
+          const vacations = vacationsMap.get(templateDay.teacherId) || [];
+          const hasVacation = vacations.some(
+            (v) =>
+              classScheduledAt >= v.startDate && classScheduledAt <= v.endDate,
+          );
+
+          if (hasVacation) {
+            // Still on vacation? Skip this day too, don't decrement count yet
+            continue;
+          }
+
+          const newClass: Omit<StudentClass, "id"> = {
+            studentId: student.id,
+            teacherId: templateDay.teacherId,
+            language: templateDay.language,
+            scheduledAt: classScheduledAt,
+            durationMinutes: 50,
+            status: ClassStatus.SCHEDULED,
+            createdBy: "system",
+            classType: "regular",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            notes:
+              "Aula estendida devido a férias do professor durante o contrato",
+          };
+          classesToCreate.push(newClass);
+          skippedCount--;
+        }
+        currentDate.setDate(currentDate.getDate() + 1);
+        safetyCounter++;
+      }
+    }
+
+    // 7. Salvar todas as aulas geradas no banco de dados
     if (classesToCreate.length > 0) {
       await classRepository.batchCreate(classesToCreate);
     }
+
+    return {
+      success: true,
+      skippedCount: strategy === "skip_and_extend" ? skippedCount : 0,
+    };
   }
 
   /**
@@ -1056,7 +1280,7 @@ export class SchedulingService {
    */
   async canReschedule(
     studentId: string,
-    classId?: string
+    classId?: string,
   ): Promise<{
     allowed: boolean;
     count: number;
@@ -1100,7 +1324,7 @@ export class SchedulingService {
           throw new Error(
             `Aulas criadas com créditos de ${
               classData.creditType === "bonus" ? "bônus" : "estudantes tardios"
-            } não podem ser reagendadas.`
+            } não podem ser reagendadas.`,
           );
         }
 
@@ -1120,7 +1344,7 @@ export class SchedulingService {
     const currentMonthStr = new Date().toISOString().slice(0, 7); // Formato "YYYY-MM"
 
     const monthlyData = student.monthlyReschedules?.find(
-      (m) => m.month === currentMonthStr
+      (m) => m.month === currentMonthStr,
     );
     const currentCount = monthlyData?.count || 0;
 
@@ -1194,7 +1418,7 @@ export class SchedulingService {
       originalClass.status !== ClassStatus.CANCELED_TEACHER_MAKEUP
     ) {
       throw new Error(
-        "Apenas aulas agendadas, marcadas como falta ou aulas de reposição podem ser reagendadas."
+        "Apenas aulas agendadas, marcadas como falta ou aulas de reposição podem ser reagendadas.",
       );
     }
 
@@ -1208,7 +1432,7 @@ export class SchedulingService {
       throw new Error(
         `Aulas criadas com créditos de ${
           originalClass.creditType === "bonus" ? "bônus" : "estudantes tardios"
-        } não podem ser reagendadas.`
+        } não podem ser reagendadas.`,
       );
     }
 
@@ -1220,7 +1444,7 @@ export class SchedulingService {
           // This error is already thrown in canReschedule for expired makeup classes
         } else {
           throw new Error(
-            "Você atingiu o limite de 2 reagendamentos para este mês."
+            "Você atingiu o limite de 2 reagendamentos para este mês.",
           );
         }
       }
@@ -1234,24 +1458,24 @@ export class SchedulingService {
       // Regra 1: Antecedência Mínima para Agendamento
       const leadTimeHours = settings.bookingLeadTimeHours || 24; // Padrão: 24 horas
       const earliestBookingTime = new Date(
-        now.getTime() + leadTimeHours * 60 * 60 * 1000
+        now.getTime() + leadTimeHours * 60 * 60 * 1000,
       );
 
       if (newScheduledAt < earliestBookingTime) {
         throw new Error(
-          `As aulas devem ser reagendadas com pelo menos ${leadTimeHours} horas de antecedência.`
+          `As aulas devem ser reagendadas com pelo menos ${leadTimeHours} horas de antecedência.`,
         );
       }
 
       // Regra 3: Horizonte de Agendamento
       const horizonDays = settings.bookingHorizonDays || 30; // Padrão: 30 dias
       const latestBookingDate = new Date(
-        now.getTime() + horizonDays * 24 * 60 * 60 * 1000
+        now.getTime() + horizonDays * 24 * 60 * 60 * 1000,
       );
 
       if (newScheduledAt > latestBookingDate) {
         throw new Error(
-          `As aulas só podem ser reagendadas para os próximos ${horizonDays} dias.`
+          `As aulas só podem ser reagendadas para os próximos ${horizonDays} dias.`,
         );
       }
     }
@@ -1280,12 +1504,12 @@ export class SchedulingService {
         // Find an available teacher cancellation credit for this student
         creditToUse = await creditService.findAvailableCredit(
           originalClass.studentId,
-          RegularCreditType.TEACHER_CANCELLATION
+          RegularCreditType.TEACHER_CANCELLATION,
         );
 
         if (!creditToUse) {
           throw new Error(
-            "Você não possui créditos de reposição disponíveis para reagendar esta aula. Verifique se seus créditos ainda estão válidos."
+            "Você não possui créditos de reposição disponíveis para reagendar esta aula. Verifique se seus créditos ainda estão válidos.",
           );
         }
       }
@@ -1319,7 +1543,7 @@ export class SchedulingService {
       };
       const newClassId = await classRepository.createWithTransaction(
         transaction,
-        newClassData
+        newClassData,
       );
 
       // 3. Incrementar o contador de reagendamento do aluno (se aplicável)
@@ -1330,7 +1554,7 @@ export class SchedulingService {
 
           const existingReschedules = studentData.monthlyReschedules || [];
           const monthIndex = existingReschedules.findIndex(
-            (m) => m.month === currentMonthStr
+            (m) => m.month === currentMonthStr,
           );
 
           if (monthIndex > -1) {
@@ -1350,7 +1574,7 @@ export class SchedulingService {
           transaction,
           availabilitySlotId,
           originalClass.teacherId,
-          newScheduledAt
+          newScheduledAt,
         );
       }
 
@@ -1364,7 +1588,6 @@ export class SchedulingService {
     // After the transaction, if we used a teacher cancellation credit, mark it as used
     if (result.creditToUse) {
       try {
-
         // Use the newly created class ID directly
         await creditService.useCredit(
           {
@@ -1372,7 +1595,7 @@ export class SchedulingService {
             creditId: result.creditToUse.id,
             classId: result.newClassData.id,
           },
-          originalClass.studentId
+          originalClass.studentId,
         );
       } catch (error) {
         console.error("Error using teacher cancellation credit:", error);
@@ -1388,7 +1611,7 @@ export class SchedulingService {
 
       if (originalClass.teacherId) {
         promises.push(
-          userAdminRepository.findUserById(originalClass.teacherId)
+          userAdminRepository.findUserById(originalClass.teacherId),
         );
       }
 
@@ -1447,7 +1670,7 @@ export class SchedulingService {
         });
 
         console.log(
-          `E-mails de reagendamento enviados para estudante (${student.email}) e professor (${teacher.email})`
+          `E-mails de reagendamento enviados para estudante (${student.email}) e professor (${teacher.email})`,
         );
       }
     } catch (emailError) {
@@ -1463,7 +1686,7 @@ export class SchedulingService {
    * de forma consistente e atualizando o saldo de dias.
    */
   async createTeacherVacation(
-    vacationData: Omit<Vacation, "id" | "createdAt">
+    vacationData: Omit<Vacation, "id" | "createdAt">,
   ): Promise<Vacation> {
     const { teacherId, startDate, endDate } = vacationData;
     const teacher = await userRepository.findById(teacherId);
@@ -1480,7 +1703,7 @@ export class SchedulingService {
     earliestStartDate.setDate(now.getDate() + 40);
     if (startDate < earliestStartDate) {
       throw new Error(
-        "As férias devem ser solicitadas com pelo menos 40 dias de antecedência."
+        "As férias devem ser solicitadas com pelo menos 40 dias de antecedência.",
       );
     }
 
@@ -1490,7 +1713,7 @@ export class SchedulingService {
       Math.round((endDate.getTime() - startDate.getTime()) / oneDay) + 1;
     if (durationInDays > 14) {
       throw new Error(
-        "O período de férias não pode exceder 14 dias consecutivos."
+        "O período de férias não pode exceder 14 dias consecutivos.",
       );
     }
 
@@ -1498,7 +1721,7 @@ export class SchedulingService {
     const currentRemainingDays = teacher.vacationDaysRemaining ?? 30;
     if (durationInDays > currentRemainingDays) {
       throw new Error(
-        `Este pedido de ${durationInDays} dias excede o seu saldo de ${currentRemainingDays} dias de férias restantes.`
+        `Este pedido de ${durationInDays} dias excede o seu saldo de ${currentRemainingDays} dias de férias restantes.`,
       );
     }
 
@@ -1508,7 +1731,7 @@ export class SchedulingService {
     const affectedClasses = await classRepository.findClassesByTeacherInRange(
       teacherId,
       startDate,
-      endDate
+      endDate,
     );
     const affectedStudentIds = [
       ...new Set(affectedClasses.map((cls) => cls.studentId)),
@@ -1520,12 +1743,15 @@ export class SchedulingService {
 
     await adminDb.runTransaction(async (transaction) => {
       // 1. Atualiza aulas e cria registo de férias
+      // NOTA: Ao definir o status como TEACHER_VACATION, NÃO estamos concedendo créditos automaticamente.
+      // O sistema de créditos só deve ser acionado em cancelamentos manuais (cancelClassByTeacher).
+      // Férias são tratadas como indisponibilidade e as aulas são reagendadas ou estendidas no contrato.
       await classRepository.updateClassesStatusInRange(
         transaction,
         teacherId,
         startDate,
         endDate,
-        ClassStatus.TEACHER_VACATION
+        ClassStatus.TEACHER_VACATION,
       );
       vacationRepository.createWithTransaction(transaction, {
         ...vacationData,
@@ -1580,17 +1806,17 @@ export class SchedulingService {
           });
 
           console.log(
-            `E-mail de férias do professor enviado para estudante ${student.name} (${student.email})`
+            `E-mail de férias do professor enviado para estudante ${student.name} (${student.email})`,
           );
         }
 
         console.log(
-          `Total de ${affectedStudents.length} estudantes notificados sobre as férias do professor ${teacher.name}`
+          `Total de ${affectedStudents.length} estudantes notificados sobre as férias do professor ${teacher.name}`,
         );
       } catch (emailError) {
         console.error(
           "Erro ao enviar e-mails de férias do professor:",
-          emailError
+          emailError,
         );
         // Não falha a operação se o e-mail falhar, apenas loga o erro
       }
@@ -1605,7 +1831,7 @@ export class SchedulingService {
    */
   async deleteTeacherVacation(
     vacationId: string,
-    teacherId: string
+    teacherId: string,
   ): Promise<void> {
     // Buscar o período de férias
     const vacation = await vacationRepository.findAllByTeacherId(teacherId);
@@ -1622,7 +1848,7 @@ export class SchedulingService {
 
     if (now > earliestCancelDate) {
       throw new Error(
-        "Período de férias não pode ser cancelado com menos de 40 dias de antecedência."
+        "Período de férias não pode ser cancelado com menos de 40 dias de antecedência.",
       );
     }
 
@@ -1635,7 +1861,7 @@ export class SchedulingService {
     const affectedClasses = await classRepository.findClassesByTeacherInRange(
       teacherId,
       vacationData.startDate,
-      vacationData.endDate
+      vacationData.endDate,
     );
 
     // Calcular dias de férias a serem reembolsados
@@ -1643,7 +1869,7 @@ export class SchedulingService {
     const durationInDays =
       Math.round(
         (vacationData.endDate.getTime() - vacationData.startDate.getTime()) /
-          oneDay
+          oneDay,
       ) + 1;
 
     const currentRemainingDays = teacher.vacationDaysRemaining ?? 30;
@@ -1656,7 +1882,7 @@ export class SchedulingService {
         teacherId,
         vacationData.startDate,
         vacationData.endDate,
-        ClassStatus.SCHEDULED
+        ClassStatus.SCHEDULED,
       );
 
       // 2. Excluir o registro de férias
@@ -1718,24 +1944,24 @@ export class SchedulingService {
           });
 
           console.log(
-            `E-mail de cancelamento de férias do professor enviado para estudante ${student.name} (${student.email})`
+            `E-mail de cancelamento de férias do professor enviado para estudante ${student.name} (${student.email})`,
           );
         }
 
         console.log(
-          `Total de ${affectedStudents.length} estudantes notificados sobre o cancelamento das férias do professor ${teacher.name}`
+          `Total de ${affectedStudents.length} estudantes notificados sobre o cancelamento das férias do professor ${teacher.name}`,
         );
       } catch (emailError) {
         console.error(
           "Erro ao enviar e-mails de cancelamento de férias do professor:",
-          emailError
+          emailError,
         );
         // Não falha a operação se o e-mail falhar, apenas loga o erro
       }
     }
 
     console.log(
-      `Período de férias cancelado com sucesso. ${durationInDays} dias reembolsados ao professor ${teacher.name}.`
+      `Período de férias cancelado com sucesso. ${durationInDays} dias reembolsados ao professor ${teacher.name}.`,
     );
   }
 
@@ -1748,7 +1974,7 @@ export class SchedulingService {
   async updateStudentTeachersIds(
     studentId: string,
     oldTemplate: ClassTemplate | null,
-    newTemplate: ClassTemplate
+    newTemplate: ClassTemplate,
   ): Promise<void> {
     try {
       // Get unique teacher IDs from the old template
@@ -1763,12 +1989,12 @@ export class SchedulingService {
 
       // Find teachers that were removed (in old but not in new)
       const removedTeacherIds = uniqueOldTeacherIds.filter(
-        (id) => !uniqueNewTeacherIds.includes(id)
+        (id) => !uniqueNewTeacherIds.includes(id),
       );
 
       // Find teachers that were added (in new but not in old)
       const addedTeacherIds = uniqueNewTeacherIds.filter(
-        (id) => !uniqueOldTeacherIds.includes(id)
+        (id) => !uniqueOldTeacherIds.includes(id),
       );
 
       // Update the student's teachersIds field
@@ -1784,12 +2010,12 @@ export class SchedulingService {
       for (const removedTeacherId of removedTeacherIds) {
         // Check if this teacher still appears in the new template
         const teacherStillInSchedule = newTemplate.days?.some(
-          (entry) => entry.teacherId === removedTeacherId
+          (entry) => entry.teacherId === removedTeacherId,
         );
         if (!teacherStillInSchedule) {
           // Remove this teacher from teachersIds
           currentTeachersIds = currentTeachersIds.filter(
-            (id) => id !== removedTeacherId
+            (id) => id !== removedTeacherId,
           );
         }
       }
@@ -1811,7 +2037,7 @@ export class SchedulingService {
     } catch (error) {
       console.error(
         `Error updating teachersIds for student ${studentId}:`,
-        error
+        error,
       );
       throw error;
     }
@@ -1825,7 +2051,7 @@ export class SchedulingService {
    */
   async updateScheduleAndPruneClasses(
     studentId: string,
-    newTemplateData: ClassTemplate
+    newTemplateData: ClassTemplate,
   ): Promise<void> {
     // 1. Buscar o template antigo para comparação
     const oldTemplate = await classTemplateRepository.get(studentId);
@@ -1839,15 +2065,15 @@ export class SchedulingService {
           (newEntry) =>
             oldEntry.day === newEntry.day &&
             oldEntry.hour === newEntry.hour &&
-            oldEntry.teacherId === newEntry.teacherId
-        )
+            oldEntry.teacherId === newEntry.teacherId,
+        ),
     );
 
     // 3. Executar a exclusão em cascata das aulas correspondentes
     if (removedEntries.length > 0) {
       await classRepository.deleteFutureClassesByTemplate(
         studentId,
-        removedEntries
+        removedEntries,
       );
     }
 
@@ -1855,14 +2081,14 @@ export class SchedulingService {
     await this.updateStudentTeachersIds(
       studentId,
       oldTemplate,
-      newTemplateData
+      newTemplateData,
     );
 
     // 5. Update classes in Firestore with new teacher information
     await this.updateClassesWithNewTeacherInfo(
       studentId,
       oldTemplate,
-      newTemplateData
+      newTemplateData,
     );
 
     // 6. Salvar o novo template
@@ -1878,7 +2104,7 @@ export class SchedulingService {
   async updateClassesWithNewTeacherInfo(
     studentId: string,
     oldTemplate: ClassTemplate | null,
-    newTemplate: ClassTemplate
+    newTemplate: ClassTemplate,
   ): Promise<void> {
     try {
       // Create a map of schedule changes: (day,hour) -> oldTeacherId,newTeacherId
@@ -1914,7 +2140,7 @@ export class SchedulingService {
 
       // Find entries where teacher changed
       const changedEntries = Array.from(scheduleChanges.entries()).filter(
-        ([key, change]) => change.oldTeacherId !== change.newTeacherId
+        ([key, change]) => change.oldTeacherId !== change.newTeacherId,
       );
 
       if (changedEntries.length === 0) {
@@ -1952,7 +2178,7 @@ export class SchedulingService {
             const classDay = daysOfWeekPt[classDate.getDay()];
             const classHour = `${String(classDate.getHours()).padStart(
               2,
-              "0"
+              "0",
             )}:${String(classDate.getMinutes()).padStart(2, "0")}`;
 
             // If this class matches the schedule entry that changed
@@ -1968,7 +2194,7 @@ export class SchedulingService {
           if (updateCount > 0) {
             await batch.commit();
             console.log(
-              `Updated ${updateCount} classes for student ${studentId} with new teacher ${change.newTeacherId} for ${day} at ${hour}`
+              `Updated ${updateCount} classes for student ${studentId} with new teacher ${change.newTeacherId} for ${day} at ${hour}`,
             );
           }
         }
@@ -1976,7 +2202,7 @@ export class SchedulingService {
     } catch (error) {
       console.error(
         `Error updating classes with new teacher info for student ${studentId}:`,
-        error
+        error,
       );
       throw error;
     }
@@ -1994,7 +2220,7 @@ export class SchedulingService {
     if (entriesToDelete.length > 0) {
       await classRepository.deleteFutureClassesByTemplate(
         studentId,
-        entriesToDelete
+        entriesToDelete,
       );
     }
 
@@ -2006,7 +2232,7 @@ export class SchedulingService {
       const student = await userAdminRepository.findUserById(studentId);
       if (student && student.teachersIds) {
         const updatedTeachersIds = student.teachersIds.filter(
-          (id) => !teacherIdsToRemove.includes(id)
+          (id) => !teacherIdsToRemove.includes(id),
         );
         await userAdminRepository.update(studentId, {
           teachersIds: updatedTeachersIds,
@@ -2030,7 +2256,7 @@ export class SchedulingService {
     classId: string,
     newStatus: ClassStatus | undefined,
     feedback: string | undefined,
-    currentUserId: string
+    currentUserId: string,
   ): Promise<StudentClass> {
     const classToUpdate = await classRepository.findClassById(classId);
     if (!classToUpdate) {
@@ -2073,7 +2299,8 @@ export class SchedulingService {
         console.error("Failed to increment completedClassesCount:", err);
       }
       try {
-        const { achievementService } = await import("@/services/learning/achievementService");
+        const { achievementService } =
+          await import("@/services/learning/achievementService");
         await achievementService.evaluateAndSyncStudentAchievements(studentId);
       } catch (err) {
         console.error("Failed to evaluate achievements after completion:", err);
@@ -2090,7 +2317,7 @@ export class SchedulingService {
    * @returns Uma lista de PopulatedStudentClass.
    */
   async getPopulatedClassesForTeacher(
-    teacherId: string
+    teacherId: string,
   ): Promise<PopulatedStudentClass[]> {
     // Confirme que esta linha chama o método correto: findAllClassesByTeacherId
     const classes = await classRepository.findAllClassesByTeacherId(teacherId);
@@ -2126,7 +2353,7 @@ export class SchedulingService {
    * @returns Uma lista de PopulatedStudentClass.
    */
   async getPopulatedClassesForStudent(
-    studentId: string
+    studentId: string,
   ): Promise<PopulatedStudentClass[]> {
     const classes = await classRepository.findAllClassesByStudentId(studentId);
     if (classes.length === 0) return [];
@@ -2135,7 +2362,10 @@ export class SchedulingService {
       ...new Set(
         classes
           .map((cls) => cls.teacherId)
-          .filter((id): id is string => typeof id === "string" && id.trim().length > 0)
+          .filter(
+            (id): id is string =>
+              typeof id === "string" && id.trim().length > 0,
+          ),
       ),
     ];
     const teachers = await userAdminRepository.findUsersByIds(teacherIds);
@@ -2182,7 +2412,7 @@ export class SchedulingService {
 
     // Filtra para retornar apenas os horários que um aluno pode usar para reagendar
     const availableSlots = slots.filter(
-      (slot) => slot.type === AvailabilityType.MAKEUP
+      (slot) => slot.type === AvailabilityType.MAKEUP,
     );
 
     console.log("[getTeacherAvailabilityForStudent] Debug:", {
@@ -2212,7 +2442,7 @@ export class SchedulingService {
    */
   async getTeacherAvailabilityForReschedule(teacherId: string) {
     console.log(
-      `[getTeacherAvailabilityForReschedule] Starting for teacher: ${teacherId}`
+      `[getTeacherAvailabilityForReschedule] Starting for teacher: ${teacherId}`,
     );
 
     const [slots, exceptions, teacher, bookedClasses] = await Promise.all([
@@ -2278,7 +2508,7 @@ export class SchedulingService {
       startDate?: Date;
       endDate?: Date;
       limit?: number;
-    }
+    },
   ): Promise<StudentClass[]> {
     try {
       let query = adminDb
@@ -2324,7 +2554,7 @@ export class SchedulingService {
    */
   async isStudentOwnerOfClass(
     studentId: string,
-    classId: string
+    classId: string,
   ): Promise<boolean> {
     try {
       const classData = await classRepository.findClassById(classId);
@@ -2400,7 +2630,7 @@ export class SchedulingService {
         0,
         23,
         59,
-        59
+        59,
       );
 
       // Busca aulas reagendadas pelo estudante no mês atual
@@ -2426,7 +2656,7 @@ export class SchedulingService {
    */
   async canRescheduleClass(
     classId: string,
-    newDateTime: Date
+    newDateTime: Date,
   ): Promise<boolean> {
     try {
       const classData = await classRepository.findClassById(classId);
@@ -2460,7 +2690,7 @@ export class SchedulingService {
       const leadTimeHours = settings.bookingLeadTimeHours || 24;
       const now = new Date();
       const earliestRescheduleTime = new Date(
-        now.getTime() + leadTimeHours * 60 * 60 * 1000
+        now.getTime() + leadTimeHours * 60 * 60 * 1000,
       );
 
       if (newDateTime < earliestRescheduleTime) {
@@ -2470,7 +2700,7 @@ export class SchedulingService {
       // Verifica horizonte de reagendamento
       const horizonDays = settings.bookingHorizonDays || 30;
       const latestRescheduleDate = new Date(
-        now.getTime() + horizonDays * 24 * 60 * 60 * 1000
+        now.getTime() + horizonDays * 24 * 60 * 60 * 1000,
       );
 
       if (newDateTime > latestRescheduleDate) {
@@ -2495,7 +2725,7 @@ export class SchedulingService {
     classId: string,
     canceledBy: "student" | "teacher" | "admin",
     reason?: string,
-    allowMakeup: boolean = true
+    allowMakeup: boolean = true,
   ): Promise<void> {
     try {
       const classRef = adminDb.collection("classes").doc(classId);
@@ -2517,7 +2747,7 @@ export class SchedulingService {
           classData.teacherId,
           classId,
           reason,
-          allowMakeup
+          allowMakeup,
         );
       } else {
         // Cancelamento administrativo
@@ -2532,7 +2762,7 @@ export class SchedulingService {
         if (classData.availabilitySlotId) {
           await availabilityRepository.findAndDeleteException(
             classData.availabilitySlotId,
-            (classData.scheduledAt as any).toDate()
+            (classData.scheduledAt as any).toDate(),
           );
         }
       }
