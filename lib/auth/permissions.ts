@@ -19,7 +19,7 @@ import {
   ROLE_PERMISSIONS,
   roleHasPermission,
   isRoleHigherThan,
-} from "../../types/auth";
+} from "@/types/core/auth";
 
 // ============================================================================
 // CLASSE PRINCIPAL DE VERIFICAÇÃO DE PERMISSÕES
@@ -42,7 +42,7 @@ export class PermissionChecker {
     session: ExtendedSession,
     config: AuthorizationConfig,
     resourceId?: string,
-    resourceType?: ResourceType
+    resourceType?: ResourceType,
   ): Promise<AuthContext> {
     // Criar contexto de autorização
     const authContext: AuthContext = {
@@ -63,7 +63,7 @@ export class PermissionChecker {
     if (config.requiredPermissions && config.requiredPermissions.length > 0) {
       await this.checkRequiredPermissions(
         authContext,
-        config.requiredPermissions
+        config.requiredPermissions,
       );
     }
 
@@ -85,7 +85,7 @@ export class PermissionChecker {
           "CUSTOM_VALIDATION_FAILED",
           "Validação customizada falhou",
           403,
-          { userId: authContext.userId, resourceId }
+          { userId: authContext.userId, resourceId },
         );
       }
     }
@@ -98,14 +98,14 @@ export class PermissionChecker {
    */
   private async checkRequiredRoles(
     context: AuthContext,
-    requiredRoles: UserRole[]
+    requiredRoles: UserRole[],
   ): Promise<void> {
     const hasRequiredRole = requiredRoles.includes(context.userRole);
 
     if (!hasRequiredRole) {
       // Verificar se tem role superior na hierarquia
       const hasHigherRole = requiredRoles.some((requiredRole) =>
-        isRoleHigherThan(context.userRole, requiredRole)
+        isRoleHigherThan(context.userRole, requiredRole),
       );
 
       if (!hasHigherRole) {
@@ -117,7 +117,7 @@ export class PermissionChecker {
             userId: context.userId,
             userRole: context.userRole,
             requiredRoles,
-          }
+          },
         );
       }
     }
@@ -128,10 +128,10 @@ export class PermissionChecker {
    */
   private async checkRequiredPermissions(
     context: AuthContext,
-    requiredPermissions: UserPermission[]
+    requiredPermissions: UserPermission[],
   ): Promise<void> {
     const missingPermissions = requiredPermissions.filter(
-      (permission) => !context.permissions.includes(permission)
+      (permission) => !context.permissions.includes(permission),
     );
 
     if (missingPermissions.length > 0) {
@@ -143,7 +143,7 @@ export class PermissionChecker {
           userId: context.userId,
           missingPermissions,
           userPermissions: context.permissions,
-        }
+        },
       );
     }
   }
@@ -154,7 +154,7 @@ export class PermissionChecker {
   private async checkOwnership(
     context: AuthContext,
     resourceId: string,
-    resourceType: ResourceType
+    resourceType: ResourceType,
   ): Promise<void> {
     // Admins e managers têm acesso total
     if (["admin", "manager"].includes(context.userRole)) {
@@ -164,7 +164,7 @@ export class PermissionChecker {
     const ownershipResult = await this.ownershipValidator.validateOwnership(
       context.userId,
       resourceId,
-      resourceType
+      resourceType,
     );
 
     if (!ownershipResult.isOwner) {
@@ -177,7 +177,7 @@ export class PermissionChecker {
           resourceId,
           resourceType,
           reason: ownershipResult.reason,
-        }
+        },
       );
     }
   }
@@ -188,7 +188,7 @@ export class PermissionChecker {
   private async checkContext(
     context: AuthContext,
     resourceId: string,
-    resourceType: ResourceType
+    resourceType: ResourceType,
   ): Promise<void> {
     // Admins e managers têm acesso total
     if (["admin", "manager"].includes(context.userRole)) {
@@ -199,7 +199,7 @@ export class PermissionChecker {
       context.userId,
       resourceId,
       resourceType,
-      context.userRole
+      context.userRole,
     );
 
     if (!contextResult.hasContext) {
@@ -213,7 +213,7 @@ export class PermissionChecker {
           resourceType,
           userRole: context.userRole,
           reason: contextResult.reason,
-        }
+        },
       );
     }
   }
@@ -230,7 +230,7 @@ export class PermissionChecker {
    */
   hasAnyPermission(userRole: UserRole, permissions: UserPermission[]): boolean {
     return permissions.some((permission) =>
-      this.hasPermission(userRole, permission)
+      this.hasPermission(userRole, permission),
     );
   }
 
@@ -239,10 +239,10 @@ export class PermissionChecker {
    */
   hasAllPermissions(
     userRole: UserRole,
-    permissions: UserPermission[]
+    permissions: UserPermission[],
   ): boolean {
     return permissions.every((permission) =>
-      this.hasPermission(userRole, permission)
+      this.hasPermission(userRole, permission),
     );
   }
 }
@@ -261,7 +261,7 @@ export class DefaultOwnershipValidator implements OwnershipValidator {
   async validateOwnership(
     userId: string,
     resourceId: string,
-    resourceType: ResourceType
+    resourceType: ResourceType,
   ): Promise<OwnershipValidationResult> {
     try {
       switch (resourceType) {
@@ -295,7 +295,7 @@ export class DefaultOwnershipValidator implements OwnershipValidator {
     userId: string,
     resourceId: string,
     resourceType: ResourceType,
-    userRole: UserRole
+    userRole: UserRole,
   ): Promise<OwnershipValidationResult> {
     try {
       switch (resourceType) {
@@ -323,7 +323,7 @@ export class DefaultOwnershipValidator implements OwnershipValidator {
    */
   private async validateClassOwnership(
     userId: string,
-    classId: string
+    classId: string,
   ): Promise<OwnershipValidationResult> {
     // TODO: Implementar consulta ao banco de dados
     // Por enquanto, retorna validação mock
@@ -337,7 +337,7 @@ export class DefaultOwnershipValidator implements OwnershipValidator {
     // };
 
     console.warn(
-      "validateClassOwnership: Implementação mock - substituir por consulta real ao banco"
+      "validateClassOwnership: Implementação mock - substituir por consulta real ao banco",
     );
     return {
       isOwner: true, // Mock: sempre retorna true para desenvolvimento
@@ -352,7 +352,7 @@ export class DefaultOwnershipValidator implements OwnershipValidator {
   private async validateClassContext(
     userId: string,
     classId: string,
-    userRole: UserRole
+    userRole: UserRole,
   ): Promise<OwnershipValidationResult> {
     if (userRole !== "teacher") {
       return {
@@ -371,7 +371,7 @@ export class DefaultOwnershipValidator implements OwnershipValidator {
     // };
 
     console.warn(
-      "validateClassContext: Implementação mock - substituir por consulta real ao banco"
+      "validateClassContext: Implementação mock - substituir por consulta real ao banco",
     );
     return {
       isOwner: false,
@@ -385,7 +385,7 @@ export class DefaultOwnershipValidator implements OwnershipValidator {
    */
   private async validateUserOwnership(
     userId: string,
-    targetUserId: string
+    targetUserId: string,
   ): Promise<OwnershipValidationResult> {
     return {
       isOwner: userId === targetUserId,
@@ -402,7 +402,7 @@ export class DefaultOwnershipValidator implements OwnershipValidator {
    */
   private async validateSettingOwnership(
     userId: string,
-    settingId: string
+    settingId: string,
   ): Promise<OwnershipValidationResult> {
     // TODO: Implementar lógica específica para configurações
     // Por enquanto, assume que configurações são sempre do próprio usuário
@@ -445,7 +445,7 @@ export function createAuthError(
   type: AuthorizationErrorType,
   message: string,
   statusCode: number = 403,
-  metadata?: Record<string, any>
+  metadata?: Record<string, any>,
 ): AuthorizationError {
   return new AuthorizationError(type, message, statusCode, metadata);
 }

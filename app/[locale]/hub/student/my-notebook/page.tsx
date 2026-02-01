@@ -1,6 +1,6 @@
 "use client";
 import { useSession } from "next-auth/react";
-import { useStudentPanel } from "@/hooks/useStudentPanel";
+import { useStudentPanel } from "@/hooks/student/useStudentPanel";
 import NotebooksCard from "@/components/teacher/NotebooksCard";
 import { LearningPath } from "@/components/notebook/LearningPath";
 import { StatsDashboard } from "@/components/notebook/StatsDashboard";
@@ -8,12 +8,12 @@ import { useEffect, useState } from "react";
 import {
   getStudentLearningStats,
   getActivePlanId,
-} from "@/actions/srs-actions";
+} from "@/actions/srsActions";
 import ErrorAlert from "@/components/ui/error-alert";
 import { Header } from "@/components/ui/header";
 import { useTranslations } from "next-intl";
 import TasksCard from "@/components/teacher/TaskCard";
-import { useGoogleCalendarSync } from "@/hooks/useGoogleCalendarSync";
+import { useGoogleCalendarSync } from "@/hooks/student/useGoogleCalendarSync";
 import { SpinnerLoading } from "@/components/transitions/spinner-loading";
 import { WordOfTheDayModal } from "@/components/word-of-the-day/word-of-the-day-modal";
 import { Star } from "lucide-react";

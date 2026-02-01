@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { withAuth, createTeacherConfig } from '../../../../lib/auth/middleware';
-import { schedulingService } from '../../../../services/schedulingService';
+import { NextRequest, NextResponse } from "next/server";
+import { withAuth, createTeacherConfig } from "../../../../lib/auth/middleware";
+import { schedulingService } from "@/services/learning/schedulingService";
 
 /**
  * Endpoint para cancelamento de aulas por professores
- * 
+ *
  * Aplicação do novo sistema de autorização:
  * - Validação automática de autenticação
  * - Verificação de role TEACHER, ADMIN ou MANAGER
@@ -14,15 +14,15 @@ import { schedulingService } from '../../../../services/schedulingService';
  */
 async function cancelClassHandler(
   request: NextRequest,
-  { params, authContext }: { params?: any; authContext: any }
+  { params, authContext }: { params?: any; authContext: any },
 ) {
   try {
     const { classId, reason } = await request.json();
 
     if (!classId) {
       return NextResponse.json(
-        { error: 'ID da aula é obrigatório.' },
-        { status: 400 }
+        { error: "ID da aula é obrigatório." },
+        { status: 400 },
       );
     }
 
@@ -31,24 +31,23 @@ async function cancelClassHandler(
     // 2. Role de professor/admin/manager
     // 3. Contexto da aula (professor pode cancelar aulas que leciona)
     // 4. Rate limiting
-    
+
     const result = await schedulingService.cancelClass(
       classId,
-      'teacher',
-      reason
+      "teacher",
+      reason,
     );
 
     return NextResponse.json({
       success: true,
-      message: 'Aula cancelada com sucesso.',
-      data: result
+      message: "Aula cancelada com sucesso.",
+      data: result,
     });
-    
   } catch (error) {
-    console.error('Erro ao cancelar aula:', error);
+    console.error("Erro ao cancelar aula:", error);
     return NextResponse.json(
-      { error: 'Erro interno do servidor.' },
-      { status: 500 }
+      { error: "Erro interno do servidor." },
+      { status: 500 },
     );
   }
 }
@@ -56,5 +55,5 @@ async function cancelClassHandler(
 // Aplicar middleware de autorização com configuração específica para professores
 export const POST = withAuth(
   cancelClassHandler,
-  createTeacherConfig('class', 'cancellation')
+  createTeacherConfig("class", "cancellation"),
 );

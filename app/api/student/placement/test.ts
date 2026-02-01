@@ -1,6 +1,6 @@
 // Test file for placement API route - not for production use
 
-import { placementService } from '@/services/placementService';
+import { placementService } from '@/services/learning/placementService';
 
 // Mock data for testing
 const mockTests = [

@@ -15,14 +15,14 @@ import {
   WithAuthOptions,
   AuthMiddlewareResult,
   RateLimitConfig,
-} from "../../types/auth";
+} from "@/types/core/auth";
 import {
   getPermissionChecker,
   isAuthorizationError,
   authErrorToResponse,
   createAuthError,
 } from "./permissions";
-import { RateLimiter } from "@/lib/rateLimit";
+import { RateLimiter } from "@/lib/security/rateLimit";
 
 // ============================================================================
 // MIDDLEWARE PRINCIPAL
@@ -37,11 +37,11 @@ import { RateLimiter } from "@/lib/rateLimit";
  */
 export function withAuth(
   handler: AuthenticatedApiHandler,
-  options: WithAuthOptions
+  options: WithAuthOptions,
 ) {
   return async function protectedHandler(
     request: NextRequest,
-    context: { params?: any }
+    context: { params?: any },
   ): Promise<NextResponse> {
     // console.log("=== DEBUG withAuth INÍCIO ===");
     // console.log("request.method:", request.method);
@@ -66,7 +66,7 @@ export function withAuth(
         await executeRateLimiting(
           request,
           authResult.authContext,
-          options.authorization.rateLimiting
+          options.authorization.rateLimiting,
         );
       }
 
@@ -106,7 +106,7 @@ export function withAuth(
 async function executeAuthValidation(
   request: NextRequest,
   context: { params?: any },
-  options: WithAuthOptions
+  options: WithAuthOptions,
 ): Promise<AuthMiddlewareResult> {
   try {
     // 1. Verificar autenticação
@@ -118,11 +118,11 @@ async function executeAuthValidation(
         error: createAuthError(
           "UNAUTHENTICATED",
           "Usuário não autenticado",
-          401
+          401,
         ),
         errorResponse: NextResponse.json(
           { error: "Acesso não autorizado. Faça login para continuar." },
-          { status: 401 }
+          { status: 401 },
         ),
       };
     }
@@ -147,7 +147,7 @@ async function executeAuthValidation(
       session,
       options.authorization,
       resourceId,
-      options.resourceType
+      options.resourceType,
     );
 
     return {
@@ -172,11 +172,11 @@ async function executeAuthValidation(
       error: createAuthError(
         "CUSTOM_VALIDATION_FAILED",
         "Erro interno na validação de autorização",
-        500
+        500,
       ),
       errorResponse: NextResponse.json(
         { error: "Erro interno do servidor" },
-        { status: 500 }
+        { status: 500 },
       ),
     };
   }
@@ -192,7 +192,7 @@ async function executeAuthValidation(
 async function executeRateLimiting(
   request: NextRequest,
   authContext: any,
-  rateLimitConfig: RateLimitConfig
+  rateLimitConfig: RateLimitConfig,
 ): Promise<void> {
   const rateLimiter = RateLimiter.getInstance();
 
@@ -214,7 +214,7 @@ async function executeRateLimiting(
   const isAllowed = await rateLimiter.checkRateLimit(
     rateLimitKey,
     rateLimitConfig.operationType,
-    rateLimitConfig.customLimit
+    rateLimitConfig.customLimit,
   );
 
   if (!isAllowed) {
@@ -229,7 +229,7 @@ async function executeRateLimiting(
         operationType: rateLimitConfig.operationType,
         userId: authContext.userId,
         clientIp,
-      }
+      },
     );
   }
 }
@@ -270,7 +270,7 @@ function handleAuthError(
   request: NextRequest,
   authResult: AuthMiddlewareResult | null,
   options: WithAuthOptions,
-  startTime: number
+  startTime: number,
 ): NextResponse {
   // Log do erro
   if (options.authorization.enableLogging) {
@@ -291,7 +291,7 @@ function handleAuthError(
   console.error("Erro inesperado no middleware de autorização:", error);
   return NextResponse.json(
     { error: "Erro interno do servidor" },
-    { status: 500 }
+    { status: 500 },
   );
 }
 
@@ -305,7 +305,7 @@ function handleAuthError(
 function logAuthSuccess(
   request: NextRequest,
   authContext: any,
-  duration: number
+  duration: number,
 ): void {
   const logData = {
     timestamp: new Date().toISOString(),
@@ -320,7 +320,7 @@ function logAuthSuccess(
     clientIp: getClientIp(request),
   };
 
-//  console.log("Auth Success:", JSON.stringify(logData));
+  //  console.log("Auth Success:", JSON.stringify(logData));
 }
 
 /**
@@ -330,7 +330,7 @@ function logAuthError(
   error: any,
   request: NextRequest,
   authResult: AuthMiddlewareResult | null,
-  duration: number
+  duration: number,
 ): void {
   const logData = {
     timestamp: new Date().toISOString(),
@@ -353,7 +353,7 @@ function logAuthError(
 function logRateLimitBlocked(
   request: NextRequest,
   authContext: any,
-  operationType: string
+  operationType: string,
 ): void {
   const logData = {
     timestamp: new Date().toISOString(),
@@ -377,7 +377,7 @@ function logRateLimitBlocked(
  * Cria configuração básica de autorização
  */
 export function createAuthConfig(
-  config: Partial<AuthorizationConfig>
+  config: Partial<AuthorizationConfig>,
 ): AuthorizationConfig {
   return {
     enableLogging: true,
@@ -391,7 +391,7 @@ export function createAuthConfig(
 export function createOwnershipConfig(
   requiredRoles: string[],
   resourceType: string,
-  rateLimitType?: string
+  rateLimitType?: string,
 ): WithAuthOptions {
   return {
     authorization: {
@@ -476,7 +476,7 @@ export function createAdminAuthConfig(): WithAuthOptions {
  */
 export function createStudentConfig(
   resourceType: string,
-  operationType: string
+  operationType: string,
 ): WithAuthOptions {
   return {
     authorization: {
@@ -504,7 +504,7 @@ export function createStudentConfig(
  */
 export function createTeacherConfig(
   resourceType: string,
-  operationType: string
+  operationType: string,
 ): WithAuthOptions {
   return {
     authorization: {
@@ -529,7 +529,7 @@ export function createTeacherConfig(
  */
 export function createUniversalConfig(
   resourceType: string,
-  rateLimitType: string = "general"
+  rateLimitType: string = "general",
 ): WithAuthOptions {
   return {
     authorization: {
@@ -554,7 +554,7 @@ export function createUniversalConfig(
  */
 export function createAdminConfig(
   resourceType: string,
-  operationType: string = "general"
+  operationType: string = "general",
 ): WithAuthOptions {
   return {
     authorization: {

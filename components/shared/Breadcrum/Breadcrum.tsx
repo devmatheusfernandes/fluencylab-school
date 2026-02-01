@@ -1,6 +1,6 @@
 "use client";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/ui/useMobile";
 import { MenuIcon } from "@/public/animated/menu";
 import * as React from "react";
 import { twMerge } from "tailwind-merge";

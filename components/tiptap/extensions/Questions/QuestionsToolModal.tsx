@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 import { db } from "@/lib/firebase/config";
-import { handleImageUpload, deleteImageByUrl, handleAudioUpload } from "@/lib/tiptap-utils";
+import { handleImageUpload, deleteImageByUrl, handleAudioUpload } from "@/lib/ui/tiptapUtils";
 import { useSession } from "next-auth/react";
 import { addDoc, collection, deleteDoc, doc, onSnapshot, query, Timestamp, updateDoc } from "firebase/firestore";
 

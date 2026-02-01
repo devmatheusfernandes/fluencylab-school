@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../auth/[...nextauth]/route';
-import { UserAdminRepository } from '@/repositories/user.admin.repository';
+import { UserAdminRepository } from '@/repositories/admin/userAdminRepository';
 
 const userAdminRepository = new UserAdminRepository();
 

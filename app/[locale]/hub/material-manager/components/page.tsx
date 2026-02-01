@@ -1,5 +1,5 @@
 import { adminDb } from "@/lib/firebase/admin";
-import { LearningItem, LearningStructure } from "@/types/lesson";
+import { LearningItem, LearningStructure } from "@/types/learning/lesson";
 import LessonComponentsManager from "@/components/lessons/LessonComponentsManager";
 import { Header } from "@/components/ui/header";
 import { getTranslations } from "next-intl/server";

@@ -4,9 +4,9 @@ import * as React from "react";
 import { Sidebar } from "./Sidebar";
 import { UserData } from "../UserCard/UserCard";
 import { SidebarItemType } from "./Sidebar";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { useFirebaseNotifications } from "@/hooks/useFirebaseNotifications";
-import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
+import { useFirebaseNotifications } from "@/hooks/communication/useFirebaseNotifications";
+import { usePushNotifications } from "@/hooks/communication/usePushNotifications";
 
 interface SidebarWrapperProps {
   items: SidebarItemType[];

@@ -1,6 +1,6 @@
 "use client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { FullUserDetails } from "@/types/users/user-details";
+import { FullUserDetails } from "@/types/users/userDetails";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import UserOverviewTab from "./UserOverviewTab";
 import UserClassesTab from "./UserClassesTab";
@@ -16,7 +16,7 @@ import { UserRoles } from "@/types/users/userRoles";
 import { useTranslations } from "next-intl";
 import { BackButton } from "../ui/back-button";
 import UserPlanTab from "./UserPlanTab";
-import { Plan } from "@/types/plan";
+import { Plan } from "@/types/financial/plan";
 
 interface UserDetailsClientProps {
   user: FullUserDetails;

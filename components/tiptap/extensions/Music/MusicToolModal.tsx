@@ -28,7 +28,7 @@ import {
   Wand2,
   MousePointerClick
 } from "lucide-react";
-import { isExtensionAvailable } from "@/lib/tiptap-utils";
+import { isExtensionAvailable } from "@/lib/ui/tiptapUtils";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 

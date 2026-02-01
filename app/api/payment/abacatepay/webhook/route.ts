@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SubscriptionService } from "@/services/subscriptionService";
+import { SubscriptionService } from "@/services/financial/subscriptionService";
 import {
   verifyAbacatePaySignature,
   verifyAbacatePayWebhookSecret,
-} from "@/lib/abacatepay/config";
+} from "@/lib/config/abacatepay";
 
 export async function POST(request: NextRequest) {
   try {

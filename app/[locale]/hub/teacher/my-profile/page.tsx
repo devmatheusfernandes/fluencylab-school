@@ -1,10 +1,10 @@
 "use client";
 import UserProfileHeader from "@/components/shared/UserCard/UserProfileHeader";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 import { signOut } from "next-auth/react";
 import { useEffect, useMemo } from "react";
-import { useTeacher } from "@/hooks/useTeacher";
+import { useTeacher } from "@/hooks/teacher/useTeacher";
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { Calendar as CalendarIcon } from "lucide-react";

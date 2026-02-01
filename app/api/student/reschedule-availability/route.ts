@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { schedulingService } from '@/services/schedulingService';
+import { schedulingService } from '@/services/learning/schedulingService';
 
 // GET /api/student/reschedule-availability?teacherId=XYZ123
 export async function GET(request: Request) {

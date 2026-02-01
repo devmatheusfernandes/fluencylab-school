@@ -8,7 +8,7 @@ import GuidelinesModal from "./GuidelinesModal";
 import { Notebook } from "@/types/notebooks/notebooks";
 import { markdownComponents } from "./MarkdownComponents";
 import LessonViewer from "./LessonViewer";
-import { useIsMobile } from "@/hooks/use-mobile"; // Assumindo que você tem esse hook
+import { useIsMobile } from "@/hooks/ui/useMobile"; // Assumindo que você tem esse hook
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function WorkbookViewer() {

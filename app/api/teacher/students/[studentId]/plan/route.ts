@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { planRepository } from "@/repositories/planRepository";
+import { planRepository } from "@/repositories/financial/planRepository";
 import { adminDb } from "@/lib/firebase/admin";
 
 export async function GET(

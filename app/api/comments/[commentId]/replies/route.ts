@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { commentsService } from '@/services/commentsService';
+import { commentsService } from '@/services/communication/commentsService';
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ commentId: string }> }) {
   try {

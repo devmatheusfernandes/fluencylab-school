@@ -1,6 +1,6 @@
 // app/api/admin/announcements/route.ts
 import { NextResponse } from "next/server";
-import { AnnouncementService } from "@/services/announcementService";
+import { AnnouncementService } from "@/services/communication/announcementService";
 import { UserRoles } from "@/types/users/userRoles";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";

@@ -1,7 +1,7 @@
 // app/api/student/generate-pix/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { SubscriptionService } from '@/services/subscriptionService';
+import { SubscriptionService } from '@/services/financial/subscriptionService';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function POST(request: NextRequest) {

@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
-import { Lesson } from "@/types/lesson";
+import { Lesson } from "@/types/learning/lesson";
 import LessonOperations from "@/components/lessons/LessonOperations";
 import LessonEditor from "@/components/lessons/LessonEditor";
 import { Spinner } from "@/components/ui/spinner";

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { TranscriptionService } from '@/services/transcriptionService';
+import { TranscriptionService } from '@/services/learning/transcriptionService';
 
 export async function POST(req: NextRequest) {
   try {

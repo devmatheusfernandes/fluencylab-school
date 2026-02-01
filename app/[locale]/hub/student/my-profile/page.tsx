@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ContainerCard } from "@/components/ui/container";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 import { signOut } from "next-auth/react";
 import NextClassCard from "@/components/student/NextClassCard";
 import ProgressStatusCard from "@/components/student/ProgressStatusCard";
@@ -25,7 +25,7 @@ import { motion } from "framer-motion";
 import {
   getStudentLearningStats,
   getActivePlanId,
-} from "@/actions/srs-actions";
+} from "@/actions/srsActions";
 import { WordOfTheDayModal } from "@/components/word-of-the-day/word-of-the-day-modal";
 
 const ProfileHeaderSkeleton = () => (

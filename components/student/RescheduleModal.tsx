@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PopulatedStudentClass, StudentClass } from "@/types/classes/class";
 import { AvailabilitySlot } from "@/types/time/availability";
-import { AvailableTimeSlot } from "@/hooks/useTeacherAvailabilityForReschedule";
-import { useStudent } from "@/hooks/useStudent";
+import { AvailableTimeSlot } from "@/hooks/teacher/useTeacherAvailabilityForReschedule";
+import { useStudent } from "@/hooks/student/useStudent";
 import {
   Modal,
   ModalBody,
@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/modal";
 import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
-import { useTeacherAvailabilityForReschedule } from "@/hooks/useTeacherAvailabilityForReschedule";
+import { useTeacherAvailabilityForReschedule } from "@/hooks/teacher/useTeacherAvailabilityForReschedule";
 import { Card } from "@/components/ui/card";
 import { Spinner } from "../ui/spinner";
 import { useTranslations, useLocale } from "next-intl";

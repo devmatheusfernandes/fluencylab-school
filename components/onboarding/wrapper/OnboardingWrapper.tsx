@@ -2,7 +2,7 @@
 "use client";
 
 import React from "react";
-import { useOnboarding } from "@/hooks/useOnboarding";
+import { useOnboarding } from "@/hooks/ui/useOnboarding";
 import { OnboardingModal } from "../OnboardingModal";
 import { SpinnerLoading } from "@/components/transitions/spinner-loading";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { generateBreadcrumbs } from "@/lib/breadcrumb";
+import { generateBreadcrumbs } from "@/lib/ui/breadcrumb";
 import Breadcrumb from "./index";
 import { useSidebar } from "@/context/SidebarContext";
 import { useMessages } from "next-intl";

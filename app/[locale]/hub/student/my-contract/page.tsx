@@ -2,7 +2,7 @@
 
 import React, { useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useContract } from "@/hooks/useContract";
+import { useContract } from "@/hooks/financial/useContract";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import ContratoPDF from "@/components/contract/ContratoPDF";

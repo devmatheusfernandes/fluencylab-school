@@ -3,7 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { CreditService } from '@/services/creditService';
+import { CreditService } from '@/services/financial/creditService';
 
 const creditService = new CreditService();
 

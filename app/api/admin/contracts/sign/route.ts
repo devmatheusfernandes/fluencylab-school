@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { contractService } from "@/services/contractService";
+import { contractService } from "@/services/financial/contractService";
 import { AdminSignContractRequest } from "@/types/contract";
 
 // POST /api/admin/contracts/sign - Admin sign a contract

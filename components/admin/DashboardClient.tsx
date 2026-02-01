@@ -1,7 +1,7 @@
 "use client";
 
 import StatCard from "./StatCard";
-import { useCan } from "@/hooks/useCurrentUser";
+import { useCan } from "@/hooks/auth/useCurrentUser";
 // Importe os seus componentes de Gráfico e Tabela de Atividade aqui
 // import RevenueChart from "./RevenueChart";
 // import RecentActivityTable from "./RecentActivityTable";

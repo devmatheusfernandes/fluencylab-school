@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useTranslations } from "next-intl";
-import { Plan } from "@/types/plan";
+import { Plan } from "@/types/financial/plan";
 import { PlanViewer } from "@/components/plans/PlanViewer";
 import { PlanEditor } from "@/components/plans/PlanEditor";
 import {
@@ -15,7 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { createPlan, archivePlan, updatePlan } from "@/actions/plan-actions";
+import { createPlan, archivePlan, updatePlan } from "@/actions/planActions";
 import { Plus, AlertTriangle, Pencil, Archive } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";

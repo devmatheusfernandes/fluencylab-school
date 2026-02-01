@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { Input } from "@/components/ui/input";
 import { QRCodeSVG } from "qrcode.react";
-import { useSettings } from "@/hooks/useSettings";
+import { useSettings } from "@/hooks/core/useSettings";
 import { Spinner } from "../ui/spinner";
 import { useTranslations } from "next-intl";
 import { Lock, ShieldCheck } from "lucide-react";

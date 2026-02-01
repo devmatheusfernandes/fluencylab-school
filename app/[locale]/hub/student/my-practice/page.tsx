@@ -2,7 +2,7 @@
 import { getCurrentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { PracticeSession } from "@/components/practice/PracticeSession";
-import { planRepository } from "@/repositories/planRepository";
+import { planRepository } from "@/repositories/financial/planRepository";
 
 export default async function MyPracticePage() {
   const sessionUser = await getCurrentUser();

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Lesson } from "@/types/lesson";
+import { Lesson } from "@/types/learning/lesson";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
@@ -10,8 +10,8 @@ import {
   generateLessonQuiz,
   generateLessonTranscript,
   createLesson,
-} from "@/actions/lesson-processing";
-import { approveLesson } from "@/actions/lesson-updating";
+} from "@/actions/lessonProcessing";
+import { approveLesson } from "@/actions/lessonUpdating";
 import {
   Modal,
   ModalContent,

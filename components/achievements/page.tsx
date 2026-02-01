@@ -1,6 +1,6 @@
 "use client";
 
-import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 import AchievementList from "@/components/student/AchievementList";
 import { Skeleton } from "../ui/skeleton";
 import { Header } from "../ui/header";

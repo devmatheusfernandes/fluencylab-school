@@ -58,8 +58,8 @@ export function SignInClient({ messages }: SignInClientProps) {
             sessionStorage.setItem("temp-2fa-data", JSON.stringify(tempData));
             router.push(
               `/${locale}/signin/2fa?callbackUrl=${encodeURIComponent(
-                callbackUrl
-              )}`
+                callbackUrl,
+              )}`,
             );
           } catch (fallbackError) {
             console.error("Erro no storage 2FA:", fallbackError);
@@ -147,6 +147,7 @@ export function SignInClient({ messages }: SignInClientProps) {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={t.studentIdPlaceholder}
                     required
+                    autoComplete="username"
                   />
 
                   <Input
@@ -155,6 +156,7 @@ export function SignInClient({ messages }: SignInClientProps) {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder={t.passwordPlaceholder}
                     required
+                    autoComplete="current-password"
                   />
 
                   <Button
@@ -165,7 +167,7 @@ export function SignInClient({ messages }: SignInClientProps) {
                   >
                     {isLoading ? (
                       <>
-                        <Spinner aria-hidden="true" />
+                        <Spinner aria-hidden="true" className="mr-2" />
                         <span className="sr-only">{t.loading}</span>
                         {t.loading}
                       </>
@@ -181,23 +183,23 @@ export function SignInClient({ messages }: SignInClientProps) {
                   )}
                 </form>
 
-              <div className="flex flex-col items-center gap-2">
-                <p className="text-center text-gray-600 dark:text-gray-300 mt-12 text-sm">
-                  {t.contactPrompt}{" "} <br />
+                <div className="flex flex-col items-center gap-2">
+                  <p className="text-center text-gray-600 dark:text-gray-300 mt-12 text-sm">
+                    {t.contactPrompt} <br />
+                    <a
+                      href="#"
+                      className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 hover:dark:text-indigo-300 font-medium underline"
+                    >
+                      {t.contactLink}
+                    </a>
+                  </p>
                   <a
-                    href="#"
-                    className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 hover:dark:text-indigo-300 font-medium underline"
+                    href={`/${locale}/forgot-password`}
+                    className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 hover:dark:text-indigo-300 font-medium underline"
                   >
-                    {t.contactLink}
+                    {t.forgotPassword}
                   </a>
-                </p>
-                <a
-                  href={`/${locale}/forgot-password`}
-                  className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 hover:dark:text-indigo-300 font-medium underline"
-                >
-                  {t.forgotPassword}
-                </a>
-              </div>
+                </div>
               </div>
             </div>
           </div>

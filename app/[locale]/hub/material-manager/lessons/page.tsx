@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
-import { Lesson } from "@/types/lesson";
+import { Lesson } from "@/types/learning/lesson";
 import {
   Modal,
   ModalContent,
@@ -18,7 +18,7 @@ import {
   ModalField,
   ModalInput,
 } from "@/components/ui/modal";
-import { createLesson } from "@/actions/lesson-processing";
+import { createLesson } from "@/actions/lessonProcessing";
 import { useRouter } from "next/navigation";
 import { Plus, BookOpen, Loader2 } from "lucide-react";
 import { toast } from "sonner";

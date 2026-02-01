@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { UserRoles } from "@/types/users/userRoles";
-import { Announcement, AnnouncementType } from "@/types/announcements";
+import { Announcement, AnnouncementType } from "@/types/communication/announcements";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,7 +15,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { useUsers } from "@/hooks/useUsers";
+import { useUsers } from "@/hooks/admin/useUsers";
 import { twMerge } from "tailwind-merge";
 import { toast } from "sonner";
 import { FileWarning, Info, InfoIcon, Lightbulb } from "lucide-react";

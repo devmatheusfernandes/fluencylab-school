@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withAuth, createUniversalConfig } from '@/lib/auth/middleware';
-import { schedulingService } from '@/services/schedulingService';
+import { schedulingService } from '@/services/learning/schedulingService';
 
 /**
  * Endpoint para reagendamento de aulas

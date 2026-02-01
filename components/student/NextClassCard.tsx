@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useStudent } from "@/hooks/useStudent";
+import { useStudent } from "@/hooks/student/useStudent";
 import { toast } from "sonner";
 import { Skeleton } from "../ui/skeleton";
 import { Button } from "../ui/button";

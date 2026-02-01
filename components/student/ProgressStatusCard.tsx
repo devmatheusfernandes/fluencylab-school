@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { useContract } from "@/hooks/useContract";
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
+import { useContract } from "@/hooks/financial/useContract";
 import { Skeleton } from "../ui/skeleton";
 import { useTranslations } from "next-intl";
 import { doc, getDoc, collection, query, where, orderBy, limit, getDocs } from "firebase/firestore";

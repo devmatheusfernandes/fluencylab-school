@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { UserService } from '@/services/userService';
+import { UserService } from '@/services/core/userService';
 import { User } from '@/types/users/users';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 

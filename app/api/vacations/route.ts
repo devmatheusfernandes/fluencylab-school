@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { schedulingService } from "@/services/schedulingService";
+import { schedulingService } from "@/services/learning/schedulingService";
 import { vacationRepository } from "@/repositories";
 import { authOptions } from "../auth/[...nextauth]/route";
 

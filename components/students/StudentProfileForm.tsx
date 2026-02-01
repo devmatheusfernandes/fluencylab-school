@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { User } from "@/types/users/users";
-import { createStudentProfile } from "@/actions/student-profile";
+import { createStudentProfile } from "@/actions/studentProfile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

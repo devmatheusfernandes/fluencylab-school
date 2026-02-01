@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { contractService } from "@/services/contractService";
+import { contractService } from "@/services/financial/contractService";
 import { ContractCancellationRequest } from "@/types/contract";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 

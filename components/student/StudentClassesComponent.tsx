@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { useStudent } from "@/hooks/useStudent";
+import { useStudent } from "@/hooks/student/useStudent";
 import { Text } from "@/components/ui/text";
 import { Card } from "@/components/ui/card";
 import {

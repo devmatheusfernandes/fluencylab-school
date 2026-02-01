@@ -2,19 +2,19 @@
 // Instâncias singleton centralizadas para todos os repositórios
 // Resolve o problema de instanciação duplicada identificado no relatório de auditoria
 
-import { UserRepository } from './userRepository';
-import { UserAdminRepository } from './user.admin.repository';
-import { ClassRepository } from './classRepository';
-import { ClassTemplateRepository } from './ClassTemplateRepository';
-import { AvailabilityRepository } from './availabilityRepository';
-import { PaymentRepository } from './paymentRepository';
-import { PlacementRepository } from './placementRepository';
-import { ContractRepository } from './contractRepository';
-import { VacationRepository } from './VacationRepository';
-import { AnnouncementRepository } from './announcementRepository';
-import { AchievementRepository } from './achievementRepository';
-import { CourseRepository } from './courseRepository';
-import { PlanRepository } from './planRepository';
+import { UserRepository } from './core/userRepository';
+import { UserAdminRepository } from './admin/userAdminRepository';
+import { ClassRepository } from './learning/classRepository';
+import { ClassTemplateRepository } from './learning/classTemplateRepository';
+import { AvailabilityRepository } from './teacher/availabilityRepository';
+import { PaymentRepository } from './financial/paymentRepository';
+import { PlacementRepository } from './learning/placementRepository';
+import { ContractRepository } from './financial/contractRepository';
+import { VacationRepository } from './teacher/vacationRepository';
+import { AnnouncementRepository } from './communication/announcementRepository';
+import { AchievementRepository } from './learning/achievementRepository';
+import { CourseRepository } from './learning/courseRepository';
+import { PlanRepository } from './financial/planRepository';
 
 // ============================================================================
 // INSTÂNCIAS SINGLETON CENTRALIZADAS

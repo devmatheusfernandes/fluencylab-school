@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
-import { useStudentPanel } from "@/hooks/useStudentPanel";
+import { useStudentPanel } from "@/hooks/student/useStudentPanel";
 import { ClassStatus } from "@/types/classes/class";
 
 import TasksCard from "@/components/teacher/TaskCard";

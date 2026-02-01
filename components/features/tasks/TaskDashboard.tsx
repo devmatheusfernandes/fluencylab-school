@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useTasks } from "@/hooks/features/tasks/useTasks"
-import { useCurrentUser } from "@/hooks/useCurrentUser"
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser"
 import { TaskDialog } from "./TaskDialog"
 import { Button } from "@/components/ui/button"
 import { Header } from "@/components/ui/header"

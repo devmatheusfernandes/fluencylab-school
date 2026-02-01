@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { classTemplateRepository } from "@/repositories";
 import { ClassTemplate } from "@/types/classes/class";
 import { authOptions } from "../../auth/[...nextauth]/route";
-import { schedulingService } from "@/services/schedulingService";
+import { schedulingService } from "@/services/learning/schedulingService";
 
 // GET: Retorna o template de horário de um aluno
 export async function GET(

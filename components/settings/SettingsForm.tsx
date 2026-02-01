@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
-import { useSettings } from "@/hooks/useSettings";
-import { useContract } from "@/hooks/useContract";
+import { useSettings } from "@/hooks/core/useSettings";
+import { useContract } from "@/hooks/financial/useContract";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/tooltip";
 import TwoFactorSetup from "./TwoFactorSetup";
 import { GoogleCalendarDefaultTimes } from "@/types/users/users";
-import { usePWAInstall } from "@/hooks/usePWAInstall";
+import { usePWAInstall } from "@/hooks/ui/usePWAInstall";
 import { ThemeSwitcher } from "../ThemeSwitcher";
 import { 
   Palette, 

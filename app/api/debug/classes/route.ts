@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { adminDb } from '@/lib/firebase/admin';
-import { ClassRepository } from '@/repositories/classRepository';
+import { ClassRepository } from '@/repositories/learning/classRepository';
 
 const classRepository = new ClassRepository();
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { contractService } from '@/services/contractService';
+import { contractService } from '@/services/financial/contractService';
 
 // GET /api/admin/contracts - Get all contracts for admin
 export async function GET(request: NextRequest) {

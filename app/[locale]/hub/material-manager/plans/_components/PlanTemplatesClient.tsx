@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Plus, Eye, Edit } from "lucide-react";
-import { Plan } from "@/types/plan";
+import { Plan } from "@/types/financial/plan";
 import { PlanEditor } from "@/components/plans/PlanEditor";
 import { PlanViewer } from "@/components/plans/PlanViewer";
 import { useTranslations } from "next-intl";
@@ -19,7 +19,7 @@ import {
 import { planRepository } from "@/repositories"; // Client components can't use repositories directly usually, but let's see if we can use server action instead.
 // Actually we should create a server action for creating/updating plans to be safe.
 // For now I will assume we have one or create one.
-import { createPlan, updatePlan } from "@/actions/plan-actions"; // We need to add these
+import { createPlan, updatePlan } from "@/actions/planActions"; // We need to add these
 
 interface PlanTemplatesClientProps {
   initialTemplates: Plan[];

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { adminDb } from '@/lib/firebase/admin';
-import { TranscriptionService } from '@/services/transcriptionService';
+import { TranscriptionService } from '@/services/learning/transcriptionService';
 
 export async function POST(request: NextRequest) {
   try {

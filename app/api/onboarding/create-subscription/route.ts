@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { SubscriptionService } from '@/services/subscriptionService';
+import { SubscriptionService } from '@/services/financial/subscriptionService';
 import { UserRoles } from '@/types/users/userRoles';
 
 export async function POST(request: NextRequest) {

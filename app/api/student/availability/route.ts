@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from 'next/server';
-import { SchedulingService } from '@/services/schedulingService';
+import { SchedulingService } from '@/services/learning/schedulingService';
 import { withAuth } from '@/lib/auth/middleware';
 
 const schedulingService = new SchedulingService();

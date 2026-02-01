@@ -2,9 +2,9 @@
 
 import { useState, useRef } from "react";
 import { useTranslations } from "next-intl";
-import { LearningItem, LearningStructure, GrammaticalRole } from "@/types/lesson";
-import { updateLearningItem, updateLearningStructure } from "@/actions/lesson-updating";
-import { handleImageUpload, deleteImageByUrl } from "@/lib/tiptap-utils";
+import { LearningItem, LearningStructure, GrammaticalRole } from "@/types/learning/lesson";
+import { updateLearningItem, updateLearningStructure } from "@/actions/lessonUpdating";
+import { handleImageUpload, deleteImageByUrl } from "@/lib/ui/tiptapUtils";
 import { toast } from "sonner";
 import Image from "next/image";
 import {

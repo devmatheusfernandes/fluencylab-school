@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { courseService } from "@/services/courseService";
+import { courseService } from "@/services/learning/courseService";
 
 export async function PUT(
   request: NextRequest,

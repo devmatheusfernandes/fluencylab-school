@@ -2,7 +2,7 @@
 
 import { useTranslations, useLocale } from "next-intl";
 import { useState } from "react";
-import { Plan } from "@/types/plan";
+import { Plan } from "@/types/financial/plan";
 import {
   Select,
   SelectContent,
@@ -24,7 +24,7 @@ import {
   ModalTrigger,
 } from "@/components/ui/modal";
 import { PlanEditor } from "@/components/plans/PlanEditor";
-import { createPlan, updatePlan } from "@/actions/plan-actions";
+import { createPlan, updatePlan } from "@/actions/planActions";
 import { toast } from "sonner";
 
 interface PlanCalendarCardProps {

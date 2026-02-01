@@ -3,7 +3,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { placementService } from "@/services/placementService";
+import { placementService } from "@/services/learning/placementService";
 import { placementRepository } from "@/repositories";
 
 // GET /api/student/placement - Get placement tests for the current user

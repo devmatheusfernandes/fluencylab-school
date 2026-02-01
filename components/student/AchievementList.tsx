@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import AchievementCard from "./AchievementCard";
-import { useAchievements } from "@/hooks/useAchievements";
+import { useAchievements } from "@/hooks/student/useAchievements";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "../ui/skeleton";
 import { useTranslations } from "next-intl";

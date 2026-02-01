@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { adminDb } from '@/lib/firebase/admin';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { ClassRepository } from '@/repositories/classRepository';
-import { UserAdminRepository } from '@/repositories/user.admin.repository';
+import { ClassRepository } from '@/repositories/learning/classRepository';
+import { UserAdminRepository } from '@/repositories/admin/userAdminRepository';
 
 const classRepository = new ClassRepository();
 const userAdminRepository = new UserAdminRepository();

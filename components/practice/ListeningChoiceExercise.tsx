@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, CheckCircle, ArrowRight, Volume2, HelpCircle } from "lucide-react";
-import { TranscriptSegment, LearningItem } from "@/types/lesson";
+import { TranscriptSegment, LearningItem } from "@/types/learning/lesson";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 

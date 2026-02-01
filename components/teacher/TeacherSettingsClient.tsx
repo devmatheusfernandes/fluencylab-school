@@ -6,9 +6,9 @@ import ClientCalendar from "@/components/teacher/ClientCalendar";
 import {
   mapTeacherEventsToCalendar,
   mapTeacherClassesToCalendar,
-} from "@/lib/calendar/calendarUtils";
+} from "@/lib/calendar/utils";
 import { serializeForClientComponent } from "@/utils/utils";
-import { useTeacher } from "@/hooks/useTeacher";
+import { useTeacher } from "@/hooks/teacher/useTeacher";
 
 // Utility function to convert ISO strings back to Date objects
 function convertStringToDate(obj: any): any {

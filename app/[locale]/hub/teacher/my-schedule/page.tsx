@@ -2,15 +2,15 @@ import TeacherVacationManager from "@/components/teacher/TeacherVacationManager"
 import TeacherSettingsForm from "@/components/teacher/TeacherSettingsForm";
 import TeacherSettingsClient from "@/components/teacher/TeacherSettingsClient";
 
-import { SchedulingService } from "@/services/schedulingService";
-import { UserAdminRepository } from "@/repositories/user.admin.repository";
+import { SchedulingService } from "@/services/learning/schedulingService";
+import { UserAdminRepository } from "@/repositories/admin/userAdminRepository";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 import {
   mapTeacherEventsToCalendar,
   mapTeacherClassesToCalendar,
-} from "@/lib/calendar/calendarUtils";
+} from "@/lib/calendar/utils";
 
 import { serializeForClientComponent } from "@/utils/utils";
 import { Card } from "@/components/ui/card";

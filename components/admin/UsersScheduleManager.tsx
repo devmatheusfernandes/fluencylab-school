@@ -12,7 +12,7 @@ import {
   ModalSecondaryButton,
 } from "@/components/ui/modal";
 import { useState, useEffect, useMemo } from "react";
-import { FullUserDetails } from "@/types/users/user-details";
+import { FullUserDetails } from "@/types/users/userDetails";
 import { User } from "@/types/users/users";
 import { ClassTemplateDay } from "@/types/classes/class";
 import { AvailabilitySlot } from "@/types/time/availability";

@@ -46,7 +46,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Toggle } from "@/components/ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useTranslations } from "next-intl";
-import { useUsers } from "@/hooks/useUsers";
+import { useUsers } from "@/hooks/admin/useUsers";
 import {
   Command,
   CommandEmpty,
@@ -71,7 +71,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Announcement } from "@/types/announcements";
+import { Announcement } from "@/types/communication/announcements";
 
 // Lista de papéis disponíveis para seleção
 const AVAILABLE_ROLES = [

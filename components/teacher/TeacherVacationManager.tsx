@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTeacher } from "@/hooks/useTeacher";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useTeacher } from "@/hooks/teacher/useTeacher";
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 import { Text } from "../ui/text";
 import { Calendar, Info } from "lucide-react";
 import { Card } from "../ui/card";

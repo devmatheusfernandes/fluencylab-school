@@ -1,6 +1,6 @@
 "use client"
 
-import { useIsStandalone } from "@/hooks/useIsStandalone"
+import { useIsStandalone } from "@/hooks/ui/useIsStandalone"
 import {
   CircleCheckIcon,
   InfoIcon,

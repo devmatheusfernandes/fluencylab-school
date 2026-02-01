@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/context/ThemeProvider";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { UserAdminRepository } from "@/repositories/user.admin.repository";
+import { UserAdminRepository } from "@/repositories/admin/userAdminRepository";
 import "./globals.css";
 
 const quicksand = Quicksand({

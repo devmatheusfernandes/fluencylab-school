@@ -1,6 +1,6 @@
 "use client";
 
-import { useTeacher } from "@/hooks/useTeacher";
+import { useTeacher } from "@/hooks/teacher/useTeacher";
 import { User } from "@/types/users/users";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";

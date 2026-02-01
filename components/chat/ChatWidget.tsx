@@ -17,13 +17,13 @@ import {
 import { Menu, ArrowLeft, Image as ImageIcon, FileText, X, PanelRight } from "lucide-react";
 import "./chat.css";
 
-import { useChatContacts } from "@/hooks/useChatContacts";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useChatContacts } from "@/hooks/communication/useChatContacts";
+import { useIsMobile } from "@/hooks/ui/useMobile";
 import { useChatClient } from "@/context/ChatClientContext";
 import { cn } from "@/lib/utils";
 import { UserAvatar } from "../ui/user-avatar";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { useUserProfile } from "@/hooks/useUserProfile";
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
+import { useUserProfile } from "@/hooks/user/useUserProfile";
 import { useSession } from "next-auth/react";
 import { UserAvatarBubble } from "../ui/user-avatar-bubble";
 import { useTranslations } from "next-intl";

@@ -2,7 +2,7 @@
 import UserProfileHeader from "@/components/shared/UserCard/UserProfileHeader";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 import { signOut } from "next-auth/react";
 
 export default function MyProfile() {

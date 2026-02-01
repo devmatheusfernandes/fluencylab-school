@@ -2,7 +2,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { withAuth, createUniversalConfig } from "../../../lib/auth/middleware";
-import { UserService } from "../../../services/userService";
+import { UserService } from "@/services/core/userService";
 
 const userService = new UserService();
 
@@ -38,21 +38,21 @@ function getAllowedProfileFieldsForRole(role: string): string[] {
  */
 async function updateProfileHandler(
   request: NextRequest,
-  { params, authContext }: { params?: any; authContext: any }
+  { params, authContext }: { params?: any; authContext: any },
 ) {
   try {
     const updateData = await request.json();
 
     // Validar campos que cada role pode modificar
     const allowedFieldsByRole = getAllowedProfileFieldsForRole(
-      authContext.userRole
+      authContext.userRole,
     );
     const requestedFields = Object.keys(updateData);
 
     // Se não é admin, verificar campos não permitidos
     if (!allowedFieldsByRole.includes("*")) {
       const unauthorizedFields = requestedFields.filter(
-        (field) => !allowedFieldsByRole.includes(field)
+        (field) => !allowedFieldsByRole.includes(field),
       );
 
       if (unauthorizedFields.length > 0) {
@@ -60,7 +60,7 @@ async function updateProfileHandler(
           {
             error: `Campos não permitidos para seu perfil: ${unauthorizedFields.join(", ")}`,
           },
-          { status: 403 }
+          { status: 403 },
         );
       }
     }
@@ -68,13 +68,13 @@ async function updateProfileHandler(
     // Impedir modificação de campos sensíveis (exceto para admins)
     const restrictedFields = ["id", "email", "createdAt", "updatedAt"];
     const hasRestrictedFields = restrictedFields.some(
-      (field) => field in updateData
+      (field) => field in updateData,
     );
 
     if (hasRestrictedFields) {
       return NextResponse.json(
         { error: "Não é possível atualizar campos restritos." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -82,7 +82,7 @@ async function updateProfileHandler(
     if ("role" in updateData && authContext.userRole !== "admin") {
       return NextResponse.json(
         { error: "Você não pode alterar seu próprio perfil de acesso." },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -90,14 +90,14 @@ async function updateProfileHandler(
     if (updateData.name && typeof updateData.name !== "string") {
       return NextResponse.json(
         { error: "Nome deve ser uma string." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (updateData.phone && typeof updateData.phone !== "string") {
       return NextResponse.json(
         { error: "Telefone deve ser uma string." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -107,7 +107,7 @@ async function updateProfileHandler(
 
     const updatedUser = await userService.updateUser(
       authContext.userId,
-      updateData
+      updateData,
     );
 
     return NextResponse.json({
@@ -119,7 +119,7 @@ async function updateProfileHandler(
     console.error("Erro ao atualizar perfil:", error);
     return NextResponse.json(
       { error: "Erro interno do servidor." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -127,7 +127,7 @@ async function updateProfileHandler(
 // GET - Obter dados do perfil
 async function getProfileHandler(
   request: NextRequest,
-  { params, authContext }: { params?: any; authContext: any }
+  { params, authContext }: { params?: any; authContext: any },
 ) {
   try {
     // O middleware já validou:
@@ -139,7 +139,7 @@ async function getProfileHandler(
     if (!user) {
       return NextResponse.json(
         { error: "Usuário não encontrado." },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -154,7 +154,7 @@ async function getProfileHandler(
     console.error("Erro ao buscar perfil:", error);
     return NextResponse.json(
       { error: "Erro interno do servidor." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -162,10 +162,10 @@ async function getProfileHandler(
 // Aplicar middleware de autorização com configuração universal
 export const PUT = withAuth(
   updateProfileHandler,
-  createUniversalConfig("user", "general")
+  createUniversalConfig("user", "general"),
 );
 
 export const GET = withAuth(
   getProfileHandler,
-  createUniversalConfig("user", "general")
+  createUniversalConfig("user", "general"),
 );

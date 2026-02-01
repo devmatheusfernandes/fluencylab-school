@@ -1,4 +1,4 @@
-import { UserAdminRepository } from "@/repositories/user.admin.repository";
+import { UserAdminRepository } from "@/repositories/admin/userAdminRepository";
 import { StudentProfileForm } from "@/components/students/StudentProfileForm";
 import { Container } from "@/components/ui/container";
 import { Header } from "@/components/ui/header";

@@ -17,10 +17,10 @@ import {
   saveSessionProgress,
   clearSessionProgress,
   processPracticeResults,
-} from "@/actions/srs-actions";
-import { PracticeItem, PracticeMode } from "@/types/practice";
-import { PracticeResult } from "@/types/plan";
-import { calculateWritingGrade, calculateOrderingGrade } from "@/lib/grading";
+} from "@/actions/srsActions";
+import { PracticeItem, PracticeMode } from "@/types/learning/practice";
+import { PracticeResult } from "@/types/financial/plan";
+import { calculateWritingGrade, calculateOrderingGrade } from "@/lib/learning/grading";
 import { CheckCircle, Trophy } from "lucide-react";
 import { ListeningChoiceExercise } from "./ListeningChoiceExercise";
 

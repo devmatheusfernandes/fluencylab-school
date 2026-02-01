@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { schedulingService } from '@/services/schedulingService';
+import { schedulingService } from '@/services/learning/schedulingService';
 import { authOptions } from '../../auth/[...nextauth]/route';
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);

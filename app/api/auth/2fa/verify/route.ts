@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { twoFactorService } from '@/services/twoFactorService';
+import { twoFactorService } from '@/services/core/twoFactorService';
 import { adminDb } from '@/lib/firebase/admin';
 
 // Usar singleton para consistência e testabilidade

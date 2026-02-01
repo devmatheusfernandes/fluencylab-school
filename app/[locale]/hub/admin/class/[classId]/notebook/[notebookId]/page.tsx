@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { SchedulingService } from "@/services/schedulingService";
+import { SchedulingService } from "@/services/learning/schedulingService";
 import AdminNotebookViewer from "@/components/admin/AdminNotebookViewer";
 import { NoResults } from "@/components/ui/no-results";
 import { getTranslations } from "next-intl/server";

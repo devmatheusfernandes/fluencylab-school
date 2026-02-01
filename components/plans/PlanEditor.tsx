@@ -14,11 +14,11 @@ import {
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Trash2, Plus, GripVertical, Search, Lock, AlertCircle } from "lucide-react";
-import { CEFRLevel } from "@/types/lesson";
-import { Plan, PlanType } from "@/types/plan";
+import { CEFRLevel } from "@/types/learning/lesson";
+import { Plan, PlanType } from "@/types/financial/plan";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { searchLessons } from "@/actions/lesson-search";
+import { searchLessons } from "@/actions/lessonSearch";
 import { cn } from "@/lib/utils";
 interface PlanEditorProps {
   initialPlan?: Partial<Plan>;

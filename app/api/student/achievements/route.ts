@@ -1,7 +1,7 @@
 // app/api/student/achievements/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { AchievementService } from '@/services/achievementService';
+import { AchievementService } from '@/services/learning/achievementService';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 const achievementService = new AchievementService();

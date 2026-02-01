@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase/admin";
-import { announcementService } from "@/services/announcementService";
+import { announcementService } from "@/services/communication/announcementService";
 import { MonthlyPayment } from "@/types/financial/subscription";
 
 export async function GET(req: NextRequest) {

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useAdmin } from "@/hooks/useAdmin";
-import { useCan } from "@/hooks/useCurrentUser";
+import { useAdmin } from "@/hooks/admin/useAdmin";
+import { useCan } from "@/hooks/auth/useCurrentUser";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { FullUserDetails } from "@/types/users/user-details";
+import { FullUserDetails } from "@/types/users/userDetails";
 import { UserRoles } from "@/types/users/userRoles";
 import { useTranslations, useFormatter } from "next-intl";
 import { Spinner } from "../ui/spinner";

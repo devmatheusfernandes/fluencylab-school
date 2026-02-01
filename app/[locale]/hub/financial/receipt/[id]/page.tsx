@@ -1,4 +1,4 @@
-import { subscriptionService } from "@/services/subscriptionService";
+import { subscriptionService } from "@/services/financial/subscriptionService";
 import { ReceiptView } from "./components/receipt-view";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";

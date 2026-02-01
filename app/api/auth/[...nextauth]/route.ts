@@ -1,6 +1,6 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { AuthService } from "@/services/authService";
+import { AuthService } from "@/services/core/authService";
 
 const authService = new AuthService();
 

@@ -35,7 +35,7 @@ export default function LandingPage() {
   useEffect(() => {
     const updateTimeAndGreeting = () => {
       const now = new Date();
-      
+
       // Format time HH:MM
       const hours = now.getHours();
       const minutes = now.getMinutes();
@@ -103,10 +103,14 @@ export default function LandingPage() {
       )}
       <span className="relative z-10">
         <motion.span
-          animate={{ 
-            color: activeTab === id 
-              ? (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? "#ffffffff" : "#ffffff") 
-              : "#dfdfdfff dark:#9ca3af" 
+          animate={{
+            color:
+              activeTab === id
+                ? typeof window !== "undefined" &&
+                  window.matchMedia("(prefers-color-scheme: dark)").matches
+                  ? "#ffffffff"
+                  : "#ffffff"
+                : "#dfdfdfff dark:#9ca3af",
           }}
           transition={{ duration: 0.2 }}
         >
@@ -119,10 +123,8 @@ export default function LandingPage() {
   return (
     // MUDANÇA: bg-accent -> bg-gray-50 dark:bg-gray-950 (Fundo global igual ao Login)
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-2 md:p-4 flex flex-col font-sans transition-colors duration-300">
-      
       {/* MUDANÇA: bg-background -> bg-white dark:bg-gray-900 (Container principal igual ao Card de Login) */}
       <div className="relative max-h-[97vh] flex-1 bg-white dark:bg-gray-900 rounded-3xl overflow-hidden flex flex-col shadow-2xl border border-gray-200 dark:border-gray-800">
-        
         <header className="hidden md:flex absolute top-0 left-0 w-full p-4 px-4 flex-row justify-between items-center z-50 pointer-events-none">
           {/* CÁPSULA ESQUERDA */}
           {/* MUDANÇA: Cores ajustadas para contrastar com o fundo branco (agora cinza claro com borda) */}
@@ -178,7 +180,6 @@ export default function LandingPage() {
             <Image
               src={Logo}
               alt="Logo"
-              width={120}
               height={40}
               className="object-contain"
             />
@@ -289,10 +290,10 @@ export default function LandingPage() {
                             : t("heroCard.defaultName")}
                         </h3>
                       </div>
-                        <Avatar size="sm">
-                          <AvatarImage src={session?.user?.image || undefined} />
-                          <AvatarFallback />
-                        </Avatar>
+                      <Avatar size="sm">
+                        <AvatarImage src={session?.user?.image || undefined} />
+                        <AvatarFallback />
+                      </Avatar>
                     </div>
 
                     {/* Card 1: Aula Atual */}
@@ -470,7 +471,9 @@ export default function LandingPage() {
                 className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 rounded-t-[2rem] p-8 pb-10 z-[70] md:hidden shadow-[0_-10px_40px_rgba(0,0,0,0.1)]"
               >
                 <div className="flex justify-between items-center mb-8">
-                  <span className="text-xl font-bold text-gray-900 dark:text-white">Menu</span>
+                  <span className="text-xl font-bold text-gray-900 dark:text-white">
+                    Menu
+                  </span>
                   <button
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors duration-200"

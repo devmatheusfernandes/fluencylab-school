@@ -1,5 +1,5 @@
 import { adminDb } from "@/lib/firebase/admin";
-import { Lesson } from "@/types/lesson";
+import { Lesson } from "@/types/learning/lesson";
 import { LessonQuizEditor } from "@/components/lessons/LessonQuizEditor";
 import { Header } from "@/components/ui/header";
 import ErrorAlert from "@/components/ui/error-alert";

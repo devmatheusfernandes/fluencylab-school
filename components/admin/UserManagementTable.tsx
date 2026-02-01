@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useUsers } from "@/hooks/useUsers";
+import { useUsers } from "@/hooks/admin/useUsers";
 import { UserRoles } from "@/types/users/userRoles";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -43,7 +43,7 @@ import {
   ModalTitle,
 } from "@/components/ui/modal";
 import AddUserModal from "./AddUserModal";
-import { useAdmin } from "@/hooks/useAdmin";
+import { useAdmin } from "@/hooks/admin/useAdmin";
 import { useRouter } from "next/navigation";
 import { EllipsisVertical, UserPlus } from "lucide-react";
 import { Card } from "../ui/card";

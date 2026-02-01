@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { useUserProfile } from "@/hooks/useUserProfile";
+import { useUserProfile } from "@/hooks/user/useUserProfile";
 import { AvatarProps, useChatContext } from "stream-chat-react";
 
 

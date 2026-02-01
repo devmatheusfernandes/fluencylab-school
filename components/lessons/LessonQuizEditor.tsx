@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Lesson, Quiz, QuizQuestion } from "@/types/lesson";
-import { updateLessonQuiz } from "@/actions/lesson-updating";
+import { Lesson, Quiz, QuizQuestion } from "@/types/learning/lesson";
+import { updateLessonQuiz } from "@/actions/lessonUpdating";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 

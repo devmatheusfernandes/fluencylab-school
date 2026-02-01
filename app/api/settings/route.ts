@@ -2,7 +2,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { withAuth, createUniversalConfig } from "../../../lib/auth/middleware";
-import { UserService } from "../../../services/userService";
+import { UserService } from "@/services/core/userService";
 import { z } from "zod";
 
 const userService = new UserService();
@@ -46,7 +46,7 @@ function getAllowedSettingsForRole(role: string): string[] {
  */
 async function updateSettingsHandler(
   request: NextRequest,
-  { params, authContext }: { params?: any; authContext: any }
+  { params, authContext }: { params?: any; authContext: any },
 ) {
   try {
     const raw = await request.json();
@@ -59,7 +59,7 @@ async function updateSettingsHandler(
     // Se não é admin, verificar configurações não permitidas
     if (!allowedSettings.includes("*")) {
       const unauthorizedSettings = requestedSettings.filter(
-        (s) => !allowedSettings.includes(s)
+        (s) => !allowedSettings.includes(s),
       );
 
       if (unauthorizedSettings.length > 0) {
@@ -67,7 +67,7 @@ async function updateSettingsHandler(
           {
             error: `Configurações não permitidas para seu perfil: ${unauthorizedSettings.join(", ")}`,
           },
-          { status: 403 }
+          { status: 403 },
         );
       }
     }
@@ -93,7 +93,7 @@ async function updateSettingsHandler(
     console.error("Erro ao atualizar configurações:", error);
     return NextResponse.json(
       { error: error.message || "Erro interno do servidor." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -104,7 +104,9 @@ const settingsSchema = z.object({
   interfaceLanguage: z.enum(["pt", "en", "es"]).optional(),
   timezone: z.string().max(50).optional(),
   theme: z.enum(["light", "dark", "system"]).optional(),
-  themeColor: z.enum(["violet", "rose", "orange", "yellow", "green"]).optional(),
+  themeColor: z
+    .enum(["violet", "rose", "orange", "yellow", "green"])
+    .optional(),
   notifications: z
     .object({
       email: z.boolean().optional(),
@@ -133,5 +135,5 @@ const settingsSchema = z.object({
 
 export const PUT = withAuth(
   updateSettingsHandler,
-  createUniversalConfig("settings", "general")
+  createUniversalConfig("settings", "general"),
 );

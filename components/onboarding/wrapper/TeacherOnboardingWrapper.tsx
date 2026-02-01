@@ -2,7 +2,7 @@
 "use client";
 
 import React from "react";
-import { useTeacherOnboarding } from "@/hooks/useTeacherOnboarding";
+import { useTeacherOnboarding } from "@/hooks/teacher/useTeacherOnboarding";
 import { TeacherOnboardingModal } from "../TeacherOnboardingModal";
 
 interface TeacherOnboardingWrapperProps {

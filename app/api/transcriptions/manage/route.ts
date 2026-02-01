@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { TranscriptionService } from '@/services/transcriptionService';
+import { TranscriptionService } from '@/services/learning/transcriptionService';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 

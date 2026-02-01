@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { withAuth, createAdminConfig } from '../../../../lib/auth/middleware';
-import { UserService } from '../../../../services/userService';
+import { NextRequest, NextResponse } from "next/server";
+import { withAuth, createAdminConfig } from "../../../../lib/auth/middleware";
+import { UserService } from "@/services/core/userService";
 
 const userService = new UserService();
 
 /**
  * Endpoint para gerenciamento de usuários (Admin)
- * 
+ *
  * Aplicação do novo sistema de autorização:
  * - Validação automática de autenticação
  * - Verificação de role ADMIN ou MANAGER
@@ -18,35 +18,36 @@ const userService = new UserService();
 // GET - Listar todos os usuários
 async function getUsersHandler(
   request: NextRequest,
-  { params, authContext }: { params?: any; authContext: any }
+  { params, authContext }: { params?: any; authContext: any },
 ) {
   try {
     // Parse query parameters for filtering and pagination
     const { searchParams } = new URL(request.url);
-    const role = searchParams.get('role');
-    const status = searchParams.get('status');
-    const limit = searchParams.get('limit');
-    const offset = searchParams.get('offset');
-    const search = searchParams.get('search');
+    const role = searchParams.get("role");
+    const status = searchParams.get("status");
+    const limit = searchParams.get("limit");
+    const offset = searchParams.get("offset");
+    const search = searchParams.get("search");
 
     // O middleware já validou:
     // 1. Autenticação do usuário
     // 2. Role de admin/manager
     // 3. Rate limiting
-    
+
     const users = await userService.getAllUsers({
       role: role || undefined,
-      isActive: status === 'active' ? true : status === 'inactive' ? false : undefined
+      isActive:
+        status === "active" ? true : status === "inactive" ? false : undefined,
     });
 
     let filtered = users;
-    const term = (search || '').trim().toLowerCase();
+    const term = (search || "").trim().toLowerCase();
     if (term) {
-      const cpfDigits = term.replace(/[^\d]+/g, '');
+      const cpfDigits = term.replace(/[^\d]+/g, "");
       filtered = users.filter((u: any) => {
-        const name = String(u.name || '').toLowerCase();
-        const emailVal = String(u.email || '').toLowerCase();
-        const cpfVal = String((u.cpf as any) || '').replace(/[^\d]+/g, '');
+        const name = String(u.name || "").toLowerCase();
+        const emailVal = String(u.email || "").toLowerCase();
+        const cpfVal = String((u.cpf as any) || "").replace(/[^\d]+/g, "");
         return (
           name.includes(term) ||
           emailVal.includes(term) ||
@@ -58,14 +59,13 @@ async function getUsersHandler(
     return NextResponse.json({
       success: true,
       data: filtered,
-      total: filtered.length
+      total: filtered.length,
     });
-    
   } catch (error) {
     //console.error('Erro ao buscar usuários:', error);
     return NextResponse.json(
-      { error: 'Erro interno do servidor.' },
-      { status: 500 }
+      { error: "Erro interno do servidor." },
+      { status: 500 },
     );
   }
 }
@@ -73,61 +73,71 @@ async function getUsersHandler(
 // POST - Criar novo usuário
 async function createUserHandler(
   request: NextRequest,
-  { params, authContext }: { params?: any; authContext: any }
+  { params, authContext }: { params?: any; authContext: any },
 ) {
   try {
     const userData = await request.json();
 
     // Validate required fields
-    const requiredFields = ['email', 'name', 'role'];
+    const requiredFields = ["email", "name", "role"];
     for (const field of requiredFields) {
       if (!userData[field]) {
         return NextResponse.json(
           { error: `Campo obrigatório: ${field}` },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
 
     // Validate role
-    const validRoles = ['student', 'teacher', 'admin', 'manager', 'guarded_student', 'material_manager'];
+    const validRoles = [
+      "student",
+      "teacher",
+      "admin",
+      "manager",
+      "guarded_student",
+      "material_manager",
+    ];
     if (!validRoles.includes(userData.role)) {
-      return NextResponse.json(
-        { error: 'Role inválido.' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Role inválido." }, { status: 400 });
     }
 
     // O middleware já validou:
     // 1. Autenticação do usuário
     // 2. Role de admin/manager
     // 3. Rate limiting
-    
+
     // Extract IP and User Agent for audit logging
-    const ip = request.headers.get('x-forwarded-for') || 
-               request.headers.get('x-real-ip') || 
-               'unknown';
-    const userAgent = request.headers.get('user-agent') || 'unknown';
-    
-    const newUser = await userService.createUser({
-      ...userData,
-      createdBy: authContext.userId
-    }, {
-      ip,
-      userAgent
-    });
-    
-    return NextResponse.json({
-      success: true,
-      message: 'Usuário criado com sucesso.',
-      data: newUser
-    }, { status: 201 });
-    
+    const ip =
+      request.headers.get("x-forwarded-for") ||
+      request.headers.get("x-real-ip") ||
+      "unknown";
+    const userAgent = request.headers.get("user-agent") || "unknown";
+
+    const newUser = await userService.createUser(
+      {
+        ...userData,
+        createdBy: authContext.userId,
+      },
+      {
+        ip,
+        userAgent,
+      },
+    );
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Usuário criado com sucesso.",
+        data: newUser,
+      },
+      { status: 201 },
+    );
   } catch (error) {
     //console.error('Erro ao criar usuário:', error);
     return NextResponse.json(
-      { error: 'Erro interno do servidor.' },
-      { status: 500 }
+      { error: "Erro interno do servidor." },
+      { status: 500 },
     );
   }
 }
@@ -135,10 +145,10 @@ async function createUserHandler(
 // Aplicar middleware de autorização com configuração específica para administradores
 export const GET = withAuth(
   getUsersHandler,
-  createAdminConfig('user', 'general')
+  createAdminConfig("user", "general"),
 );
 
 export const POST = withAuth(
   createUserHandler,
-  createAdminConfig('user', 'general')
+  createAdminConfig("user", "general"),
 );

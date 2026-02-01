@@ -1,7 +1,7 @@
 // app/api/announcements/[id]/read/route.ts
 import { NextResponse } from 'next/server';
 import { adminAuth } from '@/lib/firebase/admin';
-import { AnnouncementService } from '@/services/announcementService';
+import { AnnouncementService } from '@/services/communication/announcementService';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 

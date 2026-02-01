@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { getRandomWord } from "@/lib/vocabulary";
+import { getRandomWord } from "@/lib/learning/vocabulary";
 import {
   Modal,
   ModalContent,

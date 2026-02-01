@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { contractService } from "@/services/contractService";
+import { contractService } from "@/services/financial/contractService";
 import { adminDb } from "@/lib/firebase/admin";
 import { CreateContractRequest } from "@/types/contract";
 

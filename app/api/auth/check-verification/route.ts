@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { AuthService } from '@/services/authService';
+import { AuthService } from '@/services/core/authService';
 
 const authService = new AuthService();
 

@@ -1,7 +1,7 @@
 
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { useContractNotification } from "@/hooks/useContract";
+import { useContractNotification } from "@/hooks/financial/useContract";
 import { ArrowRight, FileWarning } from "lucide-react";
 import { useTranslations } from "next-intl";
 

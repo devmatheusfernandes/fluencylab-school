@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { UserService } from '@/services/userService';
+import { UserService } from '@/services/core/userService';
 import { authOptions } from '../../auth/[...nextauth]/route';
 
 const userService = new UserService();

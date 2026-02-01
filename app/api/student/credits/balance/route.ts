@@ -1,7 +1,7 @@
 // app/api/student/credits/balance/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { creditService } from '@/services/creditService';
+import { creditService } from '@/services/financial/creditService';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { RegularCreditType } from '@/types/credits/regularClassCredits';
 

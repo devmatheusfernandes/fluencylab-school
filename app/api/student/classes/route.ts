@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { SchedulingService } from "@/services/schedulingService";
+import { SchedulingService } from "@/services/learning/schedulingService";
 
 const schedulingService = new SchedulingService();
 

@@ -2,9 +2,9 @@
 
 import { adminDb } from '@/lib/firebase/admin';
 import { Task } from '@/types/tasks/task';
-import { announcementService } from '@/services/announcementService';
+import { announcementService } from '@/services/communication/announcementService';
 import { revalidatePath } from 'next/cache';
-import { UserAdminRepository } from '@/repositories/user.admin.repository';
+import { UserAdminRepository } from '@/repositories/admin/userAdminRepository';
 
 const userRepo = new UserAdminRepository();
 

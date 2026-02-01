@@ -20,7 +20,7 @@ import { Card } from "@/components/ui/card";
 import {
   RescheduleOption,
   useStudentClassActions,
-} from "@/hooks/useStudentClassActions";
+} from "@/hooks/student/useStudentClassActions";
 import { Text } from "../ui/text";
 import { useTranslations, useLocale } from "next-intl";
 

@@ -1,11 +1,11 @@
 // app/api/avatar/route.ts
 
 import { NextResponse } from "next/server";
-import { UserService } from "@/services/userService";
+import { UserService } from "@/services/core/userService";
 import { requireAuth } from "@/lib/auth";
 import { adminStorage } from "@/lib/firebase/admin";
 import { Readable } from "stream";
-import { getUserById_Admin } from "@/repositories/user.admin.repository";
+import { getUserById_Admin } from "@/repositories/admin/userAdminRepository";
 
 const userService = new UserService();
 

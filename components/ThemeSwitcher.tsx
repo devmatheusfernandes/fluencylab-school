@@ -5,7 +5,7 @@ import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { useIsStandalone } from "@/hooks/useIsStandalone";
+import { useIsStandalone } from "@/hooks/ui/useIsStandalone";
 
 export function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
