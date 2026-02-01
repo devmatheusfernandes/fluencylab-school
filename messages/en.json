@@ -1,4 +1,40 @@
 {
+  "LandingPage": {
+    "title": "Learn a language for real, without giving up halfway",
+    "subtitle": "Personalized classes with dedicated tutors, natural method without rote memorization.",
+    "primaryCta": "Book your class",
+    "secondaryCta": "Methodology",
+    "heroSubtitle": "A platform that follows <br> every step of your progress. Simple as that.",
+    "nav": {
+      "about": "About Us",
+      "plans": "Plans",
+      "team": "Our Team",
+      "faq": "FAQ",
+      "login": "Login",
+      "continue": "Continue"
+    },
+    "heroCard": {
+      "greeting": {
+        "morning": "Good morning,",
+        "afternoon": "Good afternoon,",
+        "night": "Good evening,"
+      },
+      "defaultName": "John",
+      "lessonLabel": "LESSON OF THE DAY",
+      "lessonTitle": "Coffee Shop in Paris",
+      "lessonSubtitle": "Intermediate Level • 15 min",
+      "reviewTitle": "Review",
+      "reviewCount": "3 words",
+      "progressTitle": "Total Fluency",
+      "progressGrowth": "+4% this week",
+      "words": {
+        "water": "Água",
+        "waterTrans": "Water",
+        "bread": "Pão",
+        "breadTrans": "Bread"
+      }
+    }
+  },
   "CookieConsent": {
     "message": "We use cookies to improve your experience. By continuing to browse, you agree to our privacy policy.",
     "accept": "Accept",

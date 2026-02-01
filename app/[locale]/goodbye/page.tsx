@@ -1,12 +1,10 @@
 'use client'
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Link } from "lucide-react";
-import Image from "next/image";
 
 export default function GoodbyePage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="max-w-md w-full p-8 text-center space-y-6 shadow-lg">
         <div className="flex justify-center mb-4">
           <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center">

@@ -11,6 +11,7 @@ import { BackButton } from "@/components/ui/back-button";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import BackgroundLogin from "@/public/images/login/background";
 import TransitionAnimation from "@/components/transitions/login";
+import { ThemeSwitcher } from "../ThemeSwitcher";
 
 interface SignInClientProps {
   messages: Record<string, Record<string, string>>;
@@ -121,10 +122,11 @@ export function SignInClient({ messages }: SignInClientProps) {
           ariaLabel={t.backAriaLabel}
           className="absolute top-4 left-4 sm:top-6 sm:left-6 z-10"
         />
-        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10">
+        <div className="flex flex-row gap-2 absolute top-4 right-4 sm:top-6 sm:right-6 z-10">
           <LanguageSwitcher />
+          <ThemeSwitcher />
         </div>
-        <div className="w-full max-w-5xl bg-white/60 dark:bg-gray-900 rounded-xl shadow-2xl overflow-hidden">
+        <div className="w-full max-w-4xl bg-white/60 dark:bg-gray-900 rounded-xl shadow-2xl overflow-hidden">
           <div className="flex flex-col lg:flex-row">
             <div className="hidden lg:flex flex-col items-center justify-center lg:w-1/2 bg-gray-100 dark:bg-gray-800 p-8 lg:p-12 relative min-h-[300px] lg:min-h-[600px]">
               <BackgroundLogin />
@@ -180,18 +182,18 @@ export function SignInClient({ messages }: SignInClientProps) {
                 </form>
 
               <div className="flex flex-col items-center gap-2">
-                <p className="text-center text-gray-600 dark:text-gray-300 mt-8 text-sm">
-                  {t.contactPrompt}{" "}
+                <p className="text-center text-gray-600 dark:text-gray-300 mt-12 text-sm">
+                  {t.contactPrompt}{" "} <br />
                   <a
                     href="#"
-                    className="text-blue-600 dark:text-blue-400 hover:text-blue-700 hover:dark:text-blue-300 font-medium underline"
+                    className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 hover:dark:text-indigo-300 font-medium underline"
                   >
                     {t.contactLink}
                   </a>
                 </p>
                 <a
                   href={`/${locale}/forgot-password`}
-                  className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 hover:dark:text-blue-300 font-medium underline"
+                  className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 hover:dark:text-indigo-300 font-medium underline"
                 >
                   {t.forgotPassword}
                 </a>

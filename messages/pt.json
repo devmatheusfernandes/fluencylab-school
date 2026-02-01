@@ -1,4 +1,40 @@
 {
+  "LandingPage": {
+    "title": "Aprenda um idioma de verdade, sem desistir no meio do caminho",
+    "subtitle": "Aulas personalizadas com tutores dedicados, método natural sem decoreba.",
+    "primaryCta": "Agende sua aula",
+    "secondaryCta": "Metodologia",
+    "heroSubtitle": "Uma plataforma que acompanha <br> cada passo do seu progresso. Simples assim.",
+    "nav": {
+      "about": "Quem somos",
+      "plans": "Planos",
+      "team": "Nosso Time",
+      "faq": "Perguntas Frequentes",
+      "login": "Login",
+      "continue": "Continuar"
+    },
+    "heroCard": {
+      "greeting": {
+        "morning": "Bom dia,",
+        "afternoon": "Boa tarde,",
+        "night": "Boa noite,"
+      },
+      "defaultName": "João",
+      "lessonLabel": "AULA DO DIA",
+      "lessonTitle": "Cafeteria em Paris",
+      "lessonSubtitle": "Nível Intermediário • 15 min",
+      "reviewTitle": "Revisão",
+      "reviewCount": "3 palavras",
+      "progressTitle": "Fluência Total",
+      "progressGrowth": "+4% essa semana",
+      "words": {
+        "water": "Water",
+        "waterTrans": "Água",
+        "bread": "Bread",
+        "breadTrans": "Pão"
+      }
+    }
+  },
   "CookieConsent": {
     "message": "Nós usamos cookies para melhorar sua experiência. Ao continuar navegando, você concorda com nossa política de privacidade.",
     "accept": "Aceitar",

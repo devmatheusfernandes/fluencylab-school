@@ -1,4 +1,3 @@
-import * as React from "react";
 const BackgroundLogin = (props) => (
   <svg
     width={369}
