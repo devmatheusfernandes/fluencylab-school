@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  useState,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useSession } from "next-auth/react";
 import {
   doc,
@@ -33,7 +28,7 @@ import {
   LEVEL_SCORES,
   getNextLevel,
   selectNextQuestion,
-} from "../../../../../../utils/placement-utils";
+} from "@/lib/utils/placement-utils";
 import { useTranslations } from "next-intl";
 
 // Import questions directly
@@ -49,7 +44,7 @@ export default function TestPage() {
 
   const [loading, setLoading] = useState(true);
   const [selectedLanguage, setSelectedLanguage] = useState<"en" | "pt">("en");
-  
+
   // Adaptive Test State
   const [adaptiveState, setAdaptiveState] = useState<AdaptiveState>({
     currentQuestionId: null,
@@ -100,7 +95,7 @@ export default function TestPage() {
         acc[q.id] = q;
         return acc;
       },
-      {} as Record<string, Question>
+      {} as Record<string, Question>,
     );
   }, [selectedLanguage]);
 
@@ -125,35 +120,36 @@ export default function TestPage() {
       try {
         const progressRef = doc(db, "placement_progress", session.user.id);
         const progressSnap = await getDoc(progressRef);
-        
+
         if (progressSnap.exists()) {
           const data = progressSnap.data();
-          
+
           // If completed, ignore progress and treat as new test request
           if (data.completed) {
             // If lang param is present, start new test
             if (langParam && (langParam === "en" || langParam === "pt")) {
-               setSelectedLanguage(langParam);
-               await startNewTest(langParam);
+              setSelectedLanguage(langParam);
+              await startNewTest(langParam);
             } else {
-               if (!langParam) {
-                 router.push("/hub/student/my-placement");
-                 return;
-               }
+              if (!langParam) {
+                router.push("/hub/student/my-placement");
+                return;
+              }
             }
           } else {
             // Check if user wants to start a different language test
             if (langParam && (langParam === "en" || langParam === "pt")) {
-                if (data.selectedLanguage !== langParam) {
-                    // Language mismatch: Start new test in requested language
-                    setSelectedLanguage(langParam);
-                    await startNewTest(langParam);
-                    return;
-                }
+              if (data.selectedLanguage !== langParam) {
+                // Language mismatch: Start new test in requested language
+                setSelectedLanguage(langParam);
+                await startNewTest(langParam);
+                return;
+              }
             }
 
             // Resume existing test
-            if (data.selectedLanguage) setSelectedLanguage(data.selectedLanguage);
+            if (data.selectedLanguage)
+              setSelectedLanguage(data.selectedLanguage);
             if (data.adaptiveState) {
               setAdaptiveState(data.adaptiveState);
             }
@@ -176,7 +172,7 @@ export default function TestPage() {
       }
     };
     loadData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.user?.id, langParam, router]);
 
   const startNewTest = async (lang: "en" | "pt") => {
@@ -184,7 +180,7 @@ export default function TestPage() {
     // But questionPool is memoized on selectedLanguage state, which might not be updated yet
     // So we need to compute it manually or wait.
     // simpler: compute first question here.
-    
+
     const rawQuestions =
       lang === "en"
         ? (enQuestionsData as Question[])
@@ -219,27 +215,31 @@ export default function TestPage() {
     };
 
     setAdaptiveState(initialState);
-    
+
     if (session?.user?.id) {
-        await setDoc(doc(db, "placement_progress", session.user.id), {
-            userId: session.user.id,
-            selectedLanguage: lang,
-            adaptiveState: initialState,
-            updatedAt: serverTimestamp(),
-            completed: false
-        });
+      await setDoc(doc(db, "placement_progress", session.user.id), {
+        userId: session.user.id,
+        selectedLanguage: lang,
+        adaptiveState: initialState,
+        updatedAt: serverTimestamp(),
+        completed: false,
+      });
     }
   };
 
   const saveProgress = async (newState: AdaptiveState) => {
     if (!session?.user?.id) return;
     try {
-      await setDoc(doc(db, "placement_progress", session.user.id), {
-        userId: session.user.id,
-        selectedLanguage,
-        adaptiveState: newState,
-        updatedAt: serverTimestamp(),
-      }, { merge: true });
+      await setDoc(
+        doc(db, "placement_progress", session.user.id),
+        {
+          userId: session.user.id,
+          selectedLanguage,
+          adaptiveState: newState,
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true },
+      );
     } catch (error) {
       console.error("Error saving progress:", error);
     }
@@ -290,7 +290,7 @@ export default function TestPage() {
     const nextQuestion = selectNextQuestion(
       nextLevel,
       adaptiveState.usedQuestionIds,
-      questionPool
+      questionPool,
     );
 
     if (!nextQuestion) {
@@ -354,7 +354,7 @@ export default function TestPage() {
     const avgTime = totalTime / MAX_QUESTIONS;
     const totalScore = finalState.history.reduce(
       (acc, h) => acc + (h.isCorrect ? LEVEL_SCORES[h.level] : 0),
-      0
+      0,
     );
 
     const resultData = {
@@ -377,9 +377,13 @@ export default function TestPage() {
           adaptiveHistory: finalState.history,
           averageTimePerQuestion: avgTime,
         });
-        await setDoc(doc(db, "placement_progress", session.user.id), {
-          completed: true,
-        }, { merge: true });
+        await setDoc(
+          doc(db, "placement_progress", session.user.id),
+          {
+            completed: true,
+          },
+          { merge: true },
+        );
         toast.success(t("testCompleted"));
       } catch (error) {
         console.error("Error saving results:", error);
@@ -388,7 +392,7 @@ export default function TestPage() {
   };
 
   if (loading) {
-     return (
+    return (
       <div className="flex flex-col items-center justify-center min-h-screen p-6 space-y-4 max-w-md mx-auto">
         <Skeleton className="h-12 w-3/4 rounded-xl" />
         <Skeleton className="h-64 w-full rounded-2xl" />
@@ -399,17 +403,17 @@ export default function TestPage() {
   if (finalResult) {
     return (
       <div className="py-6 px-4">
-        <ResultView 
-            result={finalResult} 
-            onBack={() => router.push(`/hub/student/my-placement`)} 
+        <ResultView
+          result={finalResult}
+          onBack={() => router.push(`/hub/student/my-placement`)}
         />
       </div>
     );
   }
 
   if (!currentQuestion) {
-      // Should not happen if loading handled correctly
-      return null;
+    // Should not happen if loading handled correctly
+    return null;
   }
 
   return (

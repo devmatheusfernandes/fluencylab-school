@@ -40,7 +40,7 @@ export type User = {
   avatarUrl: string;
   interfaceLanguage: string;
   theme?: "light" | "dark";
-  themeColor?: "violet" | "rose" | "orange" | "yellow" | "green";
+  themeColor?: "violet" | "rose" | "indigo" | "yellow" | "green";
   tutorialCompleted: boolean;
   onboardingCompletedAt?: Date; // Campo para armazenar quando o onboarding foi concluído
 

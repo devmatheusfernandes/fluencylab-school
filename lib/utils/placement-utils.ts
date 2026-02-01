@@ -1,4 +1,4 @@
-import { Level, Question } from "../types/placement/types";
+import { Level, Question } from "@/types/placement/types";
 
 export const MAX_QUESTIONS = 20;
 export const LEVELS: Level[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
@@ -28,14 +28,18 @@ export const getMacroSkill = (topic: string) => {
     return "Pronúncia";
   if (t.includes("reading") || t.includes("comprehension")) return "Leitura";
   if (t.includes("writing")) return "Escrita";
-  if (t.includes("speaking") || t.includes("conversation") || t.includes("oral"))
+  if (
+    t.includes("speaking") ||
+    t.includes("conversation") ||
+    t.includes("oral")
+  )
     return "Speaking";
   return "Gramática";
 };
 
 export const getNextLevel = (
   currentLevel: Level,
-  isLastAnswerCorrect: boolean
+  isLastAnswerCorrect: boolean,
 ): Level => {
   const currentIndex = LEVELS.indexOf(currentLevel);
   if (isLastAnswerCorrect) {
@@ -48,7 +52,7 @@ export const getNextLevel = (
 export const selectNextQuestion = (
   targetLevel: Level,
   usedIds: string[],
-  questionPool: Record<Level, Question[]>
+  questionPool: Record<Level, Question[]>,
 ): Question | null => {
   const targetIndex = LEVELS.indexOf(targetLevel);
   const sortedLevels = [...LEVELS].sort((a, b) => {
@@ -59,12 +63,10 @@ export const selectNextQuestion = (
 
   for (const level of sortedLevels) {
     const availableQuestions = questionPool[level].filter(
-      (q) => !usedIds.includes(q.id)
+      (q) => !usedIds.includes(q.id),
     );
     if (availableQuestions.length > 0) {
-      const randomIndex = Math.floor(
-        Math.random() * availableQuestions.length
-      );
+      const randomIndex = Math.floor(Math.random() * availableQuestions.length);
       return availableQuestions[randomIndex];
     }
   }

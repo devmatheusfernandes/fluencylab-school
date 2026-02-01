@@ -8,7 +8,6 @@ import { useContract } from "@/hooks/financial/useContract";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import {

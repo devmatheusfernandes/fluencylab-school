@@ -46,38 +46,41 @@ export class UserService {
   /**
    * Cria um novo usuário no sistema
    */
-  async createUser(userData: {
-    name: string;
-    email: string;
-    role: UserRoles;
-    birthDate?: Date; 
-    guardian?: {
+  async createUser(
+    userData: {
       name: string;
       email: string;
-      phoneNumber?: string;
-      relationship?: string;
-    };
-  } & Partial<User>, auditData?: {
-    ip?: string;
-    userAgent?: string;
-  }): Promise<string> {
+      role: UserRoles;
+      birthDate?: Date;
+      guardian?: {
+        name: string;
+        email: string;
+        phoneNumber?: string;
+        relationship?: string;
+      };
+    } & Partial<User>,
+    auditData?: {
+      ip?: string;
+      userAgent?: string;
+    },
+  ): Promise<string> {
     try {
       // Usar AdminService para criação completa de usuários
       const adminService = new AdminService();
       const result = await adminService.createUser(userData);
-      
+
       // Log da criação
       await AuditService.logUserAction({
         userId: result.newUser.id || "system",
         action: "CREATE_USER",
         targetUserId: result.newUser.id,
-        details: { 
-          role: userData.role, 
+        details: {
+          role: userData.role,
           email: userData.email,
-          hasGuardian: !!userData.guardian 
+          hasGuardian: !!userData.guardian,
         },
         ip: auditData?.ip,
-        userAgent: auditData?.userAgent
+        userAgent: auditData?.userAgent,
       });
 
       return result.newUser.id;
@@ -112,7 +115,7 @@ export class UserService {
       "system", // or the admin user ID if available
       "USER_DEACTIVATED",
       "user",
-      { userId }
+      { userId },
     );
   }
 
@@ -129,7 +132,7 @@ export class UserService {
       "system", // or the admin user ID if available
       "USER_REACTIVATED",
       "user",
-      { userId }
+      { userId },
     );
   }
   /**
@@ -139,7 +142,7 @@ export class UserService {
    */
   async updateUserProfile(
     userId: string,
-    profileData: Partial<User>
+    profileData: Partial<User>,
   ): Promise<void> {
     // 1. Define uma "lista segura" de campos que o utilizador pode editar
     const allowedUpdates: Partial<User> = {
@@ -155,7 +158,7 @@ export class UserService {
     Object.keys(allowedUpdates).forEach(
       (key) =>
         (allowedUpdates as any)[key] === undefined &&
-        delete (allowedUpdates as any)[key]
+        delete (allowedUpdates as any)[key],
     );
 
     if (Object.keys(allowedUpdates).length === 0) {
@@ -176,9 +179,9 @@ export class UserService {
     settingsData: {
       interfaceLanguage?: string;
       theme?: "light" | "dark";
-      themeColor?: "violet" | "rose" | "orange" | "yellow" | "green";
+      themeColor?: "violet" | "rose" | "indigo" | "yellow" | "green";
       twoFactorEnabled?: boolean;
-    }
+    },
   ): Promise<void> {
     // Define uma lista segura de campos que podem ser atualizados
     const allowedUpdates: Partial<User> = {};
@@ -218,7 +221,7 @@ export class UserService {
       scheduledClasses = await classRepo.findAllClassesByStudentId(userId);
     } else if (userProfile.role === "teacher") {
       scheduledClasses = await classRepo.findAllClassesByTeacherId(userId);
-      
+
       try {
         const bankingSnapshot = await adminDb
           .collection("teacherBankingInfo")
@@ -276,7 +279,7 @@ export class UserService {
     Object.keys(allowedUpdates).forEach(
       (key) =>
         (allowedUpdates as any)[key] === undefined &&
-        delete (allowedUpdates as any)[key]
+        delete (allowedUpdates as any)[key],
     );
 
     if (Object.keys(allowedUpdates).length === 0) {
@@ -303,7 +306,7 @@ export class UserService {
             userId,
             oldRole: currentUser?.role,
             newRole: data.role,
-          }
+          },
         );
       }
     }
@@ -325,7 +328,7 @@ export class UserService {
    */
   async manageStudentTeachers(
     studentId: string,
-    teacherIds: string[]
+    teacherIds: string[],
   ): Promise<void> {
     // A validação de permissão (se o utilizador é Admin/Manager) é feita na API Route.
     // O serviço foca-se na lógica de negócio.

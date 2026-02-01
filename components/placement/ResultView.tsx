@@ -21,7 +21,11 @@ import {
   Radar,
 } from "recharts";
 import { DiagnosticResult } from "../../types/placement/types";
-import { SKILL_PAGE_SIZE, getMacroSkill, MAX_QUESTIONS } from "../../utils/placement-utils";
+import {
+  SKILL_PAGE_SIZE,
+  getMacroSkill,
+  MAX_QUESTIONS,
+} from "@/lib/utils/placement-utils";
 import { badgesData } from "./Badges/Levels";
 import { useTranslations } from "next-intl";
 
@@ -36,12 +40,16 @@ interface ResultViewProps {
   isHistoryView?: boolean;
 }
 
-export const ResultView = ({ result, onBack, isHistoryView }: ResultViewProps) => {
+export const ResultView = ({
+  result,
+  onBack,
+  isHistoryView,
+}: ResultViewProps) => {
   const t = useTranslations("Placement");
   const tBadges = useTranslations("Badges");
 
   const [skillViewMode, setSkillViewMode] = useState<"macro" | "topics">(
-    "macro"
+    "macro",
   );
   const [skillOffset, setSkillOffset] = useState(0);
   const [showBadge, setShowBadge] = useState(false);
@@ -83,8 +91,7 @@ export const ResultView = ({ result, onBack, isHistoryView }: ResultViewProps) =
   }, [result]);
 
   const visibleChartData = useMemo(() => {
-    const activeData =
-      skillViewMode === "macro" ? macroChartData : chartData;
+    const activeData = skillViewMode === "macro" ? macroChartData : chartData;
     if (!activeData.length) return [];
     if (activeData.length <= SKILL_PAGE_SIZE) return activeData;
     const resultList = [];
@@ -176,8 +183,8 @@ export const ResultView = ({ result, onBack, isHistoryView }: ResultViewProps) =
         </h1>
         <p className="text-slate-500 font-medium max-w-xs mx-auto">
           You've mastered about{" "}
-          {Math.round((result.score / (MAX_QUESTIONS * 6)) * 100)}%
-          of the curriculum!
+          {Math.round((result.score / (MAX_QUESTIONS * 6)) * 100)}% of the
+          curriculum!
         </p>
       </div>
 
@@ -214,9 +221,11 @@ export const ResultView = ({ result, onBack, isHistoryView }: ResultViewProps) =
             className="h-7 w-7 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100"
             onClick={() =>
               setSkillOffset((prev) =>
-                (skillViewMode === "macro"
-                  ? macroChartData.length
-                  : chartData.length)
+                (
+                  skillViewMode === "macro"
+                    ? macroChartData.length
+                    : chartData.length
+                )
                   ? (prev -
                       SKILL_PAGE_SIZE +
                       (skillViewMode === "macro"
@@ -225,7 +234,7 @@ export const ResultView = ({ result, onBack, isHistoryView }: ResultViewProps) =
                     (skillViewMode === "macro"
                       ? macroChartData.length
                       : chartData.length)
-                  : 0
+                  : 0,
               )
             }
             disabled={
@@ -274,14 +283,16 @@ export const ResultView = ({ result, onBack, isHistoryView }: ResultViewProps) =
             className="h-7 w-7 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100"
             onClick={() =>
               setSkillOffset((prev) =>
-                (skillViewMode === "macro"
-                  ? macroChartData.length
-                  : chartData.length)
+                (
+                  skillViewMode === "macro"
+                    ? macroChartData.length
+                    : chartData.length
+                )
                   ? (prev + SKILL_PAGE_SIZE) %
                     (skillViewMode === "macro"
                       ? macroChartData.length
                       : chartData.length)
-                  : 0
+                  : 0,
               )
             }
             disabled={
@@ -355,7 +366,8 @@ export const ResultView = ({ result, onBack, isHistoryView }: ResultViewProps) =
               </div>
               <div className="text-center space-y-2">
                 <h2 className="text-xl font-semibold">
-                  {tBadges(`items.${badge.index}.name`)} - {tBadges(`levels.${badge.index}`)}
+                  {tBadges(`items.${badge.index}.name`)} -{" "}
+                  {tBadges(`levels.${badge.index}`)}
                 </h2>
                 <p className="text-sm text-gray-500 dark:text-gray-300">
                   {tBadges(`items.${badge.index}.text`)}

@@ -31,7 +31,7 @@ export interface OnboardingData {
   nickname: string;
   interfaceLanguage: string;
   theme: "light" | "dark";
-  themeColor?: "violet" | "rose" | "orange" | "yellow" | "green";
+  themeColor?: "violet" | "rose" | "indigo" | "yellow" | "green";
   emailVerified: boolean;
   contractLengthMonths: 6 | 12;
   contractSigned: boolean;
@@ -60,7 +60,11 @@ const STEPS = [
   { id: "basic-info", title: "Perfil", component: BasicInfoStep },
   // { id: "email-verification", title: "Email", component: EmailVerificationStep },
   { id: "best-practices", title: "Regras", component: BestPracticesStep },
-  { id: "contract-selection", title: "Plano", component: ContractSelectionStep },
+  {
+    id: "contract-selection",
+    title: "Plano",
+    component: ContractSelectionStep,
+  },
   { id: "contract-review", title: "Contrato", component: ContractReviewStep },
   { id: "payment", title: "Pagamento", component: PaymentStep },
   { id: "finish", title: "Conclusão", component: FinishStep },
@@ -118,7 +122,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
         JSON.stringify({
           data,
           step: currentStep,
-        })
+        }),
       );
     }, 500); // Debounce to avoid excessive writes
 
@@ -132,27 +136,39 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   const canGoNext = useCallback(() => {
     const step = STEPS[currentStep];
     switch (step.id) {
-      case "welcome": return true;
-      case "basic-info": return data.nickname.trim().length >= 2;
+      case "welcome":
+        return true;
+      case "basic-info":
+        return data.nickname.trim().length >= 2;
       // case "email-verification": return data.emailVerified;
-      case "best-practices": return true;
-      case "contract-selection": return data.contractLengthMonths > 0;
-      case "contract-review": return data.contractSigned;
-      case "payment": return data.paymentCompleted;
-      case "finish": return true;
-      default: return true;
+      case "best-practices":
+        return true;
+      case "contract-selection":
+        return data.contractLengthMonths > 0;
+      case "contract-review":
+        return data.contractSigned;
+      case "payment":
+        return data.paymentCompleted;
+      case "finish":
+        return true;
+      default:
+        return true;
     }
   }, [currentStep, data]);
 
   const getButtonText = () => {
     const stepId = STEPS[currentStep].id;
-    
+
     if (stepId === "contract-review") {
-      return data.contractSigned ? "Contrato assinado, continuar" : "Assinar para continuar";
+      return data.contractSigned
+        ? "Contrato assinado, continuar"
+        : "Assinar para continuar";
     }
-    
+
     if (stepId === "payment") {
-      return data.paymentCompleted ? "Pagamento confirmado, continuar" : "Realizar pagamento";
+      return data.paymentCompleted
+        ? "Pagamento confirmado, continuar"
+        : "Realizar pagamento";
     }
 
     if (currentStep === STEPS.length - 1) return "Ir para o Dashboard";
@@ -177,7 +193,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
       });
 
       if (!response.ok) throw new Error("Falha ao completar onboarding");
-      
+
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       // Clear draft on success
@@ -195,8 +211,10 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   const handleNext = useCallback(async () => {
     if (!canGoNext()) {
       // Feedback visual simples se o usuário tentar avançar sem completar
-      if (STEPS[currentStep].id === "contract-review") toast.error("Assine o contrato para continuar.");
-      else if (STEPS[currentStep].id === "payment") toast.error("Realize o pagamento para continuar.");
+      if (STEPS[currentStep].id === "contract-review")
+        toast.error("Assine o contrato para continuar.");
+      else if (STEPS[currentStep].id === "payment")
+        toast.error("Realize o pagamento para continuar.");
       else toast.error("Complete esta etapa para continuar.");
       return;
     }
@@ -220,7 +238,9 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   // Ocultar botão "Próximo" se a ação principal for dentro do componente (como assinar ou pagar)
   // E o usuário ainda não tiver completado a ação.
   // Porem, você pediu para o botão mostrar o status, então vamos mantê-lo visivel mas talvez desabilitado ou interativo
-  const isActionStep = ["contract-review", "payment"].includes(STEPS[currentStep].id);
+  const isActionStep = ["contract-review", "payment"].includes(
+    STEPS[currentStep].id,
+  );
   const stepCompleted = canGoNext();
 
   return (
@@ -228,7 +248,9 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
       <ModalContent className="flex flex-col justify-around">
         <ModalHeader className="sticky top-0 z-10">
           <div className="flex flex-col gap-2">
-            <h2 className="text-lg md:text-xl font-bold">{STEPS[currentStep].title}</h2>
+            <h2 className="text-lg md:text-xl font-bold">
+              {STEPS[currentStep].title}
+            </h2>
             <ProgressTracker
               variant="steps"
               totalSteps={STEPS.length}
@@ -250,24 +272,24 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
         </div>
 
         <ModalFooter>
-            {!isFirstStep && (
-              <ModalSecondaryButton onClick={handleBack} disabled={isLoading}>
-                <ArrowLeft className="w-4 h-4 md:mr-2" />
-                <span>Voltar</span>
-              </ModalSecondaryButton>
-            )}
-            
-            <div>
-              <ModalPrimaryButton
-                onClick={isLastStep ? handleCompleteOnboarding : handleNext}
-                disabled={(!stepCompleted && !isActionStep) || isLoading} 
-                className={`${!stepCompleted && isActionStep ? "opacity-50 cursor-not-allowed" : ""}`}
-              >
-                {isLoading ? "Processando..." : getButtonText()}
-                {!isLastStep && <ArrowRight className="w-4 h-4 ml-2" />}
-                {isLastStep && <Check className="w-4 h-4 ml-2" />}
-              </ModalPrimaryButton>
-            </div>
+          {!isFirstStep && (
+            <ModalSecondaryButton onClick={handleBack} disabled={isLoading}>
+              <ArrowLeft className="w-4 h-4 md:mr-2" />
+              <span>Voltar</span>
+            </ModalSecondaryButton>
+          )}
+
+          <div>
+            <ModalPrimaryButton
+              onClick={isLastStep ? handleCompleteOnboarding : handleNext}
+              disabled={(!stepCompleted && !isActionStep) || isLoading}
+              className={`${!stepCompleted && isActionStep ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              {isLoading ? "Processando..." : getButtonText()}
+              {!isLastStep && <ArrowRight className="w-4 h-4 ml-2" />}
+              {isLastStep && <Check className="w-4 h-4 ml-2" />}
+            </ModalPrimaryButton>
+          </div>
         </ModalFooter>
       </ModalContent>
     </Modal>

@@ -12,9 +12,13 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { AudioPlayer } from "./AudioPlayer";
 import { Question, AdaptiveState } from "../../types/placement/types";
-import { MAX_QUESTIONS } from "../../utils/placement-utils";
-import { pageVariants, containerVariants, itemVariants } from "../../config/animations";
+import {
+  pageVariants,
+  containerVariants,
+  itemVariants,
+} from "../../config/animations";
 import { useTranslations } from "next-intl";
+import { MAX_QUESTIONS } from "@/lib/utils/placement-utils";
 
 interface TestViewProps {
   currentQuestion: Question;
@@ -35,8 +39,8 @@ export const TestView = ({
   onSkip,
   onExit,
 }: TestViewProps) => {
-    const t = useTranslations("Placement");
-  
+  const t = useTranslations("Placement");
+
   return (
     <div className="flex flex-col items-center w-full max-w-2xl mx-auto">
       {/* Top Bar */}
