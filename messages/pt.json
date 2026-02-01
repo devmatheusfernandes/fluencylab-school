@@ -447,6 +447,54 @@
     "noResultsSearch": "Nenhum caderno encontrado para \"{query}\"",
     "noResultsEmpty": "Nenhum caderno criado ainda"
   },
+  "Tasks": {
+    "dashboard": {
+      "title": "Tarefas",
+      "newTask": "Nova Tarefa"
+    },
+    "status": {
+      "todo": "A Fazer",
+      "in_progress": "Em Progresso",
+      "review": "Revisão",
+      "done": "Concluído"
+    },
+    "priority": {
+      "low": "Baixa",
+      "medium": "Média",
+      "high": "Alta"
+    },
+    "dialog": {
+      "editTitle": "Editar Tarefa",
+      "newTitle": "Nova Tarefa",
+      "titleLabel": "Título",
+      "titlePlaceholder": "O que precisa ser feito?",
+      "statusLabel": "Status",
+      "priorityLabel": "Prioridade",
+      "assignedToLabel": "Designado para",
+      "selectResponsible": "Selecionar responsável...",
+      "searchUser": "Buscar usuário...",
+      "noUserFound": "Nenhum usuário encontrado.",
+      "dueDateLabel": "Data de Entrega",
+      "descriptionLabel": "Descrição",
+      "descriptionPlaceholder": "Detalhes adicionais...",
+      "subtasksLabel": "Subtarefas",
+      "add": "Adicionar",
+      "subtaskPlaceholder": "Subtarefa...",
+      "delete": "Excluir",
+      "cancel": "Cancelar",
+      "save": "Salvar"
+    },
+    "kanban": {
+      "dropHere": "Solte itens aqui"
+    },
+    "list": {
+      "noTasks": "Nenhuma tarefa encontrada"
+    },
+    "week": {
+      "today": "Hoje",
+      "nothingToday": "Nada para hoje"
+    }
+  },
   "TasksCard": {
     "title": "Tarefas",
     "syncCalendar": "Sincronizar com calendário",
@@ -541,7 +589,11 @@
     "contents": "Conteúdos",
     "vocabulary": "Vocabulário",
     "studentProfile": "Perfil de Estudantes",
-    "myContract": "Contrato"
+    "myContract": "Contrato",
+    "workbooks": "Material",
+    "plans": "Planos",
+    "lessons": "Aulas",
+    "components": "Componentes"
   },
   "UserProfileHeader": {
     "profilePicture": "Foto de perfil",
@@ -2594,5 +2646,57 @@
     "title": "Material Didático",
     "subtitle": "Acesse apostilas, lições e recursos extras.",
     "searchPlaceholder": "Buscar lições..."
+  },
+  "Goodbye": {
+    "title": "Até logo!",
+    "message": "Sua assinatura foi encerrada com sucesso. Foi um prazer ter você conosco! Esperamos te ver novamente em breve na FluencyLab School.",
+    "backButton": "Voltar para a Home"
+  },
+  "Metadata": {
+    "Chat": {
+      "title": "Chat | FluencyLab School",
+      "description": "Converse com seus alunos"
+    }
+  },
+  "Plans": {
+    "editor": {
+      "title": "Editor de Plano",
+      "nameLabel": "Nome do Plano",
+      "namePlaceholder": "Ex: Inglês para Viagem",
+      "levelLabel": "Nível",
+      "goalLabel": "Objetivo (Opcional)",
+      "goalPlaceholder": "Ex: Aprender vocabulário básico de aeroporto...",
+      "lessonsTitle": "Lições",
+      "searchPlaceholder": "Buscar lições...",
+      "searching": "Buscando...",
+      "searchResults": "Resultados da busca:",
+      "noLessonsAdded": "Nenhuma lição adicionada. Busque acima para começar.",
+      "cancel": "Cancelar",
+      "save": "Salvar Plano",
+      "saving": "Salvando...",
+      "lockedLesson": "Lições passadas não podem ser movidas ou removidas.",
+      "pastLesson": "Aula Passada",
+      "toasts": {
+        "searchError": "Erro ao buscar lições",
+        "lessonAlreadyAdded": "Lição já adicionada ao plano",
+        "nameRequired": "Nome do plano é obrigatório",
+        "minLessons": "Adicione pelo menos uma lição",
+        "saveSuccess": "Plano salvo com sucesso!",
+        "saveError": "Erro ao salvar plano"
+      }
+    },
+    "viewer": {
+      "coverageTitle": "Cobertura do Planejamento",
+      "plannedClasses": "{planned} de {total} aulas planejadas",
+      "remainingClasses": "Faltam {count} aulas para serem planejadas.",
+      "allPlanned": "Todas as aulas agendadas possuem conteúdo definido.",
+      "scheduleTitle": "Cronograma de Aulas",
+      "noLessons": "Nenhuma aula neste plano.",
+      "pastLesson": "Aula Passada",
+      "status": {
+        "scheduled": "Agendada",
+        "completed": "Concluída"
+      }
+    }
   }
 }

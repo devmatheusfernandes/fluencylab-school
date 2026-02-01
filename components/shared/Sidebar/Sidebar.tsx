@@ -15,7 +15,7 @@ import {
 } from "../NotificationCard/NotificationCard";
 import { signOut } from "next-auth/react";
 import { ArrowDown, ArrowDownFromLine, ArrowUp, LogOut } from "lucide-react";
-import { useMessages } from "next-intl";
+import { useMessages, useTranslations } from "next-intl";
 
 export interface SubItem {
   href: string;
@@ -42,6 +42,7 @@ const handleLogout = () => {
 };
 
 const SidebarItem: React.FC<SidebarItemProps> = ({ item, isCollapsed }) => {
+  const t = useTranslations("SidebarItems");
   const pathname = usePathname();
   const isActive = pathname === item.href;
 
@@ -65,7 +66,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ item, isCollapsed }) => {
             className={twMerge(
               "flex items-center h-12 px-3 py-3 rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors duration-200",
               isActive && "bg-accent text-accent-foreground",
-              isCollapsed && "justify-center px-3"
+              isCollapsed && "justify-center px-3",
             )}
           >
             <motion.div
@@ -87,7 +88,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ item, isCollapsed }) => {
                   exit={{ opacity: 0, width: 0 }}
                   className="ml-3 flex-1 whitespace-nowrap text-left overflow-hidden flex items-center justify-between"
                 >
-                  {item.label}
+                  {item.labelKey ? t(item.labelKey) : item.label}
                   {item.badgeCount && item.badgeCount > 0 ? (
                     <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
                       {item.badgeCount > 99 ? "99+" : item.badgeCount}
@@ -116,7 +117,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ item, isCollapsed }) => {
             animate={{ opacity: 1 }}
             className={twMerge(
               "pl-6 flex flex-col gap-1 py-1",
-              isCollapsed && "pl-0"
+              isCollapsed && "pl-0",
             )}
           >
             {item.subItems.map((subItem, index) => (
@@ -131,7 +132,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ item, isCollapsed }) => {
                   className={twMerge(
                     "flex items-center h-10 px-3 py-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors duration-200",
                     pathname === subItem.href && "bg-muted text-foreground",
-                    isCollapsed && "justify-center px-3"
+                    isCollapsed && "justify-center px-3",
                   )}
                 >
                   <div className="w-4 h-4 flex items-center justify-center">
@@ -168,7 +169,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ item, isCollapsed }) => {
         className={twMerge(
           "flex items-center h-12 px-3 py-3 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/15 transition-all ease-in-out duration-300",
           isActive && "bg-primary/30 text-primary font-semibold",
-          isCollapsed && "justify-center px-3"
+          isCollapsed && "justify-center px-3",
         )}
       >
         <motion.div
@@ -194,7 +195,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ item, isCollapsed }) => {
               exit={{ opacity: 0, width: 0 }}
               className="ml-3 flex-1 whitespace-nowrap overflow-hidden flex items-center justify-between"
             >
-              {item.label}
+              {item.labelKey ? t(item.labelKey) : item.label}
               {item.badgeCount && item.badgeCount > 0 ? (
                 <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
                   {item.badgeCount > 99 ? "99+" : item.badgeCount}
@@ -218,6 +219,7 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({
   item,
   notificationCount,
 }) => {
+  const t = useTranslations("SidebarItems");
   const pathname = usePathname();
   const isActive = pathname === item.href;
 
@@ -235,7 +237,7 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({
           "relative flex items-center justify-center transition-colors duration-200 w-full h-full",
           isActive
             ? "bg-primary/15 rounded-full px-4 py-2 gap-2"
-            : "p-2 text-muted-foreground hover:text-primary"
+            : "p-2 text-muted-foreground hover:text-primary",
         )}
       >
         <motion.div
@@ -255,7 +257,7 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({
               exit={{ opacity: 0, width: 0 }}
               className="text-sm font-medium text-foreground whitespace-nowrap overflow-hidden ml-2"
             >
-              {item.label}
+              {item.labelKey ? t(item.labelKey) : item.label}
             </motion.span>
           )}
         </AnimatePresence>
@@ -292,16 +294,17 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
   layoutId,
 }) => {
   const pathname = usePathname();
+  const tItems = useTranslations("SidebarItems");
   const tSidebar = (useMessages()?.Sidebar ?? {}) as Record<string, string>;
   const [openSection, setOpenSection] = React.useState<string | null>(null);
   const [activeTab, setActiveTab] = React.useState<"menu" | "notifications">(
-    "menu"
+    "menu",
   );
 
   React.useEffect(() => {
     // Determine active section based on current path
     const activeSection = items.find((item) =>
-      item.subItems?.some((sub) => pathname === sub.href)
+      item.subItems?.some((sub) => pathname === sub.href),
     );
     if (activeSection) {
       setOpenSection(activeSection.label);
@@ -345,8 +348,8 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-lg font-semibold text-foreground">
                 {activeTab === "menu"
-                  ? tSidebar.menu ?? "Menu"
-                  : tSidebar.notifications ?? "Notificações"}
+                  ? (tSidebar.menu ?? "Menu")
+                  : (tSidebar.notifications ?? "Notificações")}
               </h2>
               <motion.button
                 whileHover={{ scale: 1.1, rotate: 180 }}
@@ -377,7 +380,7 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
                 "flex-1 py-3 px-4 text-sm font-medium transition-colors relative",
                 activeTab === "menu"
                   ? "text-primary"
-                  : "text-muted-foreground hover:text-red-500"
+                  : "text-muted-foreground hover:text-red-500",
               )}
             >
               {tSidebar.menu ?? "Menu"}
@@ -395,7 +398,7 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
                 "flex-1 py-3 px-4 text-sm font-medium transition-colors relative flex items-center justify-center gap-2",
                 activeTab === "notifications"
                   ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               <span>{tSidebar.notifications ?? "Notificações"}</span>
@@ -439,7 +442,9 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
                               whileTap={{ scale: 0.98 }}
                               onClick={() =>
                                 setOpenSection(
-                                  openSection === item.label ? null : item.label
+                                  openSection === item.label
+                                    ? null
+                                    : item.label,
                                 )
                               }
                               className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted transition-colors"
@@ -449,13 +454,14 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
                                   {item.icon}
                                 </div>
                                 <span className="font-medium text-foreground">
-                                  {item.label}
+                                  {item.labelKey
+                                    ? tItems(item.labelKey)
+                                    : item.label}
                                 </span>
                               </div>
                               <motion.div
                                 animate={{
-                                  rotate:
-                                    openSection === item.label ? 180 : 0,
+                                  rotate: openSection === item.label ? 180 : 0,
                                 }}
                                 transition={{ duration: 0.2 }}
                               >
@@ -473,8 +479,7 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
                                   className="ml-6 mt-2 space-y-1 border-l-2 border-border pl-4 overflow-hidden"
                                 >
                                   {item.subItems.map((subItem, subIndex) => {
-                                    const isActive =
-                                      pathname === subItem.href;
+                                    const isActive = pathname === subItem.href;
                                     return (
                                       <motion.div
                                         key={subItem.href}
@@ -491,7 +496,7 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
                                             "flex items-center gap-3 p-2 rounded-lg transition-colors",
                                             isActive
                                               ? "bg-muted text-foreground font-medium"
-                                              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                              : "text-muted-foreground hover:bg-muted hover:text-foreground",
                                           )}
                                         >
                                           <div className="w-4 h-4 flex items-center justify-center">
@@ -516,13 +521,17 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
                               "flex items-center gap-3 p-3 rounded-lg transition-colors",
                               pathname === item.href
                                 ? "bg-muted text-foreground font-medium"
-                                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                : "text-muted-foreground hover:bg-muted hover:text-foreground",
                             )}
                           >
                             <div className="w-5 h-5 flex items-center justify-center">
                               {item.icon}
                             </div>
-                            <span className="font-medium">{item.label}</span>
+                            <span className="font-medium">
+                              {item.labelKey
+                                ? tItems(item.labelKey)
+                                : item.label}
+                            </span>
                           </Link>
                         )}
                       </motion.li>
@@ -594,7 +603,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           layout
           className={twMerge(
             "flex flex-col w-full h-full",
-            !isCollapsed && "px-2 gap-3"
+            !isCollapsed && "px-2 gap-3",
           )}
         >
           {/* User Card at top */}
@@ -622,7 +631,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             className={twMerge(
               "flex flex-col gap-2 flex-1",
               isCollapsed && "w-fit",
-              !isCollapsed && "w-full"
+              !isCollapsed && "w-full",
             )}
           >
             {items.map((item, index) => (
@@ -642,7 +651,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             layout
             className={twMerge(
               "border-t border-primary/20 pt-3 w-full",
-              isCollapsed && "border-none pt-0 mb-1"
+              isCollapsed && "border-none pt-0 mb-1",
             )}
           >
             <NotificationCard
@@ -735,9 +744,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   >
                     <ArrowUp className="text-primary w-6 h-6" />
                   </motion.div>
-                  {unreadCount > 0 && (
-                    <NotificationBadge count={unreadCount} />
-                  )}
+                  {unreadCount > 0 && <NotificationBadge count={unreadCount} />}
                 </motion.button>
               </motion.div>
             </motion.nav>

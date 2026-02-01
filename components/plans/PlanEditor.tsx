@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -13,7 +12,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { Trash2, Plus, GripVertical, Search, Lock, AlertCircle } from "lucide-react";
+import {
+  Trash2,
+  Plus,
+  GripVertical,
+  Search,
+  Lock,
+  AlertCircle,
+} from "lucide-react";
 import { CEFRLevel } from "@/types/learning/lesson";
 import { Plan, PlanType } from "@/types/financial/plan";
 import { useTranslations } from "next-intl";
@@ -37,29 +43,38 @@ export function PlanEditor({
   onSave,
   onCancel,
 }: PlanEditorProps) {
-  const t = useTranslations("UserDetails.plan");
+  const t = useTranslations("Plans.editor");
   const [name, setName] = useState(initialPlan?.name || "");
-  const [level, setLevel] = useState<CEFRLevel>((initialPlan?.level as CEFRLevel) || "A1");
+  const [level, setLevel] = useState<CEFRLevel>(
+    (initialPlan?.level as CEFRLevel) || "A1",
+  );
   const [goal, setGoal] = useState(initialPlan?.goal || "");
-  const [lessons, setLessons] = useState<Plan['lessons']>(
-    initialPlan?.lessons || []
+  const [lessons, setLessons] = useState<Plan["lessons"]>(
+    initialPlan?.lessons || [],
   );
   const [loading, setLoading] = useState(false);
 
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<Array<{ id: string; title: string; relatedLearningItemIds?: string[]; relatedLearningStructureIds?: string[] }>>([]);
+  const [searchResults, setSearchResults] = useState<
+    Array<{
+      id: string;
+      title: string;
+      relatedLearningItemIds?: string[];
+      relatedLearningStructureIds?: string[];
+    }>
+  >([]);
   const [searching, setSearching] = useState(false);
 
   const isPast = (dateStr?: string | Date) => {
     if (!dateStr) return false;
     // Handle both Date objects and strings
-    const date = typeof dateStr === 'string' ? new Date(dateStr) : dateStr;
+    const date = typeof dateStr === "string" ? new Date(dateStr) : dateStr;
     // Check if valid date
     if (isNaN(date.getTime())) return false;
-    
-    // Compare with end of today to be safe, or just current time? 
-    // User wants "past" lessons. Usually implies lessons from yesterday or before, 
+
+    // Compare with end of today to be safe, or just current time?
+    // User wants "past" lessons. Usually implies lessons from yesterday or before,
     // OR lessons that have already happened today.
     return date < new Date();
   };
@@ -79,24 +94,37 @@ export function PlanEditor({
       const results = await searchLessons(searchQuery);
       setSearchResults(results);
     } catch (error) {
-      toast.error("Erro ao buscar lições");
+      toast.error(t("toasts.searchError"));
     } finally {
       setSearching(false);
     }
   };
 
-  const addLesson = (lesson: { id: string; title: string; relatedLearningItemIds?: string[]; relatedLearningStructureIds?: string[] }) => {
+  const addLesson = (lesson: {
+    id: string;
+    title: string;
+    relatedLearningItemIds?: string[];
+    relatedLearningStructureIds?: string[];
+  }) => {
     if (lessons.find((l) => l.id === lesson.id)) {
-      toast.warning("Lição já adicionada ao plano");
+      toast.warning(t("toasts.lessonAlreadyAdded"));
       return;
     }
     // Create a new PlanLesson object
-    const newLesson: Plan['lessons'][0] = {
+    const newLesson: Plan["lessons"][0] = {
       id: lesson.id,
       title: lesson.title,
       order: lessons.length,
-      learningItemsIds: lesson.relatedLearningItemIds?.map(id => ({ id, updatedAt: new Date() })) || [],
-      learningStructureIds: lesson.relatedLearningStructureIds?.map(id => ({ id, updatedAt: new Date() })) || [],
+      learningItemsIds:
+        lesson.relatedLearningItemIds?.map((id) => ({
+          id,
+          updatedAt: new Date(),
+        })) || [],
+      learningStructureIds:
+        lesson.relatedLearningStructureIds?.map((id) => ({
+          id,
+          updatedAt: new Date(),
+        })) || [],
     };
     setLessons([...lessons, newLesson]);
     setSearchResults([]); // Clear search after adding
@@ -130,14 +158,14 @@ export function PlanEditor({
     // Prevent moving a future lesson into the past zone
     // i.e., if direction is up, new index would be index - 1.
     // If index - 1 <= lastPastIndex, forbid.
-    if (direction === "up" && (index - 1) <= lastPastIndex) {
-       toast.warning(t("lockedLesson"));
-       return;
+    if (direction === "up" && index - 1 <= lastPastIndex) {
+      toast.warning(t("lockedLesson"));
+      return;
     }
 
     const newLessons = [...lessons];
     const targetIndex = direction === "up" ? index - 1 : index + 1;
-    
+
     // Swap
     [newLessons[index], newLessons[targetIndex]] = [
       newLessons[targetIndex],
@@ -151,11 +179,11 @@ export function PlanEditor({
 
   const handleSave = async () => {
     if (!name.trim()) {
-      toast.error("Nome do plano é obrigatório");
+      toast.error(t("toasts.nameRequired"));
       return;
     }
     if (lessons.length === 0) {
-      toast.error("Adicione pelo menos uma lição");
+      toast.error(t("toasts.minLessons"));
       return;
     }
 
@@ -170,9 +198,9 @@ export function PlanEditor({
         studentId,
         status: initialPlan?.status || "draft",
       });
-      toast.success("Plano salvo com sucesso!");
+      toast.success(t("toasts.saveSuccess"));
     } catch (error) {
-      toast.error("Erro ao salvar plano");
+      toast.error(t("toasts.saveError"));
       console.error(error);
     } finally {
       setLoading(false);
@@ -183,15 +211,15 @@ export function PlanEditor({
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Nome do Plano</Label>
+          <Label>{t("nameLabel")}</Label>
           <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Ex: Inglês para Viagem"
+            placeholder={t("namePlaceholder")}
           />
         </div>
         <div className="space-y-2">
-          <Label>Nível</Label>
+          <Label>{t("levelLabel")}</Label>
           <Select value={level} onValueChange={(v) => setLevel(v as CEFRLevel)}>
             <SelectTrigger>
               <SelectValue />
@@ -206,35 +234,41 @@ export function PlanEditor({
           </Select>
         </div>
         <div className="col-span-full space-y-2">
-          <Label>Objetivo (Opcional)</Label>
+          <Label>{t("goalLabel")}</Label>
           <Input
             value={goal}
             onChange={(e) => setGoal(e.target.value)}
-            placeholder="Ex: Aprender vocabulário básico de aeroporto..."
+            placeholder={t("goalPlaceholder")}
           />
         </div>
       </div>
 
       <div className="border-t pt-4">
-        <h3 className="text-lg font-semibold mb-4">Lições</h3>
-        
+        <h3 className="text-lg font-semibold mb-4">{t("lessonsTitle")}</h3>
+
         {/* Search Bar */}
         <div className="flex gap-2 mb-4">
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Buscar lições..."
+            placeholder={t("searchPlaceholder")}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
-          <Button variant="secondary" onClick={handleSearch} disabled={searching}>
-            {searching ? "Buscando..." : <Search className="w-4 h-4" />}
+          <Button
+            variant="secondary"
+            onClick={handleSearch}
+            disabled={searching}
+          >
+            {searching ? t("searching") : <Search className="w-4 h-4" />}
           </Button>
         </div>
 
         {/* Search Results */}
         {searchResults.length > 0 && (
           <div className="mb-4 p-2 bg-muted rounded-md space-y-2 max-h-40 overflow-y-auto">
-            <p className="text-xs text-muted-foreground font-semibold px-2">Resultados da busca:</p>
+            <p className="text-xs text-muted-foreground font-semibold px-2">
+              {t("searchResults")}
+            </p>
             {searchResults.map((result) => (
               <div
                 key={result.id}
@@ -252,18 +286,18 @@ export function PlanEditor({
         <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
           {lessons.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
-              Nenhuma lição adicionada. Busque acima para começar.
+              {t("noLessonsAdded")}
             </div>
           ) : (
             lessons.map((lesson, index) => {
               const isLocked = isPast(lesson.scheduledDate);
-              
+
               return (
-                <Card 
-                  key={lesson.id} 
+                <Card
+                  key={lesson.id}
                   className={cn(
                     "p-3 flex items-center gap-3 transition-colors",
-                    isLocked ? "bg-muted/50 border-muted" : "bg-card"
+                    isLocked ? "bg-muted/50 border-muted" : "bg-card",
                   )}
                 >
                   <div className="flex flex-col gap-1 text-muted-foreground">
@@ -272,7 +306,9 @@ export function PlanEditor({
                       size="icon"
                       className="h-6 w-6"
                       onClick={() => handleMoveLesson(index, "up")}
-                      disabled={index === 0 || isLocked || (index - 1 <= lastPastIndex)}
+                      disabled={
+                        index === 0 || isLocked || index - 1 <= lastPastIndex
+                      }
                     >
                       ▲
                     </Button>
@@ -286,16 +322,23 @@ export function PlanEditor({
                       ▼
                     </Button>
                   </div>
-                  <div className={cn(
-                    "h-8 w-8 flex items-center justify-center rounded-full font-bold text-sm",
-                    isLocked ? "bg-muted-foreground/20 text-muted-foreground" : "bg-muted"
-                  )}>
+                  <div
+                    className={cn(
+                      "h-8 w-8 flex items-center justify-center rounded-full font-bold text-sm",
+                      isLocked
+                        ? "bg-muted-foreground/20 text-muted-foreground"
+                        : "bg-muted",
+                    )}
+                  >
                     {isLocked ? <Lock className="w-4 h-4" /> : index + 1}
                   </div>
-                  <div className={cn(
-                    "flex-1 font-medium",
-                    isLocked && "text-muted-foreground line-through decoration-border"
-                  )}>
+                  <div
+                    className={cn(
+                      "flex-1 font-medium",
+                      isLocked &&
+                        "text-muted-foreground line-through decoration-border",
+                    )}
+                  >
                     {lesson.title}
                     {isLocked && (
                       <span className="ml-2 text-xs font-normal text-muted-foreground no-underline inline-flex items-center gap-1">
@@ -308,7 +351,8 @@ export function PlanEditor({
                     size="icon"
                     className={cn(
                       "text-destructive hover:bg-destructive/10",
-                      isLocked && "opacity-50 cursor-not-allowed hover:bg-transparent text-muted-foreground"
+                      isLocked &&
+                        "opacity-50 cursor-not-allowed hover:bg-transparent text-muted-foreground",
                     )}
                     onClick={() => removeLesson(index)}
                     disabled={isLocked}
@@ -324,10 +368,10 @@ export function PlanEditor({
 
       <div className="flex justify-end gap-2 pt-4">
         <Button variant="outline" onClick={onCancel} disabled={loading}>
-          Cancelar
+          {t("cancel")}
         </Button>
         <Button onClick={handleSave} disabled={loading}>
-          {loading ? "Salvando..." : "Salvar Plano"}
+          {loading ? t("saving") : t("save")}
         </Button>
       </div>
     </div>

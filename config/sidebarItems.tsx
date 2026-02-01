@@ -42,7 +42,7 @@ const adminItems: SidebarItemType[] = [
   {
     href: "/[locale]/hub/admin/notification",
     label: "Notificações",
-    labelKey: "notification",
+    labelKey: "notifications",
     icon: <BellIcon size={20} />,
   },
   {

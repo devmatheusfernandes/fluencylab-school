@@ -447,6 +447,54 @@
     "noResultsSearch": "No notebooks found for \"{query}\"",
     "noResultsEmpty": "No notebooks created yet"
   },
+  "Tasks": {
+    "dashboard": {
+      "title": "Tasks",
+      "newTask": "New Task"
+    },
+    "status": {
+      "todo": "To Do",
+      "in_progress": "In Progress",
+      "review": "Review",
+      "done": "Done"
+    },
+    "priority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "dialog": {
+      "editTitle": "Edit Task",
+      "newTitle": "New Task",
+      "titleLabel": "Title",
+      "titlePlaceholder": "What needs to be done?",
+      "statusLabel": "Status",
+      "priorityLabel": "Priority",
+      "assignedToLabel": "Assigned to",
+      "selectResponsible": "Select responsible...",
+      "searchUser": "Search user...",
+      "noUserFound": "No user found.",
+      "dueDateLabel": "Due Date",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Additional details...",
+      "subtasksLabel": "Subtasks",
+      "add": "Add",
+      "subtaskPlaceholder": "Subtask...",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "kanban": {
+      "dropHere": "Drop items here"
+    },
+    "list": {
+      "noTasks": "No tasks found"
+    },
+    "week": {
+      "today": "Today",
+      "nothingToday": "Nothing for today"
+    }
+  },
   "TasksCard": {
     "title": "Tasks",
     "syncCalendar": "Sync with calendar",
@@ -541,7 +589,11 @@
     "contents": "Contents",
     "vocabulary": "Vocabulary",
     "studentProfile": "Student Profiles",
-    "myContract": "Contract"
+    "myContract": "Contract",
+    "workbooks": "Materials",
+    "plans": "Plans",
+    "lessons": "Lessons",
+    "components": "Components"
   },
   "UserProfileHeader": {
     "profilePicture": "Profile picture",
@@ -2595,5 +2647,57 @@
     "title": "Learning Material",
     "subtitle": "Access workbooks, lessons, and extra resources.",
     "searchPlaceholder": "Search lessons..."
+  },
+  "Goodbye": {
+    "title": "Goodbye!",
+    "message": "Your subscription has been successfully terminated. It was a pleasure having you with us! We hope to see you again soon at FluencyLab School.",
+    "backButton": "Back to Home"
+  },
+  "Metadata": {
+    "Chat": {
+      "title": "Chat | FluencyLab School",
+      "description": "Chat with your students"
+    }
+  },
+  "Plans": {
+    "editor": {
+      "title": "Plan Editor",
+      "nameLabel": "Plan Name",
+      "namePlaceholder": "Ex: Travel English",
+      "levelLabel": "Level",
+      "goalLabel": "Goal (Optional)",
+      "goalPlaceholder": "Ex: Learn basic airport vocabulary...",
+      "lessonsTitle": "Lessons",
+      "searchPlaceholder": "Search lessons...",
+      "searching": "Searching...",
+      "searchResults": "Search results:",
+      "noLessonsAdded": "No lessons added. Search above to start.",
+      "cancel": "Cancel",
+      "save": "Save Plan",
+      "saving": "Saving...",
+      "lockedLesson": "Past lessons cannot be moved or removed.",
+      "pastLesson": "Past Lesson",
+      "toasts": {
+        "searchError": "Error searching lessons",
+        "lessonAlreadyAdded": "Lesson already added to plan",
+        "nameRequired": "Plan name is required",
+        "minLessons": "Add at least one lesson",
+        "saveSuccess": "Plan saved successfully!",
+        "saveError": "Error saving plan"
+      }
+    },
+    "viewer": {
+      "coverageTitle": "Planning Coverage",
+      "plannedClasses": "{planned} of {total} planned classes",
+      "remainingClasses": "{count} classes remaining to be planned.",
+      "allPlanned": "All scheduled classes have defined content.",
+      "scheduleTitle": "Class Schedule",
+      "noLessons": "No lessons in this plan.",
+      "pastLesson": "Past Lesson",
+      "status": {
+        "scheduled": "Scheduled",
+        "completed": "Completed"
+      }
+    }
   }
 }
