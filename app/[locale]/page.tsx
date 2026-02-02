@@ -6,6 +6,7 @@ import ComparisonSection from "@/components/landing/ComparisonSection";
 import HowItWorks from "@/components/landing/HowItWorks";
 import TeamSection from "@/components/landing/TeamSection";
 import Footer from "@/components/landing/Footer";
+import ConversationLeveling from "@/components/conversation/ConversationLeveling";
 
 export default function LandingPage() {
   return (

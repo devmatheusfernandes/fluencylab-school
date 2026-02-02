@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Logo from "../../public/brand/Group.png";
 import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
+import { DoorOpenIcon, X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -130,7 +130,10 @@ export function LandingNavbar() {
                 </Avatar>
               </>
             ) : (
-              t("nav.login")
+              <>
+                <span>{t("nav.login")}</span>
+                <DoorOpenIcon className="w-4 h-4" />
+              </>
             )}
           </motion.button>
         </div>
