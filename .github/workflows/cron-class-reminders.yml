@@ -1,0 +1,21 @@
+name: Class Reminders Cron
+
+on:
+  schedule:
+    - cron: "*/15 9-23,0 * * 1-6"
+  workflow_dispatch:
+
+jobs:
+  cron:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Class Reminders Endpoint
+        run: |
+          if [ -z "${{ secrets.NEXT_PUBLIC_BASE_URL }}" ]; then
+            echo "Error: NEXT_PUBLIC_BASE_URL secret is not set"
+            exit 1
+          fi
+
+          curl -i -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.NEXT_PUBLIC_BASE_URL }}/api/cron/class-reminders"
