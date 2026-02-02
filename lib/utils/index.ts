@@ -24,7 +24,6 @@ export function serializeForClientComponent(obj: any): any {
   }
 
   if (obj instanceof Date) {
-    // Keep Date objects as they are for components that need them
     return obj;
   }
 
