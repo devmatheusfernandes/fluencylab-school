@@ -252,5 +252,11 @@
   }
   body {
     @apply bg-background text-foreground;
+    -webkit-tap-highlight-color: transparent;
+  }
+  @media screen and (display-mode: standalone) {
+    header {
+      height: 88px !important;
+    }
   }
 }
