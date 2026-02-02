@@ -5,8 +5,23 @@ export async function getRandomWord(
   language: string
 ): Promise<{ word: string; translation: string } | null> {
   try {
+    // Normaliza o nome do idioma para o código do arquivo
+    const langMap: Record<string, string> = {
+      "Inglês": "en",
+      "English": "en",
+      "en": "en",
+      "Português": "pt",
+      "Portuguese": "pt",
+      "pt": "pt",
+      "Espanhol": "es",
+      "Spanish": "es",
+      "es": "es"
+    };
+
+    const langCode = langMap[language] || language.toLowerCase();
+
     // Importa o JSON dinamicamente
-    const module = await import(`@/vocabulary/${language}.json`);
+    const module = await import(`@/vocabulary/${langCode}.json`);
     
     // Pega o conteúdo (lidando com export default ou direto)
     const data = module.default || module;

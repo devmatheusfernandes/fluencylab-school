@@ -158,8 +158,17 @@ export default function MeuPerfil() {
         } else {
           setPlacementBadgeLevel(0);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error loading latest placement result:", error);
+
+        if (error?.code === 'failed-precondition' && error?.message?.includes('index')) {
+          const match = error.message.match(/https:\/\/console\.firebase\.google\.com[^\s]*/);
+          if (match) {
+              console.log("%c [Firestore] Link para criar índice ausente:", "color: yellow; font-weight: bold; font-size: 12px;");
+              console.log(match[0]);
+          }
+        }
+
         setPlacementBadgeLevel(null);
       } finally {
         setIsPlacementLoading(false);

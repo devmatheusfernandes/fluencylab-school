@@ -11,5 +11,11 @@ export default function HubHeader() {
   const messages = useMessages();
   const breadcrumbItems = generateBreadcrumbs(pathname, messages as any);
   const { toggleSidebar } = useSidebar();
-  return <Breadcrumb items={breadcrumbItems} onToggleSidebar={toggleSidebar} />;
+  return (
+    <Breadcrumb
+      items={breadcrumbItems}
+      onToggleSidebar={toggleSidebar}
+      className="pwa-header-sticky"
+    />
+  );
 }

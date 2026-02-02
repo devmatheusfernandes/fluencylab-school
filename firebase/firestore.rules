@@ -3,264 +3,228 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ## RULES FOR 'users' COLLECTION ##
+    // --- Funções Auxiliares ---
+
+    // Verifica se o usuário está autenticado
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Verifica se o usuário é dono do recurso (pelo ID)
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Verifica se o usuário é dono do recurso (pelo campo data.userId)
+    function isResourceOwner() {
+      return isAuthenticated() && (
+        (resource != null && resource.data.userId == request.auth.uid) ||
+        (request.resource != null && request.resource.data.userId == request.auth.uid)
+      );
+    }
+
+    // Busca dados do usuário para verificar papel (Role)
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    // Verifica papel específico
+    function hasRole(role) {
+      return isAuthenticated() && getUserData().role == role;
+    }
+
+    function isAdmin() {
+      return hasRole('admin');
+    }
+
+    function isManager() {
+      return hasRole('manager') || isAdmin();
+    }
+
+    function isTeacher() {
+      return hasRole('teacher') || isAdmin();
+    }
+
+    function isMaterialManager() {
+      return hasRole('material_manager') || isAdmin();
+    }
+
+    // --- Regras por Coleção ---
+
+    // Usuários
     match /users/{userId} {
-      // WHO CAN READ?
-      // The user themselves, or an 'admin'/'manager'.
-      allow read: if request.auth != null && (request.auth.uid == userId || request.auth.token.role in ['admin', 'manager']);
+      // Leitura permitida para qualquer usuário autenticado (Necessário para Chat, Perfil, etc.)
+      // Dados sensíveis financeiros estão em coleções separadas.
+      allow read: if isAuthenticated();
       
-      // WHO CAN UPDATE?
-      // The user themselves, or an 'admin'/'manager'.
-      allow update: if request.auth != null && (request.auth.uid == userId || request.auth.token.role in ['admin', 'manager']);
+      allow create: if isAuthenticated(); // Permite criação no primeiro login
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
 
-      // No one can create or delete a user directly from the client.
-      // This forces the use of your secure backend API endpoints.
-      allow create, delete: if false;
+      // Regras para Cadernos (Notebooks) e Colaboração (Yjs)
+      match /Notebooks/{notebookId} {
+        allow read: if isOwner(userId) || isTeacher() || isManager();
+        allow write: if isOwner(userId) || isTeacher() || isManager();
+        
+        // Permite acesso a todas as subcoleções (versions, yjs, history, awareness, etc.)
+        match /{document=**} {
+           allow read: if isOwner(userId) || isTeacher() || isManager();
+           allow write: if isOwner(userId) || isTeacher() || isManager();
+        }
+      }
     }
 
-    // ## RULES FOR 'availabilities' COLLECTION ##
-    match /availabilities/{availabilityId} {
-      // WHO CAN READ?
-      // Any authenticated user (so students can see schedules).
-      allow read: if request.auth != null;
-
-      // WHO CAN CREATE?
-      // Only a 'teacher', and they can only create a schedule for themselves.
-      // 'request.resource.data' refers to the data of the NEW document being created.
-      allow create: if request.auth != null && request.auth.token.role == 'teacher' && request.resource.data.teacherId == request.auth.uid;
-      
-      // WHO CAN UPDATE OR DELETE?
-      // Only the teacher who created the schedule.
-      // 'resource.data' refers to the data of the document that ALREADY EXISTS in the database.
-      allow update, delete: if request.auth != null && request.auth.token.role == 'teacher' && resource.data.teacherId == request.auth.uid;
+    // Informações Bancárias (Professores)
+    match /teacherBankingInfo/{docId} {
+      allow read: if isOwner(docId) || isManager();
+      allow write: if isOwner(docId) || isAdmin();
     }
 
-    // ## RULES FOR 'contracts' COLLECTION ##
-    match /contracts/{contractId} {
-      // WHO CAN READ?
-      // The student who owns the contract, teachers assigned to the student, or admins/managers
-      allow read: if request.auth != null && (
-        resource.data.studentId == request.auth.uid ||
-        request.auth.token.role in ['admin', 'manager', 'teacher']
-      );
+    // --- Conteúdo Pedagógico (Acesso Público para Leitura / Restrito para Escrita) ---
+    
+    match /lessons/{lessonId} {
+      allow read: if isAuthenticated();
+      allow write: if isMaterialManager();
+    }
+    
+    match /Apostilas/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isMaterialManager();
       
-      // WHO CAN CREATE?
-      // Only the student themselves or admins/managers
-      allow create: if request.auth != null && (
-        request.resource.data.studentId == request.auth.uid ||
-        request.auth.token.role in ['admin', 'manager']
-      );
-      
-      // WHO CAN UPDATE?
-      // The student themselves (for signing), or admins/managers
-      allow update: if request.auth != null && (
-        resource.data.studentId == request.auth.uid ||
-        request.auth.token.role in ['admin', 'manager']
-      );
-      
-      // WHO CAN DELETE?
-      // Only admins (soft delete should be preferred)
-      allow delete: if request.auth != null && request.auth.token.role == 'admin';
+      match /Lessons/{lessonId} {
+        allow read: if isAuthenticated();
+        allow write: if isMaterialManager();
+      }
     }
 
-    // ## RULES FOR 'contractStatus' COLLECTION ##
-    match /contractStatus/{statusId} {
-      // WHO CAN READ?
-      // The student who owns the status, teachers, or admins/managers
-      allow read: if request.auth != null && (
-        resource.data.studentId == request.auth.uid ||
-        request.auth.token.role in ['admin', 'manager', 'teacher']
-      );
-      
-      // WHO CAN CREATE/UPDATE?
-      // The student themselves or admins/managers
-      allow create, update: if request.auth != null && (
-        request.resource.data.studentId == request.auth.uid ||
-        request.auth.token.role in ['admin', 'manager']
-      );
-      
-      // WHO CAN DELETE?
-      // Only admins
-      allow delete: if request.auth != null && request.auth.token.role == 'admin';
+    match /learningItems/{itemId} {
+      allow read: if isAuthenticated();
+      allow write: if isMaterialManager();
     }
 
-    // ## RULES FOR 'contractLogs' COLLECTION ##
-    match /contractLogs/{logId} {
-      // WHO CAN READ?
-      // The student who owns the log, or admins/managers
-      allow read: if request.auth != null && (
-        resource.data.studentId == request.auth.uid ||
-        request.auth.token.role in ['admin', 'manager']
-      );
-      
-      // WHO CAN CREATE?
-      // The student themselves or admins/managers (logs are typically created during signing)
-      allow create: if request.auth != null && (
-        request.resource.data.studentId == request.auth.uid ||
-        request.auth.token.role in ['admin', 'manager']
-      );
-      
-      // WHO CAN UPDATE?
-      // Only admins/managers (logs should generally be immutable)
-      allow update: if request.auth != null && request.auth.token.role in ['admin', 'manager'];
-      
-      // WHO CAN DELETE?
-      // Only admins
-      allow delete: if request.auth != null && request.auth.token.role == 'admin';
+    match /learningStructures/{structId} {
+      allow read: if isAuthenticated();
+      allow write: if isMaterialManager();
     }
 
-    // ## RULES FOR 'subscriptions' COLLECTION ##
-    match /subscriptions/{subscriptionId} {
-      // WHO CAN READ?
-      // The user who owns the subscription, or admins/managers
-      allow read: if request.auth != null && (
-        resource.data.userId == request.auth.uid ||
-        request.auth.token.role in ['admin', 'manager']
-      );
-      
-      // WHO CAN CREATE/UPDATE?
-      // The user themselves or admins/managers
-      allow create, update: if request.auth != null && (
-        request.resource.data.userId == request.auth.uid ||
-        request.auth.token.role in ['admin', 'manager']
-      );
-      
-      // WHO CAN DELETE?
-      // Only admins (cancellation should be handled via status update)
-      allow delete: if request.auth != null && request.auth.token.role == 'admin';
+    match /tiptap/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isMaterialManager();
+
+      match /questions/{qId} {
+         allow read: if isAuthenticated();
+         allow write: if isMaterialManager();
+      }
+      match /questions_decks/{dId} {
+         allow read: if isAuthenticated();
+         allow write: if isMaterialManager();
+      }
+    }
+    
+    match /editorDocuments/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated(); // Refinar conforme uso (provavelmente owner ou shared)
     }
 
-    // ## RULES FOR 'payments' COLLECTION ##
-    match /payments/{paymentId} {
-      // WHO CAN READ?
-      // The user who made the payment, or admins/managers
-      allow read: if request.auth != null && (
-        resource.data.userId == request.auth.uid ||
-        request.auth.token.role in ['admin', 'manager']
-      );
-      
-      // WHO CAN CREATE?
-      // The user themselves or admins/managers (typically created by payment webhooks)
-      allow create: if request.auth != null && (
-        request.resource.data.userId == request.auth.uid ||
-        request.auth.token.role in ['admin', 'manager']
-      );
-      
-      // WHO CAN UPDATE?
-      // Only admins/managers (payment records should be immutable)
-      allow update: if request.auth != null && request.auth.token.role in ['admin', 'manager'];
-      
-      // WHO CAN DELETE?
-      // Only admins
-      allow delete: if request.auth != null && request.auth.token.role == 'admin';
+    // --- Progresso e Planos do Aluno ---
+
+    match /plans/{planId} {
+      allow read: if isResourceOwner() || isTeacher();
+      allow write: if isResourceOwner() || isTeacher();
     }
 
-    // ## RULES FOR 'classes' COLLECTION ##
+    match /placement_results/{resultId} {
+      allow read: if isResourceOwner() || isTeacher();
+      allow write: if isAdmin();
+    }
+
+    match /placement_progress/{docId} {
+      allow read: if isOwner(docId) || isTeacher();
+      allow write: if isOwner(docId) || isAdmin();
+    }
+
+    // --- Agendamento e Aulas ---
+
     match /classes/{classId} {
-      // WHO CAN READ?
-      // Students enrolled in the class, the assigned teacher, or admins/managers
-      allow read: if request.auth != null && (
-        request.auth.uid in resource.data.studentIds ||
-        resource.data.teacherId == request.auth.uid ||
-        request.auth.token.role in ['admin', 'manager']
-      );
-      
-      // WHO CAN CREATE?
-      // Teachers or admins/managers
-      allow create: if request.auth != null && (
-        request.auth.token.role in ['teacher', 'admin', 'manager']
-      );
-      
-      // WHO CAN UPDATE?
-      // The assigned teacher or admins/managers
-      allow update: if request.auth != null && (
-        resource.data.teacherId == request.auth.uid ||
-        request.auth.token.role in ['admin', 'manager']
-      );
-      
-      // WHO CAN DELETE?
-      // Only admins/managers
-      allow delete: if request.auth != null && request.auth.token.role in ['admin', 'manager'];
-    }
-
-    // ## RULES FOR 'credits' COLLECTION ##
-    match /credits/{creditId} {
-      // WHO CAN READ?
-      // The student who owns the credits, their assigned teachers, or admins/managers
-      allow read: if request.auth != null && (
+      // Leitura: Professor, Aluno ou Manager
+      allow read: if isAuthenticated() && (
+        resource.data.teacherId == request.auth.uid || 
         resource.data.studentId == request.auth.uid ||
-        request.auth.token.role in ['teacher', 'admin', 'manager']
+        isManager()
       );
-      
-      // WHO CAN CREATE/UPDATE?
-      // Teachers (for credit consumption) or admins/managers (for credit grants)
-      allow create, update: if request.auth != null && request.auth.token.role in ['teacher', 'admin', 'manager'];
-      
-      // WHO CAN DELETE?
-      // Only admins
-      allow delete: if request.auth != null && request.auth.token.role == 'admin';
+      // Criação: Aluno agendando para si ou Manager/Admin
+      allow create: if isAuthenticated() && (
+        request.resource.data.studentId == request.auth.uid ||
+        isManager()
+      );
+      // Atualização: Envolvidos ou Manager
+      allow update: if isAuthenticated() && (
+        resource.data.teacherId == request.auth.uid || 
+        resource.data.studentId == request.auth.uid ||
+        isManager()
+      );
     }
 
-    // ## RULES FOR 'teacherBankingInfo' COLLECTION ##
-    match /teacherBankingInfo/{bankingInfoId} {
-      // WHO CAN READ?
-      // Only the teacher who owns the banking info, or admins/managers
-      allow read: if request.auth != null && (
-        resource.data.teacherId == request.auth.uid ||
-        request.auth.token.role in ['admin', 'manager']
-      );
-      
-      // WHO CAN CREATE?
-      // Only teachers can create their own banking info
-      allow create: if request.auth != null && 
-        request.auth.token.role == 'teacher' && 
-        request.resource.data.teacherId == request.auth.uid;
-      
-      // WHO CAN UPDATE?
-      // Only the teacher who owns the banking info, or admins/managers
-      allow update: if request.auth != null && (
-        resource.data.teacherId == request.auth.uid ||
-        request.auth.token.role in ['admin', 'manager']
-      );
-      
-      // WHO CAN DELETE?
-      // Only admins (banking info should generally be preserved for audit purposes)
-      allow delete: if request.auth != null && request.auth.token.role == 'admin';
+    match /availabilities/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isResourceOwner() || isManager();
     }
 
-    // ## RULES FOR 'users/{userId}/Notebooks' AND EDITOR SYNC ##
-    match /users/{userId}/Notebooks/{notebookId} {
-      // Notebook document access: owner, teacher, admin/manager
-      allow read: if request.auth != null && (request.auth.uid == userId || request.auth.token.role in ['admin', 'manager', 'teacher']);
-      allow create, update: if request.auth != null && (request.auth.uid == userId || request.auth.token.role in ['admin', 'manager', 'teacher']);
-      allow delete: if request.auth != null && request.auth.token.role == 'admin';
-
-      // Versions subcollection (auto-saved snapshots)
-      match /versions/{versionId} {
-        allow read: if request.auth != null && (request.auth.uid == userId || request.auth.token.role in ['admin', 'manager', 'teacher']);
-        allow create: if request.auth != null && (request.auth.uid == userId || request.auth.token.role in ['admin', 'manager', 'teacher']);
-        // Restrict updates/deletes to admins/managers to preserve history
-        allow update, delete: if request.auth != null && request.auth.token.role in ['admin', 'manager'];
-      }
-
-      // Awareness sub-tree (used by Yjs presence)
-      match /awareness/{document=**} {
-        allow read, write: if request.auth != null && (request.auth.uid == userId || request.auth.token.role in ['admin', 'manager', 'teacher']);
-      }
-
-      // Updates sub-tree (used by Yjs CRDT updates)
-      match /updates/{document=**} {
-        allow read, write: if request.auth != null && (request.auth.uid == userId || request.auth.token.role in ['admin', 'manager', 'teacher']);
-      }
-
-      // Yjs metadata (e.g., time document used by provider)
-      match /yjs/{document=**} {
-        allow read, write: if request.auth != null && (request.auth.uid == userId || request.auth.token.role in ['admin', 'manager', 'teacher']);
-      }
+    match /availabilityExceptions/{docId} {
+       allow read: if isAuthenticated();
+       allow write: if isResourceOwner() || isManager();
     }
 
-    // ## FALLBACK RULE ##
-    // Deny all other access by default
+    match /vacations/{docId} {
+       allow read: if isAuthenticated();
+       allow write: if isResourceOwner() || isManager();
+    }
+
+    // --- Financeiro (Alta Segurança) ---
+
+    match /subscriptions/{subId} {
+      allow read: if isResourceOwner() || isManager();
+      allow write: if isAdmin(); 
+    }
+
+    match /monthlyPayments/{payId} {
+      allow read: if isResourceOwner() || isManager();
+      allow write: if isAdmin();
+    }
+
+    match /payments/{payId} {
+      allow read: if isResourceOwner() || isManager();
+      allow write: if isAdmin();
+    }
+
+    match /occasionalPurchases/{purchaseId} {
+      allow read: if isResourceOwner() || isManager();
+      allow write: if isAdmin();
+    }
+
+    match /creditTransactions/{transId} {
+      allow read: if isResourceOwner() || isManager();
+      allow write: if isAdmin();
+    }
+
+    // --- Sistema e Comunicação ---
+
+    match /announcements/{announceId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /tasks/{taskId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated(); // Refinar: Idealmente apenas assignedTo ou createdBy
+    }
+
+    match /audit_logs/{logId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin(); // Geralmente escrito via Backend
+    }
+
+    // --- Regra Padrão (Bloqueio Total) ---
     match /{document=**} {
       allow read, write: if false;
     }

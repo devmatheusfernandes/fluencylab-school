@@ -177,8 +177,17 @@ const ProgressStatusCard: React.FC<ProgressStatusCardProps> = ({
           setPlacementStatus("pending");
           setPlacementText(t("placementOutdated"));
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error evaluating placement status:", error);
+
+        if (error?.code === 'failed-precondition' && error?.message?.includes('index')) {
+          const match = error.message.match(/https:\/\/console\.firebase\.google\.com[^\s]*/);
+          if (match) {
+              console.log("%c [Firestore] Link para criar índice ausente:", "color: yellow; font-weight: bold; font-size: 12px;");
+              console.log(match[0]);
+          }
+        }
+
         setPlacementStatus("pending");
         setPlacementText(t("placementNone"));
       }
