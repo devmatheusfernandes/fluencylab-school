@@ -11,7 +11,8 @@
       "team": "Our Team",
       "faq": "FAQ",
       "login": "Login",
-      "continue": "Continue"
+      "continue": "Continuar",
+      "switchAccount": "Sign in with another account"
     },
     "heroCard": {
       "greeting": {

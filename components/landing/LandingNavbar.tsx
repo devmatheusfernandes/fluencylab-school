@@ -6,7 +6,7 @@ import Image from "next/image";
 import Logo from "../../public/brand/Group.png";
 import { motion, AnimatePresence } from "framer-motion";
 import { DoorOpenIcon, X } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -28,6 +28,10 @@ export function LandingNavbar() {
     } else {
       router.push("/signin");
     }
+  };
+
+  const handleSwitchAccount = async () => {
+    await signOut({ callbackUrl: "/signin" });
   };
 
   const navLinksLeft = [
@@ -244,6 +248,14 @@ export function LandingNavbar() {
                     t("nav.login")
                   )}
                 </button>
+                {session && (
+                  <button
+                    onClick={handleSwitchAccount}
+                    className="mt-1 w-full text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors py-2"
+                  >
+                    {t("nav.switchAccount")}
+                  </button>
+                )}
               </nav>
             </motion.div>
           </>

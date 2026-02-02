@@ -11,7 +11,8 @@
       "team": "Nosso Time",
       "faq": "Perguntas Frequentes",
       "login": "Login",
-      "continue": "Continuar"
+      "continue": "Continuar",
+      "switchAccount": "Entrar com outra conta"
     },
     "heroCard": {
       "greeting": {
