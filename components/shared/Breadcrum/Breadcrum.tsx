@@ -1,5 +1,6 @@
 "use client";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { useIsStandalone } from "@/hooks/ui/useIsStandalone";
 import { useIsMobile } from "@/hooks/ui/useMobile";
 import LayoutSidebarRightIcon from "@/public/animated/layout-sidebar-right-icon";
 import * as React from "react";
@@ -21,6 +22,7 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>(
     const currentItem =
       items && items.length > 0 ? items[items.length - 1] : null;
     const isMobile = useIsMobile();
+    const isStandalone = useIsStandalone();
 
     if (!currentItem) {
       return null;
@@ -33,7 +35,8 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>(
         className={twMerge(
           "header-base flex items-center justify-between w-full text-sm rounded-none sm:rounded-t-lg py-1 px-3",
           className,
-          isMobile && "relative bg-slate-300 dark:bg-slate-950",
+          (isMobile && "relative bg-slate-300 dark:bg-slate-950") ||
+            (isStandalone && "sticky top-0 z-10"),
         )}
       >
         {onToggleSidebar && !isMobile && (
