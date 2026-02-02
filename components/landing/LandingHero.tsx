@@ -1,0 +1,101 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useTranslations } from "next-intl";
+import { CalendarDaysIcon } from "@/public/animated/calendar";
+import { PhoneMockup } from "@/components/landing/PhoneMockup";
+import { HomeScreen } from "@/components/landing/screens/HomeScreen";
+import { PathScreen } from "@/components/landing/screens/PathScreen";
+
+export function LandingHero() {
+  const t = useTranslations("LandingPage");
+  const [currentScreen, setCurrentScreen] = useState<"home" | "path">("home");
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentScreen((prev) => (prev === "home" ? "path" : "home"));
+    }, 5000); // Alterna a cada 5 segundos
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <main className="w-full h-full relative grid grid-cols-1 lg:grid-cols-2 flex-1">
+      <div className="flex flex-col justify-center lg:justify-end px-6 md:px-12 lg:px-14 pb-12 lg:pb-20 z-20 order-1 pt-22 lg:pt-0">
+        <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000 flex flex-col text-center sm:text-left">
+          {/* MUDANÇA: Cores de texto ajustadas para text-gray-600 (igual ao login description) */}
+          <p className="text-gray-600 dark:text-gray-300 font-medium text-sm md:text-sm max-w-md">
+            <span
+              dangerouslySetInnerHTML={{
+                __html: t.raw("heroSubtitle"),
+              }}
+            />
+          </p>
+
+          {/* MUDANÇA: Texto principal mais escuro/nítido */}
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter text-gray-900 dark:text-white leading-[0.95] mb-8 mt-2">
+            {t("title")}
+          </h1>
+
+          <div className="flex flex-col sm:flex-row gap-3 ">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex flex-row items-center justify-center gap-2 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white px-8 py-4 rounded-full font-medium border border-gray-200 dark:border-gray-700"
+            >
+              <CalendarDaysIcon size={24} />
+              {t("primaryCta")}
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-6 py-4 rounded-full font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              {t("secondaryCta")}
+            </motion.button>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative w-full min-h-[450px] lg:h-full order-2 lg:static pointer-events-none overflow-visible">
+        <div
+          className="
+            relative w-full h-full flex items-end justify-center lg:block
+            lg:absolute lg:top-32 lg:right-40 lg:w-auto lg:h-auto
+          "
+        >
+          {/* --- COMPONENTE VISUAL ANIMADO --- */}
+          <PhoneMockup>
+            <AnimatePresence mode="wait">
+              {currentScreen === "home" ? (
+                <motion.div
+                  key="home"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.3 }}
+                  className="h-full"
+                >
+                  <HomeScreen />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="path"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.3 }}
+                  className="h-full"
+                >
+                  <PathScreen />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </PhoneMockup>
+          {/* --- FIM DO COMPONENTE VISUAL --- */}
+        </div>
+      </div>
+    </main>
+  );
+}
