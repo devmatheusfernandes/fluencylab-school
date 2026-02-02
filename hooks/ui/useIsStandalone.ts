@@ -1,4 +1,5 @@
 // hooks/use-is-standalone.ts
+"use client";
 import { useState, useEffect } from "react";
 
 export function useIsStandalone() {
@@ -12,8 +13,7 @@ export function useIsStandalone() {
 
     const checkStandalone = () => {
       const isStandaloneMode =
-        mediaQuery.matches ||
-        (window.navigator as any).standalone === true; // Fallback para iOS antigo
+        mediaQuery.matches || (window.navigator as any).standalone === true; // Fallback para iOS antigo
 
       setIsStandalone(isStandaloneMode);
     };
