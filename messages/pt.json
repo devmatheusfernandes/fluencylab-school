@@ -618,7 +618,8 @@
     "workbooks": "Material",
     "plans": "Planos",
     "lessons": "Aulas",
-    "components": "Componentes"
+    "components": "Componentes",
+    "tasks": "Tarefas"
   },
   "UserProfileHeader": {
     "profilePicture": "Foto de perfil",
@@ -905,6 +906,7 @@
       "months12": "12 Meses",
       "ratePerClass": "Valor por Aula (R$)",
       "teachingLanguages": "Idiomas que Ensina",
+      "studyingLanguages": "Idiomas que Estuda",
       "save": "Salvar",
       "toastSaveSuccess": "Perfil do utilizador salvo com sucesso!",
       "toastSaveError": "Ocorreu um erro ao salvar o perfil."
@@ -2721,6 +2723,41 @@
       "status": {
         "scheduled": "Agendada",
         "completed": "Concluída"
+      }
+    }
+  },
+  "AdminDashboard": {
+    "title": "Painel de Controle",
+    "subtitle": "Visão geral do sistema e métricas principais.",
+    "overview": {
+      "title": "Visão Geral",
+      "description": "Resumo das métricas principais de hoje."
+    },
+    "stats": {
+      "monthlyRevenue": "Receita Mensal",
+      "newStudents": "Novos Alunos",
+      "todayClasses": "Aulas Hoje",
+      "activeTeachers": "Professores",
+      "vsLastMonth": "vs. mês passado"
+    },
+    "revenueChart": {
+      "title": "Receita",
+      "subtitle": "Últimos 6 meses"
+    },
+    "recentActivity": {
+      "title": "Atividade Recente",
+      "empty": "Sem atividades recentes.",
+      "table": {
+        "studentTeacher": "Aluno / Professor",
+        "date": "Data",
+        "status": "Status",
+        "with": "com"
+      },
+      "status": {
+        "completed": "Concluída",
+        "scheduled": "Agendada",
+        "canceled": "Cancelada",
+        "pending": "Pendente"
       }
     }
   }

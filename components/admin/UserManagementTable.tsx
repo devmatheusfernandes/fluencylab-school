@@ -108,6 +108,15 @@ export default function UserManagementTable() {
     name: string;
     email: string;
     role: UserRoles;
+    birthDate?: Date;
+    contractStartDate?: Date;
+    languages?: string[];
+    guardian?: {
+      name: string;
+      email: string;
+      phoneNumber?: string;
+      relationship?: string;
+    };
   }) => {
     const success = await createUser(userData);
     if (success) {

@@ -9,6 +9,8 @@ interface CreateUserPayload {
   email: string;
   role: UserRoles;
   birthDate?: Date;
+  contractStartDate?: Date;
+  languages?: string[];
   guardian?: {
     name: string;
     email: string;
@@ -38,7 +40,7 @@ export const useAdmin = () => {
         throw new Error(result.error || "Falha ao criar utilizador.");
 
       setSuccessMessage(
-        `Utilizador para '${result.data.email}' criado com sucesso! Um e-mail de boas-vindas foi enviado.`
+        `Utilizador para '${result.data.email}' criado com sucesso! Um e-mail de boas-vindas foi enviado.`,
       );
       return true; // Retorna sucesso
     } catch (err: any) {
@@ -51,7 +53,7 @@ export const useAdmin = () => {
 
   const updateUser = async (
     userId: string,
-    userData: Partial<User>
+    userData: Partial<User>,
   ): Promise<boolean> => {
     setIsLoading(true);
     setError(null);

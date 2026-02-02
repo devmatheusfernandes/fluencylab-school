@@ -1,10 +1,37 @@
 "use client";
 
-import StatCard from "./StatCard";
 import { useCan } from "@/hooks/auth/useCurrentUser";
-// Importe os seus componentes de Gráfico e Tabela de Atividade aqui
-// import RevenueChart from "./RevenueChart";
-// import RecentActivityTable from "./RecentActivityTable";
+import { motion, Variants } from "framer-motion";
+import RecentActivityTable from "./RecentActivityTable";
+import RevenueChart from "./RevenueChart";
+import StatCard from "./StatCard";
+import { cn } from "@/lib/utils";
+import { useTranslations, useLocale } from "next-intl";
+
+// Animação "Fade Up" suave e elegante
+const container: Variants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08, // Mais rápido entre itens
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const item: Variants = {
+  hidden: { y: 10, opacity: 0 }, // Movimento menor (10px) para ser mais sutil
+  show: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      type: "tween",
+      ease: "easeOut",
+      duration: 0.4,
+    },
+  },
+};
 
 export default function DashboardClient({
   data,
@@ -13,50 +40,79 @@ export default function DashboardClient({
   data: any;
   icons: any;
 }) {
-  // Hook para verificar se o utilizador pode ver dados financeiros
-  const canViewFinances = useCan("payment.manage");
+  const t = useTranslations("AdminDashboard");
+  const locale = useLocale();
+  const isLoading = !data;
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: "BRL",
+    }).format(value);
+  };
 
   return (
-    <>
-      {/* Secção 1: Métricas Chave */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {/* Card de Receita só aparece para quem tem permissão */}
-        {canViewFinances && (
+    <motion.div
+      variants={container}
+      initial="hidden"
+      animate="show"
+      className="space-y-6 p-4 md:p-8 max-w-[1600px] mx-auto" // Mais padding para respiro
+    >
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <motion.div variants={item}>
           <StatCard
-            title="Receita (Mês)"
-            value={`R$ ${data.monthlyRevenue.toFixed(2)}`}
+            title={t("stats.monthlyRevenue")}
+            value={data ? formatCurrency(data.monthlyRevenue) : undefined}
             icon={icons.revenue}
-            trend={data.revenueTrend}
+            trend={data?.revenueTrend}
+            isLoading={isLoading}
           />
-        )}
-        <StatCard
-          title="Novos Utilizadores (Mês)"
-          value={`+${data.newUsersCount}`}
-          icon={icons.newUsers}
-        />
-        <StatCard
-          title="Aulas Agendadas (Hoje)"
-          value={data.classesTodayCount}
-          icon={icons.classesToday}
-        />
-        <StatCard
-          title="Professores Ativos"
-          value={data.activeTeachersCount}
-          icon={icons.activeTeachers}
-        />
+        </motion.div>
+
+        <motion.div variants={item}>
+          <StatCard
+            title={t("stats.newStudents")}
+            value={data ? `+${data.newUsersCount}` : undefined}
+            icon={icons.newUsers}
+            trend={0.12}
+            isLoading={isLoading}
+          />
+        </motion.div>
+
+        <motion.div variants={item}>
+          <StatCard
+            title={t("stats.todayClasses")}
+            value={data?.classesTodayCount}
+            icon={icons.classesToday}
+            isLoading={isLoading}
+          />
+        </motion.div>
+
+        <motion.div variants={item}>
+          <StatCard
+            title={t("stats.activeTeachers")}
+            value={data?.activeTeachersCount}
+            icon={icons.activeTeachers}
+            isLoading={isLoading}
+          />
+        </motion.div>
       </div>
 
-      {/* Secção 2: Visualização de Dados */}
-      <div className="grid gap-4 md:grid-cols-2">
-        {/* Gráfico de Receita só aparece para quem tem permissão */}
-        {canViewFinances && (
-          <div> {/* <RevenueChart data={data.revenueLast6Months} /> */} </div>
-        )}
-        <div> {/* Outro gráfico pode ser adicionado aqui */} </div>
-      </div>
+      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-7">
+        {/* Gráfico Principal - Ocupa 4/7 do espaço */}
 
-      {/* Secção 3: Atividade Recente */}
-      <div>{/* <RecentActivityTable classes={data.recentClasses} /> */}</div>
-    </>
+        <motion.div variants={item} className={cn("lg:col-span-4")}>
+          <RevenueChart data={data?.revenueLast6Months} isLoading={isLoading} />
+        </motion.div>
+
+        {/* Tabela de Atividades - Ocupa 3/7 do espaço para balancear */}
+        <motion.div variants={item} className={cn("lg:col-span-3")}>
+          <RecentActivityTable
+            classes={data?.recentClasses}
+            isLoading={isLoading}
+          />
+        </motion.div>
+      </div>
+    </motion.div>
   );
 }

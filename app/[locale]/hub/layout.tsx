@@ -25,10 +25,16 @@ import { TeacherOnboardingWrapper } from "@/components/onboarding/wrapper/Teache
 
 // StreamIO
 import VideoHome from "@/components/stream/VideoHome";
-import { useCreateChatClient } from 'stream-chat-react';
-import { OwnUserResponse, UserResponse } from 'stream-chat';
+import { useCreateChatClient } from "stream-chat-react";
+import { OwnUserResponse, UserResponse } from "stream-chat";
 
-function HubLayoutContent({ children, session }: { children: React.ReactNode, session: any }) {
+function HubLayoutContent({
+  children,
+  session,
+}: {
+  children: React.ReactNode;
+  session: any;
+}) {
   const pathname = usePathname();
   const messages = useMessages();
   const locale = useLocale();
@@ -38,64 +44,63 @@ function HubLayoutContent({ children, session }: { children: React.ReactNode, se
   const [unreadCount, setUnreadCount] = useState(0);
 
   const userData = useMemo(() => {
-      return {
-          id: session.user.id,
-          name: session.user.name || session.user.email || 'User',
-          image: session.user.image || undefined,
-      } as UserResponse;
+    return {
+      id: session.user.id,
+      name: session.user.name || session.user.email || "User",
+      image: session.user.image || undefined,
+    } as UserResponse;
   }, [session.user]);
 
   const tokenProvider = useCallback(async () => {
-      if (!userData?.id) return "";
-      try {
-        const response = await fetch('/api/token', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: userData.id }),
-        });
-        const data = await response.json();
-        return data.token;
-      } catch (error) {
-        console.error("Error fetching token:", error);
-        return "";
-      }
+    if (!userData?.id) return "";
+    try {
+      const response = await fetch("/api/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: userData.id }),
+      });
+      const data = await response.json();
+      return data.token;
+    } catch (error) {
+      console.error("Error fetching token:", error);
+      return "";
+    }
   }, [userData?.id]);
 
   const chatClient = useCreateChatClient({
-      apiKey,
-      userData,
-      tokenOrProvider: tokenProvider,
+    apiKey,
+    userData,
+    tokenOrProvider: tokenProvider,
   });
 
   useEffect(() => {
-      if (!chatClient) return;
+    if (!chatClient) return;
 
-      const updateCount = () => {
-          const user = chatClient.user as OwnUserResponse | undefined;
-          setUnreadCount(user?.total_unread_count || 0);
-      };
+    const updateCount = () => {
+      const user = chatClient.user as OwnUserResponse | undefined;
+      setUnreadCount(user?.total_unread_count || 0);
+    };
 
+    updateCount();
+
+    const handleEvent = () => {
       updateCount();
+    };
 
-      const handleEvent = () => {
-          updateCount();
-      };
+    chatClient.on("notification.message_new", handleEvent);
+    chatClient.on("notification.mark_read", handleEvent);
+    chatClient.on("message.new", handleEvent);
+    chatClient.on("message.read", handleEvent);
+    chatClient.on("user.updated", handleEvent);
 
-      chatClient.on('notification.message_new', handleEvent);
-      chatClient.on('notification.mark_read', handleEvent);
-      chatClient.on('message.new', handleEvent);
-      chatClient.on('message.read', handleEvent);
-      chatClient.on('user.updated', handleEvent);
-
-      return () => {
-          chatClient.off('notification.message_new', handleEvent);
-          chatClient.off('notification.mark_read', handleEvent);
-          chatClient.off('message.new', handleEvent);
-          chatClient.off('message.read', handleEvent);
-          chatClient.off('user.updated', handleEvent);
-      };
+    return () => {
+      chatClient.off("notification.message_new", handleEvent);
+      chatClient.off("notification.mark_read", handleEvent);
+      chatClient.off("message.new", handleEvent);
+      chatClient.off("message.read", handleEvent);
+      chatClient.off("user.updated", handleEvent);
+    };
   }, [chatClient]);
-
 
   const VideoCallOverlay = () => {
     const { callData } = useCallContext();
@@ -112,7 +117,8 @@ function HubLayoutContent({ children, session }: { children: React.ReactNode, se
   const items = rawItems.map((it) => ({
     ...it,
     label: it.labelKey ? (tSidebarItems[it.labelKey] ?? it.label) : it.label,
-    badgeCount: (it.labelKey === 'chat' || it.label === 'Chat') ? unreadCount : undefined,
+    badgeCount:
+      it.labelKey === "chat" || it.label === "Chat" ? unreadCount : undefined,
   }));
 
   // Define o caminho base onde queremos esconder a sidebar e header
@@ -123,7 +129,8 @@ function HubLayoutContent({ children, session }: { children: React.ReactNode, se
       pathname?.includes("/notebook/")) ||
     pathname?.startsWith(`/${locale}/hub/student/my-practice`);
 
-  const isChatPage = pathname?.includes("/my-chat") || pathname?.includes("/workbooks");
+  const isChatPage =
+    pathname?.includes("/my-chat") || pathname?.includes("/workbooks");
 
   // Se estivermos na página do caderno, não renderiza sidebar nem header
   if (hideLayoutElements) {
@@ -183,9 +190,9 @@ export default function HubLayout({ children }: { children: React.ReactNode }) {
   const loading = status === "loading";
 
   if (loading) return null;
-  
+
   if (!session) {
-      return null; 
+    return null;
   }
 
   return <HubLayoutContent session={session} children={children} />;

@@ -37,18 +37,18 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
   const initialStartDate = user.contractStartDate
     ? new Date(user.contractStartDate).toISOString().split("T")[0]
     : signedAt
-    ? new Date(signedAt).toISOString().split("T")[0]
-    : "";
+      ? new Date(signedAt).toISOString().split("T")[0]
+      : "";
 
   const [contractStartDate, setContractStartDate] = useState(initialStartDate);
   const [contractLengthMonths, setContractLengthMonths] = useState(
-    user.contractLengthMonths || (signedAt ? 6 : "")
+    user.contractLengthMonths || (signedAt ? 6 : ""),
   );
-  const [ratePerClassReais, setRatePerClassReais] = useState<number | undefined>(
-    user.ratePerClassCents != null ? user.ratePerClassCents / 100 : undefined
-  );
-  const [teacherLanguages, setTeacherLanguages] = useState<string[]>(
-    user.languages || []
+  const [ratePerClassReais, setRatePerClassReais] = useState<
+    number | undefined
+  >(user.ratePerClassCents != null ? user.ratePerClassCents / 100 : undefined);
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>(
+    user.languages || [],
   );
 
   const { updateUser, isLoading } = useAdmin();
@@ -63,8 +63,10 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
         : undefined,
       contractLengthMonths: Number(contractLengthMonths) as 6 | 12 | undefined,
       ratePerClassCents:
-        ratePerClassReais == null ? undefined : Math.round(ratePerClassReais * 100),
-      languages: teacherLanguages,
+        ratePerClassReais == null
+          ? undefined
+          : Math.round(ratePerClassReais * 100),
+      languages: selectedLanguages,
     });
     if (success) {
       toast.success(t("toasts.success"));
@@ -77,10 +79,7 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
     <Card className="p-6">
       <div className="space-y-4">
         <div>
-          <label
-            htmlFor="name"
-            className="block text-sm font-medium mb-1"
-          >
+          <label htmlFor="name" className="block text-sm font-medium mb-1">
             {t("fullName")}
           </label>
           <Input
@@ -92,19 +91,13 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
           />
         </div>
         <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium mb-1"
-          >
+          <label htmlFor="email" className="block text-sm font-medium mb-1">
             {t("email")}
           </label>
           <Input id="email" value={user.email} disabled />
         </div>
         <div>
-          <label
-            htmlFor="role"
-            className="block text-sm font-medium mb-1"
-          >
+          <label htmlFor="role" className="block text-sm font-medium mb-1">
             {t("role")}
           </label>
           <Select
@@ -117,7 +110,11 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
             </SelectTrigger>
             <SelectContent>
               {Object.values(UserRoles).map((roleValue) => (
-                <SelectItem className="capitalize" key={roleValue} value={roleValue}>
+                <SelectItem
+                  className="capitalize"
+                  key={roleValue}
+                  value={roleValue}
+                >
                   {tRoles(roleValue)}
                 </SelectItem>
               ))}
@@ -130,9 +127,9 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
           </label>
           <Input
             value={format.dateTime(new Date(user.createdAt), {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit'
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
             })}
             disabled
           />
@@ -174,55 +171,60 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
           </Select>
         </div>
         {role === UserRoles.TEACHER && (
-          <>
-            <div>
-              <label
-                htmlFor="ratePerClassCents"
-                className="block text-sm font-medium mb-1"
-              >
-                {t("ratePerClass")}
-              </label>
-              <Input
-                id="ratePerClassCents"
-                type="number"
-                step="0.01"
-                min="0"
-                value={ratePerClassReais ?? 25}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setRatePerClassReais(v === "" ? undefined : Number(v));
-                }}
-                disabled={!canEditUser || isLoading}
-              />
+          <div>
+            <label
+              htmlFor="ratePerClassCents"
+              className="block text-sm font-medium mb-1"
+            >
+              {t("ratePerClass")}
+            </label>
+            <Input
+              id="ratePerClassCents"
+              type="number"
+              step="0.01"
+              min="0"
+              value={ratePerClassReais ?? 25}
+              onChange={(e) => {
+                const v = e.target.value;
+                setRatePerClassReais(v === "" ? undefined : Number(v));
+              }}
+              disabled={!canEditUser || isLoading}
+            />
+          </div>
+        )}
+
+        {(role === UserRoles.TEACHER ||
+          role === UserRoles.STUDENT ||
+          role === UserRoles.GUARDED_STUDENT) && (
+          <div>
+            <span className="block text-sm font-medium mb-1">
+              {role === UserRoles.TEACHER
+                ? t("teachingLanguages")
+                : t("studyingLanguages")}
+            </span>
+            <div className="flex flex-wrap gap-3">
+              {["Inglês", "Espanhol", "Libras"].map((lang) => {
+                const checked = selectedLanguages.includes(lang);
+                return (
+                  <label key={lang} className="flex items-center gap-2">
+                    <Checkbox
+                      checked={checked}
+                      onCheckedChange={(val) => {
+                        const isChecked = Boolean(val);
+                        setSelectedLanguages((prev) =>
+                          isChecked
+                            ? [...prev, lang]
+                            : prev.filter((l) => l !== lang),
+                        );
+                      }}
+                      disabled={!canEditUser || isLoading}
+                    />
+                    <span>{tLangs(lang)}</span>
+                  </label>
+                );
+              })}
             </div>
-            <div>
-              <span className="block text-sm font-medium mb-1">
-                {t("teachingLanguages")}
-              </span>
-              <div className="flex flex-wrap gap-3">
-                {["Inglês", "Espanhol", "Libras"].map((lang) => {
-                  const checked = teacherLanguages.includes(lang);
-                  return (
-                    <label key={lang} className="flex items-center gap-2">
-                      <Checkbox
-                        checked={checked}
-                        onCheckedChange={(val) => {
-                          const isChecked = Boolean(val);
-                          setTeacherLanguages((prev) =>
-                            isChecked
-                              ? [...prev, lang]
-                              : prev.filter((l) => l !== lang)
-                          );
-                        }}
-                        disabled={!canEditUser || isLoading}
-                      />
-                      <span>{tLangs(lang)}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
-          </>
+          </div>
         )}
       </div>
       {canEditUser && (

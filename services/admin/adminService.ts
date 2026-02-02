@@ -5,6 +5,7 @@ import { User } from "@/types/users/users";
 import { UserRoles } from "@/types/users/userRoles";
 import { rolePermissionsMap } from "@/config/permissions";
 import { EmailService } from "../communication/emailService";
+import { languages } from "@/types/core/languages";
 
 const emailService = new EmailService();
 
@@ -15,6 +16,7 @@ export class AdminService {
     role: UserRoles;
     birthDate?: Date;
     contractStartDate?: Date;
+    languages?: string[];
     guardian?: {
       name: string;
       email: string;
@@ -22,8 +24,15 @@ export class AdminService {
       relationship?: string;
     };
   }) {
-    const { name, email, role, birthDate, contractStartDate, guardian } =
-      userData;
+    const {
+      name,
+      email,
+      role,
+      birthDate,
+      contractStartDate,
+      guardian,
+      languages: userLanguages,
+    } = userData;
 
     // Determina qual email usar para autenticação (responsável para menores)
     const authEmail = guardian?.email || email;
@@ -53,6 +62,7 @@ export class AdminService {
       tutorialCompleted: false,
       ...(birthDate && { birthDate }),
       ...(contractStartDate && { contractStartDate }),
+      ...(userLanguages && { languages: userLanguages }),
       ...(guardian && { guardian }),
       ...(role === UserRoles.TEACHER && { vacationDaysRemaining: 30 }),
     };

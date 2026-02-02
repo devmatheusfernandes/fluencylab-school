@@ -4,10 +4,10 @@ import { adminDb } from "@/lib/firebase/admin";
 import {
   ClassStatus,
   ClassTemplateDay,
-  PopulatedStudentClass,
   StudentClass,
 } from "@/types/classes/class";
 import { Timestamp, Transaction } from "firebase-admin/firestore";
+import firebaseAdmin from "firebase-admin";
 
 const daysOfWeekPt = [
   "Domingo",
@@ -61,7 +61,7 @@ export class ClassRepository {
    */
   createWithTransaction(
     transaction: FirebaseFirestore.Transaction,
-    classData: Omit<StudentClass, "id">
+    classData: Omit<StudentClass, "id">,
   ): string {
     const newClassRef = this.collectionRef.doc();
     // Garante que as datas sejam salvas no formato Timestamp
@@ -106,7 +106,7 @@ export class ClassRepository {
    * @returns Uma lista de aulas agendadas.
    */
   async findFutureClassesByTeacherId(
-    teacherId: string
+    teacherId: string,
   ): Promise<StudentClass[]> {
     const now = Timestamp.now();
     const snapshot = await this.collectionRef
@@ -138,7 +138,7 @@ export class ClassRepository {
       .get();
 
     console.log(
-      `[REPOSITÓRIO all] Busca por aulas do professor ${teacherId}. Encontrado(s): ${snapshot.docs.length}`
+      `[REPOSITÓRIO all] Busca por aulas do professor ${teacherId}. Encontrado(s): ${snapshot.docs.length}`,
     );
 
     if (snapshot.empty) {
@@ -197,7 +197,7 @@ export class ClassRepository {
   async findClassByTeacherAndDateWithTransaction(
     transaction: Transaction,
     teacherId: string,
-    scheduledAt: Date
+    scheduledAt: Date,
   ): Promise<FirebaseFirestore.QuerySnapshot> {
     const query = this.collectionRef
       .where("teacherId", "==", teacherId)
@@ -217,7 +217,7 @@ export class ClassRepository {
   async countClassesOnDateForTeacher(
     transaction: Transaction,
     teacherId: string,
-    date: Date
+    date: Date,
   ): Promise<number> {
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
@@ -266,11 +266,11 @@ export class ClassRepository {
     return snapshot.data().count;
   }
 
-  async findRecentClassesWithUserDetails(
-    limit: number
-  ): Promise<PopulatedStudentClass[]> {
+  async findRecentClassesWithUserDetails(limit: number): Promise<any[]> {
+    const now = Timestamp.now();
     const snapshot = await this.collectionRef
-      .orderBy("createdAt", "desc")
+      .where("scheduledAt", "<=", now)
+      .orderBy("scheduledAt", "desc")
       .limit(limit)
       .get();
 
@@ -281,8 +281,52 @@ export class ClassRepository {
       return this.convertTimestampsToDate(data, doc.id);
     });
 
-    // Lógica para popular com nomes de alunos e professores
-    return classes as PopulatedStudentClass[]; // Retorno simplificado por enquanto
+    // Extrair IDs únicos de alunos e professores
+    const studentIds = [
+      ...new Set(classes.map((c) => c.studentId).filter(Boolean)),
+    ];
+    const teacherIds = [
+      ...new Set(classes.map((c) => c.teacherId).filter(Boolean)),
+    ];
+    const allUserIds = [...new Set([...studentIds, ...teacherIds])];
+
+    if (allUserIds.length === 0) return classes;
+
+    // Buscar dados dos usuários
+    const usersMap = new Map<string, any>();
+
+    // Chunking para garantir que não excedemos o limite de 10 itens no operador 'in'
+    const chunks = [];
+    for (let i = 0; i < allUserIds.length; i += 10) {
+      chunks.push(allUserIds.slice(i, i + 10));
+    }
+
+    for (const chunk of chunks) {
+      const usersSnap = await adminDb
+        .collection("users")
+        .where(firebaseAdmin.firestore.FieldPath.documentId(), "in", chunk)
+        .get();
+
+      usersSnap.docs.forEach((doc) => {
+        usersMap.set(doc.id, doc.data());
+      });
+    }
+
+    // Popular os objetos de aula com dados parciais dos usuários
+    return classes.map((cls) => {
+      const student = cls.studentId ? usersMap.get(cls.studentId) : null;
+      const teacher = cls.teacherId ? usersMap.get(cls.teacherId) : null;
+
+      return {
+        ...cls,
+        student: student
+          ? { name: student.name, photoUrl: student.photoUrl }
+          : null,
+        teacher: teacher
+          ? { name: teacher.name, photoUrl: teacher.photoUrl }
+          : null,
+      };
+    });
   }
 
   /**
@@ -322,7 +366,7 @@ export class ClassRepository {
     teacherId: string,
     startDate: Date,
     endDate: Date,
-    newStatus: ClassStatus
+    newStatus: ClassStatus,
   ): Promise<void> {
     const classesQuery = this.collectionRef
       .where("teacherId", "==", teacherId)
@@ -340,7 +384,7 @@ export class ClassRepository {
         });
       });
       console.log(
-        `${snapshot.size} aulas foram atualizadas para o status ${newStatus}.`
+        `${snapshot.size} aulas foram atualizadas para o status ${newStatus}.`,
       );
     }
   }
@@ -356,7 +400,7 @@ export class ClassRepository {
   async findClassesByTeacherInRange(
     teacherId: string,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Promise<StudentClass[]> {
     const snapshot = await this.collectionRef
       .where("teacherId", "==", teacherId)
@@ -432,7 +476,7 @@ export class ClassRepository {
    */
   async deleteFutureClassesByTemplate(
     studentId: string,
-    templatesToRemove: ClassTemplateDay[]
+    templatesToRemove: ClassTemplateDay[],
   ): Promise<void> {
     if (templatesToRemove.length === 0) return;
 
@@ -458,7 +502,7 @@ export class ClassRepository {
         const classDay = daysOfWeekPt[classDate.getDay()];
         const classHour = `${String(classDate.getHours()).padStart(
           2,
-          "0"
+          "0",
         )}:${String(classDate.getMinutes()).padStart(2, "0")}`;
 
         // Se a aula corresponde exatamente ao dia e hora do template removido, marque para exclusão.
@@ -480,7 +524,7 @@ export class ClassRepository {
    */
   async deleteFutureClassesFromDate(
     studentId: string,
-    fromDate: Date
+    fromDate: Date,
   ): Promise<number> {
     const batch = adminDb.batch();
 
@@ -519,7 +563,7 @@ export class ClassRepository {
   async deleteFutureClassesInRange(
     studentId: string,
     fromDate: Date,
-    toDate: Date
+    toDate: Date,
   ): Promise<number> {
     const batch = adminDb.batch();
 
@@ -559,7 +603,7 @@ export class ClassRepository {
   async deleteFutureClassesByTemplateFromDate(
     studentId: string,
     templateEntries: ClassTemplateDay[],
-    fromDate: Date
+    fromDate: Date,
   ): Promise<number> {
     const batch = adminDb.batch();
     let deletedCount = 0;
@@ -581,7 +625,7 @@ export class ClassRepository {
         const classDay = daysOfWeekPt[classDate.getDay()];
         const classHour = `${String(classDate.getHours()).padStart(
           2,
-          "0"
+          "0",
         )}:${String(classDate.getMinutes()).padStart(2, "0")}`;
 
         // Se a aula corresponde exatamente ao dia e hora do template, marque para exclusão.
@@ -615,7 +659,7 @@ export class ClassRepository {
     studentId: string,
     templateEntries: ClassTemplateDay[],
     fromDate: Date,
-    toDate: Date
+    toDate: Date,
   ): Promise<number> {
     const batch = adminDb.batch();
     let deletedCount = 0;
@@ -638,7 +682,7 @@ export class ClassRepository {
         const classDay = daysOfWeekPt[classDate.getDay()];
         const classHour = `${String(classDate.getHours()).padStart(
           2,
-          "0"
+          "0",
         )}:${String(classDate.getMinutes()).padStart(2, "0")}`;
 
         // Se a aula corresponde exatamente ao dia e hora do template, marque para exclusão.
@@ -688,7 +732,7 @@ export class ClassRepository {
     studentId: string,
     day: string,
     hour: string,
-    newTeacherId: string
+    newTeacherId: string,
   ): Promise<void> {
     try {
       const now = Timestamp.now();
@@ -710,7 +754,7 @@ export class ClassRepository {
         const classDay = daysOfWeekPt[classDate.getDay()];
         const classHour = `${String(classDate.getHours()).padStart(
           2,
-          "0"
+          "0",
         )}:${String(classDate.getMinutes()).padStart(2, "0")}`;
 
         // If this class matches the schedule entry that changed

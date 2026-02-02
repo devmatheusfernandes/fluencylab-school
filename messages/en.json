@@ -618,7 +618,8 @@
     "workbooks": "Materials",
     "plans": "Plans",
     "lessons": "Lessons",
-    "components": "Components"
+    "components": "Components",
+    "tasks": "Tasks"
   },
   "UserProfileHeader": {
     "profilePicture": "Profile picture",
@@ -906,6 +907,7 @@
       "months12": "12 Months",
       "ratePerClass": "Rate per Class (R$)",
       "teachingLanguages": "Teaching Languages",
+      "studyingLanguages": "Studying Languages",
       "save": "Save",
       "toastSaveSuccess": "User profile saved successfully!",
       "toastSaveError": "An error occurred while saving the profile."
@@ -2722,6 +2724,41 @@
       "status": {
         "scheduled": "Scheduled",
         "completed": "Completed"
+      }
+    }
+  },
+  "AdminDashboard": {
+    "title": "Dashboard",
+    "subtitle": "System overview and key metrics.",
+    "overview": {
+      "title": "Overview",
+      "description": "Summary of today's key metrics."
+    },
+    "stats": {
+      "monthlyRevenue": "Monthly Revenue",
+      "newStudents": "New Students",
+      "todayClasses": "Classes Today",
+      "activeTeachers": "Teachers",
+      "vsLastMonth": "vs. last month"
+    },
+    "revenueChart": {
+      "title": "Revenue",
+      "subtitle": "Last 6 months"
+    },
+    "recentActivity": {
+      "title": "Recent Activity",
+      "empty": "No recent activities.",
+      "table": {
+        "studentTeacher": "Student / Teacher",
+        "date": "Date",
+        "status": "Status",
+        "with": "with"
+      },
+      "status": {
+        "completed": "Completed",
+        "scheduled": "Scheduled",
+        "canceled": "Canceled",
+        "pending": "Pending"
       }
     }
   }

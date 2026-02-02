@@ -37,21 +37,20 @@ export default function UserDetailsClient({
 
   return (
     <div className="p-3 px-6 ">
-      
       <Tabs defaultValue="overview">
         <div className="flex flex-col items-center md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex flex-row gap-2 items-center">
             <BackButton href="/hub/admin/users" />
-          <div className="flex items-center">
-            <Avatar size="md">
-              <AvatarImage src={user.avatarUrl} />
-              <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-            </Avatar>
-            <div className="ml-2">
-              <p className="capitalize text-2xl font-bold">{user.name}</p>
-              <p className="text-sm text-gray-500">{user.email}</p>
+            <div className="flex items-center">
+              <Avatar size="md">
+                <AvatarImage src={user.avatarUrl} />
+                <AvatarFallback />
+              </Avatar>
+              <div className="ml-2">
+                <p className="capitalize text-2xl font-bold">{user.name}</p>
+                <p className="text-sm text-gray-500">{user.email}</p>
+              </div>
             </div>
-          </div>
           </div>
 
           <TabsList className="mt-0 flex-wrap h-full">
@@ -79,11 +78,13 @@ export default function UserDetailsClient({
         </TabsContent>
 
         <TabsContent value="plan" className="mt-4">
-          <UserPlanTab 
-            studentId={user.id} 
-            activePlan={activePlan} 
-            templates={templates} 
-            hasClasses={!!(user.scheduledClasses && user.scheduledClasses.length > 0)}
+          <UserPlanTab
+            studentId={user.id}
+            activePlan={activePlan}
+            templates={templates}
+            hasClasses={
+              !!(user.scheduledClasses && user.scheduledClasses.length > 0)
+            }
             totalScheduledClasses={user.scheduledClasses?.length || 0}
           />
         </TabsContent>
@@ -95,13 +96,16 @@ export default function UserDetailsClient({
         <TabsContent value="credits" className="mt-4">
           <UserCreditsTab studentId={user.id} />
         </TabsContent>
-        
+
         <TabsContent value="financial" className="mt-4">
           <UserFinancialTab user={user} />
         </TabsContent>
 
         <TabsContent value="contracts" className="mt-4">
-          <UserContractsTab user={user} currentUserRole={currentUserRole || UserRoles.STUDENT} />
+          <UserContractsTab
+            user={user}
+            currentUserRole={currentUserRole || UserRoles.STUDENT}
+          />
         </TabsContent>
 
         <TabsContent value="schedule" className="mt-4">

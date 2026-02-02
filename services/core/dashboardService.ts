@@ -1,8 +1,8 @@
 // services/dashboardService.ts
 
-import { 
+import {
   userAdminRepository,
-  classRepository
+  classRepository,
   // paymentRepository // A ser usado no futuro
 } from "@/repositories";
 
@@ -22,6 +22,7 @@ export class DashboardService {
       // Dados financeiros (placeholders)
       monthlyRevenue,
       revenueTrend,
+      revenueLast6Months,
     ] = await Promise.all([
       userAdminRepo.countNewUsersThisMonth(),
       userAdminRepo.countActiveTeachers(),
@@ -31,6 +32,14 @@ export class DashboardService {
       // paymentRepo.getRevenueTrend(), // Futura implementação
       Promise.resolve(1234.56), // Placeholder para receita mensal
       Promise.resolve(0.15), // Placeholder para tendência (+15%)
+      Promise.resolve([
+        { month: "Jan", revenue: 5000 },
+        { month: "Fev", revenue: 6200 },
+        { month: "Mar", revenue: 5800 },
+        { month: "Abr", revenue: 7100 },
+        { month: "Mai", revenue: 8500 },
+        { month: "Jun", revenue: 9200 },
+      ]), // Placeholder para últimos 6 meses
     ]);
 
     return {
@@ -40,6 +49,7 @@ export class DashboardService {
       recentClasses,
       monthlyRevenue,
       revenueTrend,
+      revenueLast6Months,
     };
   }
 }

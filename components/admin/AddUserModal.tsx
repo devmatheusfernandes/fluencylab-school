@@ -31,6 +31,7 @@ import DatePicker from "@/components/ui/date-picker";
 import { toast } from "sonner";
 import { FileWarning, Info, Plus } from "lucide-react";
 import { Spinner } from "../ui/spinner";
+import { Checkbox } from "../ui/checkbox";
 
 interface AddUserModalProps {
   isOpen: boolean;
@@ -41,6 +42,7 @@ interface AddUserModalProps {
     role: UserRoles;
     birthDate?: Date;
     contractStartDate?: Date;
+    languages?: string[];
     guardian?: {
       name: string;
       email: string;
@@ -59,12 +61,15 @@ export default function AddUserModal({
 }: AddUserModalProps) {
   const t = useTranslations("UserManagement");
   const tRoles = useTranslations("UserRoles");
+  const tLangs = useTranslations("UserDetails.schedule.languages");
+  const tOverview = useTranslations("UserDetails.overview");
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState(UserRoles.TEACHER);
   const [birthDate, setBirthDate] = useState<Date | null>(null);
   const [contractStartDate, setContractStartDate] = useState<Date | null>(null);
+  const [languages, setLanguages] = useState<string[]>([]);
   const [isMinor, setIsMinor] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
@@ -99,12 +104,9 @@ export default function AddUserModal({
       // Auto-set role to guarded student for users under 18
       if (isUserMinor && role !== UserRoles.GUARDED_STUDENT) {
         setRole(UserRoles.GUARDED_STUDENT);
-        toast.info(
-          t("minor.roleAdjustedTitle"),
-          {
-            description: t("minor.roleAdjustedDesc"),
-          }
-        );
+        toast.info(t("minor.roleAdjustedTitle"), {
+          description: t("minor.roleAdjustedDesc"),
+        });
       }
     }
   }, [birthDate, role, toast, t]);
@@ -123,7 +125,10 @@ export default function AddUserModal({
 
     if (!birthDate) errors.push(t("validation.birthDateRequired"));
 
-    if ((role === UserRoles.STUDENT || role === UserRoles.GUARDED_STUDENT) && !contractStartDate) {
+    if (
+      (role === UserRoles.STUDENT || role === UserRoles.GUARDED_STUDENT) &&
+      !contractStartDate
+    ) {
       errors.push("Data de início das aulas é obrigatória");
     }
 
@@ -131,9 +136,7 @@ export default function AddUserModal({
     if (birthDate) {
       const age = calculateAge(birthDate);
       if (age < 18 && role !== UserRoles.GUARDED_STUDENT) {
-        errors.push(
-          t("validation.underageRestriction")
-        );
+        errors.push(t("validation.underageRestriction"));
       }
     }
 
@@ -161,21 +164,15 @@ export default function AddUserModal({
     e.preventDefault();
 
     if (!validateForm()) {
-      toast.error(
-        t("validation.errorTitle"),
-        {
-          description: t("validation.errorDescription"),
-        }
-      );
+      toast.error(t("validation.errorTitle"), {
+        description: t("validation.errorDescription"),
+      });
       return;
     }
 
-    toast.info(
-      t("toasts.creatingUser"),
-      {
-        description: t("toasts.processing"),
-      }
-    );
+    toast.info(t("toasts.creatingUser"), {
+      description: t("toasts.processing"),
+    });
 
     const userData: any = {
       name,
@@ -206,30 +203,26 @@ export default function AddUserModal({
 
     try {
       await onUserCreated(userData);
-      toast.success(
-        "Usuário criado com sucesso!",
-        {
-          description: `Um email foi enviado para ${userData.email} com as instruções de acesso`,
-        }
-      );
+      toast.success("Usuário criado com sucesso!", {
+        description: `Um email foi enviado para ${userData.email} com as instruções de acesso`,
+      });
 
       // Reset form
       setName("");
       setEmail("");
       setRole(UserRoles.TEACHER);
       setBirthDate(null);
+      setContractStartDate(null);
+      setLanguages([]);
       setGuardianName("");
       setGuardianEmail("");
       setGuardianPhone("");
       setGuardianRelationship("");
       setValidationErrors([]);
     } catch (error: any) {
-      toast.error(
-        "Erro ao criar usuário",
-        {
-          description: error.message || "Ocorreu um erro inesperado",
-        }
-      );
+      toast.error("Erro ao criar usuário", {
+        description: error.message || "Ocorreu um erro inesperado",
+      });
     }
   };
 
@@ -254,9 +247,7 @@ export default function AddUserModal({
         <ModalIcon type="success" />
         <ModalHeader>
           <ModalTitle>{t("createUserTitle")}</ModalTitle>
-          <ModalDescription>
-            {t("createUserDescription")}
-          </ModalDescription>
+          <ModalDescription>{t("createUserDescription")}</ModalDescription>
         </ModalHeader>
         <ModalForm onSubmit={handleSubmit}>
           <ModalBody>
@@ -293,7 +284,8 @@ export default function AddUserModal({
               />
             </ModalField>
 
-            {(role === UserRoles.STUDENT || role === UserRoles.GUARDED_STUDENT) && (
+            {(role === UserRoles.STUDENT ||
+              role === UserRoles.GUARDED_STUDENT) && (
               <ModalField label="Data de Início das Aulas" required>
                 <DatePicker
                   value={contractStartDate}
@@ -321,6 +313,38 @@ export default function AddUserModal({
                 </SelectContent>
               </Select>
             </ModalField>
+
+            {(role === UserRoles.STUDENT ||
+              role === UserRoles.GUARDED_STUDENT) && (
+              <div className="space-y-2 mb-4">
+                <span className="text-sm font-medium text-gray-700">
+                  {tOverview("studyingLanguages")}
+                </span>
+                <div className="flex flex-wrap gap-3">
+                  {["Inglês", "Espanhol", "Libras"].map((lang) => {
+                    const checked = languages.includes(lang);
+                    return (
+                      <label key={lang} className="flex items-center gap-2">
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={(val) => {
+                            const isChecked = Boolean(val);
+                            setLanguages((prev) =>
+                              isChecked
+                                ? [...prev, lang]
+                                : prev.filter((l) => l !== lang),
+                            );
+                          }}
+                        />
+                        <span className="text-sm text-gray-600">
+                          {tLangs(lang)}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Student Email - Only show if not a minor or not a guarded student */}
             {!(isMinor && role === UserRoles.GUARDED_STUDENT) && (
@@ -399,19 +423,35 @@ export default function AddUserModal({
                     onValueChange={setGuardianRelationship}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder={t("minor.relationshipPlaceholder")} />
+                      <SelectValue
+                        placeholder={t("minor.relationshipPlaceholder")}
+                      />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="pai">{t("relationships.father")}</SelectItem>
-                      <SelectItem value="mãe">{t("relationships.mother")}</SelectItem>
+                      <SelectItem value="pai">
+                        {t("relationships.father")}
+                      </SelectItem>
+                      <SelectItem value="mãe">
+                        {t("relationships.mother")}
+                      </SelectItem>
                       <SelectItem value="responsável legal">
                         {t("relationships.legalGuardian")}
                       </SelectItem>
-                      <SelectItem value="avô">{t("relationships.grandfather")}</SelectItem>
-                      <SelectItem value="avó">{t("relationships.grandmother")}</SelectItem>
-                      <SelectItem value="tio">{t("relationships.uncle")}</SelectItem>
-                      <SelectItem value="tia">{t("relationships.aunt")}</SelectItem>
-                      <SelectItem value="outro">{t("relationships.other")}</SelectItem>
+                      <SelectItem value="avô">
+                        {t("relationships.grandfather")}
+                      </SelectItem>
+                      <SelectItem value="avó">
+                        {t("relationships.grandmother")}
+                      </SelectItem>
+                      <SelectItem value="tio">
+                        {t("relationships.uncle")}
+                      </SelectItem>
+                      <SelectItem value="tia">
+                        {t("relationships.aunt")}
+                      </SelectItem>
+                      <SelectItem value="outro">
+                        {t("relationships.other")}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </ModalField>
@@ -420,7 +460,8 @@ export default function AddUserModal({
                 <Alert className="mt-4">
                   <Info className="h-4 w-4" />
                   <AlertDescription>
-                    <strong>{t("minor.importantNotice")}</strong> {t("minor.emailUsageNotice")}
+                    <strong>{t("minor.importantNotice")}</strong>{" "}
+                    {t("minor.emailUsageNotice")}
                   </AlertDescription>
                 </Alert>
               </>

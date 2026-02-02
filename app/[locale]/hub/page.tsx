@@ -31,7 +31,7 @@ export default function HubEntryPoint() {
 
   // Displays a loading screen while session is being verified
   return (
-    <div className="flex max-h-screen max-w-screen justify-center items-center">
+    <div className="flex h-screen w-screen justify-center items-center">
       <SpinnerLoading />
     </div>
   );
