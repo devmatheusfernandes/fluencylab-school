@@ -2,8 +2,6 @@
 
 import * as React from "react";
 import { twMerge } from "tailwind-merge";
-import { UserRoles } from "@/types/users/userRoles";
-import { capitalizeFirstLetter } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogIn, LogOut } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -11,7 +9,7 @@ import { useTranslations } from "next-intl";
 export interface UserData {
   name: string;
   role: string;
-  avatar?: string;
+  avatarUrl?: string;
 }
 
 export interface UserCardProps {
@@ -37,15 +35,17 @@ const UserCard: React.FC<UserCardProps> = ({
       <div
         className={twMerge(
           "flex items-center gap-3 p-3 bg-surface rounded-lg",
-          className
+          className,
         )}
       >
         <Avatar size="xl">
-          <AvatarImage src={user.avatar || ""} alt="Usuário" />
+          <AvatarImage src={user.avatarUrl || ""} alt="Usuário" />
           <AvatarFallback name={user.name} />
         </Avatar>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-primary truncate capitalize">{user.name.split(" ")[0]}</p>
+          <p className="text-sm font-medium text-primary truncate capitalize">
+            {user.name.split(" ")[0]}
+          </p>
           <p className="text-xs text-paragraph truncate">{userRoleLabel}</p>
         </div>
         {onLogout && (
@@ -66,7 +66,7 @@ const UserCard: React.FC<UserCardProps> = ({
       <div className={twMerge("relative group", className)}>
         <div className="flex items-center justify-center p-2">
           <Avatar size="sm">
-            <AvatarImage src={user.avatar || ""} alt="Usuário" />
+            <AvatarImage src={user.avatarUrl || ""} alt="Usuário" />
             <AvatarFallback name={user.name} />
           </Avatar>
         </div>
@@ -77,11 +77,13 @@ const UserCard: React.FC<UserCardProps> = ({
   return (
     <div className={twMerge("flex items-center gap-3 p-2.5", className)}>
       <Avatar size="md">
-        <AvatarImage src={user.avatar || ""} alt="Usuário" />
+        <AvatarImage src={user.avatarUrl || ""} alt="Usuário" />
         <AvatarFallback name={user.name} />
       </Avatar>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-primary truncate capitalize">{user.name.split(" ")[0]}</p>
+        <p className="text-sm font-medium text-primary truncate capitalize">
+          {user.name.split(" ")[0]}
+        </p>
         <p className="text-xs text-paragraph truncate">{userRoleLabel}</p>
       </div>
       {onLogout && (

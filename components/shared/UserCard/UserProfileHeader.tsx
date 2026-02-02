@@ -51,55 +51,55 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({
   };
 
   return (
-      <div
-        className={`flex flex-row justify-between items-center ${className}`}
-      >
-        <div className="flex flex-row items-center sm:items-start gap-2">
-          <div className="relative">
-            <Avatar size="xl">
-              <AvatarImage
-                src={user?.avatarUrl || ""}
-                alt={user?.name || t("profilePicture")}
-              />
-              <AvatarFallback />
-            </Avatar>
-            <button
-              onClick={handleAvatarClick}
-              disabled={isUploading}
-              className="absolute -bottom-1 -right-1 p-1.5 rounded-full bg-primary text-white hover:bg-primary-dark transition-colors shadow-md disabled:opacity-50"
-              title={t("changeProfilePicture")}
-            >
-              {isUploading ? (
-                <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <RefreshCw className="w-3 h-3" />
-              )}
-            </button>
-          </div>
-          <div className="flex flex-col items-start mt-0 sm:mt-2">
-            <Text weight="semibold" className="capitalize">{user?.name || ""}</Text>
-            <Text variant="placeholder" size="xs">
-              {user?.email || ""}
-            </Text>
-            <Badge className="my-1">{userRoleLabel}</Badge>
-          </div>
+    <div className={`flex flex-row justify-between items-center ${className}`}>
+      <div className="flex flex-row items-center sm:items-start gap-2">
+        <div className="relative">
+          <Avatar size="xl">
+            <AvatarImage
+              src={user?.avatarUrl || ""}
+              alt={user?.name || t("profilePicture")}
+            />
+            <AvatarFallback name={user?.name} />
+          </Avatar>
+          <button
+            onClick={handleAvatarClick}
+            disabled={isUploading}
+            className="absolute -bottom-1 -right-1 p-1.5 rounded-full bg-primary text-white hover:bg-primary-dark transition-colors shadow-md disabled:opacity-50"
+            title={t("changeProfilePicture")}
+          >
+            {isUploading ? (
+              <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <RefreshCw className="w-3 h-3" />
+            )}
+          </button>
         </div>
-        <button
-          onClick={onLogout}
-          className="p-2.5 rounded-lg h-fit bg-destructive/20 hover:bg-destructive/30 text-destructive hover:text-red-500 transition-colors"
-          title={t("logout")}
-        >
-          <LogOut className="w-4 h-4" />
-        </button>
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          accept="image/jpeg,image/png,image/gif,image/webp"
-          className="hidden"
-          disabled={isUploading}
-        />
+        <div className="flex flex-col items-start mt-0 sm:mt-2">
+          <Text weight="semibold" className="capitalize">
+            {user?.name || ""}
+          </Text>
+          <Text variant="placeholder" size="xs">
+            {user?.email || ""}
+          </Text>
+          <Badge className="my-1">{userRoleLabel}</Badge>
+        </div>
       </div>
+      <button
+        onClick={onLogout}
+        className="p-2.5 rounded-lg h-fit bg-destructive/20 hover:bg-destructive/30 text-destructive hover:text-red-500 transition-colors"
+        title={t("logout")}
+      >
+        <LogOut className="w-4 h-4" />
+      </button>
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/jpeg,image/png,image/gif,image/webp"
+        className="hidden"
+        disabled={isUploading}
+      />
+    </div>
   );
 };
 

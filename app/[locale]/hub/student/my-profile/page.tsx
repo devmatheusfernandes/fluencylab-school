@@ -22,10 +22,7 @@ import {
 import { db } from "@/lib/firebase/config";
 import { ProgressHero } from "@/components/notebook/ProgressHero";
 import { motion } from "framer-motion";
-import {
-  getStudentLearningStats,
-  getActivePlanId,
-} from "@/actions/srsActions";
+import { getStudentLearningStats, getActivePlanId } from "@/actions/srsActions";
 import { WordOfTheDayModal } from "@/components/word-of-the-day/word-of-the-day-modal";
 
 const ProfileHeaderSkeleton = () => (

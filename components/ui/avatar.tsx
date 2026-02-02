@@ -146,6 +146,7 @@ const AvatarFallback = React.forwardRef<
   }
 >(({ className, name, children, ...props }, ref) => {
   const [images, setImages] = React.useState(globalFallbackImages);
+  const [assignedSrc, setAssignedSrc] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (isFetched) {
@@ -170,18 +171,42 @@ const AvatarFallback = React.forwardRef<
     });
   }, []);
 
-  const fallbackImageSrc = React.useMemo(() => {
-    if (children) return null;
-    if (images.length === 0) return null;
+  React.useEffect(() => {
+    if (children || images.length === 0) return;
 
-    let hash = 0;
-    const stringToHash = name || "default";
-    for (let i = 0; i < stringToHash.length; i++) {
-      hash = stringToHash.charCodeAt(i) + ((hash << 5) - hash);
+    const safeName = name || "default";
+    const today = new Date().toLocaleDateString(); // Usa data local do usuário
+    const storageKey = `daily_avatar_${safeName}`;
+
+    try {
+      const stored = localStorage.getItem(storageKey);
+      if (stored) {
+        const { date, src } = JSON.parse(stored);
+        // Se a data for hoje e a imagem ainda existir na lista (segurança), usa ela
+        if (date === today && images.includes(src)) {
+          setAssignedSrc(src);
+          return;
+        }
+      }
+    } catch (e) {
+      // Ignora erro de parse ou acesso
     }
-    const index = Math.abs(hash) % images.length;
-    return images[index];
-  }, [name, children, images]);
+
+    // Se não encontrou ou expirou: gera nova imagem aleatória
+    const randomIndex = Math.floor(Math.random() * images.length);
+    const newSrc = images[randomIndex];
+
+    setAssignedSrc(newSrc);
+
+    try {
+      localStorage.setItem(
+        storageKey,
+        JSON.stringify({ date: today, src: newSrc }),
+      );
+    } catch (e) {
+      // Ignora erro de cota ou acesso
+    }
+  }, [images, name, children]);
 
   return (
     <AvatarPrimitive.Fallback
@@ -194,9 +219,9 @@ const AvatarFallback = React.forwardRef<
     >
       {children ? (
         children
-      ) : fallbackImageSrc ? (
+      ) : assignedSrc ? (
         <img
-          src={fallbackImageSrc}
+          src={assignedSrc}
           alt={name || "Avatar fallback"}
           className="h-full w-full object-cover"
         />

@@ -17,7 +17,11 @@ export default function MyProfile() {
   const { user, isLoading } = useCurrentUser();
   const t = useTranslations("TeacherProfile");
   const tDays = useTranslations("Days");
-  const { myClasses, fetchMyClasses, isLoading: isClassesLoading } = useTeacher();
+  const {
+    myClasses,
+    fetchMyClasses,
+    isLoading: isClassesLoading,
+  } = useTeacher();
   const handleLogout = () => {
     signOut({ callbackUrl: "/" });
   };
@@ -43,12 +47,14 @@ export default function MyProfile() {
     const weekClasses = myClasses
       .filter((cls) => {
         const d = new Date(cls.scheduledAt as any);
-        return d >= monday && d <= sunday && (cls.status as any) === "scheduled";
+        return (
+          d >= monday && d <= sunday && (cls.status as any) === "scheduled"
+        );
       })
       .sort(
         (a, b) =>
           new Date(a.scheduledAt as any).getTime() -
-          new Date(b.scheduledAt as any).getTime()
+          new Date(b.scheduledAt as any).getTime(),
       );
 
     const map: Record<string, typeof weekClasses> = {};
@@ -67,13 +73,13 @@ export default function MyProfile() {
         <Skeleton className="w-full h-36" />
       ) : (
         <>
-        <Card>
-          <UserProfileHeader
-            user={user!}
-            onLogout={handleLogout}
-            className="w-full"
-          />
-        </Card>
+          <Card>
+            <UserProfileHeader
+              user={user!}
+              onLogout={handleLogout}
+              className="w-full"
+            />
+          </Card>
           <div className="mt-4">
             <TeacherContractStatusCard />
           </div>
@@ -85,10 +91,16 @@ export default function MyProfile() {
                   <CalendarIcon className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <Text size="lg" className="font-bold text-slate-900 dark:text-slate-100">
+                  <Text
+                    size="lg"
+                    className="font-bold text-slate-900 dark:text-slate-100"
+                  >
                     {t("weeklySchedule")}
                   </Text>
-                  <Text size="sm" className="text-slate-600 dark:text-slate-400">
+                  <Text
+                    size="sm"
+                    className="text-slate-600 dark:text-slate-400"
+                  >
                     {t("yourClassesThisWeek")}
                   </Text>
                 </div>
@@ -108,8 +120,17 @@ export default function MyProfile() {
                     if (dayClasses.length === 0) return null;
 
                     const dayIndex = daysOfWeek.indexOf(dayName);
-                    const dayKeys = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-                    const translatedDayName = dayIndex >= 0 ? tDays(dayKeys[dayIndex]) : dayName;
+                    const dayKeys = [
+                      "sunday",
+                      "monday",
+                      "tuesday",
+                      "wednesday",
+                      "thursday",
+                      "friday",
+                      "saturday",
+                    ];
+                    const translatedDayName =
+                      dayIndex >= 0 ? tDays(dayKeys[dayIndex]) : dayName;
 
                     return (
                       <div key={dayName} className="space-y-2">
@@ -146,8 +167,12 @@ export default function MyProfile() {
                       </div>
                     );
                   })}
-                  {Object.values(weeklyGrouped).every((arr) => arr.length === 0) && (
-                    <Text className="text-slate-600 dark:text-slate-400">{t("noClassesThisWeek")}</Text>
+                  {Object.values(weeklyGrouped).every(
+                    (arr) => arr.length === 0,
+                  ) && (
+                    <Text className="text-slate-600 dark:text-slate-400">
+                      {t("noClassesThisWeek")}
+                    </Text>
                   )}
                 </>
               )}

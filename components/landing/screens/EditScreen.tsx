@@ -111,7 +111,7 @@ export function EditorScreen() {
               </p>
             </motion.div>
             <p>{t("document.p3")}</p>
-            <p>{t("document.p4")}</p>
+            <p className="pb-32">{t("document.p4")}</p>
           </div>
         </div>
       </main>

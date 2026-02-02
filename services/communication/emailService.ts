@@ -5,9 +5,9 @@ import { WelcomeEmail } from "@/emails/templates/WelcomeEmail";
 import { ClassRescheduledEmail } from "@/emails/templates/ClassRescheduledEmail";
 import { ClassCanceledEmail } from "@/emails/templates/ClassCanceledEmail";
 import { TeacherVacationEmail } from "@/emails/templates/TeacherVacationEmail";
-import TeacherVacationCancellationEmail from "@/emails/templates/TeacherVacationCancellationEmail";
 import { ContractRenewalEmail } from "@/emails/templates/ContractRenewalEmail";
 import { PaymentConfirmationEmail } from "@/emails/templates/PaymentConfirmationEmail";
+import { TeacherVacationCancellationEmail } from "@/emails/templates/TeacherVacationCancellationEmail";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -22,7 +22,7 @@ export class EmailService {
     email: string,
     name: string,
     actionLink: string,
-    studentInfo?: string
+    studentInfo?: string,
   ) {
     try {
       const buildCustomLink = (link: string) => {
@@ -34,7 +34,7 @@ export class EmailService {
           const base = process.env.NEXTAUTH_URL || "http://localhost:3000";
           if (!oobCode) return link;
           return `${base}/${locale}/create-password?oobCode=${encodeURIComponent(
-            oobCode
+            oobCode,
           )}&lang=${encodeURIComponent(lang)}`;
         } catch {
           return link;
@@ -49,14 +49,18 @@ export class EmailService {
         from: "Matheus Fernandes <contato@matheusfernandes.me>",
         to: email,
         subject,
-        react: await WelcomeEmail({ name, actionLink: customActionLink, studentInfo }),
+        react: await WelcomeEmail({
+          name,
+          actionLink: customActionLink,
+          studentInfo,
+        }),
       });
 
       console.log(`E-mail de boas-vindas enviado para ${email}`);
     } catch (error) {
       console.error("Falha ao enviar e-mail de boas-vindas:", error);
       throw new Error(
-        "Usuário criado, mas falha ao enviar o e-mail de boas-vindas."
+        "Usuário criado, mas falha ao enviar o e-mail de boas-vindas.",
       );
     }
   }
@@ -250,15 +254,15 @@ export class EmailService {
       });
 
       console.log(
-        `E-mail de cancelamento de férias do professor enviado para ${email}`
+        `E-mail de cancelamento de férias do professor enviado para ${email}`,
       );
     } catch (error) {
       console.error(
         "Falha ao enviar e-mail de cancelamento de férias do professor:",
-        error
+        error,
       );
       throw new Error(
-        "Falha ao enviar o e-mail de cancelamento de férias do professor."
+        "Falha ao enviar o e-mail de cancelamento de férias do professor.",
       );
     }
   }
@@ -336,7 +340,10 @@ export class EmailService {
 
       console.log(`E-mail de confirmação de pagamento enviado para ${email}`);
     } catch (error) {
-      console.error("Falha ao enviar e-mail de confirmação de pagamento:", error);
+      console.error(
+        "Falha ao enviar e-mail de confirmação de pagamento:",
+        error,
+      );
       // We don't throw error here to avoid breaking the payment flow if email fails
     }
   }
