@@ -9,9 +9,6 @@ export async function GET(
 ) {
   const session = await getServerSession(authOptions);
   
-  // For testing purposes, let's log the session
-  console.log('Session in notebook detail API:', session);
-  
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Acesso não autorizado.' }, { status: 401 });
   }

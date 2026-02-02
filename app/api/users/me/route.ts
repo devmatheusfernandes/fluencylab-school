@@ -21,8 +21,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Utilizador não encontrado.' }, { status: 404 });
     }
 
-    // Retorna o perfil completo do utilizador
-    return NextResponse.json(user);
+    // Retorna o perfil completo do utilizador, filtrando dados sensíveis
+    const { password, ...safeUser } = user as any;
+    return NextResponse.json(safeUser);
   } catch (error: any) {
     console.error("Erro ao buscar dados do utilizador atual:", error);
     return NextResponse.json({ error: 'Erro interno do servidor.' }, { status: 500 });

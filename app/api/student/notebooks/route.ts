@@ -6,9 +6,6 @@ import { authOptions } from '../../auth/[...nextauth]/route';
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
   
-  // For testing purposes, let's log the session
-  console.log('Session in notebooks API:', session);
-  
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Acesso não autorizado.' }, { status: 401 });
   }

@@ -56,7 +56,6 @@ export class EmailService {
         }),
       });
 
-      console.log(`E-mail de boas-vindas enviado para ${email}`);
     } catch (error) {
       console.error("Falha ao enviar e-mail de boas-vindas:", error);
       throw new Error(
@@ -114,7 +113,6 @@ export class EmailService {
         }),
       });
 
-      console.log(`E-mail de reagendamento enviado para ${email}`);
     } catch (error) {
       console.error("Falha ao enviar e-mail de reagendamento:", error);
       throw new Error("Falha ao enviar o e-mail de reagendamento.");
@@ -173,7 +171,6 @@ export class EmailService {
         }),
       });
 
-      console.log(`E-mail de cancelamento enviado para ${email}`);
     } catch (error) {
       console.error("Falha ao enviar e-mail de cancelamento:", error);
       throw new Error("Falha ao enviar o e-mail de cancelamento.");
@@ -213,7 +210,6 @@ export class EmailService {
         }),
       });
 
-      console.log(`E-mail de férias do professor enviado para ${email}`);
     } catch (error) {
       console.error("Falha ao enviar e-mail de férias do professor:", error);
       throw new Error("Falha ao enviar o e-mail de férias do professor.");
@@ -338,7 +334,6 @@ export class EmailService {
         }),
       });
 
-      console.log(`E-mail de confirmação de pagamento enviado para ${email}`);
     } catch (error) {
       console.error(
         "Falha ao enviar e-mail de confirmação de pagamento:",

@@ -11,13 +11,10 @@ export async function GET(request: NextRequest) {
     console.log('[CHECK-VERIFICATION] Starting verification check...');
     
     const session = await getServerSession(authOptions);
-    console.log('[CHECK-VERIFICATION] Session:', { 
-      hasSession: !!session, 
-      userId: session?.user?.id,
-      userEmail: session?.user?.email 
-    });
-    
-    if (!session?.user?.id) {
+    const userEmail = session?.user?.email;
+    // console.log("User email from session:", userEmail);
+
+    if (!userEmail) {
       console.log('[CHECK-VERIFICATION] No session or user ID found');
       return NextResponse.json(
         { error: 'Unauthorized - User not authenticated' },

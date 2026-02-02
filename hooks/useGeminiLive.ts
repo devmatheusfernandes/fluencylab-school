@@ -281,7 +281,6 @@ Fase 3: Conclusão
               const call = functionCalls[0];
               if (call.name === "report_result") {
                 const args = call.args;
-                console.log("Evaluation Result:", args);
                 setState((prev) => ({ ...prev, result: args }));
                 stop();
               }

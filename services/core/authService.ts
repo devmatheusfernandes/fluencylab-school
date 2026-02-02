@@ -203,9 +203,9 @@ export class AuthService {
 
       // Here you would typically send the email using your email service
       // For now, we'll log it and return success
-      console.log(
-        `Email verification link for ${userRecord.email}: ${verificationLink}`
-      );
+      // console.log(
+      //   `Email verification link for ${userRecord.email}: ${verificationLink}`
+      // );
 
       // You can integrate with your email service here:
       // await this.sendVerificationEmail(userRecord.email, verificationLink);

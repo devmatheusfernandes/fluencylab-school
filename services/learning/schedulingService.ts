@@ -136,11 +136,11 @@ export class SchedulingService {
     }
 
     // 👇 ADICIONE ESTE LOG
-    console.log(`[SERVIÇO] Dados recebidos para o professor ${teacherId}:`, {
-      slots: slots.length,
-      exceptions: exceptions.length,
-      bookedClasses: populatedBookedClasses.length,
-    });
+    // console.log(`[SERVIÇO] Dados recebidos para o professor ${teacherId}:`, {
+    //   slots: slots.length,
+    //   exceptions: exceptions.length,
+    //   bookedClasses: populatedBookedClasses.length,
+    // });
 
     return { slots, exceptions, bookedClasses: populatedBookedClasses };
   }
@@ -284,10 +284,6 @@ export class SchedulingService {
     classId: string,
     paramScheduledAt?: Date,
   ) {
-    console.log(
-      `[cancelClassByStudent] Starting cancellation for class ${classId} by student ${studentId}`,
-    );
-
     // If scheduledAt is provided, find the specific class instance
     let classData: StudentClass;
     let actualClassId: string; // Track the correct class ID to use
@@ -344,15 +340,6 @@ export class SchedulingService {
     // Define classRef using the correct class ID
     const classRef = adminDb.collection("classes").doc(actualClassId);
 
-    console.log(`[cancelClassByStudent] Class data retrieved:`, {
-      classId,
-      scheduledAt: classData.scheduledAt,
-      status: classData.status,
-      studentId: classData.studentId,
-      teacherId: classData.teacherId,
-      language: classData.language,
-      classType: classData.classType,
-    });
     const teacher = classData.teacherId
       ? await userAdminRepository.findUserById(classData.teacherId)
       : null;
@@ -406,15 +393,6 @@ export class SchedulingService {
           const platformLink =
             process.env.NEXT_PUBLIC_APP_URL || "https://app.fluencylab.com";
 
-          console.log(`[cancelClassByStudent] Email data being sent:`, {
-            scheduledAt: classScheduledAt,
-            formattedDate: formatDate(classScheduledAt),
-            formattedTime: formatTime(classScheduledAt),
-            className,
-            studentEmail: student.email,
-            teacherEmail: teacher.email,
-          });
-
           // Enviar e-mail para o estudante
           await emailService.sendClassCanceledEmail({
             email: student.email,
@@ -440,10 +418,6 @@ export class SchedulingService {
             platformLink: `${platformLink}/hub/teacher/my-classes`,
             classId: classId,
           });
-
-          console.log(
-            `E-mails de cancelamento enviados para estudante (${student.email}) e professor (${teacher.email})`,
-          );
 
           const titleStudent = "Aula cancelada";
           const messageStudent = `Sua aula ${className} em ${formatDate(classScheduledAt)} às ${formatTime(classScheduledAt)} foi cancelada.`;
@@ -536,10 +510,6 @@ export class SchedulingService {
             classId: classId,
           });
 
-          console.log(
-            `E-mails de cancelamento (sem crédito) enviados para estudante (${student.email}) e professor (${teacher.email})`,
-          );
-
           const titleStudent = "Aula cancelada";
           const messageStudent = `Sua aula ${className} em ${formatDate(classScheduledAt)} às ${formatTime(classScheduledAt)} foi cancelada. Cancelamento fora do prazo não devolve crédito.`;
           await announcementService.createAnnouncement(
@@ -592,10 +562,6 @@ export class SchedulingService {
     reason?: string,
     allowMakeup: boolean = true,
   ) {
-    console.log(
-      `[cancelClassByTeacher] Starting cancellation process for class ${classId} by teacher ${teacherId}`,
-    );
-
     const classRef = adminDb.collection("classes").doc(classId);
 
     const classDoc = await classRef.get();
@@ -606,18 +572,10 @@ export class SchedulingService {
     const classData = classDoc.data() as StudentClass;
     const teacherClassScheduledAt = (classData.scheduledAt as any).toDate();
 
-    console.log(`[cancelClassByTeacher] Class data retrieved:`, {
-      classId,
-      studentId: classData.studentId,
-      teacherId: classData.teacherId,
-      scheduledAt: teacherClassScheduledAt,
-    });
-
     // Determinar o status baseado na permissão de makeup
     const newStatus = allowMakeup
       ? ClassStatus.CANCELED_TEACHER_MAKEUP
       : ClassStatus.CANCELED_TEACHER;
-    console.log(`[cancelClassByTeacher] New status will be: ${newStatus}`);
 
     // Atualizar a aula
     await classRef.update({
@@ -626,7 +584,6 @@ export class SchedulingService {
       canceledBy: "teacher",
       reason: reason,
     });
-    console.log(`[cancelClassByTeacher] Class status updated in database`);
 
     // Liberar o horário removendo a exceção
     if (classData.availabilitySlotId) {
@@ -634,15 +591,11 @@ export class SchedulingService {
         classData.availabilitySlotId,
         teacherClassScheduledAt,
       );
-      console.log(`[cancelClassByTeacher] Availability exception deleted`);
     }
 
     // Se for cancelamento com reposição, conceder crédito automático ao aluno
     if (newStatus === ClassStatus.CANCELED_TEACHER_MAKEUP) {
       try {
-        console.log(
-          `[cancelClassByTeacher] Granting makeup credit to student ${classData.studentId}`,
-        );
         // Conceder crédito de reposição ao aluno
         const expiresAt = new Date();
         expiresAt.setDate(expiresAt.getDate() + 45); // 45 dias de expiração
@@ -670,18 +623,10 @@ export class SchedulingService {
 
     // --- ENVIAR NOTIFICAÇÕES POR E-MAIL ---
     try {
-      console.log(
-        `[cancelClassByTeacher] Fetching user data for email notifications`,
-      );
       const [student, teacher] = await Promise.all([
         userAdminRepository.findUserById(classData.studentId),
         userAdminRepository.findUserById(teacherId),
       ]);
-
-      console.log(`[cancelClassByTeacher] User data fetched:`, {
-        student: student ? `${student.name} (${student.email})` : "not found",
-        teacher: teacher ? `${teacher.name} (${teacher.email})` : "not found",
-      });
 
       if (student && teacher) {
         const formatDate = (date: Date) => date.toLocaleDateString("pt-BR");
@@ -701,9 +646,6 @@ export class SchedulingService {
           ? " Você pode reagendar esta aula como reposição sem usar seus reagendamentos mensais. Um crédito foi concedido para uso em até 45 dias."
           : "";
 
-        console.log(
-          `[cancelClassByTeacher] Sending emails to student and teacher`,
-        );
         // Enviar e-mail para o estudante
         await emailService.sendClassCanceledEmail({
           email: student.email,
@@ -736,10 +678,6 @@ export class SchedulingService {
           classId: classId,
         });
 
-        console.log(
-          `[cancelClassByTeacher] E-mails de cancelamento enviados para estudante (${student.email}) e professor (${teacher.email})`,
-        );
-
         const titleStudent = "Aula cancelada pelo professor";
         const makeupMsg =
           newStatus === ClassStatus.CANCELED_TEACHER_MAKEUP
@@ -768,13 +706,13 @@ export class SchedulingService {
           [teacher.id],
         );
       } else {
-        console.log(
-          `[cancelClassByTeacher] Could not send emails - missing user data`,
-          {
-            studentExists: !!student,
-            teacherExists: !!teacher,
-          },
-        );
+        // console.log(
+        //   `[cancelClassByTeacher] Could not send emails - missing user data`,
+        //   {
+        //     studentExists: !!student,
+        //     teacherExists: !!teacher,
+        //   },
+        // );
       }
     } catch (error) {
       console.error(
@@ -876,9 +814,6 @@ export class SchedulingService {
       // Remover a aula da coleção principal para evitar conflitos de agendamento
       await adminDb.collection("classes").doc(classId).delete();
 
-      console.log(
-        `Aula ${classId} convertida em slot disponível e movida para histórico com sucesso`,
-      );
       return true;
     } catch (error) {
       console.error("Erro ao converter aula em slot disponível:", error);
@@ -1205,9 +1140,6 @@ export class SchedulingService {
 
     // 6. Extensão para aulas puladas (skip_and_extend)
     if (strategy === "skip_and_extend" && skippedCount > 0) {
-      console.log(
-        `[Gerador] Estendendo contrato para repor ${skippedCount} aulas puladas por férias.`,
-      );
       // Continue iterating from where we left off (currentDate is already endDate + 1)
       let safetyCounter = 0;
       const MAX_SAFETY_DAYS = 365; // Prevent infinite loop
@@ -1805,14 +1737,8 @@ export class SchedulingService {
             platformLink: `${platformLink}/hub/student/my-class`,
           });
 
-          console.log(
-            `E-mail de férias do professor enviado para estudante ${student.name} (${student.email})`,
-          );
         }
 
-        console.log(
-          `Total de ${affectedStudents.length} estudantes notificados sobre as férias do professor ${teacher.name}`,
-        );
       } catch (emailError) {
         console.error(
           "Erro ao enviar e-mails de férias do professor:",
@@ -1943,14 +1869,8 @@ export class SchedulingService {
             platformLink: `${platformLink}/hub/student/my-class`,
           });
 
-          console.log(
-            `E-mail de cancelamento de férias do professor enviado para estudante ${student.name} (${student.email})`,
-          );
         }
 
-        console.log(
-          `Total de ${affectedStudents.length} estudantes notificados sobre o cancelamento das férias do professor ${teacher.name}`,
-        );
       } catch (emailError) {
         console.error(
           "Erro ao enviar e-mails de cancelamento de férias do professor:",
@@ -2033,7 +1953,6 @@ export class SchedulingService {
         teachersIds: currentTeachersIds,
       });
 
-      console.log(`Successfully updated teachersIds for student ${studentId}`);
     } catch (error) {
       console.error(
         `Error updating teachersIds for student ${studentId}:`,
@@ -2441,28 +2360,12 @@ export class SchedulingService {
    * @returns Um objeto com os horários, exceções, aulas já agendadas e configurações.
    */
   async getTeacherAvailabilityForReschedule(teacherId: string) {
-    console.log(
-      `[getTeacherAvailabilityForReschedule] Starting for teacher: ${teacherId}`,
-    );
-
     const [slots, exceptions, teacher, bookedClasses] = await Promise.all([
       availabilityRepository.findByTeacherId(teacherId),
       availabilityRepository.findExceptionsByTeacherId(teacherId),
       userAdminRepository.findUserById(teacherId),
       classRepository.findAllClassesByTeacherId(teacherId),
     ]);
-
-    console.log(`[getTeacherAvailabilityForReschedule] Raw data fetched:`, {
-      totalSlots: slots.length,
-      exceptions: exceptions.length,
-      bookedClasses: bookedClasses.length,
-      teacherFound: !!teacher,
-      allSlotTypes: slots.map((s) => ({
-        id: s.id,
-        type: s.type,
-        title: s.title,
-      })),
-    });
 
     if (!teacher) {
       throw new Error("Professor não encontrado.");
@@ -2474,18 +2377,6 @@ export class SchedulingService {
       return (
         slot.type === AvailabilityType.MAKEUP || (slot.type as any) === "makeup"
       );
-    });
-
-    console.log(`[getTeacherAvailabilityForReschedule] Filtering results:`, {
-      totalSlots: slots.length,
-      availableSlotsAfterFilter: availableSlots.length,
-      allSlotTypes: slots.map((s) => s.type),
-      filteredSlots: availableSlots.map((s) => ({
-        id: s.id,
-        type: s.type,
-        title: s.title,
-      })),
-      filterCriteria: "Temporarily including ALL types for debugging",
     });
 
     return {

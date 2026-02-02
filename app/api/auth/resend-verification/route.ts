@@ -65,11 +65,6 @@ export async function POST(request: NextRequest) {
     
     // Handle specific Firebase Auth errors
     if (error instanceof Error) {
-      console.error('[RESEND-VERIFICATION] Error details:', {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
-      });
       
       if (error.message.includes('user-not-found')) {
         return NextResponse.json(

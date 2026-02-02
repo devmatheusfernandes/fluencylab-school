@@ -140,7 +140,7 @@ function getPracticeCycle(plan: Plan) {
  */
 export async function getDailyPractice(planId: string): Promise<DailyPracticeSession> {
     try {
-        console.log(`[getDailyPractice] Starting for plan ${planId}`);
+        // console.log(`[getDailyPractice] Starting for plan ${planId}`);
         const planRef = db.collection("plans").doc(planId);
         const planDoc = await planRef.get();
         
@@ -167,10 +167,10 @@ export async function getDailyPractice(planId: string): Promise<DailyPracticeSes
 
         // 1. Determine Cycle & Mode
         const { currentDay, activeLesson, isClassDay } = getPracticeCycle(plan);
-        console.log(`[getDailyPractice] Cycle: Day ${currentDay}, ClassDay: ${isClassDay}, ActiveLesson: ${activeLesson?.id}`);
+        // console.log(`[getDailyPractice] Cycle: Day ${currentDay}, ClassDay: ${isClassDay}, ActiveLesson: ${activeLesson?.id}`);
 
         if (isClassDay) {
-             console.log("[getDailyPractice] It is class day, returning empty session.");
+             // console.log("[getDailyPractice] It is class day, returning empty session.");
              return { mode: 'review_standard', dayIndex: 0, items: [] };
         }
 
@@ -242,7 +242,7 @@ export async function getDailyPractice(planId: string): Promise<DailyPracticeSes
 
                     const quizItems = generateQuizItems(fullLessonContext, mode, srsMap);
                     
-                    console.log(`[getDailyPractice] Generated ${quizItems.length} quiz items`);
+                    // console.log(`[getDailyPractice] Generated ${quizItems.length} quiz items`);
 
                     return {
                         mode,
@@ -369,7 +369,7 @@ export async function getDailyPractice(planId: string): Promise<DailyPracticeSes
             // In a real app, `learnedComponentsIds` should probably store { id, type: 'item' | 'structure' }.
         }
 
-        console.log(`[getDailyPractice] Returning ${itemsToPractice.length} items`);
+        // console.log(`[getDailyPractice] Returning ${itemsToPractice.length} items`);
 
         return {
             mode,
