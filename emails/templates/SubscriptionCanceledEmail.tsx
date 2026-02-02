@@ -1,15 +1,12 @@
-// emails/templates/SubscriptionCanceledEmail.tsx
+import * as React from "react";
 import {
   Html,
   Head,
   Body,
   Container,
   Section,
-  Row,
-  Column,
   Heading,
   Text,
-  Hr,
   Img,
 } from "@react-email/components";
 import { EmailButton } from "../components/EmailButton";
@@ -23,28 +20,22 @@ interface SubscriptionCanceledEmailProps {
   reactivationUrl: string;
 }
 
-export function SubscriptionCanceledEmail({
+export const SubscriptionCanceledEmail: React.FC<
+  SubscriptionCanceledEmailProps
+> = ({
   studentName,
   cancellationDate,
   cancellationReason,
   effectiveDate,
   cancellationFee,
   reactivationUrl,
-}: SubscriptionCanceledEmailProps) {
-  const formattedCancellationDate = cancellationDate.toLocaleDateString(
-    "pt-BR",
-    {
+}) => {
+  const formatDate = (date: Date) =>
+    date.toLocaleDateString("pt-BR", {
       day: "2-digit",
       month: "long",
       year: "numeric",
-    }
-  );
-
-  const formattedEffectiveDate = effectiveDate.toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
+    });
 
   const formattedFee = cancellationFee
     ? new Intl.NumberFormat("pt-BR", {
@@ -66,117 +57,62 @@ export function SubscriptionCanceledEmail({
             />
           </Section>
 
-          <Section style={content}>
-            <Heading style={h1}>Assinatura Cancelada</Heading>
+          <Heading style={heading}>Assinatura Cancelada</Heading>
 
-            <Text style={text}>
-              Olá <strong>{studentName}</strong>,
-            </Text>
+          <Text style={paragraph}>
+            Olá, <strong>{studentName}</strong>,
+          </Text>
+          <Text style={paragraph}>
+            Confirmamos o cancelamento da sua assinatura na Fluency Lab.
+            Lamentamos vê-lo partir, mas respeitamos sua decisão.
+          </Text>
 
-            <Text style={text}>
-              Confirmamos o cancelamento da sua assinatura na Fluency Lab.
-              Lamentamos vê-lo partir, mas respeitamos sua decisão.
-            </Text>
+          <Section style={detailsSection}>
+            <Heading as="h3" style={subHeading}>
+              Detalhes do Cancelamento
+            </Heading>
 
-            <Section style={cancellationDetails}>
-              <Heading style={h2}>Detalhes do Cancelamento</Heading>
+            <div style={detailItem}>
+              <Text style={detailLabel}>Data do pedido:</Text>
+              <Text style={detailValue}>{formatDate(cancellationDate)}</Text>
+            </div>
 
-              <Row style={detailRow}>
-                <Column style={detailLabel}>Data do cancelamento:</Column>
-                <Column style={detailValue}>{formattedCancellationDate}</Column>
-              </Row>
+            <div style={detailItem}>
+              <Text style={detailLabel}>Vigência final:</Text>
+              <Text style={detailValue}>{formatDate(effectiveDate)}</Text>
+            </div>
 
-              <Row style={detailRow}>
-                <Column style={detailLabel}>Último dia de acesso:</Column>
-                <Column style={detailValue}>{formattedEffectiveDate}</Column>
-              </Row>
+            <div style={detailItem}>
+              <Text style={detailLabel}>Motivo:</Text>
+              <Text style={detailValue}>{cancellationReason}</Text>
+            </div>
+          </Section>
 
-              <Row style={detailRow}>
-                <Column style={detailLabel}>Motivo informado:</Column>
-                <Column style={detailValue}>{cancellationReason}</Column>
-              </Row>
-
-              {cancellationFee && (
-                <Row style={detailRow}>
-                  <Column style={detailLabel}>Taxa de cancelamento:</Column>
-                  <Column style={detailValue}>{formattedFee}</Column>
-                </Row>
-              )}
-            </Section>
-
-            <Text style={text}>
-              <strong>O que acontece agora:</strong>
-            </Text>
-
-            <Section style={timelineSection}>
-              <Text style={timelineItem}>
-                ✅ Você pode continuar usando a plataforma até{" "}
-                <strong>{formattedEffectiveDate}</strong>
-              </Text>
-              <Text style={timelineItem}>
-                📚 Suas aulas agendadas até essa data serão mantidas
-              </Text>
-              <Text style={timelineItem}>
-                🔒 Após essa data, o acesso será suspenso
-              </Text>
-              <Text style={timelineItem}>
-                💾 Seus dados ficam salvos por 12 meses para possível reativação
+          {cancellationFee && (
+            <Section style={feeNotice}>
+              <Text style={feeText}>
+                <strong>Atenção:</strong> Foi gerada uma taxa de cancelamento no
+                valor de <strong>{formattedFee}</strong> conforme previsto em
+                contrato.
               </Text>
             </Section>
+          )}
 
-            {cancellationFee && (
-              <Section style={feeNotice}>
-                <Text style={feeText}>
-                  <strong>Taxa de Cancelamento:</strong> Como sua assinatura
-                  tinha menos de 6 meses, foi aplicada uma taxa de cancelamento
-                  de {formattedFee}. Você receberá um código PIX para pagamento
-                  em breve.
-                </Text>
-              </Section>
-            )}
+          <Text style={paragraph}>
+            Se você mudar de ideia, ficaremos felizes em recebê-lo de volta!
+          </Text>
 
-            <Text style={text}>
-              Valorizamos muito o tempo que você passou conosco e o feedback que
-              compartilhou. Suas sugestões nos ajudam a melhorar continuamente.
-            </Text>
-
-            <Section style={buttonContainer}>
-              <EmailButton href={reactivationUrl}>
-                Reativar Assinatura
-              </EmailButton>
-            </Section>
-
-            <Text style={comeBakcText}>
-              Mudou de ideia? Você pode reativar sua assinatura a qualquer
-              momento nos próximos 12 meses e manter todo seu histórico e
-              progresso.
-            </Text>
-
-            <Hr style={hr} />
-
-            <Text style={feedbackText}>
-              <strong>Sua opinião é importante!</strong>
-              <br />
-              Gostaríamos muito de saber como podemos melhorar. Se puder,
-              compartilhe sua experiência conosco respondendo a uma breve
-              pesquisa.
-            </Text>
-
-            <Hr style={hr} />
-
-            <Text style={footer}>
-              Obrigado por fazer parte da família Fluency Lab.
-              <br />
-              Esperamos vê-lo novamente em breve! 🌟
-            </Text>
+          <Section style={buttonSection}>
+            <EmailButton href={reactivationUrl}>
+              Reativar Minha Assinatura
+            </EmailButton>
           </Section>
         </Container>
       </Body>
     </Html>
   );
-}
+};
 
-// Styles
 const main = {
   backgroundColor: "#f6f9fc",
   fontFamily:
@@ -186,136 +122,64 @@ const main = {
 const container = {
   backgroundColor: "#ffffff",
   margin: "0 auto",
-  padding: "20px 0 48px",
-  marginBottom: "64px",
-};
-
-const header = {
-  padding: "32px 24px",
-  textAlign: "center" as const,
-};
-
-const logo = {
-  height: "40px",
-  margin: "0 auto",
-};
-
-const content = {
-  padding: "0 24px",
-};
-
-const h1 = {
-  color: "#1a1a1a",
-  fontSize: "28px",
-  fontWeight: "600",
-  lineHeight: "36px",
-  margin: "0 0 24px",
-  textAlign: "center" as const,
-};
-
-const h2 = {
-  color: "#1a1a1a",
-  fontSize: "20px",
-  fontWeight: "600",
-  lineHeight: "28px",
-  margin: "0 0 16px",
-};
-
-const text = {
-  color: "#525252",
-  fontSize: "16px",
-  lineHeight: "24px",
-  margin: "0 0 16px",
-};
-
-const cancellationDetails = {
-  backgroundColor: "#f8fafc",
-  border: "1px solid #e2e8f0",
+  padding: "40px 20px",
+  maxWidth: "600px",
   borderRadius: "8px",
+  boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+};
+
+const header = { textAlign: "center" as const, marginBottom: "32px" };
+const logo = { height: "40px", margin: "0 auto" };
+const heading = {
+  fontSize: "24px",
+  fontWeight: "bold",
+  color: "#1a1a1a",
+  textAlign: "center" as const,
+  marginBottom: "24px",
+};
+const paragraph = {
+  fontSize: "16px",
+  lineHeight: "26px",
+  color: "#484848",
+  margin: "16px 0",
+};
+
+const detailsSection = {
+  backgroundColor: "#f8fafc",
   padding: "24px",
+  borderRadius: "8px",
   margin: "24px 0",
+  border: "1px solid #e2e8f0",
 };
 
-const detailRow = {
-  margin: "8px 0",
+const subHeading = {
+  fontSize: "18px",
+  fontWeight: "600",
+  color: "#1a1a1a",
+  margin: "0 0 16px",
 };
 
+const detailItem = { marginBottom: "12px" };
 const detailLabel = {
   color: "#64748b",
   fontSize: "14px",
   fontWeight: "500",
-  width: "40%",
+  margin: "0",
 };
-
 const detailValue = {
   color: "#1a1a1a",
-  fontSize: "14px",
+  fontSize: "16px",
   fontWeight: "600",
-};
-
-const timelineSection = {
-  backgroundColor: "#f0f9ff",
-  border: "1px solid #bae6fd",
-  borderRadius: "8px",
-  padding: "20px",
-  margin: "24px 0",
-};
-
-const timelineItem = {
-  color: "#0369a1",
-  fontSize: "15px",
-  lineHeight: "24px",
-  margin: "8px 0",
+  margin: "4px 0 0",
 };
 
 const feeNotice = {
-  backgroundColor: "#fef3c7",
+  backgroundColor: "#fffbeb",
   border: "1px solid #fcd34d",
   borderRadius: "8px",
   padding: "16px",
-  margin: "24px 0",
-};
-
-const feeText = {
   color: "#92400e",
   fontSize: "14px",
-  lineHeight: "20px",
-  margin: "0",
 };
-
-const buttonContainer = {
-  textAlign: "center" as const,
-  margin: "32px 0",
-};
-
-const comeBakcText = {
-  color: "#525252",
-  fontSize: "15px",
-  lineHeight: "22px",
-  textAlign: "center" as const,
-  fontStyle: "italic",
-  margin: "16px 0",
-};
-
-const feedbackText = {
-  color: "#525252",
-  fontSize: "16px",
-  lineHeight: "24px",
-  textAlign: "center" as const,
-  margin: "24px 0",
-};
-
-const hr = {
-  borderColor: "#e2e8f0",
-  margin: "32px 0",
-};
-
-const footer = {
-  color: "#64748b",
-  fontSize: "16px",
-  lineHeight: "24px",
-  textAlign: "center" as const,
-  fontWeight: "500",
-};
-
-export default SubscriptionCanceledEmail;
+const feeText = { margin: 0 };
+const buttonSection = { textAlign: "center" as const, marginTop: "32px" };

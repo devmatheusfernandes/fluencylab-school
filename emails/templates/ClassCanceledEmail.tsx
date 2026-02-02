@@ -7,6 +7,7 @@ import {
   Heading,
   Text,
   Section,
+  Img,
 } from "@react-email/components";
 import { EmailButton } from "../components/EmailButton";
 
@@ -19,9 +20,9 @@ interface ClassCanceledEmailProps {
   canceledBy: string;
   reason?: string;
   creditRefunded?: boolean;
-  makeupCreditGranted?: boolean; // New property for makeup credit
+  makeupCreditGranted?: boolean;
   platformLink: string;
-  classId?: string; // ID da aula para conversão em slot livre
+  classId?: string;
 }
 
 export const ClassCanceledEmail: React.FC<ClassCanceledEmailProps> = ({
@@ -32,102 +33,59 @@ export const ClassCanceledEmail: React.FC<ClassCanceledEmailProps> = ({
   scheduledTime,
   canceledBy,
   reason,
-  creditRefunded,
-  makeupCreditGranted, // New property
+  makeupCreditGranted,
   platformLink,
   classId,
 }) => {
   const isStudent = recipientType === "student";
-  const title = isStudent ? "Sua aula foi cancelada" : "Aula cancelada";
-  const greetingText = isStudent
-    ? "Informamos que uma de suas aulas foi cancelada."
-    : "Informamos que uma aula foi cancelada.";
+  const title = isStudent ? "Aula Cancelada" : "Aula Cancelada";
 
   return (
     <Html>
       <Head />
       <Body style={main}>
         <Container style={container}>
-          <Heading style={heading}>{title}</Heading>
-          <Section>
-            <Text style={paragraph}>Olá, {recipientName}!</Text>
-            <Text style={paragraph}>{greetingText}</Text>
-
-            <Section style={classInfoSection}>
-              <Text style={classInfoTitle}>Detalhes da aula cancelada:</Text>
-              <Text style={classInfoText}>
-                <strong>Aula:</strong> {className}
-              </Text>
-              <Text style={classInfoText}>
-                <strong>Data/Hora:</strong> {scheduledDate} às {scheduledTime}
-              </Text>
-              <Text style={classInfoText}>
-                <strong>Cancelado por:</strong> {canceledBy}
-              </Text>
-              {reason && (
-                <Text style={classInfoText}>
-                  <strong>Motivo:</strong> {reason}
-                </Text>
-              )}
-              {isStudent && creditRefunded !== undefined && (
-                <Text style={classInfoText}>
-                  <strong>Crédito devolvido:</strong>{" "}
-                  {creditRefunded ? "Sim" : "Não"}
-                </Text>
-              )}
-              {isStudent && makeupCreditGranted && (
-                <Text style={classInfoText}>
-                  <strong>Crédito de reposição:</strong> Concedido (válido por
-                  45 dias)
-                </Text>
-              )}
-            </Section>
-
-            <Text style={paragraph}>
-              {isStudent
-                ? creditRefunded
-                  ? "Seu crédito foi devolvido e você pode agendar uma nova aula quando desejar."
-                  : "Como o cancelamento foi feito fora do prazo permitido, o crédito não foi devolvido. Entre em contato conosco se tiver dúvidas."
-                : "O aluno foi notificado sobre o cancelamento. O horário ficou disponível novamente em sua agenda."}
-            </Text>
-
-            {isStudent && makeupCreditGranted && (
-              <Text style={paragraph}>
-                <strong>Crédito de reposição concedido:</strong> Você recebeu um
-                crédito especial para reposição desta aula. Este crédito é
-                válido por 45 dias e pode ser usado para agendar uma nova aula
-                de reposição.
-              </Text>
-            )}
-
-            {isStudent && (
-              <Text style={paragraph}>
-                Para agendar uma nova aula, acesse a plataforma e escolha um
-                novo horário disponível.
-              </Text>
-            )}
+          <Section style={header}>
+            <Img
+              src={`${process.env.NEXT_PUBLIC_APP_URL}/logo.png`}
+              alt="Fluency Lab"
+              style={logo}
+            />
           </Section>
 
-          <EmailButton href={platformLink}>
-            {isStudent ? "Agendar Nova Aula" : "Acessar Plataforma"}
-          </EmailButton>
-
-          {!isStudent && classId && (
-            <>
-              <Text style={paragraph}>
-                <strong>Quer disponibilizar este horário para outros alunos?</strong>
-                <br />
-                Você pode converter esta aula cancelada em um slot disponível para que outros alunos possam agendá-la.
-              </Text>
-              <EmailButton href={`${platformLink}/convert-slot/${classId}`}>
-                Tornar Slot Livre
-              </EmailButton>
-            </>
-          )}
+          <Heading style={heading}>{title}</Heading>
 
           <Text style={paragraph}>
-            Se você tiver dúvidas, não hesite em entrar em contato conosco.
+            Olá, <strong>{recipientName}</strong>.
           </Text>
+          <Text style={paragraph}>
+            Informamos que a aula <strong>{className}</strong> agendada para{" "}
+            {scheduledDate} às {scheduledTime} foi cancelada por {canceledBy}.
+          </Text>
+
+          {reason && (
+            <Text style={paragraph}>
+              <strong>Motivo:</strong> {reason}
+            </Text>
+          )}
+
+          {isStudent && makeupCreditGranted && (
+            <Section style={alertSection}>
+              <Text style={alertText}>
+                O crédito desta aula foi devolvido à sua conta. Você pode
+                agendar uma nova aula a qualquer momento.
+              </Text>
+            </Section>
+          )}
+
+          {!isStudent && classId && (
+            <Section style={buttonSection}>
+              <EmailButton href={`${platformLink}/convert-slot/${classId}`}>
+                Tornar Horário Disponível
+              </EmailButton>
+            </Section>
+          )}
+
           <Text style={paragraph}>
             Atenciosamente,
             <br />
@@ -139,54 +97,38 @@ export const ClassCanceledEmail: React.FC<ClassCanceledEmailProps> = ({
   );
 };
 
-// Estilos para o e-mail
 const main = {
   backgroundColor: "#f6f9fc",
   fontFamily:
     '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif',
 };
-
 const container = {
   backgroundColor: "#ffffff",
   margin: "0 auto",
-  padding: "20px 0 48px",
-  marginBottom: "64px",
-  border: "1px solid #f0f0f0",
-  borderRadius: "4px",
+  padding: "40px 20px",
+  maxWidth: "600px",
+  borderRadius: "8px",
 };
-
+const header = { textAlign: "center" as const, marginBottom: "32px" };
+const logo = { height: "40px", margin: "0 auto" };
 const heading = {
-  fontSize: "28px",
+  fontSize: "24px",
   fontWeight: "bold",
+  color: "#1a1a1a",
   textAlign: "center" as const,
-  color: "#484848",
+  marginBottom: "24px",
 };
-
 const paragraph = {
   fontSize: "16px",
   lineHeight: "26px",
   color: "#484848",
-  padding: "0 40px",
+  margin: "16px 0",
 };
-
-const classInfoSection = {
-  backgroundColor: "#f8f9fa",
-  padding: "20px 40px",
-  margin: "20px 0",
+const alertSection = {
+  backgroundColor: "#f0f9ff",
+  padding: "16px",
   borderRadius: "8px",
-  border: "1px solid #e9ecef",
+  margin: "24px 0",
 };
-
-const classInfoTitle = {
-  fontSize: "18px",
-  fontWeight: "bold",
-  color: "#495057",
-  margin: "0 0 15px 0",
-};
-
-const classInfoText = {
-  fontSize: "16px",
-  lineHeight: "24px",
-  color: "#495057",
-  margin: "8px 0",
-};
+const alertText = { color: "#0369a1", fontSize: "15px", margin: 0 };
+const buttonSection = { textAlign: "center" as const, marginTop: "24px" };

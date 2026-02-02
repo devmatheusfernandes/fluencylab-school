@@ -1,13 +1,14 @@
+import * as React from "react";
 import {
+  Html,
+  Head,
   Body,
   Container,
-  Head,
   Heading,
-  Html,
-  Preview,
-  Section,
   Text,
-  Link,
+  Section,
+  Img,
+  Preview,
 } from "@react-email/components";
 import { EmailButton } from "../components/EmailButton";
 
@@ -24,14 +25,16 @@ interface TeacherVacationCancellationEmailProps {
   platformLink: string;
 }
 
-export default async function TeacherVacationCancellationEmail({
+export const TeacherVacationCancellationEmail: React.FC<
+  TeacherVacationCancellationEmailProps
+> = ({
   studentName = "Aluno",
   teacherName = "Professor",
-  vacationStartDate = "01/01/2023",
-  vacationEndDate = "10/01/2023",
+  vacationStartDate,
+  vacationEndDate,
   affectedClasses = [],
-  platformLink = "https://app.fluencylab.com",
-}: TeacherVacationCancellationEmailProps) {
+  platformLink,
+}) => {
   const previewText = `Férias do professor ${teacherName} canceladas - Suas aulas foram reagendadas`;
 
   return (
@@ -40,114 +43,117 @@ export default async function TeacherVacationCancellationEmail({
       <Preview>{previewText}</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Heading style={h1}>Férias Canceladas</Heading>
-          <Text style={text}>Olá {studentName},</Text>
-          <Text style={text}>
-            Informamos que o período de férias do professor {teacherName} foi
-            cancelado. As seguintes aulas que estavam marcadas como "Férias do
-            Professor" foram reagendadas para o status "Agendada":
-          </Text>
-
-          <Section style={vacationInfoSection}>
-            <Text style={vacationInfoTitle}>Período de férias cancelado:</Text>
-            <Text style={vacationInfoText}>
-              <strong>De:</strong> {vacationStartDate}
-            </Text>
-            <Text style={vacationInfoText}>
-              <strong>Até:</strong> {vacationEndDate}
-            </Text>
+          <Section style={header}>
+            <Img
+              src={`${process.env.NEXT_PUBLIC_APP_URL}/logo.png`}
+              alt="Fluency Lab"
+              style={logo}
+            />
           </Section>
 
-          <Section style={classesSection}>
-            <Text style={classesTitle}>Aulas reagendadas:</Text>
-            {affectedClasses.map((cls, index) => (
-              <Text key={index} style={classItem}>
-                • {cls.date} às {cls.time} - {cls.language}
-              </Text>
-            ))}
+          <Heading style={heading}>Férias Canceladas</Heading>
+
+          <Text style={paragraph}>
+            Olá, <strong>{studentName}</strong>!
+          </Text>
+          <Text style={paragraph}>
+            Informamos que as férias do professor <strong>{teacherName}</strong>
+            , previstas para o período de {vacationStartDate} a{" "}
+            {vacationEndDate}, foram canceladas.
+          </Text>
+          <Text style={paragraph}>
+            Com isso, as aulas que haviam sido afetadas foram mantidas ou
+            reagendadas para seus horários originais:
+          </Text>
+
+          {affectedClasses.length > 0 && (
+            <Section style={infoSection}>
+              <Text style={infoTitle}>Aulas Confirmadas:</Text>
+              {affectedClasses.map((aula, index) => (
+                <Text key={index} style={infoItem}>
+                  • {aula.date} às {aula.time} ({aula.language})
+                </Text>
+              ))}
+            </Section>
+          )}
+
+          <Section style={buttonSection}>
+            <EmailButton href={platformLink}>Acessar Minhas Aulas</EmailButton>
           </Section>
 
-          <Text style={text}>
-            Suas aulas voltaram ao status normal de "Agendada". Se você já
-            reagendou essas aulas, não é necessário tomar nenhuma ação
-            adicional.
+          <Text style={paragraph}>
+            Atenciosamente,
+            <br />
+            Equipe Fluency Lab
           </Text>
-
-          <Text style={text}>
-            Se tiver dúvidas ou precisar de ajuda, nossa equipe está à
-            disposição para ajudá-lo.
-          </Text>
-
-          <EmailButton href={platformLink}>Acessar Minhas Aulas</EmailButton>
         </Container>
       </Body>
     </Html>
   );
-}
+};
 
+// Estilos Padronizados
 const main = {
-  backgroundColor: "#ffffff",
+  backgroundColor: "#f6f9fc",
+  fontFamily:
+    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif',
 };
 
 const container = {
-  paddingLeft: "12px",
-  paddingRight: "12px",
+  backgroundColor: "#ffffff",
+  margin: "0 auto",
+  padding: "40px 20px",
+  maxWidth: "600px",
+  borderRadius: "4px",
+  border: "1px solid #f0f0f0",
+};
+
+const header = {
+  textAlign: "center" as const,
+  marginBottom: "32px",
+};
+
+const logo = {
+  height: "40px",
   margin: "0 auto",
 };
 
-const h1 = {
-  color: "#333",
-  fontFamily:
-    "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
+const heading = {
   fontSize: "24px",
   fontWeight: "bold",
-  margin: "40px 0",
-  padding: "0",
+  textAlign: "center" as const,
+  color: "#1a1a1a",
+  margin: "0 0 24px",
 };
 
-const text = {
-  color: "#333",
-  fontFamily:
-    "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
+const paragraph = {
   fontSize: "16px",
   lineHeight: "26px",
+  color: "#484848",
+  margin: "16px 0",
 };
 
-const vacationInfoSection = {
-  backgroundColor: "#f0f0f0",
-  padding: "16px",
+const infoSection = {
+  backgroundColor: "#f0f9ff",
+  padding: "20px",
   borderRadius: "8px",
   margin: "24px 0",
+  border: "1px solid #bae6fd",
 };
 
-const vacationInfoTitle = {
-  fontSize: "18px",
+const infoTitle = {
   fontWeight: "bold",
+  color: "#0369a1",
   marginBottom: "12px",
-  color: "#333",
 };
 
-const vacationInfoText = {
-  fontSize: "16px",
-  lineHeight: "24px",
-  color: "#555",
+const infoItem = {
   margin: "4px 0",
+  color: "#0c4a6e",
+  fontSize: "14px",
 };
 
-const classesSection = {
-  margin: "24px 0",
-};
-
-const classesTitle = {
-  fontSize: "18px",
-  fontWeight: "bold",
-  marginBottom: "12px",
-  color: "#333",
-};
-
-const classItem = {
-  fontSize: "16px",
-  lineHeight: "24px",
-  color: "#555",
-  margin: "8px 0",
+const buttonSection = {
+  textAlign: "center" as const,
+  margin: "32px 0",
 };

@@ -7,15 +7,22 @@ import { CalendarDaysIcon } from "@/public/animated/calendar";
 import { PhoneMockup } from "@/components/landing/PhoneMockup";
 import { HomeScreen } from "@/components/landing/screens/HomeScreen";
 import { PathScreen } from "@/components/landing/screens/PathScreen";
+import { EditorScreen } from "./screens/EditScreen";
 
 export function LandingHero() {
   const t = useTranslations("LandingPage");
-  const [currentScreen, setCurrentScreen] = useState<"home" | "path">("home");
+  const [currentScreen, setCurrentScreen] = useState<
+    "home" | "path" | "editor"
+  >("editor");
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentScreen((prev) => (prev === "home" ? "path" : "home"));
-    }, 5000); // Alterna a cada 5 segundos
+      setCurrentScreen((prev) => {
+        if (prev === "home") return "path";
+        if (prev === "path") return "editor";
+        return "home";
+      });
+    }, 10000); // Alterna a cada 5 segundos
 
     return () => clearInterval(interval);
   }, []);
@@ -79,7 +86,7 @@ export function LandingHero() {
                 >
                   <HomeScreen />
                 </motion.div>
-              ) : (
+              ) : currentScreen === "path" ? (
                 <motion.div
                   key="path"
                   initial={{ opacity: 0, x: -20 }}
@@ -89,6 +96,17 @@ export function LandingHero() {
                   className="h-full"
                 >
                   <PathScreen />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="editor"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.3 }}
+                  className="h-full"
+                >
+                  <EditorScreen />
                 </motion.div>
               )}
             </AnimatePresence>
