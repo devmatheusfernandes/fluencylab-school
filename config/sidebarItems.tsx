@@ -3,6 +3,7 @@ import { SidebarItemType } from "@/components/shared/Sidebar/Sidebar";
 import { CalendarDaysIcon } from "@/public/animated/calendar";
 import { CircleCheckIcon } from "@/public/animated/circle-check";
 import { DollarSignIcon } from "@/public/animated/finances";
+import LayoutDashboardIcon from "@/public/animated/layout-dashboard-icon";
 import { BookTextIcon } from "@/public/animated/lesson";
 import { MessageSquareIcon } from "@/public/animated/message-square";
 import { LayoutPanelTopIcon } from "@/public/animated/notebook";
@@ -82,7 +83,7 @@ const teacherItems: SidebarItemType[] = [
     href: "/[locale]/hub/teacher/workbooks",
     label: "Material",
     labelKey: "workbooks",
-    icon: <LayoutPanelTopIcon size={20} />,
+    icon: <LayoutDashboardIcon size={20} />,
   },
   {
     href: "/[locale]/hub/teacher/my-chat",
