@@ -9,6 +9,8 @@ import {
   ModalFooter,
   ModalHeader,
   ModalTitle,
+  ModalPrimaryButton,
+  ModalSecondaryButton,
 } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
@@ -26,7 +28,7 @@ interface AvailabilitySlotDetailsModalProps {
   onDelete?: (
     slotId: string,
     deleteType: "single" | "future",
-    occurrenceDate: Date
+    occurrenceDate: Date,
   ) => Promise<void>;
   onRefresh?: () => void;
 }
@@ -127,7 +129,9 @@ export default function AvailabilitySlotDetailsModal({
 
                 {event.availabilityType && (
                   <div>
-                    <Text className="text-subtitle font-medium">{t("category")}</Text>
+                    <Text className="text-subtitle font-medium">
+                      {t("category")}
+                    </Text>
                     <Text>
                       {getAvailabilityTypeText(event.availabilityType)}
                     </Text>
@@ -143,7 +147,7 @@ export default function AvailabilitySlotDetailsModal({
                       <Text>
                         {t("frequencyValue", {
                           type: getRepeatingTypeText(event.repeating.type),
-                          interval: event.repeating.interval
+                          interval: event.repeating.interval,
                         })}
                       </Text>
                     </div>
@@ -193,7 +197,7 @@ export default function AvailabilitySlotDetailsModal({
                             {t("deleteSingleDesc", {
                               date: format(new Date(event.date), "PPP", {
                                 locale: ptBR,
-                              })
+                              }),
                             })}
                           </Text>
                         </div>
@@ -245,14 +249,16 @@ export default function AvailabilitySlotDetailsModal({
         </ModalBody>
         <ModalFooter className="flex justify-between">
           {onDelete && (
-            <Button
+            <ModalPrimaryButton
               variant="destructive"
               onClick={() => setShowDeleteOptions(true)}
             >
               {t("delete")}
-            </Button>
+            </ModalPrimaryButton>
           )}
-          <Button onClick={onClose}>{t("close")}</Button>
+          <ModalSecondaryButton onClick={onClose}>
+            {t("close")}
+          </ModalSecondaryButton>
         </ModalFooter>
       </ModalContent>
     </Modal>
