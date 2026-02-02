@@ -9,6 +9,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 export function PathScreen() {
   const t = useTranslations("LandingPage");
+  const tPath = useTranslations("PathScreen");
   const { data: session } = useSession();
   const [greeting, setGreeting] = useState<string>("");
 
@@ -84,7 +85,7 @@ export function PathScreen() {
           <div className="flex items-center gap-2 px-2">
             <span className="text-lg">🇺🇸</span>
             <span className="text-[10px] font-black text-gray-600 dark:text-gray-400 uppercase">
-              Unit 3
+              {tPath("unit")}
             </span>
           </div>
           <div className="flex items-center gap-4 pr-2">

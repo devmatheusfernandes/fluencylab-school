@@ -35,6 +35,31 @@
       }
     }
   },
+  "EditScreen": {
+    "header": {
+      "collabWriting": "Collaborative Writing",
+      "unit": "Unit 3: Essay Workshop",
+      "share": "SHARE"
+    },
+    "document": {
+      "title": "The Importance of Water",
+      "p1Part1": "Water is essential for all known forms of life. Even though it provides no food energy or organic micronutrients, it is vital for",
+      "p1Highlight": "the human body",
+      "p1Part2": "to function properly.",
+      "teacherName": "Teacher Sarah",
+      "p2Text": "In our last lesson, we discussed how molecules react.",
+      "p2Placeholder": " (Continue writing here...)",
+      "p3": "Water is a vital resource that sustains life on Earth. It is essential for the functioning of the human body, as well as for the growth and development of life on other planets.",
+      "p4": "Without water, life would be impossible. It is the basic need of all organisms, and it is essential for their survival."
+    },
+    "suggestion": {
+      "title": "Suggestion from Professor",
+      "text": "\"Try using more descriptive adjectives when talking about hydration.\""
+    }
+  },
+  "PathScreen": {
+    "unit": "Unit 3"
+  },
   "CookieConsent": {
     "message": "We use cookies to improve your experience. By continuing to browse, you agree to our privacy policy.",
     "accept": "Accept",

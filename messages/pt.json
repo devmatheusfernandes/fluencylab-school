@@ -35,6 +35,31 @@
       }
     }
   },
+  "EditScreen": {
+    "header": {
+      "collabWriting": "Escrita Colaborativa",
+      "unit": "Unidade 3: Oficina de Redação",
+      "share": "COMPARTILHAR"
+    },
+    "document": {
+      "title": "A Importância da Água",
+      "p1Part1": "A água é essencial para todas as formas conhecidas de vida. Embora não forneça energia alimentar ou micronutrientes orgânicos, é vital para",
+      "p1Highlight": "o corpo humano",
+      "p1Part2": "funcionar corretamente.",
+      "teacherName": "Professora Sarah",
+      "p2Text": "Em nossa última aula, discutimos como as moléculas reagem.",
+      "p2Placeholder": " (Continue escrevendo aqui...)",
+      "p3": "A água é um recurso vital que sustenta a vida na Terra. É essencial para o funcionamento do corpo humano, bem como para o crescimento e desenvolvimento da vida em outros planetas.",
+      "p4": "Sem água, a vida seria impossível. É a necessidade básica de todos os organismos e é essencial para sua sobrevivência."
+    },
+    "suggestion": {
+      "title": "Sugestão do Professor",
+      "text": "\"Tente usar adjetivos mais descritivos ao falar sobre hidratação.\""
+    }
+  },
+  "PathScreen": {
+    "unit": "Unidade 3"
+  },
   "CookieConsent": {
     "message": "Nós usamos cookies para melhorar sua experiência. Ao continuar navegando, você concorda com nossa política de privacidade.",
     "accept": "Aceitar",
