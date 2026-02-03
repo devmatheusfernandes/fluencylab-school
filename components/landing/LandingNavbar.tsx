@@ -208,7 +208,7 @@ export function LandingNavbar() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleLoginClick}
-                className="bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-black dark:text-white px-6 py-2 rounded-full text-sm font-medium flex items-center gap-2 min-h-[44px] whitespace-nowrap"
+                className="bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-black dark:text-white px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 min-h-[44px] whitespace-nowrap"
               >
                 {status === "loading" ? (
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -217,7 +217,7 @@ export function LandingNavbar() {
                     <span className="whitespace-nowrap">
                       {t("nav.continue")}
                     </span>
-                    <Avatar className="h-6 w-6">
+                    <Avatar size="xs">
                       <AvatarImage src={session.user?.image || undefined} />
                       <AvatarFallback />
                     </Avatar>
