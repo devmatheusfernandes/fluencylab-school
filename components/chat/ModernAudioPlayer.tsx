@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Play, Pause, X, ZoomIn } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { 
-  AttachmentProps, 
-  useMessageContext, 
-  Attachment as DefaultAttachment 
+import {
+  AttachmentProps,
+  useMessageContext,
+  Attachment as DefaultAttachment,
 } from "stream-chat-react";
 import { Attachment } from "stream-chat";
 import { createPortal } from "react-dom";
@@ -26,12 +26,12 @@ const ImageModal = ({ src, onClose }: { src: string; onClose: () => void }) => {
   if (typeof document === "undefined") return null;
 
   return createPortal(
-    <div 
+    <div
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 backdrop-blur-sm animate-in fade-in duration-200"
       onClick={onClose}
     >
       {/* Botão Fechar */}
-      <button 
+      <button
         onClick={onClose}
         className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors z-50"
       >
@@ -46,7 +46,7 @@ const ImageModal = ({ src, onClose }: { src: string; onClose: () => void }) => {
         onClick={(e) => e.stopPropagation()} // Clicar na imagem não fecha
       />
     </div>,
-    document.body
+    document.body,
   );
 };
 
@@ -55,28 +55,29 @@ const ImageModal = ({ src, onClose }: { src: string; onClose: () => void }) => {
 // ============================================================================
 const CustomImageAttachment = ({ attachment }: { attachment: Attachment }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const imageUrl = attachment.image_url || attachment.thumb_url || attachment.asset_url;
+  const imageUrl =
+    attachment.image_url || attachment.thumb_url || attachment.asset_url;
 
   if (!imageUrl) return null;
 
   return (
     <>
-      <div 
+      <div
         className="group relative overflow-hidden cursor-zoom-in max-w-[300px] border border-border shadow-sm"
         onClick={() => setIsOpen(true)}
       >
-        <img 
-          src={imageUrl} 
-          alt={attachment.fallback || "Image attachment"} 
+        <img
+          src={imageUrl}
+          alt={attachment.fallback || "Image attachment"}
           className="w-full h-auto object-cover hover:scale-105 transition-transform duration-300"
           loading="lazy"
         />
-        
+
         {/* Overlay de Hover com Ícone */}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-            <div className="bg-black/50 p-2 rounded-full text-white backdrop-blur-sm">
-                <ZoomIn size={16} />
-            </div>
+          <div className="bg-black/50 p-2 rounded-full text-white backdrop-blur-sm">
+            <ZoomIn size={16} />
+          </div>
         </div>
       </div>
 
@@ -106,9 +107,16 @@ const ModernAudioPlayer = ({ src }: { src: string }) => {
     const audio = new Audio(src);
     audioRef.current = audio;
 
-    const setAudioData = () => { if (isFinite(audio.duration)) setDuration(audio.duration); };
-    const updateProgress = () => { setProgress(audio.currentTime); };
-    const handleEnded = () => { setIsPlaying(false); setProgress(0); };
+    const setAudioData = () => {
+      if (isFinite(audio.duration)) setDuration(audio.duration);
+    };
+    const updateProgress = () => {
+      setProgress(audio.currentTime);
+    };
+    const handleEnded = () => {
+      setIsPlaying(false);
+      setProgress(0);
+    };
 
     audio.addEventListener("loadedmetadata", setAudioData);
     audio.addEventListener("timeupdate", updateProgress);
@@ -136,15 +144,26 @@ const ModernAudioPlayer = ({ src }: { src: string }) => {
   };
 
   return (
-    <div className={cn(
-      "flex items-center gap-3 p-2 pr-4 rounded-full min-w-[240px] max-w-[300px] select-none transition-colors",
-      isMyMessage() ? "bg-primary/20" : "bg-secondary"
-    )}>
-      <button onClick={togglePlay} className={cn(
-        "flex items-center justify-center w-8 h-8 rounded-full transition-all shrink-0",
-        isMyMessage() ? "bg-primary text-primary-foreground hover:brightness-110" : "bg-foreground text-background hover:bg-foreground/90"
-      )}>
-        {isPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" className="ml-0.5" />}
+    <div
+      className={cn(
+        "flex items-center gap-3 p-2 pr-4 rounded-xl min-w-[240px] max-w-[300px] select-none transition-colors",
+        isMyMessage() ? "bg-primary/20" : "bg-secondary",
+      )}
+    >
+      <button
+        onClick={togglePlay}
+        className={cn(
+          "flex items-center justify-center w-8 h-8 rounded-full transition-all shrink-0",
+          isMyMessage()
+            ? "bg-primary text-primary-foreground hover:brightness-110"
+            : "bg-foreground text-background hover:bg-foreground/90",
+        )}
+      >
+        {isPlaying ? (
+          <Pause size={14} fill="currentColor" />
+        ) : (
+          <Play size={14} fill="currentColor" className="ml-0.5" />
+        )}
       </button>
 
       <div className="flex flex-col flex-1 gap-1 min-w-0">
@@ -155,10 +174,13 @@ const ModernAudioPlayer = ({ src }: { src: string }) => {
           value={progress}
           onChange={handleSeek}
           className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-foreground/10"
-          style={{ background: `linear-gradient(to right, ${isMyMessage() ? 'var(--accent)' : 'currentColor'} ${(progress / (duration || 1)) * 100}%, rgba(0,0,0,0.1) 0)` }}
+          style={{
+            background: `linear-gradient(to right, ${isMyMessage() ? "var(--accent)" : "currentColor"} ${(progress / (duration || 1)) * 100}%, rgba(0,0,0,0.1) 0)`,
+          }}
         />
         <div className="flex justify-between text-[10px] font-medium opacity-70">
-          <span>{formatTime(progress)}</span><span>{formatTime(duration)}</span>
+          <span>{formatTime(progress)}</span>
+          <span>{formatTime(duration)}</span>
         </div>
       </div>
     </div>
@@ -171,7 +193,7 @@ const ModernAudioPlayer = ({ src }: { src: string }) => {
 export const CustomAttachment = (props: AttachmentProps) => {
   const { attachments } = props;
   const attachment = attachments[0] as Attachment; // Simplificação para pegar o primeiro
-  
+
   if (!attachment) return null;
 
   // 1. ÁUDIO

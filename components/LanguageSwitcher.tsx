@@ -62,13 +62,13 @@ export default function LanguageSwitcher() {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className="w-fit justify-between"
         >
           {currentLabel}
           <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-0">
+      <PopoverContent className="p-0 w-fit">
         <Command>
           <CommandInput placeholder={placeholderText} />
           <CommandList>
@@ -85,7 +85,7 @@ export default function LanguageSwitcher() {
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      locale === lang.value ? "opacity-100" : "opacity-0"
+                      locale === lang.value ? "opacity-100" : "opacity-0",
                     )}
                   />
                   {lang.label}

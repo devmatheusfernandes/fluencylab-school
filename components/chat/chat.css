@@ -3,10 +3,11 @@
    1. CONFIGURAÇÕES GERAIS & VARIÁVEIS (.str-chat)
    ========================================================================== */
 .str-chat {
-  
   /* Fontes */
-  --font-primary: var(--font-sans), "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  
+  --font-primary:
+    var(--font-sans), "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
+
   /* Cores de Fundo (Mapeado para globals.css) */
   --bg-app: var(--background);
   --bg-panel: var(--header-color);
@@ -14,13 +15,17 @@
   --border-color: var(--border);
 
   /* Cores de Texto */
-  --text-primary: var(--foreground); /* COR DO TEXTO DO INPUT DE MENSAGEM E BUSCA */
+  --text-primary: var(
+    --foreground
+  ); /* COR DO TEXTO DO INPUT DE MENSAGEM E BUSCA */
 
   /* Cores do Chat (Avatar, Bubbles) */
   --accent-color: var(--primary); /* COR DO AVATAR NO HEADER DO CHAT */
-  --str-chat__message-bubble-background-color: var(--received-message-bg); /* COR DO BUBBLE DAS OUTRAS MENSAGENS */
+  --str-chat__message-bubble-background-color: var(
+    --received-message-bg
+  ); /* COR DO BUBBLE DAS OUTRAS MENSAGENS */
   --str-chat__message-bubble-color: white; /* COR DO TEXTO DAS OUTRAS MENSAGENS */
-  
+
   /* Variáveis Nativas da Stream (Override) */
   --str-chat__background-color: var(--bg-app);
   --str-chat__secondary-background-color: var(--bg-panel);
@@ -30,7 +35,7 @@
   --str-chat__message-text-color: var(--text-primary);
   --str-chat__message-reactions-option-hover-background-color: var(--accent);
   --str-chat__message-actions-box-item-hover-background-color: var(--accent);
-  
+
   /* Bordas arredondadas modernas */
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
@@ -66,7 +71,7 @@
 /* Ajuste Crítico para Mobile Safari (iOS) - 100dvh */
 @media (max-width: 768px) {
   .str-chat-channel {
-    height: 88.8dvh; 
+    height: 88.8dvh;
   }
   .str-chat {
     height: 88.8dvh;
@@ -110,14 +115,14 @@
 /* Configuração base do Bubble */
 .str-chat__message-bubble {
   border: none !important;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    border-radius: var(--radius-xl) var(--radius-xl) var(--radius-xl) var(--radius-xl) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  border-radius: 16px !important;
 }
 
 /* Alinhamento e display para mensagens recebidas (Outros) */
-.str-chat__message.str-chat__message--other, 
-.str-chat__message.str-chat__quoted-message-preview, 
-.str-chat__quoted-message-preview.str-chat__message--other, 
+.str-chat__message.str-chat__message--other,
+.str-chat__message.str-chat__quoted-message-preview,
+.str-chat__quoted-message-preview.str-chat__message--other,
 .str-chat__quoted-message-preview.str-chat__quoted-message-preview--other {
   display: flex;
   place-items: center;
@@ -128,7 +133,8 @@
 .str-chat__message-simple--me .str-chat__message-bubble {
   background-color: var(--primary) !important;
   color: white !important;
-  border-radius: var(--radius-xl) var(--radius-xl) var(--radius-xl) var(--radius-xl) !important;
+  border-radius: var(--radius-xl) var(--radius-xl) var(--radius-xl)
+    var(--radius-xl) !important;
 }
 
 /* ==========================================================================
@@ -149,31 +155,43 @@
    ========================================================================== */
 
 /* Cores dos botões de reação (Recebidas e Enviadas) */
-.str-chat__message-reactions-container .str-chat__message-reactions .str-chat__message-reaction.str-chat__message-reaction-own {
+.str-chat__message-reactions-container
+  .str-chat__message-reactions
+  .str-chat__message-reaction.str-chat__message-reaction-own {
   background-color: var(--accent);
 }
 
-.str-chat__message-reactions-container .str-chat__message-reactions .str-chat__message-reaction {
+.str-chat__message-reactions-container
+  .str-chat__message-reactions
+  .str-chat__message-reaction {
   background-color: var(--accent);
 }
 
 /* Cor do botão de reação selecionada no seletor */
-.str-chat__reaction-selector .str-chat__message-reactions-options .str-chat__message-reactions-option.str-chat__message-reactions-option-selected {
+.str-chat__reaction-selector
+  .str-chat__message-reactions-options
+  .str-chat__message-reactions-option.str-chat__message-reactions-option-selected {
   background-color: var(--accent);
 }
 
 /* Hover nos ícones de ação ao lado da mensagem */
-.str-chat__message .str-chat__message-options .str-chat__message-actions-box-button:hover, 
-.str-chat__message .str-chat__message-options .str-chat__message-reply-in-thread-button:hover, 
-.str-chat__message .str-chat__message-options .str-chat__message-reactions-button:hover {
+.str-chat__message
+  .str-chat__message-options
+  .str-chat__message-actions-box-button:hover,
+.str-chat__message
+  .str-chat__message-options
+  .str-chat__message-reply-in-thread-button:hover,
+.str-chat__message
+  .str-chat__message-options
+  .str-chat__message-reactions-button:hover {
   background-color: var(--accent);
 }
 
 /* ==========================================================================
    9. SEPARADOR DE DATA (BADGE)
    ========================================================================== */
-.str-chat__date-separator-line { 
-  display: none; 
+.str-chat__date-separator-line {
+  display: none;
 }
 
 .str-chat__date-separator {
@@ -192,7 +210,7 @@
   letter-spacing: 0.05em;
   padding: 4px 12px;
   border-radius: 999px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .dark .str-chat__date-separator-date {

@@ -4,6 +4,7 @@ import {
   TextareaComposer,
   useMessageComposer,
   useAttachmentManagerState,
+  useStateStore,
 } from "stream-chat-react";
 import { Paperclip, Send, Mic, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -24,6 +25,17 @@ import {
 export const PillMessageInput = () => {
   const { handleSubmit, recordingController } = useMessageInputContext();
   const messageComposer = useMessageComposer();
+
+  // Subscribe to text state changes properly
+  const messageComposerStateSelector = (state: any) => ({
+    text: state.text,
+  });
+
+  const { text } = useStateStore(
+    (messageComposer as any).state,
+    messageComposerStateSelector,
+  );
+
   const { isUploadEnabled, attachments, uploadsInProgressCount } =
     useAttachmentManagerState();
 
@@ -31,7 +43,10 @@ export const PillMessageInput = () => {
   const hasAttachments = attachments.length > 0;
 
   const { recorder, recordingState } = recordingController;
-  const recordingEnabled = !!(recorder && navigator.mediaDevices);
+
+  const hasText = typeof text === "string" && text.trim().length > 0;
+  const isRecordingSupported = !!(recorder && navigator.mediaDevices);
+  const showMicButton = isRecordingSupported && !hasText;
 
   const isRecordingMode = !!recordingState;
   const [showPermissionModal, setShowPermissionModal] = useState(false);
@@ -199,7 +214,7 @@ export const PillMessageInput = () => {
                 {/* LADO DIREITO: MIC / ENVIAR */}
                 <div className="flex flex-col justify-end h-full pb-[9px]">
                   <div className="flex items-center gap-1 shrink-0">
-                    {recordingEnabled ? (
+                    {showMicButton ? (
                       <button
                         onClick={handleStartRecording}
                         className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
