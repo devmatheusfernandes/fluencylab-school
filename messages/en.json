@@ -2080,6 +2080,7 @@
     "canceling": "Canceling...",
     "dueDate": "Due Date:",
     "paymentDate": "Payment Date:",
+    "value": "Value:",
     "status": {
       "active": "Active",
       "overdue": "Overdue",

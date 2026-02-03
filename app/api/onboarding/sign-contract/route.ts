@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { signatureData, contractLengthMonths } = body;
+    const { signatureData, contractLengthMonths, profileData } = body;
 
     // Extract IP address from request headers
     const forwarded = request.headers.get("x-forwarded-for");
@@ -40,10 +40,21 @@ export async function POST(request: NextRequest) {
     if (result.success) {
       // Also update the contract length in user document
       const userRef = adminDb.collection("users").doc(session.user.id);
-      await userRef.update({
+      
+      const updateData: any = {
         contractLengthMonths: contractLengthMonths,
         contractStartDate: new Date(),
-      });
+      };
+
+      if (profileData) {
+        if (profileData.cpf) updateData.taxId = profileData.cpf;
+        if (profileData.phoneNumber) updateData.phoneNumber = profileData.phoneNumber;
+        if (profileData.address) updateData.address = profileData.address;
+        if (signatureData.name) updateData.name = signatureData.name;
+        if (signatureData.birthDate) updateData.birthDate = new Date(signatureData.birthDate);
+      }
+
+      await userRef.update(updateData);
 
       return NextResponse.json({
         success: true,

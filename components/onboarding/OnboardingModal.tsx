@@ -39,6 +39,17 @@ export interface OnboardingData {
   paymentMethod: "pix" | null;
   paymentCompleted: boolean;
   subscriptionId?: string;
+  cpf?: string;
+  phoneNumber?: string;
+  address?: {
+    street: string;
+    number: string;
+    complement?: string;
+    neighborhood: string;
+    city: string;
+    state: string;
+    zipCode: string;
+  };
 }
 
 export interface OnboardingStepProps {
@@ -279,7 +290,6 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
             </ModalSecondaryButton>
           )}
 
-          <div>
             <ModalPrimaryButton
               onClick={isLastStep ? handleCompleteOnboarding : handleNext}
               disabled={(!stepCompleted && !isActionStep) || isLoading}
@@ -289,7 +299,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               {!isLastStep && <ArrowRight className="w-4 h-4 ml-2" />}
               {isLastStep && <Check className="w-4 h-4 ml-2" />}
             </ModalPrimaryButton>
-          </div>
+          
         </ModalFooter>
       </ModalContent>
     </Modal>

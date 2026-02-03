@@ -79,6 +79,7 @@ export interface SignatureFormData {
   cpf: string;
   name: string;
   birthDate: string;
+  phoneNumber?: string;
   address: string;
   city: string;
   state: string;

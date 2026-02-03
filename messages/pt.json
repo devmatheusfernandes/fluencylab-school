@@ -2079,6 +2079,7 @@
     "canceling": "Cancelando...",
     "dueDate": "Vencimento:",
     "paymentDate": "Data do Pagamento:",
+    "value": "Valor:",
     "status": {
       "active": "Ativa",
       "overdue": "Em atraso",

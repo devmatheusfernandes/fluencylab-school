@@ -48,6 +48,7 @@ export type User = {
   birthDate?: Date; //Required
   gender?: "male" | "female";
   phoneNumber?: string;
+  taxId?: string; // CPF
 
   // Guardian info for minors (GUARDED_STUDENT)
   guardian?: {

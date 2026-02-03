@@ -985,10 +985,17 @@ export class SubscriptionService {
 
     const expiresInSeconds =
       ABACATEPAY_CONFIG.PIX_EXPIRATION_DAYS * 24 * 60 * 60;
+    
     const qr = await createAbacatePayPixQrCode({
       amountCents: payment.amount,
       expiresInSeconds,
       description: payment.description.slice(0, 37),
+      customer: {
+        name: user.name,
+        email: user.email,
+        taxId: user.taxId,
+        cellphone: user.phoneNumber,
+      },
       metadata: {
         subscription_id: subscriptionId,
         user_id: subscription.userId,
