@@ -2737,6 +2737,39 @@
   "AdminDashboard": {
     "title": "Dashboard",
     "subtitle": "System overview and key metrics.",
+    "systemStatus": "System Status",
+    "firebase": {
+      "title": "Firebase Usage (Firestore)",
+      "description": "Read and write monitoring.",
+      "status": {
+        "connected": "Monitoring Active"
+      },
+      "estimatedCost": "Estimated Cost (MTD)",
+      "planType": "Current Plan",
+      "reads": "Reads",
+      "writes": "Writes",
+      "viewBilling": "View Google Cloud Billing",
+      "permissionError": "Permission Denied: Service Account needs 'Monitoring Viewer' role in Google Cloud.",
+      "genericError": "Error fetching metrics."
+    },
+    "resend": {
+      "title": "Email Usage (Resend)",
+      "description": "Sending quota monitoring.",
+      "status": {
+        "connected": "Connected",
+        "error": "Connection Error",
+        "restricted": "Restricted Access",
+        "noData": "Connected (No Data)"
+      },
+      "restrictedMessage": "Your API key allows sending only. To view quotas, use a 'Full Access' key.",
+      "noDataMessage": "Resend only sends quota data in email sending responses. Check the official dashboard for accurate data.",
+      "dailyUsage": "Daily Quota",
+      "monthlyUsage": "Monthly Quota",
+      "limit": {
+        "unknown": "Unlimited/Unknown"
+      },
+      "viewDashboard": "View Full Dashboard"
+    },
     "overview": {
       "title": "Overview",
       "description": "Summary of today's key metrics."

@@ -16,6 +16,11 @@ const withPWA = require("@ducanh2912/next-pwa").default({
 });
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: [
+    "@google-cloud/monitoring",
+    "google-gax",
+    "@grpc/grpc-js",
+  ],
   images: {
     remotePatterns: [
       {

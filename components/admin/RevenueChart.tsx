@@ -57,39 +57,51 @@ export default function RevenueChart({ data, isLoading }: RevenueChartProps) {
         </div>
       </div>
 
-      <div className="w-full h-[240px] min-w-0 min-h-[240px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={data}
-            margin={{ top: 0, right: 0, left: -25, bottom: 0 }}
-            barSize={32}
+      <div className="w-full h-[240px] relative min-w-0">
+        <div className="absolute inset-0">
+          {/* CORREÇÃO FINAL:
+             1. debounce={1}: Espera o layout estabilizar antes de medir.
+             2. minHeight={0}: Impede erro se a altura for 0 durante a animação.
+          */}
+          <ResponsiveContainer
+            width="100%"
+            height="100%"
+            minWidth={0}
+            minHeight={0}
+            debounce={1}
           >
-            <XAxis
-              dataKey="month"
-              fontSize={11}
-              tickLine={false}
-              axisLine={false}
-              tick={{ fill: "var(--muted-foreground)", dy: 10 }}
-            />
-            <YAxis
-              fontSize={11}
-              tickLine={false}
-              axisLine={false}
-              tickFormatter={(value) => `R$${value / 1000}k`}
-              tick={{ fill: "var(--muted-foreground)" }}
-            />
-            <Tooltip
-              cursor={{ fill: "var(--muted)", fillOpacity: 0.3, radius: 4 }}
-              content={<MinimalTooltip locale={locale} />}
-            />
-            <Bar
-              dataKey="revenue"
-              fill="var(--primary)"
-              radius={[4, 4, 4, 4]}
-              className="opacity-90 hover:opacity-100 transition-opacity"
-            />
-          </BarChart>
-        </ResponsiveContainer>
+            <BarChart
+              data={data}
+              margin={{ top: 0, right: 0, left: -25, bottom: 0 }}
+              barSize={32}
+            >
+              <XAxis
+                dataKey="month"
+                fontSize={11}
+                tickLine={false}
+                axisLine={false}
+                tick={{ fill: "var(--muted-foreground)", dy: 10 }}
+              />
+              <YAxis
+                fontSize={11}
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(value) => `R$${value / 1000}k`}
+                tick={{ fill: "var(--muted-foreground)" }}
+              />
+              <Tooltip
+                cursor={{ fill: "var(--muted)", fillOpacity: 0.3, radius: 4 }}
+                content={<MinimalTooltip locale={locale} />}
+              />
+              <Bar
+                dataKey="revenue"
+                fill="var(--primary)"
+                radius={[4, 4, 4, 4]}
+                className="opacity-90 hover:opacity-100 transition-opacity"
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </Card>
   );

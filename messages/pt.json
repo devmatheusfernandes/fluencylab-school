@@ -2736,6 +2736,39 @@
   "AdminDashboard": {
     "title": "Painel de Controle",
     "subtitle": "Visão geral do sistema e métricas principais.",
+    "systemStatus": "Status do Sistema",
+    "firebase": {
+      "title": "Uso do Firebase (Firestore)",
+      "description": "Monitoramento de leituras e escritas.",
+      "status": {
+        "connected": "Monitoramento Ativo"
+      },
+      "estimatedCost": "Custo Estimado (Mês)",
+      "planType": "Plano Atual",
+      "reads": "Leituras",
+      "writes": "Escritas",
+      "viewBilling": "Ver Faturamento Google Cloud",
+      "permissionError": "Permissão Negada: A conta de serviço precisa da função 'Monitoring Viewer' no Google Cloud.",
+      "genericError": "Erro ao buscar métricas."
+    },
+    "resend": {
+      "title": "Uso de E-mail (Resend)",
+      "description": "Monitoramento de cotas de envio.",
+      "status": {
+        "connected": "Conectado",
+        "error": "Erro de Conexão",
+        "restricted": "Acesso Restrito",
+        "noData": "Conectado (Sem dados)"
+      },
+      "restrictedMessage": "Sua chave de API permite apenas envio. Para ver as cotas, use uma chave 'Full Access'.",
+      "noDataMessage": "O Resend envia dados de cota apenas nas respostas de envio de e-mail. Verifique o painel oficial para dados precisos.",
+      "dailyUsage": "Cota Diária",
+      "monthlyUsage": "Cota Mensal",
+      "limit": {
+        "unknown": "Ilimitado/Desconhecido"
+      },
+      "viewDashboard": "Ver Painel Completo"
+    },
     "overview": {
       "title": "Visão Geral",
       "description": "Resumo das métricas principais de hoje."
