@@ -127,7 +127,7 @@ export default function CreateCoursePage() {
       if (!res.ok) throw new Error("Falha na API");
 
       toast.success(t("toasts.success"), { id: toastId });
-      router.push("/hub/admin/courses");
+      router.push("/hub/admin/courses/create");
     } catch (error) {
       console.error("Error creating course: ", error);
       toast.error(t("toasts.error"), { id: toastId });
