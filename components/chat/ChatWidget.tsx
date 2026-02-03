@@ -14,7 +14,14 @@ import {
   ChannelPreviewUIComponentProps,
   useTypingContext,
 } from "stream-chat-react";
-import { Menu, ArrowLeft, Image as ImageIcon, FileText, X, PanelRight } from "lucide-react";
+import {
+  Menu,
+  ArrowLeft,
+  Image as ImageIcon,
+  FileText,
+  X,
+  PanelRight,
+} from "lucide-react";
 import "./chat.css";
 
 import { useChatContacts } from "@/hooks/communication/useChatContacts";
@@ -95,23 +102,23 @@ const MediaGalleryPanel = () => {
   const { channel } = useChatContext();
   const [mediaItems, setMediaItems] = useState<any[]>([]);
   const [selectedMedia, setSelectedMedia] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'images' | 'files'>('images');
+  const [activeTab, setActiveTab] = useState<"images" | "files">("images");
 
   useEffect(() => {
     if (!channel) return;
 
     const loadMedia = async () => {
       const messages = await channel.query({
-        messages: { limit: 100 }
+        messages: { limit: 100 },
       });
 
       const items = messages.messages
-        .flatMap(msg => msg.attachments || [])
-        .filter(att => {
-          if (activeTab === 'images') {
-            return att.type === 'image';
+        .flatMap((msg) => msg.attachments || [])
+        .filter((att) => {
+          if (activeTab === "images") {
+            return att.type === "image";
           }
-          return att.type === 'file';
+          return att.type === "file";
         });
 
       setMediaItems(items);
@@ -129,24 +136,24 @@ const MediaGalleryPanel = () => {
         <h2 className="font-bold text-lg mb-3">{t("sharedMedia")}</h2>
         <div className="flex gap-2">
           <button
-            onClick={() => setActiveTab('images')}
+            onClick={() => setActiveTab("images")}
             className={cn(
               "flex-1 py-2 px-4 rounded-lg transition-colors",
-              activeTab === 'images'
+              activeTab === "images"
                 ? "bg-primary text-primary-foreground"
-                : "bg-secondary/20 hover:bg-secondary/30"
+                : "bg-secondary/20 hover:bg-secondary/30",
             )}
           >
             <ImageIcon size={18} className="inline mr-2" />
             {t("images")}
           </button>
           <button
-            onClick={() => setActiveTab('files')}
+            onClick={() => setActiveTab("files")}
             className={cn(
               "flex-1 py-2 px-4 rounded-lg transition-colors",
-              activeTab === 'files'
+              activeTab === "files"
                 ? "bg-primary text-primary-foreground"
-                : "bg-secondary/20 hover:bg-secondary/30"
+                : "bg-secondary/20 hover:bg-secondary/30",
             )}
           >
             <FileText size={18} className="inline mr-2" />
@@ -157,7 +164,7 @@ const MediaGalleryPanel = () => {
 
       {/* Grid de Mídia */}
       <div className="flex-1 overflow-y-auto p-4">
-        {activeTab === 'images' ? (
+        {activeTab === "images" ? (
           <div className="grid grid-cols-3 gap-2">
             {mediaItems.map((item, idx) => (
               <button
@@ -197,7 +204,11 @@ const MediaGalleryPanel = () => {
 
         {mediaItems.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-            {activeTab === 'images' ? <ImageIcon size={48} /> : <FileText size={48} />}
+            {activeTab === "images" ? (
+              <ImageIcon size={48} />
+            ) : (
+              <FileText size={48} />
+            )}
             <p className="mt-2">{t("noMedia")}</p>
           </div>
         )}
@@ -227,7 +238,13 @@ const MediaGalleryPanel = () => {
 };
 
 // --- COMPONENTE: Header Personalizado ---
-const CustomChannelHeader = ({ onToggleGallery, showGallery }: { onToggleGallery?: () => void; showGallery?: boolean }) => {
+const CustomChannelHeader = ({
+  onToggleGallery,
+  showGallery,
+}: {
+  onToggleGallery?: () => void;
+  showGallery?: boolean;
+}) => {
   const t = useTranslations("ChatWidget");
   const { channel, client } = useChatContext();
   const { setActiveChannel } = useChatContext();
@@ -285,7 +302,9 @@ const CustomChannelHeader = ({ onToggleGallery, showGallery }: { onToggleGallery
           onClick={onToggleGallery}
           className={cn(
             "p-2 rounded-full transition-colors",
-            showGallery ? "bg-primary/20 text-primary" : "hover:bg-secondary/20 text-foreground"
+            showGallery
+              ? "bg-primary/20 text-primary"
+              : "hover:bg-secondary/20 text-foreground",
           )}
           title={t("mediaGallery")}
         >
@@ -360,8 +379,8 @@ const ChatLayout = () => {
           >
             <Window>
               <div className="flex flex-col min-h-[94vh] w-full overflow-hidden">
-                <div className="flex-none z-10 sm:border-none border-t border-primary/20">
-                  <CustomChannelHeader 
+                <div className="sticky top-0 flex-none z-10 sm:border-none border-t border-primary/20">
+                  <CustomChannelHeader
                     onToggleGallery={() => setShowGallery(!showGallery)}
                     showGallery={showGallery}
                   />
@@ -394,7 +413,7 @@ const ChatLayout = () => {
         <div
           className={cn(
             "border-l border-primary/20 bg-background h-full transition-all duration-300 ease-in-out",
-            isMobile ? "fixed inset-0 z-50 w-full" : "w-[320px] shrink-0"
+            isMobile ? "fixed inset-0 z-50 w-full" : "w-[320px] shrink-0",
           )}
         >
           {isMobile && (

@@ -42,20 +42,23 @@ export default function RescheduleModal({
 
   const getTranslatedLanguage = (lang: string) => {
     const lower = lang.toLowerCase();
-    if (lower === 'english' || lower === 'ingles' || lower === 'inglês') return tLanguages('english');
-    if (lower === 'spanish' || lower === 'espanhol') return tLanguages('spanish');
-    if (lower === 'libras') return tLanguages('libras');
-    if (lower === 'portuguese' || lower === 'portugues' || lower === 'português') return tLanguages('portuguese');
+    if (lower === "english" || lower === "ingles" || lower === "inglês")
+      return tLanguages("english");
+    if (lower === "spanish" || lower === "espanhol")
+      return tLanguages("spanish");
+    if (lower === "libras") return tLanguages("libras");
+    if (
+      lower === "portuguese" ||
+      lower === "portugues" ||
+      lower === "português"
+    )
+      return tLanguages("portuguese");
     return lang;
   };
 
-  const {
-    rescheduleClass,
-    fetchTeacherAvailability,
-    isLoading: isHookLoading,
-  } = useStudent();
+  const { rescheduleClass, isLoading: isHookLoading } = useStudent();
   const [selectedSlot, setSelectedSlot] = useState<AvailableTimeSlot | null>(
-    null
+    null,
   );
   const [reason, setReason] = useState("");
   const { availableSlots, isLoadingSlots } =
@@ -68,7 +71,7 @@ export default function RescheduleModal({
       classToReschedule.id,
       selectedSlot.date,
       reason,
-      selectedSlot.availabilitySlotId
+      selectedSlot.availabilitySlotId,
     );
     if (success) {
       onClose();
@@ -89,7 +92,7 @@ export default function RescheduleModal({
 
   return (
     <Modal open={isOpen} onOpenChange={onClose}>
-      <ModalContent>
+      <ModalContent className="max-h-[90vh] overflow-y-auto">
         <AnimatePresence mode="wait">
           <motion.div
             key="reschedule"
@@ -105,7 +108,9 @@ export default function RescheduleModal({
             {classToReschedule && (
               <ModalBody>
                 <Text variant="subtitle" size="sm" className="text-center mb-6">
-                  {t("selectNewTime", { teacherName: classToReschedule.teacherName ?? "" })}
+                  {t("selectNewTime", {
+                    teacherName: classToReschedule.teacherName ?? "",
+                  })}
                 </Text>
 
                 {isTeacherMakeupClass && (
@@ -119,8 +124,10 @@ export default function RescheduleModal({
                 <div className="text-center p-4 bg-primary/20 dark:bg-primary/20 rounded-xl border border-primary/80 dark:border-primary/80 mb-6">
                   <div className="text-sm text-blue-700 dark:text-blue-300 mt-1">
                     {t("rescheduleInfo", {
-                      language: getTranslatedLanguage(classToReschedule.language),
-                      date: formatDate(new Date(classToReschedule.scheduledAt))
+                      language: getTranslatedLanguage(
+                        classToReschedule.language,
+                      ),
+                      date: formatDate(new Date(classToReschedule.scheduledAt)),
                     })}
                   </div>
                 </div>
@@ -128,7 +135,7 @@ export default function RescheduleModal({
                 {isLoadingSlots ? (
                   <Spinner className="my-2" />
                 ) : (
-                  <div className="space-y-2 max-h-72 overflow-y-auto">
+                  <div className="space-y-2 max-h-[calc(90vh-200px)] overflow-y-auto">
                     {availableSlots.length > 0 ? (
                       availableSlots.map((slot) => (
                         <Card
@@ -143,10 +150,13 @@ export default function RescheduleModal({
                           <div className="p-4">
                             <div className="font-medium text-gray-900 dark:text-gray-100">
                               {formatDate(slot.date)} às{" "}
-                              {slot.date.toLocaleTimeString(locale === "pt" ? "pt-BR" : "en-US", {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
+                              {slot.date.toLocaleTimeString(
+                                locale === "pt" ? "pt-BR" : "en-US",
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                },
+                              )}
                             </div>
                           </div>
                         </Card>

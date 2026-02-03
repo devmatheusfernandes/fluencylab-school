@@ -9,23 +9,30 @@ import { Paperclip, Send, Mic, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CustomAudioRecorder } from "./CustomAudioRecorder";
 import { AnimatePresence, motion } from "framer-motion";
-import { ModalContent, ModalHeader, ModalIcon, ModalTitle, ModalDescription, ModalFooter, ModalSecondaryButton, ModalPrimaryButton, Modal } from "../ui/modal";
+import {
+  ModalContent,
+  ModalHeader,
+  ModalIcon,
+  ModalTitle,
+  ModalDescription,
+  ModalFooter,
+  ModalSecondaryButton,
+  ModalPrimaryButton,
+  Modal,
+} from "../ui/modal";
 
 export const PillMessageInput = () => {
   const { handleSubmit, recordingController } = useMessageInputContext();
   const messageComposer = useMessageComposer();
-  const {
-    isUploadEnabled,
-    attachments,
-    uploadsInProgressCount,
-  } = useAttachmentManagerState();
+  const { isUploadEnabled, attachments, uploadsInProgressCount } =
+    useAttachmentManagerState();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const hasAttachments = attachments.length > 0;
 
   const { recorder, recordingState } = recordingController;
   const recordingEnabled = !!(recorder && navigator.mediaDevices);
-  
+
   const isRecordingMode = !!recordingState;
   const [showPermissionModal, setShowPermissionModal] = useState(false);
 
@@ -75,8 +82,7 @@ export const PillMessageInput = () => {
   };
 
   return (
-    <div className="w-full px-4 pb-4 pt-2 bg-background/80 backdrop-blur-sm z-20">
-      
+    <div className="w-full px-1 pb-4 pt-2 bg-background/80 backdrop-blur-sm z-20">
       {!isRecordingMode && hasAttachments && (
         <div className="mb-2 flex flex-wrap gap-2 animate-in fade-in slide-in-from-bottom-2">
           {attachments.map((attachment) => (
@@ -137,11 +143,13 @@ export const PillMessageInput = () => {
                 className={cn(
                   // MUDANÇA: h-auto permite crescer, items-end alinha botões em baixo
                   "flex items-end gap-2 px-2 bg-secondary/30 border border-border/50",
-                  "rounded-[26px] shadow-sm transition-all duration-200 min-h-[54px]"
+                  "rounded-[26px] shadow-sm transition-all duration-200 min-h-[54px]",
                 )}
               >
                 {/* LADO ESQUERDO: ANEXO */}
-                <div className="flex flex-col justify-end h-full pb-[9px]"> {/* Padding ajustado para alinhar com texto */}
+                <div className="flex flex-col justify-end h-full pb-[9px]">
+                  {" "}
+                  {/* Padding ajustado para alinhar com texto */}
                   {isUploadEnabled && (
                     <>
                       <input
@@ -158,7 +166,8 @@ export const PillMessageInput = () => {
                         className={cn(
                           "flex items-center justify-center w-9 h-9 rounded-full shrink-0",
                           "text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors",
-                          uploadsInProgressCount > 0 && "opacity-50 cursor-not-allowed",
+                          uploadsInProgressCount > 0 &&
+                            "opacity-50 cursor-not-allowed",
                         )}
                         type="button"
                       >
@@ -169,19 +178,21 @@ export const PillMessageInput = () => {
                 </div>
 
                 {/* CENTRO: ÁREA DE TEXTO */}
-                <div className="flex-1 min-w-0 py-[14px]"> {/* Padding vertical consistente */}
+                <div className="flex-1 min-w-0 py-[14px]">
+                  {" "}
+                  {/* Padding vertical consistente */}
                   <TextareaComposer
                     className={cn(
                       "w-full bg-transparent resize-none outline-none align-bottom",
                       "text-sm placeholder:text-muted-foreground leading-relaxed",
                       // Scrollbar sutil se o texto for muito grande
                       "scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-muted-foreground/20",
-                      "max-h-[150px] overflow-y-auto" 
+                      "max-h-[150px] overflow-y-auto",
                     )}
                     placeholder="Digite sua mensagem..."
                     rows={1}
                     // Importante para o auto-grow funcionar corretamente na Stream
-                    maxRows={10} 
+                    maxRows={10}
                   />
                 </div>
 

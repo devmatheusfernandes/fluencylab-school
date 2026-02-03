@@ -21,9 +21,37 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor }) => {
   const [hiddenButtons, setHiddenButtons] = useState<string[]>([]);
   const toolbarRef = useRef<HTMLDivElement>(null);
   const { data: session } = useSession();
-  
+
   // Configuração compartilhada de botões
   const allButtons: ToolItem[] = TOOL_ITEMS;
+
+  // Ajuste para teclado em mobile/PWA (iOS principalmente)
+  const [viewportOffset, setViewportOffset] = useState(0);
+
+  useEffect(() => {
+    if (!window.visualViewport) return;
+
+    const handler = () => {
+      const vv = window.visualViewport;
+      if (!vv) return;
+
+      // Calcula a distância entre o fundo do visual viewport e o layout viewport
+      // Isso compensa quando o teclado sobe mas o layout viewport não encolhe (iOS overlay)
+      const offset = window.innerHeight - vv.height - vv.offsetTop;
+
+      setViewportOffset(Math.max(0, offset));
+    };
+
+    window.visualViewport.addEventListener("resize", handler);
+    window.visualViewport.addEventListener("scroll", handler);
+
+    handler();
+
+    return () => {
+      window.visualViewport?.removeEventListener("resize", handler);
+      window.visualViewport?.removeEventListener("scroll", handler);
+    };
+  }, []);
 
   useEffect(() => {
     const calculateVisibleButtons = () => {
@@ -81,18 +109,37 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor }) => {
     if (!button) return null;
 
     if (button.isDivider) {
-      const DividerComp = button.component as React.ComponentType<Record<string, unknown>>;
+      const DividerComp = button.component as React.ComponentType<
+        Record<string, unknown>
+      >;
       return <DividerComp key={buttonId} {...(button.props || {})} />;
     }
-    const EditorComp = button.component as React.ComponentType<{ editor: Editor } & Record<string, unknown>>;
-    const extraProps = button.id === "toolsSheet"
-      ? { onOpenDialog: (toolId: string) => setOpenModalId(toolId), modalTools: Object.keys(MODAL_COMPONENTS), side: "bottom" as const }
-      : {};
-    return <EditorComp key={buttonId} editor={editor} {...(button.props || {})} {...extraProps} />;
+    const EditorComp = button.component as React.ComponentType<
+      { editor: Editor } & Record<string, unknown>
+    >;
+    const extraProps =
+      button.id === "toolsSheet"
+        ? {
+            onOpenDialog: (toolId: string) => setOpenModalId(toolId),
+            modalTools: Object.keys(MODAL_COMPONENTS),
+            side: "bottom" as const,
+          }
+        : {};
+    return (
+      <EditorComp
+        key={buttonId}
+        editor={editor}
+        {...(button.props || {})}
+        {...extraProps}
+      />
+    );
   };
 
   return (
-    <div className="fixed -bottom-0.5 left-0 right-0 z-50">
+    <div
+      className="fixed -bottom-0.5 left-0 right-0 z-50 transition-all duration-100 ease-out"
+      style={{ bottom: viewportOffset > 0 ? viewportOffset : undefined }}
+    >
       {/* Camada expandida (animada) */}
       <AnimatePresence>
         {isExpanded && (
@@ -125,20 +172,21 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor }) => {
                   {renderButton(buttonId)}
                 </motion.div>
               ))}
-              {session?.user.role === 'teacher' && (
-              <motion.div
-                key="tools-sheet-expanded"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-              >
-                <ToolbarToolsSheet
-                  onOpenDialog={(toolId) => setOpenModalId(toolId)}
-                  modalTools={Object.keys(MODAL_COMPONENTS)}
-                  side="bottom"
-                />
-              </motion.div>)}
+              {session?.user.role === "teacher" && (
+                <motion.div
+                  key="tools-sheet-expanded"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                >
+                  <ToolbarToolsSheet
+                    onOpenDialog={(toolId) => setOpenModalId(toolId)}
+                    modalTools={Object.keys(MODAL_COMPONENTS)}
+                    side="bottom"
+                  />
+                </motion.div>
+              )}
 
               <motion.div
                 key="theme-switcher-expanded"
@@ -165,7 +213,13 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor }) => {
         <div className="p-1 flex items-center justify-between gap-2">
           {/* Esquerda */}
           <div className="flex items-center gap-1 min-w-0">
-            <BackButton href={session?.user.role === 'teacher' ? "/hub/teacher/my-notebook" : "/hub/student/my-notebook"} />
+            <BackButton
+              href={
+                session?.user.role === "teacher"
+                  ? "/hub/teacher/my-notebook"
+                  : "/hub/student/my-notebook"
+              }
+            />
           </div>
 
           {/* Centro */}
@@ -194,14 +248,17 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor }) => {
           </div>
         </div>
       </motion.div>
-      {openModalId && (
+      {openModalId &&
         (() => {
           const ActiveModal = MODAL_COMPONENTS[openModalId!];
           return ActiveModal ? (
-            <ActiveModal isOpen={true} onClose={() => setOpenModalId(null)} editor={editor} />
+            <ActiveModal
+              isOpen={true}
+              onClose={() => setOpenModalId(null)}
+              editor={editor}
+            />
           ) : null;
-        })()
-      )}
+        })()}
     </div>
   );
 };

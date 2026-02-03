@@ -15,7 +15,12 @@ import CollaborationCaret from "@tiptap/extension-collaboration-caret";
 import * as Y from "yjs";
 import { ImageUploadNode } from "@/components/tiptap-node/image-upload-node";
 import { Image } from "@tiptap/extension-image";
-import { MAX_FILE_SIZE, handleImageUpload, extractImageSrcsFromHtml, deleteImageByUrl } from "@/lib/ui/tiptapUtils";
+import {
+  MAX_FILE_SIZE,
+  handleImageUpload,
+  extractImageSrcsFromHtml,
+  deleteImageByUrl,
+} from "@/lib/ui/tiptapUtils";
 import Placeholder from "@tiptap/extension-placeholder";
 import Toolbar from "./toolbar/toolbar";
 import { TaskList, TaskItem } from "@tiptap/extension-list";
@@ -99,7 +104,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         }
       }, autoSaveDelay);
     },
-    [onSave, autoSaveDelay]
+    [onSave, autoSaveDelay],
   );
 
   const editor = useEditor({
@@ -248,7 +253,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
 
   return (
     <div className={`bg-white dark:bg-black ${className}`}>
-      <div className="relative h-screen overflow-y-auto no-scrollbar">
+      <div className="relative h-[100dvh] overflow-y-auto no-scrollbar">
         {!isMobile && (
           <Toolbar
             editor={editor}
@@ -256,21 +261,22 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
             onTitleChange={onTitleChange}
             studentID={studentID}
             notebookId={notebookId || docId}
-          />)}
+          />
+        )}
         <Bubble editor={editor} />
-        <EditorContent
-          editor={editor}
-          className="min-h-screen no-scrollbar"
-        /> 
-        
+        <EditorContent editor={editor} className="min-h-screen no-scrollbar" />
+
+        {/* Spacer para garantir que o conteúdo não fique escondido atrás da BottomToolbar em mobile */}
+        {isMobile && <div className="h-20" />}
+
         {session?.user.role === "student" && (
           <FloatStudentCallButton student={{ studentID }} />
         )}
 
         {session?.user.role === "teacher" && (
-          <FloatTeacherCallButton student={ studentID } />
+          <FloatTeacherCallButton student={studentID} />
         )}
-        
+
         <CommentsSheet editor={editor} docId={docId || "test-comments"} />
       </div>
       {isMobile && <BottomToolbar editor={editor} />}

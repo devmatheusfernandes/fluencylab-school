@@ -31,6 +31,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   viewportFit: "cover",
   userScalable: false,
+  interactiveWidget: "resizes-content",
 };
 
 export default async function RootLayout({
