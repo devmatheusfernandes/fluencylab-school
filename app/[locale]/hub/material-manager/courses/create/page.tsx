@@ -127,7 +127,7 @@ export default function CreateCoursePage() {
       if (!res.ok) throw new Error("Falha na API");
 
       toast.success(t("toasts.success"), { id: toastId });
-      router.push(`/[locale]/hub/material-manager/courses`);
+      router.push(`/hub/material-manager/courses`);
     } catch (error) {
       console.error("Error creating course: ", error);
       toast.error(t("toasts.error"), { id: toastId });
@@ -160,7 +160,7 @@ export default function CreateCoursePage() {
             <Header
               heading={t("title")}
               subheading={t("subtitle")}
-              backHref={`/[locale]/hub/material-manager/courses`}
+              backHref={`/hub/material-manager/courses`}
             />
           </div>
           <div className="hidden md:block">

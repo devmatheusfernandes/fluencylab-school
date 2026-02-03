@@ -1,17 +1,17 @@
 // app/components/LessonDisplay.tsx
-import React from 'react';
+import React from "react";
 import { useTranslations } from "next-intl";
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { markdownComponents } from './MarkdownComponents';
-import { Paperclip } from 'lucide-react';
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { markdownComponents } from "./MarkdownComponents";
+import { Paperclip } from "lucide-react";
 import {
   Attachment,
   LessonContentBlock,
   QuizQuestion,
   TextContentBlock,
   VideoContentBlock,
-} from '../../types/quiz/types';
+} from "../../types/quiz/types";
 
 interface LessonDisplayProps {
   lesson: {
@@ -26,7 +26,7 @@ interface LessonDisplayProps {
 const YouTubeEmbed: React.FC<{ url: string }> = ({ url }) => {
   // Extrai ID do vídeo da URL ou retorna null se inválido
   const getVideoId = (url: string) => {
-    if (!url.includes('youtube.com') && !url.includes('youtu.be')) {
+    if (!url.includes("youtube.com") && !url.includes("youtu.be")) {
       return null;
     }
     const regExp =
@@ -37,7 +37,7 @@ const YouTubeEmbed: React.FC<{ url: string }> = ({ url }) => {
 
   const videoId = getVideoId(url);
   if (!videoId) {
-    if (!url || url.trim() === '') {
+    if (!url || url.trim() === "") {
       return null;
     }
     // Se não for URL do YouTube, tenta exibir iframe direto (por exemplo, Vimeo ou outro)
@@ -74,20 +74,20 @@ const LessonDisplay: React.FC<LessonDisplayProps> = ({ lesson }) => {
     <div className="space-y-8 mb-3">
       {lesson.contentBlocks.map((block) => (
         <div key={block.id} className="last:mb-0">
-          {block.type === 'video' && (
-            <div className="aspect-video rounded-lg overflow-hidden bg-fluency-gray-800">
+          {block.type === "video" && (
+            <div className="aspect-video rounded-lg overflow-hidden">
               {/* Usar componente YouTubeEmbed */}
-              <YouTubeEmbed url={(block as VideoContentBlock).url || ''} />
+              <YouTubeEmbed url={(block as VideoContentBlock).url || ""} />
             </div>
           )}
 
-          {block.type === 'text' && (
-            <div className="prose max-w-none text-fluency-text-light dark:text-fluency-text-dark">
+          {block.type === "text" && (
+            <div className="prose max-w-none text-text-light">
               <ReactMarkdown
                 components={markdownComponents}
                 remarkPlugins={[remarkGfm]}
               >
-                {(block as TextContentBlock).content || ''}
+                {(block as TextContentBlock).content || ""}
               </ReactMarkdown>
             </div>
           )}

@@ -145,7 +145,7 @@ export default function AdminCoursesPage() {
             headingSize="3xl"
           />
 
-          <Link href={`/[locale]/hub/material-manager/courses/create`}>
+          <Link href={`/hub/material-manager/courses/create`}>
             <Button className="w-full md:w-auto gap-2">
               <Plus className="w-4 h-4 mr-1" />
               {t("newCourse")}
@@ -274,7 +274,7 @@ export default function AdminCoursesPage() {
                       <TableCell className="text-right pr-6">
                         <div className="flex items-center justify-end gap-2">
                           <Link
-                            href={`/[locale]/hub/material-manager/courses/edit?id=${course.id}`}
+                            href={`/hub/material-manager/courses/edit?id=${course.id}`}
                           >
                             <Button
                               variant="ghost"

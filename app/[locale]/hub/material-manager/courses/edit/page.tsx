@@ -117,7 +117,7 @@ export default function EditCourseForm() {
       const res = await fetch(`/api/admin/courses/${courseId}`);
       if (!res.ok) {
         toast.error(t("toasts.notFound"));
-        router.push(`/[locale]/hub/material-manager/courses`);
+        router.push(`/hub/material-manager/courses`);
         return;
       }
       const data = await res.json();
@@ -141,7 +141,7 @@ export default function EditCourseForm() {
     }
     if (!courseId) {
       toast.error(t("toasts.noId"));
-      router.push(`/[locale]/hub/material-manager/courses`);
+      router.push(`/hub/material-manager/courses`);
       return;
     }
     fetchCourseAndContent();
@@ -543,7 +543,7 @@ export default function EditCourseForm() {
                 : t("loading")
             }
             headingSize="3xl"
-            backHref={`/[locale]/hub/material-manager/courses`}
+            backHref={`/hub/material-manager/courses`}
           />
           <div className="flex items-center gap-2">
             {savingCourseDetails && (

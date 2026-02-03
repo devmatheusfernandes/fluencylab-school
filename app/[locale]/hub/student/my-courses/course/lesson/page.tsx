@@ -1,34 +1,60 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-// Firestore removido do cliente; dados agora vêm de APIs
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  CheckCircle,
   ArrowLeft,
   ArrowRight,
   Check,
-  Loader,
+  CheckCircle,
+  Loader2,
+  Share2,
+  Bookmark,
   PlayCircle,
-  BookOpen,
+  Lock,
 } from "lucide-react";
-import { Toaster, toast } from "sonner";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Container } from "@/components/ui/container";
 import { Badge } from "@/components/ui/badge";
 
-import { Enrollment, Lesson, QuizResult, Section } from "@/types/quiz/types";
-// Firestore removido do cliente
-import LessonDisplay from "@/components/course/LessonDisplay";
-import QuizComponent from "@/components/course/QuizComponent";
+import {
+  Enrollment,
+  Lesson,
+  QuizResult,
+  Section,
+  VideoContentBlock,
+} from "@/types/quiz/types";
+import { VideoPlayer } from "@/components/course/lesson/VideoPlayer";
+import { LessonSidebar } from "@/components/course/lesson/LessonSidebar";
+import { LessonContent } from "@/components/course/lesson/LessonContent";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+
+// --- MOTION VARIANTS ---
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.4, ease: "easeOut" as const },
+  },
+};
 
 export default function LessonPageContent() {
   const t = useTranslations("LessonPage");
@@ -38,15 +64,17 @@ export default function LessonPageContent() {
   const courseId = searchParams.get("courseId");
   const lessonId = searchParams.get("lessonId");
 
-  // --- STATES (Lógica Original Mantida) ---
+  // --- STATES ---
   const [lesson, setLesson] = useState<Lesson | null>(null);
+  const [courseSections, setCourseSections] = useState<Section[]>([]);
   const [enrollment, setEnrollment] = useState<Enrollment | null>(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [markingComplete, setMarkingComplete] = useState(false);
   const [nextLessonId, setNextLessonId] = useState<string | null>(null);
   const [savedQuizData, setSavedQuizData] = useState<QuizResult | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // --- USE EFFECTS (Lógica Original Mantida) ---
+  // --- USE EFFECTS ---
   useEffect(() => {
     if (!courseId || !lessonId) {
       toast.error(t("invalidIds"));
@@ -56,16 +84,19 @@ export default function LessonPageContent() {
 
     const fetchData = async () => {
       if (!session?.user?.id) return;
+      setIsLoading(true);
       setNextLessonId(null);
+
       try {
         const res = await fetch(`/api/student/courses/${courseId}`);
-        if (!res.ok) {
-          throw new Error(t("loadCourseError"));
-        }
+        if (!res.ok) throw new Error(t("loadCourseError"));
+
         const { sections, enrollment: currentEnrollment } = await res.json();
+        setCourseSections(sections as Section[]);
+
         if (!currentEnrollment) {
           toast.error(t("notEnrolled"));
-          router.push(`/[locale]/hub/student/my-courses/course?id=${courseId}`);
+          router.push(`/hub/student/my-courses/course?id=${courseId}`);
           return;
         }
         setEnrollment(currentEnrollment as Enrollment);
@@ -76,7 +107,7 @@ export default function LessonPageContent() {
 
         for (const sectionData of sections as Section[]) {
           const foundLesson = (sectionData.lessons || []).find(
-            (l) => l.id === lessonId,
+            (l: Lesson) => l.id === lessonId,
           );
           if (foundLesson) {
             lessonData = { ...foundLesson, sectionId: sectionData.id };
@@ -87,13 +118,14 @@ export default function LessonPageContent() {
 
         if (!lessonData || !currentSection) {
           toast.error(t("lessonNotFound"));
-          router.push(`/[locale]/hub/student/my-courses/course?id=${courseId}`);
+          router.push(`/hub/student/my-courses/course?id=${courseId}`);
           return;
         }
         setLesson(lessonData);
 
+        // Calculate Next Lesson Logic
         const currentLessonIndex = (currentSection.lessons || []).findIndex(
-          (l) => l.id === lessonId,
+          (l: Lesson) => l.id === lessonId,
         );
         const sectionsArr = sections as Section[];
         const currentSectionIndex = sectionsArr.findIndex(
@@ -111,14 +143,16 @@ export default function LessonPageContent() {
       } catch (error) {
         console.error("Error fetching lesson data: ", error);
         toast.error(t("loadLessonError"));
-        router.push(`/[locale]/hub/student/my-courses/course?id=${courseId}`);
+        router.push(`/hub/student/my-courses/course?id=${courseId}`);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     if (session?.user?.id) {
       fetchData();
     }
-  }, [session, router, courseId, lessonId]);
+  }, [session, router, courseId, lessonId, t]);
 
   useEffect(() => {
     const fetchSavedQuizData = async () => {
@@ -129,9 +163,7 @@ export default function LessonPageContent() {
         );
         if (res.ok) {
           const data = await res.json();
-          if (data) {
-            setSavedQuizData(data as QuizResult);
-          }
+          if (data) setSavedQuizData(data as QuizResult);
         }
       } catch (error) {
         console.error("Erro ao buscar dados salvos do quiz:", error);
@@ -140,35 +172,47 @@ export default function LessonPageContent() {
     fetchSavedQuizData();
   }, [session?.user?.id, courseId, lessonId]);
 
-  // --- HANDLERS (Lógica Original Mantida) ---
-  const handleMarkComplete = async () => {
-    if (
-      !courseId ||
-      !lessonId ||
-      !session?.user?.id ||
-      markingComplete ||
-      isCompleted ||
-      !enrollment
-    )
+  // --- HANDLERS ---
+  const handleMarkComplete = async (specificLessonId?: string) => {
+    const targetLessonId = specificLessonId || lessonId;
+    if (!courseId || !targetLessonId || !session?.user?.id || !enrollment)
       return;
-    setMarkingComplete(true);
+
+    // If marking the current lesson, check specific loading/completed states
+    if (targetLessonId === lessonId) {
+      if (markingComplete || isCompleted) return;
+      setMarkingComplete(true);
+    } else {
+      // Check if already completed in enrollment data to avoid duplicate requests
+      if (enrollment.progress?.[targetLessonId]) return;
+    }
+
     const toastId = toast.loading(t("markingComplete"));
 
     try {
       const res = await fetch(`/api/student/courses/${courseId}/progress`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lessonId }),
+        body: JSON.stringify({ lessonId: targetLessonId }),
       });
-      if (!res.ok) {
-        throw new Error(t("markCompleteError"));
-      }
-      const newProgress = { ...(enrollment.progress || {}), [lessonId]: true };
+
+      if (!res.ok) throw new Error(t("markCompleteError"));
+
+      const newProgress = {
+        ...(enrollment.progress || {}),
+        [targetLessonId]: true,
+      };
       setEnrollment((prev) =>
         prev ? { ...prev, progress: newProgress } : null,
       );
-      setIsCompleted(true);
+
+      // Only update local isCompleted state if we modified the current lesson
+      if (targetLessonId === lessonId) {
+        setIsCompleted(true);
+      }
+
       toast.success(t("markCompleteSuccess"), { id: toastId });
+
       const json = await res.json();
       if (json?.courseCompleted) {
         toast.success(t("courseCompletedSuccess"));
@@ -177,17 +221,19 @@ export default function LessonPageContent() {
       console.error("Erro ao marcar como concluída: ", error);
       toast.error(t("markCompleteError"), { id: toastId });
     } finally {
-      setMarkingComplete(false);
+      if (targetLessonId === lessonId) {
+        setMarkingComplete(false);
+      }
     }
   };
 
   const handleNavigateNext = () => {
     if (nextLessonId) {
       router.push(
-        `/[locale]/hub/student/my-courses/course/lesson?courseId=${courseId}&lessonId=${nextLessonId}`,
+        `/hub/student/my-courses/course/lesson?courseId=${courseId}&lessonId=${nextLessonId}`,
       );
     } else {
-      router.push(`/[locale]/hub/student/my-courses/course?id=${courseId}`);
+      router.push(`/hub/student/my-courses/course?id=${courseId}`);
     }
   };
 
@@ -206,6 +252,7 @@ export default function LessonPageContent() {
         correct: quizResults.correct,
         lessonTitle: lesson?.title || "",
       };
+
       const res = await fetch(
         `/api/student/quiz-results/${courseId}/${lessonId}`,
         {
@@ -214,129 +261,157 @@ export default function LessonPageContent() {
           body: JSON.stringify(quizData),
         },
       );
+
       if (!res.ok) throw new Error("Erro ao salvar resultados do quiz.");
+
+      if (!isCompleted) handleMarkComplete();
     } catch (error) {
       console.error("Error saving quiz results:", error);
       toast.error("Erro ao salvar resultados do quiz.");
     }
   };
 
-  // --- LOADING STATE ---
-  if (!lesson) {
+  // --- SKELETON LOADER (Matching Layout) ---
+  if (isLoading || !lesson) {
     return (
-      <Container className="p-4 md:p-8 max-w-4xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-6 w-32" />
-          <Skeleton className="h-6 w-6 rounded-full" />
+      <div className="min-h-screen p-4 md:p-8 space-y-6">
+        {/* Header Skeleton */}
+        <div className="flex items-center justify-between max-w-[1400px] mx-auto w-full mb-8">
+          <div className="flex gap-4 items-center">
+            <Skeleton className="h-8 w-8 rounded-full  " />
+            <Skeleton className="h-6 w-32  " />
+          </div>
+          <Skeleton className="h-9 w-24 rounded-full  " />
         </div>
-        <Skeleton className="h-10 w-3/4" />
-        <Skeleton className="h-[500px] w-full rounded-xl" />
-      </Container>
+
+        {/* Main Grid Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-8 max-w-[1400px] mx-auto w-full">
+          {/* Left Column Skeleton */}
+          <div className="space-y-6">
+            <Skeleton className="w-full aspect-video rounded-2xl  /50" />{" "}
+            {/* Video */}
+            <div className="flex items-center justify-between p-4 rounded-xl   border border-border">
+              <div className="flex gap-4 items-center">
+                <Skeleton className="h-10 w-10 rounded-full  " />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-32  " />
+                  <Skeleton className="h-3 w-20  /70" />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Skeleton className="h-8 w-8 rounded-md  " />
+                <Skeleton className="h-8 w-8 rounded-md  " />
+              </div>
+            </div>
+            <div className="space-y-3 pt-4">
+              <Skeleton className="h-6 w-1/3  " />
+              <Skeleton className="h-4 w-full  /70" />
+              <Skeleton className="h-4 w-full  /70" />
+              <Skeleton className="h-4 w-2/3  /70" />
+            </div>
+          </div>
+
+          {/* Right Column Skeleton (Sidebar) */}
+          <div className="hidden lg:flex flex-col gap-6">
+            <Skeleton className="h-40 w-full rounded-xl   border border-border" />{" "}
+            {/* Progress Widget */}
+            <div className="space-y-3">
+              <Skeleton className="h-8 w-2/3   rounded-md mb-2" />
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Skeleton
+                  key={i}
+                  className="h-16 w-full rounded-xl   border border-border"
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 
-  // --- RENDER ---
+  // --- DATA PREPARATION ---
+  const firstVideoBlock = lesson.contentBlocks.find(
+    (b) => b.type === "video",
+  ) as VideoContentBlock | undefined;
+  const videoUrl = firstVideoBlock?.url;
+  const completedLessonIds = enrollment?.progress
+    ? Object.keys(enrollment.progress)
+    : [];
+
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      {/* Header Fixo/Sticky para Desktop */}
-      <div className="sticky top-0 z-30 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-        <div className="container max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
+    <div className="flex flex-col min-h-screen bg-background text-foreground transition-colors duration-300">
+      {/* HEADER */}
+      <motion.div
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="sticky top-0 z-40 w-full bg-background/80 backdrop-blur-md border-b border-border supports-[backdrop-filter]:bg-background/60"
+      >
+        <div className="container max-w-[1400px] mx-auto px-4 h-16 flex items-center justify-between">
           <Link
-            href={`/[locale]/hub/student/my-courses/course?id=${courseId}`}
-            className="text-sm font-medium text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+            href={`/hub/student/my-courses/course?id=${courseId}`}
+            className="text-sm font-medium text-muted-foreground hover:text-foreground flex items-center gap-2 transition-colors group"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center group-hover:bg-primary/10 group-hover:text-primary transition-all">
+              <ArrowLeft className="w-4 h-4" />
+            </div>
             <span className="hidden sm:inline">{t("backToCourse")}</span>
           </Link>
 
-          {isCompleted && (
-            <Badge
-              variant="success"
-              className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-100 hover:bg-emerald-100 border-none gap-1"
-            >
-              <CheckCircle className="w-3 h-3" /> {t("completed")}
-            </Badge>
-          )}
-        </div>
-      </div>
-
-      <Container className="flex-1 p-4 md:p-8 max-w-4xl mx-auto w-full pb-24 md:pb-16">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="space-y-6"
-        >
-          <div className="space-y-2">
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-              {lesson.title}
-            </h1>
-            {/* Aqui poderíamos colocar subtítulo se houver */}
-          </div>
-
-          {/* Conteúdo Principal */}
-          <Card className="border-none shadow-none sm:border sm:shadow-sm bg-transparent sm:bg-card">
-            <CardContent className="p-0 sm:p-6">
-              <LessonDisplay lesson={lesson} />
-            </CardContent>
-          </Card>
-
-          {/* Quiz Section */}
-          {lesson.quiz && lesson.quiz.length > 0 && (
-            <div className="mt-8">
-              <Separator className="my-6" />
-              <div className="flex items-center gap-2 mb-4">
-                <BookOpen className="w-5 h-5 text-primary" />
-                <h2 className="text-xl font-semibold">{t("fixationQuiz")}</h2>
-              </div>
-              <QuizComponent
-                quiz={lesson.quiz}
-                onQuizSubmit={handleQuizSubmission}
-                savedQuizData={savedQuizData}
-              />
-            </div>
-          )}
-        </motion.div>
-      </Container>
-
-      {/* Action Bar (Sticky Bottom para Mobile, Fixo para Desktop) */}
-      <div className="fixed bottom-0 left-0 w-full border-t bg-background p-4 z-40">
-        <div className="container max-w-4xl mx-auto flex items-center justify-between gap-4">
-          <Button
-            variant={isCompleted ? "outline" : "primary"}
-            onClick={handleMarkComplete}
-            disabled={isCompleted || markingComplete}
-            className={`flex-1 sm:flex-initial transition-all ${
-              isCompleted
-                ? "border-emerald-500 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950"
-                : ""
-            }`}
-          >
-            {markingComplete ? (
-              <Loader className="animate-spin mr-2 w-4 h-4" />
-            ) : isCompleted ? (
-              <CheckCircle className="mr-2 w-4 h-4" />
-            ) : (
-              <Check className="mr-2 w-4 h-4" />
+          <div className="flex items-center gap-4">
+            {isCompleted && (
+              <Badge
+                variant="outline"
+                className="border-emerald-500/20 bg-emerald-500/10 text-emerald-500 gap-1.5 py-1 px-3"
+              >
+                <CheckCircle className="w-3.5 h-3.5" /> {t("completed")}
+              </Badge>
             )}
-            {isCompleted ? t("completed") : t("markAsComplete")}
-          </Button>
-
-          <Button
-            onClick={handleNavigateNext}
-            disabled={!isCompleted}
-            variant={isCompleted ? "primary" : "secondary"}
-            className="flex-1 sm:flex-initial"
-          >
-            {nextLessonId
-              ? t("nextLesson")
-              : isCompleted
-                ? t("finishCourse")
-                : t("next")}
-            <ArrowRight className="ml-2 w-4 h-4" />
-          </Button>
+            <ThemeSwitcher />
+          </div>
         </div>
-      </div>
+      </motion.div>
+
+      {/* MAIN CONTENT */}
+      <main className="flex-1 p-4 md:p-6 lg:p-8 max-w-[1400px] mx-auto w-full">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-6 xl:gap-8 items-start"
+        >
+          {/* --- LEFT COLUMN: VIDEO & DETAILS --- */}
+          <motion.div
+            variants={itemVariants}
+            className="flex flex-col gap-6 min-w-0"
+          >
+            {/* Video Player Container */}
+            <div className="relative group rounded-2xl overflow-hidden border border-border">
+              <VideoPlayer videoUrl={videoUrl} title={lesson.title} />
+            </div>
+
+            <LessonContent
+              lesson={lesson}
+              onQuizSubmit={handleQuizSubmission}
+              savedQuizData={savedQuizData}
+            />
+          </motion.div>
+
+          {/* --- RIGHT COLUMN: SIDEBAR --- */}
+          <motion.div
+            variants={itemVariants}
+            className="lg:sticky lg:top-24 h-fit space-y-6"
+          >
+            <LessonSidebar
+              courseId={courseId!}
+              sections={courseSections}
+              currentLessonId={lessonId!}
+              completedLessonIds={completedLessonIds}
+              onMarkComplete={handleMarkComplete}
+            />
+          </motion.div>
+        </motion.div>
+      </main>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 // --- Interfaces
 export interface QuizQuestion {
-  id: string; 
+  id: string;
   question: string;
   options: string[];
   correctAnswer: string;
@@ -22,26 +22,26 @@ export interface QuizResult {
 }
 
 export interface Attachment {
-  id: string; 
-  name: string; 
-  url: string; 
-  type: string; 
-  size: number; 
+  id: string;
+  name: string;
+  url: string;
+  type: string;
+  size: number;
 }
 
 export interface TextContentBlock {
-  type: 'text';
-  id: string; 
-  content: string; 
+  type: "text";
+  id: string;
+  content: string;
 }
 
 export interface VideoContentBlock {
-  type: 'video';
-  id: string; 
-  url: string; 
+  type: "video";
+  id: string;
+  url: string;
 }
 
-export type LessonContentBlock = TextContentBlock | VideoContentBlock; 
+export type LessonContentBlock = TextContentBlock | VideoContentBlock;
 
 export interface Lesson {
   sectionId: string;
@@ -51,6 +51,7 @@ export interface Lesson {
   contentBlocks: LessonContentBlock[];
   quiz?: QuizQuestion[];
   attachments?: Attachment[];
+  duration?: string;
 }
 
 export interface Section {
@@ -77,10 +78,10 @@ export interface Course {
 }
 
 export interface Enrollment {
-    courseId: string;
-    userId: string;
-    enrolledAt: any;
-    progress?: { [lessonId: string]: boolean }; // Map lessonId to completion status
-    completed?: boolean;
-    lastAccessed?: any;
+  courseId: string;
+  userId: string;
+  enrolledAt: any;
+  progress?: { [lessonId: string]: boolean }; // Map lessonId to completion status
+  completed?: boolean;
+  lastAccessed?: any;
 }

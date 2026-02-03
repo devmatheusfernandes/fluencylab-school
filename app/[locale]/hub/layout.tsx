@@ -127,7 +127,8 @@ function HubLayoutContent({
       pathname?.includes("/notebook/")) ||
     (pathname?.startsWith(`/${locale}/hub/student/my-notebook/`) &&
       pathname?.includes("/notebook/")) ||
-    pathname?.startsWith(`/${locale}/hub/student/my-practice`);
+    pathname?.startsWith(`/${locale}/hub/student/my-practice`) ||
+    pathname?.startsWith(`/${locale}/hub/student/my-courses/course/lesson`);
 
   const isChatPage =
     pathname?.includes("/my-chat") || pathname?.includes("/workbooks");

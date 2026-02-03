@@ -220,7 +220,7 @@ export default function StudentCoursesPage() {
 
                 <CardFooter className="p-4 pt-0">
                   <Link
-                    href={`my-courses/curso?id=${course.id}`}
+                    href={`my-courses/course?id=${course.id}`}
                     className="w-full"
                   >
                     <Button

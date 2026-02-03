@@ -68,7 +68,7 @@ export default function CourseDetailPageContent() {
       if (!res.ok) {
         if (res.status === 404) {
           toast.error(t("notFound"));
-          router.push(`/[locale]/hub/student/my-courses`);
+          router.push(`/hub/student/my-courses`);
           return;
         }
         throw new Error(t("loadError"));
@@ -127,7 +127,7 @@ export default function CourseDetailPageContent() {
     }
     if (!courseId) {
       toast.error(t("invalidId"));
-      router.push(`/[locale]/hub/student/my-courses`);
+      router.push(`/hub/student/my-courses`);
       return;
     }
     if (status === "authenticated" && session?.user?.id) {
@@ -210,7 +210,7 @@ export default function CourseDetailPageContent() {
 
       {/* Back Link */}
       <Link
-        href={`/[locale]/hub/student/my-courses`}
+        href={`/hub/student/my-courses`}
         className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         <ArrowLeft className="w-4 h-4 mr-1" /> {t("backToCourses")}
@@ -375,7 +375,7 @@ export default function CourseDetailPageContent() {
 
                           {!isLocked && (
                             <Link
-                              href={`/[locale]/hub/student/my-courses/course/lesson?courseId=${courseId}&lessonId=${lesson.id}`}
+                              href={`/hub/student/my-courses/course/lesson?courseId=${courseId}&lessonId=${lesson.id}`}
                               className="absolute inset-0 z-10"
                             >
                               <span className="sr-only">
