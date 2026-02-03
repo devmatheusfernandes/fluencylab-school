@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { Section, Lesson } from "@/types/quiz/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CircleCheckIcon } from "@/public/animated/circle-check";
 
 interface LessonSidebarProps {
   courseId: string;
@@ -142,10 +143,10 @@ export function LessonSidebar({
                                 e.stopPropagation();
                                 onMarkComplete(lesson.id);
                               }}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-neutral-900 hover:bg-emerald-500/10 text-neutral-400 hover:text-emerald-500 p-1.5 rounded-full border border-neutral-800 hover:border-emerald-500/50 shadow-md z-20"
+                              className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 bg-neutral-900 hover:bg-emerald-500/10 text-neutral-400 hover:text-emerald-500 p-1.5 rounded-full z-20"
                               title="Marcar como concluída"
                             >
-                              <CheckCircle className="w-4 h-4" />
+                              <CircleCheckIcon size={20} />
                             </button>
                           )}
 

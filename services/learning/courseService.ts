@@ -5,16 +5,26 @@ import { Course, Section, Lesson, QuizQuestion } from "@/types/quiz/types";
 export class CourseService {
   async getEnrolledStudentIds(courseId: string): Promise<string[]> {
     try {
-      const enrollmentsSnapshot = await adminDb
+      // Strategy 1: Try fetching from course's enrollments subcollection (New standard)
+      const courseEnrollmentsSnapshot = await adminDb
+        .collection(`courses/${courseId}/enrollments`)
+        .get();
+
+      if (!courseEnrollmentsSnapshot.empty) {
+        return courseEnrollmentsSnapshot.docs.map((doc) => doc.data().userId);
+      }
+
+      // Strategy 2: Fallback to collectionGroup (Legacy/If index exists)
+      // Note: This requires a composite index on 'enrollments' collection group
+      const legacyEnrollmentsSnapshot = await adminDb
         .collectionGroup("enrollments")
         .where("courseId", "==", courseId)
         .get();
 
-      const studentIds = enrollmentsSnapshot.docs
+      const studentIds = legacyEnrollmentsSnapshot.docs
         .map((doc) => doc.data().userId)
         .filter((id) => !!id);
 
-      // Remove duplicates just in case
       return Array.from(new Set(studentIds));
     } catch (error) {
       console.error("Error fetching enrolled students:", error);

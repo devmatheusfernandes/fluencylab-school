@@ -25,6 +25,7 @@ export async function POST(
       return NextResponse.json({ success: true, alreadyEnrolled: true });
     }
 
+    // 1. Create enrollment in user's subcollection
     await enrollRef.set({
       courseId,
       userId: studentId,
@@ -32,6 +33,13 @@ export async function POST(
       progress: {},
       completed: false,
       lastAccessed: new Date(),
+    });
+
+    // 2. Create reverse lookup in course's subcollection
+    // This enables efficient querying of enrolled students without collectionGroup indexes
+    await adminDb.doc(`courses/${courseId}/enrollments/${studentId}`).set({
+      userId: studentId,
+      enrolledAt: new Date(),
     });
 
     return NextResponse.json({ success: true }, { status: 201 });

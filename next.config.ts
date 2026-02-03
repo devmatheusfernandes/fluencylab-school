@@ -1,6 +1,27 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
+// Suppress DeprecationWarning: url.parse() behavior is not standardized
+if (typeof process !== "undefined") {
+  const originalEmit = process.emit;
+  // @ts-ignore
+  process.emit = (name, data, ...args) => {
+    if (
+      name === "warning" &&
+      typeof data === "object" &&
+      data &&
+      "name" in data &&
+      data.name === "DeprecationWarning" &&
+      "message" in data &&
+      typeof data.message === "string" &&
+      data.message.includes("url.parse()")
+    ) {
+      return false;
+    }
+    return (originalEmit as any).apply(process, [name, data, ...args]);
+  };
+}
+
 // 1. Configuração do PWA
 const withPWA = require("@ducanh2912/next-pwa").default({
   dest: "public",
