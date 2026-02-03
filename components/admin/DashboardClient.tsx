@@ -56,9 +56,9 @@ export default function DashboardClient({
       variants={container}
       initial="hidden"
       animate="show"
-      className="space-y-6 p-4 md:p-8 max-w-[1600px] mx-auto" // Mais padding para respiro
+      className="space-y-6 mx-auto"
     >
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <motion.div variants={item}>
           <StatCard
             title={t("stats.monthlyRevenue")}

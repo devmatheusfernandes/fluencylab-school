@@ -75,11 +75,9 @@ export default function RecentActivityTable({
                 >
                   <TableCell className="pl-6 py-4">
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-8 w-8 ring-2 ring-background">
+                      <Avatar size="sm">
                         <AvatarImage src={cls.student?.photoUrl} />
-                        <AvatarFallback className="text-[10px]">
-                          {cls.student?.name?.charAt(0)}
-                        </AvatarFallback>
+                        <AvatarFallback />
                       </Avatar>
                       <div className="flex flex-col">
                         <span className="font-medium text-sm text-foreground">

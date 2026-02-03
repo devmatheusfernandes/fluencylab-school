@@ -103,7 +103,8 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
           <Select
             value={role}
             onValueChange={(value) => setRole(value as UserRoles)}
-            disabled={!canEditUser || isLoading}
+            // disabled={!canEditUser || isLoading}
+            disabled
           >
             <SelectTrigger className="capitalize">
               <SelectValue />

@@ -69,22 +69,22 @@ export default function RevenueChart({ data, isLoading }: RevenueChartProps) {
               fontSize={11}
               tickLine={false}
               axisLine={false}
-              tick={{ fill: "hsl(var(--muted-foreground))", dy: 10 }}
+              tick={{ fill: "var(--muted-foreground)", dy: 10 }}
             />
             <YAxis
               fontSize={11}
               tickLine={false}
               axisLine={false}
               tickFormatter={(value) => `R$${value / 1000}k`}
-              tick={{ fill: "hsl(var(--muted-foreground))" }}
+              tick={{ fill: "var(--muted-foreground)" }}
             />
             <Tooltip
-              cursor={{ fill: "hsl(var(--muted)/0.3)", radius: 4 }}
+              cursor={{ fill: "var(--muted)", fillOpacity: 0.3, radius: 4 }}
               content={<MinimalTooltip locale={locale} />}
             />
             <Bar
               dataKey="revenue"
-              fill="hsl(var(--primary))"
+              fill="var(--primary)"
               radius={[4, 4, 4, 4]}
               className="opacity-90 hover:opacity-100 transition-opacity"
             />

@@ -23,6 +23,12 @@ const adminItems: SidebarItemType[] = [
     icon: <UserIcon size={20} />,
   },
   {
+    href: "/[locale]/hub/admin/dashboard",
+    label: "Dashboard",
+    labelKey: "dashboard",
+    icon: <LayoutDashboardIcon size={20} />,
+  },
+  {
     href: "/[locale]/hub/admin/users",
     label: "Usuários",
     labelKey: "users",
