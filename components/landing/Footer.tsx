@@ -19,7 +19,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="p-4 md:p-6 bg-slate-50 dark:bg-slate-950">
+    <footer id="faq" className="p-4 md:p-6 bg-slate-50 dark:bg-slate-950">
       <div className="relative bg-white dark:bg-slate-900 rounded-[2rem] overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm">
         {/* --- BACKGROUND TEXTURE (Sutil) --- */}
         <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] dark:opacity-[0.05] pointer-events-none"></div>

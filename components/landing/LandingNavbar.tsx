@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Logo from "../../public/brand/Group.png";
@@ -10,17 +10,46 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { GalleryVerticalEndIcon } from "@/public/animated/galery-vertical";
 
 export function LandingNavbar() {
   const t = useTranslations("LandingPage");
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  // Estado para o item selecionado na Navbar
-  const [activeTab, setActiveTab] = useState<string>("plans");
-
-  // Estado para o menu mobile
+  const [activeTab, setActiveTab] = useState<string>("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 30);
+
+      const sections = ["about", "plans", "team", "faq"];
+      const offset = 100;
+
+      let currentSection = "";
+
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          if (rect.top <= offset && rect.bottom >= offset) {
+            currentSection = section;
+          }
+        }
+      }
+
+      if (currentSection) {
+        setActiveTab(currentSection);
+      } else {
+        setActiveTab("");
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleLoginClick = () => {
     if (session) {
@@ -58,7 +87,8 @@ export function LandingNavbar() {
       onClick={() => {
         setActiveTab(id);
       }}
-      className="relative px-6 py-3 rounded-full text-sm font-medium outline-none focus-visible:ring-2"
+      // ADICIONADO: 'whitespace-nowrap' impede que o texto quebre durante a animação
+      className="relative px-6 py-3 rounded-full text-sm font-medium outline-none focus-visible:ring-2 whitespace-nowrap"
     >
       {activeTab === id && (
         <motion.div
@@ -87,61 +117,126 @@ export function LandingNavbar() {
     </Link>
   );
 
+  const backgroundTransition = { duration: 0.3, ease: "easeInOut" as const };
+
   return (
     <>
-      <header className="hidden md:flex absolute top-0 left-0 w-full p-4 px-4 flex-row justify-between items-center z-50 pointer-events-none">
-        {/* CÁPSULA ESQUERDA */}
-        {/* MUDANÇA: Cores ajustadas para contrastar com o fundo branco (agora cinza claro com borda) */}
-        <div className="pointer-events-auto bg-white dark:bg-white/2 rounded-full p-2 shadow-xs flex items-center gap-2">
-          <div className="flex items-center gap-3 pl-4 pr-2">
-            <Image
-              src={Logo}
-              alt="Logo"
-              width={140}
-              height={140}
-              className="object-contain"
-            />
-          </div>
-          <nav className="flex items-center gap-1">
-            {navLinksLeft.map((link) => (
-              <NavItem key={link.id} {...link} />
-            ))}
-          </nav>
-        </div>
+      {/* ======================================================== */}
+      {/* DESKTOP HEADER ANIMADA */}
+      {/* ======================================================== */}
+      <motion.header
+        className="hidden md:flex fixed top-0 left-0 w-full z-50 pointer-events-none flex-col items-center"
+        animate={{
+          paddingTop: isScrolled ? "1rem" : "2rem",
+          paddingLeft: isScrolled ? "1rem" : "2rem",
+          paddingRight: isScrolled ? "1rem" : "2rem",
+        }}
+        transition={{ type: "spring", stiffness: 200, damping: 25 }}
+      >
+        <motion.div
+          layout
+          className="relative flex items-center pointer-events-auto"
+          style={{ borderRadius: 9999 }}
+          initial={{ width: "100%", justifyContent: "space-between" }}
+          animate={{
+            width: isScrolled ? "fit-content" : "100%",
+            gap: isScrolled ? "8px" : "0px",
+          }}
+          transition={{ type: "spring", stiffness: 200, damping: 25 }}
+        >
+          {/* Fundo Unificado (Merge) */}
+          <motion.div
+            className="absolute inset-0 rounded-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-md -z-10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: isScrolled ? 1 : 0 }}
+            transition={backgroundTransition}
+          />
 
-        {/* CÁPSULA DIREITA */}
-        <div className="pointer-events-auto bg-white dark:bg-white/2 rounded-full p-2 shadow-xs flex items-center gap-2">
-          <nav className="flex items-center gap-1">
-            {navLinksRight.map((link) => (
-              <NavItem key={link.id} {...link} />
-            ))}
-          </nav>
-          <motion.button
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleLoginClick}
-            className="bg-black/3 dark:bg-white/2 hover:bg-black/10 dark:hover:bg-white/10 text-black dark:text-white px-6 py-2 rounded-full text-sm font-medium flex items-center gap-2 min-h-[44px]"
+          {/* Cápsula Esquerda */}
+          <motion.div
+            layout="position"
+            className="relative flex items-center gap-2 p-2 rounded-full transition-all duration-300"
           >
-            {status === "loading" ? (
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : session ? (
-              <>
-                <span>{t("nav.continue")}</span>
-                <Avatar size="xs">
-                  <AvatarImage src={session.user?.image || undefined} />
-                  <AvatarFallback />
-                </Avatar>
-              </>
-            ) : (
-              <>
-                <span>{t("nav.login")}</span>
-                <DoorOpenIcon className="w-4 h-4" />
-              </>
-            )}
-          </motion.button>
-        </div>
-      </header>
+            <motion.div
+              className="absolute inset-0 rounded-full bg-white dark:bg-white/5 shadow-xs -z-20"
+              initial={{ opacity: 1 }}
+              animate={{ opacity: isScrolled ? 0 : 1 }}
+              transition={backgroundTransition}
+            />
 
+            <div className="relative z-10 flex items-center">
+              <div className="flex items-center gap-3 pl-4 pr-2">
+                <Image
+                  src={Logo}
+                  alt="Logo"
+                  width={140}
+                  height={140}
+                  className="object-contain"
+                />
+              </div>
+              <nav className="flex items-center gap-1">
+                {navLinksLeft.map((link) => (
+                  <NavItem key={link.id} {...link} />
+                ))}
+              </nav>
+            </div>
+          </motion.div>
+
+          {/* Espaçador */}
+          {!isScrolled && <motion.div layout className="flex-grow" />}
+
+          {/* Cápsula Direita */}
+          <motion.div
+            layout="position"
+            className="relative flex items-center gap-2 p-2 rounded-full transition-all duration-300"
+          >
+            <motion.div
+              className="absolute inset-0 rounded-full bg-white dark:bg-white/5 shadow-xs -z-20"
+              initial={{ opacity: 1 }}
+              animate={{ opacity: isScrolled ? 0 : 1 }}
+              transition={backgroundTransition}
+            />
+
+            <div className="relative z-10 flex items-center gap-2">
+              <nav className="flex items-center gap-1">
+                {navLinksRight.map((link) => (
+                  <NavItem key={link.id} {...link} />
+                ))}
+              </nav>
+              <motion.button
+                layout
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleLoginClick}
+                className="bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-black dark:text-white px-6 py-2 rounded-full text-sm font-medium flex items-center gap-2 min-h-[44px] whitespace-nowrap"
+              >
+                {status === "loading" ? (
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : session ? (
+                  <>
+                    <span className="whitespace-nowrap">
+                      {t("nav.continue")}
+                    </span>
+                    <Avatar className="h-6 w-6">
+                      <AvatarImage src={session.user?.image || undefined} />
+                      <AvatarFallback />
+                    </Avatar>
+                  </>
+                ) : (
+                  <>
+                    <span className="whitespace-nowrap">{t("nav.login")}</span>
+                    <DoorOpenIcon className="w-4 h-4" />
+                  </>
+                )}
+              </motion.button>
+            </div>
+          </motion.div>
+        </motion.div>
+      </motion.header>
+
+      {/* ======================================================== */}
+      {/* MOBILE HEADER (Intocado) */}
+      {/* ======================================================== */}
       <header className="md:hidden w-full p-4 flex justify-between items-center z-40 relative">
         <div className="w-36 relative">
           <Image src={Logo} alt="Logo" height={40} className="object-contain" />
@@ -160,7 +255,10 @@ export function LandingNavbar() {
               </Avatar>
             </>
           ) : (
-            t("nav.login")
+            <>
+              <span className="whitespace-nowrap">{t("nav.login")}</span>
+              <DoorOpenIcon className="w-4 h-4" />
+            </>
           )}
         </button>
       </header>
@@ -168,30 +266,15 @@ export function LandingNavbar() {
       <div className="md:hidden fixed bottom-6 right-6 z-50">
         <button
           onClick={() => setIsMobileMenuOpen(true)}
-          className="w-14 h-14 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full shadow-xl flex items-center justify-center hover:scale-110 transition-transform"
+          className="w-14 h-14 bg-gray-900 dark:bg-slate-900 text-white dark:text-white rounded-full shadow-xl flex items-center justify-center hover:scale-110 transition-transform"
         >
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <line x1="3" y1="12" x2="21" y2="12"></line>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <line x1="3" y1="18" x2="21" y2="18"></line>
-          </svg>
+          <GalleryVerticalEndIcon size={24} />
         </button>
       </div>
 
-      {/* Modal Bottom Sheet */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
-            {/* Overlay Escuro */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -200,13 +283,11 @@ export function LandingNavbar() {
               className="fixed inset-0 bg-black/40 z-[60] backdrop-blur-[4px] md:hidden"
             />
 
-            {/* Sheet */}
             <motion.div
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              // MUDANÇA: Fundo do menu mobile para combinar
               className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 rounded-t-[2rem] p-8 pb-10 z-[70] md:hidden shadow-[0_-10px_40px_rgba(0,0,0,0.1)]"
             >
               <div className="flex justify-between items-center mb-8">

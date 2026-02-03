@@ -31,7 +31,6 @@ export function LandingHero() {
     <main className="w-full h-full relative grid grid-cols-1 lg:grid-cols-2 flex-1">
       <div className="flex flex-col justify-center lg:justify-end px-6 md:px-12 lg:px-14 pb-12 lg:pb-20 z-20 order-1 pt-22 lg:pt-0">
         <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000 flex flex-col text-center sm:text-left">
-          {/* MUDANÇA: Cores de texto ajustadas para text-gray-600 (igual ao login description) */}
           <p className="text-gray-600 dark:text-gray-300 font-medium text-sm md:text-sm max-w-md">
             <span
               dangerouslySetInnerHTML={{
@@ -45,7 +44,7 @@ export function LandingHero() {
             {t("title")}
           </h1>
 
-          <div className="flex flex-col sm:flex-row gap-3 ">
+          <div className="flex flex-col sm:flex-row gap-3">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
