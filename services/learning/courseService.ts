@@ -3,6 +3,25 @@ import { courseRepository } from "@/repositories";
 import { Course, Section, Lesson, QuizQuestion } from "@/types/quiz/types";
 
 export class CourseService {
+  async getEnrolledStudentIds(courseId: string): Promise<string[]> {
+    try {
+      const enrollmentsSnapshot = await adminDb
+        .collectionGroup("enrollments")
+        .where("courseId", "==", courseId)
+        .get();
+
+      const studentIds = enrollmentsSnapshot.docs
+        .map((doc) => doc.data().userId)
+        .filter((id) => !!id);
+
+      // Remove duplicates just in case
+      return Array.from(new Set(studentIds));
+    } catch (error) {
+      console.error("Error fetching enrolled students:", error);
+      return [];
+    }
+  }
+
   async listCourses(): Promise<Course[]> {
     return await courseRepository.list();
   }

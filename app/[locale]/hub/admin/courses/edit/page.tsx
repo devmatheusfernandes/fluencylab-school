@@ -58,8 +58,6 @@ import {
 import { Header } from "@/components/ui/header";
 
 // Custom Components & Types
-import LessonForm from "../../../../../../components/course/LessonForm";
-import QuizForm from "../../../../../../components/course/QuizForm";
 import SectionForm from "../../../../../../components/course/SectionForm";
 import {
   Course,
@@ -269,9 +267,12 @@ export default function EditCourseForm() {
     sectionId: string,
     lesson: Lesson | null = null,
   ) => {
-    setCurrentSectionIdForLesson(sectionId);
-    setEditingLesson(lesson);
-    setIsLessonModalOpen(true);
+    if (!courseId) return;
+    const params = new URLSearchParams();
+    params.set("courseId", courseId);
+    params.set("sectionId", sectionId);
+    if (lesson) params.set("lessonId", lesson.id);
+    router.push(`/hub/admin/courses/lesson-editor?${params.toString()}`);
   };
 
   const handleSaveLesson = async (lessonData: Omit<Lesson, "id" | "order">) => {
@@ -923,64 +924,6 @@ export default function EditCourseForm() {
               onCancel={() => setIsSectionModalOpen(false)}
             />
           </div>
-        </ModalContent>
-      </Modal>
-
-      <Modal
-        open={isLessonModalOpen}
-        onOpenChange={(open) => !open && setIsLessonModalOpen(false)}
-      >
-        <ModalContent className="max-w-4xl w-full h-[90vh] overflow-y-auto">
-          <ModalHeader>
-            <ModalTitle>
-              {editingLesson ? t("modals.editLesson") : t("modals.newLesson")}
-            </ModalTitle>
-            <ModalClose />
-          </ModalHeader>
-          <div className="py-2">
-            {currentSectionIdForLesson && (
-              <LessonForm
-                initialData={editingLesson}
-                sectionId={currentSectionIdForLesson}
-                onSave={handleSaveLesson}
-                onCancel={() => {
-                  setIsLessonModalOpen(false);
-                  setEditingLesson(null);
-                  setCurrentSectionIdForLesson(null);
-                }}
-                onManageQuiz={handleOpenQuizModal}
-                courseId={courseId || ""}
-                lessonId={editingLesson?.id || null}
-                onAttachmentsUpdated={handleAttachmentsUpdated}
-              />
-            )}
-          </div>
-        </ModalContent>
-      </Modal>
-
-      <Modal
-        open={isQuizModalOpen}
-        onOpenChange={(open) => !open && setIsQuizModalOpen(false)}
-      >
-        <ModalContent className="max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-          <ModalHeader>
-            <ModalTitle>{t("modals.manageQuiz")}</ModalTitle>
-            <ModalClose />
-          </ModalHeader>
-          {currentLessonForQuiz && (
-            <QuizForm
-              lesson={currentLessonForQuiz}
-              initialQuestionData={editingQuizQuestion}
-              onSaveQuestion={handleSaveQuizQuestion}
-              onDeleteQuestion={handleDeleteQuizQuestion}
-              onCancel={() => {
-                setIsQuizModalOpen(false);
-                setEditingQuizQuestion(null);
-              }}
-              onAddNewQuestionRequest={handleAddNewQuizQuestionRequest}
-              onRequestEditQuestion={handleRequestEditQuizQuestion}
-            />
-          )}
         </ModalContent>
       </Modal>
 

@@ -1,9 +1,7 @@
 // app/components/LessonDisplay.tsx
 import React from "react";
 import { useTranslations } from "next-intl";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { markdownComponents } from "./MarkdownComponents";
+import CourseEditor from "./CourseEditor";
 import { Paperclip } from "lucide-react";
 import {
   Attachment,
@@ -82,13 +80,11 @@ const LessonDisplay: React.FC<LessonDisplayProps> = ({ lesson }) => {
           )}
 
           {block.type === "text" && (
-            <div className="prose max-w-none text-text-light">
-              <ReactMarkdown
-                components={markdownComponents}
-                remarkPlugins={[remarkGfm]}
-              >
-                {(block as TextContentBlock).content || ""}
-              </ReactMarkdown>
+            <div className="w-full">
+              <CourseEditor
+                content={(block as TextContentBlock).content || ""}
+                readOnly={true}
+              />
             </div>
           )}
         </div>

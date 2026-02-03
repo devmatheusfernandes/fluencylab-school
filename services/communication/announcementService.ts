@@ -16,7 +16,8 @@ export class AnnouncementService {
     recipientType: "role" | "specific",
     roles?: UserRoles[],
     userIds?: string[],
-    link?: string
+    link?: string,
+    skipPush?: boolean
   ): Promise<Announcement> {
     const announcement = await announcementRepository.create({
       title,
@@ -32,9 +33,11 @@ export class AnnouncementService {
       isActive: true,
     });
 
-    try {
-      await pushService.sendAnnouncement(announcement);
-    } catch {}
+    if (!skipPush) {
+      try {
+        await pushService.sendAnnouncement(announcement);
+      } catch {}
+    }
 
     return announcement;
   }
@@ -43,7 +46,8 @@ export class AnnouncementService {
     title: string,
     message: string,
     recipients: string | string[],
-    link?: string
+    link?: string,
+    skipPush?: boolean
   ): Promise<Announcement> {
     const userIds = Array.isArray(recipients) ? recipients : [recipients];
     return this.createAnnouncement(
@@ -54,7 +58,8 @@ export class AnnouncementService {
       "specific",
       undefined,
       userIds,
-      link
+      link,
+      skipPush
     );
   }
 

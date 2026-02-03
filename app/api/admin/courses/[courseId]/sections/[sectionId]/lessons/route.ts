@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { courseService } from "@/services/learning/courseService";
+import { announcementService } from "@/services/communication/announcementService";
 
 export async function POST(
   request: NextRequest,
@@ -53,6 +54,23 @@ export async function POST(
       if (payload[k] === undefined) delete payload[k];
     });
     const id = await courseService.saveLesson(courseId, sectionId, payload);
+
+    // Notify enrolled students
+    try {
+      const enrolledStudents = await courseService.getEnrolledStudentIds(courseId);
+      if (enrolledStudents.length > 0) {
+        await announcementService.createSystemAnnouncement(
+          "Nova Lição Disponível",
+          `Uma nova lição "${title}" foi adicionada ao curso.`,
+          enrolledStudents,
+          `/hub/student/my-courses/course/lesson?courseId=${courseId}&lessonId=${id}`,
+          true // skipPush
+        );
+      }
+    } catch (notifyError) {
+      console.error("Error sending notifications:", notifyError);
+    }
+
     return NextResponse.json({ id }, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ error: "Falha ao criar lição.", details: error?.message || String(error) }, { status: 500 });
