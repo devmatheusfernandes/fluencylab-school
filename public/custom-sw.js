@@ -10,8 +10,8 @@ self.addEventListener("push", function (event) {
 
   const title = data.title || "Notificação";
   const body = data.body || "";
-  const icon = data.icon || "/favicon.ico";
-  const badge = data.badge || "/favicon.ico"; // TODO: MUDAR ISSO PARA OUTRA COISA
+  const icon = data.icon || "/favicon/notification-bell.png";
+  const badge = data.badge || "/favicon.ico";
   const url = data.url || "/hub";
   const type = data.type || "info";
 

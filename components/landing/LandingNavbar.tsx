@@ -35,13 +35,13 @@ export function LandingNavbar() {
   };
 
   const navLinksLeft = [
-    { id: "about", label: t("nav.about"), href: "#" },
-    { id: "plans", label: t("nav.plans"), href: "#" },
+    { id: "about", label: t("nav.about"), href: "#about" },
+    { id: "plans", label: t("nav.plans"), href: "#plans" },
   ];
 
   const navLinksRight = [
-    { id: "team", label: t("nav.team"), href: "#" },
-    { id: "faq", label: t("nav.faq"), href: "#" },
+    { id: "team", label: t("nav.team"), href: "#team" },
+    { id: "faq", label: t("nav.faq"), href: "#faq" },
   ];
 
   const NavItem = ({
@@ -55,8 +55,7 @@ export function LandingNavbar() {
   }) => (
     <Link
       href={href}
-      onClick={(e) => {
-        e.preventDefault();
+      onClick={() => {
         setActiveTab(id);
       }}
       className="relative px-6 py-3 rounded-full text-sm font-medium outline-none focus-visible:ring-2"
@@ -227,6 +226,7 @@ export function LandingNavbar() {
                   <Link
                     key={link.id}
                     href={link.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
                     className="text-lg font-medium text-gray-700 dark:text-gray-200 py-3 border-b border-gray-100 dark:border-gray-800"
                   >
                     {link.label}

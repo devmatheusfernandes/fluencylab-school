@@ -14,9 +14,15 @@ export default function LandingPage() {
         <LandingNavbar />
         <LandingHero />
       </div>
-      <ComparisonSection />
-      <HowItWorks />
-      <TeamSection />
+      <div id="plans">
+        <ComparisonSection />
+      </div>
+      <div id="about">
+        <HowItWorks />
+      </div>
+      <div id="team">
+        <TeamSection />
+      </div>
       <Footer />
     </div>
   );

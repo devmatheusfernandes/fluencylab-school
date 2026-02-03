@@ -17,10 +17,23 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { User } from "@/types/users/users";
-import { Calendar, Clock, Coins } from "lucide-react";
-import { ButtonGroup } from "../ui/button-group";
+import { Calendar, Clock, Coins, Pencil } from "lucide-react";
 import { Spinner } from "../ui/spinner";
 import { useTranslations, useFormatter } from "next-intl";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalTitle,
+  ModalBody,
+  ModalFooter,
+  ModalPrimaryButton,
+  ModalSecondaryButton,
+  ModalInput,
+  ModalField,
+} from "@/components/ui/modal";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 interface UserFinancialTabProps {
   user: User;
@@ -63,19 +76,80 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
 
   const monthOptions = Array.from({ length: 12 }, (_, i) => ({
     value: i,
-    label: format.dateTime(new Date(2024, i, 1), { month: "long" }).replace(/^\w/, (c) => c.toUpperCase()),
+    label: format
+      .dateTime(new Date(2024, i, 1), { month: "long" })
+      .replace(/^\w/, (c) => c.toUpperCase()),
   }));
 
   const [loading, setLoading] = useState(false);
   const [teacherStats, setTeacherStats] = useState<TeacherClassStats[]>([]);
   const [studentFinancials, setStudentFinancials] =
     useState<StudentFinancialData | null>(null);
-  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
-  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState<number>(
+    new Date().getMonth(),
+  );
+  const [selectedYear, setSelectedYear] = useState<number>(
+    new Date().getFullYear(),
+  );
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingPayment, setEditingPayment] =
+    useState<StudentPaymentRow | null>(null);
+  const [newAmount, setNewAmount] = useState<string>("");
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleEditClick = (payment: StudentPaymentRow) => {
+    setEditingPayment(payment);
+    setNewAmount(((payment.amount || 0) / 100).toFixed(2));
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveAmount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingPayment) return;
+
+    const amountValue = parseFloat(newAmount.replace(",", "."));
+    if (isNaN(amountValue) || amountValue < 0) {
+      toast.error("Valor inválido");
+      return;
+    }
+
+    const amountCents = Math.round(amountValue * 100);
+
+    try {
+      setIsSaving(true);
+      const response = await fetch(
+        `/api/admin/finance/payments/${editingPayment.id}/update-amount`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount: amountCents }),
+        },
+      );
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to update amount");
+      }
+
+      toast.success("Valor atualizado com sucesso!");
+      setIsEditModalOpen(false);
+      fetchFinancialData();
+    } catch (error) {
+      console.error("Error updating payment:", error);
+      toast.error("Erro ao atualizar valor.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const fetchTeacherFinancials = useCallback(async () => {
     try {
-      const startOfMonth = new Date(selectedYear, selectedMonth, 1).toISOString();
+      const startOfMonth = new Date(
+        selectedYear,
+        selectedMonth,
+        1,
+      ).toISOString();
       const endOfMonth = new Date(
         selectedYear,
         selectedMonth + 1,
@@ -83,10 +157,10 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
         23,
         59,
         59,
-        999
+        999,
       ).toISOString();
       const response = await fetch(
-        `/api/admin/teachers/${user.id}/earnings?startDate=${startOfMonth}&endDate=${endOfMonth}`
+        `/api/admin/teachers/${user.id}/earnings?startDate=${startOfMonth}&endDate=${endOfMonth}`,
       );
 
       if (!response.ok) {
@@ -121,16 +195,20 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
 
       const data = await response.json();
 
-      const payments: StudentPaymentRow[] = (data.payments || []).map((payment: any) => ({
-        id: payment.id,
-        amount: payment.amount,
-        status: payment.status,
-        paymentMethod: payment.paymentMethod,
-        description: payment.description || t("defaultDescription"),
-        createdAt: payment.createdAt,
-        paidAt: payment.paidAt ?? null,
-        dueDate: payment.dueDate,
-      }));
+      const payments: StudentPaymentRow[] = (data.payments || [])
+        .map((payment: any) => ({
+          id: payment.id,
+          amount: payment.amount,
+          status: payment.status,
+          paymentMethod: payment.paymentMethod,
+          description: payment.description || t("defaultDescription"),
+          createdAt: payment.createdAt,
+          paidAt: payment.paidAt ?? null,
+          dueDate: payment.dueDate,
+        }))
+        .sort((a: StudentPaymentRow, b: StudentPaymentRow) => {
+          return new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime();
+        });
 
       setStudentFinancials({
         paymentMethod: data.paymentMethod || t("paymentMethods.notAvailable"),
@@ -167,11 +245,11 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
   const renderTeacherView = () => {
     const totalClasses = teacherStats.reduce(
       (sum, student) => sum + student.completedClasses,
-      0
+      0,
     );
     const totalEarnings = teacherStats.reduce(
       (sum, student) => sum + student.earnings,
-      0
+      0,
     );
 
     return (
@@ -215,7 +293,9 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
                   <p className="text-sm font-medium text-muted-foreground">
                     {t("ratePerClass")}
                   </p>
-                  <p className="text-2xl font-bold">{currency.format(ratePerClass)}</p>
+                  <p className="text-2xl font-bold">
+                    {currency.format(ratePerClass)}
+                  </p>
                 </div>
                 <Clock className="h-8 w-8 text-primary/60" />
               </div>
@@ -227,7 +307,7 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between gap-2">
-                {t("earnings")}
+              {t("earnings")}
               <div className="flex flex-row gap-2">
                 <Select
                   value={String(selectedMonth)}
@@ -324,9 +404,7 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
           <CardContent>
             <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg mt-4">
               <div>
-                <p className="font-medium">
-                  {t("paymentMethods.pix")}
-                </p>
+                <p className="font-medium">{t("paymentMethods.pix")}</p>
                 {user.subscriptionBillingDay && (
                   <p className="text-sm text-muted-foreground">
                     {t("billingDay", { day: user.subscriptionBillingDay })}
@@ -343,9 +421,9 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
                 {studentFinancials?.subscriptionStatus === "active"
                   ? t("subscriptionStatus.active")
                   : studentFinancials?.subscriptionStatus === "canceled"
-                  ? t("subscriptionStatus.canceled")
-                  : studentFinancials?.subscriptionStatus ||
-                    t("subscriptionStatus.undefined")}
+                    ? t("subscriptionStatus.canceled")
+                    : studentFinancials?.subscriptionStatus ||
+                      t("subscriptionStatus.undefined")}
               </Badge>
             </div>
           </CardContent>
@@ -364,9 +442,7 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
             studentFinancials.payments.length === 0 ? (
               <div className="text-center py-8">
                 <Coins className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">
-                  {t("noPaymentHistory")}
-                </p>
+                <p className="text-muted-foreground">{t("noPaymentHistory")}</p>
               </div>
             ) : (
               <Table>
@@ -377,46 +453,63 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
                     <TableHead>{t("table.amount")}</TableHead>
                     <TableHead>{t("table.status")}</TableHead>
                     <TableHead>{t("table.method")}</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {studentFinancials.payments.map((payment: StudentPaymentRow) => (
-                    <TableRow key={payment.id}>
-                      <TableCell>
-                        {new Date(payment.dueDate).toLocaleDateString("pt-BR")}
-                      </TableCell>
-                      <TableCell>
-                        {payment.description || t("defaultDescription")}
-                      </TableCell>
-                      <TableCell>
-                        R$ {((payment.amount || 0) / 100).toFixed(2)}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            payment.status === "paid" ? "success" : "secondary"
-                          }
-                        >
-                          {payment.status === "paid"
-                            ? t("paymentStatus.paid")
-                            : payment.status === "pending"
-                            ? t("paymentStatus.pending")
-                            : payment.status === "available"
-                            ? t("paymentStatus.available")
-                            : payment.status === "overdue"
-                            ? t("paymentStatus.overdue")
-                            : payment.status === "failed"
-                            ? t("paymentStatus.failed")
-                            : payment.status === "canceled"
-                            ? t("paymentStatus.canceled")
-                            : payment.status || t("paymentStatus.undefined")}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {t("paymentMethods.pix")}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {studentFinancials.payments.map(
+                    (payment: StudentPaymentRow) => (
+                      <TableRow key={payment.id}>
+                        <TableCell>
+                          {new Date(payment.dueDate).toLocaleDateString(
+                            "pt-BR",
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {payment.description || t("defaultDescription")}
+                        </TableCell>
+                        <TableCell>
+                          R$ {((payment.amount || 0) / 100).toFixed(2)}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              payment.status === "paid"
+                                ? "success"
+                                : "secondary"
+                            }
+                          >
+                            {payment.status === "paid"
+                              ? t("paymentStatus.paid")
+                              : payment.status === "pending"
+                                ? t("paymentStatus.pending")
+                                : payment.status === "available"
+                                  ? t("paymentStatus.available")
+                                  : payment.status === "overdue"
+                                    ? t("paymentStatus.overdue")
+                                    : payment.status === "failed"
+                                      ? t("paymentStatus.failed")
+                                      : payment.status === "canceled"
+                                        ? t("paymentStatus.canceled")
+                                        : payment.status ||
+                                          t("paymentStatus.undefined")}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{t("paymentMethods.pix")}</TableCell>
+                        <TableCell className="text-right">
+                          {payment.status === "pending" && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEditClick(payment)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ),
+                  )}
                 </TableBody>
               </Table>
             )}
@@ -437,6 +530,41 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
   return (
     <div className="space-y-6">
       {user.role === "teacher" ? renderTeacherView() : renderStudentView()}
+
+      <Modal open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <ModalContent>
+          <ModalHeader>
+            <ModalTitle>Editar Valor</ModalTitle>
+          </ModalHeader>
+          <ModalBody>
+            <form id="edit-payment-form" onSubmit={handleSaveAmount}>
+              <ModalField label="Novo Valor (R$)">
+                <ModalInput
+                  value={newAmount}
+                  onChange={(e) => setNewAmount(e.target.value)}
+                  placeholder="0.00"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                />
+              </ModalField>
+            </form>
+          </ModalBody>
+          <ModalFooter>
+            <ModalSecondaryButton onClick={() => setIsEditModalOpen(false)}>
+              Cancelar
+            </ModalSecondaryButton>
+            <ModalPrimaryButton
+              type="submit"
+              form="edit-payment-form"
+              disabled={isSaving}
+            >
+              {isSaving ? <Spinner className="mr-2 h-4 w-4" /> : null}
+              Salvar
+            </ModalPrimaryButton>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 };
