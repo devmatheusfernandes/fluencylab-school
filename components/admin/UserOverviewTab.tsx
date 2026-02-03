@@ -146,7 +146,8 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
             type="date"
             value={contractStartDate}
             onChange={(e) => setContractStartDate(e.target.value)}
-            disabled={!canEditUser || isLoading}
+            // disabled={!canEditUser || isLoading}
+            disabled
           />
         </div>
         <div>
@@ -159,7 +160,8 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
           <Select
             value={String(contractLengthMonths)}
             onValueChange={(value) => setContractLengthMonths(value)}
-            disabled={!canEditUser || isLoading}
+            // disabled={!canEditUser || isLoading}
+            disabled
           >
             <SelectTrigger>
               <SelectValue />

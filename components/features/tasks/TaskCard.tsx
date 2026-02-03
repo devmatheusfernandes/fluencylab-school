@@ -37,8 +37,7 @@ interface TaskCardProps {
   moveDirection?: "vertical" | "horizontal";
 }
 
-// CORREÇÃO: MotionCard deve ser definido FORA do componente
-const MotionCard = motion(Card);
+const MotionCard = motion.create(Card);
 
 export function TaskCard({
   task,

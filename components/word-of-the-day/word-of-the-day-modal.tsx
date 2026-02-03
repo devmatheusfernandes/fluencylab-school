@@ -25,10 +25,17 @@ interface DailyWordStorage {
   data: { word: string; translation: string };
 }
 
-export const WordOfTheDayModal = ({ language, isOpen: controlledIsOpen, onOpenChange }: WordOfTheDayModalProps) => {
+export const WordOfTheDayModal = ({
+  language,
+  isOpen: controlledIsOpen,
+  onOpenChange,
+}: WordOfTheDayModalProps) => {
   const [internalIsOpen, setInternalIsOpen] = useState(false);
-  const [wordData, setWordData] = useState<{ word: string; translation: string } | null>(null);
-  
+  const [wordData, setWordData] = useState<{
+    word: string;
+    translation: string;
+  } | null>(null);
+
   // Ref para evitar execução dupla estrita (Race condition lock)
   const isFetchingRef = useRef(false);
 
@@ -58,10 +65,9 @@ export const WordOfTheDayModal = ({ language, isOpen: controlledIsOpen, onOpenCh
         try {
           const parsedItem: DailyWordStorage = JSON.parse(storedItem);
           if (parsedItem.date === today) {
-            console.log("Recuperado do cache (não mostra modal novamente se já fechou, ou mostra se quiser persistir a lógica visual):");
             setWordData(parsedItem.data);
             // NÃO abrimos automaticamente se já estava no cache (já viu hoje)
-            return; 
+            return;
           }
         } catch (e) {
           console.error("Erro ao ler storage, limpando...", e);
@@ -76,18 +82,18 @@ export const WordOfTheDayModal = ({ language, isOpen: controlledIsOpen, onOpenCh
       try {
         console.log("Buscando nova palavra na API...");
         const data = await getRandomWord(language);
-        
+
         if (data) {
           setWordData(data);
           // Se for uma nova palavra, abrimos automaticamente (apenas se não controlado)
           if (!isControlled) {
             setInternalIsOpen(true);
           }
-          
+
           // 2. SALVAR O OBJETO COMPLETO:
           const newStorageItem: DailyWordStorage = {
             date: today,
-            data: data
+            data: data,
           };
           localStorage.setItem(storageKey, JSON.stringify(newStorageItem));
         }
