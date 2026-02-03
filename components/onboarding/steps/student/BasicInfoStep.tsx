@@ -1,96 +1,77 @@
-"use client";
-
 import React from "react";
-import { OnboardingStepProps } from "../../OnboardingModal";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { useTheme } from "next-themes";
-import { languages } from "@/types/core/languages";
-import { Moon, Sun } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useTranslations } from "next-intl";
+import { OnboardingStepProps } from "../../OnboardingModal";
 
 export const BasicInfoStep: React.FC<OnboardingStepProps> = ({
   data,
   onDataChange,
 }) => {
-  const { setTheme } = useTheme();
-
-  const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onDataChange({ nickname: e.target.value });
-  };
-
-  const handleThemeChange = (newTheme: "light" | "dark") => {
-    setTheme(newTheme);
-    onDataChange({ theme: newTheme });
-  };
+  const t = useTranslations("Onboarding.Student.BasicInfo");
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <Card className="p-6 space-y-6">
-        {/* Nickname */}
+    <div className="p-4 md:p-6 space-y-6 max-w-lg mx-auto">
+      <div className="space-y-4">
         <div className="space-y-2">
-          <Label className="text-base">Como você quer ser chamado?</Label>
+          <Label>{t("nicknameLabel")}</Label>
           <Input
-            placeholder="Seu apelido ou nome curto"
             value={data.nickname}
-            onChange={handleNicknameChange}
-            autoFocus
+            onChange={(e) => onDataChange({ nickname: e.target.value })}
+            placeholder={t("nicknamePlaceholder")}
+            className="h-12 text-lg"
           />
           {data.nickname.length > 0 && data.nickname.length < 2 && (
-            <p className="text-xs text-red-500">Mínimo de 2 caracteres</p>
+            <p className="text-xs text-red-500">{t("nicknameError")}</p>
           )}
         </div>
 
-        {/* Idioma e Tema na mesma linha em desktop */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label>Idioma da Plataforma</Label>
+            <Label>{t("languageLabel")}</Label>
             <Select
               value={data.interfaceLanguage}
-              onValueChange={(v) => onDataChange({ interfaceLanguage: v })}
+              onValueChange={(val) => onDataChange({ interfaceLanguage: val })}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Selecione" />
+                <SelectValue placeholder={t("selectPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
-                {languages.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
+                <SelectItem value="pt">Português</SelectItem>
+                <SelectItem value="en">English</SelectItem>
+                <SelectItem value="es">Español</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label>Tema</Label>
-            <div className="flex gap-2">
-              <Button
-                variant={data.theme === "light" ? "primary" : "outline"}
-                onClick={() => handleThemeChange("light")}
-                className="flex-1"
-                size="sm"
-              >
-                <Sun className="w-4 h-4 mr-2" /> Claro
-              </Button>
-              <Button
-                variant={data.theme === "dark" ? "primary" : "outline"}
-                onClick={() => handleThemeChange("dark")}
-                className="flex-1"
-                size="sm"
-              >
-                <Moon className="w-4 h-4 mr-2" /> Escuro
-              </Button>
-            </div>
+            <Label>{t("themeLabel")}</Label>
+            <Select
+              value={data.theme}
+              onValueChange={(val: any) => onDataChange({ theme: val })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={t("selectPlaceholder")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="light">{t("themeLight")}</SelectItem>
+                <SelectItem value="dark">{t("themeDark")}</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
-      </Card>
-      
-      <p className="text-center text-xs text-gray-500 mt-4">
-        Você poderá alterar tudo isso depois nas configurações.
-      </p>
+
+        <p className="text-xs text-muted-foreground text-center pt-4">
+          {t("note")}
+        </p>
+      </div>
     </div>
   );
 };

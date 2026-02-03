@@ -5,8 +5,7 @@ import { SearchIcon } from "lucide-react";
 
 // Define the component's props
 // It extends all standard HTML input attributes
-export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   /**
    * If true, the input will have a red border to indicate an error.
    * @default false
@@ -53,13 +52,13 @@ const SearchBar = React.forwardRef<HTMLInputElement, SearchBarProps>(
       hasError,
       ...rest
     },
-    ref
+    ref,
   ) => {
     return (
       <div
         className={twMerge(
           "relative flex w-full items-center",
-          containerClassName
+          containerClassName,
         )}
       >
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -68,13 +67,13 @@ const SearchBar = React.forwardRef<HTMLInputElement, SearchBarProps>(
         <Input
           type="search"
           ref={ref}
-          className={twMerge("pl-10", className)}
+          className={twMerge("pl-10 dark:bg-slate-900!", className)}
           hasError={hasError}
           {...rest}
         />
       </div>
     );
-  }
+  },
 );
 
 SearchBar.displayName = "SearchBar";

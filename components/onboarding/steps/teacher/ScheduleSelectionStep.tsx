@@ -1,123 +1,75 @@
-"use client";
-
 import React, { useState } from "react";
 import { TeacherOnboardingStepProps } from "../../TeacherOnboardingModal";
 import { Button } from "@/components/ui/button";
 import {
   Select,
-  SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Trash2, Plus, Clock, Info } from "lucide-react";
+import { Plus, Trash, Clock } from "lucide-react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+
+import { useTranslations } from "next-intl";
+import { ScheduleSlot } from "@/types/onboarding/teacher";
 import { AvailabilityType } from "@/types/time/availability";
-
-export interface ScheduleSlot {
-  id: string;
-  dayOfWeek: number;
-  startTime: string;
-  endTime: string;
-  title: string;
-  type: AvailabilityType;
-}
-
-const DAYS = [
-  { value: 1, label: "Segunda", short: "Seg" },
-  { value: 2, label: "Terça", short: "Ter" },
-  { value: 3, label: "Quarta", short: "Qua" },
-  { value: 4, label: "Quinta", short: "Qui" },
-  { value: 5, label: "Sexta", short: "Sex" },
-  { value: 6, label: "Sábado", short: "Sáb" },
-  { value: 0, label: "Domingo", short: "Dom" },
-];
-
-const TIME_SLOTS = [
-  "06:00",
-  "06:45",
-  "07:30",
-  "08:15",
-  "09:00",
-  "09:45",
-  "10:30",
-  "11:15",
-  "12:00",
-  "12:45",
-  "13:30",
-  "14:15",
-  "15:00",
-  "15:45",
-  "16:30",
-  "17:15",
-  "18:00",
-  "18:45",
-  "19:30",
-  "20:15",
-  "21:00",
-  "21:45",
-];
 
 export const ScheduleSelectionStep: React.FC<TeacherOnboardingStepProps> = ({
   data,
   onDataChange,
 }) => {
-  const [newSlot, setNewSlot] = useState<{
-    dayOfWeek: string;
-    startTime: string;
-    type: AvailabilityType;
-  }>({
-    dayOfWeek: "1",
+  const t = useTranslations("Onboarding.Teacher.Schedule");
+
+  const [newSlot, setNewSlot] = useState<Partial<ScheduleSlot>>({
+    dayOfWeek: 1,
     startTime: "09:00",
     type: AvailabilityType.REGULAR,
   });
 
-  const calculateEndTime = (start: string) => {
-    const [h, m] = start.split(":").map(Number);
-    const date = new Date();
-    date.setHours(h, m + 45, 0, 0);
-    return date.toLocaleTimeString("pt-BR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  const DAYS = [
+    { value: 0, label: t("days.sunday") },
+    { value: 1, label: t("days.monday") },
+    { value: 2, label: t("days.tuesday") },
+    { value: 3, label: t("days.wednesday") },
+    { value: 4, label: t("days.thursday") },
+    { value: 5, label: t("days.friday") },
+    { value: 6, label: t("days.saturday") },
+  ];
 
-  const checkConflict = (
-    currentSlots: ScheduleSlot[],
-    candidate: typeof newSlot,
-    candidateEnd: string,
-  ) => {
-    return currentSlots.some((slot) => {
-      if (slot.dayOfWeek !== parseInt(candidate.dayOfWeek)) return false;
-      return (
-        candidate.startTime < slot.endTime && candidateEnd > slot.startTime
-      );
-    });
-  };
+  const handleAddSlot = () => {
+    if (!newSlot.startTime) return;
 
-  const addSlot = () => {
-    const endTime = calculateEndTime(newSlot.startTime);
+    // Check for conflicts
+    const conflict = data.scheduleSlots.some(
+      (slot) =>
+        slot.dayOfWeek === newSlot.dayOfWeek &&
+        slot.startTime === newSlot.startTime,
+    );
 
-    if (checkConflict(data.scheduleSlots, newSlot, endTime)) {
-      toast.error("Este horário entra em conflito com outro já existente.");
+    if (conflict) {
+      toast.error(t("conflictError"));
       return;
     }
 
-    const defaultTitle =
-      newSlot.type === AvailabilityType.REGULAR ? "Aula Regular" : "Reposição";
-
     const slotToAdd: ScheduleSlot = {
       id: Math.random().toString(36).substr(2, 9),
-      dayOfWeek: parseInt(newSlot.dayOfWeek),
-      startTime: newSlot.startTime,
-      endTime: endTime,
-      title: defaultTitle,
-      type: newSlot.type,
+      dayOfWeek: newSlot.dayOfWeek!,
+      startTime: newSlot.startTime!,
+      endTime: calculateEndTime(newSlot.startTime!),
+      type: newSlot.type || AvailabilityType.REGULAR,
+      title: "Available Slot",
     };
 
-    onDataChange({ scheduleSlots: [...data.scheduleSlots, slotToAdd] });
-    toast.success("Horário adicionado!");
+    onDataChange({
+      scheduleSlots: [...data.scheduleSlots, slotToAdd].sort(
+        (a, b) =>
+          a.dayOfWeek - b.dayOfWeek || a.startTime.localeCompare(b.startTime),
+      ),
+    });
+
+    toast.success(t("addedSuccess"));
   };
 
   const removeSlot = (id: string) => {
@@ -126,189 +78,179 @@ export const ScheduleSelectionStep: React.FC<TeacherOnboardingStepProps> = ({
     });
   };
 
-  const regularCount = data.scheduleSlots.filter(
+  const calculateEndTime = (start: string) => {
+    const [h, m] = start.split(":").map(Number);
+    const date = new Date();
+    date.setHours(h, m + 45);
+    return date.toTimeString().slice(0, 5);
+  };
+
+  const regularSlots = data.scheduleSlots.filter(
     (s) => s.type === AvailabilityType.REGULAR,
-  ).length;
-  const makeupCount = data.scheduleSlots.filter(
+  );
+  const makeupSlots = data.scheduleSlots.filter(
     (s) => s.type === AvailabilityType.MAKEUP,
-  ).length;
-  const isComplete = regularCount >= 3 && makeupCount >= 3;
+  );
 
   return (
-    <div className="max-w-xl mx-auto flex flex-col h-full space-y-6 py-4">
-      <header className="flex justify-between items-end px-1">
-        <div>
-          <h2 className="text-xl font-bold tracking-tight text-foreground">
-            Disponibilidade
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Sessões fixas de 45 minutos.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Badge
-            variant={regularCount >= 3 ? "default" : "secondary"}
-            className="h-6 font-mono"
-          >
-            REG: {regularCount}/3
-          </Badge>
-          <Badge
-            variant={makeupCount >= 3 ? "default" : "secondary"}
-            className="h-6 font-mono"
-          >
-            REP: {makeupCount}/3
-          </Badge>
-        </div>
-      </header>
+    <div className="p-4 md:p-6 space-y-6 max-w-4xl mx-auto h-[70vh] flex flex-col">
+      <div className="text-center space-y-2 shrink-0">
+        <h3 className="text-xl font-bold">{t("title")}</h3>
+        <p className="text-muted-foreground">{t("subtitle")}</p>
+      </div>
 
-      <div className="flex flex-col gap-3 p-4 bg-muted/40 rounded-xl border border-border/50 shadow-sm">
-        <div className="flex flex-row items-center gap-2">
-          <Select
-            value={newSlot.dayOfWeek}
-            onValueChange={(v) => setNewSlot({ ...newSlot, dayOfWeek: v })}
-          >
-            <SelectTrigger className="bg-background">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {DAYS.map((d) => (
-                <SelectItem key={d.value} value={d.value.toString()}>
-                  {d.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      <div className="flex flex-col md:flex-row gap-6 flex-1 min-h-0">
+        {/* Form */}
+        <div className="w-full md:w-1/3 space-y-4 bg-gray-50 dark:bg-gray-900 p-4 rounded-xl h-fit">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Dia</label>
+            <Select
+              value={newSlot.dayOfWeek?.toString()}
+              onValueChange={(v) =>
+                setNewSlot({ ...newSlot, dayOfWeek: parseInt(v) })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {DAYS.map((day) => (
+                  <SelectItem key={day.value} value={day.value.toString()}>
+                    {day.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-          <Select
-            value={newSlot.startTime}
-            onValueChange={(v) => setNewSlot({ ...newSlot, startTime: v })}
-          >
-            <SelectTrigger className="bg-background">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {TIME_SLOTS.map((t) => (
-                <SelectItem key={t} value={t}>
-                  {t}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button onClick={addSlot} size="icon">
-            <Plus className="w-4 h-4" />
-          </Button>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Início</label>
+            <Select
+              value={newSlot.startTime}
+              onValueChange={(v) => setNewSlot({ ...newSlot, startTime: v })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="max-h-60">
+                {Array.from({ length: 24 }).map((_, i) =>
+                  ["00", "15", "30", "45"].map((m) => {
+                    const time = `${i.toString().padStart(2, "0")}:${m}`;
+                    return (
+                      <SelectItem key={time} value={time}>
+                        {time}
+                      </SelectItem>
+                    );
+                  }),
+                )}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              {t("endsAt", { time: calculateEndTime(newSlot.startTime!) })}
+            </p>
+          </div>
 
-          <span className="text-[11px] font-medium text-primary/50 italic">
-            Termina às {calculateEndTime(newSlot.startTime)}
-          </span>
-        </div>
-
-        <div className="flex items-center justify-between self-center">
-          <div className="flex gap-4">
-            <label className="flex items-center gap-2 cursor-pointer group">
-              <input
-                type="radio"
-                className="w-3.5 h-3.5 accent-primary cursor-pointer"
-                checked={newSlot.type === AvailabilityType.REGULAR}
-                onChange={() =>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Tipo</label>
+            <div className="flex gap-2">
+              <Button
+                variant={
+                  newSlot.type === AvailabilityType.REGULAR
+                    ? "glass"
+                    : "outline"
+                }
+                onClick={() =>
                   setNewSlot({ ...newSlot, type: AvailabilityType.REGULAR })
                 }
-              />
-              <span className="text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors uppercase tracking-wider">
-                Regular
-              </span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer group">
-              <input
-                type="radio"
-                className="w-3.5 h-3.5 accent-primary cursor-pointer"
-                checked={newSlot.type === AvailabilityType.MAKEUP}
-                onChange={() =>
+                className="flex-1"
+                size="sm"
+              >
+                {t("typeRegular")}
+              </Button>
+              <Button
+                variant={
+                  newSlot.type === AvailabilityType.MAKEUP
+                    ? "secondary"
+                    : "outline"
+                }
+                onClick={() =>
                   setNewSlot({ ...newSlot, type: AvailabilityType.MAKEUP })
                 }
-              />
-              <span className="text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors uppercase tracking-wider">
-                Reposição
-              </span>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto space-y-1.5 pr-1 min-h-[250px]">
-        {data.scheduleSlots.length === 0 ? (
-          <div className="h-40 flex flex-col items-center justify-center border-2 border-dashed rounded-xl text-muted-foreground/40">
-            <Clock className="w-6 h-6 mb-2" />
-            <p className="text-xs font-medium uppercase tracking-widest">
-              Nenhum horário
-            </p>
-          </div>
-        ) : (
-          data.scheduleSlots
-            .sort(
-              (a, b) =>
-                a.dayOfWeek - b.dayOfWeek ||
-                a.startTime.localeCompare(b.startTime),
-            )
-            .map((slot) => (
-              <div
-                key={slot.id}
-                className="flex items-center gap-4 p-3 hover:bg-muted/30 rounded-lg border border-transparent hover:border-border transition-all group"
+                className="flex-1"
+                size="sm"
               >
-                <div
-                  className={`w-1 h-10 rounded-full shrink-0 ${slot.type === AvailabilityType.REGULAR ? "bg-blue-500" : "bg-purple-500"}`}
-                />
+                {t("typeMakeup")}
+              </Button>
+            </div>
+          </div>
 
-                <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 items-center gap-2">
-                  <div className="flex flex-col">
-                    <span className="text-sm font-bold text-foreground">
-                      {DAYS.find((d) => d.value === slot.dayOfWeek)?.label}
-                    </span>
-                    <span className="text-[10px] uppercase font-bold text-muted-foreground/60 tracking-tighter sm:hidden">
-                      {slot.type === AvailabilityType.REGULAR
-                        ? "Regular"
-                        : "Reposição"}
-                    </span>
-                  </div>
+          <Button onClick={handleAddSlot} className="w-full">
+            <Plus className="w-4 h-4 mr-2" /> Adicionar
+          </Button>
 
-                  <span className="text-sm font-medium tabular-nums text-muted-foreground text-center">
-                    {slot.startTime} — {slot.endTime}
-                  </span>
-
-                  <span className="hidden sm:block text-[10px] text-right pr-4 text-muted-foreground/50 uppercase font-black tracking-widest">
-                    {slot.type === AvailabilityType.REGULAR
-                      ? "Regular"
-                      : "Reposição"}
-                  </span>
-                </div>
-
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => removeSlot(slot.id)}
-                  className="h-8 w-8 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-            ))
-        )}
-      </div>
-
-      {!isComplete && (
-        <div className="flex items-start gap-3 p-4 bg-amber-50/50 dark:bg-amber-950/10 rounded-xl border border-amber-200/50 dark:border-amber-900/30">
-          <Info className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
-          <div className="space-y-1">
-            <p className="text-xs font-semibold text-amber-900 dark:text-amber-400 uppercase tracking-tight">
-              Requisitos da Agenda
-            </p>
-            <p className="text-[11px] text-amber-700 dark:text-amber-500 leading-relaxed">
-              Adicione pelo menos 3 horários <strong>Regulares</strong> e 3 de{" "}
-              <strong>Reposição</strong> para prosseguir.
-            </p>
+          <div className="pt-4 border-t text-xs text-muted-foreground space-y-1">
+            <p className="font-semibold">{t("requirementsTitle")}</p>
+            <p
+              dangerouslySetInnerHTML={{ __html: t.raw("requirementsText") }}
+            />
+            <div className="flex justify-between items-center mt-2">
+              <span>
+                {t("typeRegular")}: {regularSlots.length}/3
+              </span>
+              <span>
+                {t("typeMakeup")}: {makeupSlots.length}/3
+              </span>
+            </div>
           </div>
         </div>
-      )}
+
+        {/* List */}
+        <div className="flex-1 overflow-y-auto border rounded-xl p-4">
+          {data.scheduleSlots.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center text-muted-foreground opacity-50">
+              <Clock className="w-12 h-12 mb-2" />
+              <p>{t("empty")}</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {data.scheduleSlots.map((slot) => (
+                <div
+                  key={slot.id}
+                  className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 border rounded-lg shadow-sm"
+                >
+                  <div className="flex items-center gap-3">
+                    <Badge
+                      variant={
+                        slot.type === AvailabilityType.REGULAR
+                          ? "default"
+                          : "secondary"
+                      }
+                    >
+                      {slot.type === AvailabilityType.REGULAR ? "R" : "M"}
+                    </Badge>
+                    <div>
+                      <p className="font-medium">
+                        {DAYS.find((d) => d.value === slot.dayOfWeek)?.label}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {slot.startTime} - {slot.endTime}
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeSlot(slot.id)}
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <Trash className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

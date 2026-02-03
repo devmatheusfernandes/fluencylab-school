@@ -161,11 +161,19 @@ export default function MeuPerfil() {
       } catch (error: any) {
         console.error("Error loading latest placement result:", error);
 
-        if (error?.code === 'failed-precondition' && error?.message?.includes('index')) {
-          const match = error.message.match(/https:\/\/console\.firebase\.google\.com[^\s]*/);
+        if (
+          error?.code === "failed-precondition" &&
+          error?.message?.includes("index")
+        ) {
+          const match = error.message.match(
+            /https:\/\/console\.firebase\.google\.com[^\s]*/,
+          );
           if (match) {
-              console.log("%c [Firestore] Link para criar índice ausente:", "color: yellow; font-weight: bold; font-size: 12px;");
-              console.log(match[0]);
+            console.log(
+              "%c [Firestore] Link para criar índice ausente:",
+              "color: yellow; font-weight: bold; font-size: 12px;",
+            );
+            console.log(match[0]);
           }
         }
 
@@ -252,17 +260,32 @@ export default function MeuPerfil() {
         )}
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.4, delay: 0.3 }}
-        className="card-base p-3"
-      >
-        <Badges
-          level={placementBadgeLevel ?? 0}
-          isLoading={isLoading || isPlacementLoading}
-        />
-      </motion.div>
+      {isPlacementLoading ? (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, delay: 0.3 }}
+          className="card-base"
+        >
+          <Skeleton className="w-full h-full p-3 flex flex-col items-center justify-center">
+            <Skeleton className="rounded-full w-[5.9rem] h-[5.9rem]" />
+            <Skeleton className="h-6 w-24 mt-2 rounded-md" />
+            <Skeleton className="h-4 w-32 mt-1 rounded-md" />
+          </Skeleton>
+        </motion.div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, delay: 0.3 }}
+          className="card-base p-3"
+        >
+          <Badges
+            level={placementBadgeLevel ?? 0}
+            isLoading={isLoading || isPlacementLoading}
+          />
+        </motion.div>
+      )}
 
       {!isLoading || !user ? (
         <motion.div

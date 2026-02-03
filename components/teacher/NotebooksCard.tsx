@@ -150,14 +150,14 @@ export default function NotebooksCard({
 
   return (
     <div className="card-base w-full h-full max-h-[calc(100vh-105px)] overflow-auto p-2">
-      <div className="sticky top-0 z-10 flex flex-row gap-2 mb-4 relative">
+      <div className="sticky top-0 z-5 flex flex-row gap-2 mb-4 relative">
         <SearchBar
           placeholder={t("searchPlaceholder")}
           value={searchQuery}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setSearchQuery(e.target.value)
           }
-          className="w-full pl-10 pr-12 dark:bg-slate-900!"
+          className="w-full pl-10 pr-12"
         />
         {userRole === "teacher" && (
           <Plus

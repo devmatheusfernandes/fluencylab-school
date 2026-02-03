@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/modal";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 
 // Import step components
 import {
@@ -67,18 +68,17 @@ interface OnboardingModalProps {
 }
 
 const STEPS = [
-  { id: "welcome", title: "Início", component: WelcomeStep },
-  { id: "basic-info", title: "Perfil", component: BasicInfoStep },
-  // { id: "email-verification", title: "Email", component: EmailVerificationStep },
-  { id: "best-practices", title: "Regras", component: BestPracticesStep },
+  { id: "welcome", component: WelcomeStep },
+  { id: "basic-info", component: BasicInfoStep },
+  // { id: "email-verification", component: EmailVerificationStep },
+  { id: "best-practices", component: BestPracticesStep },
   {
     id: "contract-selection",
-    title: "Plano",
     component: ContractSelectionStep,
   },
-  { id: "contract-review", title: "Contrato", component: ContractReviewStep },
-  { id: "payment", title: "Pagamento", component: PaymentStep },
-  { id: "finish", title: "Conclusão", component: FinishStep },
+  { id: "contract-review", component: ContractReviewStep },
+  { id: "payment", component: PaymentStep },
+  { id: "finish", component: FinishStep },
 ];
 
 const STUDENT_ONBOARDING_STORAGE_KEY = "fluencylab_student_onboarding_draft";
@@ -88,6 +88,11 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   onComplete,
 }) => {
   const { data: session } = useSession();
+  const t = useTranslations("Onboarding");
+  const tSteps = useTranslations("Onboarding.Steps");
+  const tButtons = useTranslations("Onboarding.Buttons");
+  const tToasts = useTranslations("Onboarding.Toasts");
+
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false); // Controls when auto-save can start
@@ -172,26 +177,26 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
 
     if (stepId === "contract-review") {
       return data.contractSigned
-        ? "Contrato assinado, continuar"
-        : "Assinar para continuar";
+        ? tButtons("signedContinue")
+        : tButtons("signContinue");
     }
 
     if (stepId === "payment") {
       return data.paymentCompleted
-        ? "Pagamento confirmado, continuar"
-        : "Realizar pagamento";
+        ? tButtons("paidContinue")
+        : tButtons("pay");
     }
 
-    if (currentStep === STEPS.length - 1) return "Ir para o Dashboard";
+    if (currentStep === STEPS.length - 1) return tButtons("dashboard");
 
     const texts: Record<string, string> = {
-      welcome: "Começar",
-      "basic-info": "Salvar e Avançar",
+      welcome: tButtons("start"),
+      "basic-info": tButtons("saveNext"),
       // "email-verification": "Email Verificado, Avançar",
-      "best-practices": "Concordo e Continuar",
-      "contract-selection": "Confirmar Plano",
+      "best-practices": tButtons("agreeNext"),
+      "contract-selection": tButtons("confirmPlan"),
     };
-    return texts[stepId] || "Continuar";
+    return texts[stepId] || tButtons("continue");
   };
 
   const handleCompleteOnboarding = useCallback(async () => {
@@ -210,23 +215,23 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
       // Clear draft on success
       localStorage.removeItem(STUDENT_ONBOARDING_STORAGE_KEY);
 
-      toast.success("Tudo pronto! Bem-vindo.");
+      toast.success(tToasts("welcome"));
       onComplete();
     } catch (error) {
-      toast.error("Erro ao finalizar. Tente novamente.");
+      toast.error(tToasts("errorFinish"));
     } finally {
       setIsLoading(false);
     }
-  }, [data, onComplete]);
+  }, [data, onComplete, tToasts]);
 
   const handleNext = useCallback(async () => {
     if (!canGoNext()) {
       // Feedback visual simples se o usuário tentar avançar sem completar
       if (STEPS[currentStep].id === "contract-review")
-        toast.error("Assine o contrato para continuar.");
+        toast.error(tToasts("signContract"));
       else if (STEPS[currentStep].id === "payment")
-        toast.error("Realize o pagamento para continuar.");
-      else toast.error("Complete esta etapa para continuar.");
+        toast.error(tToasts("makePayment"));
+      else toast.error(tToasts("completeStep"));
       return;
     }
 
@@ -235,7 +240,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
     } else {
       await handleCompleteOnboarding();
     }
-  }, [currentStep, canGoNext, handleCompleteOnboarding]);
+  }, [currentStep, canGoNext, handleCompleteOnboarding, tToasts]);
 
   const handleBack = useCallback(() => {
     if (currentStep > 0) setCurrentStep((prev) => prev - 1);
@@ -260,7 +265,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
         <ModalHeader className="sticky top-0 z-10">
           <div className="flex flex-col gap-2">
             <h2 className="text-lg md:text-xl font-bold">
-              {STEPS[currentStep].title}
+              {tSteps(STEPS[currentStep].id)}
             </h2>
             <ProgressTracker
               variant="steps"
@@ -286,7 +291,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
           {!isFirstStep && (
             <ModalSecondaryButton onClick={handleBack} disabled={isLoading}>
               <ArrowLeft className="w-4 h-4 md:mr-2" />
-              <span>Voltar</span>
+              <span>{tButtons("back")}</span>
             </ModalSecondaryButton>
           )}
 
@@ -295,7 +300,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               disabled={(!stepCompleted && !isActionStep) || isLoading}
               className={`${!stepCompleted && isActionStep ? "opacity-50 cursor-not-allowed" : ""}`}
             >
-              {isLoading ? "Processando..." : getButtonText()}
+              {isLoading ? tButtons("processing") : getButtonText()}
               {!isLastStep && <ArrowRight className="w-4 h-4 ml-2" />}
               {isLastStep && <Check className="w-4 h-4 ml-2" />}
             </ModalPrimaryButton>

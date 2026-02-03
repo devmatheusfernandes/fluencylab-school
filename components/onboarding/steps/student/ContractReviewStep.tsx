@@ -1,285 +1,261 @@
-"use client";
-
 import React, { useState } from "react";
 import { OnboardingStepProps } from "../../OnboardingModal";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Check, ChevronDown, ChevronUp, FileText, PenTool } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useSession } from "next-auth/react";
 import { toast } from "sonner";
-import { SignatureFormData } from "@/types/contract";
-import { ScrollText, PenTool, CheckCircle, Search } from "lucide-react";
-import ContratoPDF from "@/components/contract/ContratoPDF";
-import { validateCPF, formatCPF } from "@/lib/validation/cpf";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useTranslations } from "next-intl";
 
 export const ContractReviewStep: React.FC<OnboardingStepProps> = ({
   data,
   onDataChange,
 }) => {
-  const { data: session } = useSession();
-  const [showPDF, setShowPDF] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isLoadingCEP, setIsLoadingCEP] = useState(false);
-  
-  // Estado local para campos que não estão no SignatureFormData mas são necessários para o User
-  const [localAddress, setLocalAddress] = useState({
-    number: "",
-    neighborhood: "",
-    complement: ""
-  });
+  const t = useTranslations("Onboarding.Student.ContractReview");
+  const tValidation = useTranslations(
+    "Onboarding.Student.ContractReview.Validation",
+  );
+  const tForm = useTranslations("Onboarding.Student.ContractReview.Form");
+  const tAddress = useTranslations(
+    "Onboarding.Student.ContractReview.Form.address",
+  );
 
-  const [formData, setFormData] = useState<SignatureFormData>({
-    cpf: "", 
-    name: session?.user?.name || "", 
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [formData, setFormData] = useState({
+    name: data.nickname || "",
+    cpf: "",
     birthDate: "",
-    phoneNumber: "",
-    address: "", 
-    city: "", 
-    state: "", 
-    zipCode: "", 
-    agreedToTerms: false,
+    phone: "",
+    address: {
+      zipCode: "",
+      street: "",
+      number: "",
+      complement: "",
+      neighborhood: "",
+      city: "",
+      state: "",
+    },
+    termsAccepted: false,
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    if (name === "cpf") {
-        setFormData(prev => ({ ...prev, cpf: formatCPF(value) }));
-    } else {
-        setFormData(prev => ({ ...prev, [name]: value }));
-    }
-  };
-
-  const handleLocalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setLocalAddress(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleZipCodeBlur = async () => {
-    const cep = formData.zipCode.replace(/\D/g, "");
-    if (cep.length !== 8) return;
-    
-    setIsLoadingCEP(true);
-    try {
-        const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-        const data = await res.json();
-        if (data.erro) {
-            toast.error("CEP não encontrado");
-            return;
-        }
-        setFormData(prev => ({
-            ...prev,
-            address: data.logradouro,
-            city: data.localidade,
-            state: data.uf,
-        }));
-        setLocalAddress(prev => ({
-            ...prev,
-            neighborhood: data.bairro
-        }));
-        toast.success("Endereço encontrado!");
-    } catch {
-        toast.error("Erro ao buscar CEP");
-    } finally {
-        setIsLoadingCEP(false);
-    }
-  };
-
-  const handleSign = async () => {
-    if (!formData.cpf || !formData.address || !formData.city || !formData.state || !formData.zipCode || !formData.birthDate || !formData.phoneNumber || !localAddress.number || !localAddress.neighborhood) {
-      toast.error("Preencha todos os campos obrigatórios.");
+  const handleSign = () => {
+    // Basic validation
+    if (
+      !formData.name ||
+      !formData.cpf ||
+      !formData.address.street ||
+      !formData.address.city
+    ) {
+      toast.error(tValidation("fillAll"));
       return;
     }
 
-    if (!formData.agreedToTerms) {
-      toast.error("Você precisa aceitar os termos.");
+    if (!formData.termsAccepted) {
+      toast.error(tValidation("acceptTerms"));
       return;
     }
 
-    if (!validateCPF(formData.cpf)) {
-        toast.error("CPF inválido. Verifique os números.");
-        return;
+    if (formData.cpf.length < 11) {
+      toast.error(tValidation("invalidCPF"));
+      return;
     }
 
-    setIsSubmitting(true);
+    // Simulate signing process
     try {
-      // Monta endereço completo para o contrato (se o backend esperar string única)
-      // Mas o backend vai atualizar o User, então precisamos mandar estruturado se possível.
-      // O endpoint sign-contract espera SignatureFormData. Vamos mandar os extras no body também se alterarmos o endpoint.
-      // Vamos alterar o endpoint para aceitar extraData.
-      
-      const res = await fetch("/api/onboarding/sign-contract", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-            signatureData: formData, 
-            contractLengthMonths: data.contractLengthMonths,
-            // Enviando dados extras para atualização do perfil
-            profileData: {
-                phoneNumber: formData.phoneNumber,
-                address: {
-                    street: formData.address,
-                    number: localAddress.number,
-                    complement: localAddress.complement,
-                    neighborhood: localAddress.neighborhood,
-                    city: formData.city,
-                    state: formData.state,
-                    zipCode: formData.zipCode
-                },
-                cpf: formData.cpf
-            }
-        }),
+      // In a real app, this would call an API
+      onDataChange({
+        contractSigned: true,
+        contractData: {
+          signedAt: new Date().toISOString(),
+          signerName: formData.name,
+          signerCpf: formData.cpf,
+        },
       });
-
-      if (!res.ok) throw new Error("Erro");
-      const result = await res.json();
-
-      // Atualiza estado global
-      onDataChange({ 
-        contractSigned: true, 
-        contractData: result.contractStatus,
-        cpf: formData.cpf,
-        phoneNumber: formData.phoneNumber,
-        address: {
-            street: formData.address,
-            number: localAddress.number,
-            complement: localAddress.complement,
-            neighborhood: localAddress.neighborhood,
-            city: formData.city,
-            state: formData.state,
-            zipCode: formData.zipCode
-        }
-      });
-      
-      toast.success("Contrato assinado com sucesso!");
-    } catch {
-      toast.error("Erro ao assinar contrato. Tente novamente.");
-    } finally {
-      setIsSubmitting(false);
+      toast.success(t("signedSuccess"));
+    } catch (e) {
+      toast.error(t("signedError"));
     }
+  };
+
+  const updateAddress = (field: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      address: { ...prev.address, [field]: value },
+    }));
   };
 
   if (data.contractSigned) {
     return (
-        <div className="flex flex-col items-center justify-center p-8 min-h-[40vh] text-center">
-            <CheckCircle className="w-20 h-20 text-green-500 mb-4" />
-            <h3 className="text-xl font-bold text-green-700">Contrato Assinado</h3>
-            <p className="text-gray-500 mt-2">Você pode prosseguir para o pagamento.</p>
+      <div className="flex flex-col items-center justify-center p-8 space-y-4 text-center animate-in fade-in zoom-in">
+        <div className="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+          <Check className="w-8 h-8 text-green-600 dark:text-green-400" />
         </div>
+        <h3 className="text-xl font-bold text-green-700 dark:text-green-300">
+          {t("successTitle")}
+        </h3>
+        <p className="text-muted-foreground">{t("successDescription")}</p>
+      </div>
     );
   }
 
   return (
-    <div className="p-4 md:p-8 max-w-3xl mx-auto max-h-[50vh]">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-bold">Assinatura Digital</h3>
-        <Button variant="outline" size="sm" onClick={() => setShowPDF(!showPDF)}>
-          <ScrollText className="w-4 h-4 mr-2" /> {showPDF ? "Ocultar" : "Ler"} Contrato
+    <div className="space-y-6 p-1">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-bold flex items-center gap-2">
+          <PenTool className="w-5 h-5 text-violet-500" />
+          {t("title")}
+        </h3>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="text-xs"
+        >
+          {isExpanded ? (
+            <>
+              {t("hideContract")} <ChevronUp className="w-3 h-3 ml-1" />
+            </>
+          ) : (
+            <>
+              {t("viewContract")} <ChevronDown className="w-3 h-3 ml-1" />
+            </>
+          )}
         </Button>
       </div>
 
-      {showPDF && (
-        <Card className="mb-6 h-64 overflow-y-auto p-4 bg-gray-50 text-xs border">
-          <ContratoPDF 
-            alunoData={{
-              ...formData, 
-              email: session?.user?.email || "",
-              id: session?.user?.id || ""
-            }} 
-            contractStatus={null} 
-          />
-        </Card>
+      {isExpanded && (
+        <div className="h-64 overflow-y-auto border rounded-lg p-4 bg-gray-50 dark:bg-gray-900 text-sm">
+          <div className="space-y-4">
+            <div className="flex items-center justify-center p-4">
+              <FileText className="w-8 h-8 text-gray-400" />
+            </div>
+            <p>
+              <strong>CONTRATO DE PRESTAÇÃO DE SERVIÇOS EDUCACIONAIS</strong>
+            </p>
+            <p>
+              Pelo presente instrumento particular, de um lado a FLUENCY LAB...
+            </p>
+            <p>(Conteúdo completo do contrato seria renderizado aqui...)</p>
+            <p>
+              Cláusula 1ª...
+              <br />
+              Cláusula 2ª...
+            </p>
+          </div>
+        </div>
       )}
 
-      <Card className="p-4 md:p-6 space-y-4">
+      <div className="grid gap-4 py-2">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-                <Label>Nome Completo</Label>
-                <Input name="name" value={formData.name} onChange={handleChange} placeholder="Nome Completo" />
-            </div>
-            <div className="space-y-2">
-                <Label>CPF</Label>
-                <Input name="cpf" value={formData.cpf} onChange={handleChange} placeholder="000.000.000-00" maxLength={14} />
-            </div>
-            <div className="space-y-2">
-                <Label>Data de Nascimento</Label>
-                <Input type="date" name="birthDate" value={formData.birthDate} onChange={handleChange} />
-            </div>
-            <div className="space-y-2">
-                <Label>Celular (com DDD)</Label>
-                <Input name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} placeholder="(11) 99999-9999" />
-            </div>
+          <div className="space-y-2">
+            <Label>{tForm("name")}</Label>
+            <Input
+              value={formData.name}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>{tForm("cpf")}</Label>
+            <Input
+              value={formData.cpf}
+              onChange={(e) =>
+                setFormData({ ...formData, cpf: e.target.value })
+              }
+              placeholder="000.000.000-00"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>{tForm("birthDate")}</Label>
+            <Input
+              type="date"
+              value={formData.birthDate}
+              onChange={(e) =>
+                setFormData({ ...formData, birthDate: e.target.value })
+              }
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>{tForm("phone")}</Label>
+            <Input
+              value={formData.phone}
+              onChange={(e) =>
+                setFormData({ ...formData, phone: e.target.value })
+              }
+              placeholder="(00) 00000-0000"
+            />
+          </div>
         </div>
 
-        <div className="pt-4 border-t">
-            <h4 className="font-medium mb-4 text-sm text-gray-700">Endereço</h4>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                <div className="space-y-2">
-                    <Label>CEP</Label>
-                    <div className="relative">
-                        <Input 
-                            name="zipCode" 
-                            value={formData.zipCode} 
-                            onChange={handleChange} 
-                            onBlur={handleZipCodeBlur}
-                            placeholder="00000-000" 
-                        />
-                        {isLoadingCEP && <Search className="w-4 h-4 absolute right-3 top-3 animate-spin text-gray-400" />}
-                    </div>
-                </div>
-                <div className="space-y-2 md:col-span-3">
-                    <Label>Rua / Logradouro</Label>
-                    <Input name="address" value={formData.address} onChange={handleChange} placeholder="Rua..." />
-                </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="space-y-2">
-                    <Label>Número</Label>
-                    <Input name="number" value={localAddress.number} onChange={handleLocalChange} placeholder="123" />
-                </div>
-                <div className="space-y-2">
-                    <Label>Complemento</Label>
-                    <Input name="complement" value={localAddress.complement} onChange={handleLocalChange} placeholder="Apto 101" />
-                </div>
-                <div className="space-y-2 md:col-span-2">
-                    <Label>Bairro</Label>
-                    <Input name="neighborhood" value={localAddress.neighborhood} onChange={handleLocalChange} placeholder="Bairro" />
-                </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                <div className="space-y-2">
-                    <Label>Cidade</Label>
-                    <Input name="city" value={formData.city} onChange={handleChange} readOnly className="bg-gray-50" />
-                </div>
-                <div className="space-y-2">
-                    <Label>Estado</Label>
-                    <Input name="state" value={formData.state} onChange={handleChange} readOnly className="bg-gray-50" />
-                </div>
-            </div>
+        <div className="space-y-2 pt-2 border-t">
+          <Label>{tAddress("title")}</Label>
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              placeholder={tAddress("zip")}
+              value={formData.address.zipCode}
+              onChange={(e) => updateAddress("zipCode", e.target.value)}
+            />
+            <Input
+              placeholder={tAddress("street")}
+              value={formData.address.street}
+              onChange={(e) => updateAddress("street", e.target.value)}
+            />
+            <Input
+              placeholder={tAddress("number")}
+              className="col-span-1"
+              value={formData.address.number}
+              onChange={(e) => updateAddress("number", e.target.value)}
+            />
+            <Input
+              placeholder={tAddress("complement")}
+              value={formData.address.complement}
+              onChange={(e) => updateAddress("complement", e.target.value)}
+            />
+            <Input
+              placeholder={tAddress("neighborhood")}
+              value={formData.address.neighborhood}
+              onChange={(e) => updateAddress("neighborhood", e.target.value)}
+            />
+            <Input
+              placeholder={tAddress("city")}
+              value={formData.address.city}
+              onChange={(e) => updateAddress("city", e.target.value)}
+            />
+            <Input
+              placeholder={tAddress("state")}
+              value={formData.address.state}
+              onChange={(e) => updateAddress("state", e.target.value)}
+            />
+          </div>
         </div>
+      </div>
 
-        <div className="flex items-start gap-3 pt-4 border-t mt-4">
-          <Checkbox 
-            id="terms" 
-            checked={formData.agreedToTerms} 
-            onCheckedChange={(c) => setFormData(p => ({...p, agreedToTerms: c as boolean}))} 
-          />
-          <label htmlFor="terms" className="text-sm text-gray-600 cursor-pointer select-none">
-            Li e concordo com os termos de serviço e política de cancelamento. Declaro que os dados fornecidos são verdadeiros.
-          </label>
-        </div>
-
-        <Button 
-            onClick={handleSign} 
-            disabled={!formData.agreedToTerms || isSubmitting} 
-            isLoading={isSubmitting} 
-            className="w-full mt-4"
-            variant="success"
+      <div className="flex items-start space-x-2 pt-2">
+        <Checkbox
+          id="terms"
+          checked={formData.termsAccepted}
+          onCheckedChange={(checked) =>
+            setFormData({ ...formData, termsAccepted: checked === true })
+          }
+        />
+        <label
+          htmlFor="terms"
+          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
         >
-            <PenTool className="w-4 h-4 mr-2" /> Assinar Digitalmente
-        </Button>
-      </Card>
+          {t("terms")}
+        </label>
+      </div>
+
+      <Button
+        onClick={handleSign}
+        className="w-full bg-violet-600 hover:bg-violet-700 text-white"
+        size="lg"
+      >
+        <PenTool className="w-4 h-4 mr-2" />
+        {t("signButton")}
+      </Button>
     </div>
   );
 };

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import Image from "next/image";
 import "../../placement/Placement.css";
 
@@ -9,10 +8,14 @@ import AlcioneImage from "../../../public/images/badges/alcione.png";
 import RicharlissonImage from "../../../public/images/badges/richarlisson.png";
 import JoelSantanaImage from "../../../public/images/badges/joelsantana.png";
 import NaldoBennyImage from "../../../public/images/badges/naldobenny.png";
-import { Spinner } from "@/components/ui/spinner";
-import { EyeClosed } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { SpinnerLoading } from "@/components/transitions/spinner-loading";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalTitle,
+  ModalTrigger,
+} from "@/components/ui/modal";
 
 const badgesConfig = [
   {
@@ -51,29 +54,20 @@ const badgesConfig = [
 
 export default function Badges({
   level,
-  isLoading = false,
 }: {
   level: number;
   isLoading?: boolean;
 }) {
   const t = useTranslations("Badges");
-  const [modalOpen, setModalOpen] = useState(false);
 
   // Garante que o nível esteja dentro dos limites do array
   const validLevel = Math.max(0, Math.min(level, badgesConfig.length - 1));
   const badgeConfig = badgesConfig[validLevel];
-  
+
   const badgeName = t(`items.${validLevel}.name`);
   const badgeText = t(`items.${validLevel}.text`);
   const badgeExplanation = t(`items.${validLevel}.explanation`);
   const levelText = t(`levels.${validLevel}`);
-
-  const openModal = () => setModalOpen(true);
-  const closeModal = () => setModalOpen(false);
-
-  if (isLoading) {
-    return <SpinnerLoading />;
-  }
 
   return (
     <div className="flex flex-col items-center justify-center">
@@ -91,64 +85,51 @@ export default function Badges({
         />
       </div>
 
-      <div
-        className="cursor-pointer font-bold mt-2 duration-300 ease-in-out transition-all hover:text-indigo-500"
-        onClick={openModal}
-      >
-        {badgeName}
-      </div>
+      <Modal>
+        <ModalTrigger asChild>
+          <div className="cursor-pointer font-bold mt-2 duration-300 ease-in-out transition-all hover:text-primary">
+            {badgeName}
+          </div>
+        </ModalTrigger>
+        <ModalContent className="max-w-md">
+          <ModalHeader>
+            <ModalTitle>{t("modalTitle")}</ModalTitle>
+          </ModalHeader>
+
+          <div className="flex flex-col items-center justify-center p-4">
+            <div
+              id="background-body"
+              className="bg-indigo-600 rounded-full w-[5.9rem] h-[5.9rem] flex items-center justify-center overflow-visible"
+            >
+              <Image
+                src={badgeConfig.image}
+                className={badgeConfig.className}
+                width={300}
+                height={300}
+                priority
+                alt="EnglishBadge"
+              />
+            </div>
+            <div className="flex flex-col items-center w-full p-2">
+              <p className="mb-4 text-indigo-600">
+                <strong>{levelText}</strong>
+              </p>
+              {badgeExplanation && (
+                <p className="mb-4 text-center">{badgeExplanation}</p>
+              )}
+            </div>
+          </div>
+        </ModalContent>
+      </Modal>
+
       <a
         href={badgeConfig.link}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-sm duration-300 ease-in-out transition-all hover:text-indigo-600"
+        className="text-sm duration-300 ease-in-out transition-all hover:text-primary"
       >
         {badgeText}
       </a>
-
-      {/* Modal */}
-      {modalOpen && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="text-text-light dark:text-text-dark bg-pages-light dark:bg-pages-dark rounded-lg lg:w-[50%] md:w-[90vw] w-[85vw] h-[85vh] overflow-hidden"
-          >
-            <div className="flex justify-between items-center py-3 px-6 bg-gray-100 dark:bg-gray-800">
-              <p className="text-xl font-semibold">
-                {t("modalTitle")}
-              </p>
-              <EyeClosed
-                onClick={closeModal}
-                className="text-indigo-500 hover:text-indigo-600 cursor-pointer w-7 h-7 ease-in-out duration-300"
-              />
-            </div>
-
-            <div className="flex flex-col items-center justify-center p-4">
-              <div
-                id="background-body"
-                className="bg-indigo-600 rounded-full w-[5.9rem] h-[5.9rem] flex items-center justify-center overflow-visible"
-              >
-                <Image
-                  src={badgeConfig.image}
-                  className={badgeConfig.className}
-                  width={300}
-                  height={300}
-                  priority
-                  alt="EnglishBadge"
-                />
-              </div>
-              <div className="flex flex-col items-center w-full p-2">
-                <p className="mb-4 text-indigo-600">
-                  <strong>{levelText}</strong>
-                </p>
-                {badgeExplanation && (
-                  <p className="mb-4 w-[70%]">{badgeExplanation}</p>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

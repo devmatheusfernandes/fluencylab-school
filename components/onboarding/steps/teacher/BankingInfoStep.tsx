@@ -1,212 +1,203 @@
-"use client";
-
 import React from "react";
-import { TeacherOnboardingStepProps } from "../../TeacherOnboardingModal"; // Ajuste o import conforme sua estrutura
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import {
   Select,
-  SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
-import { Building2, Landmark, QrCode } from "lucide-react";
-import { Button } from "@/components/ui/button";
-
-// Lista reduzida para exemplo, mantenha a completa no seu código real
-const MAJOR_BANKS = [
-  { code: "001", name: "Banco do Brasil" },
-  { code: "033", name: "Santander" },
-  { code: "104", name: "Caixa Econômica" },
-  { code: "237", name: "Bradesco" },
-  { code: "341", name: "Itaú" },
-  { code: "260", name: "Nubank" },
-  { code: "077", name: "Inter" },
-];
-
-import { BankingInfo } from "@/types/onboarding/teacher";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  TeacherOnboardingData,
+  TeacherOnboardingStepProps,
+} from "../../TeacherOnboardingModal";
+import { useTranslations } from "next-intl";
 
 export const BankingInfoStep: React.FC<TeacherOnboardingStepProps> = ({
   data,
   onDataChange,
 }) => {
-  const updateBank = (key: string, value: string) => {
-    const bankingInfo = { ...data.bankingInfo, [key]: value };
-    // Se selecionou banco da lista, preenche nome automaticamente
-    if (key === "bankCode") {
-      const bank = MAJOR_BANKS.find((b) => b.code === value);
-      if (bank) bankingInfo.bankName = bank.name;
-    }
-    // Se mudar para PIX e o tipo for CPF, preencher a chave automaticamente se possível
-    if (key === "paymentMethod" && value === "pix" && !bankingInfo.pixKeyType) {
-      bankingInfo.pixKeyType = "cpf";
-      if (bankingInfo.cpf) bankingInfo.pixKey = bankingInfo.cpf;
-    }
-    onDataChange({ bankingInfo });
+  const t = useTranslations("Onboarding.Teacher.Banking");
+  const bankingInfo = data.bankingInfo;
+
+  const updateBankingInfo = (updates: Partial<typeof bankingInfo>) => {
+    onDataChange({
+      bankingInfo: { ...bankingInfo, ...updates },
+    });
   };
 
-  const isPix = data.bankingInfo.paymentMethod === "pix";
-
   return (
-    <div className="p-4 md:p-8 max-w-2xl mx-auto">
-      <div className="text-center mb-6">
-        <h2 className="text-xl font-bold flex items-center justify-center gap-2">
-          <Landmark className="w-6 h-6" /> Dados de Pagamento
-        </h2>
-        <p className="text-sm text-gray-500">
-          Escolha como deseja receber seus pagamentos.
+    <div className="p-4 md:p-6 space-y-6 max-w-2xl mx-auto">
+      <div className="text-center space-y-2">
+        <h3 className="text-xl font-bold">{t("title")}</h3>
+        <p className="text-muted-foreground">
+          {t("subtitle")}
         </p>
       </div>
 
-      <Card className="p-6 space-y-6">
-        {/* Identificação Básica */}
+      <div className="space-y-4">
+        {/* Dados Pessoais Básicos para Financeiro */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label>CPF</Label>
+            <Label>{t("cpf")}</Label>
             <Input
-              value={data.bankingInfo.cpf}
-              onChange={(e) => updateBank("cpf", e.target.value)}
+              value={bankingInfo.cpf}
+              onChange={(e) => updateBankingInfo({ cpf: e.target.value })}
               placeholder="000.000.000-00"
             />
           </div>
           <div className="space-y-2">
-            <Label>Nome Completo</Label>
+            <Label>{t("fullName")}</Label>
             <Input
-              value={data.bankingInfo.fullName}
-              onChange={(e) => updateBank("fullName", e.target.value)}
-              placeholder="Igual ao documento"
+              value={bankingInfo.fullName}
+              onChange={(e) => updateBankingInfo({ fullName: e.target.value })}
+              placeholder={t("fullNamePlaceholder")}
             />
           </div>
         </div>
 
-        {/* Seleção do Método */}
-        <div className="space-y-2">
-          <Label>Método de Recebimento</Label>
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              variant={!isPix ? "glass" : "outline"}
-              className={`h-20 flex flex-col gap-2 ${!isPix ? "border-primary" : "border-muted"}`}
-              onClick={() => updateBank("paymentMethod", "account")}
-            >
-              <Building2 className="w-6 h-6 mr-2" />
-              <span>Conta Bancária</span>
-            </Button>
-            <Button
-              variant={isPix ? "glass" : "outline"}
-              className={`h-20 flex flex-col gap-2 ${isPix ? "border-primary" : "border-muted"}`}
-              onClick={() => updateBank("paymentMethod", "pix")}
-            >
-              <QrCode className="w-6 h-6 mr-2" />
-              <span>PIX</span>
-            </Button>
-          </div>
+        <div className="space-y-3 pt-2">
+          <Label>{t("methodLabel")}</Label>
+          <RadioGroup
+            value={bankingInfo.paymentMethod}
+            onValueChange={(val: "account" | "pix") =>
+              updateBankingInfo({ paymentMethod: val })
+            }
+            className="grid grid-cols-2 gap-4"
+          >
+            <div>
+              <RadioGroupItem
+                value="account"
+                id="account"
+                className="peer sr-only"
+              />
+              <Label
+                htmlFor="account"
+                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+              >
+                {t("methodAccount")}
+              </Label>
+            </div>
+            <div>
+              <RadioGroupItem value="pix" id="pix" className="peer sr-only" />
+              <Label
+                htmlFor="pix"
+                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+              >
+                {t("methodPix")}
+              </Label>
+            </div>
+          </RadioGroup>
         </div>
 
-        {/* Formulário Condicional */}
-        {isPix ? (
-          <div className="space-y-4 animate-in fade-in slide-in-from-top-2 p-4 bg-muted/30 rounded-lg border">
+        {bankingInfo.paymentMethod === "pix" ? (
+          <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
             <div className="space-y-2">
-              <Label>Tipo de Chave PIX</Label>
+              <Label>{t("pixTypeLabel")}</Label>
               <Select
-                value={data.bankingInfo.pixKeyType}
-                onValueChange={(v) => updateBank("pixKeyType", v)}
+                value={bankingInfo.pixKeyType}
+                onValueChange={(val: any) =>
+                  updateBankingInfo({ pixKeyType: val })
+                }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecione o tipo" />
+                  <SelectValue placeholder={t("pixTypePlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="cpf">CPF</SelectItem>
-                  <SelectItem value="email">E-mail</SelectItem>
+                  <SelectItem value="email">Email</SelectItem>
                   <SelectItem value="phone">Telefone</SelectItem>
-                  <SelectItem value="random">Chave Aleatória</SelectItem>
+                  <SelectItem value="random">{t("pixRandomKey")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Chave PIX</Label>
+              <Label>{t("pixKeyLabel")}</Label>
               <Input
-                value={data.bankingInfo.pixKey || ""}
-                onChange={(e) => updateBank("pixKey", e.target.value)}
-                placeholder={
-                  data.bankingInfo.pixKeyType === "email"
-                    ? "seu@email.com"
-                    : data.bankingInfo.pixKeyType === "phone"
-                      ? "(00) 00000-0000"
-                      : data.bankingInfo.pixKeyType === "random"
-                        ? "Chave aleatória"
-                        : "Digite sua chave"
-                }
+                value={bankingInfo.pixKey}
+                onChange={(e) => updateBankingInfo({ pixKey: e.target.value })}
+                placeholder={t("pixKeyPlaceholder")}
               />
             </div>
           </div>
         ) : (
           <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Banco</Label>
-                <Select
-                  value={data.bankingInfo.bankCode}
-                  onValueChange={(v) => updateBank("bankCode", v)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o banco" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {MAJOR_BANKS.map((bank) => (
-                      <SelectItem key={bank.code} value={bank.code}>
-                        {bank.code} - {bank.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Tipo de Conta</Label>
-                <Select
-                  value={data.bankingInfo.accountType}
-                  onValueChange={(v) => updateBank("accountType", v as any)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="checking">Corrente</SelectItem>
-                    <SelectItem value="savings">Poupança</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="space-y-2">
+              <Label>{t("bankLabel")}</Label>
+              <Select
+                value={bankingInfo.bankCode}
+                onValueChange={(val) => updateBankingInfo({ bankCode: val })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={t("bankPlaceholder")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="001">Banco do Brasil</SelectItem>
+                  <SelectItem value="237">Bradesco</SelectItem>
+                  <SelectItem value="341">Itaú</SelectItem>
+                  <SelectItem value="033">Santander</SelectItem>
+                  <SelectItem value="260">Nubank</SelectItem>
+                  <SelectItem value="077">Inter</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <div className="space-y-2 col-span-2 md:col-span-1">
-                <Label>Agência (sem dígito)</Label>
+            <div className="space-y-2">
+              <Label>{t("accountTypeLabel")}</Label>
+              <RadioGroup
+                value={bankingInfo.accountType}
+                onValueChange={(val: any) =>
+                  updateBankingInfo({ accountType: val })
+                }
+                className="flex gap-4"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="checking" id="checking" />
+                  <Label htmlFor="checking">{t("accountChecking")}</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="savings" id="savings" />
+                  <Label htmlFor="savings">{t("accountSavings")}</Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label>{t("agency")}</Label>
                 <Input
-                  value={data.bankingInfo.agency}
-                  onChange={(e) => updateBank("agency", e.target.value)}
+                  value={bankingInfo.agency}
+                  onChange={(e) =>
+                    updateBankingInfo({ agency: e.target.value })
+                  }
                 />
               </div>
               <div className="space-y-2">
-                <Label>Conta</Label>
+                <Label>{t("accountNumber")}</Label>
                 <Input
-                  value={data.bankingInfo.accountNumber}
-                  onChange={(e) => updateBank("accountNumber", e.target.value)}
+                  value={bankingInfo.accountNumber}
+                  onChange={(e) =>
+                    updateBankingInfo({ accountNumber: e.target.value })
+                  }
                 />
               </div>
               <div className="space-y-2">
-                <Label>Dígito</Label>
+                <Label>{t("accountDigit")}</Label>
                 <Input
-                  value={data.bankingInfo.accountDigit}
-                  onChange={(e) => updateBank("accountDigit", e.target.value)}
-                  className="md:w-20"
+                  className="w-16"
+                  maxLength={2}
+                  value={bankingInfo.accountDigit}
+                  onChange={(e) =>
+                    updateBankingInfo({ accountDigit: e.target.value })
+                  }
                 />
               </div>
             </div>
           </div>
         )}
-      </Card>
+      </div>
     </div>
   );
 };

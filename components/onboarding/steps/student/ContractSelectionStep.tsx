@@ -1,93 +1,106 @@
-"use client";
-
-import React, { useEffect } from "react";
+import React from "react";
 import { OnboardingStepProps } from "../../OnboardingModal";
-import { Card } from "@/components/ui/card";
-import { Text } from "@/components/ui/text";
-import { formatPrice } from "@/config/pricing";
-import { Badge } from "@/components/ui/badge";
-import { Check } from "lucide-react";
+import { Check, Star, Zap } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export const ContractSelectionStep: React.FC<OnboardingStepProps> = ({
   data,
   onDataChange,
-  onNext
 }) => {
-  const basePrice = 29900; // Centavos
+  const t = useTranslations("Onboarding.Student.ContractSelection");
+  const tPlans = useTranslations("Onboarding.Student.ContractSelection.Plans");
+  const tBenefits = useTranslations(
+    "Onboarding.Student.ContractSelection.Benefits",
+  );
 
-  // Verificação rápida de contrato existente
-  useEffect(() => {
-    if (data.contractSigned) onNext();
-  }, [data.contractSigned, onNext]);
-
-  const plans = [
-    {
-      months: 6,
-      label: "Semestral",
-      price: basePrice,
-      badge: null
-    },
-    {
-      months: 12,
-      label: "Anual",
-      price: Math.round(basePrice * 0.85),
-      badge: "Mais Vantajoso (-15%)"
-    }
-  ];
+  const handleSelect = (months: 6 | 12) => {
+    onDataChange({ contractLengthMonths: months });
+  };
 
   return (
-    <div className="p-4 md:p-8 max-w-2xl mx-auto">
-      <div className="text-center mb-6">
-        <Text variant="title">Escolha seu Plano</Text>
-        <Text className="text-gray-500">Qualidade igual, preço melhor no longo prazo.</Text>
+    <div className="p-4 md:p-6 space-y-6 max-w-4xl mx-auto">
+      <div className="text-center space-y-2">
+        <h3 className="text-xl font-bold">{t("title")}</h3>
+        <p className="text-muted-foreground">{t("subtitle")}</p>
       </div>
 
-      <div className="space-y-4">
-        {plans.map((plan) => {
-          const isSelected = data.contractLengthMonths === plan.months;
-          return (
-            <Card
-              key={plan.months}
-              onClick={() => onDataChange({ contractLengthMonths: plan.months as 6 | 12 })}
-              className={`p-4 cursor-pointer transition-all border-2 relative ${
-                isSelected 
-                  ? "border-primary bg-primary/5 dark:bg-primary/20" 
-                  : "border-transparent hover:border-gray-200"
-              }`}
-            >
-              {plan.badge && (
-                <Badge className="absolute -top-3 right-4 bg-green-600 hover:bg-green-700">
-                  {plan.badge}
-                </Badge>
-              )}
-              
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${isSelected ? 'border-primary' : 'border-gray-300'}`}>
-                    {isSelected && <div className="w-3 h-3 bg-primary rounded-full" />}
-                  </div>
-                  <div>
-                    <Text className="font-bold text-lg">{plan.label}</Text>
-                    <Text size="sm" className="text-gray-500">{plan.months} meses de contrato</Text>
-                  </div>
-                </div>
-                
-                <div className="text-right">
-                  <Text className="font-bold text-xl">{formatPrice(plan.price)}</Text>
-                  <Text size="xs" className="text-gray-500">/mês</Text>
-                </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+        {/* Semestral */}
+        <div
+          onClick={() => handleSelect(6)}
+          className={`
+            relative p-6 rounded-2xl border-2 cursor-pointer transition-all
+            flex flex-col gap-4
+            ${
+              data.contractLengthMonths === 6
+                ? "border-violet-600 bg-violet-50/50 dark:bg-violet-900/10 dark:border-violet-500"
+                : "border-gray-200 dark:border-gray-700 hover:border-violet-300 dark:hover:border-violet-700"
+            }
+          `}
+        >
+          <div className="flex justify-between items-start">
+            <h4 className="font-semibold text-lg">
+              {tPlans("semester.label")}
+            </h4>
+            {data.contractLengthMonths === 6 && (
+              <div className="bg-violet-600 text-white p-1 rounded-full">
+                <Check className="w-4 h-4" />
               </div>
+            )}
+          </div>
+          <div className="space-y-1">
+            <div className="text-3xl font-bold">R$ 397</div>
+            <div className="text-sm text-muted-foreground">{t("perMonth")}</div>
+          </div>
+        </div>
 
-              {isSelected && (
-                <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-300 flex flex-col gap-1">
-                  <div className="flex items-center gap-2"><Check className="w-3 h-3 text-green-500"/> Material Incluso</div>
-                  <div className="flex items-center gap-2"><Check className="w-3 h-3 text-green-500"/> Aulas personalizadas</div>
-                  {plan.months === 12 && <div className="flex items-center gap-2"><Check className="w-3 h-3 text-green-500"/> Avaliação de proficiência inclusa</div>}
-                </div>
-              )}
-            </Card>
-          );
-        })}
+        {/* Anual */}
+        <div
+          onClick={() => handleSelect(12)}
+          className={`
+            relative p-6 rounded-2xl border-2 cursor-pointer transition-all
+            flex flex-col gap-4
+            ${
+              data.contractLengthMonths === 12
+                ? "border-violet-600 bg-violet-50/50 dark:bg-violet-900/10 dark:border-violet-500 shadow-lg shadow-violet-100 dark:shadow-none"
+                : "border-gray-200 dark:border-gray-700 hover:border-violet-300 dark:hover:border-violet-700"
+            }
+          `}
+        >
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+            {tPlans("annual.badge")}
+          </div>
+
+          <div className="flex justify-between items-start">
+            <h4 className="font-semibold text-lg">{tPlans("annual.label")}</h4>
+            {data.contractLengthMonths === 12 && (
+              <div className="bg-violet-600 text-white p-1 rounded-full">
+                <Check className="w-4 h-4" />
+              </div>
+            )}
+          </div>
+          <div className="space-y-1">
+            <div className="text-3xl font-bold">R$ 337</div>
+            <div className="text-sm text-muted-foreground">{t("perMonth")}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 mt-4">
+        <ul className="space-y-3">
+          <li className="flex items-center gap-2 text-sm">
+            <Zap className="w-4 h-4 text-amber-500" />
+            {tBenefits("material")}
+          </li>
+          <li className="flex items-center gap-2 text-sm">
+            <Star className="w-4 h-4 text-violet-500" />
+            {tBenefits("customClasses")}
+          </li>
+          <li className="flex items-center gap-2 text-sm">
+            <Check className="w-4 h-4 text-green-500" />
+            {tBenefits("proficiency")}
+          </li>
+        </ul>
       </div>
     </div>
   );

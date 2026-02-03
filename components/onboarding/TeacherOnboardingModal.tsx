@@ -13,6 +13,7 @@ import { ProgressTracker } from "@/components/ui/progress-tracker";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 
 // Import teacher-specific steps
 import { TeacherBasicInfoStep } from "./steps/teacher/TeacherBasicInfoStep";
@@ -73,6 +74,7 @@ const ScheduleSelectionStepWrapper: React.FC<TeacherOnboardingStepProps> = (
 
 const TeacherWelcomeStep: React.FC<TeacherOnboardingStepProps> = () => {
   const { data: session } = useSession();
+  const t = useTranslations("Onboarding.Teacher.Welcome");
   const firstName = session?.user?.name?.split(" ")[0] || "Professor";
 
   return (
@@ -81,17 +83,13 @@ const TeacherWelcomeStep: React.FC<TeacherOnboardingStepProps> = () => {
         <div className="text-5xl md:text-6xl animate-bounce-slow">👨‍🏫</div>
 
         <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          Olá, {firstName}!
+          {t("greeting", { name: firstName })}
         </h1>
 
-        <p className="text-lg text-gray-600 dark:text-gray-300">
-          Bem-vindo ao time <strong>Fluency Lab</strong>. <br />
-          Vamos configurar seu perfil profissional, dados bancários e contrato.
-        </p>
+        <p className="text-lg text-gray-600 dark:text-gray-300" dangerouslySetInnerHTML={{ __html: t.raw("message") }} />
 
         <div className="bg-blue-50 dark:bg-blue-900/10 p-4 rounded-xl border border-blue-100 dark:border-blue-800/30 text-sm text-blue-800 dark:text-blue-200">
-          É rápido: em menos de 5 minutos você estará pronto para receber
-          alunos.
+          {t("note")}
         </div>
       </div>
     </div>
@@ -99,21 +97,22 @@ const TeacherWelcomeStep: React.FC<TeacherOnboardingStepProps> = () => {
 };
 
 const TeacherFinishStep: React.FC<TeacherOnboardingStepProps> = () => {
+  const t = useTranslations("Onboarding.Teacher.Finish");
+
   return (
     <div className="p-8 text-center flex flex-col items-center justify-center min-h-[50vh]">
       <div className="w-20 h-20 bg-gradient-to-tr from-green-400 to-blue-500 rounded-full flex items-center justify-center mb-6 animate-pulse">
         <Check className="w-10 h-10 text-white" />
       </div>
 
-      <h1 className="text-3xl font-bold mb-4">Tudo Pronto!</h1>
+      <h1 className="text-3xl font-bold mb-4">{t("title")}</h1>
 
       <p className="text-lg text-gray-600 dark:text-gray-300 max-w-md mx-auto mb-8">
-        Seu cadastro foi concluído. Nossa equipe analisará seus dados e em breve
-        seu perfil estará visível para alunos.
+        {t("description")}
       </p>
 
       <div className="text-sm text-gray-400">
-        Acesse seu dashboard para gerenciar sua agenda.
+        {t("dashboardNote")}
       </div>
     </div>
   );
@@ -128,17 +127,16 @@ interface TeacherOnboardingModalProps {
 }
 
 const TEACHER_STEPS = [
-  { id: "welcome", title: "Início", component: TeacherWelcomeStep },
-  { id: "basic-info", title: "Perfil", component: TeacherBasicInfoStep },
-  // { id: "email-verification", title: "Email", component: TeacherEmailVerificationStep },
-  { id: "banking-info", title: "Bancário", component: BankingInfoStepWrapper },
-  { id: "contract-step", title: "Contrato", component: TeacherContractStep },
+  { id: "welcome", component: TeacherWelcomeStep },
+  { id: "basic-info", component: TeacherBasicInfoStep },
+  // { id: "email-verification", component: TeacherEmailVerificationStep },
+  { id: "banking-info", component: BankingInfoStepWrapper },
+  { id: "contract-step", component: TeacherContractStep },
   {
     id: "schedule-selection",
-    title: "Agenda",
     component: ScheduleSelectionStepWrapper,
   },
-  { id: "finish", title: "Conclusão", component: TeacherFinishStep },
+  { id: "finish", component: TeacherFinishStep },
 ];
 
 const TEACHER_ONBOARDING_STORAGE_KEY = "fluencylab_teacher_onboarding_draft";
@@ -148,6 +146,11 @@ export const TeacherOnboardingModal: React.FC<TeacherOnboardingModalProps> = ({
   onComplete,
 }) => {
   const { data: session } = useSession();
+  const t = useTranslations("Onboarding");
+  const tSteps = useTranslations("Onboarding.Steps");
+  const tButtons = useTranslations("Onboarding.Buttons");
+  const tToasts = useTranslations("Onboarding.Toasts");
+
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false); // Controls when auto-save can start
@@ -262,20 +265,20 @@ export const TeacherOnboardingModal: React.FC<TeacherOnboardingModalProps> = ({
 
     if (stepId === "contract-step") {
       return data.contractSigned
-        ? "Contrato assinado, continuar"
-        : "Assinar Contrato";
+        ? tButtons("signedContinue")
+        : tButtons("signContinue");
     }
 
-    if (currentStep === TEACHER_STEPS.length - 1) return "Ir para o Dashboard";
+    if (currentStep === TEACHER_STEPS.length - 1) return tButtons("dashboard");
 
     const texts: Record<string, string> = {
-      welcome: "Começar",
-      "basic-info": "Próximo",
+      welcome: tButtons("start"),
+      "basic-info": tButtons("continue"), // Changed to "continue" as "Próximo" might not be in generic buttons, or "continue" is fine
       // "email-verification": "Email Verificado",
-      "banking-info": "Salvar Dados",
-      "schedule-selection": "Confirmar Agenda",
+      "banking-info": tButtons("saveData"),
+      "schedule-selection": tButtons("confirmSchedule"),
     };
-    return texts[stepId] || "Continuar";
+    return texts[stepId] || tButtons("continue");
   };
 
   const handleCompleteOnboarding = useCallback(async () => {
@@ -294,21 +297,21 @@ export const TeacherOnboardingModal: React.FC<TeacherOnboardingModalProps> = ({
       // Clear draft on success
       localStorage.removeItem(TEACHER_ONBOARDING_STORAGE_KEY);
 
-      toast.success("Perfil configurado com sucesso!");
+      toast.success(tToasts("welcome"));
       onComplete();
     } catch {
-      toast.error("Erro ao finalizar. Tente novamente.");
+      toast.error(tToasts("errorFinish"));
     } finally {
       setIsLoading(false);
     }
-  }, [data, onComplete]);
+  }, [data, onComplete, tToasts]);
 
   const handleNext = useCallback(async () => {
     if (!canGoNext()) {
       if (TEACHER_STEPS[currentStep].id === "contract-step") {
-        toast.error("Você precisa assinar o contrato para continuar.");
+        toast.error(tToasts("signContract"));
       } else {
-        toast.error("Preencha os campos obrigatórios.");
+        toast.error(tToasts("fillRequired"));
       }
       return;
     }
@@ -318,7 +321,7 @@ export const TeacherOnboardingModal: React.FC<TeacherOnboardingModalProps> = ({
     } else {
       await handleCompleteOnboarding();
     }
-  }, [currentStep, canGoNext, handleCompleteOnboarding]);
+  }, [currentStep, canGoNext, handleCompleteOnboarding, tToasts]);
 
   const handleBack = useCallback(() => {
     if (currentStep > 0) setCurrentStep((prev) => prev - 1);
@@ -334,13 +337,26 @@ export const TeacherOnboardingModal: React.FC<TeacherOnboardingModalProps> = ({
   );
   const stepCompleted = canGoNext();
 
+  // Mapping step IDs to translation keys
+  const getStepTitle = (stepId: string) => {
+    const map: Record<string, string> = {
+      "welcome": "welcome",
+      "basic-info": "profile",
+      "banking-info": "banking",
+      "contract-step": "contract",
+      "schedule-selection": "schedule",
+      "finish": "finish"
+    };
+    return tSteps(map[stepId] || "welcome"); // fallback
+  };
+
   return (
     <Modal open={isOpen}>
       <ModalContent className="flex flex-col justify-around">
         <ModalHeader className="sticky top-0 z-10">
           <div className="flex flex-col gap-2">
             <h2 className="text-lg md:text-xl font-bold">
-              {TEACHER_STEPS[currentStep].title}
+              {getStepTitle(TEACHER_STEPS[currentStep].id)}
             </h2>
             <ProgressTracker
               variant="steps"
@@ -370,7 +386,7 @@ export const TeacherOnboardingModal: React.FC<TeacherOnboardingModalProps> = ({
               className="px-3"
             >
               <ArrowLeft className="w-4 h-4 md:mr-2" />
-              <span>Voltar</span>
+              <span>{tButtons("back")}</span>
             </ModalSecondaryButton>
           )}
 
@@ -380,7 +396,7 @@ export const TeacherOnboardingModal: React.FC<TeacherOnboardingModalProps> = ({
               disabled={(!stepCompleted && !isActionStep) || isLoading}
               className={`${!stepCompleted && isActionStep ? "opacity-50 cursor-not-allowed" : ""}`}
             >
-              {isLoading ? "Processando..." : getButtonText()}
+              {isLoading ? tButtons("processing") : getButtonText()}
               {!isLastStep && <ArrowRight className="w-4 h-4 ml-2" />}
               {isLastStep && <Check className="w-4 h-4 ml-2" />}
             </ModalPrimaryButton>

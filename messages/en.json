@@ -2768,5 +2768,229 @@
         "pending": "Pending"
       }
     }
+  },
+  "Onboarding": {
+    "Steps": {
+      "welcome": "Start",
+      "profile": "Profile",
+      "rules": "Rules",
+      "plan": "Plan",
+      "contract": "Contract",
+      "payment": "Payment",
+      "finish": "Conclusion",
+      "banking": "Banking",
+      "schedule": "Schedule"
+    },
+    "Buttons": {
+      "back": "Back",
+      "continue": "Continue",
+      "processing": "Processing...",
+      "dashboard": "Go to Dashboard",
+      "saveNext": "Save and Continue",
+      "agreeNext": "Agree and Continue",
+      "confirmPlan": "Confirm Plan",
+      "signContinue": "Sign to continue",
+      "signedContinue": "Contract signed, continue",
+      "pay": "Make payment",
+      "paidContinue": "Payment confirmed, continue",
+      "confirmSchedule": "Confirm Schedule",
+      "saveData": "Save Data",
+      "start": "Start"
+    },
+    "Toasts": {
+      "welcome": "All set! Welcome.",
+      "errorFinish": "Error finishing. Please try again.",
+      "completeStep": "Complete this step to continue.",
+      "signContract": "Sign the contract to continue.",
+      "makePayment": "Make the payment to continue.",
+      "fillRequired": "Please fill in the required fields."
+    },
+    "Student": {
+      "Welcome": {
+        "defaultName": "Student",
+        "greeting": "Hello, {name}!",
+        "welcomeMessage": "Welcome to <strong>Fluency Lab</strong>.",
+        "description": "Let's set up your profile and contract quickly so you can start your classes. It takes less than 3 minutes."
+      },
+      "BasicInfo": {
+        "nicknameLabel": "How would you like to be called?",
+        "nicknamePlaceholder": "Your nickname or short name",
+        "nicknameError": "Minimum of 2 characters",
+        "languageLabel": "Platform Language",
+        "selectPlaceholder": "Select",
+        "themeLabel": "Theme",
+        "themeLight": "Light",
+        "themeDark": "Dark",
+        "note": "You can change all of this later in settings."
+      },
+      "BestPractices": {
+        "title": "Golden Rules",
+        "subtitle": "To ensure the best experience for you and your teacher.",
+        "agreement": "By proceeding, you agree to these coexistence guidelines.",
+        "Rules": {
+          "punctuality": {
+            "title": "Punctuality & Autonomy",
+            "text": "Enter the classroom at the scheduled time. Do not wait for a message from the teacher. Maximum tolerance of 10 minutes."
+          },
+          "rescheduling": {
+            "title": "Rescheduling",
+            "text": "Unforeseen events happen. You are entitled to 2 reschedules per month, provided you give 24 hours notice."
+          },
+          "financial": {
+            "title": "Financial",
+            "text": "The due date is between the 1st and 10th of each month. The monthly fee adjustment occurs annually in July."
+          },
+          "cancellation": {
+            "title": "Cancellation",
+            "text": "To cancel without penalty, 30 days prior notice is required."
+          }
+        }
+      },
+      "ContractSelection": {
+        "title": "Choose your Plan",
+        "subtitle": "Same quality, better price in the long run.",
+        "perMonth": "/month",
+        "Plans": {
+          "semester": { "label": "Semester" },
+          "annual": { "label": "Annual", "badge": "Best Value (-15%)" }
+        },
+        "Benefits": {
+          "material": "Material Included",
+          "customClasses": "Personalized classes",
+          "proficiency": "Proficiency assessment included"
+        }
+      },
+      "ContractReview": {
+        "title": "Digital Signature",
+        "viewContract": "Read Contract",
+        "hideContract": "Hide Contract",
+        "terms": "I read and agree to the terms of service and cancellation policy. I declare that the data provided is true.",
+        "signButton": "Sign Digitally",
+        "signedSuccess": "Contract signed successfully!",
+        "signedError": "Error signing contract. Try again.",
+        "successTitle": "Contract Signed",
+        "successDescription": "You can proceed to payment.",
+        "Validation": {
+          "fillAll": "Please fill in all required fields.",
+          "acceptTerms": "You need to accept the terms.",
+          "invalidCPF": "Invalid CPF. Check the numbers."
+        },
+        "Form": {
+          "name": "Full Name",
+          "cpf": "CPF",
+          "birthDate": "Date of Birth",
+          "phone": "Mobile (with area code)",
+          "address": {
+            "title": "Address",
+            "zip": "ZIP Code",
+            "street": "Street",
+            "number": "Number",
+            "complement": "Complement",
+            "neighborhood": "Neighborhood",
+            "city": "City",
+            "state": "State"
+          }
+        }
+      },
+      "Payment": {
+        "title": "Configure Payment",
+        "generateSubscription": "Generate Subscription",
+        "billingDayLabel": "Best day for billing:",
+        "billingNote": "The invoice will arrive in your email 2 days before.",
+        "successTitle": "Payment Initiated!",
+        "successDescription": "Your PIX has been generated. Finish to view the code.",
+        "Method": {
+          "pix": {
+            "title": "Payment via PIX",
+            "description": "No credit card. Simple and fast."
+          }
+        },
+        "Toast": {
+          "success": "QR Code Generated!",
+          "error": "Error generating payment."
+        }
+      },
+      "Finish": {
+        "title": "Congratulations!",
+        "description": "Your account is set up. Your teacher will contact you shortly for the first lesson.",
+        "support": "Questions? <link>Contact support</link>"
+      }
+    },
+    "Teacher": {
+      "Welcome": {
+        "greeting": "Hello, {name}!",
+        "message": "Welcome to the <strong>Fluency Lab</strong> team.<br />Let's set up your professional profile, bank details, and contract.",
+        "note": "It's quick: in less than 5 minutes you will be ready to receive students."
+      },
+      "Profile": {
+        "title": "Teacher Profile",
+        "subtitle": "Let's configure your presentation on the platform.",
+        "displayNameLabel": "Display Name",
+        "displayNamePlaceholder": "How should students call you?",
+        "displayNameHelp": "This name will appear on your schedule and public profile.",
+        "themeLabel": "Interface Theme"
+      },
+      "Banking": {
+        "title": "Payment Details",
+        "subtitle": "Choose how you wish to receive your payments.",
+        "methodLabel": "Payment Method",
+        "methodAccount": "Bank Account",
+        "methodPix": "PIX",
+        "cpf": "CPF",
+        "fullName": "Full Name",
+        "fullNamePlaceholder": "Same as document",
+        "pixTypeLabel": "PIX Key Type",
+        "pixTypePlaceholder": "Select type",
+        "pixRandomKey": "Random Key",
+        "pixKeyLabel": "PIX Key",
+        "pixKeyPlaceholder": "Enter your key",
+        "bankLabel": "Bank",
+        "bankPlaceholder": "Select bank",
+        "accountTypeLabel": "Account Type",
+        "accountChecking": "Checking",
+        "accountSavings": "Savings",
+        "agency": "Branch (no digit)",
+        "accountNumber": "Account",
+        "accountDigit": "Digit"
+      },
+      "Schedule": {
+        "title": "Availability",
+        "subtitle": "Fixed 45-minute sessions.",
+        "days": {
+          "monday": "Monday",
+          "tuesday": "Tuesday",
+          "wednesday": "Wednesday",
+          "thursday": "Thursday",
+          "friday": "Friday",
+          "saturday": "Saturday",
+          "sunday": "Sunday"
+        },
+        "typeRegular": "Regular",
+        "typeMakeup": "Makeup",
+        "endsAt": "Ends at {time}",
+        "empty": "No schedule",
+        "requirementsTitle": "Schedule Requirements",
+        "requirementsText": "Add at least 3 <strong>Regular</strong> and 3 <strong>Makeup</strong> slots to proceed.",
+        "addedSuccess": "Slot added!",
+        "conflictError": "This slot conflicts with an existing one."
+      },
+      "Contract": {
+        "title": "Partnership Contract",
+        "signedTitle": "Contract Signed",
+        "signedSubtitle": "You are ready to start teaching.",
+        "nameLabel": "Full Name / Business Name",
+        "cnpjLabel": "CNPJ (Optional)",
+        "addressLabel": "Full Address",
+        "terms": "I read and agree to the terms of partnership and provision of educational services.",
+        "signButton": "Sign Digitally",
+        "validationError": "Fill in the data and accept the terms.",
+        "success": "Service Agreement signed!"
+      },
+      "Finish": {
+        "title": "All Set!",
+        "description": "Your registration has been completed. Our team will analyze your data and soon your profile will be visible to students.",
+        "dashboardNote": "Access your dashboard to manage your schedule."
+      }
+    }
   }
 }

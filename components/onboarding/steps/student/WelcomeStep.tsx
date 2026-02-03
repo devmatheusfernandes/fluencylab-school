@@ -1,30 +1,27 @@
-"use client";
-
 import React from "react";
-import { OnboardingStepProps } from "../../OnboardingModal";
-import { Text } from "@/components/ui/text";
 import { useSession } from "next-auth/react";
+import { OnboardingStepProps } from "../../OnboardingModal";
+import { useTranslations } from "next-intl";
 
 export const WelcomeStep: React.FC<OnboardingStepProps> = () => {
   const { data: session } = useSession();
-  const firstName = session?.user?.name?.split(" ")[0] || "Estudante";
+  const t = useTranslations("Onboarding.Student.Welcome");
+  
+  const firstName = session?.user?.name?.split(" ")[0] || t("defaultName");
 
   return (
     <div className="p-4 md:p-8 flex flex-col items-center justify-center min-h-[50vh] text-center">
-      <div className="max-w-xl mx-auto space-y-6">
-        <div className="text-4xl md:text-6xl animate-bounce-slow">👋</div>
-        
-        <Text variant="title" size="3xl" className="font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          Olá, {firstName}!
-        </Text>
+      <div className="max-w-md mx-auto space-y-6">
+        <div className="text-5xl md:text-6xl animate-bounce-slow">👋</div>
 
-        <Text size="lg" className="text-gray-600 dark:text-gray-300">
-          Seja muito bem-vindo ao <strong>Fluency Lab</strong>.
-        </Text>
+        <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
+          {t("greeting", { name: firstName })}
+        </h1>
 
-        <div className="bg-blue-50 dark:bg-blue-900/10 p-4 rounded-xl border border-blue-100 dark:border-blue-800/30 text-sm md:text-base text-blue-800 dark:text-blue-200">
-          Vamos configurar seu perfil e contrato rapidinho para você começar suas aulas.
-          Leva menos de 3 minutos.
+        <p className="text-lg text-gray-600 dark:text-gray-300" dangerouslySetInnerHTML={{ __html: t.raw("welcomeMessage") }} />
+
+        <div className="bg-violet-50 dark:bg-violet-900/10 p-4 rounded-xl border border-violet-100 dark:border-violet-800/30 text-sm text-violet-800 dark:text-violet-200">
+          {t("description")}
         </div>
       </div>
     </div>

@@ -1,118 +1,119 @@
-"use client";
-
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { OnboardingStepProps } from "../../OnboardingModal";
-import { Card } from "@/components/ui/card";
-import { Text } from "@/components/ui/text";
 import { Button } from "@/components/ui/button";
+import { QrCode, Copy, CheckCircle, CreditCard } from "lucide-react";
 import { toast } from "sonner";
-import { formatPrice } from "@/config/pricing";
-import { QrCode, Calendar, CheckCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export const PaymentStep: React.FC<OnboardingStepProps> = ({
   data,
   onDataChange,
-  onNext,
 }) => {
-  const [billingDay, setBillingDay] = useState<number>(10);
-  const [loading, setLoading] = useState(false);
-  const basePrice = 29900;
-  const price =
-    data.contractLengthMonths === 12 ? Math.round(basePrice * 0.85) : basePrice;
+  const t = useTranslations("Onboarding.Student.Payment");
+  const tMethod = useTranslations("Onboarding.Student.Payment.Method");
+  const tToast = useTranslations("Onboarding.Student.Payment.Toast");
 
-  const handleCreateSubscription = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/onboarding/create-subscription", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          paymentMethod: "pix",
-          billingDay,
-          contractLengthMonths: data.contractLengthMonths,
-        }),
-      });
+  const [generatedPix, setGeneratedPix] = useState<string | null>(null);
 
-      if (!res.ok) throw new Error("Erro");
-      const result = await res.json();
+  const handleGeneratePix = () => {
+    // Simulate API call
+    setTimeout(() => {
+      setGeneratedPix(
+        "00020126580014BR.GOV.BCB.PIX0136123e4567-e89b-12d3-a456-426614174000520400005303986540410.005802BR5913Fluency Lab6008Sao Paulo62070503***6304ABCD",
+      );
+      toast.success(tToast("success"));
+      onDataChange({ paymentMethod: "pix" });
+    }, 1000);
+  };
 
-      onDataChange({
-        paymentCompleted: true,
-        subscriptionId: result.subscription.id,
-        paymentMethod: "pix",
-      });
-      toast.success("QR Code Gerado!");
-      onNext();
-    } catch {
-      toast.error("Erro ao gerar pagamento.");
-    } finally {
-      setLoading(false);
+  const handleCopyPix = () => {
+    if (generatedPix) {
+      navigator.clipboard.writeText(generatedPix);
+      toast.success("Código copiado!");
     }
+  };
+
+  // Simulate payment confirmation
+  const handleSimulatePayment = () => {
+    onDataChange({ paymentCompleted: true });
+    toast.success(t("successTitle"));
   };
 
   if (data.paymentCompleted) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 text-center h-64">
-        <CheckCircle className="w-16 h-16 text-green-500 mb-4 animate-bounce" />
-        <Text variant="title">Pagamento Iniciado!</Text>
-        <Text>Seu PIX foi gerado. Finalize para ver o código.</Text>
+      <div className="flex flex-col items-center justify-center p-8 space-y-4 text-center animate-in fade-in zoom-in">
+        <div className="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+          <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
+        </div>
+        <h3 className="text-xl font-bold text-green-700 dark:text-green-300">
+          {t("successTitle")}
+        </h3>
+        <p className="text-muted-foreground">{t("successDescription")}</p>
       </div>
     );
   }
 
   return (
-    <div className="p-4 md:p-8 max-w-2xl mx-auto space-y-6">
+    <div className="p-4 md:p-6 space-y-6 max-w-lg mx-auto">
       <div className="text-center">
-        <Text variant="title">Configurar Pagamento</Text>
-        <Text size="2xl" className="font-bold text-primary mt-2">
-          {formatPrice(price)}
-          <span className="text-sm font-normal text-gray-500">/mês</span>
-        </Text>
+        <h3 className="text-xl font-bold">{t("title")}</h3>
       </div>
 
-      <Card className="p-4 border-primary/50 bg-primary/5">
-        <div className="flex items-center gap-4">
-          <div className="bg-white p-2 rounded-lg">
-            <QrCode className="w-8 h-8" />
-          </div>
-          <div>
-            <Text className="font-bold">Pagamento via PIX</Text>
-            <Text size="sm" className="text-gray-600">
-              Sem cartão de crédito. Simples e rápido.
-            </Text>
+      {!generatedPix ? (
+        <div className="grid gap-4">
+          <div
+            onClick={handleGeneratePix}
+            className="p-6 border-2 border-violet-100 hover:border-violet-500 rounded-xl cursor-pointer transition-all bg-white dark:bg-gray-800 flex items-center gap-4 group"
+          >
+            <div className="bg-violet-100 dark:bg-violet-900/30 p-3 rounded-full group-hover:bg-violet-200 transition-colors">
+              <QrCode className="w-6 h-6 text-violet-600" />
+            </div>
+            <div className="text-left">
+              <h4 className="font-semibold">{tMethod("pix.title")}</h4>
+              <p className="text-sm text-muted-foreground">
+                {tMethod("pix.description")}
+              </p>
+            </div>
           </div>
         </div>
-      </Card>
+      ) : (
+        <div className="space-y-6 text-center animate-in fade-in slide-in-from-bottom-4">
+          <div className="bg-white p-4 rounded-xl shadow-sm border inline-block">
+            {/* Placeholder QR Code */}
+            <div className="w-48 h-48 bg-gray-200 flex items-center justify-center rounded-lg">
+              <QrCode className="w-16 h-16 text-gray-400" />
+            </div>
+          </div>
 
-      <div>
-        <div className="flex items-center gap-2 mb-3">
-          <Calendar className="w-5 h-5 text-gray-500" />
-          <Text className="font-medium">Melhor dia para vencimento:</Text>
-        </div>
-        <div className="grid grid-cols-4 gap-3">
-          {[1, 5, 10, 15].map((day) => (
+          <div className="space-y-2">
             <Button
-              key={day}
-              variant={billingDay === day ? "primary" : "outline"}
-              onClick={() => setBillingDay(day)}
-              className="h-12 text-lg"
+              variant="outline"
+              onClick={handleCopyPix}
+              className="w-full"
             >
-              {day}
+              <Copy className="w-4 h-4 mr-2" />
+              Copiar Código PIX
             </Button>
-          ))}
-        </div>
-        <Text size="xs" className="text-center mt-2 text-gray-500">
-          A fatura chegará no seu email 2 dias antes.
-        </Text>
-      </div>
 
-      <Button
-        className="flex-1 w-full self-center"
-        onClick={handleCreateSubscription}
-        isLoading={loading}
-      >
-        Gerar Assinatura
-      </Button>
+            {/* Dev helper */}
+            <Button
+              variant="ghost"
+              onClick={handleSimulatePayment}
+              className="text-xs text-muted-foreground"
+            >
+              (Dev: Simular Pagamento Confirmado)
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg text-sm text-blue-800 dark:text-blue-300 space-y-2">
+        <div className="flex justify-between">
+          <span>{t("billingDayLabel")}</span>
+          <span className="font-bold">10</span>
+        </div>
+        <p className="text-xs opacity-80">{t("billingNote")}</p>
+      </div>
     </div>
   );
 };

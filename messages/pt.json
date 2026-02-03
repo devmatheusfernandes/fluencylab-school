@@ -2767,5 +2767,229 @@
         "pending": "Pendente"
       }
     }
+  },
+  "Onboarding": {
+    "Steps": {
+      "welcome": "Início",
+      "profile": "Perfil",
+      "rules": "Regras",
+      "plan": "Plano",
+      "contract": "Contrato",
+      "payment": "Pagamento",
+      "finish": "Conclusão",
+      "banking": "Bancário",
+      "schedule": "Agenda"
+    },
+    "Buttons": {
+      "back": "Voltar",
+      "continue": "Continuar",
+      "processing": "Processando...",
+      "dashboard": "Ir para o Dashboard",
+      "saveNext": "Salvar e Avançar",
+      "agreeNext": "Concordo e Continuar",
+      "confirmPlan": "Confirmar Plano",
+      "signContinue": "Assinar para continuar",
+      "signedContinue": "Contrato assinado, continuar",
+      "pay": "Realizar pagamento",
+      "paidContinue": "Pagamento confirmado, continuar",
+      "confirmSchedule": "Confirmar Agenda",
+      "saveData": "Salvar Dados",
+      "start": "Começar"
+    },
+    "Toasts": {
+      "welcome": "Tudo pronto! Bem-vindo.",
+      "errorFinish": "Erro ao finalizar. Tente novamente.",
+      "completeStep": "Complete esta etapa para continuar.",
+      "signContract": "Assine o contrato para continuar.",
+      "makePayment": "Realize o pagamento para continuar.",
+      "fillRequired": "Preencha os campos obrigatórios."
+    },
+    "Student": {
+      "Welcome": {
+        "defaultName": "Estudante",
+        "greeting": "Olá, {name}!",
+        "welcomeMessage": "Seja muito bem-vindo ao <strong>Fluency Lab</strong>.",
+        "description": "Vamos configurar seu perfil e contrato rapidinho para você começar suas aulas. Leva menos de 3 minutos."
+      },
+      "BasicInfo": {
+        "nicknameLabel": "Como você quer ser chamado?",
+        "nicknamePlaceholder": "Seu apelido ou nome curto",
+        "nicknameError": "Mínimo de 2 caracteres",
+        "languageLabel": "Idioma da Plataforma",
+        "selectPlaceholder": "Selecione",
+        "themeLabel": "Tema",
+        "themeLight": "Claro",
+        "themeDark": "Escuro",
+        "note": "Você poderá alterar tudo isso depois nas configurações."
+      },
+      "BestPractices": {
+        "title": "Regras de Ouro",
+        "subtitle": "Para garantir a melhor experiência para você e seu professor.",
+        "agreement": "Ao prosseguir, você concorda com estas diretrizes de convivência.",
+        "Rules": {
+          "punctuality": {
+            "title": "Pontualidade & Autonomia",
+            "text": "Entre na sala de aula no horário marcado. Não espere mensagem do professor. Tolerância máxima de 10 minutos."
+          },
+          "rescheduling": {
+            "title": "Reagendamentos",
+            "text": "Imprevistos acontecem. Você tem direito a 2 reagendamentos por mês, desde que avise com 24h de antecedência."
+          },
+          "financial": {
+            "title": "Financeiro",
+            "text": "O vencimento é entre o dia 1º e 10 de cada mês. O reajuste da mensalidade ocorre anualmente em Julho."
+          },
+          "cancellation": {
+            "title": "Cancelamento",
+            "text": "Para cancelar sem multa, é necessário aviso prévio de 30 dias."
+          }
+        }
+      },
+      "ContractSelection": {
+        "title": "Escolha seu Plano",
+        "subtitle": "Qualidade igual, preço melhor no longo prazo.",
+        "perMonth": "/mês",
+        "Plans": {
+          "semester": { "label": "Semestral" },
+          "annual": { "label": "Anual", "badge": "Mais Vantajoso (-15%)" }
+        },
+        "Benefits": {
+          "material": "Material Incluso",
+          "customClasses": "Aulas personalizadas",
+          "proficiency": "Avaliação de proficiência inclusa"
+        }
+      },
+      "ContractReview": {
+        "title": "Assinatura Digital",
+        "viewContract": "Ler Contrato",
+        "hideContract": "Ocultar Contrato",
+        "terms": "Li e concordo com os termos de serviço e política de cancelamento. Declaro que os dados fornecidos são verdadeiros.",
+        "signButton": "Assinar Digitalmente",
+        "signedSuccess": "Contrato assinado com sucesso!",
+        "signedError": "Erro ao assinar contrato. Tente novamente.",
+        "successTitle": "Contrato Assinado",
+        "successDescription": "Você pode prosseguir para o pagamento.",
+        "Validation": {
+          "fillAll": "Preencha todos os campos obrigatórios.",
+          "acceptTerms": "Você precisa aceitar os termos.",
+          "invalidCPF": "CPF inválido. Verifique os números."
+        },
+        "Form": {
+          "name": "Nome Completo",
+          "cpf": "CPF",
+          "birthDate": "Data de Nascimento",
+          "phone": "Celular (com DDD)",
+          "address": {
+            "title": "Endereço",
+            "zip": "CEP",
+            "street": "Rua / Logradouro",
+            "number": "Número",
+            "complement": "Complemento",
+            "neighborhood": "Bairro",
+            "city": "Cidade",
+            "state": "Estado"
+          }
+        }
+      },
+      "Payment": {
+        "title": "Configurar Pagamento",
+        "generateSubscription": "Gerar Assinatura",
+        "billingDayLabel": "Melhor dia para vencimento:",
+        "billingNote": "A fatura chegará no seu email 2 dias antes.",
+        "successTitle": "Pagamento Iniciado!",
+        "successDescription": "Seu PIX foi gerado. Finalize para ver o código.",
+        "Method": {
+          "pix": {
+            "title": "Pagamento via PIX",
+            "description": "Sem cartão de crédito. Simples e rápido."
+          }
+        },
+        "Toast": {
+          "success": "QR Code Gerado!",
+          "error": "Erro ao gerar pagamento."
+        }
+      },
+      "Finish": {
+        "title": "Parabéns!",
+        "description": "Sua conta está configurada. Seu professor entrará em contato em breve para a primeira aula.",
+        "support": "Dúvidas? <link>Fale com o suporte</link>"
+      }
+    },
+    "Teacher": {
+      "Welcome": {
+        "greeting": "Olá, {name}!",
+        "message": "Bem-vindo ao time <strong>Fluency Lab</strong>.<br />Vamos configurar seu perfil profissional, dados bancários e contrato.",
+        "note": "É rápido: em menos de 5 minutos você estará pronto para receber alunos."
+      },
+      "Profile": {
+        "title": "Perfil do Professor",
+        "subtitle": "Vamos configurar sua apresentação na plataforma.",
+        "displayNameLabel": "Nome de Exibição",
+        "displayNamePlaceholder": "Como os alunos devem te chamar?",
+        "displayNameHelp": "Este nome aparecerá na sua agenda e perfil público.",
+        "themeLabel": "Tema da Interface"
+      },
+      "Banking": {
+        "title": "Dados de Pagamento",
+        "subtitle": "Escolha como deseja receber seus pagamentos.",
+        "methodLabel": "Método de Recebimento",
+        "methodAccount": "Conta Bancária",
+        "methodPix": "PIX",
+        "cpf": "CPF",
+        "fullName": "Nome Completo",
+        "fullNamePlaceholder": "Igual ao documento",
+        "pixTypeLabel": "Tipo de Chave PIX",
+        "pixTypePlaceholder": "Selecione o tipo",
+        "pixRandomKey": "Chave Aleatória",
+        "pixKeyLabel": "Chave PIX",
+        "pixKeyPlaceholder": "Digite sua chave",
+        "bankLabel": "Banco",
+        "bankPlaceholder": "Selecione o banco",
+        "accountTypeLabel": "Tipo de Conta",
+        "accountChecking": "Corrente",
+        "accountSavings": "Poupança",
+        "agency": "Agência (sem dígito)",
+        "accountNumber": "Conta",
+        "accountDigit": "Dígito"
+      },
+      "Schedule": {
+        "title": "Disponibilidade",
+        "subtitle": "Sessões fixas de 45 minutos.",
+        "days": {
+          "monday": "Segunda",
+          "tuesday": "Terça",
+          "wednesday": "Quarta",
+          "thursday": "Quinta",
+          "friday": "Sexta",
+          "saturday": "Sábado",
+          "sunday": "Domingo"
+        },
+        "typeRegular": "Regular",
+        "typeMakeup": "Reposição",
+        "endsAt": "Termina às {time}",
+        "empty": "Nenhum horário",
+        "requirementsTitle": "Requisitos da Agenda",
+        "requirementsText": "Adicione pelo menos 3 horários <strong>Regulares</strong> e 3 de <strong>Reposição</strong> para prosseguir.",
+        "addedSuccess": "Horário adicionado!",
+        "conflictError": "Este horário entra em conflito com outro já existente."
+      },
+      "Contract": {
+        "title": "Contrato de Parceria",
+        "signedTitle": "Contrato Assinado",
+        "signedSubtitle": "Você está pronto para começar a lecionar.",
+        "nameLabel": "Nome Completo / Razão Social",
+        "cnpjLabel": "CNPJ (Opcional)",
+        "addressLabel": "Endereço Completo",
+        "terms": "Li e concordo com os termos de parceria e prestação de serviços educacionais.",
+        "signButton": "Assinar Digitalmente",
+        "validationError": "Preencha os dados e aceite os termos.",
+        "success": "Contrato de Prestação de Serviços assinado!"
+      },
+      "Finish": {
+        "title": "Tudo Pronto!",
+        "description": "Seu cadastro foi concluído. Nossa equipe analisará seus dados e em breve seu perfil estará visível para alunos.",
+        "dashboardNote": "Acesse seu dashboard para gerenciar sua agenda."
+      }
+    }
   }
 }
