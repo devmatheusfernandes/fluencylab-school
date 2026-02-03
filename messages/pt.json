@@ -1617,6 +1617,11 @@
       "defaultTimesTitle": "Horários padrão para sincronização",
       "until": "até"
     },
+    "pwaUpdate": {
+      "title": "Atualização Disponível",
+      "description": "Uma nova versão do aplicativo está disponível. Atualize para ter acesso às últimas melhorias.",
+      "button": "Atualizar Agora"
+    },
     "pwa": {
       "title": "Instalar Aplicativo",
       "subtitle": "Instale o FluencyLab School no seu dispositivo para uma melhor experiência",

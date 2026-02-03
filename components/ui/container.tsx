@@ -11,7 +11,7 @@ export const Container = ({ children, className = "" }: ContainerProps) => {
     <div
       className={cn(
         "container-base w-full p-2 sm:p-2 rounded-b-lg transition-colors duration-300 overflow-y-scroll no-scrollbar gap-2",
-        className
+        className,
       )}
     >
       {children}
@@ -32,7 +32,7 @@ export const ContainerCard = ({
     <div
       className={cn(
         "w-full rounded-b-lg overflow-y-auto transition-colors duration-300 no-scrollbar gap-2 p-1 sm:p-2",
-        className
+        className,
       )}
     >
       {children}

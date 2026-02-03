@@ -1618,6 +1618,11 @@
       "defaultTimesTitle": "Default synchronization times",
       "until": "to"
     },
+    "pwaUpdate": {
+      "title": "Update Available",
+      "description": "A new version of the app is available. Update now to access the latest improvements.",
+      "button": "Update Now"
+    },
     "pwa": {
       "title": "Install App",
       "subtitle": "Install FluencyLab School on your device for a better experience",

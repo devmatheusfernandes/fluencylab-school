@@ -707,7 +707,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             <motion.nav
               key="mobile-navbar"
               layoutId="mobile-sidebar"
-              className="md:hidden fixed bottom-0 left-0 right-0 bg-slate-300 dark:bg-slate-950 border-t border-primary px-4 py-2 z-50 flex items-center justify-between"
+              className="md:hidden fixed bottom-0 left-0 right-0 bg-slate-200 dark:bg-slate-950 border-t border-primary px-4 py-2 z-50 flex items-center justify-between"
               transition={{ type: "spring", bounce: 0, duration: 0.5 }}
             >
               {/* Content Container - Fades out on open */}
