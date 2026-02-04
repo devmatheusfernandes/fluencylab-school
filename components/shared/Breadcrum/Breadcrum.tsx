@@ -1,6 +1,5 @@
 "use client";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
-import { useIsStandalone } from "@/hooks/ui/useIsStandalone";
 import { useIsMobile } from "@/hooks/ui/useMobile";
 import LayoutSidebarRightIcon from "@/public/animated/layout-sidebar-right-icon";
 import * as React from "react";
@@ -22,7 +21,6 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>(
     const currentItem =
       items && items.length > 0 ? items[items.length - 1] : null;
     const isMobile = useIsMobile();
-    const isStandalone = useIsStandalone();
 
     if (!currentItem) {
       return null;

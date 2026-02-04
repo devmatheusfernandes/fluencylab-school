@@ -131,7 +131,9 @@ function HubLayoutContent({
     pathname?.startsWith(`/${locale}/hub/student/my-courses/course/lesson`);
 
   const isChatPage =
-    pathname?.includes("/my-chat") || pathname?.includes("/workbooks");
+    pathname?.includes("/my-chat") ||
+    pathname?.includes("/workbooks") ||
+    pathname?.includes("/blogs");
 
   // Se estivermos na página do caderno, não renderiza sidebar nem header
   if (hideLayoutElements) {

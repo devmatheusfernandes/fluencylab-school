@@ -34,6 +34,7 @@ const segmentToSidebarKey: Record<string, string> = {
   "my-courses": "courses",
   "my-contract": "myContract",
   "my-payments": "finances",
+  "my-immersion": "immersion",
 };
 
 function capitalize(segment: string) {
@@ -43,7 +44,7 @@ function capitalize(segment: string) {
 // Função que gera os itens do breadcrumb a partir do pathname, com suporte a i18n
 export const generateBreadcrumbs = (
   pathname: string,
-  messages?: BreadcrumbMessages
+  messages?: BreadcrumbMessages,
 ): BreadcrumbItem[] => {
   const pathSegments = pathname.split("/").filter((segment) => segment);
 
@@ -66,7 +67,8 @@ export const generateBreadcrumbs = (
     const key = segmentToSidebarKey[segment];
     const labelFromSidebar = key ? tSidebar[key] : undefined;
     const labelFromBreadcrumb = tBreadcrumb[segment];
-    const label = labelFromSidebar ?? labelFromBreadcrumb ?? capitalize(segment);
+    const label =
+      labelFromSidebar ?? labelFromBreadcrumb ?? capitalize(segment);
     return { label, href };
   });
 

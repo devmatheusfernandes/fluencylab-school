@@ -10,6 +10,14 @@ import { SimpleEditor } from "./SimpleEditor";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+
+const CATEGORIES = [
+  "Productivity",
+  "Development",
+  "UI/UX",
+  "Tutorials",
+];
 
 interface BlogFormProps {
   initialData?: Blog;
@@ -18,6 +26,9 @@ interface BlogFormProps {
 export function BlogForm({ initialData }: BlogFormProps) {
   const [title, setTitle] = useState(initialData?.title || "");
   const [content, setContent] = useState(initialData?.content || "");
+  const [categories, setCategories] = useState<string[]>(
+    initialData?.categories || []
+  );
 
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverUrl, setCoverUrl] = useState<string | null>(
@@ -85,6 +96,7 @@ export function BlogForm({ initialData }: BlogFormProps) {
         title,
         content,
         coverImageUrl: coverUrl,
+        categories,
       };
 
       if (initialData) {
@@ -159,6 +171,33 @@ export function BlogForm({ initialData }: BlogFormProps) {
               />
             </div>
           )}
+        </div>
+
+        <div className="space-y-2">
+          <Label>Categories</Label>
+          <div className="flex flex-wrap gap-4 pt-2">
+            {CATEGORIES.map((category) => (
+              <div key={category} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`cat-${category}`}
+                  checked={categories.includes(category)}
+                  onCheckedChange={(checked) => {
+                    setCategories((prev) =>
+                      checked
+                        ? [...prev, category]
+                        : prev.filter((c) => c !== category)
+                    );
+                  }}
+                />
+                <Label
+                  htmlFor={`cat-${category}`}
+                  className="font-normal cursor-pointer"
+                >
+                  {category}
+                </Label>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="space-y-2">

@@ -199,6 +199,7 @@ export default function MeuPerfil() {
         "
     >
       <WordOfTheDayModal language={user?.languages?.[0] || "en"} />
+
       {!isLoading && user ? (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}

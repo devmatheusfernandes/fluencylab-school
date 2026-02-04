@@ -56,6 +56,14 @@ export class ImmersionService {
     return await immersionRepository.findAllBlogs();
   }
 
+  async incrementBlogViews(id: string): Promise<void> {
+    await immersionRepository.incrementBlogViews(id);
+  }
+
+  async getPopularBlogs(limit: number = 3): Promise<Blog[]> {
+    return await immersionRepository.findPopularBlogs(limit);
+  }
+
   // --- Progress ---
 
   async savePodcastProgress(

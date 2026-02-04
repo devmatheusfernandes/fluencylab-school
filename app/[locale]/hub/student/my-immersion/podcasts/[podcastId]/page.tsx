@@ -30,7 +30,7 @@ export default async function PodcastPage({ params }: PodcastPageProps) {
   }
 
   return (
-    <Container>
+    <div className="p-4 md:p-6 space-y-6">
       <Header
         heading="Now Playing"
         subheading={podcast.title}
@@ -41,6 +41,6 @@ export default async function PodcastPage({ params }: PodcastPageProps) {
         podcast={podcast}
         initialProgress={progress?.lastPosition || 0}
       />
-    </Container>
+    </div>
   );
 }

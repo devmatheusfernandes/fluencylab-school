@@ -62,6 +62,10 @@ const nextConfig: NextConfig = {
         hostname: "www.transparenttextures.com",
         pathname: "/patterns/cubes.png",
       },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
     ],
   },
   poweredByHeader: false,

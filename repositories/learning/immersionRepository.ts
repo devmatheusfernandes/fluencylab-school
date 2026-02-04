@@ -8,7 +8,7 @@ import {
   CreateBlogDTO,
   UpdateBlogDTO,
 } from "@/types/learning/immersion";
-import { Timestamp } from "firebase-admin/firestore";
+import { Timestamp, FieldValue } from "firebase-admin/firestore";
 
 const podcastsCollection = adminDb.collection("podcasts");
 const blogsCollection = adminDb.collection("blogs");
@@ -118,6 +118,7 @@ export class ImmersionRepository {
     try {
       const newBlog: Blog = {
         ...blog,
+        views: 0,
         id: blogsCollection.doc().id,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -202,6 +203,43 @@ export class ImmersionRepository {
       });
     } catch (error) {
       console.error("Error fetching all blogs in repository:", error);
+      throw error;
+    }
+  }
+
+  async incrementBlogViews(id: string): Promise<void> {
+    try {
+      await blogsCollection.doc(id).update({
+        views: FieldValue.increment(1),
+      });
+    } catch (error) {
+      console.error(`Error incrementing views for blog ${id}:`, error);
+    }
+  }
+
+  async findPopularBlogs(limit: number = 3): Promise<Blog[]> {
+    try {
+      const snapshot = await blogsCollection
+        .orderBy("views", "desc")
+        .limit(limit)
+        .get();
+      return snapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          createdAt:
+            data.createdAt instanceof Timestamp
+              ? data.createdAt.toDate()
+              : data.createdAt,
+          updatedAt:
+            data.updatedAt instanceof Timestamp
+              ? data.updatedAt.toDate()
+              : data.updatedAt,
+        } as Blog;
+      });
+    } catch (error) {
+      console.error("Error fetching popular blogs in repository:", error);
       throw error;
     }
   }
