@@ -13,6 +13,8 @@ import BackgroundLogin from "@/public/images/login/background";
 import TransitionAnimation from "@/components/transitions/login";
 import { ThemeSwitcher } from "../ThemeSwitcher";
 import { DoorOpenIcon } from "lucide-react";
+import BrandGoogleIcon from "@/public/animated/brand-google";
+import { AnimatedIconHandle } from "@/types/animated/types";
 
 interface SignInClientProps {
   messages: Record<string, Record<string, string>>;
@@ -22,7 +24,10 @@ export function SignInClient({ messages }: SignInClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { status } = useSession();
-  const isLoading = status === "loading";
+  const [isCredentialsLoading, setIsCredentialsLoading] = React.useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = React.useState(false);
+  const isLoading =
+    status === "loading" || isCredentialsLoading || isGoogleLoading;
   const isAuthenticated = status === "authenticated";
   const locale = useLocale();
   const callbackUrl = searchParams.get("callbackUrl") || "/hub";
@@ -31,6 +36,7 @@ export function SignInClient({ messages }: SignInClientProps) {
   const [password, setPassword] = React.useState("");
   const [localError, setLocalError] = React.useState<string | null>(null);
   const [showTransition, setShowTransition] = React.useState(false);
+  const googleIconRef = React.useRef<AnimatedIconHandle>(null);
 
   React.useEffect(() => {
     if (isAuthenticated && !showTransition) {
@@ -41,6 +47,7 @@ export function SignInClient({ messages }: SignInClientProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLocalError(null);
+    setIsCredentialsLoading(true);
     try {
       const result = await signIn("credentials", {
         redirect: false,
@@ -49,6 +56,7 @@ export function SignInClient({ messages }: SignInClientProps) {
       });
 
       if (result?.error) {
+        setIsCredentialsLoading(false);
         if (result.error === "2FA_REQUIRED") {
           try {
             const tempData = {
@@ -109,10 +117,13 @@ export function SignInClient({ messages }: SignInClientProps) {
     } catch (err) {
       console.error("Sign in error", err);
       setLocalError(messages?.Auth?.internalError);
+      setIsCredentialsLoading(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    googleIconRef.current?.startAnimation();
     try {
       await signIn("google", { callbackUrl });
     } catch (error) {
@@ -120,6 +131,8 @@ export function SignInClient({ messages }: SignInClientProps) {
       setLocalError(
         messages?.Auth?.googleLoginError || "Error with Google Login",
       );
+      setIsGoogleLoading(false);
+      googleIconRef.current?.stopAnimation();
     }
   };
 
@@ -177,7 +190,7 @@ export function SignInClient({ messages }: SignInClientProps) {
                     className="w-full"
                     size="lg"
                   >
-                    {isLoading ? (
+                    {isCredentialsLoading ? (
                       <>
                         <Spinner aria-hidden="true" className="mr-2" />
                         <span className="sr-only">{t.loading}</span>
@@ -185,8 +198,8 @@ export function SignInClient({ messages }: SignInClientProps) {
                       </>
                     ) : (
                       <div className="flex flex-row items-center justify-center">
+                        <DoorOpenIcon className="mr-2 w-5 h-5" />
                         <span>{t.submit}</span>
-                        <DoorOpenIcon className="ml-2 w-5 h-5" />
                       </div>
                     )}
                   </Button>
@@ -197,7 +210,7 @@ export function SignInClient({ messages }: SignInClientProps) {
                     </p>
                   )}
 
-                  <div className="relative my-6">
+                  <div className="relative my-3 mb-6">
                     <div className="absolute inset-0 flex items-center">
                       <span className="w-full border-t border-gray-300 dark:border-gray-700" />
                     </div>
@@ -216,10 +229,10 @@ export function SignInClient({ messages }: SignInClientProps) {
                     className="w-full"
                     size="lg"
                   >
-                    <img
-                      src="/icons/google.svg"
-                      alt="Google"
-                      className="h-5 w-5 mr-2"
+                    <BrandGoogleIcon
+                      ref={googleIconRef}
+                      size={20}
+                      className="mr-2"
                     />
                     {t.signInWithGoogle}
                   </Button>

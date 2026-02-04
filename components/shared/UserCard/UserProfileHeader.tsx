@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { User } from "@/types/users/users";
 import { useAvatar } from "@/hooks/ui/useAvatar";
 import { LogOut, RefreshCw } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import { useTranslations } from "next-intl";
 
 interface UserProfileHeaderProps {

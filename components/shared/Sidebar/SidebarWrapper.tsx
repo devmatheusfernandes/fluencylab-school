@@ -51,7 +51,7 @@ export default function SidebarWrapper({ items, user }: SidebarWrapperProps) {
     ? {
         name: currentUser.name,
         role: currentUser.role,
-        avatar: currentUser.avatarUrl,
+        avatarUrl: currentUser.avatarUrl,
       }
     : user;
 
