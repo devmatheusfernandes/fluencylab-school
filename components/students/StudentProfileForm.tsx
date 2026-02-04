@@ -84,10 +84,12 @@ export function StudentProfileForm({ users }: StudentProfileFormProps) {
     firstImpressions: "",
   });
 
-  const [errors, setErrors] = useState<Partial<Record<keyof StudentProfileFormValues, string>>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof StudentProfileFormValues, string>>
+  >({});
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -101,7 +103,10 @@ export function StudentProfileForm({ users }: StudentProfileFormProps) {
     }
   };
 
-  const handleSelectChange = (name: keyof StudentProfileFormValues, value: string) => {
+  const handleSelectChange = (
+    name: keyof StudentProfileFormValues,
+    value: string,
+  ) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
       setErrors((prev) => {
@@ -127,20 +132,21 @@ export function StudentProfileForm({ users }: StudentProfileFormProps) {
           ? new Date().getFullYear() - new Date(user.birthDate).getFullYear()
           : undefined,
       }));
-      
+
       // Clear userId error
       setErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors.userId;
         return newErrors;
       });
-      
+
       setOpenUserSelect(false);
     }
   };
 
   const validate = (): boolean => {
-    const newErrors: Partial<Record<keyof StudentProfileFormValues, string>> = {};
+    const newErrors: Partial<Record<keyof StudentProfileFormValues, string>> =
+      {};
     let isValid = true;
 
     if (!formData.userId) {
@@ -178,7 +184,7 @@ export function StudentProfileForm({ users }: StudentProfileFormProps) {
     setIsSubmitting(true);
     try {
       const result = await createStudentProfile({
-        userId: formData.userId,
+        studentId: formData.userId,
         name: formData.name,
         email: formData.email,
         phoneNumber: formData.phoneNumber,
@@ -197,8 +203,6 @@ export function StudentProfileForm({ users }: StudentProfileFormProps) {
           deadline: formData.goalDeadline,
         },
         firstImpressions: formData.firstImpressions,
-        createdAt: new Date(),
-        updatedAt: new Date(),
       });
 
       if (result.success) {
@@ -221,9 +225,7 @@ export function StudentProfileForm({ users }: StudentProfileFormProps) {
         <Card className="h-fit">
           <CardHeader>
             <CardTitle>{t("contactInfo")}</CardTitle>
-            <CardDescription>
-              {t("contactDescription")}
-            </CardDescription>
+            <CardDescription>{t("contactDescription")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* User Selection */}
@@ -243,7 +245,10 @@ export function StudentProfileForm({ users }: StudentProfileFormProps) {
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="p-0 w-full min-w-[300px]" align="start">
+                <PopoverContent
+                  className="p-0 w-full min-w-[300px]"
+                  align="start"
+                >
                   <Command>
                     <CommandInput placeholder={t("searchUser")} />
                     <CommandList>
@@ -260,7 +265,7 @@ export function StudentProfileForm({ users }: StudentProfileFormProps) {
                                 "mr-2 h-4 w-4",
                                 formData.userId === user.id
                                   ? "opacity-100"
-                                  : "opacity-0"
+                                  : "opacity-0",
                               )}
                             />
                             {user.name} ({user.email})
@@ -279,11 +284,11 @@ export function StudentProfileForm({ users }: StudentProfileFormProps) {
             {/* Name */}
             <div className="space-y-2">
               <Label htmlFor="name">{t("name")} *</Label>
-              <Input 
-                id="name" 
-                name="name" 
-                value={formData.name} 
-                onChange={handleInputChange} 
+              <Input
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
               />
               {errors.name && (
                 <p className="text-sm text-red-500">{errors.name}</p>
@@ -293,13 +298,13 @@ export function StudentProfileForm({ users }: StudentProfileFormProps) {
             {/* Email */}
             <div className="space-y-2">
               <Label htmlFor="email">{t("email")} *</Label>
-              <Input 
-                id="email" 
-                name="email" 
-                value={formData.email} 
-                onChange={handleInputChange} 
-                readOnly 
-                className="bg-muted" 
+              <Input
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                readOnly
+                className="bg-muted"
               />
               {errors.email && (
                 <p className="text-sm text-red-500">{errors.email}</p>
@@ -309,12 +314,12 @@ export function StudentProfileForm({ users }: StudentProfileFormProps) {
             {/* Phone */}
             <div className="space-y-2">
               <Label htmlFor="phoneNumber">{t("contact")} *</Label>
-              <Input 
-                id="phoneNumber" 
-                name="phoneNumber" 
-                value={formData.phoneNumber} 
-                onChange={handleInputChange} 
-                placeholder="+55..." 
+              <Input
+                id="phoneNumber"
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleInputChange}
+                placeholder="+55..."
               />
               {errors.phoneNumber && (
                 <p className="text-sm text-red-500">{errors.phoneNumber}</p>
@@ -325,20 +330,20 @@ export function StudentProfileForm({ users }: StudentProfileFormProps) {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="city">{t("city")}</Label>
-                <Input 
-                  id="city" 
-                  name="city" 
-                  value={formData.city} 
-                  onChange={handleInputChange} 
+                <Input
+                  id="city"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleInputChange}
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="state">{t("state")}</Label>
-                <Input 
-                  id="state" 
-                  name="state" 
-                  value={formData.state} 
-                  onChange={handleInputChange} 
+                <Input
+                  id="state"
+                  name="state"
+                  value={formData.state}
+                  onChange={handleInputChange}
                 />
               </div>
             </div>
@@ -349,20 +354,22 @@ export function StudentProfileForm({ users }: StudentProfileFormProps) {
         <Card className="h-fit">
           <CardHeader>
             <CardTitle>{t("pedagogicalProfile")}</CardTitle>
-            <CardDescription>
-              {t("pedagogicalDescription")}
-            </CardDescription>
+            <CardDescription>{t("pedagogicalDescription")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Language */}
             <div className="space-y-2">
               <Label htmlFor="language">{t("language")} *</Label>
               <Select
-                onValueChange={(value) => handleSelectChange("languageOfInterest", value)}
+                onValueChange={(value) =>
+                  handleSelectChange("languageOfInterest", value)
+                }
                 value={formData.languageOfInterest}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={t("selectUser").replace("...", "")} />
+                  <SelectValue
+                    placeholder={t("selectUser").replace("...", "")}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="english">Inglês</SelectItem>
@@ -373,7 +380,9 @@ export function StudentProfileForm({ users }: StudentProfileFormProps) {
                 </SelectContent>
               </Select>
               {errors.languageOfInterest && (
-                <p className="text-sm text-red-500">{errors.languageOfInterest}</p>
+                <p className="text-sm text-red-500">
+                  {errors.languageOfInterest}
+                </p>
               )}
             </div>
 
@@ -381,12 +390,12 @@ export function StudentProfileForm({ users }: StudentProfileFormProps) {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="age">{t("age")}</Label>
-                <Input 
-                  id="age" 
-                  name="age" 
-                  type="number" 
-                  value={formData.age || ""} 
-                  onChange={handleInputChange} 
+                <Input
+                  id="age"
+                  name="age"
+                  type="number"
+                  value={formData.age || ""}
+                  onChange={handleInputChange}
                 />
               </div>
               <div className="space-y-2">
@@ -396,7 +405,9 @@ export function StudentProfileForm({ users }: StudentProfileFormProps) {
                   value={formData.level}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={t("selectUser").replace("...", "")} />
+                    <SelectValue
+                      placeholder={t("selectUser").replace("...", "")}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="A1">A1 - Iniciante</SelectItem>
@@ -413,71 +424,73 @@ export function StudentProfileForm({ users }: StudentProfileFormProps) {
             {/* Placement Notes */}
             <div className="space-y-2">
               <Label htmlFor="placementNotes">{t("placementNotes")}</Label>
-              <Textarea 
-                id="placementNotes" 
-                name="placementNotes" 
-                placeholder="Observações sobre o teste de nível..." 
-                value={formData.placementNotes} 
-                onChange={handleInputChange} 
+              <Textarea
+                id="placementNotes"
+                name="placementNotes"
+                placeholder="Observações sobre o teste de nível..."
+                value={formData.placementNotes}
+                onChange={handleInputChange}
               />
             </div>
 
             {/* Preferences */}
             <div className="space-y-2">
-              <Label htmlFor="schedulePreferences">{t("schedulePreferences")}</Label>
-              <Input 
-                id="schedulePreferences" 
-                name="schedulePreferences" 
-                placeholder="Ex: Manhãs, Seg/Qua/Sex..." 
-                value={formData.schedulePreferences} 
-                onChange={handleInputChange} 
+              <Label htmlFor="schedulePreferences">
+                {t("schedulePreferences")}
+              </Label>
+              <Input
+                id="schedulePreferences"
+                name="schedulePreferences"
+                placeholder="Ex: Manhãs, Seg/Qua/Sex..."
+                value={formData.schedulePreferences}
+                onChange={handleInputChange}
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="likesPreferences">{t("likesPreferences")}</Label>
-              <Textarea 
-                id="likesPreferences" 
-                name="likesPreferences" 
-                placeholder="Filmes, séries, hobbies, interesses..." 
-                value={formData.likesPreferences} 
-                onChange={handleInputChange} 
+              <Textarea
+                id="likesPreferences"
+                name="likesPreferences"
+                placeholder="Filmes, séries, hobbies, interesses..."
+                value={formData.likesPreferences}
+                onChange={handleInputChange}
               />
             </div>
 
             {/* Goals */}
             <div className="space-y-2">
               <Label htmlFor="mainGoal">{t("mainGoal")}</Label>
-              <Input 
-                id="mainGoal" 
-                name="mainGoal" 
-                placeholder="Ex: Viagem, Trabalho, Certificação..." 
-                value={formData.mainGoal} 
-                onChange={handleInputChange} 
+              <Input
+                id="mainGoal"
+                name="mainGoal"
+                placeholder="Ex: Viagem, Trabalho, Certificação..."
+                value={formData.mainGoal}
+                onChange={handleInputChange}
               />
             </div>
-            
-             <div className="space-y-2">
+
+            <div className="space-y-2">
               <Label htmlFor="goalDeadline">{t("deadline")}</Label>
-              <Input 
-                id="goalDeadline" 
-                name="goalDeadline" 
-                placeholder="Ex: 6 meses, fim do ano..." 
-                value={formData.goalDeadline} 
-                onChange={handleInputChange} 
+              <Input
+                id="goalDeadline"
+                name="goalDeadline"
+                placeholder="Ex: 6 meses, fim do ano..."
+                value={formData.goalDeadline}
+                onChange={handleInputChange}
               />
             </div>
 
             {/* First Impressions */}
             <div className="space-y-2">
               <Label htmlFor="firstImpressions">{t("firstImpressions")}</Label>
-              <Textarea 
-                id="firstImpressions" 
-                name="firstImpressions" 
-                placeholder="Comentários livres sobre o perfil do aluno..." 
+              <Textarea
+                id="firstImpressions"
+                name="firstImpressions"
+                placeholder="Comentários livres sobre o perfil do aluno..."
                 className="min-h-[100px]"
-                value={formData.firstImpressions} 
-                onChange={handleInputChange} 
+                value={formData.firstImpressions}
+                onChange={handleInputChange}
               />
             </div>
           </CardContent>
