@@ -26,7 +26,7 @@ import { useDroppable } from "@dnd-kit/core";
 import { useIsMobile } from "@/hooks/ui/useMobile";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTranslations } from "next-intl";
 
 interface TaskKanbanViewProps {
@@ -150,7 +150,7 @@ export function TaskKanbanView({
         <div
           className={cn(
             "flex h-full gap-4 pb-4",
-            isMobile ? "flex-col w-fullull" : "w-max min-w-full",
+            isMobile ? "flex-col w-full" : "w-max min-w-full",
           )}
         >
           {COLUMNS.map((col, index) => (

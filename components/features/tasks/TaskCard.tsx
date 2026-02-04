@@ -2,7 +2,6 @@ import { Task } from "@/types/tasks/task";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
-  Calendar,
   CheckSquare,
   ChevronUp,
   ChevronDown,
@@ -71,15 +70,18 @@ export function TaskCard({
   const priorityConfig: Record<string, { label: string; className: string }> = {
     low: {
       label: t("priority.low"),
-      className: "text-slate-500 border-slate-200 bg-slate-50",
+      className:
+        "text-slate-500 border-slate-200 bg-slate-50 dark:text-white dark:border-slate-300 dark:bg-slate-600",
     },
     medium: {
       label: t("priority.medium"),
-      className: "text-amber-600 border-amber-200 bg-amber-50",
+      className:
+        "text-amber-600 border-amber-200 bg-amber-50 dark:text-white dark:border-amber-300 dark:bg-amber-600",
     },
     high: {
       label: t("priority.high"),
-      className: "text-red-600 border-red-200 bg-red-50",
+      className:
+        "text-red-600 border-red-200 bg-red-50 dark:text-white dark:border-red-300 dark:bg-red-600",
     },
   };
 
