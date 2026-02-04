@@ -5,12 +5,13 @@ import Link from "next/link";
 import Image from "next/image";
 import Logo from "../../public/brand/Group.png";
 import { motion, AnimatePresence } from "framer-motion";
-import { DoorOpenIcon, X } from "lucide-react";
+import { DoorOpenIcon, X, LogOut } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { GalleryVerticalEndIcon } from "@/public/animated/galery-vertical";
+import SubmitButton from "../ui/submit-button";
 
 export function LandingNavbar() {
   const t = useTranslations("LandingPage");
@@ -51,7 +52,7 @@ export function LandingNavbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleLoginClick = () => {
+  const handleLoginClick = async () => {
     if (session) {
       router.push("/hub");
     } else {
@@ -184,8 +185,8 @@ export function LandingNavbar() {
 
           {/* Cápsula Direita */}
           <motion.div
-            layout="position"
-            className="relative flex items-center gap-2 p-2 rounded-full transition-all duration-300"
+            layout
+            className="relative flex items-center gap-2 p-2 rounded-full"
           >
             <motion.div
               className="absolute inset-0 rounded-full bg-white dark:bg-white/5 shadow-xs -z-20"
@@ -200,32 +201,74 @@ export function LandingNavbar() {
                   <NavItem key={link.id} {...link} />
                 ))}
               </nav>
-              <motion.button
+              <motion.div
                 layout
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleLoginClick}
-                className="bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-black dark:text-white px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 min-h-[44px] whitespace-nowrap"
+                className="flex items-center"
+                initial="initial"
+                whileHover="hover"
               >
-                {status === "loading" ? (
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : session ? (
-                  <>
-                    <span className="whitespace-nowrap">
-                      {t("nav.continue")}
-                    </span>
-                    <Avatar size="xs">
-                      <AvatarImage src={session.user?.image || undefined} />
-                      <AvatarFallback />
-                    </Avatar>
-                  </>
-                ) : (
-                  <>
-                    <span className="whitespace-nowrap">{t("nav.login")}</span>
-                    <DoorOpenIcon className="w-4 h-4" />
-                  </>
-                )}
-              </motion.button>
+                <motion.button
+                  layout
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleLoginClick}
+                  className="z-10 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-black dark:text-white px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 min-h-[44px] whitespace-nowrap"
+                >
+                  {status === "loading" ? (
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : session ? (
+                    <>
+                      <span className="whitespace-nowrap">
+                        {t("nav.continue")}
+                      </span>
+                      <Avatar size="xs">
+                        <AvatarImage src={session.user?.image || undefined} />
+                        <AvatarFallback />
+                      </Avatar>
+                    </>
+                  ) : (
+                    <>
+                      <span className="whitespace-nowrap">
+                        {t("nav.login")}
+                      </span>
+                      <DoorOpenIcon className="w-4 h-4" />
+                    </>
+                  )}
+                </motion.button>
+
+                <AnimatePresence>
+                  {session && (
+                    <motion.button
+                      layout
+                      variants={{
+                        initial: {
+                          width: 0,
+                          opacity: 0,
+                          x: -20,
+                          marginLeft: 0,
+                          pointerEvents: "none",
+                        },
+                        hover: {
+                          width: 44,
+                          opacity: 1,
+                          x: 0,
+                          marginLeft: 8,
+                          pointerEvents: "auto",
+                        },
+                      }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 25,
+                      }}
+                      onClick={handleSwitchAccount}
+                      className="bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 rounded-full flex items-center justify-center overflow-hidden min-h-[44px]"
+                    >
+                      <LogOut size={18} className="min-w-[18px]" />
+                    </motion.button>
+                  )}
+                </AnimatePresence>
+              </motion.div>
             </div>
           </motion.div>
         </motion.div>
