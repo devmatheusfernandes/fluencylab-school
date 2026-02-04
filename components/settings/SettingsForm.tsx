@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { auth } from "@/lib/firebase/config";
 import { useSettings } from "@/hooks/core/useSettings";
 import { useContract } from "@/hooks/financial/useContract";
 import { Card } from "@/components/ui/card";
@@ -39,6 +42,7 @@ import {
   FileText,
   RefreshCw,
   Download,
+  ShieldCheck,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Header } from "../ui/header";
@@ -100,6 +104,8 @@ export default function SettingsForm({
   const { updateSettings } = useSettings();
   const { contractStatus, toggleAutoRenewal } = useContract();
   const [isTogglingRenewal, setIsTogglingRenewal] = useState(false);
+  const [isSendingReset, setIsSendingReset] = useState(false);
+  const { data: session } = useSession();
   const { isInstallable, install } = usePWAInstall();
   const { needRefresh, updateServiceWorker } = usePWAUpdate();
 
@@ -137,6 +143,19 @@ export default function SettingsForm({
 
   const handleConnectGoogleCalendar = () => {
     window.location.href = "/api/student/google-calendar/connect";
+  };
+
+  const handleSetPassword = async () => {
+    if (!session?.user?.email) return;
+    setIsSendingReset(true);
+    try {
+      await sendPasswordResetEmail(auth, session.user.email);
+      toast.success(t("security.passwordResetSentDesc"));
+    } catch (error) {
+      toast.error("Erro ao enviar email de redefinição.");
+    } finally {
+      setIsSendingReset(false);
+    }
   };
 
   const handleTimeChange = (
@@ -572,6 +591,46 @@ export default function SettingsForm({
       <motion.div variants={itemVariants}>
         <TwoFactorSetup />
       </motion.div>
+
+      {/* Security (Set Password) */}
+      {!session?.user?.hasPassword && (
+        <motion.div variants={itemVariants}>
+          <Card className="card-base p-6 space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <ShieldCheck className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <Text variant="subtitle" size="lg" weight="semibold">
+                  {t("security.title")}
+                </Text>
+                <Text size="sm" variant="placeholder">
+                  {t("security.subtitle")}
+                </Text>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-lg item-base">
+                <div className="flex items-center gap-3">
+                  <AlertCircle className="h-4 w-4 text-amber-500" />
+                  <div>
+                    <label className="font-medium block">
+                      {t("security.noPassword")}
+                    </label>
+                    <Text size="sm" variant="placeholder">
+                      {t("security.setPasswordDesc")}
+                    </Text>
+                  </div>
+                </div>
+                <Button onClick={handleSetPassword} disabled={isSendingReset}>
+                  {isSendingReset ? "Enviando..." : t("security.setPassword")}
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+      )}
     </motion.div>
   );
 }

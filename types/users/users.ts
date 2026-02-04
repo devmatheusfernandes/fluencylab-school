@@ -99,6 +99,11 @@ export type User = {
     count: number;
   }[];
 
+  // GOOGLE CALENDAR
+  googleCalendarConnected?: boolean;
+  googleCalendarTokens?: GoogleCalendarTokens;
+  googleCalendarDefaultTimes?: GoogleCalendarDefaultTimes;
+
   placementDone?: boolean;
 
   // REGULAR STUDENTS - Extra class credits system
@@ -132,12 +137,11 @@ export type User = {
     languages?: string[];
   };
 
+  // Auth fields
+  hasPassword?: boolean;
+
   // TWO-FACTOR AUTHENTICATION FIELDS
   twoFactorEnabled?: boolean;
   twoFactorSecret?: string;
   twoFactorBackupCodes?: string[];
-
-  // GOOGLE CALENDAR INTEGRATION
-  googleCalendarTokens?: GoogleCalendarTokens;
-  googleCalendarDefaultTimes?: GoogleCalendarDefaultTimes;
 };

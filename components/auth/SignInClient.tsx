@@ -12,6 +12,7 @@ import LanguageSwitcher from "@/components/LanguageSwitcher";
 import BackgroundLogin from "@/public/images/login/background";
 import TransitionAnimation from "@/components/transitions/login";
 import { ThemeSwitcher } from "../ThemeSwitcher";
+import { DoorOpenIcon } from "lucide-react";
 
 interface SignInClientProps {
   messages: Record<string, Record<string, string>>;
@@ -111,6 +112,17 @@ export function SignInClient({ messages }: SignInClientProps) {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    try {
+      await signIn("google", { callbackUrl });
+    } catch (error) {
+      console.error("Google sign in error", error);
+      setLocalError(
+        messages?.Auth?.googleLoginError || "Error with Google Login",
+      );
+    }
+  };
+
   if (isAuthenticated && !showTransition) return null;
   if (showTransition) return <TransitionAnimation />;
 
@@ -172,7 +184,10 @@ export function SignInClient({ messages }: SignInClientProps) {
                         {t.loading}
                       </>
                     ) : (
-                      t.submit
+                      <div className="flex flex-row items-center justify-center">
+                        <span>{t.submit}</span>
+                        <DoorOpenIcon className="ml-2 w-5 h-5" />
+                      </div>
                     )}
                   </Button>
 
@@ -181,6 +196,33 @@ export function SignInClient({ messages }: SignInClientProps) {
                       {localError}
                     </p>
                   )}
+
+                  <div className="relative my-6">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t border-gray-300 dark:border-gray-700" />
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-2 bg-white dark:bg-gray-900 text-gray-500">
+                        {t.or}
+                      </span>
+                    </div>
+                  </div>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleGoogleSignIn}
+                    disabled={isLoading}
+                    className="w-full"
+                    size="lg"
+                  >
+                    <img
+                      src="/icons/google.svg"
+                      alt="Google"
+                      className="h-5 w-5 mr-2"
+                    />
+                    {t.signInWithGoogle}
+                  </Button>
                 </form>
 
                 <div className="flex flex-col items-center gap-2">

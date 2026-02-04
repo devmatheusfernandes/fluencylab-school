@@ -3,20 +3,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 
 // Extend the session type
-declare module "next-auth" {
-  interface Session {
-    user: {
-      id: string;
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
-      role?: string;
-      permissions?: string[];
-      tutorialCompleted?: boolean;
-      twoFactorEnabled?: boolean;
-    }
-  }
-}
+// Removed local declaration in favor of global types/next-auth.d.ts
 
 export const useTwoFactor = () => {
   const { data: session, update } = useSession();
@@ -26,7 +13,7 @@ export const useTwoFactor = () => {
   const enableTwoFactor = async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       // This would call the API to enable 2FA
       // Implementation depends on your specific API structure
@@ -41,7 +28,7 @@ export const useTwoFactor = () => {
   const disableTwoFactor = async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       // This would call the API to disable 2FA
       // Implementation depends on your specific API structure

@@ -1,11 +1,17 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import { AuthService } from "@/services/core/authService";
+import { adminDb } from "@/lib/firebase/admin";
 
 const authService = new AuthService();
 
 export const authOptions: NextAuthOptions = {
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+    }),
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -143,13 +149,77 @@ export const authOptions: NextAuthOptions = {
     },
   },
   callbacks: {
-    async jwt({ token, user, trigger }) {
-      if (user) {
-        token.id = user.id;
-        token.role = user.role;
-        token.permissions = user.permissions;
-        token.tutorialCompleted = user.tutorialCompleted;
-        token.twoFactorEnabled = user.twoFactorEnabled;
+    async signIn({ user, account, profile }) {
+      if (account?.provider === "google" && profile?.email) {
+        try {
+          // Check if user exists in Firestore
+          const usersRef = adminDb.collection("users");
+          const snapshot = await usersRef
+            .where("email", "==", profile.email)
+            .limit(1)
+            .get();
+
+          if (snapshot.empty) {
+            return false; // Block login if user not found
+          }
+
+          // Sync Google profile picture if user has no avatar
+          const userDoc = snapshot.docs[0];
+          const userData = userDoc.data();
+          
+          // Google profile usually has 'picture' field
+          // We use 'as any' or check specifically if using typed profile
+          const googlePicture = (profile as any)?.picture;
+
+          if (!userData.avatarUrl && googlePicture) {
+            try {
+              await userDoc.ref.update({
+                avatarUrl: googlePicture,
+              });
+            } catch (error) {
+              console.error("Error syncing Google avatar:", error);
+              // Non-blocking error, continue login
+            }
+          }
+
+          return true;
+        } catch (error) {
+          console.error("Error verifying Google user:", error);
+          return false;
+        }
+      }
+      return true;
+    },
+    async jwt({ token, user, account, trigger }) {
+      if (account && user) {
+        if (account.provider === "google") {
+          // Find Firestore user to get the correct ID (Firebase UID)
+          const usersRef = adminDb.collection("users");
+          const snapshot = await usersRef
+            .where("email", "==", user.email)
+            .limit(1)
+            .get();
+
+          if (!snapshot.empty) {
+            const firestoreUser = snapshot.docs[0].data();
+            token.id = snapshot.docs[0].id; // Use Firestore ID (Firebase UID)
+            token.role = firestoreUser.role;
+            token.permissions = firestoreUser.permissions;
+            token.tutorialCompleted = firestoreUser.tutorialCompleted;
+            token.twoFactorEnabled = firestoreUser.twoFactorEnabled;
+
+            // Fetch hasPassword status
+            const fullUser = await authService.getUserById(token.id as string);
+            token.hasPassword = fullUser?.hasPassword;
+          }
+        } else {
+          token.id = user.id;
+          token.role = user.role;
+          token.permissions = user.permissions;
+          token.tutorialCompleted = user.tutorialCompleted;
+          token.twoFactorEnabled = user.twoFactorEnabled;
+          token.hasPassword = user.hasPassword;
+        }
       }
 
       // Refresh user data from database when session is updated or periodically
@@ -163,6 +233,7 @@ export const authOptions: NextAuthOptions = {
             token.permissions = refreshedUser.permissions;
             token.tutorialCompleted = refreshedUser.tutorialCompleted;
             token.twoFactorEnabled = refreshedUser.twoFactorEnabled;
+            token.hasPassword = refreshedUser.hasPassword;
           }
         } catch (error) {
           console.error("Error refreshing user data in JWT callback:", error);
@@ -178,6 +249,7 @@ export const authOptions: NextAuthOptions = {
         session.user.permissions = token.permissions as string[];
         session.user.tutorialCompleted = token.tutorialCompleted as boolean;
         session.user.twoFactorEnabled = token.twoFactorEnabled as boolean;
+        session.user.hasPassword = token.hasPassword as boolean;
       }
       return session;
     },

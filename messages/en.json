@@ -249,7 +249,10 @@
     "resetEmailSent": "Reset email sent!",
     "resetEmailSentDesc": "Check your inbox (and spam) to reset your password.",
     "emailRequired": "Email is required.",
-    "emailInvalid": "Invalid email."
+    "emailInvalid": "Invalid email.",
+    "or": "or",
+    "signInWithGoogle": "Sign in with Google",
+    "googleLoginError": "Could not sign in with Google. Check if your account is registered."
   },
   "ResetPassword": {
     "title": "Reset Password",
@@ -1591,6 +1594,15 @@
         "pt": "Portuguese",
         "en": "English"
       }
+    },
+    "security": {
+      "title": "Security",
+      "subtitle": "Manage your password and access",
+      "noPassword": "You access with Google and have no password set.",
+      "setPassword": "Set Password",
+      "setPasswordDesc": "Create a password to access with email and password as well.",
+      "passwordResetSent": "Email sent!",
+      "passwordResetSentDesc": "Check your email to create your password."
     },
     "contract": {
       "title": "Contract",

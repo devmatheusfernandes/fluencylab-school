@@ -249,7 +249,10 @@
     "resetEmailSent": "E-mail de redefinição enviado!",
     "resetEmailSentDesc": "Verifique sua caixa de entrada (e spam) para redefinir sua senha.",
     "emailRequired": "E-mail é obrigatório.",
-    "emailInvalid": "E-mail inválido."
+    "emailInvalid": "E-mail inválido.",
+    "or": "ou",
+    "signInWithGoogle": "Entrar com Google",
+    "googleLoginError": "Não foi possível entrar com Google. Verifique se sua conta está cadastrada."
   },
   "ResetPassword": {
     "title": "Redefinir Senha",
@@ -1590,6 +1593,15 @@
         "pt": "Português",
         "en": "Inglês"
       }
+    },
+    "security": {
+      "title": "Segurança",
+      "subtitle": "Gerencie sua senha e acesso",
+      "noPassword": "Você acessa com Google e não tem senha definida.",
+      "setPassword": "Definir Senha",
+      "setPasswordDesc": "Crie uma senha para acessar também com email e senha.",
+      "passwordResetSent": "Email enviado!",
+      "passwordResetSentDesc": "Verifique seu email para criar sua senha."
     },
     "contract": {
       "title": "Contrato",

@@ -46,6 +46,7 @@ export class AuthService {
           permissions: userProfile.permissions,
           tutorialCompleted: userProfile.tutorialCompleted,
           twoFactorEnabled: is2FAEnabled,
+          hasPassword: true,
           // Note: We don't verify the 2FA token here, that happens in a separate step
         };
       }
@@ -147,18 +148,25 @@ export class AuthService {
    */
   async getUserById(userId: string): Promise<User | null> {
     try {
-      const userDoc = await adminDb.collection("users").doc(userId).get();
+      const [userDoc, userRecord] = await Promise.all([
+        adminDb.collection("users").doc(userId).get(),
+        adminAuth.getUser(userId).catch(() => null),
+      ]);
 
       if (!userDoc.exists) {
         return null;
       }
 
       const userProfile = userDoc.data() as User;
+      const hasPassword = userRecord?.providerData.some(
+        (provider) => provider.providerId === "password"
+      );
 
       // Return the complete user object with all required fields
       return {
         ...userProfile,
         id: userDoc.id, // Ensure the document ID takes precedence
+        hasPassword: !!hasPassword,
       };
     } catch (error) {
       console.error("Erro ao buscar usuário por ID:", error);
