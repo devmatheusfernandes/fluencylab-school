@@ -104,4 +104,11 @@ export interface StudentProfile {
   // Metadata
   createdAt: Date | string;
   updatedAt: Date | string;
+  
+  // AI Generated Content
+  generatedPromptPlan?: string;
+  promptHistory?: {
+    content: string;
+    createdAt: string;
+  }[];
 }

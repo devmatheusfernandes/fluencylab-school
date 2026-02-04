@@ -135,7 +135,8 @@ service cloud.firestore {
 
     match /placement_results/{resultId} {
       allow read: if isResourceOwner() || isTeacher();
-      allow write: if isAdmin();
+      allow create: if isResourceOwner();
+      allow update, delete: if isAdmin();
     }
 
     match /placement_progress/{docId} {

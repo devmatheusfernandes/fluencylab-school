@@ -141,7 +141,21 @@
     "delete": "Delete",
     "confirmDeleteTitle": "Delete Profile",
     "confirmDeleteDesc": "Are you sure? This cannot be undone.",
-    "noProfiles": "No profiles found."
+    "generatePromptTooltip": "Generate Prompt Plan (AI)",
+    "promptPlanTitle": "Generated Prompt Plan",
+    "promptPlanDesc": "Copy this prompt and use it to generate the student's lesson plan.",
+    "promptGeneratedSuccess": "Prompt Plan generated successfully!",
+    "promptGeneratedError": "Error generating Prompt Plan.",
+    "copyPrompt": "Copy Prompt",
+    "copied": "Copied!",
+    "copiedToClipboard": "Copied to clipboard",
+    "close": "Close",
+    "noProfiles": "No profiles found.",
+    "promptReady": "Prompt Ready",
+    "viewPromptTooltip": "View Prompt Plan",
+    "promptWarningTitle": "Prompt Plan already exists",
+    "promptWarningDesc": "This student already has a generated plan. If you generate a new one, the current one will be archived in history and the new one will become the main one. Do you want to continue?",
+    "generateNew": "Generate New"
   },
   "AssociateModal": {
     "title": "Associate Profile to Student",

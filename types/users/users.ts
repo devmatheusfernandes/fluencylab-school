@@ -71,14 +71,15 @@ export type User = {
 
   //STUDENT
   teachersIds?: string[];
-  badges?: string[]; //Maybe put in a differente collection
-  coursesIds?: string[]; //Maybe put in a differente collection
+  // badges?: string[]; //Maybe put in a differente collection TODO: Check if this is still needed
+  // coursesIds?: string[]; //Maybe put in a differente collection TODO: Check if this is still needed
   languages?: string[];
 
   // ACHIEVEMENTS
   achievements?: StudentAchievement[];
-  completedClassesCount?: number;
+  completedClassesCount?: number; // TODO: Check if this is still needed
 
+  // TODO: Check if this is still needed
   // GAMIFICATION
   gamification?: {
     currentXP: number;
@@ -94,6 +95,7 @@ export type User = {
   // CAMPOS ADICIONADOS PARA CONTRATO E REAGENDAMENTO
   contractStartDate?: Date;
   contractLengthMonths?: 6 | 12;
+
   monthlyReschedules?: {
     month: string; // Formato "YYYY-MM"
     count: number;
@@ -131,6 +133,8 @@ export type User = {
     cancellationPolicyHours?: number;
   };
 
+  // TODO: Check if this is still needed
+  // PROFILE
   profile?: {
     bio?: string;
     specialties?: string[];
