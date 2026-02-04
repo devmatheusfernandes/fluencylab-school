@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Text } from "@/components/ui/text";
 import { Progress } from "@/components/ui/progress";
-import { Plan } from "@/types/financial/plan";
+import { Plan } from "@/types/learning/plan";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { CheckCircle2, Lock } from "lucide-react";

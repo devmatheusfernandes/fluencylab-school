@@ -1,15 +1,15 @@
-import { ReviewGrade, SRSData } from "@/types/financial/plan";
+import { ReviewGrade, SRSData } from "@/types/learning/plan";
 
 /**
  * Calculates the next review schedule using a simplified SM-2 algorithm.
- * 
+ *
  * @param currentData Current SRS data (or undefined if new)
  * @param grade The grade given by the user (0-5)
  * @returns Updated SRS data
  */
 export function calculateNextReview(
   grade: ReviewGrade,
-  currentData?: SRSData
+  currentData?: SRSData,
 ): SRSData {
   // Defaults for new cards
   let interval = 0;
@@ -42,7 +42,7 @@ export function calculateNextReview(
   // EF' = EF + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02))
   // q = grade
   easeFactor = easeFactor + (0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02));
-  
+
   if (easeFactor < 1.3) {
     easeFactor = 1.3;
   }

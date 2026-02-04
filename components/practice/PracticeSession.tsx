@@ -19,8 +19,11 @@ import {
   processPracticeResults,
 } from "@/actions/srsActions";
 import { PracticeItem, PracticeMode } from "@/types/learning/practice";
-import { PracticeResult } from "@/types/financial/plan";
-import { calculateWritingGrade, calculateOrderingGrade } from "@/lib/learning/grading";
+import { PracticeResult } from "@/types/learning/plan";
+import {
+  calculateWritingGrade,
+  calculateOrderingGrade,
+} from "@/lib/learning/grading";
 import { CheckCircle, Trophy } from "lucide-react";
 import { ListeningChoiceExercise } from "./ListeningChoiceExercise";
 
@@ -409,7 +412,9 @@ export function PracticeSession({ planId }: PracticeSessionProps) {
             <ListeningChoiceExercise
               key={currentItem.id}
               audioUrl={currentItem.interactiveListening.audioUrl}
-              transcriptSegments={currentItem.interactiveListening.transcriptSegments}
+              transcriptSegments={
+                currentItem.interactiveListening.transcriptSegments
+              }
               learningItems={currentItem.interactiveListening.learningItems}
               onComplete={(grade) => {
                 const intGrade = Math.round(grade) as 0 | 1 | 2 | 3 | 4 | 5;

@@ -1,11 +1,10 @@
-
 "use client";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Plus, Eye, Edit } from "lucide-react";
-import { Plan } from "@/types/financial/plan";
+import { Plan } from "@/types/learning/plan";
 import { PlanEditor } from "@/components/plans/PlanEditor";
 import { PlanViewer } from "@/components/plans/PlanViewer";
 import { useTranslations } from "next-intl";
@@ -25,7 +24,9 @@ interface PlanTemplatesClientProps {
   initialTemplates: Plan[];
 }
 
-export function PlanTemplatesClient({ initialTemplates }: PlanTemplatesClientProps) {
+export function PlanTemplatesClient({
+  initialTemplates,
+}: PlanTemplatesClientProps) {
   const t = useTranslations("PlanTemplates");
   const [templates, setTemplates] = useState<Plan[]>(initialTemplates);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -56,15 +57,19 @@ export function PlanTemplatesClient({ initialTemplates }: PlanTemplatesClientPro
         // Call server action to create
         const result = await createPlan(planData);
         if (result.success && result.plan) {
-            setTemplates([...templates, result.plan]);
+          setTemplates([...templates, result.plan]);
         }
       } else {
         // Call server action to update
-         if (!selectedPlan?.id) return;
-         const result = await updatePlan(selectedPlan.id, planData);
-         if (result.success) {
-            setTemplates(templates.map(p => p.id === selectedPlan.id ? { ...p, ...planData } as Plan : p));
-         }
+        if (!selectedPlan?.id) return;
+        const result = await updatePlan(selectedPlan.id, planData);
+        if (result.success) {
+          setTemplates(
+            templates.map((p) =>
+              p.id === selectedPlan.id ? ({ ...p, ...planData } as Plan) : p,
+            ),
+          );
+        }
       }
       setIsEditorOpen(false);
     } catch (error) {
@@ -84,22 +89,37 @@ export function PlanTemplatesClient({ initialTemplates }: PlanTemplatesClientPro
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {templates.map((template) => (
-          <Card key={template.id} className="p-6 space-y-4 hover:shadow-md transition-shadow">
+          <Card
+            key={template.id}
+            className="p-6 space-y-4 hover:shadow-md transition-shadow"
+          >
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="font-semibold text-lg">{template.name}</h3>
-                <p className="text-sm text-muted-foreground">{template.level}</p>
+                <p className="text-sm text-muted-foreground">
+                  {template.level}
+                </p>
               </div>
             </div>
             <p className="text-sm text-muted-foreground line-clamp-2">
               {template.goal || "Sem objetivo definido"}
             </p>
             <div className="pt-2 flex gap-2">
-              <Button variant="outline" size="sm" className="w-full" onClick={() => handleView(template)}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={() => handleView(template)}
+              >
                 <Eye className="w-4 h-4 mr-2" />
                 {t("view")}
               </Button>
-              <Button variant="outline" size="sm" className="w-full" onClick={() => handleEdit(template)}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={() => handleEdit(template)}
+              >
                 <Edit className="w-4 h-4 mr-2" />
                 {t("edit")}
               </Button>
@@ -107,9 +127,9 @@ export function PlanTemplatesClient({ initialTemplates }: PlanTemplatesClientPro
           </Card>
         ))}
         {templates.length === 0 && (
-           <div className="col-span-full text-center py-12 text-muted-foreground">
-             {t("noTemplates")}
-           </div>
+          <div className="col-span-full text-center py-12 text-muted-foreground">
+            {t("noTemplates")}
+          </div>
         )}
       </div>
 

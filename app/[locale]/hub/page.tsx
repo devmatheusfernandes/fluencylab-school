@@ -18,7 +18,7 @@ export default function HubEntryPoint() {
         admin: "hub/admin/my-profile",
         teacher: "hub/teacher/my-profile",
         student: "hub/student/my-profile",
-        materialManager: "hub/material-manager/my-profile",
+        material_manager: "hub/material-manager/my-profile",
         manager: "hub/manager/my-profile",
       };
 

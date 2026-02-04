@@ -1,4 +1,4 @@
-import { SRSData, PracticeResult } from "../financial/plan";
+import { SRSData, PracticeResult } from "./plan";
 import { LearningItem, TranscriptSegment } from "./lesson";
 
 export type PracticeMode =

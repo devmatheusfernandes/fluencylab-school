@@ -397,30 +397,13 @@ export default function EditCourseForm() {
     setIsQuizModalOpen(true);
   };
 
-  const handleAddNewQuizQuestionRequest = () => setEditingQuizQuestion(null);
-  const handleRequestEditQuizQuestion = (questionToEdit: QuizQuestion) =>
-    setEditingQuizQuestion(questionToEdit);
-
-  const handleSaveQuizQuestion = async (
-    questionData: Omit<QuizQuestion, "id">,
-  ) => {
+  const handleUpdateQuiz = async (updatedQuiz: QuizQuestion[]) => {
     if (!courseId || !currentLessonForQuiz || !currentLessonForQuiz.sectionId) {
       toast.error(t("toasts.internalError"));
       return;
     }
     const toastId = toast.loading(t("toasts.savingQuiz"));
     try {
-      let updatedQuiz: QuizQuestion[];
-      if (editingQuizQuestion) {
-        updatedQuiz = (currentLessonForQuiz.quiz || []).map((q) =>
-          q.id === editingQuizQuestion.id ? { ...q, ...questionData } : q,
-        );
-      } else {
-        updatedQuiz = [
-          ...(currentLessonForQuiz.quiz || []),
-          { ...questionData, id: generateUniqueId() },
-        ];
-      }
       const res = await fetch(
         `/api/admin/courses/${courseId}/sections/${currentLessonForQuiz.sectionId}/lessons/${currentLessonForQuiz.id}`,
         {
@@ -431,6 +414,7 @@ export default function EditCourseForm() {
       );
       if (!res.ok) throw new Error("Falha na API");
       await fetchCourseAndContent();
+
       const updatedSection = sections.find(
         (s) => s.id === currentLessonForQuiz.sectionId,
       );
@@ -438,46 +422,11 @@ export default function EditCourseForm() {
         (l) => l.id === currentLessonForQuiz.id,
       );
       if (latestLesson) setCurrentLessonForQuiz(latestLesson);
-      setEditingQuizQuestion(null);
-      toast.success(
-        editingQuizQuestion ? t("toasts.quizUpdated") : t("toasts.quizAdded"),
-        { id: toastId },
-      );
-    } catch (error) {
-      console.error("Error saving quiz question: ", error);
-      toast.error(t("toasts.quizError"), { id: toastId });
-    }
-  };
 
-  const handleDeleteQuizQuestion = async (
-    lesson: Lesson,
-    questionId: string,
-  ) => {
-    if (
-      !courseId ||
-      !lesson.sectionId ||
-      !confirm("Tem certeza que deseja excluir esta questão do quiz?")
-    )
-      return;
-    const toastId = toast.loading(t("toasts.deletingQuiz"));
-    try {
-      const updatedQuiz = (lesson.quiz || []).filter(
-        (q) => q.id !== questionId,
-      );
-      const res = await fetch(
-        `/api/admin/courses/${courseId}/sections/${lesson.sectionId}/lessons/${lesson.id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ quiz: updatedQuiz }),
-        },
-      );
-      if (!res.ok) throw new Error("Falha na API");
-      await fetchCourseAndContent();
-      toast.success(t("toasts.quizDeleted"), { id: toastId });
+      toast.success(t("toasts.quizUpdated"), { id: toastId });
     } catch (error) {
-      console.error("Error deleting quiz question: ", error);
-      toast.error(t("toasts.deleteQuizError"), { id: toastId });
+      console.error("Error updating quiz: ", error);
+      toast.error(t("toasts.quizError"), { id: toastId });
     }
   };
 
@@ -947,7 +896,9 @@ export default function EditCourseForm() {
                   setEditingLesson(null);
                   setCurrentSectionIdForLesson(null);
                 }}
-                onManageQuiz={handleOpenQuizModal}
+                onSwitchToQuiz={() => {
+                  if (editingLesson) handleOpenQuizModal(editingLesson);
+                }}
                 courseId={courseId || ""}
                 lessonId={editingLesson?.id || null}
                 onAttachmentsUpdated={handleAttachmentsUpdated}
@@ -969,15 +920,11 @@ export default function EditCourseForm() {
           {currentLessonForQuiz && (
             <QuizForm
               lesson={currentLessonForQuiz}
-              initialQuestionData={editingQuizQuestion}
-              onSaveQuestion={handleSaveQuizQuestion}
-              onDeleteQuestion={handleDeleteQuizQuestion}
-              onCancel={() => {
+              onUpdateQuiz={handleUpdateQuiz}
+              onBack={() => {
                 setIsQuizModalOpen(false);
                 setEditingQuizQuestion(null);
               }}
-              onAddNewQuestionRequest={handleAddNewQuizQuestionRequest}
-              onRequestEditQuestion={handleRequestEditQuizQuestion}
             />
           )}
         </ModalContent>

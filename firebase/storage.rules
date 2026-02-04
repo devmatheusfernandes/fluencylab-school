@@ -54,6 +54,17 @@ service firebase.storage {
       allow write: if isOwner(userId) || isAdmin();
     }
     
+    // Imersão (Podcasts e Blogs)
+    match /immersion/podcasts/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isMaterialManager();
+    }
+
+    match /immersion/blogs/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isMaterialManager();
+    }
+
     // Regra Padrão (Bloqueio Total)
     match /{allPaths=**} {
       allow read, write: if false;

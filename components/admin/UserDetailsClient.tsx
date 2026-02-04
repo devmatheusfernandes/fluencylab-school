@@ -16,7 +16,7 @@ import { UserRoles } from "@/types/users/userRoles";
 import { useTranslations } from "next-intl";
 import { BackButton } from "../ui/back-button";
 import UserPlanTab from "./UserPlanTab";
-import { Plan } from "@/types/financial/plan";
+import { Plan } from "@/types/learning/plan";
 
 interface UserDetailsClientProps {
   user: FullUserDetails;

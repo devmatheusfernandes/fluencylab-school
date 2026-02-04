@@ -224,6 +224,22 @@ service cloud.firestore {
       allow write: if isAdmin(); // Geralmente escrito via Backend
     }
 
+    // --- Imersão (Podcasts e Blogs) ---
+    match /podcasts/{podcastId} {
+      allow read: if isAuthenticated();
+      allow write: if isMaterialManager();
+    }
+    
+    match /blogs/{blogId} {
+      allow read: if isAuthenticated();
+      allow write: if isMaterialManager();
+    }
+    
+    match /userPodcastProgress/{progressId} {
+       allow read: if isResourceOwner();
+       allow write: if isResourceOwner();
+    }
+
     // --- Regra Padrão (Bloqueio Total) ---
     match /{document=**} {
       allow read, write: if false;

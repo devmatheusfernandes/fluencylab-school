@@ -2,12 +2,7 @@
 
 import { motion } from "framer-motion";
 import { XCircle, CheckCircle2, ArrowRight } from "lucide-react";
-import {
-  Card,
-  CardContent, // Não usado diretamente, mas parte do pacote
-  CardHeader, // Opcional dependendo do layout
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Carousel,

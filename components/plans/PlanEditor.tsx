@@ -21,7 +21,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { CEFRLevel } from "@/types/learning/lesson";
-import { Plan, PlanType } from "@/types/financial/plan";
+import { Plan, PlanType } from "@/types/learning/plan";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { searchLessons } from "@/actions/lessonSearch";

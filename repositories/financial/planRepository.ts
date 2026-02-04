@@ -1,6 +1,5 @@
-
 import { adminDb } from "@/lib/firebase/admin";
-import { Plan, PlanStatus, PlanType } from "@/types/financial/plan";
+import { Plan, PlanStatus, PlanType } from "@/types/learning/plan";
 import { Timestamp } from "firebase-admin/firestore";
 
 export class PlanRepository {
@@ -22,28 +21,30 @@ export class PlanRepository {
       lessons: data.lessons.map((lesson: any) => ({
         ...lesson,
         scheduledDate: toDate(lesson.scheduledDate),
-        learningItemsIds: lesson.learningItemsIds?.map((item: any) => ({
-          ...item,
-          updatedAt: toDate(item.updatedAt),
-          lastReviewedAt: toDate(item.lastReviewedAt),
-          srsData: item.srsData
-            ? {
-                ...item.srsData,
-                dueDate: toDate(item.srsData.dueDate),
-              }
-            : undefined,
-        })) || [],
-        learningStructureIds: lesson.learningStructureIds?.map((item: any) => ({
-          ...item,
-          updatedAt: toDate(item.updatedAt),
-          lastReviewedAt: toDate(item.lastReviewedAt),
-          srsData: item.srsData
-            ? {
-                ...item.srsData,
-                dueDate: toDate(item.srsData.dueDate),
-              }
-            : undefined,
-        })) || [],
+        learningItemsIds:
+          lesson.learningItemsIds?.map((item: any) => ({
+            ...item,
+            updatedAt: toDate(item.updatedAt),
+            lastReviewedAt: toDate(item.lastReviewedAt),
+            srsData: item.srsData
+              ? {
+                  ...item.srsData,
+                  dueDate: toDate(item.srsData.dueDate),
+                }
+              : undefined,
+          })) || [],
+        learningStructureIds:
+          lesson.learningStructureIds?.map((item: any) => ({
+            ...item,
+            updatedAt: toDate(item.updatedAt),
+            lastReviewedAt: toDate(item.lastReviewedAt),
+            srsData: item.srsData
+              ? {
+                  ...item.srsData,
+                  dueDate: toDate(item.srsData.dueDate),
+                }
+              : undefined,
+          })) || [],
       })),
     } as Plan;
   }
@@ -81,7 +82,7 @@ export class PlanRepository {
       .get();
 
     return snapshot.docs.map((doc) =>
-      this.convertTimestamps(doc.data(), doc.id)
+      this.convertTimestamps(doc.data(), doc.id),
     );
   }
 

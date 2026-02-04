@@ -1,4 +1,4 @@
-import { CEFRLevel } from "../learning/lesson";
+import { CEFRLevel } from "./lesson";
 
 export interface SRSData {
   interval: number; // Days until next review

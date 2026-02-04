@@ -2,7 +2,7 @@
 
 import { useTranslations, useLocale } from "next-intl";
 import { useState } from "react";
-import { Plan } from "@/types/financial/plan";
+import { Plan } from "@/types/learning/plan";
 import {
   Select,
   SelectContent,
@@ -18,11 +18,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { ptBR, enUS } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
-import {
-  Modal,
-  ModalContent,
-  ModalTrigger,
-} from "@/components/ui/modal";
+import { Modal, ModalContent, ModalTrigger } from "@/components/ui/modal";
 import { PlanEditor } from "@/components/plans/PlanEditor";
 import { createPlan, updatePlan } from "@/actions/planActions";
 import { toast } from "sonner";
@@ -46,12 +42,12 @@ export default function PlanCalendarCard({
   const dateLocale = locale === "pt" ? ptBR : enUS;
 
   const [selectedMonth, setSelectedMonth] = useState<number>(
-    new Date().getMonth()
+    new Date().getMonth(),
   );
   const [selectedYear, setSelectedYear] = useState<number>(
-    new Date().getFullYear()
+    new Date().getFullYear(),
   );
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const monthNames = [
@@ -82,12 +78,12 @@ export default function PlanCalendarCard({
           ...planData,
           studentId,
           type: "student",
-          status: "active"
+          status: "active",
         });
         if (!result.success) throw new Error(result.error);
         toast.success("Plano criado com sucesso!");
       }
-      
+
       await onRefresh();
       setIsModalOpen(false);
     } catch (error: any) {
@@ -101,13 +97,13 @@ export default function PlanCalendarCard({
       <Card className="p-4 flex-1 space-y-4">
         <Skeleton className="h-8 w-1/3" />
         <div className="flex gap-2">
-           <Skeleton className="h-10 flex-1" />
-           <Skeleton className="h-10 flex-1" />
+          <Skeleton className="h-10 flex-1" />
+          <Skeleton className="h-10 flex-1" />
         </div>
         <div className="space-y-2">
-           <Skeleton className="h-20 w-full" />
-           <Skeleton className="h-20 w-full" />
-           <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
         </div>
       </Card>
     );
@@ -130,23 +126,23 @@ export default function PlanCalendarCard({
   if (!plan) {
     return (
       <Card className="p-6 flex flex-col items-center justify-center text-center space-y-3 min-h-[300px] relative">
-          <div className="absolute top-4 right-4">
-            <Modal open={isModalOpen} onOpenChange={setIsModalOpen}>
-              <ModalTrigger asChild>
-                <Button size="icon" variant="outline">
-                  <Plus className="w-4 h-4" />
-                </Button>
-              </ModalTrigger>
-              <EditorDialog />
-            </Modal>
-          </div>
-          <BookOpen className="w-10 h-10 text-muted-foreground/50" />
-          <Text className="text-muted-foreground">{t("noPlan")}</Text>
-          <Button variant="outline" onClick={() => setIsModalOpen(true)}>
-             Criar Plano
-          </Button>
+        <div className="absolute top-4 right-4">
+          <Modal open={isModalOpen} onOpenChange={setIsModalOpen}>
+            <ModalTrigger asChild>
+              <Button size="icon" variant="outline">
+                <Plus className="w-4 h-4" />
+              </Button>
+            </ModalTrigger>
+            <EditorDialog />
+          </Modal>
+        </div>
+        <BookOpen className="w-10 h-10 text-muted-foreground/50" />
+        <Text className="text-muted-foreground">{t("noPlan")}</Text>
+        <Button variant="outline" onClick={() => setIsModalOpen(true)}>
+          Criar Plano
+        </Button>
       </Card>
-    )
+    );
   }
 
   const filteredLessons = plan.lessons
@@ -159,26 +155,29 @@ export default function PlanCalendarCard({
       );
     })
     .sort((a, b) => {
-        if (!a.scheduledDate || !b.scheduledDate) return 0;
-        return new Date(a.scheduledDate!).getTime() - new Date(b.scheduledDate!).getTime();
+      if (!a.scheduledDate || !b.scheduledDate) return 0;
+      return (
+        new Date(a.scheduledDate!).getTime() -
+        new Date(b.scheduledDate!).getTime()
+      );
     });
 
   return (
     <Card className="p-4 flex-1 flex flex-col gap-4 min-h-[400px]">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-            <CalendarDays className="w-5 h-5 text-primary" />
-            <Text className="font-semibold">
+          <CalendarDays className="w-5 h-5 text-primary" />
+          <Text className="font-semibold">
             {t("title")} - {plan.name}
-            </Text>
+          </Text>
         </div>
         <Modal open={isModalOpen} onOpenChange={setIsModalOpen}>
-            <ModalTrigger asChild>
-                <Button size="icon" variant="ghost">
-                    <Edit className="w-4 h-4" />
-                </Button>
-            </ModalTrigger>
-            <EditorDialog />
+          <ModalTrigger asChild>
+            <Button size="icon" variant="ghost">
+              <Edit className="w-4 h-4" />
+            </Button>
+          </ModalTrigger>
+          <EditorDialog />
         </Modal>
       </div>
 
@@ -221,7 +220,7 @@ export default function PlanCalendarCard({
 
       <div className="flex-1 overflow-y-auto space-y-3 pr-1 max-h-[500px]">
         {filteredLessons.length === 0 ? (
-          <NoResults  />
+          <NoResults />
         ) : (
           filteredLessons.map((lesson) => (
             <div
@@ -233,9 +232,11 @@ export default function PlanCalendarCard({
                   {t("lesson", { order: lesson.order, title: lesson.title })}
                 </Text>
                 {lesson.scheduledDate && (
-                    <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full whitespace-nowrap">
-                        {format(new Date(lesson.scheduledDate), "dd 'de' MMM", { locale: dateLocale })}
-                    </span>
+                  <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full whitespace-nowrap">
+                    {format(new Date(lesson.scheduledDate), "dd 'de' MMM", {
+                      locale: dateLocale,
+                    })}
+                  </span>
                 )}
               </div>
             </div>

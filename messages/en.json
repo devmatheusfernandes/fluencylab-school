@@ -620,7 +620,8 @@
     "plans": "Plans",
     "lessons": "Lessons",
     "components": "Components",
-    "tasks": "Tasks"
+    "tasks": "Tasks",
+    "immersion": "Immersion"
   },
   "UserProfileHeader": {
     "profilePicture": "Profile picture",

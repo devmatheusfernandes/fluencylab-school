@@ -12,6 +12,7 @@ import { PeopleIcon } from "@/public/animated/people";
 import { UserIcon } from "@/public/animated/person";
 import { SettingsIcon } from "@/public/animated/settings";
 import { ClapIcon } from "@/public/animated/video";
+import { WavesLadderIcon } from "@/public/animated/waves-ladder";
 import { UserRoles } from "@/types/users/userRoles";
 
 // Define os links para cada papel
@@ -131,6 +132,12 @@ const studentItems: SidebarItemType[] = [
     icon: <ClapIcon size={20} />,
   },
   {
+    href: "/[locale]/hub/student/my-immersion",
+    label: "Imersão",
+    labelKey: "immersion",
+    icon: <WavesLadderIcon size={20} />,
+  },
+  {
     href: "/[locale]/hub/student/my-chat",
     label: "Conversas",
     labelKey: "chat",
@@ -201,6 +208,12 @@ const materialManagerItems = [
     label: "Components",
     labelKey: "components",
     icon: <LayoutPanelTopIcon size={20} />,
+  },
+  {
+    href: "/[locale]/hub/material-manager/immersion",
+    label: "Imersão",
+    labelKey: "immersion",
+    icon: <WavesLadderIcon size={20} />,
   },
   {
     href: "/[locale]/hub/material-manager/tasks",
