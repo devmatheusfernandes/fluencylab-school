@@ -41,7 +41,11 @@ export function ForgotPasswordClient({ messages }: ForgotPasswordClientProps) {
     }
 
     try {
-      await sendPasswordResetEmail(auth, email);
+      const actionCodeSettings = {
+        url: `${window.location.origin}/${locale}/reset-password`,
+        handleCodeInApp: true,
+      };
+      await sendPasswordResetEmail(auth, email, actionCodeSettings);
       setSuccess(true);
       toast.success(t.resetEmailSent, {
         description: t.resetEmailSentDesc,

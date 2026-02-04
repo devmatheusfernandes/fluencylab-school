@@ -251,6 +251,23 @@
     "emailRequired": "E-mail é obrigatório.",
     "emailInvalid": "E-mail inválido."
   },
+  "ResetPassword": {
+    "title": "Redefinir Senha",
+    "description": "Crie uma nova senha para sua conta.",
+    "newPassword": "Nova senha",
+    "confirmPassword": "Confirmar senha",
+    "placeholder": "Mínimo de 8 caracteres",
+    "placeholderConfirm": "Repita a senha",
+    "submit": "Redefinir senha",
+    "loading": "Redefinindo...",
+    "successTitle": "Senha redefinida!",
+    "successDesc": "Sua senha foi atualizada com sucesso. Você já pode fazer login.",
+    "backToLogin": "Voltar para o login",
+    "invalidLink": "Link inválido ou expirado.",
+    "passwordMismatch": "As senhas não conferem.",
+    "weakPassword": "A senha deve ter pelo menos 8 caracteres.",
+    "error": "Ocorreu um erro ao redefinir a senha."
+  },
   "MaterialManager": {
     "title": "Gerenciador de Aulas",
     "description": "Crie, edite e processe conteúdo de aulas.",

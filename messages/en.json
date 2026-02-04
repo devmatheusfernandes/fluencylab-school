@@ -251,6 +251,23 @@
     "emailRequired": "Email is required.",
     "emailInvalid": "Invalid email."
   },
+  "ResetPassword": {
+    "title": "Reset Password",
+    "description": "Create a new password for your account.",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm password",
+    "placeholder": "Minimum 8 characters",
+    "placeholderConfirm": "Repeat password",
+    "submit": "Reset password",
+    "loading": "Resetting...",
+    "successTitle": "Password reset!",
+    "successDesc": "Your password has been updated successfully. You can now log in.",
+    "backToLogin": "Back to login",
+    "invalidLink": "Invalid or expired link.",
+    "passwordMismatch": "Passwords do not match.",
+    "weakPassword": "Password must be at least 8 characters long.",
+    "error": "An error occurred while resetting the password."
+  },
   "MaterialManager": {
     "title": "Lesson Manager",
     "description": "Create, edit, and process lesson content.",
