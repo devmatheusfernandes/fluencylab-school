@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Share2,
@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Lesson, QuizResult, QuizQuestion } from "@/types/quiz/types";
+import { Lesson, QuizResult } from "@/types/quiz/types";
 import LessonDisplay from "@/components/course/LessonDisplay";
 import QuizComponent from "@/components/course/QuizComponent";
 import { toast } from "sonner";

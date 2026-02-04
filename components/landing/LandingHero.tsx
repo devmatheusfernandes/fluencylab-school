@@ -71,6 +71,7 @@ export function LandingHero() {
             lg:absolute lg:top-32 lg:right-40 lg:w-auto lg:h-auto
           "
         >
+          {/* bottom-14 left-4  */}
           {/* --- COMPONENTE VISUAL ANIMADO --- */}
           <PhoneMockup>
             <AnimatePresence mode="wait">

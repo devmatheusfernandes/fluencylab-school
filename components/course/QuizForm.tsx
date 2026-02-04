@@ -1,25 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import {
-  Plus,
-  Edit2,
-  Trash2,
-  FileJson,
-  CheckCircle2,
-  XCircle,
-} from "lucide-react";
+import { Plus, Edit2, Trash2, FileJson, CheckCircle2 } from "lucide-react";
 import { Lesson, QuizQuestion } from "@/types/quiz/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Modal,
   ModalContent,

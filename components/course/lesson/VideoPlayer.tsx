@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import { Play, Pause, Volume2, Maximize, SkipBack, SkipForward } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Play, Volume2, Maximize } from "lucide-react";
 
 interface VideoPlayerProps {
   videoUrl?: string;
@@ -21,9 +20,8 @@ const YouTubeEmbed: React.FC<{ url: string }> = ({ url }) => {
   };
 
   const videoId = getVideoId(url);
-  
+
   if (!videoId) {
-    // Generic iframe fallback
     return (
       <iframe
         className="w-full h-full"
@@ -64,26 +62,26 @@ export function VideoPlayer({ videoUrl, title }: VideoPlayerProps) {
           <h3 className="text-xl font-medium text-center max-w-md line-clamp-2">
             {title || "No video available for this lesson"}
           </h3>
-          
+
           {/* Mock Controls for visual consistency with the request */}
           <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/80 to-transparent px-4 flex items-end pb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-             <div className="w-full space-y-2">
-                {/* Timeline */}
-                <div className="w-full h-1 bg-white/30 rounded-full overflow-hidden">
-                    <div className="h-full w-0 bg-indigo-500"></div>
+            <div className="w-full space-y-2">
+              {/* Timeline */}
+              <div className="w-full h-1 bg-white/30 rounded-full overflow-hidden">
+                <div className="h-full w-0 bg-indigo-500"></div>
+              </div>
+              {/* Icons */}
+              <div className="flex items-center justify-between text-white/90">
+                <div className="flex items-center gap-4">
+                  <Play className="w-5 h-5 fill-white" />
+                  <Volume2 className="w-5 h-5" />
+                  <span className="text-xs font-medium">00:00 / 00:00</span>
                 </div>
-                {/* Icons */}
-                <div className="flex items-center justify-between text-white/90">
-                    <div className="flex items-center gap-4">
-                        <Play className="w-5 h-5 fill-white" />
-                        <Volume2 className="w-5 h-5" />
-                        <span className="text-xs font-medium">00:00 / 00:00</span>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <Maximize className="w-5 h-5" />
-                    </div>
+                <div className="flex items-center gap-4">
+                  <Maximize className="w-5 h-5" />
                 </div>
-             </div>
+              </div>
+            </div>
           </div>
         </div>
       )}

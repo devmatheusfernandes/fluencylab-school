@@ -275,99 +275,6 @@ export default function EditCourseForm() {
     router.push(`/hub/admin/courses/lesson-editor?${params.toString()}`);
   };
 
-  const handleSaveLesson = async (lessonData: Omit<Lesson, "id" | "order">) => {
-    if (!courseId || !currentSectionIdForLesson) return;
-    const toastId = toast.loading(t("toasts.savingLesson"));
-    try {
-      let savedLessonId: string | undefined;
-      if (editingLesson) {
-        const payload = {
-          ...lessonData,
-          contentBlocks: lessonData.contentBlocks.map((block) => {
-            if (block.type === "text")
-              return { ...block, content: block.content?.trim() || null };
-            if (block.type === "video")
-              return { ...block, url: block.url?.trim() || null };
-            return block;
-          }),
-        };
-        const res = await fetch(
-          `/api/admin/courses/${courseId}/sections/${currentSectionIdForLesson}/lessons/${editingLesson.id}`,
-          {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          },
-        );
-        if (!res.ok) throw new Error("Falha na API");
-        savedLessonId = editingLesson.id;
-      } else {
-        const currentSection = sections.find(
-          (s) => s.id === currentSectionIdForLesson,
-        );
-        const newOrder =
-          currentSection && currentSection.lessons.length > 0
-            ? Math.max(...currentSection.lessons.map((l) => l.order)) + 1
-            : 0;
-        const newLessonData = {
-          ...lessonData,
-          order: newOrder,
-          quiz: [],
-          attachments: [],
-        };
-        const res = await fetch(
-          `/api/admin/courses/${courseId}/sections/${currentSectionIdForLesson}/lessons`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(newLessonData),
-          },
-        );
-        if (!res.ok) throw new Error("Falha na API");
-        const json = await res.json();
-        savedLessonId = json.id;
-        setEditingLesson({ ...newLessonData, id: savedLessonId! } as Lesson);
-      }
-      await fetchCourseAndContent();
-      const updatedSection = sections.find(
-        (s) => s.id === currentSectionIdForLesson,
-      );
-      const latestLesson = updatedSection?.lessons?.find(
-        (l) => l.id === (editingLesson?.id || savedLessonId),
-      );
-      if (latestLesson) {
-        setEditingLesson(latestLesson);
-        setCurrentLessonForQuiz(latestLesson);
-      }
-      toast.success(
-        editingLesson ? t("toasts.lessonUpdated") : t("toasts.lessonCreated"),
-        { id: toastId },
-      );
-    } catch (error) {
-      console.error("Error saving lesson: ", error);
-      toast.error(t("toasts.lessonError"), { id: toastId });
-    }
-  };
-
-  const handleAttachmentsUpdated = (updatedLesson: Lesson) => {
-    setEditingLesson(updatedLesson);
-    setSections((prevSections) =>
-      prevSections.map((section) => {
-        if (section.id === updatedLesson.sectionId) {
-          return {
-            ...section,
-            lessons: section.lessons.map((lesson) =>
-              lesson.id === updatedLesson.id ? updatedLesson : lesson,
-            ),
-          };
-        }
-        return section;
-      }),
-    );
-    if (currentLessonForQuiz?.id === updatedLesson.id)
-      setCurrentLessonForQuiz(updatedLesson);
-  };
-
   const openDeleteLessonAlert = (sectionId: string, lessonId: string) => {
     setLessonToDelete({ sectionId, lessonId });
     setIsDeleteLessonAlertOpen(true);
@@ -387,99 +294,6 @@ export default function EditCourseForm() {
     } catch (error) {
       console.error("Error deleting lesson: ", error);
       toast.error(t("toasts.deleteLessonError"), { id: toastId });
-    }
-  };
-
-  const handleOpenQuizModal = (
-    lesson: Lesson,
-    question: QuizQuestion | null = null,
-  ) => {
-    setCurrentLessonForQuiz(lesson);
-    setEditingQuizQuestion(question);
-    setIsQuizModalOpen(true);
-  };
-
-  const handleAddNewQuizQuestionRequest = () => setEditingQuizQuestion(null);
-  const handleRequestEditQuizQuestion = (questionToEdit: QuizQuestion) =>
-    setEditingQuizQuestion(questionToEdit);
-
-  const handleSaveQuizQuestion = async (
-    questionData: Omit<QuizQuestion, "id">,
-  ) => {
-    if (!courseId || !currentLessonForQuiz || !currentLessonForQuiz.sectionId) {
-      toast.error(t("toasts.internalError"));
-      return;
-    }
-    const toastId = toast.loading(t("toasts.savingQuiz"));
-    try {
-      let updatedQuiz: QuizQuestion[];
-      if (editingQuizQuestion) {
-        updatedQuiz = (currentLessonForQuiz.quiz || []).map((q) =>
-          q.id === editingQuizQuestion.id ? { ...q, ...questionData } : q,
-        );
-      } else {
-        updatedQuiz = [
-          ...(currentLessonForQuiz.quiz || []),
-          { ...questionData, id: generateUniqueId() },
-        ];
-      }
-      const res = await fetch(
-        `/api/admin/courses/${courseId}/sections/${currentLessonForQuiz.sectionId}/lessons/${currentLessonForQuiz.id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ quiz: updatedQuiz }),
-        },
-      );
-      if (!res.ok) throw new Error("Falha na API");
-      await fetchCourseAndContent();
-      const updatedSection = sections.find(
-        (s) => s.id === currentLessonForQuiz.sectionId,
-      );
-      const latestLesson = updatedSection?.lessons?.find(
-        (l) => l.id === currentLessonForQuiz.id,
-      );
-      if (latestLesson) setCurrentLessonForQuiz(latestLesson);
-      setEditingQuizQuestion(null);
-      toast.success(
-        editingQuizQuestion ? t("toasts.quizUpdated") : t("toasts.quizAdded"),
-        { id: toastId },
-      );
-    } catch (error) {
-      console.error("Error saving quiz question: ", error);
-      toast.error(t("toasts.quizError"), { id: toastId });
-    }
-  };
-
-  const handleDeleteQuizQuestion = async (
-    lesson: Lesson,
-    questionId: string,
-  ) => {
-    if (
-      !courseId ||
-      !lesson.sectionId ||
-      !confirm("Tem certeza que deseja excluir esta questão do quiz?")
-    )
-      return;
-    const toastId = toast.loading(t("toasts.deletingQuiz"));
-    try {
-      const updatedQuiz = (lesson.quiz || []).filter(
-        (q) => q.id !== questionId,
-      );
-      const res = await fetch(
-        `/api/admin/courses/${courseId}/sections/${lesson.sectionId}/lessons/${lesson.id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ quiz: updatedQuiz }),
-        },
-      );
-      if (!res.ok) throw new Error("Falha na API");
-      await fetchCourseAndContent();
-      toast.success(t("toasts.quizDeleted"), { id: toastId });
-    } catch (error) {
-      console.error("Error deleting quiz question: ", error);
-      toast.error(t("toasts.deleteQuizError"), { id: toastId });
     }
   };
 
@@ -529,7 +343,7 @@ export default function EditCourseForm() {
 
   // --- RENDER ---
   return (
-    <Container className="p-4 md:p-8 max-w-7xl mx-auto space-y-8">
+    <Container className="p-4 md:p-6 space-y-6">
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}

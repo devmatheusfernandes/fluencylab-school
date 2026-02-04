@@ -5,7 +5,6 @@ import {
   ChevronUp,
   ChevronDown,
   Trash2,
-  Plus,
   Paperclip,
   Video,
   FileText,

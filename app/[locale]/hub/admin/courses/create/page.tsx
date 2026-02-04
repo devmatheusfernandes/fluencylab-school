@@ -148,7 +148,7 @@ export default function CreateCoursePage() {
   }
 
   return (
-    <Container className="p-4 md:p-8 max-w-5xl mx-auto space-y-8">
+    <Container className="p-4 md:p-6 space-y-6">
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}

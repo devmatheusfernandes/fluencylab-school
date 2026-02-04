@@ -87,7 +87,6 @@ export function LandingNavbar() {
       onClick={() => {
         setActiveTab(id);
       }}
-      // ADICIONADO: 'whitespace-nowrap' impede que o texto quebre durante a animação
       className="relative px-6 py-3 rounded-full text-sm font-medium outline-none focus-visible:ring-2 whitespace-nowrap"
     >
       {activeTab === id && (
@@ -121,9 +120,7 @@ export function LandingNavbar() {
 
   return (
     <>
-      {/* ======================================================== */}
       {/* DESKTOP HEADER ANIMADA */}
-      {/* ======================================================== */}
       <motion.header
         className="hidden md:flex fixed top-0 left-0 w-full z-50 pointer-events-none flex-col items-center"
         animate={{
@@ -234,9 +231,7 @@ export function LandingNavbar() {
         </motion.div>
       </motion.header>
 
-      {/* ======================================================== */}
       {/* MOBILE HEADER (Intocado) */}
-      {/* ======================================================== */}
       <header className="md:hidden w-full p-4 flex justify-between items-center z-40 relative">
         <div className="w-36 relative">
           <Image src={Logo} alt="Logo" height={40} className="object-contain" />
