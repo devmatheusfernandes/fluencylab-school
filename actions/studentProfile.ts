@@ -119,6 +119,34 @@ export async function getStudentProfileById(id: string) {
 }
 
 /**
+ * Updates the onboarding status of a student profile.
+ */
+export async function updateOnboardingStatus(id: string, status: { accountCreated?: boolean; roadmapCreated?: boolean; lessonPlanCreated?: boolean }) {
+  try {
+    const docRef = adminDb.collection(COLLECTION_NAME).doc(id);
+    
+    // Use merge: true implicitly by using update with dot notation if we wanted to be partial, 
+    // but here we are passing the whole object or partial object.
+    // Let's use dot notation to avoid overwriting other fields if we add more later.
+    const updates: any = {};
+    if (status.accountCreated !== undefined) updates["onboardingStatus.accountCreated"] = status.accountCreated;
+    if (status.roadmapCreated !== undefined) updates["onboardingStatus.roadmapCreated"] = status.roadmapCreated;
+    if (status.lessonPlanCreated !== undefined) updates["onboardingStatus.lessonPlanCreated"] = status.lessonPlanCreated;
+    
+    updates["updatedAt"] = new Date();
+
+    await docRef.update(updates);
+
+    revalidatePath("/hub/manager/student-profiles");
+    revalidatePath(`/hub/manager/student-profiles/${id}`);
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error updating onboarding status:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
  * Deletes a student profile.
  */
 export async function deleteStudentProfile(id: string) {

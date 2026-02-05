@@ -38,6 +38,8 @@ import { DifficultiesStep } from "./steps/DifficultiesStep";
 import { PreferencesStep } from "./steps/PreferencesStep";
 import { AdditionalStep } from "./steps/AdditionalStep";
 
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
+
 interface StudentProfileSurveyProps {
   initialData?: StudentProfile;
   isEditing?: boolean;
@@ -51,6 +53,7 @@ export function StudentProfileSurvey({
 }: StudentProfileSurveyProps) {
   const t = useTranslations("StudentProfileSurvey");
   const router = useRouter();
+  const { user: currentUser } = useCurrentUser();
 
   // Local Storage for Draft (only if not editing an existing one, or maybe even then?)
   // If editing, we want to start with initialData.
@@ -63,6 +66,43 @@ export function StudentProfileSurvey({
     if (isEditing && initialData) return initialData;
     return { ...draftData, ...initialData };
   });
+
+  // Effect to pre-fill data from logged in user if fields are missing
+  useEffect(() => {
+    if (currentUser && !isEditing) {
+      setFormData((prev) => {
+        const newData = { ...prev };
+        let changed = false;
+
+        if (!newData.name && currentUser.name) {
+            newData.name = currentUser.name;
+            changed = true;
+        }
+        if (!newData.email && currentUser.email) {
+            newData.email = currentUser.email;
+            changed = true;
+        }
+        if (!newData.birthDate && currentUser.birthDate) {
+            newData.birthDate = new Date(currentUser.birthDate).toISOString();
+            changed = true;
+        }
+        if (!newData.phoneNumber && currentUser.phoneNumber) {
+            newData.phoneNumber = currentUser.phoneNumber;
+            changed = true;
+        }
+        if (!newData.city && currentUser.address?.city) {
+            newData.city = currentUser.address.city;
+            changed = true;
+        }
+         if (!newData.state && currentUser.address?.state) {
+            newData.state = currentUser.address.state;
+            changed = true;
+        }
+
+        return changed ? newData : prev;
+      });
+    }
+  }, [currentUser, isEditing]);
 
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);

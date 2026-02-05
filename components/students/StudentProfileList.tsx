@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useTranslations } from "next-intl";
-import { Plus, Search, UserPlus, Pencil, Trash2, User } from "lucide-react";
+import { Plus, Search, UserPlus, Pencil, Trash2 } from "lucide-react";
 import { AssociateStudentModal } from "./AssociateStudentModal";
 import { deleteStudentProfile } from "@/actions/studentProfile";
 import { generatePromptPlanAction } from "@/actions/generatePromptPlan";

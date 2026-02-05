@@ -101,4 +101,24 @@ export class PlacementRepository {
       return () => {}; // Return noop unsubscribe function
     }
   }
+
+  /**
+   * Check if a user has completed any placement test in the placement_results collection
+   * @param userId - The ID of the user
+   */
+  async hasCompletedPlacement(userId: string): Promise<boolean> {
+    try {
+      // Check the placement_results collection as per user instruction
+      const placementRef = adminDb.collection("placement_results");
+      const snapshot = await placementRef
+        .where("userId", "==", userId)
+        .limit(1)
+        .get();
+
+      return !snapshot.empty;
+    } catch (error) {
+      console.error("Error checking placement completion:", error);
+      return false;
+    }
+  }
 }

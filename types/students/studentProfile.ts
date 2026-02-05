@@ -105,10 +105,62 @@ export interface StudentProfile {
   createdAt: Date | string;
   updatedAt: Date | string;
   
+  // Onboarding Status
+  onboardingStatus?: {
+    accountCreated?: boolean;
+    roadmapCreated?: boolean;
+    lessonPlanCreated?: boolean;
+  };
+  
   // AI Generated Content
   generatedPromptPlan?: string;
+  roadmap?: Roadmap;
   promptHistory?: {
     content: string;
     createdAt: string;
   }[];
+}
+
+export interface RoadmapLesson {
+  id: string;
+  title: string;
+  subject: string;
+  description: string;
+  lessonObjective: string;
+  grammarPoint?: string;
+  vocabulary: string[];
+  activities: string[];
+}
+
+export interface Roadmap {
+  profileSummary: string;
+  objectives: {
+    main: string;
+    deadline: string;
+    frequency: string;
+    startLevel: string;
+    targetLevel: string;
+  };
+  structure: {
+    totalLessons: number;
+    estimatedHours: string;
+  };
+  lessons: RoadmapLesson[];
+  methodology: {
+    progression: string[];
+    personalization: string[];
+    skillsBalance: string[];
+    thematicVocabulary: string[];
+    grammarContext: string[];
+  };
+  cefrAdaptation: {
+    level: string;
+    description: string;
+  }[];
+  activityTypes: {
+    style: string;
+    activities: string[];
+  }[];
+  createdAt: string;
+  updatedAt: string;
 }
