@@ -5,7 +5,13 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { FullClassDetails } from "@/types/classes/class";
 import { Notebook, Transcription } from "@/types/notebooks/notebooks";
-import { collection, query, where, getDocs, Timestamp } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  Timestamp,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useTranslations, useFormatter } from "next-intl";
@@ -26,12 +32,13 @@ import {
   CheckCircle2,
   XCircle,
   Mail,
-  BookOpen
+  BookOpen,
 } from "lucide-react";
 import { BackButton } from "../ui/back-button";
 
 interface ClassDetailsViewProps {
   classDetails: FullClassDetails;
+  backHref?: string;
 }
 
 const containerVariants = {
@@ -47,17 +54,20 @@ const itemVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.4, ease: "easeOut" as const},
+    transition: { duration: 0.4, ease: "easeOut" as const },
   },
 };
 
 export default function ClassDetailsView({
   classDetails,
+  backHref = "/hub/admin/users",
 }: ClassDetailsViewProps) {
   const t = useTranslations("AdminClassDetails");
   const tStatus = useTranslations("ClassStatus");
   const format = useFormatter();
-  const [weekTranscriptions, setWeekTranscriptions] = useState<Transcription[]>([]);
+  const [weekTranscriptions, setWeekTranscriptions] = useState<Transcription[]>(
+    [],
+  );
   const [weekNotebooks, setWeekNotebooks] = useState<Notebook[]>([]);
   const [isLoadingTranscriptions, setIsLoadingTranscriptions] = useState(false);
 
@@ -75,11 +85,16 @@ export default function ClassDetailsView({
         endDate.setDate(startDate.getDate() + 7);
         endDate.setHours(23, 59, 59, 999);
 
-        const notebooksRef = collection(db, "users", classDetails.student.id, "Notebooks");
+        const notebooksRef = collection(
+          db,
+          "users",
+          classDetails.student.id,
+          "Notebooks",
+        );
         const q = query(
           notebooksRef,
           where("createdAt", ">=", Timestamp.fromDate(startDate)),
-          where("createdAt", "<=", Timestamp.fromDate(endDate))
+          where("createdAt", "<=", Timestamp.fromDate(endDate)),
         );
 
         const querySnapshot = await getDocs(q);
@@ -120,22 +135,27 @@ export default function ClassDetailsView({
   const statusConfig = {
     scheduled: {
       icon: Clock,
-      style: "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800",
+      style:
+        "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800",
       label: "Agendada",
     },
     completed: {
       icon: CheckCircle2,
-      style: "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300 border-green-200 dark:border-green-800",
+      style:
+        "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300 border-green-200 dark:border-green-800",
       label: "Concluída",
     },
     cancelled: {
       icon: XCircle,
-      style: "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300 border-red-200 dark:border-red-800",
+      style:
+        "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300 border-red-200 dark:border-red-800",
       label: "Cancelada",
     },
   };
 
-  const currentStatus = statusConfig[classDetails.status as keyof typeof statusConfig] || statusConfig.scheduled;
+  const currentStatus =
+    statusConfig[classDetails.status as keyof typeof statusConfig] ||
+    statusConfig.scheduled;
   const StatusIcon = currentStatus.icon;
 
   const formatDate = (date: any) => {
@@ -145,11 +165,11 @@ export default function ClassDetailsView({
       if (typeof date.toDate === "function") d = date.toDate();
       else if (date.seconds) d = new Date(date.seconds * 1000);
       else d = new Date(date);
-      
+
       return format.dateTime(d, {
-          day: 'numeric',
-          month: 'numeric',
-          year: 'numeric'
+        day: "numeric",
+        month: "numeric",
+        year: "numeric",
       });
     } catch (e) {
       return "";
@@ -163,31 +183,35 @@ export default function ClassDetailsView({
       initial="hidden"
       animate="visible"
     >
-     
       {/* 1. Minimalist Header */}
-      <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 dark:border-gray-800 pb-6">
-         <div className="flex flex-row items-start gap-2">
-          <BackButton href="/hub/admin/users" />
+      <motion.div
+        variants={itemVariants}
+        className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 dark:border-gray-800 pb-6"
+      >
+        <div className="flex flex-row items-start gap-2">
+          <BackButton href={backHref} />
           <div>
-              <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
+            <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
               {t("title")}
-              </h1>
-              <div className="flex flex-wrap items-center gap-4 mt-2 text-gray-500 dark:text-gray-400 text-sm">
+            </h1>
+            <div className="flex flex-wrap items-center gap-4 mt-2 text-gray-500 dark:text-gray-400 text-sm">
               <div className="flex items-center gap-1.5 capitalize">
-                  <Calendar className="h-4 w-4 text-gray-400" />
-                  {formattedDate}
+                <Calendar className="h-4 w-4 text-gray-400" />
+                {formattedDate}
               </div>
               <div className="flex items-center gap-1.5">
-                  <Clock className="h-4 w-4 text-gray-400" />
-                  {formattedTime}
-              </div>
+                <Clock className="h-4 w-4 text-gray-400" />
+                {formattedTime}
               </div>
             </div>
-         </div>
+          </div>
+        </div>
 
-        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-medium ${currentStatus.style}`}>
-            <StatusIcon className="h-4 w-4" />
-            <span>{tStatus(classDetails.status as any)}</span>
+        <div
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-medium ${currentStatus.style}`}
+        >
+          <StatusIcon className="h-4 w-4" />
+          <span>{tStatus(classDetails.status as any)}</span>
         </div>
       </motion.div>
 
@@ -200,11 +224,11 @@ export default function ClassDetailsView({
         >
           <Avatar>
             <AvatarImage src={classDetails?.teacher?.avatarUrl} />
-            <AvatarFallback/>
+            <AvatarFallback />
           </Avatar>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-0.5 flex items-center gap-1">
-                <GraduationCap className="h-3 w-3" /> {t("teacher")}
+              <GraduationCap className="h-3 w-3" /> {t("teacher")}
             </p>
             <p className="font-medium text-gray-900 dark:text-gray-100 truncate capitalize">
               {classDetails?.teacher?.name}
@@ -227,7 +251,7 @@ export default function ClassDetailsView({
           </Avatar>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-0.5 flex items-center gap-1">
-                <User className="h-3 w-3" /> {t("student")}
+              <User className="h-3 w-3" /> {t("student")}
             </p>
             <p className="font-medium text-gray-900 dark:text-gray-100 truncate capitalize">
               {classDetails.student.name}
@@ -242,17 +266,25 @@ export default function ClassDetailsView({
 
       {/* 3. Accordion Section (Content Collapsed) */}
       <motion.div variants={itemVariants}>
-        <Accordion type="multiple" defaultValue={["notes", "feedback"]} className="w-full space-y-4">
-          
+        <Accordion
+          type="multiple"
+          defaultValue={["notes", "feedback"]}
+          className="w-full space-y-4"
+        >
           {/* Notes Item */}
           {classDetails.notes && (
-            <AccordionItem value="notes" className="border rounded-xl px-4 bg-gray-50/50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800">
+            <AccordionItem
+              value="notes"
+              className="border rounded-xl px-4 bg-gray-50/50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800"
+            >
               <AccordionTrigger className="hover:no-underline py-4">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-blue-100 text-blue-600 rounded-lg dark:bg-blue-900/30 dark:text-blue-400">
-                        <FileText className="h-4 w-4" />
-                    </div>
-                    <span className="font-medium text-gray-900 dark:text-gray-100">{t("topic")}</span>
+                  <div className="p-2 bg-blue-100 text-blue-600 rounded-lg dark:bg-blue-900/30 dark:text-blue-400">
+                    <FileText className="h-4 w-4" />
+                  </div>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">
+                    {t("topic")}
+                  </span>
                 </div>
               </AccordionTrigger>
               <AccordionContent className="pt-0 pb-4 text-gray-600 dark:text-gray-400 leading-relaxed px-1">
@@ -263,13 +295,18 @@ export default function ClassDetailsView({
 
           {/* Feedback Item */}
           {classDetails.feedback && (
-            <AccordionItem value="feedback" className="border rounded-xl px-4 bg-gray-50/50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800">
+            <AccordionItem
+              value="feedback"
+              className="border rounded-xl px-4 bg-gray-50/50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800"
+            >
               <AccordionTrigger className="hover:no-underline py-4">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-green-100 text-green-600 rounded-lg dark:bg-green-900/30 dark:text-green-400">
-                        <MessageSquare className="h-4 w-4" />
-                    </div>
-                    <span className="font-medium text-gray-900 dark:text-gray-100">{t("report")}</span>
+                  <div className="p-2 bg-green-100 text-green-600 rounded-lg dark:bg-green-900/30 dark:text-green-400">
+                    <MessageSquare className="h-4 w-4" />
+                  </div>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">
+                    {t("report")}
+                  </span>
                 </div>
               </AccordionTrigger>
               <AccordionContent className="pt-0 pb-4 text-gray-600 dark:text-gray-400 leading-relaxed px-1">
@@ -280,48 +317,60 @@ export default function ClassDetailsView({
 
           {/* Transcriptions Item (Dynamic) */}
           {weekTranscriptions.length > 0 && (
-            <AccordionItem value="transcriptions" className="border rounded-xl px-4 bg-gray-50/50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800">
+            <AccordionItem
+              value="transcriptions"
+              className="border rounded-xl px-4 bg-gray-50/50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800"
+            >
               <AccordionTrigger className="hover:no-underline py-4">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-purple-100 text-purple-600 rounded-lg dark:bg-purple-900/30 dark:text-purple-400">
-                        <ScrollText className="h-4 w-4" />
-                    </div>
-                    <div className="text-left">
-                        <span className="block font-medium text-gray-900 dark:text-gray-100">{t("transcriptions")}</span>
-                        <span className="block text-xs text-gray-500 font-normal">
-                            {t("foundRecords", { count: weekTranscriptions.length })}
-                        </span>
-                    </div>
+                  <div className="p-2 bg-purple-100 text-purple-600 rounded-lg dark:bg-purple-900/30 dark:text-purple-400">
+                    <ScrollText className="h-4 w-4" />
+                  </div>
+                  <div className="text-left">
+                    <span className="block font-medium text-gray-900 dark:text-gray-100">
+                      {t("transcriptions")}
+                    </span>
+                    <span className="block text-xs text-gray-500 font-normal">
+                      {t("foundRecords", { count: weekTranscriptions.length })}
+                    </span>
+                  </div>
                 </div>
               </AccordionTrigger>
               <AccordionContent className="pt-0 pb-4">
                 <div className="space-y-6 px-1">
-                    {weekTranscriptions.map((transcription, index) => (
-                        <div key={index} className="relative pl-4 border-l-2 border-gray-200 dark:border-gray-700">
-                            <div className="mb-2">
-                                <span className="text-xs font-semibold uppercase tracking-wider text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-md">
-                                    {formatDate(transcription.date)}
-                                </span>
-                            </div>
-                            
-                            <div className="space-y-3">
-                                <div>
-                                    <p className="text-xs font-medium text-gray-400 mb-1">{t("content")}</p>
-                                    <p className="text-sm text-gray-700 dark:text-gray-300">
-                                        {transcription.content || t("noContent")}
-                                    </p>
-                                </div>
-                                {transcription.summary && (
-                                    <div>
-                                        <p className="text-xs font-medium text-gray-400 mb-1">{t("summary")}</p>
-                                        <div className="text-sm text-gray-600 dark:text-gray-400 italic bg-white dark:bg-gray-950 p-3 rounded-lg border border-gray-100 dark:border-gray-800">
-                                            {transcription.summary}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
+                  {weekTranscriptions.map((transcription, index) => (
+                    <div
+                      key={index}
+                      className="relative pl-4 border-l-2 border-gray-200 dark:border-gray-700"
+                    >
+                      <div className="mb-2">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-md">
+                          {formatDate(transcription.date)}
+                        </span>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div>
+                          <p className="text-xs font-medium text-gray-400 mb-1">
+                            {t("content")}
+                          </p>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">
+                            {transcription.content || t("noContent")}
+                          </p>
                         </div>
-                    ))}
+                        {transcription.summary && (
+                          <div>
+                            <p className="text-xs font-medium text-gray-400 mb-1">
+                              {t("summary")}
+                            </p>
+                            <div className="text-sm text-gray-600 dark:text-gray-400 italic bg-white dark:bg-gray-950 p-3 rounded-lg border border-gray-100 dark:border-gray-800">
+                              {transcription.summary}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -329,53 +378,57 @@ export default function ClassDetailsView({
 
           {/* Notebooks Item */}
           {weekNotebooks.length > 0 && (
-            <AccordionItem value="notebooks" className="border rounded-xl px-4 bg-gray-50/50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800">
+            <AccordionItem
+              value="notebooks"
+              className="border rounded-xl px-4 bg-gray-50/50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800"
+            >
               <AccordionTrigger className="hover:no-underline py-4">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg dark:bg-indigo-900/30 dark:text-indigo-400">
-                        <BookOpen className="h-4 w-4" />
-                    </div>
-                    <div className="text-left">
-                        <span className="block font-medium text-gray-900 dark:text-gray-100">{t("notebooks")}</span>
-                        <span className="block text-xs text-gray-500 font-normal">
-                            {t("foundRecords", { count: weekNotebooks.length })}
-                        </span>
-                    </div>
+                  <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg dark:bg-indigo-900/30 dark:text-indigo-400">
+                    <BookOpen className="h-4 w-4" />
+                  </div>
+                  <div className="text-left">
+                    <span className="block font-medium text-gray-900 dark:text-gray-100">
+                      {t("notebooks")}
+                    </span>
+                    <span className="block text-xs text-gray-500 font-normal">
+                      {t("foundRecords", { count: weekNotebooks.length })}
+                    </span>
+                  </div>
                 </div>
               </AccordionTrigger>
               <AccordionContent className="pt-0 pb-4">
                 <div className="space-y-2 px-1">
-                    {weekNotebooks.map((notebook) => (
-                        <Link 
-                            key={notebook.id}
-                            href={`/hub/admin/class/${classDetails.id}/notebook/${notebook.id}`}
-                            className="block group"
-                        >
-                            <div className="p-3 rounded-lg border border-gray-200 bg-white hover:border-indigo-300 transition-colors dark:bg-gray-950 dark:border-gray-800 dark:hover:border-indigo-700">
-                                <div className="flex justify-between items-start">
-                                    <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                                        {notebook.title}
-                                    </h4>
-                                    <span className="text-xs text-gray-500">
-                                        {formatDate(notebook.createdAt)}
-                                    </span>
-                                </div>
-                                {notebook.description && (
-                                    <p className="text-xs text-gray-500 mt-1 line-clamp-1">
-                                        {notebook.description}
-                                    </p>
-                                )}
-                            </div>
-                        </Link>
-                    ))}
+                  {weekNotebooks.map((notebook) => (
+                    <Link
+                      key={notebook.id}
+                      href={`/hub/admin/class/${classDetails.id}/notebook/${notebook.id}`}
+                      className="block group"
+                    >
+                      <div className="p-3 rounded-lg border border-gray-200 bg-white hover:border-indigo-300 transition-colors dark:bg-gray-950 dark:border-gray-800 dark:hover:border-indigo-700">
+                        <div className="flex justify-between items-start">
+                          <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                            {notebook.title}
+                          </h4>
+                          <span className="text-xs text-gray-500">
+                            {formatDate(notebook.createdAt)}
+                          </span>
+                        </div>
+                        {notebook.description && (
+                          <p className="text-xs text-gray-500 mt-1 line-clamp-1">
+                            {notebook.description}
+                          </p>
+                        )}
+                      </div>
+                    </Link>
+                  ))}
                 </div>
               </AccordionContent>
             </AccordionItem>
           )}
         </Accordion>
 
-          {/* TO DO: PUT NOTEBOOKS LIST HERE */}
-
+        {/* TODO: PUT NOTEBOOKS LIST HERE */}
       </motion.div>
     </motion.div>
   );

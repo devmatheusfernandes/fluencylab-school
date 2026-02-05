@@ -25,7 +25,7 @@ export default async function ClassPage({
   // Busca os dados da aula no servidor
   const classDetails = await schedulingService.getClassDetails(
     classId,
-    session!.user.id
+    session!.user.id,
   );
 
   if (!classDetails) {
@@ -37,5 +37,10 @@ export default async function ClassPage({
     );
   }
 
-  return <ClassDetailsView classDetails={classDetails} />;
+  return (
+    <ClassDetailsView
+      backHref="/hub/admin/classes"
+      classDetails={classDetails}
+    />
+  );
 }

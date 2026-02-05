@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Text } from "@/components/ui/text";
 import { useState, useMemo, useEffect } from "react";
 import { useTranslations, useLocale, useFormatter } from "next-intl";
+import { useSession } from "next-auth/react";
 import {
   Select,
   SelectContent,
@@ -22,7 +23,7 @@ import {
   ModalHeader,
   ModalTitle,
   ModalDescription,
-  ModalFooter
+  ModalFooter,
 } from "@/components/ui/modal";
 import { Spinner } from "../ui/spinner";
 import {
@@ -63,11 +64,14 @@ export default function UserClassesTab({
   const t = useTranslations("UserDetails.classes");
   const locale = useLocale();
   const format = useFormatter();
+  const { data: session } = useSession();
 
   const monthOptions = useMemo(() => {
     return Array.from({ length: 12 }, (_, i) => ({
       value: i,
-      label: format.dateTime(new Date(2024, i, 1), { month: "long" }).replace(/^\w/, (c) => c.toUpperCase()),
+      label: format
+        .dateTime(new Date(2024, i, 1), { month: "long" })
+        .replace(/^\w/, (c) => c.toUpperCase()),
     }));
   }, [format]);
 
@@ -182,7 +186,7 @@ export default function UserClassesTab({
             return updatedClass;
           }
           return cls;
-        })
+        }),
       );
     } catch (error: any) {
       toast.error(`${t("toasts.updateError")} ${error.message}`);
@@ -195,7 +199,7 @@ export default function UserClassesTab({
   const handleTeacherChange = (
     classId: string,
     teacherId: string,
-    currentTeacherName: string
+    currentTeacherName: string,
   ) => {
     // Find the new teacher name
     let newTeacherName = t("noTeacher");
@@ -247,13 +251,9 @@ export default function UserClassesTab({
     const key = String(cls.status).toLowerCase().replace(/_/g, "-");
     return (
       <div className="flex flex-col items-end gap-2">
-        <Badge variant={getStatusVariant(cls.status)}>
-          {tStatus(key)}
-        </Badge>
+        <Badge variant={getStatusVariant(cls.status)}>{tStatus(key)}</Badge>
         {cls.rescheduledFrom && (
-          <Badge className="text-xs">
-            {tStatus("rescheduledBadge")}
-          </Badge>
+          <Badge className="text-xs">{tStatus("rescheduledBadge")}</Badge>
         )}
       </div>
     );
@@ -266,9 +266,7 @@ export default function UserClassesTab({
         <ModalContent>
           <ModalHeader>
             <ModalTitle>{t("modal.confirmTitle")}</ModalTitle>
-            <ModalDescription>
-              {t("modal.confirmDescription")}
-            </ModalDescription>
+            <ModalDescription>{t("modal.confirmDescription")}</ModalDescription>
           </ModalHeader>
 
           {pendingTeacherUpdate && (
@@ -285,7 +283,9 @@ export default function UserClassesTab({
           )}
 
           <ModalFooter>
-            <Button onClick={confirmUpdateClassTeacher}>{t("modal.confirm")}</Button>
+            <Button onClick={confirmUpdateClassTeacher}>
+              {t("modal.confirm")}
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
@@ -327,110 +327,114 @@ export default function UserClassesTab({
       <div className="space-y-4">
         {filteredClasses.length > 0 ? (
           filteredClasses.map((cls, index) => {
-              const classDate = new Date(cls.scheduledAt);
-              const formattedDate = classDate.toLocaleDateString(locale, {
-                weekday: "long",
-                day: "2-digit",
-                month: "long",
-              });
-              const formattedTime = classDate.toLocaleTimeString(locale, {
-                hour: "2-digit",
-                minute: "2-digit",
-              });
+            const classDate = new Date(cls.scheduledAt);
+            const formattedDate = classDate.toLocaleDateString(locale, {
+              weekday: "long",
+              day: "2-digit",
+              month: "long",
+            });
+            const formattedTime = classDate.toLocaleTimeString(locale, {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
 
-              return (
-                <Card
-                  key={`${cls.id}-${cls.scheduledAt}-${index}`}
-                  className="p-4"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-start space-x-4">
-                      <div>
-                        <p className="subtitle-base">{formattedDate}</p>
-                        <p className="text-sm paragraph-base">{formattedTime}</p>
-                        
-                        {/* Display Plan and Lesson Info */}
-                        {cls.planName && (
-                          <div className="mt-2 text-sm text-primary font-medium">
-                            <span className="text-xs text-muted-foreground block">Plano:</span>
-                            {cls.planName}
-                          </div>
-                        )}
-                        {cls.lessonTitle && (
-                          <div className="mt-1 text-sm font-semibold">
-                             <span className="text-xs text-muted-foreground block">Lição:</span>
-                             {cls.lessonTitle}
-                          </div>
-                        )}
+            return (
+              <Card
+                key={`${cls.id}-${cls.scheduledAt}-${index}`}
+                className="p-4"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start space-x-4">
+                    <div>
+                      <p className="subtitle-base">{formattedDate}</p>
+                      <p className="text-sm paragraph-base">{formattedTime}</p>
 
-                        {cls.notes && (
-                          <p className="text-sm mt-2 italic text-subtitle">
-                            {cls.notes}
-                          </p>
-                        )}
+                      {/* Display Plan and Lesson Info */}
+                      {cls.planName && (
+                        <div className="mt-2 text-sm text-primary font-medium">
+                          <span className="text-xs text-muted-foreground block">
+                            Plano:
+                          </span>
+                          {cls.planName}
+                        </div>
+                      )}
+                      {cls.lessonTitle && (
+                        <div className="mt-1 text-sm font-semibold">
+                          <span className="text-xs text-muted-foreground block">
+                            Lição:
+                          </span>
+                          {cls.lessonTitle}
+                        </div>
+                      )}
 
-                        <div className="mt-3">
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            {t("teacherLabel")}
-                          </label>
-                          <div className="flex items-center space-x-2">
-                            <Select
-                              value={cls.teacherId || ""}
-                              onValueChange={(value) =>
-                                handleTeacherChange(
-                                  cls.id,
-                                  value,
-                                  cls.teacherId
-                                    ? teachers.find(
-                                        (t) => t.id === cls.teacherId
-                                      )?.name || t("unknownTeacher")
-                                    : t("noTeacher")
-                                )
-                              }
-                              disabled={loadingTeachers}
-                            >
-                              <SelectTrigger className="w-[200px] capitalize font-bold">
-                                <SelectValue placeholder={t("selectTeacher")} />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem key="none" value="none">
-                                  {t("noTeacher")}
+                      {cls.notes && (
+                        <p className="text-sm mt-2 italic text-subtitle">
+                          {cls.notes}
+                        </p>
+                      )}
+
+                      <div className="mt-3">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          {t("teacherLabel")}
+                        </label>
+                        <div className="flex items-center space-x-2">
+                          <Select
+                            value={cls.teacherId || ""}
+                            onValueChange={(value) =>
+                              handleTeacherChange(
+                                cls.id,
+                                value,
+                                cls.teacherId
+                                  ? teachers.find((t) => t.id === cls.teacherId)
+                                      ?.name || t("unknownTeacher")
+                                  : t("noTeacher"),
+                              )
+                            }
+                            disabled={loadingTeachers}
+                          >
+                            <SelectTrigger className="w-[200px] capitalize font-bold">
+                              <SelectValue placeholder={t("selectTeacher")} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem key="none" value="none">
+                                {t("noTeacher")}
+                              </SelectItem>
+                              {teachers.map((teacher) => (
+                                <SelectItem key={teacher.id} value={teacher.id}>
+                                  {teacher.name}
                                 </SelectItem>
-                                {teachers.map((teacher) => (
-                                  <SelectItem
-                                    key={teacher.id}
-                                    value={teacher.id}
-                                  >
-                                    {teacher.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            {loadingTeachers && (
-                              <Spinner />
-                            )}
-                          </div>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {loadingTeachers && <Spinner />}
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      {getStatusBadge(cls)}
-                    </div>
                   </div>
-                  <div className="flex justify-end mt-3">
-                    <Button 
-                      variant="primary"
-                      size="sm"
-                      onClick={() =>
-                        router.push(`/hub/admin/class/Aula?aula=${encodeURIComponent(cls.id)}`)
-                      }
-                    >
-                      {t("viewClass")}
-                    </Button>
+                  <div className="flex items-center gap-2">
+                    {getStatusBadge(cls)}
                   </div>
-                </Card>
-              );
-            })
+                </div>
+                <div className="flex justify-end mt-3">
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => {
+                      const isManager = session?.user?.role === "manager";
+                      const basePath = isManager
+                        ? "/hub/manager/class"
+                        : "/hub/admin/class";
+                      router.push(
+                        `${basePath}/Aula?aula=${encodeURIComponent(cls.id)}`,
+                      );
+                    }}
+                  >
+                    {t("viewClass")}
+                  </Button>
+                </div>
+              </Card>
+            );
+          })
         ) : (
           <Empty>
             <EmptyMedia variant="icon">
