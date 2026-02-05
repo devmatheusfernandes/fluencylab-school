@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { useGeminiLive } from "@/hooks/useGeminiLive";
+import { useGeminiLive } from "@/hooks/learning/useGeminiLive";
 import { Button } from "@/components/ui/button";
 import {
   Card,

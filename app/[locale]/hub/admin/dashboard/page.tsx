@@ -9,6 +9,8 @@ import { DollarSign, Users, Calendar, GraduationCap } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { getStreamUsage } from "@/services/admin/streamUsageService";
 import StreamUsageWidget from "@/components/admin/StreamUsageWidget";
+import GeminiUsageWidget from "@/components/admin/GeminiUsageWidget";
+import { getGeminiUsage } from "@/services/admin/geminiApiKeyUsageService";
 
 export default async function DashboardPage({
   searchParams,
@@ -22,12 +24,14 @@ export default async function DashboardPage({
       ? resolvedSearchParams.firebase_period
       : "30d";
 
-  const [data, resendData, firebaseData, streamData] = await Promise.all([
-    dashboardService.getDashboardData(),
-    getResendUsage(),
-    getFirebaseUsage({ range: firebasePeriod }),
-    getStreamUsage("30d"),
-  ]);
+  const [data, resendData, firebaseData, streamData, geminiData] =
+    await Promise.all([
+      dashboardService.getDashboardData(),
+      getResendUsage(),
+      getFirebaseUsage({ range: firebasePeriod }),
+      getStreamUsage("30d"),
+      getGeminiUsage(),
+    ]);
   const t = await getTranslations("AdminDashboard");
 
   const icons = {
@@ -48,9 +52,12 @@ export default async function DashboardPage({
           {t("systemStatus")}
         </h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <FirebaseUsageWidget data={firebaseData} />
+          <div className="lg:row-span-3">
+            <FirebaseUsageWidget data={firebaseData} />
+          </div>
           <ResendUsageWidget data={resendData} />
           <StreamUsageWidget data={streamData} />
+          <GeminiUsageWidget data={geminiData} />
         </div>
       </div>
     </div>

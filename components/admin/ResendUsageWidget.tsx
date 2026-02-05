@@ -122,7 +122,7 @@ export default function ResendUsageWidget({ data }: ResendUsageWidgetProps) {
   };
 
   return (
-    <Card className="p-6 border-none shadow-sm bg-background/60 backdrop-blur-sm">
+    <Card className="p-6 border-none shadow-sm bg-background/60 backdrop-blur-sm h-fit">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">

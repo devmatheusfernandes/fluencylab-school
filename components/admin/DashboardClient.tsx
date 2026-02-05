@@ -1,6 +1,4 @@
 "use client";
-
-import { useCan } from "@/hooks/auth/useCurrentUser";
 import { motion, Variants } from "framer-motion";
 import RecentActivityTable from "./RecentActivityTable";
 import RevenueChart from "./RevenueChart";

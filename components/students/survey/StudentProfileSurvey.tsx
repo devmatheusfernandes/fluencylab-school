@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useLocalStorage } from "@/hooks/ui/useLocalStorage";
 import { StudentProfile } from "@/types/students/studentProfile";
 import {
   createStudentProfile,
@@ -75,28 +75,28 @@ export function StudentProfileSurvey({
         let changed = false;
 
         if (!newData.name && currentUser.name) {
-            newData.name = currentUser.name;
-            changed = true;
+          newData.name = currentUser.name;
+          changed = true;
         }
         if (!newData.email && currentUser.email) {
-            newData.email = currentUser.email;
-            changed = true;
+          newData.email = currentUser.email;
+          changed = true;
         }
         if (!newData.birthDate && currentUser.birthDate) {
-            newData.birthDate = new Date(currentUser.birthDate).toISOString();
-            changed = true;
+          newData.birthDate = new Date(currentUser.birthDate).toISOString();
+          changed = true;
         }
         if (!newData.phoneNumber && currentUser.phoneNumber) {
-            newData.phoneNumber = currentUser.phoneNumber;
-            changed = true;
+          newData.phoneNumber = currentUser.phoneNumber;
+          changed = true;
         }
         if (!newData.city && currentUser.address?.city) {
-            newData.city = currentUser.address.city;
-            changed = true;
+          newData.city = currentUser.address.city;
+          changed = true;
         }
-         if (!newData.state && currentUser.address?.state) {
-            newData.state = currentUser.address.state;
-            changed = true;
+        if (!newData.state && currentUser.address?.state) {
+          newData.state = currentUser.address.state;
+          changed = true;
         }
 
         return changed ? newData : prev;

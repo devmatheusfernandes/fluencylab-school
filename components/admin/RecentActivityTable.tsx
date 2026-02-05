@@ -76,7 +76,7 @@ export default function RecentActivityTable({
                   <TableCell className="pl-6 py-4">
                     <div className="flex items-center gap-3">
                       <Avatar size="sm">
-                        <AvatarImage src={cls.student?.photoUrl} />
+                        <AvatarImage src={cls.student?.avatarUrl} />
                         <AvatarFallback />
                       </Avatar>
                       <div className="flex flex-col">
