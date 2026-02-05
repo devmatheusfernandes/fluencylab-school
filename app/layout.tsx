@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
     title: "Fluency Lab",
   },
 };
@@ -32,6 +32,10 @@ export const viewport: Viewport = {
   viewportFit: "cover",
   userScalable: false,
   interactiveWidget: "resizes-content",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#e2e8f0" },
+    { media: "(prefers-color-scheme: dark)", color: "#020617" },
+  ],
 };
 
 export default async function RootLayout({

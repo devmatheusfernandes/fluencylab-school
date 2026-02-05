@@ -378,7 +378,7 @@ const ChatLayout = () => {
             Attachment={CustomAttachment}
           >
             <Window>
-              <div className="flex flex-col min-h-[94vh] w-full overflow-hidden">
+              <div className="flex flex-col h-full w-full overflow-hidden">
                 <div className="sticky top-0 flex-none z-10 sm:border-none border-t border-primary/20">
                   <CustomChannelHeader
                     onToggleGallery={() => setShowGallery(!showGallery)}

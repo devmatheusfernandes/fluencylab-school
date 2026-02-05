@@ -5,21 +5,9 @@ import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  ArrowLeft,
-  ArrowRight,
-  Check,
-  CheckCircle,
-  Loader2,
-  Share2,
-  Bookmark,
-  PlayCircle,
-  Lock,
-} from "lucide-react";
+import { motion } from "framer-motion";
+import { ArrowLeft, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
-
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 
@@ -224,16 +212,6 @@ export default function LessonPageContent() {
       if (targetLessonId === lessonId) {
         setMarkingComplete(false);
       }
-    }
-  };
-
-  const handleNavigateNext = () => {
-    if (nextLessonId) {
-      router.push(
-        `/hub/student/my-courses/course/lesson?courseId=${courseId}&lessonId=${nextLessonId}`,
-      );
-    } else {
-      router.push(`/hub/student/my-courses/course?id=${courseId}`);
     }
   };
 

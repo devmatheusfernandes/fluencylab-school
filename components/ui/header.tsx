@@ -45,7 +45,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
       className,
       ...props
     },
-    ref
+    ref,
   ) => {
     const headingSizeClasses = {
       xl: "text-xl",
@@ -57,17 +57,14 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
     const subheadingSizeClasses = {
       sm: "text-sm",
       base: "text-base",
-      lg: "text-lg",
+      lg: "lg:text-lg md:text-md text-sm",
       xl: "text-xl",
     };
 
     return (
       <div
         ref={ref}
-        className={twMerge(
-          "flex items-start justify-between gap-4",
-          className
-        )}
+        className={twMerge("flex items-start justify-between gap-4", className)}
         {...props}
       >
         <div className="flex-1 min-w-0 flex items-center gap-4">
@@ -88,7 +85,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
             <h1
               className={twMerge(
                 "font-bold title-base leading-tight tracking-tight",
-                headingSizeClasses[headingSize]
+                headingSizeClasses[headingSize],
               )}
             >
               {heading}
@@ -97,7 +94,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
               <p
                 className={twMerge(
                   "text-subtitle leading-relaxed",
-                  subheadingSizeClasses[subheadingSize]
+                  subheadingSizeClasses[subheadingSize],
                 )}
               >
                 {subheading}
@@ -112,7 +109,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 Header.displayName = "Header";

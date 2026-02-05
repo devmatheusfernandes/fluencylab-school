@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-// Firestore removido do cliente; dados agora vêm de APIs
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -32,7 +31,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { Separator } from "@/components/ui/separator";
 
@@ -205,9 +204,7 @@ export default function CourseDetailPageContent() {
     );
 
   return (
-    <Container className="p-4 md:p-8 max-w-5xl mx-auto min-h-screen space-y-8">
-      <Toaster position="top-center" />
-
+    <div className="p-4 md:p-6 space-y-6">
       {/* Back Link */}
       <Link
         href={`/hub/student/my-courses`}
@@ -222,21 +219,21 @@ export default function CourseDetailPageContent() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <Card className="overflow-hidden border-none shadow-md bg-card">
-          <div className="flex flex-col md:flex-row">
+        <Card className="overflow-hidden border-none shadow-md bg-card p-0!">
+          <div className="flex flex-col md:flex-row p-2">
             {/* Course Image */}
-            <div className="relative w-full md:w-80 h-56 md:h-auto shrink-0 bg-muted">
+            <div className="relative w-full md:w-80 h-56 md:h-auto shrink-0">
               <Image
                 src={course.imageUrl || "/images/course-placeholder.jpg"}
                 alt={course.title}
                 fill
-                className="object-cover"
+                className="object-cover rounded-md"
                 sizes="(max-width: 768px) 100vw, 320px"
               />
             </div>
 
             {/* Course Info */}
-            <div className="p-6 flex flex-col justify-between flex-1 gap-4">
+            <div className=" py-4 lg:px-6 md:px-4 px-2 flex flex-col justify-between flex-1 gap-4">
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2 leading-tight">
                   {course.title}
@@ -349,13 +346,13 @@ export default function CourseDetailPageContent() {
                         <div
                           key={lesson.id}
                           className={`
-                                                relative flex items-center justify-between p-3 rounded-md border border-transparent
-                                                ${
-                                                  isLocked
-                                                    ? "bg-muted/30 text-muted-foreground cursor-not-allowed"
-                                                    : "bg-background hover:border-border hover:shadow-sm cursor-pointer group transition-all"
-                                                }
-                                            `}
+                                relative flex items-center justify-between p-3 rounded-md border border-transparent
+                                ${
+                                  isLocked
+                                    ? "bg-muted/30 text-muted-foreground cursor-not-allowed"
+                                    : "bg-background hover:border-border hover:shadow-sm cursor-pointer group transition-all"
+                                }
+                            `}
                         >
                           <div className="flex items-center gap-3 overflow-hidden">
                             {completed ? (
@@ -397,6 +394,6 @@ export default function CourseDetailPageContent() {
           </Accordion>
         )}
       </motion.div>
-    </Container>
+    </div>
   );
 }

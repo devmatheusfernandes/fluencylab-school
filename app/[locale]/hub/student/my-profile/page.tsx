@@ -196,6 +196,7 @@ export default function MeuPerfil() {
         grid gap-2
         grid-cols-1
         md:grid-cols-3
+        lg:p-0 md:p-0 p-4 lg:space-y-0 md:space-y-0 space-y-2
         "
     >
       <WordOfTheDayModal language={user?.languages?.[0] || "en"} />

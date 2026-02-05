@@ -30,7 +30,9 @@ function cn(...inputs: ClassValue[]) {
 export function StudentPaymentStatusCard() {
   const t = useTranslations("StudentPaymentStatusCard");
   const locale = useLocale();
-  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | null>(null);
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
   const [generatingPix, setGeneratingPix] = useState(false);
 
@@ -75,7 +77,7 @@ export function StudentPaymentStatusCard() {
                 pixQrCode: data.pixQrCode,
                 pixExpiresAt: new Date(data.expiresAt),
               }
-            : null
+            : null,
         );
         toast.success(t("generateSuccess"));
       } else {
@@ -150,9 +152,7 @@ export function StudentPaymentStatusCard() {
   // LOADING STATE
   // ----------------------------------------------------------------------
   if (loading) {
-    return (
-      <Skeleton className="w-full h-full min-h-[320px] rounded-xl" />
-    );
+    return <Skeleton className="w-full h-full min-h-[320px] rounded-xl" />;
   }
 
   // ----------------------------------------------------------------------
@@ -172,7 +172,9 @@ export function StudentPaymentStatusCard() {
         </p>
         <Button
           variant="outline"
-          onClick={() => (window.location.href = `/${locale}/hub/student/my-payments`)}
+          onClick={() =>
+            (window.location.href = `/${locale}/hub/student/my-payments`)
+          }
           className="gap-2"
         >
           <QrCode className="w-4 h-4" />
@@ -190,10 +192,10 @@ export function StudentPaymentStatusCard() {
   return (
     <div
       className={cn(
-        "flex flex-col h-full rounded-xl border shadow-sm transition-all duration-300",
+        "card-base flex flex-col h-full rounded-xl border shadow-sm transition-all duration-300",
         isOverdue
           ? "border-red-200 dark:border-red-900/50 shadow-red-100 dark:shadow-none"
-          : "border-zinc-200 dark:border-zinc-800"
+          : "border-zinc-200 dark:border-zinc-800",
       )}
     >
       {/* HEADER */}
@@ -202,7 +204,7 @@ export function StudentPaymentStatusCard() {
           <div
             className={cn(
               "p-2.5 rounded-xl shadow-sm border",
-              "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-950/30 dark:border-emerald-900/50 dark:text-emerald-400"
+              "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-950/30 dark:border-emerald-900/50 dark:text-emerald-400",
             )}
           >
             <QrCode className="w-5 h-5" />
@@ -211,9 +213,7 @@ export function StudentPaymentStatusCard() {
             <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 text-lg leading-tight">
               {t("title")}
             </h3>
-            <p className="text-xs text-zinc-500 mt-1">
-              {t("pix")}
-            </p>
+            <p className="text-xs text-zinc-500 mt-1">{t("pix")}</p>
           </div>
         </div>
 
@@ -222,7 +222,7 @@ export function StudentPaymentStatusCard() {
             "flex items-center gap-1.5 pl-2.5 pr-3 py-1 rounded-full text-xs font-semibold border transition-colors",
             statusConfig.bg,
             statusConfig.text,
-            statusConfig.border
+            statusConfig.border,
           )}
         >
           <StatusIcon className="w-3.5 h-3.5" />
@@ -266,7 +266,8 @@ export function StudentPaymentStatusCard() {
                         {t("pixInstructions")}
                       </p>
                       <p className="text-xs text-zinc-500 mt-1">
-                        Use o app do seu banco para escanear ou copie o código abaixo.
+                        Use o app do seu banco para escanear ou copie o código
+                        abaixo.
                       </p>
                     </div>
 
@@ -339,7 +340,6 @@ export function StudentPaymentStatusCard() {
       {/* FOOTER DETAILS - RESPONSIVE GRID */}
       <div className="bg-zinc-50/50 dark:bg-zinc-950/30 border-t border-zinc-100 dark:border-zinc-800 p-4 lg:p-5 rounded-b-xl">
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-6">
-          
           {/* Amount - Always Visible */}
           <div className="flex flex-col col-span-1">
             <span className="text-[10px] uppercase tracking-wider font-bold text-zinc-400 mb-1">
@@ -356,24 +356,26 @@ export function StudentPaymentStatusCard() {
               {t("nextDue")}
             </span>
             <div className="flex items-center gap-1.5 text-zinc-900 dark:text-zinc-100">
-               {isOverdue ? (
-                   <span className="text-sm font-semibold text-red-600 dark:text-red-400 flex items-center gap-1.5">
-                       <AlertTriangle className="w-3.5 h-3.5" />
-                       {t("expired")}
-                   </span>
-               ) : (
-                  <>
-                    <Calendar className="w-3.5 h-3.5 text-zinc-400" />
-                    <span className="text-sm font-medium">
-                        {paymentStatus.nextPaymentDue
-                        ? new Date(paymentStatus.nextPaymentDue).toLocaleDateString(
-                            locale,
-                            { day: "2-digit", month: "short" }
-                            )
-                        : "-"}
-                    </span>
-                  </>
-               )}
+              {isOverdue ? (
+                <span className="text-sm font-semibold text-red-600 dark:text-red-400 flex items-center gap-1.5">
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                  {t("expired")}
+                </span>
+              ) : (
+                <>
+                  <Calendar className="w-3.5 h-3.5 text-zinc-400" />
+                  <span className="text-sm font-medium">
+                    {paymentStatus.nextPaymentDue
+                      ? new Date(
+                          paymentStatus.nextPaymentDue,
+                        ).toLocaleDateString(locale, {
+                          day: "2-digit",
+                          month: "short",
+                        })
+                      : "-"}
+                  </span>
+                </>
+              )}
             </div>
           </div>
 
@@ -386,7 +388,7 @@ export function StudentPaymentStatusCard() {
               {paymentStatus.lastPaymentDate
                 ? new Date(paymentStatus.lastPaymentDate).toLocaleDateString(
                     locale,
-                    { day: "2-digit", month: "short", year: "2-digit" }
+                    { day: "2-digit", month: "short", year: "2-digit" },
                   )
                 : "-"}
             </span>

@@ -140,7 +140,7 @@ function HubLayoutContent({
     return (
       <CallProvider>
         <ChatClientProvider client={chatClient}>
-          <div className="flex flex-col min-h-screen bg-background">
+          <div className="flex flex-col h-screen bg-background overflow-hidden">
             <Container className="p-0! flex-1 flex flex-col">
               {children}
               <VideoCallOverlay />
@@ -164,16 +164,9 @@ function HubLayoutContent({
                 {/* Main content area */}
                 <div className="flex-1 flex flex-col gap-[1.5px] overflow-x-hidden pb-14 md:pb-0">
                   {!pathname?.includes("/my-chat") && <HubHeader />}
-                  <div
-                    className={`flex container-base flex-1 flex-col sm:hidden ${
-                      isChatPage ? "p-0" : "p-1"
-                    }`}
-                  >
-                    {children}
-                  </div>
                   <Container
-                    className={`flex-1 flex-col hidden sm:flex ${
-                      isChatPage ? "p-0 sm:p-0" : ""
+                    className={`flex-1 flex-col flex ${
+                      isChatPage ? "p-0 sm:p-0" : "p-1 sm:p-2"
                     }`}
                   >
                     {children}

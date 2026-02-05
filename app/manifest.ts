@@ -10,8 +10,8 @@ export default function manifest(): MetadataRoute.Manifest {
     display: "standalone",
     display_override: ["window-controls-overlay"],
     orientation: "portrait",
-    theme_color: "transparent",
-    background_color: "#ffffff",
+    theme_color: "#1D1D1D",
+    background_color: "#1D1D1D",
     icons: [
       {
         src: "/favicon/web-app-manifest-192x192.png",
@@ -29,5 +29,34 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ["education", "productivity"],
     lang: "pt-BR",
     prefer_related_applications: false,
+    shortcuts: [
+      {
+        name: "Início",
+        short_name: "Início",
+        description: "Ir para a página inicial",
+        url: "/hub",
+        icons: [
+          { src: "/favicon/web-app-manifest-192x192.png", sizes: "192x192" },
+        ],
+      },
+      {
+        name: "Chat",
+        short_name: "Chat",
+        description: "Abrir minhas mensagens",
+        url: "/hub/my-chat",
+        icons: [
+          { src: "/favicon/web-app-manifest-192x192.png", sizes: "192x192" },
+        ],
+      },
+      {
+        name: "Meus Cursos",
+        short_name: "Cursos",
+        description: "Acessar meus cursos",
+        url: "/hub/student/my-courses",
+        icons: [
+          { src: "/favicon/web-app-manifest-192x192.png", sizes: "192x192" },
+        ],
+      },
+    ],
   };
 }

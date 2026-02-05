@@ -83,6 +83,21 @@ export const WordOfTheDayModal = ({
         console.log("Buscando nova palavra na API...");
         const data = await getRandomWord(language);
 
+        // Verificação dupla: se outra instância já salvou no storage enquanto buscávamos
+        const currentStored = localStorage.getItem(storageKey);
+        if (currentStored) {
+          try {
+            const parsed = JSON.parse(currentStored);
+            if (parsed.date === today) {
+              setWordData(parsed.data);
+              // Não abrimos, assumindo que a instância que salvou já abriu (ou o usuário já viu)
+              return;
+            }
+          } catch (e) {
+            // Ignora erro de parse aqui, prossegue para salvar o novo
+          }
+        }
+
         if (data) {
           setWordData(data);
           // Se for uma nova palavra, abrimos automaticamente (apenas se não controlado)

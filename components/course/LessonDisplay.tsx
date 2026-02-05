@@ -80,7 +80,7 @@ const LessonDisplay: React.FC<LessonDisplayProps> = ({ lesson }) => {
           )}
 
           {block.type === "text" && (
-            <div className="w-full">
+            <div className="w-full p-2">
               <CourseEditor
                 content={(block as TextContentBlock).content || ""}
                 readOnly={true}

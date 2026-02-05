@@ -68,13 +68,13 @@
   padding: 0; /* Remove padding padrão */
 }
 
-/* Ajuste Crítico para Mobile Safari (iOS) - 100dvh */
+/* Ajuste para garantir que o chat ocupe a altura disponível (que já considera o padding da navbar) */
 @media (max-width: 768px) {
   .str-chat-channel {
-    height: 88.8dvh;
+    height: 100%;
   }
   .str-chat {
-    height: 88.8dvh;
+    height: 100%;
   }
 }
 
