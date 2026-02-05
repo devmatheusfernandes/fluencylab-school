@@ -1,4 +1,3 @@
-import { Container } from "@/components/ui/container";
 import { Header } from "@/components/ui/header";
 import { StudentProfileList } from "@/components/students/StudentProfileList";
 import { getStudentProfiles } from "@/actions/studentProfile";

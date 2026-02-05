@@ -43,6 +43,9 @@ import {
 import Link from "next/link";
 import { Sparkles, Copy, Check, Eye } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
+import AddUserModal from "../admin/AddUserModal";
+import { useAdmin } from "@/hooks/admin/useAdmin";
+import { UserRoles } from "@/types/users/userRoles";
 
 interface StudentProfileListProps {
   initialProfiles: StudentProfile[];
@@ -57,12 +60,14 @@ export function StudentProfileList({
   const [search, setSearch] = useState("");
   const [associateId, setAssociateId] = useState<string | null>(null);
   const [deleteProfileId, setDeleteProfileId] = useState<string | null>(null);
+  const { createUser, isLoading: isAdminLoading } = useAdmin();
 
   // Prompt Plan State
   const [isPromptModalOpen, setIsPromptModalOpen] = useState(false);
   const [generatedPrompt, setGeneratedPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   // Warning Modal State
   const [warningProfileId, setWarningProfileId] = useState<string | null>(null);
@@ -114,6 +119,26 @@ export function StudentProfileList({
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleUserCreated = async (userData: {
+    name: string;
+    email: string;
+    role: UserRoles;
+    birthDate?: Date;
+    contractStartDate?: Date;
+    languages?: string[];
+    guardian?: {
+      name: string;
+      email: string;
+      phoneNumber?: string;
+      relationship?: string;
+    };
+  }) => {
+    const success = await createUser(userData);
+    if (success) {
+      setIsAddModalOpen(false);
+    }
+  };
+
   const handleDelete = async (id: string) => {
     const result = await deleteStudentProfile(id);
     if (result.success) {
@@ -137,12 +162,17 @@ export function StudentProfileList({
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <Button asChild>
-          <Link href="/hub/manager/students/create">
-            <Plus className="mr-2 h-4 w-4" />
-            {t("newProfile")}
-          </Link>
-        </Button>
+        <div className="flex flex-row items-center gap-2">
+          <Button asChild>
+            <Link href="/hub/manager/students/create">
+              <Plus className="mr-2 h-4 w-4" />
+              {t("newProfile")}
+            </Link>
+          </Button>
+          <Button onClick={() => setIsAddModalOpen(true)} variant="glass">
+            <UserPlus className="w-4 h-4 text-primary" />
+          </Button>
+        </div>
       </div>
 
       {filtered.length === 0 ? (
@@ -276,6 +306,13 @@ export function StudentProfileList({
           setAssociateId(null);
           router.refresh();
         }}
+      />
+
+      <AddUserModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onUserCreated={handleUserCreated}
+        isLoading={isAdminLoading}
       />
 
       <Modal
