@@ -159,9 +159,9 @@ const managerItems = [
     icon: <UserIcon size={20} />,
   },
   {
-    href: "/[locale]/hub/manager/users",
-    label: "Usuários",
-    labelKey: "users",
+    href: "/[locale]/hub/manager/students",
+    label: "Estudantes",
+    labelKey: "students",
     icon: <PeopleIcon size={20} />,
   },
   {
@@ -169,12 +169,6 @@ const managerItems = [
     label: "Tarefas",
     labelKey: "tasks",
     icon: <CircleCheckIcon size={20} />,
-  },
-  {
-    href: "/[locale]/hub/manager/student-profiles",
-    label: "Perfil de Estudantes",
-    labelKey: "studentProfile",
-    icon: <PeopleIcon size={20} />,
   },
   {
     href: "/[locale]/hub/manager/settings",

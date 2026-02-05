@@ -2,18 +2,28 @@
 
 import { useState } from "react";
 import { StudentProfile } from "@/types/students/studentProfile";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from "@/components/ui/card";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useTranslations } from "next-intl";
-import { Plus, Search, UserPlus, Pencil, Trash2 } from "lucide-react";
+import {
+  Plus,
+  Search,
+  UserPlus,
+  Pencil,
+  Trash2,
+  MoreHorizontal,
+  Target,
+} from "lucide-react";
 import { AssociateStudentModal } from "./AssociateStudentModal";
 import { deleteStudentProfile } from "@/actions/studentProfile";
 import { generatePromptPlanAction } from "@/actions/generatePromptPlan";
@@ -21,7 +31,6 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import {
   Modal,
-  ModalTrigger,
   ModalContent,
   ModalHeader,
   ModalTitle,
@@ -47,6 +56,7 @@ export function StudentProfileList({
   const [profiles, setProfiles] = useState(initialProfiles);
   const [search, setSearch] = useState("");
   const [associateId, setAssociateId] = useState<string | null>(null);
+  const [deleteProfileId, setDeleteProfileId] = useState<string | null>(null);
 
   // Prompt Plan State
   const [isPromptModalOpen, setIsPromptModalOpen] = useState(false);
@@ -128,7 +138,7 @@ export function StudentProfileList({
           />
         </div>
         <Button asChild>
-          <Link href="/hub/manager/student-profiles/create">
+          <Link href="/hub/manager/students/create">
             <Plus className="mr-2 h-4 w-4" />
             {t("newProfile")}
           </Link>
@@ -142,124 +152,118 @@ export function StudentProfileList({
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filtered.map((profile) => (
-            <Card key={profile.id} className="flex flex-col">
-              <CardHeader className="pb-3">
-                <div className="flex justify-between items-start">
-                  <CardTitle className="text-lg font-semibold truncate pr-2 hover:underline">
-                    <Link href={`/hub/manager/student-profiles/${profile.id}`}>
+            <Card
+              key={profile.id}
+              className="group hover:shadow-md transition-all duration-200 border-muted/60"
+            >
+              <CardHeader className="pb-3 pt-5 px-5 flex flex-row items-start justify-between space-y-0">
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <Link
+                      href={`/hub/manager/students/${profile.id}`}
+                      className="font-semibold text-lg hover:underline decoration-primary/30 underline-offset-4 transition-all"
+                    >
                       {profile.name}
                     </Link>
-                  </CardTitle>
-                  <div className="flex flex-col gap-1 items-end">
-                    <Badge
-                      variant={profile.studentId ? "default" : "secondary"}
-                    >
-                      {profile.studentId ? t("associated") : t("loose")}
-                    </Badge>
-                    {profile.generatedPromptPlan && (
-                      <Badge
-                        variant="outline"
-                        className="border-indigo-500 text-indigo-600 bg-indigo-50"
-                      >
-                        {t("promptReady")}
-                      </Badge>
+                    {profile.studentId && (
+                      <div
+                        className="h-2 w-2 rounded-full bg-emerald-500"
+                        title={t("associated")}
+                      />
                     )}
                   </div>
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                    {profile.languageOfInterest || "N/A"} •{" "}
+                    {profile.approximateLevel || "N/A"}
+                  </p>
                 </div>
-              </CardHeader>
-              <CardContent className="flex-1 space-y-2 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium text-foreground">Idioma:</span>
-                  {profile.languageOfInterest || "N/A"}
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="font-medium text-foreground">Nível:</span>
-                  {profile.approximateLevel || "N/A"}
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="font-medium text-foreground">Objetivo:</span>
-                  <span className="truncate">
-                    {profile.mainGoals?.[0] || "N/A"}
-                  </span>
-                </div>
-              </CardContent>
-              <CardFooter className="pt-2 border-t flex justify-between gap-2">
-                {!profile.studentId && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="flex-1 text-primary hover:text-primary/80"
-                    onClick={() => setAssociateId(profile.id!)}
-                  >
-                    <UserPlus className="mr-2 h-4 w-4" />
-                    {t("associate")}
-                  </Button>
-                )}
 
-                <Button variant="ghost" size="icon" asChild>
-                  <Link
-                    href={`/hub/manager/student-profiles/${profile.id}/edit`}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Link>
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
-                  onClick={() => profile.id && handleGeneratePrompt(profile.id)}
-                  disabled={isGenerating}
-                  title={t("generatePromptTooltip")}
-                >
-                  <Sparkles className="h-4 w-4" />
-                </Button>
-
-                {profile.generatedPromptPlan && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-                    onClick={() => {
-                      setGeneratedPrompt(profile.generatedPromptPlan!);
-                      setIsPromptModalOpen(true);
-                    }}
-                    title={t("viewPromptTooltip")}
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                )}
-
-                <Modal>
-                  <ModalTrigger asChild>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="text-destructive hover:text-destructive"
+                      className="h-8 w-8 -mt-1 -mr-2 text-muted-foreground hover:text-foreground"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <MoreHorizontal className="h-4 w-4" />
                     </Button>
-                  </ModalTrigger>
-                  <ModalContent>
-                    <ModalIcon type="delete" />
-                    <ModalHeader>
-                      <ModalTitle>{t("confirmDeleteTitle")}</ModalTitle>
-                      <ModalDescription>
-                        {t("confirmDeleteDesc")}
-                      </ModalDescription>
-                    </ModalHeader>
-                    <ModalFooter>
-                      <ModalSecondaryButton>Cancelar</ModalSecondaryButton>
-                      <ModalPrimaryButton
-                        variant="destructive"
-                        onClick={() => profile.id && handleDelete(profile.id)}
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                    <DropdownMenuItem asChild>
+                      <Link href={`/hub/manager/students/${profile.id}`}>
+                        <Eye className="mr-2 h-4 w-4" /> Ver Perfil
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href={`/hub/manager/students/${profile.id}/edit`}>
+                        <Pencil className="mr-2 h-4 w-4" /> Editar
+                      </Link>
+                    </DropdownMenuItem>
+
+                    {!profile.studentId && (
+                      <DropdownMenuItem
+                        onClick={() => setAssociateId(profile.id!)}
                       >
-                        Excluir
-                      </ModalPrimaryButton>
-                    </ModalFooter>
-                  </ModalContent>
-                </Modal>
-              </CardFooter>
+                        <UserPlus className="mr-2 h-4 w-4" /> Associar Aluno
+                      </DropdownMenuItem>
+                    )}
+
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem
+                      onClick={() =>
+                        profile.id && handleGeneratePrompt(profile.id)
+                      }
+                    >
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      {profile.generatedPromptPlan
+                        ? "Regerar Prompt"
+                        : "Gerar Prompt"}
+                    </DropdownMenuItem>
+
+                    {profile.generatedPromptPlan && (
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setGeneratedPrompt(profile.generatedPromptPlan!);
+                          setIsPromptModalOpen(true);
+                        }}
+                      >
+                        <Copy className="mr-2 h-4 w-4" /> Copiar Prompt
+                      </DropdownMenuItem>
+                    )}
+
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem
+                      className="text-destructive focus:text-destructive"
+                      onClick={() => setDeleteProfileId(profile.id!)}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" /> Excluir
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </CardHeader>
+
+              <CardContent className="px-5 pb-5">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground/80">
+                  <Target className="h-4 w-4 shrink-0" />
+                  <span className="truncate">
+                    {profile.mainGoals?.[0] || "Sem objetivo definido"}
+                  </span>
+                </div>
+
+                {profile.generatedPromptPlan && (
+                  <div className="mt-4 flex">
+                    <Badge
+                      variant="secondary"
+                      className="text-[10px] h-5 px-2 font-normal bg-indigo-50 text-indigo-700 border-indigo-100 hover:bg-indigo-100"
+                    >
+                      <Sparkles className="h-3 w-3 mr-1" /> Prompt Criado
+                    </Badge>
+                  </div>
+                )}
+              </CardContent>
             </Card>
           ))}
         </div>
@@ -304,7 +308,7 @@ export function StudentProfileList({
             <ModalDescription>{t("promptPlanDesc")}</ModalDescription>
           </ModalHeader>
 
-          <div className="p-4 bg-muted/50 rounded-md relative group">
+          <div className="bg-muted/50 rounded-md relative group">
             <Button
               size="icon"
               variant="ghost"
@@ -320,13 +324,39 @@ export function StudentProfileList({
             <Textarea
               readOnly
               value={generatedPrompt}
-              className="min-h-[300px] font-mono text-sm resize-none bg-transparent border-0 focus-visible:ring-0 p-0"
+              className="max-h-[55vh] font-mono text-sm resize-none"
             />
           </div>
+        </ModalContent>
+      </Modal>
 
+      <Modal
+        open={!!deleteProfileId}
+        onOpenChange={(open) => !open && setDeleteProfileId(null)}
+      >
+        <ModalContent>
+          <ModalIcon type="delete" />
+          <ModalHeader>
+            <ModalTitle>Excluir Perfil</ModalTitle>
+            <ModalDescription>
+              Tem certeza que deseja excluir este perfil? Esta ação não pode ser
+              desfeita.
+            </ModalDescription>
+          </ModalHeader>
           <ModalFooter>
-            <ModalPrimaryButton onClick={copyToClipboard}>
-              {copied ? t("copied") : t("copyPrompt")}
+            <ModalSecondaryButton onClick={() => setDeleteProfileId(null)}>
+              Cancelar
+            </ModalSecondaryButton>
+            <ModalPrimaryButton
+              variant="destructive"
+              onClick={() => {
+                if (deleteProfileId) {
+                  handleDelete(deleteProfileId);
+                  setDeleteProfileId(null);
+                }
+              }}
+            >
+              Excluir
             </ModalPrimaryButton>
           </ModalFooter>
         </ModalContent>
