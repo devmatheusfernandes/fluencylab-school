@@ -6,10 +6,17 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, CheckCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle, List } from "lucide-react";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 
 import {
   Enrollment,
@@ -20,6 +27,7 @@ import {
 } from "@/types/quiz/types";
 import { VideoPlayer } from "@/components/course/lesson/VideoPlayer";
 import { LessonSidebar } from "@/components/course/lesson/LessonSidebar";
+import { MobileLessonList } from "@/components/course/lesson/MobileLessonList";
 import { LessonContent } from "@/components/course/lesson/LessonContent";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 
@@ -61,6 +69,7 @@ export default function LessonPageContent() {
   const [nextLessonId, setNextLessonId] = useState<string | null>(null);
   const [savedQuizData, setSavedQuizData] = useState<QuizResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   // --- USE EFFECTS ---
   useEffect(() => {
@@ -337,6 +346,9 @@ export default function LessonPageContent() {
           </Link>
 
           <div className="flex items-center gap-4">
+            {/* Mobile Drawer Trigger */}
+            <ThemeSwitcher />
+
             {isCompleted && (
               <Badge
                 variant="outline"
@@ -345,7 +357,14 @@ export default function LessonPageContent() {
                 <CheckCircle className="w-3.5 h-3.5" /> {t("completed")}
               </Badge>
             )}
-            <ThemeSwitcher />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden"
+              onClick={() => setIsDrawerOpen(true)}
+            >
+              <List className="w-5 h-5" />
+            </Button>
           </div>
         </div>
       </motion.div>
@@ -375,10 +394,10 @@ export default function LessonPageContent() {
             />
           </motion.div>
 
-          {/* --- RIGHT COLUMN: SIDEBAR --- */}
+          {/* --- RIGHT COLUMN: SIDEBAR (Desktop Only) --- */}
           <motion.div
             variants={itemVariants}
-            className="lg:sticky lg:top-24 h-fit space-y-6"
+            className="hidden lg:block lg:sticky lg:top-24 h-fit space-y-6"
           >
             <LessonSidebar
               courseId={courseId!}
@@ -390,6 +409,23 @@ export default function LessonPageContent() {
           </motion.div>
         </motion.div>
       </main>
+
+      {/* MOBILE DRAWER */}
+      <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+        <DrawerContent className="h-[80vh]">
+          <DrawerHeader className="hidden">
+            <DrawerTitle>Conteúdo do Curso</DrawerTitle>
+          </DrawerHeader>
+          <MobileLessonList
+            courseId={courseId!}
+            sections={courseSections}
+            currentLessonId={lessonId!}
+            completedLessonIds={completedLessonIds}
+            onMarkComplete={handleMarkComplete}
+            onLessonClick={() => setIsDrawerOpen(false)}
+          />
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 }
