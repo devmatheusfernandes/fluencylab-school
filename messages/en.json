@@ -1983,7 +1983,7 @@
     "contractSigned": "Contract Signed"
   },
   "StudentPaymentStatusCard": {
-    "title": "Payment Status",
+    "title": "Status",
     "creditCard": "Credit Card",
     "pix": "Pix",
     "active": "Active",

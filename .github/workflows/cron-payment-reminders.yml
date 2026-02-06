@@ -2,8 +2,9 @@ name: Payment Reminders Cron
 
 on:
   schedule:
+    # Roda às 10:00 AM (UTC) nos dias 1-15 e 28-31 de cada mês
     - cron: "0 10 1-15,28-31 * *"
-  workflow_dispatch:
+  workflow_dispatch: # Permite que você rode manualmente para testar
 
 jobs:
   cron:
@@ -16,6 +17,9 @@ jobs:
             exit 1
           fi
 
-          curl -i -X POST \
+          # -i: Mostra os headers da resposta no log
+          # -L: SEGUE REDIRECIONAMENTOS (Resolve o erro 308 da Vercel)
+          # -X GET: Alinhado com o 'export async function GET' do seu código
+          curl -i -L -X GET \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             "${{ secrets.NEXT_PUBLIC_BASE_URL }}/api/cron/payment-reminders"

@@ -12,10 +12,10 @@ export async function GET(req: NextRequest) {
 
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  
+
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
-  
+
   const threeDaysAgo = new Date(today);
   threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
 
@@ -45,7 +45,9 @@ export async function GET(req: NextRequest) {
         .where("dueDate", ">=", start)
         .where("dueDate", "<=", end)
         .get();
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as MonthlyPayment));
+      return snapshot.docs.map(
+        (doc) => ({ id: doc.id, ...doc.data() }) as MonthlyPayment,
+      );
     };
 
     // 2. Process "Due Tomorrow" Reminders
@@ -56,7 +58,7 @@ export async function GET(req: NextRequest) {
           "Lembrete de Pagamento",
           `Sua mensalidade de ${new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(payment.amount / 100)} vence amanhã via PIX.`,
           payment.userId,
-          "/hub/financial"
+          "/hub/financial", //TODO: ATUALIZAR O URL
         );
         results.reminders++;
       } catch (e) {
@@ -73,11 +75,14 @@ export async function GET(req: NextRequest) {
           "Pagamento Vence Hoje!",
           `Sua mensalidade vence hoje. Realize o pagamento via PIX para evitar atrasos.`,
           payment.userId,
-          "/hub/financial"
+          "/hub/financial", //TODO: ATUALIZAR O URL
         );
         results.dueToday++;
       } catch (e) {
-        console.error(`Error processing due today for payment ${payment.id}`, e);
+        console.error(
+          `Error processing due today for payment ${payment.id}`,
+          e,
+        );
         results.errors++;
       }
     }
@@ -90,7 +95,7 @@ export async function GET(req: NextRequest) {
           "Pagamento em Atraso",
           `Sua mensalidade está atrasada há 3 dias. Regularize para evitar suspensão.`,
           payment.userId,
-          "/hub/financial"
+          "/hub/financial", //TODO: ATUALIZAR O URL
         );
         results.overdue++;
       } catch (e) {
