@@ -3,7 +3,7 @@ import { StudentProfileSurvey } from "@/components/students/survey/StudentProfil
 
 export default function CreateStudentProfilePage() {
   return (
-    <div className="p-4 md:p-6 space-y-6">
+    <div className="container-padding space-y-6">
       <StudentProfileSurvey />
     </div>
   );

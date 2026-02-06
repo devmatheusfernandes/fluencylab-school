@@ -16,7 +16,7 @@ export default async function EditStudentProfilePage({
   }
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
+    <div className="container-padding space-y-6">
       <StudentProfileSurvey initialData={profile} isEditing />
     </div>
   );

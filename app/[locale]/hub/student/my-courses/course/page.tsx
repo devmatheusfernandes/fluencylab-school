@@ -19,7 +19,7 @@ import {
   LayoutList,
   GraduationCap,
 } from "lucide-react";
-import { Toaster, toast } from "sonner";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -41,6 +41,8 @@ import {
   Lesson,
   Section,
 } from "../../../../../../types/quiz/types";
+import BreadcrumbActions from "@/components/shared/Breadcrum/BreadcrumbActions";
+import BreadcrumbActionIcon from "@/components/shared/Breadcrum/BreadcrumbActionIcon";
 // Firestore removido do cliente
 
 export default function CourseDetailPageContent() {
@@ -204,14 +206,14 @@ export default function CourseDetailPageContent() {
     );
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
-      {/* Back Link */}
-      <Link
-        href={`/hub/student/my-courses`}
-        className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4 mr-1" /> {t("backToCourses")}
-      </Link>
+    <div className="container-padding space-y-6">
+      {
+        <BreadcrumbActions placement="start">
+          <Link href="/hub/student/my-courses" className="flex items-center">
+            <BreadcrumbActionIcon icon={ArrowLeft} />
+          </Link>
+        </BreadcrumbActions>
+      }
 
       {/* Header / Hero Section */}
       <motion.div

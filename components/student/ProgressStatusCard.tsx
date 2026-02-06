@@ -7,9 +7,24 @@ import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 import { useContract } from "@/hooks/financial/useContract";
 import { Skeleton } from "../ui/skeleton";
 import { useTranslations } from "next-intl";
-import { doc, getDoc, collection, query, where, orderBy, limit, getDocs } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  collection,
+  query,
+  where,
+  orderBy,
+  limit,
+  getDocs,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
-import { ChevronRight, CheckCircle2, AlertCircle, Clock, XCircle } from "lucide-react"; // Ícones sugeridos
+import {
+  ChevronRight,
+  CheckCircle2,
+  AlertCircle,
+  Clock,
+  XCircle,
+} from "lucide-react"; // Ícones sugeridos
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -54,25 +69,36 @@ const STATUS_CONFIG = {
   },
 };
 
-const StatusItem: React.FC<StatusUIProps> = ({ text, variant, link, icon: CustomIcon }) => {
+const StatusItem: React.FC<StatusUIProps> = ({
+  text,
+  variant,
+  link,
+  icon: CustomIcon,
+}) => {
   const config = STATUS_CONFIG[variant] || STATUS_CONFIG.neutral;
   const StatusIcon = config.icon;
 
   return (
     <Link href={link} className="block w-full outline-none group">
       <motion.div
-        whileHover={{ scale: 1.005 }}
+        whileHover={{ scale: 1.002 }}
         whileTap={{ scale: 0.98 }}
         className={cn(
           "relative flex items-center justify-between p-4 w-full rounded-xl transition-all duration-300",
           "card-base border border-zinc-200 dark:border-zinc-800",
-          "hover:shadow-md dark:hover:shadow-zinc-900/50 hover:bg-zinc-50/80 dark:hover:bg-zinc-800/50",
-          config.border // Borda colorida suave no hover
+          "hover:bg-zinc-50/80 dark:hover:bg-zinc-800/50",
+          config.border, // Borda colorida suave no hover
         )}
       >
         <div className="flex items-center gap-4">
           {/* Icon Container */}
-          <div className={cn("p-2.5 rounded-lg flex items-center justify-center transition-colors", config.bg, config.color)}>
+          <div
+            className={cn(
+              "p-2.5 rounded-lg flex items-center justify-center transition-colors",
+              config.bg,
+              config.color,
+            )}
+          >
             {CustomIcon ? (
               <span className="w-5 h-5">{CustomIcon}</span>
             ) : (
@@ -85,7 +111,12 @@ const StatusItem: React.FC<StatusUIProps> = ({ text, variant, link, icon: Custom
             <span className="font-semibold text-zinc-900 dark:text-zinc-100 text-sm md:text-base">
               {text}
             </span>
-            <span className={cn("text-xs font-medium uppercase tracking-wider mt-0.5", config.color)}>
+            <span
+              className={cn(
+                "text-xs font-medium uppercase tracking-wider mt-0.5",
+                config.color,
+              )}
+            >
               {variant === "pending" ? "Ação Necessária" : variant}
             </span>
           </div>
@@ -112,9 +143,12 @@ const ProgressStatusCard: React.FC<ProgressStatusCardProps> = ({
   const t = useTranslations("ProgressStatusCard");
   const { user, isLoading: isUserLoading } = useCurrentUser();
   const { contractStatus, isLoading: isContractLoading } = useContract();
-  
-  const [placementStatus, setPlacementStatus] = useState<StatusUIProps["variant"]>("pending");
-  const [placementText, setPlacementText] = useState<string>(t("placementPending"));
+
+  const [placementStatus, setPlacementStatus] =
+    useState<StatusUIProps["variant"]>("pending");
+  const [placementText, setPlacementText] = useState<string>(
+    t("placementPending"),
+  );
 
   useEffect(() => {
     const evaluatePlacementStatus = async () => {
@@ -141,7 +175,7 @@ const ProgressStatusCard: React.FC<ProgressStatusCardProps> = ({
           collection(db, "placement_results"),
           where("userId", "==", user.id),
           orderBy("completedAt", "desc"),
-          limit(1)
+          limit(1),
         );
 
         const resultsSnap = await getDocs(resultsQuery);
@@ -180,11 +214,19 @@ const ProgressStatusCard: React.FC<ProgressStatusCardProps> = ({
       } catch (error: any) {
         console.error("Error evaluating placement status:", error);
 
-        if (error?.code === 'failed-precondition' && error?.message?.includes('index')) {
-          const match = error.message.match(/https:\/\/console\.firebase\.google\.com[^\s]*/);
+        if (
+          error?.code === "failed-precondition" &&
+          error?.message?.includes("index")
+        ) {
+          const match = error.message.match(
+            /https:\/\/console\.firebase\.google\.com[^\s]*/,
+          );
           if (match) {
-              console.log("%c [Firestore] Link para criar índice ausente:", "color: yellow; font-weight: bold; font-size: 12px;");
-              console.log(match[0]);
+            console.log(
+              "%c [Firestore] Link para criar índice ausente:",
+              "color: yellow; font-weight: bold; font-size: 12px;",
+            );
+            console.log(match[0]);
           }
         }
 
@@ -220,11 +262,11 @@ const ProgressStatusCard: React.FC<ProgressStatusCardProps> = ({
       <div className="flex flex-col gap-3 w-full">
         {[...Array(2)].map((_, index) => (
           <Skeleton key={index} className="flex items-center gap-3 p-4">
-             <Skeleton className="h-10 w-10 rounded-lg" />
-             <div className="flex flex-col gap-2 flex-1">
-                <Skeleton className="h-4 w-32" />
-                <Skeleton className="h-3 w-16" />
-             </div>
+            <Skeleton className="h-10 w-10 rounded-lg" />
+            <div className="flex flex-col gap-2 flex-1">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-3 w-16" />
+            </div>
           </Skeleton>
         ))}
       </div>

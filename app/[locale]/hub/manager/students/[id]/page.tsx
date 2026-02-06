@@ -75,7 +75,7 @@ export default async function StudentProfileDetailsPage({
     calculateAge(serializedUser?.birthDate);
 
   return (
-    <div className="p-4 md:p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="container-padding space-y-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
         <Button variant="ghost" size="icon" asChild>

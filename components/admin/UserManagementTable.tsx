@@ -200,7 +200,7 @@ export default function UserManagementTable() {
   );
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
+    <div className="container-padding space-y-6">
       <Header heading={tHeader("heading")} subheading={tHeader("subheading")} />
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 my-4">
         <div className="w-full md:w-auto flex flex-col gap-2">

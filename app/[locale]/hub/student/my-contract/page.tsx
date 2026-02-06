@@ -10,9 +10,23 @@ import SignatureModal from "@/components/contract/SignatureModal";
 import { toast } from "sonner";
 import { SignatureFormData, Student } from "@/types/contract";
 import { Spinner } from "@/components/ui/spinner";
-import { FileWarning, Printer, AlertCircle, CheckCircle2, AlertTriangle, Ban, RefreshCw, EyeOff, Eye } from "lucide-react";
+import {
+  FileWarning,
+  Printer,
+  AlertCircle,
+  CheckCircle2,
+  AlertTriangle,
+  Ban,
+  RefreshCw,
+  EyeOff,
+  Eye,
+  ArrowLeft,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Header } from "@/components/ui/header";
+import Link from "next/link";
+import BreadcrumbActionIcon from "@/components/shared/Breadcrum/BreadcrumbActionIcon";
+import BreadcrumbActions from "@/components/shared/Breadcrum/BreadcrumbActions";
 
 const ContratoPage: React.FC = () => {
   const t = useTranslations("StudentContract");
@@ -34,10 +48,12 @@ const ContratoPage: React.FC = () => {
 
   React.useEffect(() => {
     if (contractStatus) {
-      const isExpired = contractStatus.expiresAt && new Date(contractStatus.expiresAt) < new Date();
+      const isExpired =
+        contractStatus.expiresAt &&
+        new Date(contractStatus.expiresAt) < new Date();
       const isCancelled = !!contractStatus.cancelledAt;
       const isSigned = !!contractStatus.signed;
-      
+
       if (!isSigned && !isCancelled && !isExpired) {
         setShowContract(true);
       }
@@ -132,7 +148,7 @@ const ContratoPage: React.FC = () => {
             size={64}
           />
         </motion.div>
-        
+
         <motion.h1
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -153,19 +169,22 @@ const ContratoPage: React.FC = () => {
   }
 
   // Determine contract status
-  let status: 'pending' | 'signed' | 'expired' | 'cancelled' = 'pending';
-  
+  let status: "pending" | "signed" | "expired" | "cancelled" = "pending";
+
   if (contractStatus?.cancelledAt) {
-    status = 'cancelled';
-  } else if (contractStatus?.expiresAt && new Date(contractStatus.expiresAt) < new Date()) {
-    status = 'expired';
+    status = "cancelled";
+  } else if (
+    contractStatus?.expiresAt &&
+    new Date(contractStatus.expiresAt) < new Date()
+  ) {
+    status = "expired";
   } else if (contractStatus?.signed) {
-    status = 'signed';
+    status = "signed";
   }
 
   const renderStatusAlert = () => {
     switch (status) {
-      case 'cancelled':
+      case "cancelled":
         return (
           <motion.div
             key="cancelled-status"
@@ -180,19 +199,25 @@ const ContratoPage: React.FC = () => {
                 <span className="font-semibold">{t("cancelledTitle")}</span>
                 {contractStatus?.cancelledAt && (
                   <span className="block mt-1 text-sm opacity-80">
-                    {t("cancelledOn", { date: new Date(contractStatus.cancelledAt).toLocaleDateString("pt-BR") })}
+                    {t("cancelledOn", {
+                      date: new Date(
+                        contractStatus.cancelledAt,
+                      ).toLocaleDateString("pt-BR"),
+                    })}
                   </span>
                 )}
                 {contractStatus?.cancellationReason && (
-                   <span className="block mt-1 text-sm opacity-80">
-                     {t("cancellationReason", { reason: contractStatus.cancellationReason })}
-                   </span>
+                  <span className="block mt-1 text-sm opacity-80">
+                    {t("cancellationReason", {
+                      reason: contractStatus.cancellationReason,
+                    })}
+                  </span>
                 )}
               </AlertDescription>
             </Alert>
           </motion.div>
         );
-      case 'expired':
+      case "expired":
         return (
           <motion.div
             key="expired-status"
@@ -207,18 +232,27 @@ const ContratoPage: React.FC = () => {
                 <span className="font-semibold">{t("expiredTitle")}</span>
                 {contractStatus?.expiresAt && (
                   <span className="block mt-1 text-sm opacity-80">
-                    {t("expiredOn", { date: new Date(contractStatus.expiresAt).toLocaleDateString("pt-BR") })}
+                    {t("expiredOn", {
+                      date: new Date(
+                        contractStatus.expiresAt,
+                      ).toLocaleDateString("pt-BR"),
+                    })}
                   </span>
                 )}
               </AlertDescription>
             </Alert>
           </motion.div>
         );
-      case 'signed':
-        const daysUntilExpiration = contractStatus?.expiresAt 
-          ? Math.ceil((new Date(contractStatus.expiresAt).getTime() - new Date().getTime()) / (1000 * 3600 * 24))
+      case "signed":
+        const daysUntilExpiration = contractStatus?.expiresAt
+          ? Math.ceil(
+              (new Date(contractStatus.expiresAt).getTime() -
+                new Date().getTime()) /
+                (1000 * 3600 * 24),
+            )
           : 0;
-        const showRenewal = daysUntilExpiration <= 30 && daysUntilExpiration > 0;
+        const showRenewal =
+          daysUntilExpiration <= 30 && daysUntilExpiration > 0;
 
         return (
           <motion.div
@@ -234,11 +268,19 @@ const ContratoPage: React.FC = () => {
                 <AlertDescription className="text-green-700 dark:text-green-300">
                   <span className="font-semibold">{t("signedTitle")}</span>{" "}
                   {contractStatus?.signedAt
-                    ? t("signedOn", { date: new Date(contractStatus.signedAt).toLocaleDateString("pt-BR") })
+                    ? t("signedOn", {
+                        date: new Date(
+                          contractStatus.signedAt,
+                        ).toLocaleDateString("pt-BR"),
+                      })
                     : ""}
                   {contractStatus?.expiresAt && (
                     <span className="block mt-1 text-sm opacity-80">
-                      {t("validUntil", { date: new Date(contractStatus.expiresAt).toLocaleDateString("pt-BR") })}
+                      {t("validUntil", {
+                        date: new Date(
+                          contractStatus.expiresAt,
+                        ).toLocaleDateString("pt-BR"),
+                      })}
                     </span>
                   )}
                   {contractStatus?.autoRenewal !== false && (
@@ -247,10 +289,10 @@ const ContratoPage: React.FC = () => {
                     </span>
                   )}
                 </AlertDescription>
-                
+
                 {showRenewal && (
-                  <Button 
-                    onClick={handleRenew} 
+                  <Button
+                    onClick={handleRenew}
                     disabled={isRenewing}
                     size="sm"
                     className="w-full sm:w-auto mt-2 bg-green-600 hover:bg-green-700 text-white"
@@ -273,15 +315,25 @@ const ContratoPage: React.FC = () => {
   };
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
+    <div className="container-padding space-y-6">
+      {
+        <BreadcrumbActions placement="start">
+          <Link href="/hub/student/my-profile" className="flex items-center">
+            <BreadcrumbActionIcon icon={ArrowLeft} />
+          </Link>
+        </BreadcrumbActions>
+      }
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Header 
-          heading={t("pageTitle")} 
-          subheading={status === 'pending' ? t("pageSubtitle") : t("headerSubtitle")}
+        <Header
+          heading={t("pageTitle")}
+          subheading={
+            status === "pending" ? t("pageSubtitle") : t("headerSubtitle")
+          }
           className="mb-8"
           icon={
             <Button
@@ -290,7 +342,11 @@ const ContratoPage: React.FC = () => {
               onClick={() => setShowContract(!showContract)}
               className="gap-2"
             >
-              {showContract ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
+              {showContract ? (
+                <EyeOff className="h-4 w-4 mr-2" />
+              ) : (
+                <Eye className="h-4 w-4 mr-2" />
+              )}
               {showContract ? t("hideContract") : t("viewContract")}
             </Button>
           }
@@ -303,22 +359,20 @@ const ContratoPage: React.FC = () => {
           transition={{ duration: 0.5 }}
           className="mb-6"
         >
-          <AnimatePresence mode="wait">
-            {renderStatusAlert()}
-          </AnimatePresence>
+          <AnimatePresence mode="wait">{renderStatusAlert()}</AnimatePresence>
         </motion.div>
 
         <AnimatePresence>
           {showContract && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
+              animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               className="overflow-hidden"
             >
               {/* Action Buttons */}
               <div className="flex justify-end mb-4">
-                {status !== 'pending' ? (
+                {status !== "pending" ? (
                   <Button
                     disabled={isLoading || isSigning}
                     onClick={handlePrint}
@@ -326,7 +380,7 @@ const ContratoPage: React.FC = () => {
                     size="lg"
                     variant="outline"
                   >
-                    <Printer size={18} className="mr-2"/>
+                    <Printer size={18} className="mr-2" />
                     {t("printButton")}
                   </Button>
                 ) : (
@@ -348,7 +402,10 @@ const ContratoPage: React.FC = () => {
                 ref={contractRef}
                 className="p-6 md:p-8 border rounded-lg bg-card text-card-foreground shadow-sm"
               >
-                <ContratoPDF alunoData={displayData} contractStatus={contractStatus} />
+                <ContratoPDF
+                  alunoData={displayData}
+                  contractStatus={contractStatus}
+                />
               </div>
             </motion.div>
           )}

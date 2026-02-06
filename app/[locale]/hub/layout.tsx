@@ -27,6 +27,9 @@ import { TeacherOnboardingWrapper } from "@/components/onboarding/wrapper/Teache
 import VideoHome from "@/components/stream/VideoHome";
 import { useCreateChatClient } from "stream-chat-react";
 import { OwnUserResponse, UserResponse } from "stream-chat";
+import { useIsMobile } from "@/hooks/ui/useMobile";
+import { useIsStandalone } from "@/hooks/ui/useIsStandalone";
+import { twMerge } from "tailwind-merge";
 
 function HubLayoutContent({
   children,
@@ -38,6 +41,8 @@ function HubLayoutContent({
   const pathname = usePathname();
   const messages = useMessages();
   const locale = useLocale();
+  const isMobile = useIsMobile();
+  const isStandalone = useIsStandalone();
 
   // Stream Chat Logic
   const apiKey = process.env.NEXT_PUBLIC_STREAM_API_KEY!;
@@ -162,7 +167,13 @@ function HubLayoutContent({
                 <SidebarWrapper items={items} />
 
                 {/* Main content area */}
-                <div className="flex-1 flex flex-col gap-[1.5px] overflow-x-hidden pb-14 md:pb-0">
+                <div
+                  className={twMerge(
+                    "flex-1 flex flex-col gap-[1.5px] overflow-x-hidden pb-14 md:pb-0",
+                    isMobile && "gap-[1.5px]!",
+                    isStandalone && "gap-0!",
+                  )}
+                >
                   {!pathname?.includes("/my-chat") && <HubHeader />}
                   <Container
                     className={`flex-1 flex-col flex ${

@@ -198,7 +198,7 @@ export default function AdminFinancesPage() {
     useState<boolean>(false);
   const [overrideDialogOpen, setOverrideDialogOpen] = useState<boolean>(false);
   const [editingRecurringId, setEditingRecurringId] = useState<string | null>(
-    null
+    null,
   );
   const [editedRecurring, setEditedRecurring] = useState<{
     name?: string;
@@ -215,7 +215,7 @@ export default function AdminFinancesPage() {
   >(null);
   const [instantiateAmountBRL, setInstantiateAmountBRL] = useState<string>("");
   const [instantiateDate, setInstantiateDate] = useState<string>(
-    new Date().toISOString().slice(0, 10)
+    new Date().toISOString().slice(0, 10),
   );
   const [categoryComboOpen, setCategoryComboOpen] = useState<boolean>(false);
   const [categoryQuery, setCategoryQuery] = useState<string>("");
@@ -224,7 +224,7 @@ export default function AdminFinancesPage() {
 
   const yearOptions = useMemo(
     () => Array.from({ length: 6 }, (_v, i) => now.getFullYear() - i),
-    [now]
+    [now],
   );
 
   const displayed = useMemo(() => {
@@ -269,7 +269,7 @@ export default function AdminFinancesPage() {
         list.map((t) => ({
           ...t,
           date: typeof t.date === "string" ? new Date(t.date) : t.date,
-        }))
+        })),
       );
     } catch {
       setTransactions([]);
@@ -325,7 +325,7 @@ export default function AdminFinancesPage() {
     const fromStr = `${year}-${String(month + 1).padStart(2, "0")}`;
     try {
       const res = await fetch(
-        `/api/admin/finance/forecast/summary?from=${fromStr}&months=${monthsHorizon}`
+        `/api/admin/finance/forecast/summary?from=${fromStr}&months=${monthsHorizon}`,
       );
       const data = await res.json();
       setForecastSeries(data?.items || []);
@@ -373,7 +373,7 @@ export default function AdminFinancesPage() {
     if (!manualPayment.studentId) return;
     if (selectedPendingPaymentId) {
       const pending = pendingPayments.find(
-        (p) => p.id === selectedPendingPaymentId
+        (p) => p.id === selectedPendingPaymentId,
       );
       if (
         allowManualAmountOverride &&
@@ -473,7 +473,7 @@ export default function AdminFinancesPage() {
             name: u.name,
             email: u.email,
             cpf: u.cpf,
-          }))
+          })),
         );
       } catch {
         setStudentOptions([]);
@@ -504,7 +504,7 @@ export default function AdminFinancesPage() {
             (p) =>
               p.status === "pending" ||
               p.status === "available" ||
-              p.status === "overdue"
+              p.status === "overdue",
           )
           .map((p) => ({
             id: p.id,
@@ -518,7 +518,7 @@ export default function AdminFinancesPage() {
           }))
           .sort(
             (a, b) =>
-              new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+              new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime(),
           );
         setPendingPayments(pendings);
       } catch {
@@ -549,7 +549,7 @@ export default function AdminFinancesPage() {
       v
         .replace(/[^\d.,]/g, "")
         .replace(".", "")
-        .replace(",", ".")
+        .replace(",", "."),
     );
     if (!Number.isFinite(n)) return 0;
     return Math.round(n * 100);
@@ -561,7 +561,7 @@ export default function AdminFinancesPage() {
       name: r.name,
       amountBRL: String((Number(r.amount || 0) / 100).toFixed(2)).replace(
         ".",
-        ","
+        ",",
       ),
       frequency: r.frequency,
       nextOccurrence: r.nextOccurrence
@@ -592,7 +592,7 @@ export default function AdminFinancesPage() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
-      }
+      },
     );
     if (res.ok) {
       setEditingRecurringId(null);
@@ -610,7 +610,7 @@ export default function AdminFinancesPage() {
   const openInstantiateDialog = (r: any) => {
     setInstantiateRecurringId(r.id);
     setInstantiateAmountBRL(
-      String((Number(r.amount || 0) / 100).toFixed(2)).replace(".", ",")
+      String((Number(r.amount || 0) / 100).toFixed(2)).replace(".", ","),
     );
     setInstantiateDate(new Date().toISOString().slice(0, 10));
     setInstantiateDialogOpen(true);
@@ -692,7 +692,7 @@ export default function AdminFinancesPage() {
         {
           method: "POST",
           body: fd,
-        }
+        },
       );
       if (res.ok) {
         await res.json();
@@ -791,7 +791,7 @@ export default function AdminFinancesPage() {
   };
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
+    <div className="container-padding space-y-6">
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -799,10 +799,7 @@ export default function AdminFinancesPage() {
       >
         {/* Header Section */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
-          <Header
-            heading={t("title")}
-            subheading={t("subtitle")}
-          />
+          <Header heading={t("title")} subheading={t("subtitle")} />
 
           <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
             <div className="flex items-center gap-2 flex-1 md:flex-initial">
@@ -853,14 +850,13 @@ export default function AdminFinancesPage() {
               )}
             </Button>
 
-            <Modal
-              open={showManualPayment}
-              onOpenChange={setShowManualPayment}
-            >
+            <Modal open={showManualPayment} onOpenChange={setShowManualPayment}>
               <ModalTrigger asChild>
                 <Button className="md:flex-initial gap-2">
                   <Wallet className="w-4 h-4 md:mr-2 mr-0" />
-                  <span className="hidden md:block">{t("manualPayment.title")}</span>
+                  <span className="hidden md:block">
+                    {t("manualPayment.title")}
+                  </span>
                 </Button>
               </ModalTrigger>
 
@@ -886,7 +882,7 @@ export default function AdminFinancesPage() {
                       >
                         {manualPayment.studentId
                           ? studentOptions.find(
-                              (u) => u.id === manualPayment.studentId
+                              (u) => u.id === manualPayment.studentId,
                             )?.name || manualPayment.studentId
                           : t("manualPayment.selectStudent")}
                         <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
@@ -900,8 +896,12 @@ export default function AdminFinancesPage() {
                           onValueChange={setStudentQuery as any}
                         />
                         <CommandList>
-                          <CommandEmpty>{t("manualPayment.noStudentFound")}</CommandEmpty>
-                          <CommandGroup heading={t("manualPayment.studentsGroup")}>
+                          <CommandEmpty>
+                            {t("manualPayment.noStudentFound")}
+                          </CommandEmpty>
+                          <CommandGroup
+                            heading={t("manualPayment.studentsGroup")}
+                          >
                             {studentOptions.map((u) => (
                               <CommandItem
                                 key={u.id}
@@ -918,7 +918,7 @@ export default function AdminFinancesPage() {
                                     "mr-2 h-4 w-4",
                                     manualPayment.studentId === u.id
                                       ? "opacity-100"
-                                      : "opacity-0"
+                                      : "opacity-0",
                                   )}
                                 />
                                 <div className="flex flex-col">
@@ -955,11 +955,12 @@ export default function AdminFinancesPage() {
                             />
                             <div className="flex-1">
                               <div className="text-sm font-medium">
-                                {p.description || t("manualPayment.defaultDescription")}
+                                {p.description ||
+                                  t("manualPayment.defaultDescription")}
                               </div>
                               <div className="text-xs text-muted-foreground">
                                 {new Date(p.dueDate).toLocaleDateString(
-                                  "pt-BR"
+                                  "pt-BR",
                                 )}
                               </div>
                             </div>
@@ -1008,12 +1009,14 @@ export default function AdminFinancesPage() {
                                 <ModalDescription>
                                   {(() => {
                                     const p = pendingPayments.find(
-                                      (x) => x.id === selectedPendingPaymentId
+                                      (x) => x.id === selectedPendingPaymentId,
                                     );
                                     const original = p
                                       ? currency.format((p.amount || 0) / 100)
                                       : "-";
-                                    return t("manualPayment.originalValue", { value: original });
+                                    return t("manualPayment.originalValue", {
+                                      value: original,
+                                    });
                                   })()}
                                 </ModalDescription>
                               </ModalHeader>
@@ -1060,12 +1063,18 @@ export default function AdminFinancesPage() {
                         <SelectValue placeholder={t("manualPayment.method")} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="cash">{t("manualPayment.methods.cash")}</SelectItem>
+                        <SelectItem value="cash">
+                          {t("manualPayment.methods.cash")}
+                        </SelectItem>
                         <SelectItem value="bank_transfer">
                           {t("manualPayment.methods.bank_transfer")}
                         </SelectItem>
-                        <SelectItem value="credit_card">{t("manualPayment.methods.credit_card")}</SelectItem>
-                        <SelectItem value="pix">{t("manualPayment.methods.pix")}</SelectItem>
+                        <SelectItem value="credit_card">
+                          {t("manualPayment.methods.credit_card")}
+                        </SelectItem>
+                        <SelectItem value="pix">
+                          {t("manualPayment.methods.pix")}
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <Input
@@ -1207,7 +1216,9 @@ export default function AdminFinancesPage() {
                 <SelectValue placeholder={t("filters.categoryPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="__all__">{t("filters.allCategories")}</SelectItem>
+                <SelectItem value="__all__">
+                  {t("filters.allCategories")}
+                </SelectItem>
                 {categories.map((c) => (
                   <SelectItem key={c} value={c}>
                     {c}
@@ -1247,8 +1258,12 @@ export default function AdminFinancesPage() {
                       <SelectValue placeholder={t("newTransaction.type")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="income">{t("newTransaction.types.income")}</SelectItem>
-                      <SelectItem value="expense">{t("newTransaction.types.expense")}</SelectItem>
+                      <SelectItem value="income">
+                        {t("newTransaction.types.income")}
+                      </SelectItem>
+                      <SelectItem value="expense">
+                        {t("newTransaction.types.expense")}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <Input
@@ -1275,10 +1290,18 @@ export default function AdminFinancesPage() {
                       <SelectValue placeholder={t("newTransaction.method")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="cash">{t("newTransaction.methods.cash")}</SelectItem>
-                      <SelectItem value="bank_transfer">{t("newTransaction.methods.bank_transfer")}</SelectItem>
-                      <SelectItem value="credit_card">{t("newTransaction.methods.credit_card")}</SelectItem>
-                      <SelectItem value="pix">{t("newTransaction.methods.pix")}</SelectItem>
+                      <SelectItem value="cash">
+                        {t("newTransaction.methods.cash")}
+                      </SelectItem>
+                      <SelectItem value="bank_transfer">
+                        {t("newTransaction.methods.bank_transfer")}
+                      </SelectItem>
+                      <SelectItem value="credit_card">
+                        {t("newTransaction.methods.credit_card")}
+                      </SelectItem>
+                      <SelectItem value="pix">
+                        {t("newTransaction.methods.pix")}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <Popover
@@ -1292,7 +1315,9 @@ export default function AdminFinancesPage() {
                         aria-expanded={categoryComboOpen}
                         className="col-span-2 md:col-span-1 justify-between"
                       >
-                        {newTx.category ? newTx.category : t("newTransaction.category")}
+                        {newTx.category
+                          ? newTx.category
+                          : t("newTransaction.category")}
                         <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
                       </Button>
                     </PopoverTrigger>
@@ -1307,7 +1332,9 @@ export default function AdminFinancesPage() {
                           <CommandEmpty>
                             {t("newTransaction.noCategoryFound")}
                           </CommandEmpty>
-                          <CommandGroup heading={t("newTransaction.categoriesGroup")}>
+                          <CommandGroup
+                            heading={t("newTransaction.categoriesGroup")}
+                          >
                             {categories.map((c) => (
                               <CommandItem
                                 key={c}
@@ -1321,7 +1348,7 @@ export default function AdminFinancesPage() {
                                     "mr-2 h-4 w-4",
                                     newTx.category === c
                                       ? "opacity-100"
-                                      : "opacity-0"
+                                      : "opacity-0",
                                   )}
                                 />
                                 {c}
@@ -1331,7 +1358,7 @@ export default function AdminFinancesPage() {
                               !categories.some(
                                 (c) =>
                                   c.toLowerCase() ===
-                                  categoryQuery.toLowerCase()
+                                  categoryQuery.toLowerCase(),
                               ) && (
                                 <CommandItem
                                   onSelect={() => {
@@ -1342,7 +1369,9 @@ export default function AdminFinancesPage() {
                                     setCategoryComboOpen(false);
                                   }}
                                 >
-                                  {t("newTransaction.createCategory", { category: categoryQuery })}
+                                  {t("newTransaction.createCategory", {
+                                    category: categoryQuery,
+                                  })}
                                 </CommandItem>
                               )}
                           </CommandGroup>
@@ -1368,7 +1397,9 @@ export default function AdminFinancesPage() {
                   <div className="col-span-2 md:col-span-4 flex justify-end">
                     <label className="text-xs text-muted-foreground cursor-pointer flex items-center gap-1 hover:text-foreground transition-colors">
                       <Paperclip className="w-3 h-3" />
-                      {newFile ? newFile.name : t("newTransaction.attachReceipt")}
+                      {newFile
+                        ? newFile.name
+                        : t("newTransaction.attachReceipt")}
                       <input
                         type="file"
                         accept=".jpg,.jpeg,.png,.pdf"
@@ -1395,11 +1426,17 @@ export default function AdminFinancesPage() {
                 <Table>
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
-                      <TableHead className="w-[100px]">{t("table.headers.date")}</TableHead>
-                      <TableHead className="min-w-[150px]">{t("table.headers.description")}</TableHead>
+                      <TableHead className="w-[100px]">
+                        {t("table.headers.date")}
+                      </TableHead>
+                      <TableHead className="min-w-[150px]">
+                        {t("table.headers.description")}
+                      </TableHead>
                       <TableHead>{t("table.headers.category")}</TableHead>
                       <TableHead>{t("table.headers.amount")}</TableHead>
-                      <TableHead className="text-right">{t("table.headers.actions")}</TableHead>
+                      <TableHead className="text-right">
+                        {t("table.headers.actions")}
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -1467,7 +1504,7 @@ export default function AdminFinancesPage() {
                                 "font-medium text-sm",
                                 tx.type === "income"
                                   ? "text-emerald-600"
-                                  : "text-red-600"
+                                  : "text-red-600",
                               )}
                             >
                               {tx.type === "expense" ? "-" : "+"}{" "}
@@ -1586,8 +1623,12 @@ export default function AdminFinancesPage() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="monthly">{t("recurring.frequencies.monthly")}</SelectItem>
-                        <SelectItem value="yearly">{t("recurring.frequencies.yearly")}</SelectItem>
+                        <SelectItem value="monthly">
+                          {t("recurring.frequencies.monthly")}
+                        </SelectItem>
+                        <SelectItem value="yearly">
+                          {t("recurring.frequencies.yearly")}
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -1645,8 +1686,12 @@ export default function AdminFinancesPage() {
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="monthly">{t("recurring.frequencies.monthly")}</SelectItem>
-                                <SelectItem value="yearly">{t("recurring.frequencies.yearly")}</SelectItem>
+                                <SelectItem value="monthly">
+                                  {t("recurring.frequencies.monthly")}
+                                </SelectItem>
+                                <SelectItem value="yearly">
+                                  {t("recurring.frequencies.yearly")}
+                                </SelectItem>
                               </SelectContent>
                             </Select>
                             <Input
@@ -1704,7 +1749,7 @@ export default function AdminFinancesPage() {
                               <div className="text-xs text-muted-foreground">
                                 {r.nextOccurrence
                                   ? new Date(
-                                      r.nextOccurrence
+                                      r.nextOccurrence,
                                     ).toLocaleDateString("pt-BR")
                                   : "-"}
                               </div>
@@ -1714,7 +1759,9 @@ export default function AdminFinancesPage() {
                                 {currency.format((r.amount || 0) / 100)}
                               </div>
                               <div className="text-[10px] text-muted-foreground uppercase">
-                                {r.frequency === "monthly" ? t("recurring.frequencies.monthly") : t("recurring.frequencies.yearly")}
+                                {r.frequency === "monthly"
+                                  ? t("recurring.frequencies.monthly")
+                                  : t("recurring.frequencies.yearly")}
                               </div>
                             </div>
                           </div>
@@ -1746,7 +1793,9 @@ export default function AdminFinancesPage() {
 
             <Card>
               <CardHeader className="pb-3 border-b flex flex-row items-center justify-between">
-                <CardTitle className="text-base">{t("projection.title")}</CardTitle>
+                <CardTitle className="text-base">
+                  {t("projection.title")}
+                </CardTitle>
                 <Select
                   value={String(monthsHorizon)}
                   onValueChange={(v) => setMonthsHorizon(Number(v))}
@@ -1766,8 +1815,12 @@ export default function AdminFinancesPage() {
                   <Table>
                     <TableHeader>
                       <TableRow className="text-xs hover:bg-transparent">
-                        <TableHead className="h-8">{t("projection.headers.month")}</TableHead>
-                        <TableHead className="h-8 text-right">{t("projection.headers.balance")}</TableHead>
+                        <TableHead className="h-8">
+                          {t("projection.headers.month")}
+                        </TableHead>
+                        <TableHead className="h-8 text-right">
+                          {t("projection.headers.balance")}
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -1776,13 +1829,15 @@ export default function AdminFinancesPage() {
                           <TableCell className="font-medium py-2">
                             {new Date(`${row.month}-01`).toLocaleDateString(
                               "pt-BR",
-                              { month: "short", year: "2-digit" }
+                              { month: "short", year: "2-digit" },
                             )}
                           </TableCell>
                           <TableCell
                             className={cn(
                               "text-right font-bold py-2",
-                              row.net >= 0 ? "text-emerald-600" : "text-red-600"
+                              row.net >= 0
+                                ? "text-emerald-600"
+                                : "text-red-600",
                             )}
                           >
                             {currency.format((row.net || 0) / 100)}
@@ -1806,7 +1861,9 @@ export default function AdminFinancesPage() {
           <ModalIcon type="calendar" />
           <ModalHeader>
             <ModalTitle>{t("instantiateModal.title")}</ModalTitle>
-            <ModalDescription>{t("instantiateModal.description")}</ModalDescription>
+            <ModalDescription>
+              {t("instantiateModal.description")}
+            </ModalDescription>
           </ModalHeader>
           <div className="grid grid-cols-2 gap-3 px-1">
             <Input
@@ -1850,19 +1907,23 @@ export default function AdminFinancesPage() {
                     "text-3xl font-bold",
                     detailsTx.type === "income"
                       ? "text-emerald-600"
-                      : "text-red-600"
+                      : "text-red-600",
                   )}
                 >
                   {currency.format((detailsTx.amount || 0) / 100)}
                 </span>
                 <Badge variant="outline" className="mt-2 capitalize">
-                  {detailsTx.type === "income" ? t("details.types.income") : t("details.types.expense")}
+                  {detailsTx.type === "income"
+                    ? t("details.types.income")
+                    : t("details.types.expense")}
                 </Badge>
               </div>
 
               <div className="space-y-3">
                 <div className="flex justify-between py-2 border-b">
-                  <span className="text-muted-foreground text-sm">{t("details.date")}</span>
+                  <span className="text-muted-foreground text-sm">
+                    {t("details.date")}
+                  </span>
                   <span className="text-sm font-medium">
                     {new Date(detailsTx.date).toLocaleDateString("pt-BR")}
                   </span>
@@ -1876,7 +1937,9 @@ export default function AdminFinancesPage() {
                   </span>
                 </div>
                 <div className="flex justify-between py-2 border-b">
-                  <span className="text-muted-foreground text-sm">{t("details.method")}</span>
+                  <span className="text-muted-foreground text-sm">
+                    {t("details.method")}
+                  </span>
                   <span className="text-sm font-medium capitalize">
                     {detailsTx.method?.replace("_", " ") || "-"}
                   </span>
@@ -1899,7 +1962,8 @@ export default function AdminFinancesPage() {
                       rel="noreferrer"
                     >
                       <Button variant="outline" className="w-full gap-2">
-                        <Paperclip className="w-4 h-4" /> {t("details.viewReceipt")}
+                        <Paperclip className="w-4 h-4" />{" "}
+                        {t("details.viewReceipt")}
                       </Button>
                     </a>
                   </div>
@@ -1971,8 +2035,12 @@ export default function AdminFinancesPage() {
                   <SelectValue placeholder={t("editModal.typePlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="income">{t("editModal.types.income")}</SelectItem>
-                  <SelectItem value="expense">{t("editModal.types.expense")}</SelectItem>
+                  <SelectItem value="income">
+                    {t("editModal.types.income")}
+                  </SelectItem>
+                  <SelectItem value="expense">
+                    {t("editModal.types.expense")}
+                  </SelectItem>
                 </SelectContent>
               </Select>
               <Input
@@ -2005,7 +2073,9 @@ export default function AdminFinancesPage() {
                     aria-expanded={editCategoryOpen}
                     className="justify-between"
                   >
-                    {edited.category ? edited.category : t("editModal.categoryPlaceholder")}
+                    {edited.category
+                      ? edited.category
+                      : t("editModal.categoryPlaceholder")}
                     <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
                   </Button>
                 </PopoverTrigger>
@@ -2017,8 +2087,12 @@ export default function AdminFinancesPage() {
                       onValueChange={setEditCategoryQuery as any}
                     />
                     <CommandList>
-                      <CommandEmpty>{t("newTransaction.noCategoryFound")}</CommandEmpty>
-                      <CommandGroup heading={t("newTransaction.categoriesGroup")}>
+                      <CommandEmpty>
+                        {t("newTransaction.noCategoryFound")}
+                      </CommandEmpty>
+                      <CommandGroup
+                        heading={t("newTransaction.categoriesGroup")}
+                      >
                         {categories.map((c) => (
                           <CommandItem
                             key={c}
@@ -2032,7 +2106,7 @@ export default function AdminFinancesPage() {
                                 "mr-2 h-4 w-4",
                                 (edited.category || "") === c
                                   ? "opacity-100"
-                                  : "opacity-0"
+                                  : "opacity-0",
                               )}
                             />
                             {c}
@@ -2042,7 +2116,7 @@ export default function AdminFinancesPage() {
                           !categories.some(
                             (c) =>
                               c.toLowerCase() ===
-                              editCategoryQuery.toLowerCase()
+                              editCategoryQuery.toLowerCase(),
                           ) && (
                             <CommandItem
                               onSelect={() => {
@@ -2053,7 +2127,9 @@ export default function AdminFinancesPage() {
                                 setEditCategoryOpen(false);
                               }}
                             >
-                              {t("newTransaction.createCategory", { category: editCategoryQuery })}
+                              {t("newTransaction.createCategory", {
+                                category: editCategoryQuery,
+                              })}
                             </CommandItem>
                           )}
                       </CommandGroup>
@@ -2074,7 +2150,9 @@ export default function AdminFinancesPage() {
             <ModalSecondaryButton onClick={cancelEdit}>
               {t("editModal.cancel")}
             </ModalSecondaryButton>
-            <ModalPrimaryButton onClick={saveEdit}>{t("editModal.save")}</ModalPrimaryButton>
+            <ModalPrimaryButton onClick={saveEdit}>
+              {t("editModal.save")}
+            </ModalPrimaryButton>
           </ModalFooter>
         </ModalContent>
       </Modal>

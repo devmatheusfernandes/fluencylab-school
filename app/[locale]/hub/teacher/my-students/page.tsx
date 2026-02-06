@@ -28,8 +28,8 @@ const StudentCardSkeleton = () => (
         <Skeleton className="h-6 w-1/2 rounded" />
         <Skeleton className="h-4 w-3/4 rounded" />
         <div className="flex items-center gap-2 mt-2">
-           <Skeleton className="h-5 w-5 rounded shrink-0" />
-           <Skeleton className="h-4 w-1/2 rounded" />
+          <Skeleton className="h-5 w-5 rounded shrink-0" />
+          <Skeleton className="h-4 w-1/2 rounded" />
         </div>
       </div>
     </div>
@@ -72,7 +72,7 @@ export default function MeusAlunos() {
   const filteredStudents = students.filter(
     (student) =>
       student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.email.toLowerCase().includes(searchQuery.toLowerCase())
+      student.email.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   if (error) {
@@ -80,7 +80,7 @@ export default function MeusAlunos() {
   }
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
+    <div className="container-padding space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <Header heading={t("title")} subheading={t("subheading")} />
         <div className="w-full md:w-auto md:min-w-[300px]">

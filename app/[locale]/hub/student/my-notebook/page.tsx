@@ -5,10 +5,7 @@ import NotebooksCard from "@/components/teacher/NotebooksCard";
 import { LearningPath } from "@/components/notebook/LearningPath";
 import { StatsDashboard } from "@/components/notebook/StatsDashboard";
 import { useEffect, useState } from "react";
-import {
-  getStudentLearningStats,
-  getActivePlanId,
-} from "@/actions/srsActions";
+import { getStudentLearningStats, getActivePlanId } from "@/actions/srsActions";
 import ErrorAlert from "@/components/ui/error-alert";
 import { Header } from "@/components/ui/header";
 import { useTranslations } from "next-intl";
@@ -16,11 +13,34 @@ import TasksCard from "@/components/teacher/TaskCard";
 import { useGoogleCalendarSync } from "@/hooks/student/useGoogleCalendarSync";
 import { SpinnerLoading } from "@/components/transitions/spinner-loading";
 import { WordOfTheDayModal } from "@/components/word-of-the-day/word-of-the-day-modal";
-import { Star } from "lucide-react";
+import {
+  Star,
+  Book,
+  CheckSquare,
+  ListCheckIcon,
+  ListCheck,
+  ListChecksIcon,
+  LayoutListIcon,
+  CircleCheckIcon,
+  NotebookIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import BreadcrumbActions from "@/components/shared/Breadcrum/BreadcrumbActions";
+import BreadcrumbActionIcon from "@/components/shared/Breadcrum/BreadcrumbActionIcon";
+import MobileNotebooksList from "@/components/student/MobileNotebooksList";
+import MobileTasksList from "@/components/student/MobileTasksList";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+} from "@/components/ui/drawer";
 
 export default function Caderno() {
   const t = useTranslations("StudentNotebook");
+  const tNotebooks = useTranslations("NotebooksCard");
+  const tTasks = useTranslations("TasksCard");
   const { data: session } = useSession();
   const studentId = session?.user?.id;
 
@@ -38,6 +58,8 @@ export default function Caderno() {
 
   const [statsLoading, setStatsLoading] = useState(true);
   const [isWordModalOpen, setIsWordModalOpen] = useState(false);
+  const [isNotebooksDrawerOpen, setIsNotebooksDrawerOpen] = useState(false);
+  const [isTasksDrawerOpen, setIsTasksDrawerOpen] = useState(false);
 
   useEffect(() => {
     async function fetchStats() {
@@ -74,24 +96,36 @@ export default function Caderno() {
   if (error) return <ErrorAlert message={error} />;
 
   return (
-    <div className="p-4 md:p-6 h-full">
+    <div className="container-padding h-full">
       <Header
         heading={t("title")}
         subheading={t("subtitle")}
         className="mb-2"
         icon={
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsWordModalOpen(true)}
-            title="Word of the Day"
-          >
-            <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <BreadcrumbActions>
+              <BreadcrumbActionIcon
+                icon={NotebookIcon}
+                onClick={() => setIsNotebooksDrawerOpen(true)}
+              />
+              <BreadcrumbActionIcon
+                icon={CircleCheckIcon}
+                onClick={() => setIsTasksDrawerOpen(true)}
+              />
+            </BreadcrumbActions>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsWordModalOpen(true)}
+              title="Word of the Day"
+            >
+              <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+            </Button>
+          </div>
         }
       />
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        <div className="lg:col-span-5 order-1 lg:order-1 flex flex-col max-h-[calc(100vh-180px)]">
+        <div className="lg:col-span-5 order-1 lg:order-1 flex-col max-h-[calc(100vh-180px)] hidden md:flex">
           <NotebooksCard
             student={student}
             notebooks={notebooks}
@@ -102,7 +136,7 @@ export default function Caderno() {
           />
         </div>
 
-        <div className="lg:col-span-3 order-3 lg:order-2 flex flex-col gap-4 max-h-[calc(100vh-180px)] overflow-auto">
+        <div className="lg:col-span-3 order-1 lg:order-2 flex flex-col gap-4 max-h-[calc(100vh-180px)] overflow-auto">
           <div className="flex-none flex flex-col">
             {statsLoading ? (
               <SpinnerLoading />
@@ -114,15 +148,17 @@ export default function Caderno() {
               />
             )}
           </div>
-          <TasksCard
-            tasks={tasks}
-            onAddTask={undefined}
-            onUpdateTask={updateTask}
-            onDeleteTask={undefined}
-            onDeleteAllTasks={undefined}
-            onSyncWithGoogleCalendar={syncWithGoogleCalendar}
-            isSyncingWithGoogleCalendar={isSyncingWithGoogleCalendar}
-          />
+          <div className="hidden md:block">
+            <TasksCard
+              tasks={tasks}
+              onAddTask={undefined}
+              onUpdateTask={updateTask}
+              onDeleteTask={undefined}
+              onDeleteAllTasks={undefined}
+              onSyncWithGoogleCalendar={syncWithGoogleCalendar}
+              isSyncingWithGoogleCalendar={isSyncingWithGoogleCalendar}
+            />
+          </div>
         </div>
 
         <div className="lg:col-span-4 order-2 lg:order-3">
@@ -144,11 +180,39 @@ export default function Caderno() {
           </div>
         </div>
       </div>
+
       <WordOfTheDayModal
         language={student?.languages?.[0] || "en"}
         isOpen={isWordModalOpen}
         onOpenChange={setIsWordModalOpen}
       />
+
+      <Drawer
+        open={isNotebooksDrawerOpen}
+        onOpenChange={setIsNotebooksDrawerOpen}
+      >
+        <DrawerContent className="h-[80vh]">
+          <DrawerHeader>
+            <DrawerTitle>{tNotebooks("title")}</DrawerTitle>
+            <DrawerDescription className="sr-only">
+              List of notebooks
+            </DrawerDescription>
+          </DrawerHeader>
+          <MobileNotebooksList notebooks={notebooks} />
+        </DrawerContent>
+      </Drawer>
+
+      <Drawer open={isTasksDrawerOpen} onOpenChange={setIsTasksDrawerOpen}>
+        <DrawerContent className="h-[80vh]">
+          <DrawerHeader>
+            <DrawerTitle>{tTasks("title")}</DrawerTitle>
+            <DrawerDescription className="sr-only">
+              List of tasks
+            </DrawerDescription>
+          </DrawerHeader>
+          <MobileTasksList tasks={tasks} onUpdateTask={updateTask} />
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 }

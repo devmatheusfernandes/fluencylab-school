@@ -208,7 +208,7 @@ export default function SettingsForm({
 
   return (
     <motion.div
-      className="p-4 md:p-6 space-y-6"
+      className="container-padding space-y-4"
       variants={containerVariants}
       initial="hidden"
       animate="visible"

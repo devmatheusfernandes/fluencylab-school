@@ -270,7 +270,7 @@ const CustomChannelHeader = ({
         {isMobile && (
           <button
             onClick={() => setActiveChannel?.(undefined)}
-            className="p-2 -ml-2 rounded-full hover:bg-[#27272a] text-foreground"
+            className="p-2 -ml-2 rounded-full hover:bg-foreground/20 text-foreground"
           >
             <ArrowLeft size={20} />
           </button>

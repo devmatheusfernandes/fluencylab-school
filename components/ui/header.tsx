@@ -3,6 +3,7 @@ import { twMerge } from "tailwind-merge";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { buttonVariants } from "./button";
+import { useIsStandalone } from "@/hooks/ui/useIsStandalone";
 
 export interface HeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
@@ -61,10 +62,16 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
       xl: "text-xl",
     };
 
+    const isStandalone = useIsStandalone();
+
     return (
       <div
         ref={ref}
-        className={twMerge("flex items-start justify-between gap-4", className)}
+        className={twMerge(
+          "items-start justify-between gap-4",
+          isStandalone ? "hidden" : "flex mb-4",
+          className,
+        )}
         {...props}
       >
         <div className="flex-1 min-w-0 flex items-center gap-4">

@@ -18,7 +18,7 @@ export const BasicInfoStep: React.FC<OnboardingStepProps> = ({
   const t = useTranslations("Onboarding.Student.BasicInfo");
 
   return (
-    <div className="p-4 md:p-6 space-y-6 max-w-lg mx-auto">
+    <div className="container-padding space-y-6 max-w-lg mx-auto">
       <div className="space-y-4">
         <div className="space-y-2">
           <Label>{t("nicknameLabel")}</Label>

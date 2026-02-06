@@ -169,7 +169,7 @@ export default function LessonEditorPage() {
   }
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
+    <div className="container-padding space-y-6">
       {/* Header Minimalista */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <Header

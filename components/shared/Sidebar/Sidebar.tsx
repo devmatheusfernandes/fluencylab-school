@@ -16,6 +16,8 @@ import {
 import { signOut } from "next-auth/react";
 import { ArrowDown, ArrowDownFromLine, ArrowUp, LogOut } from "lucide-react";
 import { useMessages, useTranslations } from "next-intl";
+import { useIsMobile } from "@/hooks/ui/useMobile";
+import { useIsStandalone } from "@/hooks/ui/useIsStandalone";
 
 export interface SubItem {
   href: string;
@@ -327,7 +329,7 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
       {/* The Drawer itself - Morphs from the Navbar using layoutId */}
       <motion.div
         layoutId={layoutId}
-        className="fixed bottom-0 left-0 right-0 bg-background dark:bg-slate-950 border-t border-primary rounded-t-2xl z-50 md:hidden overflow-hidden flex flex-col shadow-2xl"
+        className="fixed bottom-0 left-0 right-0 bg-background dark:bg-slate-950 rounded-t-xl z-50 md:hidden overflow-hidden flex flex-col shadow-2xl"
         transition={{ type: "spring", bounce: 0, duration: 0.5 }}
       >
         {/* Content Wrapper - Fades in slightly after morph starts */}
@@ -586,7 +588,8 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const { isCollapsed } = useSidebar();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
-
+  const isMobile = useIsMobile();
+  const isStandalone = useIsStandalone();
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
@@ -707,7 +710,12 @@ const Sidebar: React.FC<SidebarProps> = ({
             <motion.nav
               key="mobile-navbar"
               layoutId="mobile-sidebar"
-              className="md:hidden fixed bottom-0 left-0 right-0 bg-slate-200 dark:bg-slate-950 border-t border-primary px-4 py-2 z-50 flex items-center justify-between"
+              className={twMerge(
+                "md:hidden fixed bottom-0 left-0 right-0 px-4 py-2 z-50 flex items-center justify-between",
+                isStandalone && "bg-slate-200! dark:bg-slate-900! border-none!",
+                isMobile &&
+                  "bg-slate-100 dark:bg-slate-950 border-t border-primary",
+              )}
               transition={{ type: "spring", bounce: 0, duration: 0.5 }}
             >
               {/* Content Container - Fades out on open */}

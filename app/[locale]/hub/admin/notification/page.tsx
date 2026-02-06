@@ -93,7 +93,7 @@ export default function AdminAnnouncementsPage() {
   // Usando string literais para as Tabs
   const [recipientTab, setRecipientTab] = useState<string>("role");
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
-  
+
   // New state for user selection
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [openCombobox, setOpenCombobox] = useState(false);
@@ -105,7 +105,7 @@ export default function AdminAnnouncementsPage() {
   const [loading, setLoading] = useState(false);
   const tRoles = useTranslations("UserRoles");
   const t = useTranslations("AdminNotifications");
-  
+
   const { users, fetchUsers, isLoading: isLoadingUsers } = useUsers();
 
   const fetchHistory = async () => {
@@ -140,12 +140,26 @@ export default function AdminAnnouncementsPage() {
             <Skeleton className="h-4 w-2/3" />
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="space-y-2"><Skeleton className="h-4 w-20" /><Skeleton className="h-10 w-full" /></div>
-            <div className="space-y-2"><Skeleton className="h-4 w-20" /><Skeleton className="h-24 w-full" /></div>
-            <div className="space-y-2"><Skeleton className="h-4 w-20" /><Skeleton className="h-10 w-full" /></div>
-            <div className="space-y-2"><Skeleton className="h-10 w-full" /><Skeleton className="h-20 w-full" /></div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-24 w-full" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-20 w-full" />
+            </div>
           </CardContent>
-          <CardFooter><Skeleton className="h-10 w-full" /></CardFooter>
+          <CardFooter>
+            <Skeleton className="h-10 w-full" />
+          </CardFooter>
         </Card>
       </div>
     );
@@ -161,9 +175,7 @@ export default function AdminAnnouncementsPage() {
               <ShieldAlert className="h-10 w-10 text-destructive" />
             </div>
             <CardTitle>{t("accessDenied.title")}</CardTitle>
-            <CardDescription>
-              {t("accessDenied.description")}
-            </CardDescription>
+            <CardDescription>{t("accessDenied.description")}</CardDescription>
           </CardHeader>
         </Card>
       </div>
@@ -174,25 +186,24 @@ export default function AdminAnnouncementsPage() {
   async function submit() {
     // Validação básica antes de enviar
     if (!title.trim() || !message.trim()) {
-        toast.warning(t("toasts.requiredFields"), {
-            description: t("toasts.fillTitleMessage")
-        });
-        return;
+      toast.warning(t("toasts.requiredFields"), {
+        description: t("toasts.fillTitleMessage"),
+      });
+      return;
     }
 
     if (recipientTab === "role" && selectedRoles.length === 0) {
-        toast.warning(t("toasts.invalidRecipient"), {
-            description: t("toasts.selectRole")
-        });
-        return;
+      toast.warning(t("toasts.invalidRecipient"), {
+        description: t("toasts.selectRole"),
+      });
+      return;
     }
-     if (recipientTab === "specific" && selectedUserIds.length === 0) {
-        toast.warning(t("toasts.invalidRecipient"), {
-            description: t("toasts.provideIds")
-        });
-        return;
+    if (recipientTab === "specific" && selectedUserIds.length === 0) {
+      toast.warning(t("toasts.invalidRecipient"), {
+        description: t("toasts.provideIds"),
+      });
+      return;
     }
-
 
     setLoading(true);
     const loadingToast = toast.loading(t("toasts.sending"));
@@ -224,7 +235,7 @@ export default function AdminAnnouncementsPage() {
 
       toast.success(t("toasts.success"), {
         id: loadingToast,
-        description: t("toasts.successDesc")
+        description: t("toasts.successDesc"),
       });
 
       // Limpar formulário
@@ -235,11 +246,10 @@ export default function AdminAnnouncementsPage() {
       // Opcional: resetar tipo e aba se desejar
       // setType("info");
       // setRecipientTab("role");
-
     } catch (e: any) {
       toast.error(t("toasts.error"), {
         id: loadingToast,
-        description: e.message || t("toasts.unexpectedError")
+        description: e.message || t("toasts.unexpectedError"),
       });
     } finally {
       setLoading(false);
@@ -250,7 +260,7 @@ export default function AdminAnnouncementsPage() {
     setSelectedUserIds((current) =>
       current.includes(userId)
         ? current.filter((id) => id !== userId)
-        : [...current, userId]
+        : [...current, userId],
     );
   };
 
@@ -262,7 +272,7 @@ export default function AdminAnnouncementsPage() {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="p-4 md:p-6 space-y-6"
+      className="container-padding space-y-6"
     >
       <Header
         heading={t("title")}
@@ -270,18 +280,13 @@ export default function AdminAnnouncementsPage() {
         icon={<Megaphone className="h-8 w-8 text-primary" />}
       />
 
-      <Tabs defaultValue="new" onValueChange={(value) => value === "history" && fetchHistory()}>
+      <Tabs
+        defaultValue="new"
+        onValueChange={(value) => value === "history" && fetchHistory()}
+      >
         <TabsList>
-          <TabsTrigger 
-            value="new"
-          >
-            {t("tabs.new")}
-          </TabsTrigger>
-          <TabsTrigger 
-            value="history"
-          >
-            {t("tabs.history")}
-          </TabsTrigger>
+          <TabsTrigger value="new">{t("tabs.new")}</TabsTrigger>
+          <TabsTrigger value="history">{t("tabs.history")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="new" className="mt-0">
@@ -349,13 +354,25 @@ export default function AdminAnnouncementsPage() {
                 {/* Destinatários (Tabs) */}
                 <div className="space-y-4">
                   <Label>{t("form.recipientsLabel")}</Label>
-                  <Tabs value={recipientTab} onValueChange={setRecipientTab} className="w-full">
+                  <Tabs
+                    value={recipientTab}
+                    onValueChange={setRecipientTab}
+                    className="w-full"
+                  >
                     <TabsList className="grid w-full grid-cols-2 h-11">
-                      <TabsTrigger value="role" className="flex items-center gap-2" disabled={loading}>
+                      <TabsTrigger
+                        value="role"
+                        className="flex items-center gap-2"
+                        disabled={loading}
+                      >
                         <Users className="h-4 w-4" />
                         {t("form.tabs.role")}
                       </TabsTrigger>
-                      <TabsTrigger value="specific" className="flex items-center gap-2" disabled={loading}>
+                      <TabsTrigger
+                        value="specific"
+                        className="flex items-center gap-2"
+                        disabled={loading}
+                      >
                         <UserIcon className="h-4 w-4" />
                         {t("form.tabs.specific")}
                       </TabsTrigger>
@@ -364,8 +381,10 @@ export default function AdminAnnouncementsPage() {
                     <div className="mt-4 p-4 border rounded-lg bg-muted/30">
                       {/* Conteúdo da Aba: Papéis */}
                       <TabsContent value="role" className="mt-0 space-y-3">
-                        <Label className="text-xs text-muted-foreground">{t("form.roleSelectLabel")}</Label>
-                        
+                        <Label className="text-xs text-muted-foreground">
+                          {t("form.roleSelectLabel")}
+                        </Label>
+
                         {/* Mobile View: Separated buttons */}
                         <div className="flex flex-wrap justify-center gap-2 sm:hidden">
                           {AVAILABLE_ROLES.map((role) => (
@@ -376,7 +395,9 @@ export default function AdminAnnouncementsPage() {
                                 if (pressed) {
                                   setSelectedRoles([...selectedRoles, role]);
                                 } else {
-                                  setSelectedRoles(selectedRoles.filter((r) => r !== role));
+                                  setSelectedRoles(
+                                    selectedRoles.filter((r) => r !== role),
+                                  );
                                 }
                               }}
                               variant="outline"
@@ -394,7 +415,9 @@ export default function AdminAnnouncementsPage() {
                           type="multiple"
                           variant="outline"
                           value={selectedRoles}
-                          onValueChange={(vals) => setSelectedRoles(vals as string[])}
+                          onValueChange={(vals) =>
+                            setSelectedRoles(vals as string[])
+                          }
                           disabled={loading}
                           className="hidden sm:flex flex-wrap justify-start"
                         >
@@ -409,11 +432,12 @@ export default function AdminAnnouncementsPage() {
                             </ToggleGroupItem>
                           ))}
                         </ToggleGroup>
-                        {selectedRoles.length === 0 && recipientTab === "role" && (
-                          <p className="text-xs text-amber-500 font-medium animate-pulse">
-                            {t("form.noRoleSelected")}
-                          </p>
-                        )}
+                        {selectedRoles.length === 0 &&
+                          recipientTab === "role" && (
+                            <p className="text-xs text-amber-500 font-medium animate-pulse">
+                              {t("form.noRoleSelected")}
+                            </p>
+                          )}
                       </TabsContent>
 
                       {/* Conteúdo da Aba: Específicos */}
@@ -422,8 +446,11 @@ export default function AdminAnnouncementsPage() {
                           <Label className="text-xs text-muted-foreground">
                             {t("form.selectUsersLabel")}
                           </Label>
-                          
-                          <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
+
+                          <Popover
+                            open={openCombobox}
+                            onOpenChange={setOpenCombobox}
+                          >
                             <PopoverTrigger asChild>
                               <Button
                                 variant="outline"
@@ -438,9 +465,14 @@ export default function AdminAnnouncementsPage() {
                                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-[400px] p-0" align="start">
+                            <PopoverContent
+                              className="w-[400px] p-0"
+                              align="start"
+                            >
                               <Command>
-                                <CommandInput placeholder={t("form.selectUsersPlaceholder")} />
+                                <CommandInput
+                                  placeholder={t("form.selectUsersPlaceholder")}
+                                />
                                 <CommandList>
                                   <CommandEmpty>
                                     {isLoadingUsers ? (
@@ -464,12 +496,14 @@ export default function AdminAnnouncementsPage() {
                                             "mr-2 h-4 w-4",
                                             selectedUserIds.includes(user.id)
                                               ? "opacity-100"
-                                              : "opacity-0"
+                                              : "opacity-0",
                                           )}
                                         />
                                         <div className="flex flex-col">
                                           <span>{user.name}</span>
-                                          <span className="text-xs text-muted-foreground">{user.email}</span>
+                                          <span className="text-xs text-muted-foreground">
+                                            {user.email}
+                                          </span>
                                         </div>
                                       </CommandItem>
                                     ))}
@@ -483,7 +517,11 @@ export default function AdminAnnouncementsPage() {
                           {selectedUsersList.length > 0 && (
                             <div className="flex flex-wrap gap-2 mt-2">
                               {selectedUsersList.map((user) => (
-                                <Badge key={user.id} variant="secondary" className="pl-2 pr-1 py-1 flex items-center gap-1">
+                                <Badge
+                                  key={user.id}
+                                  variant="secondary"
+                                  className="pl-2 pr-1 py-1 flex items-center gap-1"
+                                >
                                   <span>{user.name}</span>
                                   <Button
                                     variant="ghost"
@@ -498,8 +536,8 @@ export default function AdminAnnouncementsPage() {
                             </div>
                           )}
 
-                           <p className="text-xs text-muted-foreground mt-2">
-                              {t("form.specificIdsTip")}
+                          <p className="text-xs text-muted-foreground mt-2">
+                            {t("form.specificIdsTip")}
                           </p>
                         </div>
                       </TabsContent>
@@ -573,13 +611,16 @@ export default function AdminAnnouncementsPage() {
                               item.type === "warning"
                                 ? "destructive"
                                 : item.type === "tip"
-                                ? "outline"
-                                : "default"
+                                  ? "outline"
+                                  : "default"
                             }
                             className={cn(
-                              item.type === "info" && "bg-blue-500 hover:bg-blue-600",
-                              item.type === "warning" && "bg-amber-500 hover:bg-amber-600",
-                              item.type === "tip" && "bg-emerald-500 hover:bg-emerald-600 text-white"
+                              item.type === "info" &&
+                                "bg-blue-500 hover:bg-blue-600",
+                              item.type === "warning" &&
+                                "bg-amber-500 hover:bg-amber-600",
+                              item.type === "tip" &&
+                                "bg-emerald-500 hover:bg-emerald-600 text-white",
                             )}
                           >
                             {t(`form.types.${item.type}`)}
@@ -605,9 +646,7 @@ export default function AdminAnnouncementsPage() {
                         <TableCell>
                           {new Date(item.createdAt).toLocaleDateString()}
                         </TableCell>
-                        <TableCell>
-                          {item.readBy.length}
-                        </TableCell>
+                        <TableCell>{item.readBy.length}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

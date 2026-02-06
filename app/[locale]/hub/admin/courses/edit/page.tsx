@@ -343,7 +343,7 @@ export default function EditCourseForm() {
 
   // --- RENDER ---
   return (
-    <Container className="p-4 md:p-6 space-y-6">
+    <Container className="container-padding space-y-6">
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}

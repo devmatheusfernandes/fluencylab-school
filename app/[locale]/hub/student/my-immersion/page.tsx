@@ -1,15 +1,9 @@
-import { Container } from "@/components/ui/container";
+"use client";
 import { Header } from "@/components/ui/header";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import Image from "next/image";
-import {
-  Headphones,
-  BookOpen,
-  Construction,
-  Gamepad2,
-  BrainCircuit,
-} from "lucide-react";
+import { Headphones, BookOpen, Construction, Gamepad2 } from "lucide-react";
 import {
   Carousel,
   CarouselContent,
@@ -23,7 +17,7 @@ export default function MyImmersionPage() {
   ];
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
+    <div className="container-padding space-y-6">
       <Header
         heading="My Immersion"
         subheading="Practice your listening and reading skills."

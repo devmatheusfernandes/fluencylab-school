@@ -192,7 +192,7 @@ export function StudentPaymentStatusCard() {
   return (
     <div
       className={cn(
-        "card-base flex flex-col h-full rounded-xl border shadow-sm transition-all duration-300",
+        "card-base flex flex-col h-full rounded-xl border transition-all duration-300",
         isOverdue
           ? "border-red-200 dark:border-red-900/50 shadow-red-100 dark:shadow-none"
           : "border-zinc-200 dark:border-zinc-800",

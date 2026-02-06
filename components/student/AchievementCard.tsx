@@ -19,12 +19,12 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
   const tAchievementCard = useTranslations("AchievementCard");
   const locale = useLocale();
   const dateLocale = locale === "pt" ? ptBR : enUS;
-  
+
   const definition = getAchievementDefinition(studentAchievement.achievementId);
 
   if (!definition) {
     console.warn(
-      `Achievement definition not found for ID: ${studentAchievement.achievementId}`
+      `Achievement definition not found for ID: ${studentAchievement.achievementId}`,
     );
     return (
       <motion.div
@@ -48,19 +48,21 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
 
   // Mapeamento de labels de idioma
   const languageKeyMap: Record<string, string> = {
-        english: "english",
-        spanish: "spanish",
-        libras: "libras",
-        portuguese: "portuguese",
-        Ingles: "english",
-        Espanhol: "spanish",
-        Libras: "libras",
-        Portugues: "portuguese",
+    english: "english",
+    spanish: "spanish",
+    libras: "libras",
+    portuguese: "portuguese",
+    Ingles: "english",
+    Espanhol: "spanish",
+    Libras: "libras",
+    Portugues: "portuguese",
   };
-  
-  const normalizedLang = studentAchievement.language ? languageKeyMap[studentAchievement.language] : undefined;
-  const languageLabel = normalizedLang 
-    ? tAchievementCard(`languages.${normalizedLang}`) 
+
+  const normalizedLang = studentAchievement.language
+    ? languageKeyMap[studentAchievement.language]
+    : undefined;
+  const languageLabel = normalizedLang
+    ? tAchievementCard(`languages.${normalizedLang}`)
     : studentAchievement.language || "";
 
   const cardVariants = {
@@ -73,7 +75,6 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
     },
     hover: {
       y: -2,
-      shadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
       transition: { duration: 0.2 },
     },
   };
@@ -90,7 +91,7 @@ const AchievementCard: React.FC<AchievementCardProps> = ({
         relative border rounded-xl p-3 transition-all duration-200 overflow-hidden group h-full flex flex-col card-base
         ${
           isUnlocked
-            ? "bg-emerald-100/40 border-green-500/30 dark:border-green-500/20 shadow-sm"
+            ? "bg-emerald-100/40 border-green-500/30 dark:border-green-500/20"
             : "bg-white/60 dark:bg-gray-900 border-gray-200 dark:border-gray-800"
         }
       `}

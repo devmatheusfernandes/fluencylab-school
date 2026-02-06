@@ -15,7 +15,7 @@ export default async function StudentProfilesPage() {
   }));
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
+    <div className="container-padding space-y-6">
       <Header
         heading={t("title")}
         subheading="Gerencie os perfis pedagógicos dos alunos."

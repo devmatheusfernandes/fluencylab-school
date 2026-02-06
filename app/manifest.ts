@@ -23,7 +23,10 @@ export default function manifest(): MetadataRoute.Manifest {
         description: "Ir para a página inicial",
         url: "/hub",
         icons: [
-          { src: "/favicon/web-app-manifest-192x192.png", sizes: "192x192" },
+          {
+            src: "/android/android-launchericon-192-192.png",
+            sizes: "192x192",
+          },
         ],
       },
       {
@@ -32,7 +35,7 @@ export default function manifest(): MetadataRoute.Manifest {
         description: "Abrir minhas mensagens",
         url: "/hub/my-chat",
         icons: [
-          { src: "/favicon/web-app-manifest-192x192.png", sizes: "192x192" },
+          { src: "android/android-launchericon-192-192.png", sizes: "192x192" },
         ],
       },
       {
@@ -41,7 +44,7 @@ export default function manifest(): MetadataRoute.Manifest {
         description: "Acessar meus cursos",
         url: "/hub/student/my-courses",
         icons: [
-          { src: "/favicon/web-app-manifest-192x192.png", sizes: "192x192" },
+          { src: "android/android-launchericon-192-192.png", sizes: "192x192" },
         ],
       },
     ],

@@ -20,6 +20,8 @@ import { Button } from "@/components/ui/button";
 import { Header } from "@/components/ui/header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SearchBar } from "@/components/ui/search-bar";
+import BreadcrumbActions from "@/components/shared/Breadcrum/BreadcrumbActions";
+import BreadcrumbSearch from "@/components/shared/Breadcrum/BreadcrumbSearch";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -37,6 +39,7 @@ import {
 } from "@/components/ui/empty";
 import { Course } from "../../../../../types/quiz/types";
 import { BookmarkIcon } from "@/public/animated/bookmark";
+import { courseService } from "@/services/learning/courseService";
 
 // Extensão do tipo Course para incluir dados calculados
 type StudentCourse = Course & {
@@ -109,7 +112,7 @@ export default function StudentCoursesPage() {
   }
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
+    <div className="container-padding">
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -117,14 +120,22 @@ export default function StudentCoursesPage() {
         <Header
           heading={t("title")}
           subheading={t("subtitle")}
-          className="flex-col md:flex-row md:items-center"
           icon={
-            <div className="w-72">
-              <SearchBar
-                placeholder={t("searchPlaceholder")}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+            <div className="flex items-center gap-2">
+              <BreadcrumbActions>
+                <BreadcrumbSearch
+                  value={search}
+                  onChange={setSearch}
+                  placeholder={t("searchPlaceholder")}
+                />
+              </BreadcrumbActions>
+              <div className="w-72">
+                <SearchBar
+                  placeholder={t("searchPlaceholder")}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
             </div>
           }
         />
@@ -158,7 +169,7 @@ export default function StudentCoursesPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
             >
-              <Card className="h-full flex flex-col overflow-hidden hover:shadow-lg transition-all duration-300 group border-border/50">
+              <Card className="h-full flex flex-col overflow-hidden hover:shadow-lg transition-all duration-300 group border-border/50 p-0!">
                 <div className="relative w-full aspect-video overflow-hidden">
                   <Image
                     src={course.imageUrl || "/images/course-placeholder.jpg"}
@@ -182,18 +193,11 @@ export default function StudentCoursesPage() {
                   </div>
                 </div>
 
-                <CardHeader className="p-4 pb-2 space-y-1">
-                  <h2 className="text-lg font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
+                <CardHeader className="p-4 pb-2 space-y-1 flex flex-row items-start justify-between">
+                  <h2 className="text-lg font-bold text-foreground">
                     {course.title}
                   </h2>
-                </CardHeader>
-
-                <CardContent className="p-4 pt-0 flex-grow space-y-4">
-                  <p className="text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem]">
-                    {course.description}
-                  </p>
-
-                  <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t">
+                  <div className="flex items-center gap-2 justify-end text-xs text-muted-foreground">
                     <div
                       className="flex items-center gap-1"
                       title={t("duration")}
@@ -216,6 +220,12 @@ export default function StudentCoursesPage() {
                       <span>{course.lessonCount}</span>
                     </div>
                   </div>
+                </CardHeader>
+
+                <CardContent className="p-4 pt-0 flex-grow space-y-4">
+                  <p className="text-sm text-muted-foreground line-clamp-2">
+                    {course.description}
+                  </p>
                 </CardContent>
 
                 <CardFooter className="p-4 pt-0">

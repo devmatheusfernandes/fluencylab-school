@@ -29,14 +29,12 @@ export default async function SettingsPage() {
     !!user.googleCalendarTokens?.accessToken;
 
   return (
-    <div className="flex flex-col">
-      <SettingsForm
-        currentLanguage={user.interfaceLanguage}
-        currentTheme={user.theme || "dark"}
-        currentThemeColor={user.themeColor}
-        googleCalendarConnected={googleCalendarConnected}
-        googleCalendarDefaultTimes={user.googleCalendarDefaultTimes}
-      />
-    </div>
+    <SettingsForm
+      currentLanguage={user.interfaceLanguage}
+      currentTheme={user.theme || "dark"}
+      currentThemeColor={user.themeColor}
+      googleCalendarConnected={googleCalendarConnected}
+      googleCalendarDefaultTimes={user.googleCalendarDefaultTimes}
+    />
   );
 }

@@ -39,7 +39,7 @@ export const BestPracticesStep: React.FC<OnboardingStepProps> = () => {
   ];
 
   return (
-    <div className="p-4 md:p-6 space-y-6 max-w-2xl mx-auto">
+    <div className="container-padding space-y-6 max-w-2xl mx-auto">
       <div className="text-center space-y-2">
         <h3 className="text-xl font-bold">{t("title")}</h3>
         <p className="text-muted-foreground">{t("subtitle")}</p>

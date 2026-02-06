@@ -246,7 +246,7 @@ export default function StudentClassesComponent() {
       initial="hidden"
       animate="visible"
       exit="exit"
-      className="p-4 md:p-6 space-y-6"
+      className="container-padding space-y-6"
     >
       <Header
         heading={t("headerTitle")}

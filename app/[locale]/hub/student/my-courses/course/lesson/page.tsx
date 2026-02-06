@@ -351,7 +351,7 @@ export default function LessonPageContent() {
       </motion.div>
 
       {/* MAIN CONTENT */}
-      <main className="flex-1 p-4 md:p-6 lg:p-8 max-w-[1400px] mx-auto w-full">
+      <main className="flex-1 container-padding lg:p-8 max-w-[1400px] mx-auto w-full">
         <motion.div
           variants={containerVariants}
           initial="hidden"

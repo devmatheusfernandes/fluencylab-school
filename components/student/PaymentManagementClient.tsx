@@ -23,7 +23,7 @@ export function PaymentManagementClient() {
   const router = useRouter();
 
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | null>(
-    null
+    null,
   );
   const [paymentHistory, setPaymentHistory] = useState<MonthlyPayment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -104,7 +104,7 @@ export function PaymentManagementClient() {
                 pixQrCode: data.pixQrCode,
                 pixExpiresAt: new Date(data.expiresAt),
               }
-            : null
+            : null,
         );
         toast.success(t("pixGenerated"));
       } else {
@@ -140,7 +140,9 @@ export function PaymentManagementClient() {
 
         if (result.cancellationFee > 0) {
           toast.success(
-            t("subscriptionCanceledFee", { fee: formatPrice(result.cancellationFee) })
+            t("subscriptionCanceledFee", {
+              fee: formatPrice(result.cancellationFee),
+            }),
           );
         } else {
           toast.success(t("subscriptionCanceled"));
@@ -243,14 +245,18 @@ export function PaymentManagementClient() {
       ...paymentHistory.map((payment) =>
         [
           payment.description,
-          new Date(payment.dueDate).toLocaleDateString(locale === "pt" ? "pt-BR" : "en-US"),
+          new Date(payment.dueDate).toLocaleDateString(
+            locale === "pt" ? "pt-BR" : "en-US",
+          ),
           getPaymentStatusBadge(payment.status).text,
           formatPrice(payment.amount),
           payment.paidAt
-            ? new Date(payment.paidAt).toLocaleDateString(locale === "pt" ? "pt-BR" : "en-US")
+            ? new Date(payment.paidAt).toLocaleDateString(
+                locale === "pt" ? "pt-BR" : "en-US",
+              )
             : "-",
           "PIX",
-        ].join(",")
+        ].join(","),
       ),
     ].join("\n");
 
@@ -278,9 +284,7 @@ export function PaymentManagementClient() {
         <h3 className="text-lg font-semibold mb-2">
           {t("noSubscriptionTitle")}
         </h3>
-        <p className="text-gray-600 mb-4">
-          {t("noSubscriptionDesc")}
-        </p>
+        <p className="text-gray-600 mb-4">{t("noSubscriptionDesc")}</p>
         <Button
           onClick={() =>
             (window.location.href = `/${locale}/hub/student/my-subscription`)
@@ -293,9 +297,12 @@ export function PaymentManagementClient() {
   }
 
   // Check for Pending Cancellation Fee State
-  if (paymentStatus.subscriptionStatus === "canceled" && paymentStatus.userIsActive) {
+  if (
+    paymentStatus.subscriptionStatus === "canceled" &&
+    paymentStatus.userIsActive
+  ) {
     return (
-      <div className="p-4 md:p-6 space-y-6 max-w-3xl mx-auto mt-8">
+      <div className="container-padding space-y-6 max-w-3xl mx-auto mt-8">
         <Card className="p-8 border-l-4 border-l-yellow-500 shadow-lg">
           <div className="text-center space-y-6">
             <div className="flex justify-center">
@@ -303,21 +310,26 @@ export function PaymentManagementClient() {
                 <AlertTriangle className="w-12 h-12 text-yellow-600" />
               </div>
             </div>
-            
+
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
                 Contrato Cancelado
               </h2>
               <p className="text-gray-600 max-w-md mx-auto">
-                Seu contrato foi cancelado. Para finalizar o processo e encerrar sua assinatura, 
-                por favor realize o pagamento da taxa de cancelamento abaixo.
+                Seu contrato foi cancelado. Para finalizar o processo e encerrar
+                sua assinatura, por favor realize o pagamento da taxa de
+                cancelamento abaixo.
               </p>
             </div>
 
             <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
-              <p className="text-sm font-medium text-gray-500 mb-1">Valor da Taxa</p>
+              <p className="text-sm font-medium text-gray-500 mb-1">
+                Valor da Taxa
+              </p>
               <p className="text-3xl font-bold text-gray-900 mb-6">
-                {paymentStatus.amount ? formatPrice(paymentStatus.amount) : "R$ 0,00"}
+                {paymentStatus.amount
+                  ? formatPrice(paymentStatus.amount)
+                  : "R$ 0,00"}
               </p>
 
               {paymentStatus.pixCode ? (
@@ -335,7 +347,9 @@ export function PaymentManagementClient() {
                   )}
 
                   <div className="space-y-2">
-                    <p className="text-sm font-medium text-gray-700">Código PIX Copia e Cola</p>
+                    <p className="text-sm font-medium text-gray-700">
+                      Código PIX Copia e Cola
+                    </p>
                     <div className="flex gap-2">
                       <code className="flex-1 text-xs sm:text-sm bg-white p-3 rounded-lg border font-mono break-all text-left">
                         {paymentStatus.pixCode}
@@ -351,11 +365,14 @@ export function PaymentManagementClient() {
                   </div>
 
                   <div className="text-sm text-yellow-700 bg-yellow-50 p-3 rounded-lg">
-                    <p>Após o pagamento, seu acesso será encerrado automaticamente.</p>
+                    <p>
+                      Após o pagamento, seu acesso será encerrado
+                      automaticamente.
+                    </p>
                   </div>
-                  
-                  <Button 
-                    variant="outline" 
+
+                  <Button
+                    variant="outline"
                     onClick={fetchPaymentStatus}
                     className="w-full"
                   >
@@ -379,24 +396,25 @@ export function PaymentManagementClient() {
   const StatusIcon = statusInfo.icon;
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
-      <Header 
-        heading={t("headerTitle")} 
-        subheading={t("headerSubtitle")} 
-      />
+    <div className="container-padding space-y-6">
+      <Header heading={t("headerTitle")} subheading={t("headerSubtitle")} />
       {/* Subscription Overview */}
       <Card className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div>
-              <h2 className="text-xl font-semibold">{t("subscriptionStatusTitle")}</h2>
+              <h2 className="text-xl font-semibold">
+                {t("subscriptionStatusTitle")}
+              </h2>
               <p className="text-gray-600">{t("subscriptionStatusDesc")}</p>
             </div>
           </div>
           <Badge className="text-sm">
             {statusInfo.text}
             {paymentStatus.overdueDays && paymentStatus.overdueDays > 0 && (
-              <span className="ml-1">({paymentStatus.overdueDays} {t("overdueDays")})</span>
+              <span className="ml-1">
+                ({paymentStatus.overdueDays} {t("overdueDays")})
+              </span>
             )}
           </Badge>
         </div>
@@ -421,7 +439,7 @@ export function PaymentManagementClient() {
                 </span>
                 <p className="text-lg">
                   {new Date(paymentStatus.nextPaymentDue).toLocaleDateString(
-                    locale === "pt" ? "pt-BR" : "en-US"
+                    locale === "pt" ? "pt-BR" : "en-US",
                   )}
                 </p>
               </div>
@@ -445,7 +463,7 @@ export function PaymentManagementClient() {
                 </span>
                 <p className="text-lg">
                   {new Date(paymentStatus.lastPaymentDate).toLocaleDateString(
-                    locale === "pt" ? "pt-BR" : "en-US"
+                    locale === "pt" ? "pt-BR" : "en-US",
                   )}
                 </p>
               </div>
@@ -467,16 +485,22 @@ export function PaymentManagementClient() {
 
             {paymentStatus.pixCode ? (
               <div className="space-y-4">
-                <p className="text-gray-700">
-                  {t("usePixCode")}
-                </p>
+                <p className="text-gray-700">{t("usePixCode")}</p>
 
                 <div className="bg-gray-50 p-4 rounded-lg border">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium">{t("pixCodeLabel")}</span>
+                    <span className="text-sm font-medium">
+                      {t("pixCodeLabel")}
+                    </span>
                     {paymentStatus.pixExpiresAt && (
                       <span className="text-xs text-gray-500">
-                        {t("expiresIn", { date: new Date(paymentStatus.pixExpiresAt).toLocaleDateString(locale === "pt" ? "pt-BR" : "en-US") })}
+                        {t("expiresIn", {
+                          date: new Date(
+                            paymentStatus.pixExpiresAt,
+                          ).toLocaleDateString(
+                            locale === "pt" ? "pt-BR" : "en-US",
+                          ),
+                        })}
                       </span>
                     )}
                   </div>
@@ -522,9 +546,7 @@ export function PaymentManagementClient() {
               </div>
             ) : (
               <div className="space-y-4">
-                <p className="text-gray-700">
-                  {t("generatePixDesc")}
-                </p>
+                <p className="text-gray-700">{t("generatePixDesc")}</p>
                 <Button
                   onClick={generatePixPayment}
                   disabled={generatingPix}
@@ -575,9 +597,7 @@ export function PaymentManagementClient() {
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <h4 className="font-medium">{payment.description}</h4>
-                        <Badge className="">
-                          {statusInfo.text}
-                        </Badge>
+                        <Badge className="">{statusInfo.text}</Badge>
                       </div>
 
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600">
@@ -587,7 +607,7 @@ export function PaymentManagementClient() {
                           </span>
                           <p>
                             {new Date(payment.dueDate).toLocaleDateString(
-                              locale === "pt" ? "pt-BR" : "en-US"
+                              locale === "pt" ? "pt-BR" : "en-US",
                             )}
                           </p>
                         </div>
@@ -605,9 +625,7 @@ export function PaymentManagementClient() {
                           <span className="font-medium text-gray-500">
                             {t("paymentMethod")}
                           </span>
-                          <p>
-                            PIX
-                          </p>
+                          <p>PIX</p>
                         </div>
 
                         <div>
@@ -617,7 +635,7 @@ export function PaymentManagementClient() {
                           <p>
                             {payment.paidAt
                               ? new Date(payment.paidAt).toLocaleDateString(
-                                  locale === "pt" ? "pt-BR" : "en-US"
+                                  locale === "pt" ? "pt-BR" : "en-US",
                                 )
                               : "-"}
                           </p>
@@ -632,7 +650,13 @@ export function PaymentManagementClient() {
                             </span>
                             {payment.pixExpiresAt && (
                               <span className="text-xs text-gray-500">
-                                {t("expiresIn", { date: new Date(payment.pixExpiresAt).toLocaleDateString(locale === "pt" ? "pt-BR" : "en-US") })}
+                                {t("expiresIn", {
+                                  date: new Date(
+                                    payment.pixExpiresAt,
+                                  ).toLocaleDateString(
+                                    locale === "pt" ? "pt-BR" : "en-US",
+                                  ),
+                                })}
                               </span>
                             )}
                           </div>
@@ -657,7 +681,7 @@ export function PaymentManagementClient() {
                               onClick={() => {
                                 if (payment.pixCode) {
                                   navigator.clipboard.writeText(
-                                    payment.pixCode
+                                    payment.pixCode,
                                   );
                                   toast.success(t("pixCopied"));
                                 }
@@ -681,7 +705,9 @@ export function PaymentManagementClient() {
       {/* Subscription Actions */}
       {paymentStatus.subscriptionStatus !== "canceled" && (
         <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">{t("subscriptionActions")}</h3>
+          <h3 className="text-lg font-semibold mb-4">
+            {t("subscriptionActions")}
+          </h3>
           <div className="space-y-3">
             <Button
               variant="destructive"
@@ -690,9 +716,7 @@ export function PaymentManagementClient() {
             >
               {t("cancelSubscription")}
             </Button>
-            <p className="text-sm text-gray-500">
-              {t("cancelFeeWarning")}
-            </p>
+            <p className="text-sm text-gray-500">{t("cancelFeeWarning")}</p>
           </div>
         </Card>
       )}
@@ -706,17 +730,19 @@ export function PaymentManagementClient() {
         }}
       >
         <ModalContent>
-          <h2 className="text-lg font-semibold mb-4">{t("cancelModalTitle")}</h2>
+          <h2 className="text-lg font-semibold mb-4">
+            {t("cancelModalTitle")}
+          </h2>
 
           <div className="space-y-4">
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
               <div className="flex items-start gap-2">
                 <Link className="w-5 h-5 text-yellow-600 mt-0.5" />
                 <div className="text-sm">
-                  <p className="font-medium text-yellow-800 mb-1">{t("attention")}</p>
-                  <p className="text-yellow-700">
-                    {t("cancelWarning")}
+                  <p className="font-medium text-yellow-800 mb-1">
+                    {t("attention")}
                   </p>
+                  <p className="text-yellow-700">{t("cancelWarning")}</p>
                 </div>
               </div>
             </div>

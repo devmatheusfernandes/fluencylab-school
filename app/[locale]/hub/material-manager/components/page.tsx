@@ -30,10 +30,10 @@ export default async function Page() {
         metadata: {
           createdAt: meta.createdAt?.toMillis
             ? meta.createdAt.toMillis()
-            : meta.createdAt ?? null,
+            : (meta.createdAt ?? null),
           updatedAt: meta.updatedAt?.toMillis
             ? meta.updatedAt.toMillis()
-            : meta.updatedAt ?? null,
+            : (meta.updatedAt ?? null),
         },
       } as LearningItem;
     });
@@ -53,10 +53,10 @@ export default async function Page() {
         metadata: {
           createdAt: meta.createdAt?.toMillis
             ? meta.createdAt.toMillis()
-            : meta.createdAt ?? null,
+            : (meta.createdAt ?? null),
           updatedAt: meta.updatedAt?.toMillis
             ? meta.updatedAt.toMillis()
-            : meta.updatedAt ?? null,
+            : (meta.updatedAt ?? null),
         },
       } as LearningStructure;
     });
@@ -68,13 +68,16 @@ export default async function Page() {
   }
 
   return (
-    <div className="p-4 md:p-6 space-y-6 max-w7xl">
+    <div className="container-padding space-y-6 max-w7xl">
       <Header
         heading={tPage("globalHeading")}
         subheading={tPage("globalSubheading")}
       />
 
-      <LessonComponentsManager vocabulary={vocabulary} structures={structures} />
+      <LessonComponentsManager
+        vocabulary={vocabulary}
+        structures={structures}
+      />
     </div>
   );
 }

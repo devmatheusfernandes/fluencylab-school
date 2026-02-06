@@ -54,7 +54,7 @@ export const PaymentStep: React.FC<OnboardingStepProps> = ({
   }
 
   return (
-    <div className="p-4 md:p-6 space-y-6 max-w-lg mx-auto">
+    <div className="container-padding space-y-6 max-w-lg mx-auto">
       <div className="text-center">
         <h3 className="text-xl font-bold">{t("title")}</h3>
       </div>

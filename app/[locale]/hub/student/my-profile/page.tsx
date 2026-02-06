@@ -24,6 +24,11 @@ import { ProgressHero } from "@/components/notebook/ProgressHero";
 import { motion } from "framer-motion";
 import { getStudentLearningStats, getActivePlanId } from "@/actions/srsActions";
 import { WordOfTheDayModal } from "@/components/word-of-the-day/word-of-the-day-modal";
+import BreadcrumbActions from "@/components/shared/Breadcrum/BreadcrumbActions";
+import BreadcrumbActionIcon from "@/components/shared/Breadcrum/BreadcrumbActionIcon";
+import { Settings } from "lucide-react";
+import router from "next/navigation";
+import Link from "next/link";
 
 const ProfileHeaderSkeleton = () => (
   <Skeleton className="rounded-xl p-4 w-full">
@@ -196,9 +201,15 @@ export default function MeuPerfil() {
         grid gap-2
         grid-cols-1
         md:grid-cols-3
-        lg:p-0 md:p-0 p-4 lg:space-y-0 md:space-y-0 space-y-2
+        lg:p-0 md:p-0 p-2.5 lg:space-y-0 md:space-y-0 space-y-2
         "
     >
+      <BreadcrumbActions>
+        <Link href="/hub/student/settings">
+          <BreadcrumbActionIcon icon={Settings} />
+        </Link>
+      </BreadcrumbActions>
+
       <WordOfTheDayModal language={user?.languages?.[0] || "en"} />
 
       {!isLoading && user ? (

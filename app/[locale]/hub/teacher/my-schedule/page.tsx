@@ -39,12 +39,12 @@ export default async function TeacherSettingsPage() {
 
   // Fetch teacher's schedule data
   const scheduleData = await schedulingService.getTeacherAvailability(
-    session!.user.id
+    session!.user.id,
   );
 
   // Fetch all teacher's classes
   const allClasses = await schedulingService.getPopulatedClassesForTeacher(
-    session!.user.id
+    session!.user.id,
   );
 
   // // Debug logs
@@ -61,7 +61,7 @@ export default async function TeacherSettingsPage() {
       scheduleData.slots,
       scheduleData.exceptions,
       scheduleData.bookedClasses,
-      t
+      t,
     ),
     ...mapTeacherClassesToCalendar(allClasses, t),
   ];
@@ -78,7 +78,7 @@ export default async function TeacherSettingsPage() {
   const serializedScheduleData = serializeForClientComponent(scheduleData);
 
   return (
-    <Tabs defaultValue="settings" className="p-4 md:p-6 space-y-6">
+    <Tabs defaultValue="settings" className="container-padding space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <Header heading={t("pageTitle")} subheading={t("pageSubtitle")} />
         <TabsList className="flex flex-wrap bg-slate-200 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-1 shadow-sm w-full md:w-auto justify-center md:justify-start">
