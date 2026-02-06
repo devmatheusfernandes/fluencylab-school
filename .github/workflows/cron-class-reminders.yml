@@ -2,7 +2,9 @@ name: Class Reminders Cron
 
 on:
   schedule:
-    - cron: "*/15 9-23,0 * * 1-6"
+    # A cada 30 minutos
+    # Das 10h às 23h UTC (Aprox. 07h às 20h horário de Brasília)
+    - cron: "0,30 10-23 * * 1-6"
   workflow_dispatch:
 
 jobs:
@@ -11,11 +13,6 @@ jobs:
     steps:
       - name: Call Class Reminders Endpoint
         run: |
-          if [ -z "${{ secrets.NEXT_PUBLIC_BASE_URL }}" ]; then
-            echo "Error: NEXT_PUBLIC_BASE_URL secret is not set"
-            exit 1
-          fi
-
-          curl -i -X POST \
+          curl -i -L -X GET \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             "${{ secrets.NEXT_PUBLIC_BASE_URL }}/api/cron/class-reminders"

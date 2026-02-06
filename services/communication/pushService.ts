@@ -1,14 +1,17 @@
-import webpush from 'web-push';
-import { Announcement } from '@/types/communication/announcements';
-import { Task } from '@/types/tasks/task';
-import { UserAdminRepository } from '@/repositories/admin/userAdminRepository';
-import { PushSubscriptionRepository, StoredSubscription } from '@/repositories/communication/pushSubscriptionRepository';
+import webpush from "web-push";
+import { Announcement } from "@/types/communication/announcements";
+import { UserAdminRepository } from "@/repositories/admin/userAdminRepository";
+import {
+  PushSubscriptionRepository,
+  StoredSubscription,
+} from "@/repositories/communication/pushSubscriptionRepository";
 
 const userRepo = new UserAdminRepository();
 const subRepo = new PushSubscriptionRepository();
 
 function configureWebPush() {
-  const publicKey = process.env.VAPID_PUBLIC_KEY || process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+  const publicKey =
+    process.env.VAPID_PUBLIC_KEY || process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   const privateKey = process.env.VAPID_PRIVATE_KEY;
 
   // Determine a valid subject (must be https: or mailto:)
@@ -17,10 +20,14 @@ function configureWebPush() {
   const nextAuthUrl = process.env.NEXTAUTH_URL;
 
   const pickSubject = (): string => {
-    if (envSubject && (envSubject.startsWith('https://') || envSubject.startsWith('mailto:'))) return envSubject;
-    if (appUrl && appUrl.startsWith('https://')) return appUrl;
-    if (nextAuthUrl && nextAuthUrl.startsWith('https://')) return nextAuthUrl;
-    return 'mailto:push@fluencylab.me';
+    if (
+      envSubject &&
+      (envSubject.startsWith("https://") || envSubject.startsWith("mailto:"))
+    )
+      return envSubject;
+    if (appUrl && appUrl.startsWith("https://")) return appUrl;
+    if (nextAuthUrl && nextAuthUrl.startsWith("https://")) return nextAuthUrl;
+    return "mailto:push@fluencylab.me"; // TODO: verificar caminho
   };
 
   const subject = pickSubject();
@@ -41,18 +48,28 @@ export class PushService {
       title: announcement.title,
       body: announcement.message,
       type: announcement.type,
-      url: announcement.link || process.env.NEXT_PUBLIC_APP_URL || '/',
+      url: announcement.link || process.env.NEXT_PUBLIC_APP_URL || "/",
     };
     await Promise.all(
-      items.flatMap((item) => item.subscriptions.map((s) => this.sendToSubscription(s, payload)))
+      items.flatMap((item) =>
+        item.subscriptions.map((s) => this.sendToSubscription(s, payload)),
+      ),
     );
   }
 
-  private async resolveRecipients(announcement: Announcement): Promise<string[]> {
-    if (announcement.recipients.type === 'specific' && Array.isArray(announcement.recipients.userIds)) {
+  private async resolveRecipients(
+    announcement: Announcement,
+  ): Promise<string[]> {
+    if (
+      announcement.recipients.type === "specific" &&
+      Array.isArray(announcement.recipients.userIds)
+    ) {
       return announcement.recipients.userIds;
     }
-    if (announcement.recipients.type === 'role' && Array.isArray(announcement.recipients.roles)) {
+    if (
+      announcement.recipients.type === "role" &&
+      Array.isArray(announcement.recipients.roles)
+    ) {
       const all: string[] = [];
       for (const role of announcement.recipients.roles) {
         const users = await userRepo.findUsersByRole(role);
@@ -63,7 +80,10 @@ export class PushService {
     return [];
   }
 
-  private async sendToSubscription(subscription: StoredSubscription, payload: any) {
+  private async sendToSubscription(
+    subscription: StoredSubscription,
+    payload: any,
+  ) {
     const sub = {
       endpoint: subscription.endpoint,
       keys: subscription.keys,
@@ -82,8 +102,10 @@ export class PushService {
     }
   }
 
-  private async findUserByEndpoint(endpoint: string): Promise<{ userId: string } | null> {
-    // naive scan: in production, index by endpoint
+  private async findUserByEndpoint(
+    endpoint: string,
+  ): Promise<{ userId: string } | null> {
+    // naive scan: in production, index by endpoint // TODO: implementar indexação
     return null;
   }
 }

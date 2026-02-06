@@ -10,7 +10,7 @@ self.addEventListener("push", function (event) {
 
   const title = data.title || "Notificação";
   const body = data.body || "";
-  const icon = data.icon || "/favicon/notification-bell.png";
+  const icon = data.icon || "/favicon/notification-bell.png"; // TODO: verificar, parece que funciona só no localhost, e fica feio ainda
   const badge = data.badge || "/favicon.ico";
   const url = data.url || "/hub";
   const type = data.type || "info";

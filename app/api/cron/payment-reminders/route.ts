@@ -58,7 +58,7 @@ export async function GET(req: NextRequest) {
           "Lembrete de Pagamento",
           `Sua mensalidade de ${new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(payment.amount / 100)} vence amanhã via PIX.`,
           payment.userId,
-          "/hub/financial", //TODO: ATUALIZAR O URL
+          "/hub/my-profile",
         );
         results.reminders++;
       } catch (e) {
@@ -75,7 +75,7 @@ export async function GET(req: NextRequest) {
           "Pagamento Vence Hoje!",
           `Sua mensalidade vence hoje. Realize o pagamento via PIX para evitar atrasos.`,
           payment.userId,
-          "/hub/financial", //TODO: ATUALIZAR O URL
+          "/hub/my-profile",
         );
         results.dueToday++;
       } catch (e) {
@@ -95,7 +95,7 @@ export async function GET(req: NextRequest) {
           "Pagamento em Atraso",
           `Sua mensalidade está atrasada há 3 dias. Regularize para evitar suspensão.`,
           payment.userId,
-          "/hub/financial", //TODO: ATUALIZAR O URL
+          "/hub/my-profile",
         );
         results.overdue++;
       } catch (e) {
