@@ -214,7 +214,7 @@ export class SchedulingService {
     }
 
     // Regra 3: Horizonte de Agendamento
-    const horizonDays = settings.bookingHorizonDays || 30; // Padrão: 30 dias
+    const horizonDays = settings.bookingHorizonDays || 60; // Padrão: 60 dias
     const latestBookingDate = new Date(
       now.getTime() + horizonDays * 24 * 60 * 60 * 1000,
     );
@@ -276,6 +276,168 @@ export class SchedulingService {
 
       return { success: true, classData: newClassData };
     });
+  }
+
+  async bookClassWithCredit(
+    studentId: string,
+    teacherId: string,
+    scheduledAt: Date,
+    availabilitySlotId: string,
+    creditType: RegularCreditType.BONUS | RegularCreditType.LATE_STUDENTS,
+    classTopic?: string,
+  ) {
+    // 1. Validações de Horário (Lead Time / Horizon)
+    const teacher = await userAdminRepository.findUserById(teacherId);
+    if (!teacher) throw new Error("Professor não encontrado.");
+
+    const settings = teacher.schedulingSettings || {};
+    const now = new Date();
+    const leadTimeHours = settings.bookingLeadTimeHours || 24;
+    const earliestBookingTime = new Date(
+      now.getTime() + leadTimeHours * 60 * 60 * 1000,
+    );
+    const horizonDays = settings.bookingHorizonDays || 60;
+    const latestBookingDate = new Date(
+      now.getTime() + horizonDays * 24 * 60 * 60 * 1000,
+    );
+
+    if (scheduledAt < earliestBookingTime) {
+      throw new Error(
+        `As aulas devem ser agendadas com pelo menos ${leadTimeHours} horas de antecedência.`,
+      );
+    }
+    if (scheduledAt > latestBookingDate) {
+      throw new Error(
+        `As aulas só podem ser agendadas para os próximos ${horizonDays} dias.`,
+      );
+    }
+
+    // 2. Transação (Verifica Disponibilidade + Busca Crédito + Cria Aula + Cria Exceção)
+    const result = await adminDb.runTransaction(async (transaction) => {
+      // Check availability (conflicts)
+      const existingClassQuery =
+        await classRepository.findClassByTeacherAndDateWithTransaction(
+          transaction,
+          teacherId,
+          scheduledAt,
+        );
+      if (!existingClassQuery.empty) {
+        throw new Error("Desculpe, este horário já foi agendado.");
+      }
+
+      // Find Credit (READ)
+      const credit = await creditService.findAvailableCredit(
+        studentId,
+        creditType,
+      );
+      if (!credit) {
+        throw new Error(
+          `Você não possui créditos de ${
+            creditType === "bonus" ? "Bônus" : "Aluno Tardio"
+          } disponíveis.`,
+        );
+      }
+
+      // Get student for language info
+      const studentDoc = await transaction.get(
+        adminDb.collection("users").doc(studentId),
+      );
+      const studentData = studentDoc.data() as User;
+      const language = studentData?.languages?.[0] || "English";
+
+      // Create Class
+      const newClassData: Omit<StudentClass, "id"> = {
+        studentId,
+        teacherId,
+        availabilitySlotId,
+        scheduledAt,
+        durationMinutes: 50,
+        status: ClassStatus.SCHEDULED,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        createdBy: studentId,
+        language: language,
+        classType: "regular",
+        creditId: credit.id,
+        creditType: creditType as any,
+        isReschedulable: false, // Credit classes cannot be rescheduled (as per rules)
+        notes: classTopic,
+      };
+
+      const newClassId = await classRepository.createWithTransaction(
+        transaction,
+        newClassData,
+      );
+
+      // Create Exception
+      availabilityRepository.createExceptionWithTransaction(
+        transaction,
+        availabilitySlotId,
+        teacherId,
+        scheduledAt,
+      );
+
+      return { newClassId, creditId: credit.id, newClassData };
+    });
+
+    // 3. Mark credit as used (After transaction)
+    if (result.creditId) {
+      try {
+        await creditService.useCredit(
+          {
+            studentId,
+            creditId: result.creditId,
+            classId: result.newClassId,
+          },
+          studentId,
+        );
+      } catch (error) {
+        console.error("CRITICAL: Error using credit after booking:", error);
+      }
+    }
+
+    // 4. Send Notifications
+    try {
+      const student = await userAdminRepository.findUserById(studentId);
+      if (student && teacher) {
+        const formatDate = (date: Date) => date.toLocaleDateString("pt-BR");
+        const formatTime = (date: Date) =>
+          date.toLocaleTimeString("pt-BR", {
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+
+        // Email to Student
+        await emailService.sendClassScheduledEmail(
+          student.email,
+          student.name,
+          teacher.name,
+          scheduledAt,
+        );
+
+        // Email to Teacher
+        await emailService.sendClassScheduledTeacherEmail(
+          teacher.email,
+          teacher.name,
+          student.name,
+          scheduledAt,
+        );
+
+        // System Announcement to Teacher
+        await announcementService.createSystemAnnouncement(
+          "Nova Aula Extra Agendada",
+          `O aluno ${student.name} agendou uma aula extra (Crédito: ${
+            creditType === "bonus" ? "Bônus" : "Aluno Tardio"
+          }) para ${formatDate(scheduledAt)} às ${formatTime(scheduledAt)}.`,
+          teacherId,
+          "/hub/teacher/my-schedule",
+        );
+      }
+    } catch (error) {
+      console.error("Error sending notifications:", error);
+    }
+
+    return result;
   }
 
   // 👇 MÉTODO APRIMORADO PARA CANCELAMENTO COM SUGESTÃO DE REAGENDAMENTO
@@ -1208,11 +1370,13 @@ export class SchedulingService {
    * Inclui lógica especial para aulas canceladas pelo professor (makeup classes).
    * @param studentId O ID do aluno.
    * @param classId (Opcional) ID da aula específica sendo reagendada para verificar se é makeup.
+   * @param targetDate (Opcional) Data para a qual se deseja reagendar. Se não fornecida, usa a data atual.
    * @returns Um objeto indicando se o reagendamento é permitido, a contagem atual e o limite.
    */
   async canReschedule(
     studentId: string,
     classId?: string,
+    targetDate?: Date,
   ): Promise<{
     allowed: boolean;
     count: number;
@@ -1273,7 +1437,10 @@ export class SchedulingService {
 
     // Lógica normal para reagendamentos regulares
     const limit = 2; // Limite de 2 reagendamentos por mês
-    const currentMonthStr = new Date().toISOString().slice(0, 7); // Formato "YYYY-MM"
+
+    // Determina o mês a ser verificado (targetDate ou data atual)
+    const checkDate = targetDate || new Date();
+    const currentMonthStr = checkDate.toISOString().slice(0, 7); // Formato "YYYY-MM"
 
     const monthlyData = student.monthlyReschedules?.find(
       (m) => m.month === currentMonthStr,
@@ -1370,7 +1537,11 @@ export class SchedulingService {
 
     // --- Lógica Específica para Alunos ---
     if (isStudentRescheduling) {
-      const check = await this.canReschedule(reschedulerId, classId);
+      const check = await this.canReschedule(
+        reschedulerId,
+        classId,
+        newScheduledAt,
+      );
       if (!check.allowed) {
         if (check.isTeacherMakeup) {
           // This error is already thrown in canReschedule for expired makeup classes
@@ -1400,7 +1571,7 @@ export class SchedulingService {
       }
 
       // Regra 3: Horizonte de Agendamento
-      const horizonDays = settings.bookingHorizonDays || 30; // Padrão: 30 dias
+      const horizonDays = settings.bookingHorizonDays || 60; // Padrão: 60 dias
       const latestBookingDate = new Date(
         now.getTime() + horizonDays * 24 * 60 * 60 * 1000,
       );
@@ -1482,7 +1653,8 @@ export class SchedulingService {
       if (isStudentRescheduling && studentData) {
         if (!isTeacherMakeup) {
           // Only count regular reschedules against the monthly limit
-          const currentMonthStr = new Date().toISOString().slice(0, 7);
+          // Use the target month (newScheduledAt) for counting usage
+          const currentMonthStr = newScheduledAt.toISOString().slice(0, 7);
 
           const existingReschedules = studentData.monthlyReschedules || [];
           const monthIndex = existingReschedules.findIndex(
@@ -1736,9 +1908,7 @@ export class SchedulingService {
             affectedClasses: affectedClassesForEmail,
             platformLink: `${platformLink}/hub/student/my-class`,
           });
-
         }
-
       } catch (emailError) {
         console.error(
           "Erro ao enviar e-mails de férias do professor:",
@@ -1868,9 +2038,7 @@ export class SchedulingService {
             affectedClasses: affectedClassesForEmail,
             platformLink: `${platformLink}/hub/student/my-class`,
           });
-
         }
-
       } catch (emailError) {
         console.error(
           "Erro ao enviar e-mails de cancelamento de férias do professor:",
@@ -1952,7 +2120,6 @@ export class SchedulingService {
       await userAdminRepository.update(studentId, {
         teachersIds: currentTeachersIds,
       });
-
     } catch (error) {
       console.error(
         `Error updating teachersIds for student ${studentId}:`,

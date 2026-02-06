@@ -2335,6 +2335,9 @@
     "historyLabel": "Histórico do mês selecionado",
     "creditsTitle": "Créditos de Reposição",
     "creditsDesc": "Para aulas canceladas pelo professor",
+    "extraCreditsTitle": "Créditos Extras",
+    "bonusLabel": "Bônus",
+    "lateStudentLabel": "Aluno Tardio",
     "noClassesTitle": "Você não tem nenhuma aula no seu cronograma.",
     "noClassesFiltered": "Nenhuma aula encontrada para {month} de {year}."
   },

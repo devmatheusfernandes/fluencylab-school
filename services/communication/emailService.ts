@@ -3,6 +3,7 @@
 import { Resend } from "resend";
 import { WelcomeEmail } from "@/emails/templates/WelcomeEmail";
 import { ClassRescheduledEmail } from "@/emails/templates/ClassRescheduledEmail";
+import { ClassScheduledEmail } from "@/emails/templates/ClassScheduledEmail";
 import { ClassCanceledEmail } from "@/emails/templates/ClassCanceledEmail";
 import { TeacherVacationEmail } from "@/emails/templates/TeacherVacationEmail";
 import { ContractRenewalEmail } from "@/emails/templates/ContractRenewalEmail";
@@ -61,6 +62,77 @@ export class EmailService {
       throw new Error(
         "Usuário criado, mas falha ao enviar o e-mail de boas-vindas.",
       );
+    }
+  }
+
+  async sendClassScheduledEmail(
+    email: string,
+    recipientName: string,
+    teacherName: string,
+    scheduledAt: Date,
+  ) {
+    try {
+      const platformLink =
+        process.env.NEXT_PUBLIC_APP_URL || "https://app.fluencylab.com";
+      const date = scheduledAt.toLocaleDateString("pt-BR");
+      const time = scheduledAt.toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      await resend.emails.send({
+        from: "Agendamento <contato@matheusfernandes.me>",
+        to: [email],
+        subject: "Nova aula agendada - Fluency Lab",
+        react: await ClassScheduledEmail({
+          recipientName,
+          recipientType: "student",
+          otherPartyName: teacherName,
+          date,
+          time,
+          platformLink: `${platformLink}/hub/student/my-class`,
+        }),
+      });
+    } catch (error) {
+      console.error("Falha ao enviar e-mail de agendamento (aluno):", error);
+      // Não lançar erro para não quebrar o fluxo principal
+    }
+  }
+
+  async sendClassScheduledTeacherEmail(
+    email: string,
+    recipientName: string,
+    studentName: string,
+    scheduledAt: Date,
+  ) {
+    try {
+      const platformLink =
+        process.env.NEXT_PUBLIC_APP_URL || "https://app.fluencylab.com";
+      const date = scheduledAt.toLocaleDateString("pt-BR");
+      const time = scheduledAt.toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      await resend.emails.send({
+        from: "Agendamento <contato@matheusfernandes.me>",
+        to: [email],
+        subject: "Nova aula agendada com você - Fluency Lab",
+        react: await ClassScheduledEmail({
+          recipientName,
+          recipientType: "teacher",
+          otherPartyName: studentName,
+          date,
+          time,
+          platformLink: `${platformLink}/hub/teacher/my-classes`,
+        }),
+      });
+    } catch (error) {
+      console.error(
+        "Falha ao enviar e-mail de agendamento (professor):",
+        error,
+      );
+      // Não lançar erro para não quebrar o fluxo principal
     }
   }
 

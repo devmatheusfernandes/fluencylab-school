@@ -83,8 +83,8 @@ export const useTeacherAvailabilityForReschedule = (
         });
 
         slots.forEach((slot: AvailabilitySlot) => {
-          // For makeup or non-repeating slots, combine startDate with startTime
-          if (slot.type === 'makeup' || !slot.repeating) {
+          // For non-repeating slots, combine startDate with startTime
+          if (!slot.repeating) {
             const [hour, minute] = slot.startTime.split(":").map(Number);
             const slotDate = new Date(slot.startDate);
             slotDate.setHours(hour, minute, 0, 0);

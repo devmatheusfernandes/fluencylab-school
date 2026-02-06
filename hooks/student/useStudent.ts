@@ -9,6 +9,7 @@ import {
   StudentClass,
   TeacherAvailability,
 } from "@/types/classes/class";
+import { toast } from "sonner";
 
 export const useStudent = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -85,7 +86,7 @@ export const useStudent = () => {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
 
-      alert("Aula agendada com sucesso!");
+      toast.success("Aula agendada com sucesso!");
 
       if (payload.teacherId) {
         await fetchAvailability(payload.teacherId);
@@ -122,13 +123,13 @@ export const useStudent = () => {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
 
-      alert(data.message);
+      toast.success(data.message);
 
       // A função agora chama 'fetchMyClasses' internamente após o sucesso
       await fetchMyClasses();
     } catch (err: any) {
       setError(err.message);
-      alert(`Erro: ${err.message}`);
+      toast.error(`Erro: ${err.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -227,12 +228,50 @@ export const useStudent = () => {
     }
     return response.json();
   };
+
+  const bookClassWithCredit = async (
+    teacherId: string,
+    scheduledAt: Date,
+    availabilitySlotId: string,
+    creditType: string,
+    classTopic?: string,
+  ): Promise<boolean> => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/student/classes/book-with-credit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          teacherId,
+          scheduledAt,
+          availabilitySlotId,
+          creditType,
+          classTopic,
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error);
+
+      toast.success("Aula agendada com sucesso!");
+      await fetchMyClasses();
+      return true;
+    } catch (err: any) {
+      setError(err.message);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     isLoading,
     error,
     availability,
     fetchAvailability,
     bookClass,
+    bookClassWithCredit,
     myClasses,
     fetchMyClasses,
     cancelClass,

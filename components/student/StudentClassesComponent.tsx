@@ -34,7 +34,20 @@ import { ClassCancellationModal } from "@/components/student/ClassCancellationMo
 import RescheduleModal from "@/components/student/RescheduleModal";
 import { Clock } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
+import { Button } from "@/components/ui/button";
+import CreditBookingModal from "@/components/student/CreditBookingModal";
 import { motion } from "framer-motion";
+import { CalendarDaysIcon } from "@/public/animated/calendar";
+import BreadcrumbActions from "@/components/shared/Breadcrum/BreadcrumbActions";
+import BreadcrumbActionIcon from "@/components/shared/Breadcrum/BreadcrumbActionIcon";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import MobileCreditsList from "@/components/student/MobileCreditsList";
+import { Wallet, CalendarPlus } from "lucide-react";
 
 export default function StudentClassesComponent() {
   const t = useTranslations("StudentClassesComponent");
@@ -79,6 +92,8 @@ export default function StudentClassesComponent() {
   } | null>(null);
   const [teacherCancellationCredits, setTeacherCancellationCredits] =
     useState<number>(0);
+  const [bonusCredits, setBonusCredits] = useState<number>(0);
+  const [lateStudentCredits, setLateStudentCredits] = useState<number>(0);
 
   // Modal states
   const [showCancellationModal, setShowCancellationModal] = useState(false);
@@ -88,23 +103,30 @@ export default function StudentClassesComponent() {
     useState<StudentClass | null>(null);
   const [showRescheduleConfirmModal, setShowRescheduleConfirmModal] =
     useState(false);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [bookingCreditType, setBookingCreditType] = useState<
+    "bonus" | "late_students"
+  >("bonus");
+  const [isCreditsDrawerOpen, setIsCreditsDrawerOpen] = useState(false);
 
   useEffect(() => {
     fetchMyClasses();
     checkRescheduleStatus();
-    fetchTeacherCancellationCredits();
+    fetchCreditBalance();
   }, [fetchMyClasses, checkRescheduleStatus]);
 
-  // Fetch teacher cancellation credits
-  const fetchTeacherCancellationCredits = async () => {
+  // Fetch credit balance
+  const fetchCreditBalance = async () => {
     try {
       const response = await fetch("/api/student/credits/balance");
       if (response.ok) {
         const data = await response.json();
         setTeacherCancellationCredits(data.teacherCancellationCredits || 0);
+        setBonusCredits(data.bonusCredits || 0);
+        setLateStudentCredits(data.lateStudentCredits || 0);
       }
     } catch (error) {
-      console.error("Error fetching teacher cancellation credits:", error);
+      console.error("Error fetching credit balance:", error);
     }
   };
 
@@ -141,7 +163,12 @@ export default function StudentClassesComponent() {
   }, [myClasses, selectedMonth, selectedYear]);
 
   // Get reschedule info to display
-  const displayRescheduleInfo = monthlyRescheduleData || rescheduleInfo;
+  const displayRescheduleInfo = monthlyRescheduleData
+    ? {
+        ...monthlyRescheduleData,
+        allowed: monthlyRescheduleData.count < monthlyRescheduleData.limit,
+      }
+    : rescheduleInfo;
   const isCurrentMonth =
     selectedMonth === new Date().getMonth() &&
     selectedYear === new Date().getFullYear();
@@ -192,7 +219,7 @@ export default function StudentClassesComponent() {
         // Refresh the classes list and reschedule info
         await fetchMyClasses();
         await checkRescheduleStatus();
-        await fetchTeacherCancellationCredits(); // Refresh credits after cancellation
+        await fetchCreditBalance(); // Refresh credits after cancellation
       }
     } catch (error: any) {
       throw error; // Re-throw to be handled by the component
@@ -201,15 +228,10 @@ export default function StudentClassesComponent() {
 
   // Handle reschedule click with verification
   const handleRescheduleClick = (cls: StudentClass) => {
-    // Check if student can reschedule before showing modal
-    if (rescheduleInfo.allowed || cls.status === "canceled-teacher-makeup") {
-      setClassToReschedule(cls);
-      setIsRescheduleModalOpen(true);
-    } else {
-      // Show modal asking if they want to cancel instead
-      setClassToCancel(cls);
-      setShowRescheduleConfirmModal(true);
-    }
+    // Agora permitimos abrir o modal sempre, pois a validação de créditos
+    // depende do mês de destino (backend) ou se a aula é isenta.
+    setClassToReschedule(cls);
+    setIsRescheduleModalOpen(true);
   };
 
   // Handle cancel with reschedule check
@@ -240,6 +262,13 @@ export default function StudentClassesComponent() {
     exit: { opacity: 0, y: -20 },
   };
 
+  const isFutureMonth =
+    selectedYear !== "all" &&
+    selectedMonth !== "all" &&
+    (selectedYear > new Date().getFullYear() ||
+      (selectedYear === new Date().getFullYear() &&
+        selectedMonth > new Date().getMonth()));
+
   return (
     <motion.div
       variants={containerVariants}
@@ -252,6 +281,25 @@ export default function StudentClassesComponent() {
         heading={t("headerTitle")}
         subheading={t("headerSubtitle")}
         className="mb-3"
+        icon={
+          <BreadcrumbActions>
+            <BreadcrumbActionIcon
+              icon={Wallet}
+              onClick={() => setIsCreditsDrawerOpen(true)}
+            />
+            {(bonusCredits > 0 || lateStudentCredits > 0) && (
+              <BreadcrumbActionIcon
+                icon={CalendarPlus}
+                onClick={() => {
+                  setBookingCreditType(
+                    bonusCredits > 0 ? "bonus" : "late_students",
+                  );
+                  setIsBookingModalOpen(true);
+                }}
+              />
+            )}
+          </BreadcrumbActions>
+        }
       />
       {/* Modals */}
       {classToCancel && (
@@ -266,7 +314,7 @@ export default function StudentClassesComponent() {
             // Refresh classes after cancellation
             fetchMyClasses();
             checkRescheduleStatus();
-            fetchTeacherCancellationCredits();
+            fetchCreditBalance();
           }}
         />
       )}
@@ -278,11 +326,22 @@ export default function StudentClassesComponent() {
           onClose={() => {
             setIsRescheduleModalOpen(false);
             setClassToReschedule(null);
-            fetchTeacherCancellationCredits();
+            fetchCreditBalance();
           }}
           classToReschedule={classToReschedule}
         />
       )}
+
+      {/* Credit Booking Modal */}
+      <CreditBookingModal
+        isOpen={isBookingModalOpen}
+        onClose={() => {
+          setIsBookingModalOpen(false);
+          fetchCreditBalance();
+          fetchMyClasses();
+        }}
+        creditType={bookingCreditType}
+      />
 
       {/* Reschedule Confirmation Modal */}
       {classToCancel && (
@@ -399,39 +458,89 @@ export default function StudentClassesComponent() {
         </Card>
 
         {/* Enhanced Reschedule Card */}
-        <Card className="p-3 w-full">
-          <Text size="sm" className="font-medium text-subtitle mb-1">
-            {selectedMonth === "all" || selectedYear === "all"
-              ? t("reschedulesTitle")
-              : t("reschedulesMonthTitle", {
-                  month: monthOptions[selectedMonth as number]?.label,
-                  year: selectedYear,
-                })}
-          </Text>
-          <Text className="font-bold text-lg">
-            {displayRescheduleInfo.count} / {displayRescheduleInfo.limit}
-          </Text>
-          {!isCurrentMonth &&
-            selectedMonth !== "all" &&
-            selectedYear !== "all" && (
-              <Text size="xs" className="text-subtitle/30 mt-1">
-                {t("historyLabel")}
-              </Text>
-            )}
-        </Card>
+        <div className="hidden md:contents">
+          <Card className="p-3 w-full">
+            <Text size="sm" className="font-medium text-subtitle mb-1">
+              {selectedMonth === "all" || selectedYear === "all"
+                ? t("reschedulesTitle")
+                : t("reschedulesMonthTitle", {
+                    month: monthOptions[selectedMonth as number]?.label,
+                    year: selectedYear,
+                  })}
+            </Text>
+            <Text className="font-bold text-lg">
+              {displayRescheduleInfo.count} / {displayRescheduleInfo.limit}
+            </Text>
+            {!isCurrentMonth &&
+              selectedMonth !== "all" &&
+              selectedYear !== "all" && (
+                <Text size="xs" className="text-subtitle/30 mt-1">
+                  {t("historyLabel")}
+                </Text>
+              )}
+          </Card>
 
-        {/* Teacher Cancellation Credits Card */}
-        <Card className="w-full p-3 bg-amber-50 border-amber-200">
-          <Text size="sm" className="font-medium text-subtitle mb-1">
-            {t("creditsTitle")}
-          </Text>
-          <Text className="font-bold text-lg text-amber-800">
-            {teacherCancellationCredits}
-          </Text>
-          <Text size="xs" className="text-subtitle/30 mt-1">
-            {t("creditsDesc")}
-          </Text>
-        </Card>
+          {/* Teacher Cancellation Credits Card */}
+          <Card className="w-full p-3 bg-amber-50 border-amber-200">
+            <Text size="sm" className="font-medium text-subtitle mb-1">
+              {t("creditsTitle")}
+            </Text>
+            <Text className="font-bold text-lg text-amber-800">
+              {teacherCancellationCredits}
+            </Text>
+            <Text size="xs" className="text-subtitle/30 mt-1">
+              {t("creditsDesc")}
+            </Text>
+          </Card>
+
+          {/* Bonus/Late Student Credits Card - Only shows if there are credits */}
+          {(bonusCredits > 0 || lateStudentCredits > 0) && (
+            <Card className="w-full p-3 bg-blue-50 border-blue-200 flex flex-col justify-between">
+              <div>
+                <Text size="sm" className="font-medium text-subtitle mb-1">
+                  {t("extraCreditsTitle")}
+                </Text>
+                <div className="flex gap-4">
+                  {bonusCredits > 0 && (
+                    <div>
+                      <Text className="font-bold text-lg text-blue-800">
+                        {bonusCredits}
+                      </Text>
+                      <Text size="xs" className="text-subtitle/50">
+                        {t("bonusLabel")}
+                      </Text>
+                    </div>
+                  )}
+                  {lateStudentCredits > 0 && (
+                    <div>
+                      <Text className="font-bold text-lg text-blue-800">
+                        {lateStudentCredits}
+                      </Text>
+                      <Text size="xs" className="text-subtitle/50">
+                        {t("lateStudentLabel")}
+                      </Text>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="mt-2 flex justify-end">
+                <Button
+                  variant="glass"
+                  className="flex flex-row gap-2"
+                  size="sm"
+                  onClick={() => {
+                    setBookingCreditType(
+                      bonusCredits > 0 ? "bonus" : "late_students",
+                    );
+                    setIsBookingModalOpen(true);
+                  }}
+                >
+                  Agendar Aula
+                </Button>
+              </div>
+            </Card>
+          )}
+        </div>
       </div>
 
       {filteredClasses.length > 0 ? (
@@ -441,8 +550,11 @@ export default function StudentClassesComponent() {
               key={`${cls.id}-${cls.scheduledAt}-${index}`}
               cls={cls}
               canReschedule={
-                rescheduleInfo.allowed ||
-                cls.status === "canceled-teacher-makeup"
+                // Regra:
+                // 1. Reposição de professor (makeup) SEMPRE permitida
+                // 2. Bloqueia APENAS se estiver visualizando um mês futuro E o limite desse mês estiver excedido
+                cls.status === "canceled-teacher-makeup" ||
+                !(isFutureMonth && !displayRescheduleInfo.allowed)
               }
               onCancel={handleCancelClass}
               onReschedule={handleRescheduleClick}
@@ -469,6 +581,26 @@ export default function StudentClassesComponent() {
           />
         )
       )}
+      {/* Mobile Credits Drawer */}
+      <Drawer open={isCreditsDrawerOpen} onOpenChange={setIsCreditsDrawerOpen}>
+        <DrawerContent className="h-[80vh]">
+          <DrawerHeader>
+            <DrawerTitle>{t("creditsTitle")}</DrawerTitle>
+          </DrawerHeader>
+          <MobileCreditsList
+            selectedMonth={selectedMonth}
+            selectedYear={selectedYear}
+            monthOptions={monthOptions}
+            displayRescheduleInfo={displayRescheduleInfo}
+            isCurrentMonth={isCurrentMonth}
+            teacherCancellationCredits={teacherCancellationCredits}
+            bonusCredits={bonusCredits}
+            lateStudentCredits={lateStudentCredits}
+            setBookingCreditType={setBookingCreditType}
+            setIsBookingModalOpen={setIsBookingModalOpen}
+          />
+        </DrawerContent>
+      </Drawer>
     </motion.div>
   );
 }

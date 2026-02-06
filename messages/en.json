@@ -2349,7 +2349,10 @@
     "reschedulesMonthTitle": "Reschedules in {month} {year}",
     "historyLabel": "Selected month history",
     "creditsTitle": "Replacement Credits",
-    "creditsDesc": "For classes canceled by the teacher",
+    "creditsDesc": "For classes cancelled by teacher",
+    "extraCreditsTitle": "Extra Credits",
+    "bonusLabel": "Bonus",
+    "lateStudentLabel": "Late Student",
     "noClassesTitle": "You have no classes in your schedule.",
     "noClassesFiltered": "No classes found for {month} {year}."
   },

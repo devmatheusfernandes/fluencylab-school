@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { PopulatedStudentClass, StudentClass } from "@/types/classes/class";
-import { AvailabilitySlot } from "@/types/time/availability";
+import { PopulatedStudentClass } from "@/types/classes/class";
 import { AvailableTimeSlot } from "@/hooks/teacher/useTeacherAvailabilityForReschedule";
 import { useStudent } from "@/hooks/student/useStudent";
 import {
@@ -92,7 +91,7 @@ export default function RescheduleModal({
 
   return (
     <Modal open={isOpen} onOpenChange={onClose}>
-      <ModalContent className="max-h-[90vh] overflow-y-auto">
+      <ModalContent className="max-h-[80vh] overflow-y-hidden">
         <AnimatePresence mode="wait">
           <motion.div
             key="reschedule"
@@ -107,7 +106,7 @@ export default function RescheduleModal({
             </ModalHeader>
             {classToReschedule && (
               <ModalBody>
-                <Text variant="subtitle" size="sm" className="text-center mb-6">
+                <Text variant="subtitle" size="sm" className="text-center mb-3">
                   {t("selectNewTime", {
                     teacherName: classToReschedule.teacherName ?? "",
                   })}
@@ -121,7 +120,7 @@ export default function RescheduleModal({
                   </div>
                 )}
 
-                <div className="text-center p-4 bg-primary/20 dark:bg-primary/20 rounded-xl border border-primary/80 dark:border-primary/80 mb-6">
+                <div className="text-center p-3 bg-primary/20 dark:bg-primary/20 rounded-xl border border-primary/80 dark:border-primary/80 mb-3">
                   <div className="text-sm text-blue-700 dark:text-blue-300 mt-1">
                     {t("rescheduleInfo", {
                       language: getTranslatedLanguage(
@@ -135,7 +134,7 @@ export default function RescheduleModal({
                 {isLoadingSlots ? (
                   <Spinner className="my-2" />
                 ) : (
-                  <div className="space-y-2 max-h-[calc(90vh-200px)] overflow-y-auto">
+                  <div className="space-y-2 max-h-[20vh] overflow-y-auto">
                     {availableSlots.length > 0 ? (
                       availableSlots.map((slot) => (
                         <Card
@@ -147,7 +146,7 @@ export default function RescheduleModal({
                           }`}
                           onClick={() => setSelectedSlot(slot)}
                         >
-                          <div className="p-4">
+                          <div>
                             <div className="font-medium text-gray-900 dark:text-gray-100">
                               {formatDate(slot.date)} às{" "}
                               {slot.date.toLocaleTimeString(
@@ -176,8 +175,9 @@ export default function RescheduleModal({
                   </div>
                 )}
 
+                {/*TODO: DECIDIR SE MOSTRO DEPOIS*/}
                 {!isTeacherMakeupClass && (
-                  <div className="mt-4">
+                  <div className="mt-4 hidden">
                     <label
                       htmlFor="reason"
                       className="block text-sm font-medium text-subtitle mb-1"
