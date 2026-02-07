@@ -48,12 +48,13 @@ import {
 } from "@/components/ui/drawer";
 import MobileCreditsList from "@/components/student/MobileCreditsList";
 import { Wallet, CalendarPlus } from "lucide-react";
+import { useIsStandalone } from "@/hooks/ui/useIsStandalone";
 
 export default function StudentClassesComponent() {
   const t = useTranslations("StudentClassesComponent");
   const locale = useLocale();
   const dateLocale = locale === "pt" ? "pt-BR" : "en-US";
-
+  const isStandalone = useIsStandalone();
   // Helper functions for date filtering
   const monthOptions = useMemo(
     () =>
@@ -458,7 +459,7 @@ export default function StudentClassesComponent() {
         </Card>
 
         {/* Enhanced Reschedule Card */}
-        <div className="hidden md:contents">
+        <div className={!isStandalone ? "contents" : "hidden"}>
           <Card className="p-3 w-full">
             <Text size="sm" className="font-medium text-subtitle mb-1">
               {selectedMonth === "all" || selectedYear === "all"

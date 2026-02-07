@@ -184,7 +184,7 @@
 @custom-variant dark (&:is(.dark *));
 
 .container-padding {
-  @apply p-2.5 md:p-6 lg:p-6;
+  @apply p-2.5 md:p-4 lg:p-4;
 }
 
 .sidebar-base {

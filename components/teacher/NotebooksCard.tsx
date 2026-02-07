@@ -149,7 +149,7 @@ export default function NotebooksCard({
   };
 
   return (
-    <div className="card-base w-full h-full max-h-[calc(100vh-105px)] overflow-auto p-2">
+    <div className="card-base h-full max-h-[calc(100vh-105px)] overflow-auto p-2">
       <div className="sticky top-0 z-5 flex flex-row gap-2 mb-4 relative">
         <SearchBar
           placeholder={t("searchPlaceholder")}

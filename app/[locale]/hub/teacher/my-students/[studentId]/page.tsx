@@ -63,7 +63,10 @@ const StudentPanelSkeleton = () => (
       </div>
       <div className="space-y-4">
         {[...Array(4)].map((_, index) => (
-          <div key={index} className=" p-3 rounded-lg flex justify-between gap-4">
+          <div
+            key={index}
+            className=" p-3 rounded-lg flex justify-between gap-4"
+          >
             <div className="space-y-2 flex-1">
               <Skeleton className=" h-4 w-24 rounded" />
               <Skeleton className=" h-3 w-16 rounded" />
@@ -157,7 +160,7 @@ export default function StudentDetailsPanel() {
   }
 
   return (
-    <ContainerCard className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <ContainerCard className="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <NotebooksCard
         student={student}
         notebooks={notebooks}
@@ -167,14 +170,14 @@ export default function StudentDetailsPanel() {
         loading={loading}
       />
 
-      <TasksCard
+      {/* <TasksCard
         tasks={tasks}
         onAddTask={addTaskAction}
         onUpdateTask={updateTaskAction}
         onDeleteTask={deleteTaskAction}
         onDeleteAllTasks={deleteAllTasksAction}
         userRole={session?.user?.role}
-      />
+      /> */}
 
       <ClassesCard
         classes={classes}
@@ -184,10 +187,10 @@ export default function StudentDetailsPanel() {
         loading={loading}
       />
 
-      <PlanCalendarCard 
-        plan={plan} 
-        loading={loading} 
-        studentId={id} 
+      <PlanCalendarCard
+        plan={plan}
+        loading={loading}
+        studentId={id}
         onRefresh={fetchPlan}
       />
     </ContainerCard>

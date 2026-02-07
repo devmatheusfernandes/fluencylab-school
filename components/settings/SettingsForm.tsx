@@ -215,45 +215,6 @@ export default function SettingsForm({
     >
       <Header heading={t("header.title")} subheading={t("header.subtitle")} />
 
-      {/* PWA Update */}
-      {needRefresh && isInstallable && (
-        <motion.div variants={itemVariants}>
-          <Card>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-white/10 text-white">
-                  <RefreshCw className="h-6 w-6" />
-                </div>
-                <div>
-                  <Text
-                    variant="subtitle"
-                    size="lg"
-                    weight="semibold"
-                    className="text-white"
-                  >
-                    {t("pwaUpdate.title")}
-                  </Text>
-                  <Text
-                    size="sm"
-                    variant="placeholder"
-                    className="max-w-md text-white/70"
-                  >
-                    {t("pwaUpdate.description")}
-                  </Text>
-                </div>
-              </div>
-              <Button
-                onClick={updateServiceWorker}
-                className="w-full sm:w-auto shrink-0 bg-white/10 hover:bg-white/20 text-white border-0"
-              >
-                <RefreshCw className="mr-2 h-4 w-4" />
-                {t("pwaUpdate.button")}
-              </Button>
-            </div>
-          </Card>
-        </motion.div>
-      )}
-
       {/* PWA Install */}
       {isInstallable && (
         <motion.div variants={itemVariants}>

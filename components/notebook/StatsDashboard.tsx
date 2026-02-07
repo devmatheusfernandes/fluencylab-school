@@ -14,8 +14,8 @@ function StatCard({ title, value, icon, variant }: StatCardProps) {
   // Mapa de cores para design "Flat" e "Cheio"
   const colorMap = {
     success: "bg-emerald-500 text-white", // Verde moderno
-    warning: "bg-orange-500 text-white", // Laranja vibrante
-    info: "bg-blue-600 text-white", // Azul sólido
+    warning: "bg-amber-500 text-white", // Laranja vibrante
+    info: "bg-indigo-600 text-white", // Azul sólido
   };
 
   return (

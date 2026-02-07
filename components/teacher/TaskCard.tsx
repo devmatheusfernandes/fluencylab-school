@@ -80,13 +80,13 @@ export default function TasksCard({
   onDeleteAllTasks,
   onSyncWithGoogleCalendar,
   isSyncingWithGoogleCalendar = false,
-  userRole
+  userRole,
 }: TasksCardProps) {
   const t = useTranslations("TasksCard");
   const locale = useLocale();
   const [newTask, setNewTask] = useState("");
   const [localTasks, setLocalTasks] = useState<Task[]>(
-    tasks.map(parseTaskDates)
+    tasks.map(parseTaskDates),
   );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [pendingTasks, setPendingTasks] = useState<string[]>([]);
@@ -148,8 +148,8 @@ export default function TasksCard({
     // Optimistically update the UI
     setLocalTasks((prevTasks) =>
       prevTasks.map((task) =>
-        task.id === taskId ? { ...task, ...updates } : task
-      )
+        task.id === taskId ? { ...task, ...updates } : task,
+      ),
     );
 
     // Update in the background
@@ -161,8 +161,8 @@ export default function TasksCard({
           prevTasks.map((task) =>
             task.id === taskId
               ? { ...task, ...tasks.find((t) => t.id === taskId) }
-              : task
-          )
+              : task,
+          ),
         );
       }
     } catch (error) {
@@ -171,8 +171,8 @@ export default function TasksCard({
         prevTasks.map((task) =>
           task.id === taskId
             ? { ...task, ...tasks.find((t) => t.id === taskId) }
-            : task
-        )
+            : task,
+        ),
       );
       console.error("Failed to update task", error);
     }
@@ -185,7 +185,7 @@ export default function TasksCard({
 
     // Optimistically remove the task from the UI
     setLocalTasks((prevTasks) =>
-      prevTasks.filter((task) => task.id !== taskId)
+      prevTasks.filter((task) => task.id !== taskId),
     );
 
     // Delete in the background
@@ -261,7 +261,7 @@ export default function TasksCard({
 
   return (
     <>
-      <div className="card-base w-full p-2 overflow-y-scroll h-[50vh] sm:h-full flex flex-col relative overflow-hidden">
+      <div className="card-base w-full p-2 overflow-y-scroll max-h-[25vh] sm:h-full flex flex-col relative overflow-hidden">
         {/* Progress bar at the top */}
         <div className="absolute top-0 left-0 right-0 h-3 bg-slate-700 dark:bg-gray-700 overflow-hidden rounded-t-xl">
           <motion.div
@@ -402,9 +402,7 @@ export default function TasksCard({
                       onClick={() => handleDeleteTask(task.id)}
                       className="ml-2 cursor-pointer text-destructive hover:text-destructive-light"
                     >
-                      <Trash
-                        className="w-5 h-5"
-                      />
+                      <Trash className="w-5 h-5" />
                     </motion.div>
                   )}
                 </motion.div>

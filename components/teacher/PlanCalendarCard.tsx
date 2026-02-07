@@ -125,7 +125,7 @@ export default function PlanCalendarCard({
 
   if (!plan) {
     return (
-      <Card className="p-6 flex flex-col items-center justify-center text-center space-y-3 min-h-[300px] relative">
+      <Card className="p-6 flex flex-col items-center justify-center text-center space-y-3 min-h-[300px] relative w-ful">
         <div className="absolute top-4 right-4">
           <Modal open={isModalOpen} onOpenChange={setIsModalOpen}>
             <ModalTrigger asChild>

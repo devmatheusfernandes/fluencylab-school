@@ -13,17 +13,7 @@ import TasksCard from "@/components/teacher/TaskCard";
 import { useGoogleCalendarSync } from "@/hooks/student/useGoogleCalendarSync";
 import { SpinnerLoading } from "@/components/transitions/spinner-loading";
 import { WordOfTheDayModal } from "@/components/word-of-the-day/word-of-the-day-modal";
-import {
-  Star,
-  Book,
-  CheckSquare,
-  ListCheckIcon,
-  ListCheck,
-  ListChecksIcon,
-  LayoutListIcon,
-  CircleCheckIcon,
-  NotebookIcon,
-} from "lucide-react";
+import { Star, CircleCheckIcon, NotebookIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import BreadcrumbActions from "@/components/shared/Breadcrum/BreadcrumbActions";
 import BreadcrumbActionIcon from "@/components/shared/Breadcrum/BreadcrumbActionIcon";
@@ -36,6 +26,8 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from "@/components/ui/drawer";
+import { useIsStandalone } from "@/hooks/ui/useIsStandalone";
+import { useIsMobile } from "@/hooks/ui/useMobile";
 
 export default function Caderno() {
   const t = useTranslations("StudentNotebook");
@@ -43,6 +35,8 @@ export default function Caderno() {
   const tTasks = useTranslations("TasksCard");
   const { data: session } = useSession();
   const studentId = session?.user?.id;
+  const isStandalone = useIsStandalone();
+  const isMobile = useIsMobile();
 
   const { student, notebooks, tasks, loading, error, updateTask } =
     useStudentPanel(studentId as string);
@@ -125,7 +119,13 @@ export default function Caderno() {
         }
       />
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        <div className="lg:col-span-5 order-1 lg:order-1 flex-col max-h-[calc(100vh-180px)] hidden md:flex">
+        <div
+          className={
+            !isStandalone
+              ? "lg:col-span-5 order-1 lg:order-1 flex flex-col max-h-[calc(101vh-180px)]"
+              : "hidden"
+          }
+        >
           <NotebooksCard
             student={student}
             notebooks={notebooks}
@@ -136,7 +136,7 @@ export default function Caderno() {
           />
         </div>
 
-        <div className="lg:col-span-3 order-1 lg:order-2 flex flex-col gap-4 max-h-[calc(100vh-180px)] overflow-auto">
+        <div className="lg:col-span-3 order-1 lg:order-2 flex flex-col gap-4 max-h-[calc(101vh-180px)] overflow-auto">
           <div className="flex-none flex flex-col">
             {statsLoading ? (
               <SpinnerLoading />
@@ -148,7 +148,7 @@ export default function Caderno() {
               />
             )}
           </div>
-          <div className="hidden md:block">
+          <div className={!isStandalone ? "block" : "hidden"}>
             <TasksCard
               tasks={tasks}
               onAddTask={undefined}
@@ -161,8 +161,14 @@ export default function Caderno() {
           </div>
         </div>
 
-        <div className="lg:col-span-4 order-2 lg:order-3">
-          <div className="card-base h-full max-h-[calc(100vh-180px)] overflow-auto">
+        <div
+          className={
+            isMobile
+              ? "lg:col-span-4 order-2 lg:order-3 pb-4"
+              : "lg:col-span-4 order-2 lg:order-3"
+          }
+        >
+          <div className="card-base h-full max-h-[calc(101vh-180px)] overflow-auto">
             <h3 className="text-lg font-bold text-center mt-3 text-primary">
               Missions
             </h3>
