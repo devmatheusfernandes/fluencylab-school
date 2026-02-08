@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Lesson, Quiz, QuizQuestion } from "@/types/learning/lesson";
 import { updateLessonQuiz } from "@/actions/lessonUpdating";
@@ -25,7 +25,16 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Loader2, Save, Plus, Trash2, GripVertical } from "lucide-react";
+import {
+  Loader2,
+  Save,
+  Plus,
+  Trash2,
+  GripVertical,
+  Play,
+  Pause,
+  Square,
+} from "lucide-react";
 import {
   Modal,
   ModalContent,
@@ -52,6 +61,59 @@ export function LessonQuizEditor({ lesson }: LessonQuizEditorProps) {
     sectionIndex: number;
     questionIndex: number;
   } | null>(null);
+
+  // Audio Player State
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [playingSegment, setPlayingSegment] = useState<{
+    sectionIndex: number;
+    questionIndex: number;
+    end: number;
+  } | null>(null);
+
+  const getTimestampFromText = (text: string) => {
+    // Regex updated to handle seconds with decimals (e.g. 0:04.15)
+    const match = text.match(
+      /(\d+):(\d+(?:\.\d+)?)\s*-\s*(\d+):(\d+(?:\.\d+)?)/,
+    );
+    if (match) {
+      const start = parseInt(match[1]) * 60 + parseFloat(match[2]);
+      const end = parseInt(match[3]) * 60 + parseFloat(match[4]);
+      return { start, end, label: match[0] };
+    }
+    return null;
+  };
+
+  const handlePlaySegment = (
+    sectionIndex: number,
+    questionIndex: number,
+    start: number,
+    end: number,
+  ) => {
+    if (
+      playingSegment?.sectionIndex === sectionIndex &&
+      playingSegment?.questionIndex === questionIndex
+    ) {
+      // Stop
+      audioRef.current?.pause();
+      setPlayingSegment(null);
+    } else {
+      // Play
+      if (audioRef.current) {
+        audioRef.current.currentTime = start;
+        audioRef.current.play();
+        setPlayingSegment({ sectionIndex, questionIndex, end });
+      }
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current && playingSegment) {
+      if (audioRef.current.currentTime >= playingSegment.end) {
+        audioRef.current.pause();
+        setPlayingSegment(null);
+      }
+    }
+  };
 
   // Local state for quiz data
   const [quizData, setQuizData] = useState<Quiz | undefined>(lesson.quiz);
@@ -254,9 +316,57 @@ export function LessonQuizEditor({ lesson }: LessonQuizEditorProps) {
 
                         <AccordionContent className="pt-2 pb-4 space-y-4 border-t">
                           <div className="space-y-2">
-                            <label className="text-sm font-medium">
-                              {t("questionPromptLabel")}
-                            </label>
+                            <div className="flex justify-between items-center">
+                              <label className="text-sm font-medium">
+                                {t("questionPromptLabel")}
+                              </label>
+                              {["timestamp", "timestamps"].includes(
+                                section.type.toLowerCase(),
+                              ) &&
+                                lesson.audioUrl &&
+                                (() => {
+                                  const timestamp = getTimestampFromText(
+                                    question.text,
+                                  );
+                                  if (timestamp) {
+                                    const isPlayingThis =
+                                      playingSegment?.sectionIndex ===
+                                        sectionIndex &&
+                                      playingSegment?.questionIndex ===
+                                        questionIndex;
+                                    return (
+                                      <Button
+                                        size="sm"
+                                        variant={
+                                          isPlayingThis
+                                            ? "destructive"
+                                            : "outline"
+                                        }
+                                        onClick={() =>
+                                          handlePlaySegment(
+                                            sectionIndex,
+                                            questionIndex,
+                                            timestamp.start,
+                                            timestamp.end,
+                                          )
+                                        }
+                                        type="button"
+                                        className="h-7 text-xs px-2"
+                                      >
+                                        {isPlayingThis ? (
+                                          <Square className="w-3 h-3 mr-2 fill-current" />
+                                        ) : (
+                                          <Play className="w-3 h-3 mr-2 fill-current" />
+                                        )}
+                                        {isPlayingThis
+                                          ? "Parar"
+                                          : `Ouvir (${timestamp.label})`}
+                                      </Button>
+                                    );
+                                  }
+                                  return null;
+                                })()}
+                            </div>
                             <Textarea
                               value={question.text}
                               onChange={(e) =>
@@ -379,6 +489,16 @@ export function LessonQuizEditor({ lesson }: LessonQuizEditorProps) {
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      {lesson.audioUrl && (
+        <audio
+          ref={audioRef}
+          src={lesson.audioUrl}
+          className="hidden"
+          onTimeUpdate={handleTimeUpdate}
+          onEnded={() => setPlayingSegment(null)}
+        />
+      )}
     </div>
   );
 }

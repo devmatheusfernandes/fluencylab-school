@@ -186,16 +186,16 @@ const materialManagerItems = [
     icon: <UserIcon size={20} />,
   },
   {
-    href: "/[locale]/hub/material-manager/plans",
-    label: "Plans",
-    labelKey: "plans",
-    icon: <DollarSignIcon size={20} />,
-  },
-  {
     href: "/[locale]/hub/material-manager/lessons",
     label: "Lessons",
     labelKey: "lessons",
     icon: <BookTextIcon size={20} />,
+  },
+  {
+    href: "/[locale]/hub/material-manager/plans",
+    label: "Plans",
+    labelKey: "plans",
+    icon: <DollarSignIcon size={20} />,
   },
   {
     href: "/[locale]/hub/material-manager/components",

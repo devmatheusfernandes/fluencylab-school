@@ -101,7 +101,36 @@ export async function updateLessonQuiz(lessonId: string, quizData: Quiz) {
 }
 
 /**
- * 4. Aprovar Lição (Reviewing -> Ready)
+ * 4. Atualizar Transcript (Campo dentro da Lesson)
+ */
+export async function updateLessonTranscript(lessonId: string, transcriptSegments: any[]) {
+  try {
+    const lessonRef = adminDb.collection('lessons').doc(lessonId);
+    
+    const docSnap = await lessonRef.get();
+    if (!docSnap.exists) {
+      throw new Error("Lição não encontrada");
+    }
+
+    const cleanSegments = JSON.parse(JSON.stringify(transcriptSegments));
+
+    await lessonRef.update({
+      transcriptSegments: cleanSegments,
+      'metadata.updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    revalidatePath('/hub/admin/lessons');
+    revalidatePath(`/hub/admin/lessons/${lessonId}`);
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error updating transcript:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * 5. Aprovar Lição (Reviewing -> Ready)
  */
 export async function approveLesson(lessonId: string) {
   try {

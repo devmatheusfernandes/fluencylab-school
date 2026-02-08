@@ -12,11 +12,17 @@ import { Header } from "@/components/ui/header";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTranslations } from "next-intl";
 
-export default function LessonDetailPage({ params }: { params: Promise<{ lessonId: string }> }) {
+export default function LessonDetailPage({
+  params,
+}: {
+  params: Promise<{ lessonId: string }>;
+}) {
   const { lessonId } = use(params);
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeMobileView, setActiveMobileView] = useState<"operations" | "editor">("operations");
+  const [activeMobileView, setActiveMobileView] = useState<
+    "operations" | "editor"
+  >("operations");
   const t = useTranslations("MaterialManager");
 
   useEffect(() => {
@@ -33,7 +39,7 @@ export default function LessonDetailPage({ params }: { params: Promise<{ lessonI
       (error) => {
         console.error("Error fetching lesson:", error);
         setLoading(false);
-      }
+      },
     );
 
     return () => unsub();
@@ -54,7 +60,7 @@ export default function LessonDetailPage({ params }: { params: Promise<{ lessonI
     );
 
   return (
-    <div className="p-4 space-y-6 overflow-hidden">
+    <div className="container-padding overflow-hidden">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <Header
           heading={lesson.title}
@@ -98,7 +104,10 @@ export default function LessonDetailPage({ params }: { params: Promise<{ lessonI
           } lg:block lg:col-span-8 h-[calc(100vh-13rem)]`}
         >
           <div className="h-full bg-card border rounded-xl overflow-hidden">
-            <LessonEditor lessonId={lesson.id} initialContent={lesson.content} />
+            <LessonEditor
+              lessonId={lesson.id}
+              initialContent={lesson.content}
+            />
           </div>
         </div>
       </div>

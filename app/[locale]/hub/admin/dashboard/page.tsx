@@ -11,6 +11,8 @@ import { getStreamUsage } from "@/services/admin/streamUsageService";
 import StreamUsageWidget from "@/components/admin/StreamUsageWidget";
 import GeminiUsageWidget from "@/components/admin/GeminiUsageWidget";
 import { getGeminiUsage } from "@/services/admin/geminiApiKeyUsageService";
+import ElevenLabsUsageWidget from "@/components/admin/ElevenLabsWidget";
+import { getElevenLabsUsage } from "@/services/admin/elevenLabsUsageService";
 
 export default async function DashboardPage({
   searchParams,
@@ -24,14 +26,21 @@ export default async function DashboardPage({
       ? resolvedSearchParams.firebase_period
       : "30d";
 
-  const [data, resendData, firebaseData, streamData, geminiData] =
-    await Promise.all([
-      dashboardService.getDashboardData(),
-      getResendUsage(),
-      getFirebaseUsage({ range: firebasePeriod }),
-      getStreamUsage("30d"),
-      getGeminiUsage(),
-    ]);
+  const [
+    data,
+    resendData,
+    firebaseData,
+    streamData,
+    geminiData,
+    elevenLabsData,
+  ] = await Promise.all([
+    dashboardService.getDashboardData(),
+    getResendUsage(),
+    getFirebaseUsage({ range: firebasePeriod }),
+    getStreamUsage("30d"),
+    getGeminiUsage(),
+    getElevenLabsUsage(),
+  ]);
   const t = await getTranslations("AdminDashboard");
 
   const icons = {
@@ -58,6 +67,7 @@ export default async function DashboardPage({
           <ResendUsageWidget data={resendData} />
           <StreamUsageWidget data={streamData} />
           <GeminiUsageWidget data={geminiData} />
+          <ElevenLabsUsageWidget data={elevenLabsData} />
         </div>
       </div>
     </div>

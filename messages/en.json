@@ -451,6 +451,11 @@
 
   "LessonOperations": {
     "analyzeTitle": "Analysis and Processing",
+    "generatePodcastButton": "Generate AI Podcast",
+    "toastPodcastStarted": "Creating script and generating audio...",
+    "toastPodcastSuccess": "Podcast created successfully!",
+    "toastPodcastError": "Error creating podcast.",
+    "or": "or",
     "analyzeAgainButton": "Scan for new items",
     "queueVocab": "Vocab queue: {count}",
     "queueStruct": "Struct queue: {count}",
@@ -468,6 +473,7 @@
     "reviewBadgeDescription": "Check the generated items before releasing them to students.",
     "approvePublish": "Approve and Publish",
     "navComponents": "Components",
+    "navTranscript": "Transcript",
     "navQuiz": "Quiz",
     "toastAddContent": "Add content before analyzing.",
     "toastAnalyzeSuccess": "Analysis complete! {vocabCount} vocabulary items and {structCount} structures found.",
@@ -488,6 +494,9 @@
     "toastDeleteSuccess": "Audio removed.",
     "toastDeleteError": "Failed to remove file.",
     "toastDeleteRequestError": "Error deleting audio.",
+    "errorNoItemsProcessed": "Process the generated items before publishing.",
+    "errorPendingItems": "There are items in the processing queue. Finish processing.",
+    "errorNoQuiz": "Generate a quiz before publishing.",
     "toastApproveSuccess": "Lesson approved and published!",
     "toastApproveError": "Error approving lesson.",
     "modalDeleteTitle": "Remove Audio",
@@ -3197,5 +3206,29 @@
         "dashboardNote": "Access your dashboard to manage your schedule."
       }
     }
+  },
+  "LessonTranscriptEditor": {
+    "title": "Transcript Editor",
+    "description": "Edit the generated transcript segments for this lesson.",
+    "saveButton": "Save Changes",
+    "segmentsTitle": "Segments",
+    "segmentsDescription": "Adjust start/end times, speaker names, and text.",
+    "addSegment": "Add Segment",
+    "speakerPlaceholder": "Speaker",
+    "textPlaceholder": "Transcript text...",
+    "useCurrentTime": "Set to current audio time",
+    "emptyStateNoAudio": "No audio or transcript found. Upload audio and generate transcript first.",
+    "toastSuccess": "Transcript updated successfully!",
+    "toastError": "Failed to update transcript.",
+    "toastUnknownError": "An error occurred.",
+    "deleteModal": {
+      "title": "Delete Segment",
+      "description": "Are you sure you want to delete this segment? This action cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    }
+  },
+  "LessonTranscriptPage": {
+    "subheading": "Manage and edit the transcript segments for this lesson."
   }
 }

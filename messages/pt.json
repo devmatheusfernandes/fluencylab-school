@@ -437,6 +437,11 @@
 
   "LessonOperations": {
     "analyzeTitle": "Análise e Processamento",
+    "generatePodcastButton": "Gerar Podcast com IA",
+    "toastPodcastStarted": "Criando roteiro e gerando áudio...",
+    "toastPodcastSuccess": "Podcast criado com sucesso!",
+    "toastPodcastError": "Erro ao criar podcast.",
+    "or": "ou",
     "analyzeAgainButton": "Procurar novos itens",
     "queueVocab": "Vocab Fila: {count}",
     "queueStruct": "Struct Fila: {count}",
@@ -454,6 +459,7 @@
     "reviewBadgeDescription": "Verifique os itens gerados antes de liberar para os alunos.",
     "approvePublish": "Aprovar e Publicar",
     "navComponents": "Componentes",
+    "navTranscript": "Transcrição",
     "navQuiz": "Quiz",
     "toastAddContent": "Adicione conteúdo antes de analisar.",
     "toastAnalyzeSuccess": "Análise completa! {vocabCount} vocabulários e {structCount} estruturas encontradas.",
@@ -474,6 +480,9 @@
     "toastDeleteSuccess": "Áudio removido.",
     "toastDeleteError": "Falha ao remover arquivo.",
     "toastDeleteRequestError": "Erro ao deletar áudio.",
+    "errorNoItemsProcessed": "Processe os itens gerados antes de publicar.",
+    "errorPendingItems": "Existem itens na fila de processamento. Finalize o processamento.",
+    "errorNoQuiz": "Gere um quiz antes de publicar.",
     "toastApproveSuccess": "Lição aprovada e publicada!",
     "toastApproveError": "Erro ao aprovar lição.",
     "modalDeleteTitle": "Remover Áudio",
@@ -3182,5 +3191,29 @@
         "dashboardNote": "Acesse seu dashboard para gerenciar sua agenda."
       }
     }
+  },
+  "LessonTranscriptEditor": {
+    "title": "Editor de Transcrição",
+    "description": "Edite os segmentos de transcrição gerados para esta lição.",
+    "saveButton": "Salvar Alterações",
+    "segmentsTitle": "Segmentos",
+    "segmentsDescription": "Ajuste tempos de início/fim, nomes dos falantes e texto.",
+    "addSegment": "Adicionar Segmento",
+    "speakerPlaceholder": "Falante",
+    "textPlaceholder": "Texto da transcrição...",
+    "useCurrentTime": "Definir para o tempo atual",
+    "emptyStateNoAudio": "Nenhum áudio ou transcrição encontrada. Faça upload do áudio e gere a transcrição primeiro.",
+    "toastSuccess": "Transcrição atualizada com sucesso!",
+    "toastError": "Falha ao atualizar transcrição.",
+    "toastUnknownError": "Ocorreu um erro.",
+    "deleteModal": {
+      "title": "Excluir Segmento",
+      "description": "Tem certeza que deseja excluir este segmento? Esta ação não pode ser desfeita.",
+      "confirm": "Excluir",
+      "cancel": "Cancelar"
+    }
+  },
+  "LessonTranscriptPage": {
+    "subheading": "Gerencie e edite os segmentos de transcrição desta lição."
   }
 }
