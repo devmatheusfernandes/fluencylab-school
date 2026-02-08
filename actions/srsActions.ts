@@ -219,7 +219,16 @@ export async function getDailyPractice(
             ...lessonDoc.data(),
           } as Lesson;
 
-          if (mode === "listening_choice") {
+          // Determine effective mode: If Listening Choice but no audio, fallback to Quiz Comprehensive
+          let effectiveMode = mode;
+          if (mode === "listening_choice" && !fullLessonContext.audioUrl) {
+            console.warn(
+              "[getDailyPractice] Day 6 Listening Choice: No audio URL found. Falling back to Quiz Comprehensive.",
+            );
+            effectiveMode = "quiz_comprehensive";
+          }
+
+          if (effectiveMode === "listening_choice") {
             // Fetch all learning items for this lesson
             const itemIds =
               activeLesson.learningItemsIds?.map((i) => i.id) || [];
@@ -258,7 +267,7 @@ export async function getDailyPractice(
             };
 
             return {
-              mode,
+              mode: effectiveMode,
               dayIndex: currentDay,
               items: serializeFirestoreData([practiceItem]),
             };
@@ -266,7 +275,7 @@ export async function getDailyPractice(
 
           if (!fullLessonContext.quiz) {
             return {
-              mode,
+              mode: effectiveMode,
               dayIndex: currentDay,
               items: [],
               error: "No quiz available for this lesson.",
@@ -288,12 +297,17 @@ export async function getDailyPractice(
           addToMap(plan.learnedComponentsIds);
           addToMap(plan.reviewLearnedComponentsIds);
 
-          const quizItems = generateQuizItems(fullLessonContext, mode, srsMap);
+          // Use effectiveMode here so if we fell back, items are generated as quiz items
+          const quizItems = generateQuizItems(
+            fullLessonContext,
+            effectiveMode,
+            srsMap,
+          );
 
           // console.log(`[getDailyPractice] Generated ${quizItems.length} quiz items`);
 
           return {
-            mode,
+            mode: effectiveMode,
             dayIndex: currentDay,
             items: serializeFirestoreData(quizItems),
           };
@@ -394,13 +408,25 @@ export async function getDailyPractice(
           mode,
           true,
         );
-        await fetchAndGenerate(
-          activeLesson.learningStructureIds || [],
-          "learningStructures",
-          fullLessonContext,
-          mode,
-          true,
-        );
+
+        // Only include structures if the mode is appropriate (Unscramble, Gap Fill, Quiz)
+        // We exclude them from Flashcard modes (Day 1 & 4) to avoid the "Structure Practice" placeholder card.
+        const structureModes = [
+          "sentence_unscramble",
+          "gap_fill_listening",
+          "quiz_comprehensive",
+          "listening_choice",
+        ];
+
+        if (structureModes.includes(mode)) {
+          await fetchAndGenerate(
+            activeLesson.learningStructureIds || [],
+            "learningStructures",
+            fullLessonContext,
+            mode,
+            true,
+          );
+        }
       }
     }
 

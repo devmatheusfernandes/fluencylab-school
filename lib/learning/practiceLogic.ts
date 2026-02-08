@@ -212,9 +212,10 @@ export function generatePayload(
           },
         };
       } else {
-        // Fallback to flashcard if no audio found
-        base.renderMode = "flashcard_visual";
+        // Fallback if no audio found
         if (isItem) {
+          // Items fallback to Flashcard
+          base.renderMode = "flashcard_visual";
           const item = dbItem as LearningItem;
           base.flashcard = {
             front: item.mainText,
@@ -222,12 +223,27 @@ export function generatePayload(
             imageUrl: item.imageUrl,
           };
         } else {
-          // Fallback for structure
+          // Structures fallback to Unscramble (Day 3 mode) instead of broken Flashcard
+          // This ensures the user still practices the structure even without audio
+          base.renderMode = "sentence_unscramble";
           const struct = dbItem as LearningStructure;
-          base.flashcard = {
-            front: struct.sentences[0]?.words || "Structure",
-            back: "Structure Practice",
-          };
+          const sentenceData = struct.sentences[0]; // Take first example
+          if (sentenceData) {
+            const words = sentenceData.order
+              .sort((a, b) => a.order - b.order)
+              .map((o) => o.word);
+            base.unscramble = {
+              correctOrder: words,
+              scrambledWords: [...words].sort(() => Math.random() - 0.5),
+            };
+          } else {
+            // Last resort if no sentence data (should not happen for structures)
+            base.renderMode = "flashcard_visual";
+            base.flashcard = {
+              front: "Structure",
+              back: "Practice",
+            };
+          }
         }
       }
       break;
