@@ -1,5 +1,8 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { ParticipantView, StreamVideoParticipant } from "@stream-io/video-react-sdk";
+import React, { useEffect, useState, useRef } from "react";
+import {
+  ParticipantView,
+  StreamVideoParticipant,
+} from "@stream-io/video-react-sdk";
 
 interface ParticipantsGridProps {
   remoteParticipants: StreamVideoParticipant[];
@@ -7,7 +10,9 @@ interface ParticipantsGridProps {
 }
 
 // Componente que renderiza a view do participante compartilhando tela com um botão para fullscreen.
-const ScreenShareWithFullscreenButton: React.FC<{ participant: StreamVideoParticipant }> = ({ participant }) => {
+const ScreenShareWithFullscreenButton: React.FC<{
+  participant: StreamVideoParticipant;
+}> = ({ participant }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -21,7 +26,8 @@ const ScreenShareWithFullscreenButton: React.FC<{ participant: StreamVideoPartic
     };
 
     document.addEventListener("fullscreenchange", handleFullscreenChange);
-    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
   }, []);
 
   const toggleFullscreen = () => {
@@ -29,21 +35,18 @@ const ScreenShareWithFullscreenButton: React.FC<{ participant: StreamVideoPartic
     if (isFullscreen) {
       document.exitFullscreen();
     } else {
-      containerRef.current.requestFullscreen().catch(err =>
-        console.error("Erro ao entrar em fullscreen:", err)
-      );
+      containerRef.current
+        .requestFullscreen()
+        .catch((err) => console.error("Erro ao entrar em fullscreen:", err));
     }
   };
 
   return (
     <div ref={containerRef} className="relative w-full h-auto p-2">
-      <ParticipantView 
-        participant={participant} 
-        trackType="screenShareTrack" 
-      />
-      <button 
+      <ParticipantView participant={participant} trackType="screenShareTrack" />
+      <button
         onClick={toggleFullscreen}
-        style={{ position: 'absolute', top: 10, right: 10, zIndex: 10 }}
+        style={{ position: "absolute", top: 10, right: 10, zIndex: 10 }}
         className="px-4 py-2 bg-blue-600 text-white rounded"
       >
         {isFullscreen ? "Sair do Fullscreen" : "Entrar em Fullscreen"}
@@ -52,36 +55,49 @@ const ScreenShareWithFullscreenButton: React.FC<{ participant: StreamVideoPartic
   );
 };
 
-export const ParticipantsGrid: React.FC<ParticipantsGridProps> = ({ remoteParticipants, localParticipant }) => {
+export const ParticipantsGrid: React.FC<ParticipantsGridProps> = ({
+  remoteParticipants,
+  localParticipant,
+}) => {
   // Combina o participante local com os remotos.
-  const mergedParticipants = localParticipant ? [localParticipant, ...remoteParticipants] : remoteParticipants;
-  
+  const mergedParticipants = localParticipant
+    ? [localParticipant, ...remoteParticipants]
+    : remoteParticipants;
+
   // Filtra participantes únicos, usando 'participant.userId' ou 'participant.sessionId'
-  const uniqueParticipants = mergedParticipants.filter((participant, index, self) => {
-    const id = participant.userId || participant.sessionId;
-    return index === self.findIndex(p => (p.userId || p.sessionId) === id);
-  });
+  const uniqueParticipants = mergedParticipants.filter(
+    (participant, index, self) => {
+      const id = participant.userId || participant.sessionId;
+      return index === self.findIndex((p) => (p.userId || p.sessionId) === id);
+    },
+  );
 
   return (
-    <div className="w-full flex flex-col gap-4">
+    <div className="w-full flex flex-col gap-2">
       {uniqueParticipants.map((participant) => {
-        const isScreenSharing = participant.publishedTracks?.includes(3) ?? false;
+        const isScreenSharing =
+          participant.publishedTracks?.includes(3) ?? false;
         // Verifica se é o participante local
-        const isLocal = localParticipant && (participant.sessionId === localParticipant.sessionId);
+        const isLocal =
+          localParticipant &&
+          participant.sessionId === localParticipant.sessionId;
 
         // Se for um participante remoto compartilhando tela, renderiza com botão para fullscreen.
         if (!isLocal && isScreenSharing) {
           return (
-            <ScreenShareWithFullscreenButton key={participant.sessionId} participant={participant} />
+            <ScreenShareWithFullscreenButton
+              key={participant.sessionId}
+              participant={participant}
+            />
           );
         }
 
         // Caso contrário, renderiza normalmente.
         return (
           <div key={participant.sessionId} className="w-full h-auto p-2">
-            <ParticipantView 
-              participant={participant} 
-              trackType={isScreenSharing ? "screenShareTrack" : "videoTrack"} 
+            <ParticipantView
+              participant={participant}
+              trackType={isScreenSharing ? "screenShareTrack" : "videoTrack"}
             />
           </div>
         );

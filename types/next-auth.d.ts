@@ -16,6 +16,7 @@ declare module "next-auth" {
       tutorialCompleted?: boolean;
       twoFactorEnabled?: boolean;
       hasPassword?: boolean;
+      avatarUrl?: string | null;
     };
   }
 
@@ -30,6 +31,7 @@ declare module "next-auth" {
     twoFactorEnabled?: boolean;
     hasPassword?: boolean;
     languages?: string[];
+    avatarUrl?: string | null;
   }
 }
 

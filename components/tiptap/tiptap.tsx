@@ -25,6 +25,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import Toolbar from "./toolbar/toolbar";
 import { TaskList, TaskItem } from "@tiptap/extension-list";
 import { useIsMobile } from "@/hooks/ui/useMobile";
+import { useIsStandalone } from "@/hooks/ui/useIsStandalone";
 import BottomToolbar from "./toolbar/bottom-toolbar";
 import { Spinner } from "../ui/spinner";
 import { CommentMark } from "@/components/tiptap/extensions/Comments/CommentsMark";
@@ -53,6 +54,7 @@ interface TiptapEditorProps {
   notebookId?: string;
   title?: string;
   onTitleChange?: (newTitle: string) => void;
+  enableFullscreenOnScroll?: boolean;
 }
 
 const TiptapEditor: React.FC<TiptapEditorProps> = ({
@@ -70,13 +72,34 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   notebookId,
   title,
   onTitleChange,
+  enableFullscreenOnScroll = false,
 }) => {
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastSavedContentRef = useRef<string>(content);
   const isSavingRef = useRef<boolean>(false);
   const isMobile = useIsMobile();
+  const isStandalone = useIsStandalone();
   const imageUrlsRef = useRef<Set<string>>(new Set());
   const { data: session } = useSession();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!enableFullscreenOnScroll || !isStandalone || !container) return;
+
+    const handleScroll = () => {
+      if (container.scrollTop > 50 && !document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {
+          // Ignore errors caused by lack of user interaction
+        });
+      } else if (container.scrollTop < 10 && document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
+    };
+
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [enableFullscreenOnScroll, isStandalone]);
 
   const debouncedSave = useCallback(
     async (newContent: string) => {
@@ -253,7 +276,10 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
 
   return (
     <div className={`bg-white dark:bg-black ${className}`}>
-      <div className="relative h-[100dvh] overflow-y-auto no-scrollbar">
+      <div
+        ref={containerRef}
+        className="relative h-[100dvh] overflow-y-auto no-scrollbar"
+      >
         {!isMobile && (
           <Toolbar
             editor={editor}

@@ -19,13 +19,13 @@ export default async function AdminNotebookPage({
   const { classId, notebookId } = await params;
 
   if (!session?.user?.id) {
-     return <NoResults customMessage={{ withoutSearch: t("notFound") }} />;
+    return <NoResults customMessage={{ withoutSearch: t("notFound") }} />;
   }
 
   // Fetch class details to get student ID
   const classDetails = await schedulingService.getClassDetails(
     classId,
-    session.user.id
+    session.user.id,
   );
 
   if (!classDetails || !classDetails.student?.id) {
@@ -38,7 +38,7 @@ export default async function AdminNotebookPage({
   }
 
   return (
-    <div className="w-full h-full bg-slate-50 dark:bg-black">
+    <div className="flex flex-col items-center ">
       <AdminNotebookViewer
         studentId={classDetails.student.id}
         notebookId={notebookId}

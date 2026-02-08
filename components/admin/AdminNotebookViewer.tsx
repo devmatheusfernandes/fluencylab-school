@@ -11,7 +11,10 @@ interface AdminNotebookViewerProps {
   notebookId: string;
 }
 
-export default function AdminNotebookViewer({ studentId, notebookId }: AdminNotebookViewerProps) {
+export default function AdminNotebookViewer({
+  studentId,
+  notebookId,
+}: AdminNotebookViewerProps) {
   const [content, setContent] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,11 +25,13 @@ export default function AdminNotebookViewer({ studentId, notebookId }: AdminNote
       if (!studentId || !notebookId) return;
 
       try {
-        const notebookDoc = await getDoc(doc(db, `users/${studentId}/Notebooks/${notebookId}`));
+        const notebookDoc = await getDoc(
+          doc(db, `users/${studentId}/Notebooks/${notebookId}`),
+        );
         if (notebookDoc.exists()) {
           setContent(notebookDoc.data().content || "");
         } else {
-            setError(t("notFound"));
+          setError(t("notFound"));
         }
       } catch (error) {
         console.error("Error fetching notebook content:", error);
@@ -50,20 +55,20 @@ export default function AdminNotebookViewer({ studentId, notebookId }: AdminNote
   }
 
   if (error) {
-      return (
-          <div className="min-h-screen p-8 flex justify-center items-center">
-              <p className="text-red-500">{error}</p>
-          </div>
-      )
+    return (
+      <div className="min-h-screen p-8 flex justify-center items-center">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
   }
 
   return (
-    <div className="min-w-screen min-h-screen">
-        <TipTapWorkbooks
-          content={content}
-          isEditable={true}
-          onChange={() => {}}
-        />
+    <div className="max-w-[55vw] max-h-[88vh] overflow-hidden bg-background">
+      <TipTapWorkbooks
+        content={content}
+        isEditable={false}
+        onChange={() => {}}
+      />
     </div>
   );
 }

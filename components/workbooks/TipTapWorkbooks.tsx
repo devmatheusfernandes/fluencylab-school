@@ -2,27 +2,27 @@
 import "@/components/tiptap/style.scss";
 
 //TipTap Imports
-import Link from '@tiptap/extension-link'
-import Highlight from '@tiptap/extension-highlight'
-import TextAlign from '@tiptap/extension-text-align'
-import Placeholder from '@tiptap/extension-placeholder'
-import Document from '@tiptap/extension-document'
-import Image from '@tiptap/extension-image'
-import { EditorContent, Extension, useEditor } from '@tiptap/react'
-import StarterKit from '@tiptap/starter-kit'
-import Color from '@tiptap/extension-color'
-import TaskItem from '@tiptap/extension-task-item'
-import TaskList from '@tiptap/extension-task-list'
-import Typography from '@tiptap/extension-typography'
-import { Table } from '@tiptap/extension-table'
-import TableCell from '@tiptap/extension-table-cell'
-import TableHeader from '@tiptap/extension-table-header'
-import TableRow from '@tiptap/extension-table-row'
-import History from '@tiptap/extension-history'
-import { TextStyle } from '@tiptap/extension-text-style'
-import FontFamily from '@tiptap/extension-font-family'
-import { MusicNode } from '@/components/tiptap/extensions/Music/MusicNode'
-import FloatingToolbar from '../tiptap/toolbar/floating-toolbar';
+import Link from "@tiptap/extension-link";
+import Highlight from "@tiptap/extension-highlight";
+import TextAlign from "@tiptap/extension-text-align";
+import Placeholder from "@tiptap/extension-placeholder";
+import Document from "@tiptap/extension-document";
+import Image from "@tiptap/extension-image";
+import { EditorContent, Extension, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Color from "@tiptap/extension-color";
+import TaskItem from "@tiptap/extension-task-item";
+import TaskList from "@tiptap/extension-task-list";
+import Typography from "@tiptap/extension-typography";
+import { Table } from "@tiptap/extension-table";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
+import TableRow from "@tiptap/extension-table-row";
+import History from "@tiptap/extension-history";
+import { TextStyle } from "@tiptap/extension-text-style";
+import FontFamily from "@tiptap/extension-font-family";
+import { MusicNode } from "@/components/tiptap/extensions/Music/MusicNode";
+import FloatingToolbar from "../tiptap/toolbar/floating-toolbar";
 
 const Tiptap = ({ onChange, content, isEditable }: any) => {
   const TabInsertExtension = Extension.create({
@@ -49,7 +49,7 @@ const Tiptap = ({ onChange, content, isEditable }: any) => {
       Image,
       History,
       MusicNode,
-      TextStyle, 
+      TextStyle,
       FontFamily,
       Typography,
       Table.configure({
@@ -68,10 +68,10 @@ const Tiptap = ({ onChange, content, isEditable }: any) => {
       }),
       StarterKit.configure({
         document: false,
-        undoRedo: false
+        undoRedo: false,
       }),
       TextAlign.configure({
-        types: ['heading', 'paragraph'],
+        types: ["heading", "paragraph"],
       }),
       TextStyle,
       Highlight.configure({ multicolor: true }),
@@ -82,22 +82,21 @@ const Tiptap = ({ onChange, content, isEditable }: any) => {
           const headingPlaceholders: { [key: number]: string } = {
             1: "Coloque um título...",
             2: "Coloque um subtítulo...",
-            3: '/',
+            3: "/",
           };
           if (node.type.name === "heading") {
             return headingPlaceholders[node.attrs.level];
           }
-          if (node.type.name === 'paragraph') {
-            return "/"
+          if (node.type.name === "paragraph") {
+            return "/";
           }
-          return '/'
+          return "/";
         },
       }),
     ],
     editorProps: {
       attributes: {
-        class:
-          "p-6 outline-none",
+        class: "p-6 outline-none",
       },
     },
     immediatelyRender: false,
@@ -106,14 +105,18 @@ const Tiptap = ({ onChange, content, isEditable }: any) => {
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
-  }) 
+  });
 
   if (!editor) {
     return null;
   }
   return (
-    <div className='flex flex-col gap-8 justify-center items-center text-black dark:text-white '>
-      <EditorContent editor={editor} className="no-scrollbar w-full h-max" />
+    <div className="flex flex-col gap-8 justify-center items-center text-black dark:text-white ">
+      <EditorContent
+        contentEditable={isEditable}
+        editor={editor}
+        className="no-scrollbar w-full h-screen overflow-y-auto"
+      />
       {isEditable && <FloatingToolbar editor={editor} />}
     </div>
   );

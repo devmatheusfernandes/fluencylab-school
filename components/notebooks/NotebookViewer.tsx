@@ -24,6 +24,7 @@ import TiptapEditor from "@/components/tiptap/tiptap";
 interface NotebookViewerProps {
   studentId: string;
   notebookId: string;
+  enableFullscreenOnScroll?: boolean;
 }
 
 interface Notebook {
@@ -37,10 +38,16 @@ interface Notebook {
   transcriptions?: { date: any; content: string }[];
 }
 
-export default function NotebookViewer({ studentId, notebookId }: NotebookViewerProps) {
+export default function NotebookViewer({
+  studentId,
+  notebookId,
+  enableFullscreenOnScroll,
+}: NotebookViewerProps) {
   const alunoId = studentId;
   const { data: session } = useSession();
-  const rawName = (session?.user?.name || session?.user?.email || "Usuário") as string;
+  const rawName = (session?.user?.name ||
+    session?.user?.email ||
+    "Usuário") as string;
   const first = rawName.split(" ")[0] || rawName;
   const userName = first.charAt(0).toUpperCase() + first.slice(1).toLowerCase();
   const seedSource = (session?.user?.id || rawName) as string;
@@ -48,7 +55,7 @@ export default function NotebookViewer({ studentId, notebookId }: NotebookViewer
   const seededRandom = (s: number) => {
     let x = s % 2147483647;
     if (x <= 0) x += 2147483646;
-    return () => ((x = (x * 16807) % 2147483647) / 2147483647);
+    return () => (x = (x * 16807) % 2147483647) / 2147483647;
   };
   const toHex = (v: number) => {
     const h = v.toString(16);
@@ -59,7 +66,8 @@ export default function NotebookViewer({ studentId, notebookId }: NotebookViewer
     l /= 100;
     const k = (n: number) => (n + h / 30) % 12;
     const a = s * Math.min(l, 1 - l);
-    const f = (n: number) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+    const f = (n: number) =>
+      l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
     const r = Math.round(255 * f(0));
     const g = Math.round(255 * f(8));
     const b = Math.round(255 * f(4));
@@ -92,7 +100,12 @@ export default function NotebookViewer({ studentId, notebookId }: NotebookViewer
       ydocRef.current = new Y.Doc();
     }
 
-    const basePath: string[] = ["users", alunoId as string, "Notebooks", notebookId as string];
+    const basePath: string[] = [
+      "users",
+      alunoId as string,
+      "Notebooks",
+      notebookId as string,
+    ];
     const newProvider = new FirestoreProvider(app, ydocRef.current, basePath);
 
     newProvider.on("synced", (isSynced: boolean) => {});
@@ -111,7 +124,9 @@ export default function NotebookViewer({ studentId, notebookId }: NotebookViewer
 
       try {
         setLoading(true);
-        const notebookDoc = await getDoc(doc(db, `users/${alunoId}/Notebooks/${notebookId}`));
+        const notebookDoc = await getDoc(
+          doc(db, `users/${alunoId}/Notebooks/${notebookId}`),
+        );
 
         if (notebookDoc.exists()) {
           const notebookData = notebookDoc.data();
@@ -132,10 +147,17 @@ export default function NotebookViewer({ studentId, notebookId }: NotebookViewer
           lastSavedContentRef.current = fetchedContent;
 
           if (fetchedContent) {
-            const versionRef = collection(db, `users/${alunoId}/Notebooks/${notebookId}/versions`);
-            const recentVersions = await getDocs(query(versionRef, orderBy("timestamp", "desc"), limit(1)));
+            const versionRef = collection(
+              db,
+              `users/${alunoId}/Notebooks/${notebookId}/versions`,
+            );
+            const recentVersions = await getDocs(
+              query(versionRef, orderBy("timestamp", "desc"), limit(1)),
+            );
 
-            const shouldSaveInitial = recentVersions.empty || recentVersions.docs[0].data().content !== fetchedContent;
+            const shouldSaveInitial =
+              recentVersions.empty ||
+              recentVersions.docs[0].data().content !== fetchedContent;
 
             if (shouldSaveInitial) {
               await addDoc(versionRef, {
@@ -168,7 +190,7 @@ export default function NotebookViewer({ studentId, notebookId }: NotebookViewer
         lastSavedContentRef.current = newContent;
       } catch (error) {}
     },
-    [alunoId, notebookId]
+    [alunoId, notebookId],
   );
 
   const handleContentChange = useCallback(
@@ -184,7 +206,7 @@ export default function NotebookViewer({ studentId, notebookId }: NotebookViewer
         setNotebook({ ...notebook, content: newContent });
       }
     },
-    [notebook, debouncedSave]
+    [notebook, debouncedSave],
   );
 
   const handleTitleChange = async (newTitle: string) => {
@@ -210,7 +232,7 @@ export default function NotebookViewer({ studentId, notebookId }: NotebookViewer
       const threshold = oldContent.length * 0.05;
       return lengthDiff > threshold || newContent !== oldContent;
     },
-    []
+    [],
   );
 
   useEffect(() => {
@@ -218,9 +240,16 @@ export default function NotebookViewer({ studentId, notebookId }: NotebookViewer
 
     const saveVersion = async () => {
       try {
-        const versionRef = collection(db, `users/${alunoId}/Notebooks/${notebookId}/versions`);
-        const recentVersions = await getDocs(query(versionRef, orderBy("timestamp", "desc"), limit(1)));
-        const lastVersion = recentVersions.empty ? "" : recentVersions.docs[0].data().content;
+        const versionRef = collection(
+          db,
+          `users/${alunoId}/Notebooks/${notebookId}/versions`,
+        );
+        const recentVersions = await getDocs(
+          query(versionRef, orderBy("timestamp", "desc"), limit(1)),
+        );
+        const lastVersion = recentVersions.empty
+          ? ""
+          : recentVersions.docs[0].data().content;
         if (!hasSignificantChanges(content, lastVersion)) {
           return;
         }
@@ -251,7 +280,7 @@ export default function NotebookViewer({ studentId, notebookId }: NotebookViewer
           alunoId,
           notebookId,
           content,
-        })
+        }),
       );
     };
 
@@ -278,7 +307,10 @@ export default function NotebookViewer({ studentId, notebookId }: NotebookViewer
   if (error) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+        <div
+          className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+          role="alert"
+        >
           <strong className="font-bold">Erro! </strong>
           <span className="block sm:inline">{error}</span>
         </div>
@@ -289,16 +321,25 @@ export default function NotebookViewer({ studentId, notebookId }: NotebookViewer
   if (!notebook) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative" role="alert">
+        <div
+          className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative"
+          role="alert"
+        >
           <strong className="font-bold">Caderno não encontrado! </strong>
-          <span className="block sm:inline">O caderno solicitado não foi encontrado.</span>
+          <span className="block sm:inline">
+            O caderno solicitado não foi encontrado.
+          </span>
         </div>
       </div>
     );
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="fade-in min-h-screen">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="fade-in min-h-screen"
+    >
       <TiptapEditor
         content={content || notebook?.content || ""}
         onSave={handleContentChange}
