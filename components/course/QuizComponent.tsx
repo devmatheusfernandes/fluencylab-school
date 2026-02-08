@@ -195,7 +195,7 @@ const QuizComponent = ({
     : null;
 
   return (
-    <div className="p-3 md:p-4 border-2 border-fluency-gray-200 dark:border-fluency-gray-700 rounded-lg bg-fluency-gray-50 dark:bg-fluency-gray-800">
+    <div className="p-3 md:p-4 border-2 border-fluency-gray-200 dark:border-fluency-gray-700 rounded-lg card-base">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg md:text-xl font-semibold text-fluency-text-light dark:text-fluency-text-dark flex items-center gap-2">
           <HelpCircle className="w-5 h-5 md:w-6 md:h-6 text-indigo-500" />

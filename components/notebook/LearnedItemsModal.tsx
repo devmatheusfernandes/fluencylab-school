@@ -6,8 +6,6 @@ import {
   ModalHeader,
   ModalTitle,
   ModalDescription,
-  ModalFooter,
-  ModalSecondaryButton,
 } from "@/components/ui/modal";
 import { useTranslations } from "next-intl";
 import { SpinnerLoading } from "@/components/transitions/spinner-loading";
@@ -44,13 +42,13 @@ export function LearnedItemsModal({
 
   return (
     <Modal open={isOpen} onOpenChange={onClose}>
-      <ModalContent className="max-w-2xl h-[80vh] flex flex-col">
+      <ModalContent className="max-w-2xl h-[70vh] flex flex-col">
         <ModalHeader>
           <ModalTitle>{t("learnedItemsTitle")}</ModalTitle>
           <ModalDescription>{t("learnedItemsDescription")}</ModalDescription>
         </ModalHeader>
 
-        <div className="flex-1 overflow-y-auto h-[calc(80vh-120px)] px-6">
+        <div className="flex-1 overflow-y-auto h-[calc(80vh-120px)] pb-22">
           {loading ? (
             <div className="flex justify-center items-center h-40">
               <SpinnerLoading />

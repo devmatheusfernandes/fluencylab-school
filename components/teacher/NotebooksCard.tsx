@@ -201,8 +201,6 @@ export default function NotebooksCard({
                       new Date(notebook.createdAt).toLocaleDateString("pt-BR")}
                   </div>
                 </Link>
-                {/* Action buttons - only show for teachers */}
-
                 <div className="flex items-center gap-2">
                   <CloudDownloadIcon
                     size={24}

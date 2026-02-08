@@ -196,7 +196,13 @@ export default function Caderno() {
               : "lg:col-span-4 order-2 lg:order-3"
           }
         >
-          <div className="card-base h-full max-h-[calc(101vh-180px)] overflow-auto">
+          <div
+            className={
+              isStandalone
+                ? "card-base h-full max-h-[calc(92vh-180px)] overflow-auto"
+                : "card-base h-full max-h-[calc(101vh-180px)] overflow-auto"
+            }
+          >
             <h3 className="text-lg font-bold text-center mt-3 text-primary">
               Missions
             </h3>

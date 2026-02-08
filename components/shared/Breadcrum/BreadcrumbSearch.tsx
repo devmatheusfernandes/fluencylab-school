@@ -48,7 +48,7 @@ export default function BreadcrumbSearch({
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
             transition={{ duration: 0.2 }}
-            className="absolute inset-0 z-50 flex items-center bg-background px-2"
+            className="absolute inset-0 z-50 flex items-center bg-slate-200 dark:bg-slate-900 px-2"
           >
             <Search className="w-4 h-4 mr-2 text-muted-foreground shrink-0" />
             <input

@@ -91,7 +91,7 @@ export default function RescheduleModal({
 
   return (
     <Modal open={isOpen} onOpenChange={onClose}>
-      <ModalContent className="max-h-[80vh] overflow-y-hidden">
+      <ModalContent className="max-h-[85vh] overflow-y-hidden">
         <AnimatePresence mode="wait">
           <motion.div
             key="reschedule"
@@ -102,11 +102,10 @@ export default function RescheduleModal({
             <ModalHeader>
               <ModalIcon type="calendar" />
               <ModalTitle>{t("title")}</ModalTitle>
-              <ModalClose />
             </ModalHeader>
             {classToReschedule && (
               <ModalBody>
-                <Text variant="subtitle" size="sm" className="text-center mb-3">
+                <Text className="text-center mb-2">
                   {t("selectNewTime", {
                     teacherName: classToReschedule.teacherName ?? "",
                   })}
@@ -120,8 +119,8 @@ export default function RescheduleModal({
                   </div>
                 )}
 
-                <div className="text-center p-3 bg-primary/20 dark:bg-primary/20 rounded-xl border border-primary/80 dark:border-primary/80 mb-3">
-                  <div className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                <div className="text-center p-2 bg-primary/20 dark:bg-primary/20 rounded-xl border border-primary/80 dark:border-primary/80 mb-3">
+                  <div className="text-xs text-blue-700 dark:text-blue-300 mt-1">
                     {t("rescheduleInfo", {
                       language: getTranslatedLanguage(
                         classToReschedule.language,

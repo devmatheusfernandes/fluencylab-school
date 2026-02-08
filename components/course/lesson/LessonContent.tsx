@@ -53,9 +53,9 @@ export function LessonContent({
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       {/* 1. Information Bar */}
-      <div className="bg-neutral-900 rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-neutral-800">
+      <div className="card-base rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-neutral-800">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-white mb-1">
             {lesson.title}
@@ -88,7 +88,7 @@ export function LessonContent({
       </div>
 
       {/* 2. Course Details (Collapsible) */}
-      <div className="space-y-4">
+      <div className="space-y-4 px-2">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-white">Content</h2>
           <Button
@@ -128,16 +128,11 @@ export function LessonContent({
       {lesson.quiz && lesson.quiz.length > 0 && (
         <div className="pt-4">
           <Separator className="bg-neutral-800 mb-8" />
-          <div className="bg-neutral-900 rounded-xl p-6 border border-neutral-800">
-            <h2 className="text-xl font-bold text-white mb-6">
-              Knowledge Check
-            </h2>
-            <QuizComponent
-              quiz={lesson.quiz}
-              onQuizSubmit={onQuizSubmit}
-              savedQuizData={savedQuizData}
-            />
-          </div>
+          <QuizComponent
+            quiz={lesson.quiz}
+            onQuizSubmit={onQuizSubmit}
+            savedQuizData={savedQuizData}
+          />
         </div>
       )}
     </div>

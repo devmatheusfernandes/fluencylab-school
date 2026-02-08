@@ -37,7 +37,6 @@ import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/components/ui/button";
 import CreditBookingModal from "@/components/student/CreditBookingModal";
 import { motion } from "framer-motion";
-import { CalendarDaysIcon } from "@/public/animated/calendar";
 import BreadcrumbActions from "@/components/shared/Breadcrum/BreadcrumbActions";
 import BreadcrumbActionIcon from "@/components/shared/Breadcrum/BreadcrumbActionIcon";
 import {
@@ -276,7 +275,7 @@ export default function StudentClassesComponent() {
       initial="hidden"
       animate="visible"
       exit="exit"
-      className="container-padding space-y-6"
+      className="container-padding space-y-4"
     >
       <Header
         heading={t("headerTitle")}

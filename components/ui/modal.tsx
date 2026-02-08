@@ -226,7 +226,7 @@ const ModalHeader = React.forwardRef<
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1, duration: 0.2 }}
       className={twMerge(
-        "flex items-center justify-between pb-4",
+        "flex items-center justify-between pb-1",
         !showCloseButton && "justify-center",
         className,
       )}
@@ -402,7 +402,7 @@ const ModalIcon = ({
       initial={{ scale: 0.8, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ delay: 0.1, duration: 0.3, type: "spring" }}
-      className={twMerge("flex justify-center items-center mb-4", className)}
+      className={twMerge("flex justify-center items-center mb-3", className)}
       {...props}
     >
       {src ? (

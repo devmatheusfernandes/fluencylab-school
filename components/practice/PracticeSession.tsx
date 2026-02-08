@@ -341,14 +341,14 @@ export function PracticeSession({ planId }: PracticeSessionProps) {
   if (!currentItem) return null;
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 flex flex-col pb-24">
+    <div className="min-h-screen flex flex-col">
       <PracticeHeader
         progress={progress}
         streak={streak}
         onClose={handleClose}
       />
 
-      <main className="flex-1 flex flex-col justify-center pt-20 px-4 max-w-3xl mx-auto w-full">
+      <main className="max-h-[calc(90vh--50px)] flex-1 flex flex-col justify-center pt-10 px-6 max-w-3xl mx-auto w-full">
         {currentItem.renderMode === "gap_fill_listening" &&
           currentItem.gapFill && (
             <GapFillExercise

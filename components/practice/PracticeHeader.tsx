@@ -1,9 +1,8 @@
+"use client";
 
-'use client';
-
-import { X, Flame } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
+import { X, Flame } from "lucide-react";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
 
 interface PracticeHeaderProps {
   progress: number; // 0 to 100
@@ -11,13 +10,17 @@ interface PracticeHeaderProps {
   onClose: () => void;
 }
 
-export function PracticeHeader({ progress, streak = 0, onClose }: PracticeHeaderProps) {
+export function PracticeHeader({
+  progress,
+  streak = 0,
+  onClose,
+}: PracticeHeaderProps) {
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-4 bg-background/95 backdrop-blur-sm">
+    <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-1 px-3">
       {/* Close Button */}
-      <Button 
-        variant="ghost" 
-        size="icon" 
+      <Button
+        variant="ghost"
+        size="icon"
         onClick={onClose}
         className="hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
       >
@@ -25,13 +28,13 @@ export function PracticeHeader({ progress, streak = 0, onClose }: PracticeHeader
       </Button>
 
       {/* Progress Bar */}
-      <div className="flex-1 mx-4 h-4 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden relative">
+      <div className="flex-1 mx-1 h-4 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden relative">
         <div className="absolute inset-0 bg-slate-200 dark:bg-slate-800 opacity-20" />
-        <motion.div 
+        <motion.div
           className="h-full bg-green-500 rounded-full"
           initial={{ width: 0 }}
           animate={{ width: `${progress}%` }}
-          transition={{ type: 'spring', stiffness: 50, damping: 20 }}
+          transition={{ type: "spring", stiffness: 50, damping: 20 }}
         >
           {/* Highlight shine effect */}
           <div className="absolute top-1 right-2 w-full h-1 bg-white/30 rounded-full" />

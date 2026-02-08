@@ -235,7 +235,7 @@ export default function CourseDetailPageContent() {
             </div>
 
             {/* Course Info */}
-            <div className=" py-4 lg:px-6 md:px-4 px-2 flex flex-col justify-between flex-1 gap-4">
+            <div className="py-4 lg:px-6 md:px-4 px-2 flex flex-col justify-between flex-1 gap-4">
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2 leading-tight">
                   {course.title}
@@ -314,13 +314,13 @@ export default function CourseDetailPageContent() {
           <Accordion
             type="multiple"
             defaultValue={[course.sections[0]?.id]}
-            className="space-y-4"
+            className="space-y-2"
           >
             {course.sections.map((section, sectionIndex) => (
               <AccordionItem
                 key={section.id}
                 value={section.id}
-                className="border rounded-lg bg-card px-2"
+                className="border rounded-lg card-base px-2"
               >
                 <AccordionTrigger className="px-2 hover:no-underline hover:bg-muted/50 rounded-md transition-colors">
                   <span className="font-medium text-left flex-1">
