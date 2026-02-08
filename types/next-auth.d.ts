@@ -17,6 +17,10 @@ declare module "next-auth" {
       twoFactorEnabled?: boolean;
       hasPassword?: boolean;
       avatarUrl?: string | null;
+      preferences?: {
+        soundEffectsEnabled?: boolean;
+        [key: string]: any;
+      };
     };
   }
 
@@ -32,6 +36,10 @@ declare module "next-auth" {
     hasPassword?: boolean;
     languages?: string[];
     avatarUrl?: string | null;
+    preferences?: {
+      soundEffectsEnabled?: boolean;
+      [key: string]: any;
+    };
   }
 }
 
@@ -43,5 +51,9 @@ declare module "next-auth/jwt" {
     tutorialCompleted?: boolean;
     twoFactorEnabled?: boolean;
     hasPassword?: boolean;
+    preferences?: {
+      soundEffectsEnabled?: boolean;
+      [key: string]: any;
+    };
   }
 }

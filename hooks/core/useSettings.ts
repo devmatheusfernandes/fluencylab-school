@@ -11,6 +11,10 @@ interface SettingsData {
   themeColor?: "violet" | "rose" | "indigo" | "yellow" | "green";
   twoFactorEnabled?: boolean;
   googleCalendarDefaultTimes?: GoogleCalendarDefaultTimes;
+  preferences?: {
+    soundEffectsEnabled?: boolean;
+    [key: string]: any;
+  };
 }
 
 export const useSettings = () => {
@@ -32,13 +36,26 @@ export const useSettings = () => {
       }
 
       // Update the session with new settings
+      const userUpdates: any = { ...session?.user };
+      let shouldUpdateSession = false;
+
       if (settingsData.twoFactorEnabled !== undefined) {
+        userUpdates.twoFactorEnabled = settingsData.twoFactorEnabled;
+        shouldUpdateSession = true;
+      }
+
+      if (settingsData.preferences) {
+        userUpdates.preferences = {
+          ...session?.user?.preferences,
+          ...settingsData.preferences,
+        };
+        shouldUpdateSession = true;
+      }
+
+      if (shouldUpdateSession) {
         await update({
           ...session,
-          user: {
-            ...session?.user,
-            twoFactorEnabled: settingsData.twoFactorEnabled,
-          },
+          user: userUpdates,
         });
       }
 

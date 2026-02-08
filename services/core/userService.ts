@@ -181,6 +181,13 @@ export class UserService {
       theme?: "light" | "dark";
       themeColor?: "violet" | "rose" | "indigo" | "yellow" | "green";
       twoFactorEnabled?: boolean;
+      preferences?: {
+        soundEffectsEnabled?: boolean;
+        autoJoinClasses?: boolean;
+        defaultClassDuration?: number;
+        preferredTeachers?: string[];
+        [key: string]: any;
+      };
     },
   ): Promise<void> {
     // Define uma lista segura de campos que podem ser atualizados
@@ -194,6 +201,14 @@ export class UserService {
     }
     if (settingsData.themeColor) {
       allowedUpdates.themeColor = settingsData.themeColor;
+    }
+    if (settingsData.preferences) {
+      // Fetch current user preferences to merge instead of overwrite
+      const currentUser = await userAdminRepo.findUserById(userId);
+      allowedUpdates.preferences = {
+        ...(currentUser?.preferences || {}),
+        ...settingsData.preferences,
+      };
     }
     // Note: twoFactorEnabled is handled separately through the AuthService
     // We don't update it directly in the user document here

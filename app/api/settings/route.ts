@@ -18,6 +18,7 @@ function getAllowedSettingsForRole(role: string): string[] {
     "notifications",
     "theme",
     "themeColor",
+    "preferences",
   ];
 
   switch (role) {
@@ -129,6 +130,7 @@ const settingsSchema = z.object({
       autoJoinClasses: z.boolean().optional(),
       defaultClassDuration: z.number().int().min(15).max(180).optional(),
       preferredTeachers: z.array(z.string()).optional(),
+      soundEffectsEnabled: z.boolean().optional(),
     })
     .optional(),
 });

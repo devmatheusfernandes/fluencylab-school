@@ -141,6 +141,15 @@ export type User = {
     languages?: string[];
   };
 
+  // PREFERENCES
+  preferences?: {
+    soundEffectsEnabled?: boolean;
+    autoJoinClasses?: boolean;
+    defaultClassDuration?: number;
+    preferredTeachers?: string[];
+    [key: string]: any;
+  };
+
   // Auth fields
   hasPassword?: boolean;
 

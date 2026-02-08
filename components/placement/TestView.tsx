@@ -19,6 +19,7 @@ import {
 } from "../../config/animations";
 import { useTranslations } from "next-intl";
 import { MAX_QUESTIONS } from "@/lib/utils/placement-utils";
+import { usePlacementSound } from "@/hooks/ui/usePlacementSound";
 
 interface TestViewProps {
   currentQuestion: Question;
@@ -40,6 +41,31 @@ export const TestView = ({
   onExit,
 }: TestViewProps) => {
   const t = useTranslations("Placement");
+  const { playSound } = usePlacementSound();
+
+  const handleOptionSelect = (value: string) => {
+    playSound("click");
+    onOptionSelect(value);
+  };
+
+  const handleSkip = () => {
+    playSound("click");
+    onSkip();
+  };
+
+  const handleExit = () => {
+    playSound("click");
+    onExit();
+  };
+
+  const handleAnswer = () => {
+    if (adaptiveState.questionCount === MAX_QUESTIONS - 1) {
+      playSound("victory");
+    } else {
+      playSound("click");
+    }
+    onAnswer();
+  };
 
   return (
     <div className="flex flex-col items-center w-full max-w-2xl mx-auto">
@@ -49,7 +75,7 @@ export const TestView = ({
           variant="ghost"
           size="icon"
           className="text-primary hover:bg-slate-100/50 hover:text-primary"
-          onClick={onExit}
+          onClick={handleExit}
         >
           <X className="h-6 w-6" />
         </Button>
@@ -87,7 +113,7 @@ export const TestView = ({
             <CardContent className="px-6">
               <RadioGroup
                 value={adaptiveState.answers[currentQuestion.id] || ""}
-                onValueChange={onOptionSelect}
+                onValueChange={handleOptionSelect}
                 className="grid gap-3"
               >
                 <motion.div
@@ -109,7 +135,7 @@ export const TestView = ({
                           />
                           <Label
                             htmlFor={`opt-${idx}`}
-                            onClick={() => onOptionSelect(option)}
+                            onClick={() => handleOptionSelect(option)}
                             className={`
                                 flex items-center p-2.5 md:p-3.5 rounded-2xl border-2 border-b-4 cursor-pointer transition-all active:scale-[0.98] w-full
                                 ${
@@ -149,14 +175,14 @@ export const TestView = ({
           <Button
             variant="ghost"
             className="w-full md:w-auto font-bold text-foreground hover:text-primary uppercase tracking-widest hover:bg-transparent"
-            onClick={onSkip}
+            onClick={handleSkip}
           >
             {t("skip")}
           </Button>
 
           {/* Next Button */}
           <Button
-            onClick={onAnswer}
+            onClick={handleAnswer}
             disabled={!adaptiveState.answers[currentQuestion.id]}
             className={`
                             w-full md:flex-1 h-12 text-lg font-bold uppercase tracking-wider rounded-xl border-b-4 active:border-b-0 active:translate-y-1 transition-all

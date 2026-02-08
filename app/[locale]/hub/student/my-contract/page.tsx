@@ -323,6 +323,14 @@ const ContratoPage: React.FC = () => {
           </Link>
         </BreadcrumbActions>
       }
+      {
+        <BreadcrumbActions placement="end">
+          <BreadcrumbActionIcon
+            icon={showContract ? EyeOff : Eye}
+            onClick={() => setShowContract(!showContract)}
+          />
+        </BreadcrumbActions>
+      }
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}

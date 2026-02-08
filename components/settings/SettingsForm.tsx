@@ -43,6 +43,7 @@ import {
   RefreshCw,
   Download,
   ShieldCheck,
+  Volume2,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Header } from "../ui/header";
@@ -108,6 +109,19 @@ export default function SettingsForm({
   const { data: session } = useSession();
   const { isInstallable, install } = usePWAInstall();
   const { needRefresh, updateServiceWorker } = usePWAUpdate();
+
+  const [soundEnabled, setSoundEnabled] = useState(
+    session?.user?.preferences?.soundEffectsEnabled ?? true
+  );
+
+  const handleToggleSound = (enabled: boolean) => {
+    setSoundEnabled(enabled);
+    updateSettings({
+      preferences: {
+        soundEffectsEnabled: enabled,
+      },
+    });
+  };
 
   const handleToggleAutoRenewal = async (enabled: boolean) => {
     setIsTogglingRenewal(true);
@@ -343,6 +357,24 @@ export default function SettingsForm({
                 {t("interface.theme")}
               </label>
               <ThemeSwitcher />
+            </motion.div>
+
+            <motion.div
+              className="flex items-center justify-between p-4 rounded-lg item-base"
+              whileHover={{ scale: 1.01 }}
+              transition={{ type: "spring", stiffness: 400 }}
+            >
+              <div className="flex items-center gap-2">
+                <Volume2 className="h-4 w-4 text-muted-foreground" />
+                <label htmlFor="sound" className="font-medium">
+                  Efeitos Sonoros
+                </label>
+              </div>
+              <Switch
+                id="sound"
+                checked={soundEnabled}
+                onCheckedChange={handleToggleSound}
+              />
             </motion.div>
           </div>
         </Card>

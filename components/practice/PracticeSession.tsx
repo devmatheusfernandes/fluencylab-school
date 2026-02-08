@@ -328,7 +328,7 @@ export function PracticeSession({ planId }: PracticeSessionProps) {
           <div className="w-full pt-4">
             <Button
               onClick={handleClose}
-              className="w-full h-14 text-lg rounded-2xl bg-indigo-600 hover:bg-indigo-700 font-bold uppercase tracking-wider"
+              className="border-none w-full h-14 text-lg rounded-2xl bg-primary font-bold uppercase tracking-wider"
             >
               Back to Home
             </Button>

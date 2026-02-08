@@ -47,6 +47,7 @@ export class AuthService {
           tutorialCompleted: userProfile.tutorialCompleted,
           twoFactorEnabled: is2FAEnabled,
           hasPassword: true,
+          preferences: userProfile.preferences,
           // Note: We don't verify the 2FA token here, that happens in a separate step
         };
       }

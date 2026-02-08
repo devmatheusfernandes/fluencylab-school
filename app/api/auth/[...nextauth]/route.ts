@@ -207,6 +207,7 @@ export const authOptions: NextAuthOptions = {
             token.permissions = firestoreUser.permissions;
             token.tutorialCompleted = firestoreUser.tutorialCompleted;
             token.twoFactorEnabled = firestoreUser.twoFactorEnabled;
+            token.preferences = firestoreUser.preferences;
 
             // Fetch hasPassword status
             const fullUser = await authService.getUserById(token.id as string);
@@ -219,6 +220,7 @@ export const authOptions: NextAuthOptions = {
           token.tutorialCompleted = user.tutorialCompleted;
           token.twoFactorEnabled = user.twoFactorEnabled;
           token.hasPassword = user.hasPassword;
+          token.preferences = user.preferences;
         }
       }
 
@@ -234,6 +236,7 @@ export const authOptions: NextAuthOptions = {
             token.tutorialCompleted = refreshedUser.tutorialCompleted;
             token.twoFactorEnabled = refreshedUser.twoFactorEnabled;
             token.hasPassword = refreshedUser.hasPassword;
+            token.preferences = refreshedUser.preferences;
           }
         } catch (error) {
           console.error("Error refreshing user data in JWT callback:", error);
@@ -250,6 +253,7 @@ export const authOptions: NextAuthOptions = {
         session.user.tutorialCompleted = token.tutorialCompleted as boolean;
         session.user.twoFactorEnabled = token.twoFactorEnabled as boolean;
         session.user.hasPassword = token.hasPassword as boolean;
+        session.user.preferences = token.preferences as any;
       }
       return session;
     },
