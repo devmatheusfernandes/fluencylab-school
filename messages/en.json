@@ -246,7 +246,15 @@
   },
   "StudentNotebook": {
     "title": "My Notebook",
-    "subtitle": "Track your progress and review your learning."
+    "subtitle": "Track your progress and review your learning.",
+    "learnedItemsTitle": "Learned Items",
+    "learnedItemsDescription": "Here you can see all the items you have mastered.",
+    "noLearnedItemsTitle": "No learned items yet",
+    "noLearnedItemsDescription": "Keep studying to fill this list!",
+    "learnedOn": "Learned on",
+    "structure": "Structure",
+    "vocabulary": "Vocabulary",
+    "close": "Close"
   },
   "LearningPath": {
     "noLessonsTitle": "No lessons this week!",

@@ -232,7 +232,15 @@
   },
   "StudentNotebook": {
     "title": "Meu Caderno",
-    "subtitle": "Acompanhe seu progresso e revise seu aprendizado."
+    "subtitle": "Acompanhe seu progresso e revise seu aprendizado.",
+    "learnedItemsTitle": "Itens Aprendidos",
+    "learnedItemsDescription": "Aqui você pode ver todos os itens que já dominou.",
+    "noLearnedItemsTitle": "Nenhum item aprendido ainda",
+    "noLearnedItemsDescription": "Continue estudando para preencher esta lista!",
+    "learnedOn": "Aprendido em",
+    "structure": "Estrutura",
+    "vocabulary": "Vocabulário",
+    "close": "Fechar"
   },
   "LearningPath": {
     "noLessonsTitle": "Sem aulas esta semana!",

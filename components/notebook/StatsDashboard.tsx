@@ -8,9 +8,10 @@ interface StatCardProps {
   value: number;
   icon: React.ReactNode;
   variant: "success" | "warning" | "info";
+  onClick?: () => void;
 }
 
-function StatCard({ title, value, icon, variant }: StatCardProps) {
+function StatCard({ title, value, icon, variant, onClick }: StatCardProps) {
   // Mapa de cores para design "Flat" e "Cheio"
   const colorMap = {
     success: "bg-emerald-500 text-white", // Verde moderno
@@ -20,11 +21,13 @@ function StatCard({ title, value, icon, variant }: StatCardProps) {
 
   return (
     <div
+      onClick={onClick}
       className={cn(
-        "relative overflow-hidden rounded-md p-3 lg:p-4 shadow-sm border-0 transition-all hover:contrast-[1.2] ease-in-out duration-300 cursor-pointer",
+        "relative overflow-hidden rounded-md p-3 lg:p-4 shadow-sm border-0 transition-all hover:contrast-[1.2] ease-in-out duration-300",
         colorMap[variant],
         // No desktop, queremos que o card ocupe a largura total da coluna
         "w-full flex flex-col justify-between min-h-[85px] lg:min-h-[100px]",
+        onClick && "cursor-pointer active:scale-[0.98]",
       )}
     >
       {/* Círculo decorativo translúcido no fundo (Toque Minimalista) */}
@@ -52,12 +55,14 @@ interface StatsDashboardProps {
   reviewedToday: number;
   dueToday: number;
   totalLearned: number;
+  onLearnedClick?: () => void;
 }
 
 export function StatsDashboard({
   reviewedToday,
   dueToday,
   totalLearned,
+  onLearnedClick,
 }: StatsDashboardProps) {
   return (
     // LÓGICA DO LAYOUT:
@@ -83,6 +88,7 @@ export function StatsDashboard({
         value={totalLearned}
         icon={<BookOpen className="w-4 h-4 lg:w-5 lg:h-5 text-white" />}
         variant="info"
+        onClick={onLearnedClick}
       />
     </div>
   );

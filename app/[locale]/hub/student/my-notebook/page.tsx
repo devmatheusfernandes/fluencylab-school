@@ -5,7 +5,11 @@ import NotebooksCard from "@/components/teacher/NotebooksCard";
 import { LearningPath } from "@/components/notebook/LearningPath";
 import { StatsDashboard } from "@/components/notebook/StatsDashboard";
 import { useEffect, useState } from "react";
-import { getStudentLearningStats, getActivePlanId } from "@/actions/srsActions";
+import {
+  getStudentLearningStats,
+  getActivePlanId,
+  getLearnedItemsDetails,
+} from "@/actions/srsActions";
 import ErrorAlert from "@/components/ui/error-alert";
 import { Header } from "@/components/ui/header";
 import { useTranslations } from "next-intl";
@@ -13,6 +17,7 @@ import TasksCard from "@/components/teacher/TaskCard";
 import { useGoogleCalendarSync } from "@/hooks/student/useGoogleCalendarSync";
 import { SpinnerLoading } from "@/components/transitions/spinner-loading";
 import { WordOfTheDayModal } from "@/components/word-of-the-day/word-of-the-day-modal";
+import { LearnedItemsModal } from "@/components/notebook/LearnedItemsModal";
 import { Star, CircleCheckIcon, NotebookIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import BreadcrumbActions from "@/components/shared/Breadcrum/BreadcrumbActions";
@@ -54,6 +59,28 @@ export default function Caderno() {
   const [isWordModalOpen, setIsWordModalOpen] = useState(false);
   const [isNotebooksDrawerOpen, setIsNotebooksDrawerOpen] = useState(false);
   const [isTasksDrawerOpen, setIsTasksDrawerOpen] = useState(false);
+
+  const [isLearnedModalOpen, setIsLearnedModalOpen] = useState(false);
+  const [learnedItems, setLearnedItems] = useState<any[]>([]);
+  const [learnedItemsLoading, setLearnedItemsLoading] = useState(false);
+
+  const handleLearnedClick = async () => {
+    setIsLearnedModalOpen(true);
+    if (learnedItems.length === 0 && studentId) {
+      setLearnedItemsLoading(true);
+      try {
+        const planId = await getActivePlanId(studentId);
+        if (planId) {
+          const items = await getLearnedItemsDetails(planId);
+          setLearnedItems(items);
+        }
+      } catch (error) {
+        console.error("Failed to load learned items", error);
+      } finally {
+        setLearnedItemsLoading(false);
+      }
+    }
+  };
 
   useEffect(() => {
     async function fetchStats() {
@@ -145,6 +172,7 @@ export default function Caderno() {
                 reviewedToday={stats.reviewedToday}
                 dueToday={stats.dueToday}
                 totalLearned={stats.totalLearned}
+                onLearnedClick={handleLearnedClick}
               />
             )}
           </div>
@@ -191,6 +219,13 @@ export default function Caderno() {
         language={student?.languages?.[0] || "en"}
         isOpen={isWordModalOpen}
         onOpenChange={setIsWordModalOpen}
+      />
+
+      <LearnedItemsModal
+        isOpen={isLearnedModalOpen}
+        onClose={() => setIsLearnedModalOpen(false)}
+        items={learnedItems}
+        loading={learnedItemsLoading}
       />
 
       <Drawer

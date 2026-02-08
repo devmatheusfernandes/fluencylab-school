@@ -912,3 +912,132 @@ export async function getActivePlanId(studentId: string) {
     return null;
   }
 }
+
+/**
+ * Retrieves the detailed list of learned items for the dashboard modal.
+ */
+export async function getLearnedItemsDetails(planId: string) {
+  try {
+    const planRef = db.collection("plans").doc(planId);
+    const planDoc = await planRef.get();
+    if (!planDoc.exists) throw new Error("Plan not found");
+
+    const plan = planDoc.data() as Plan;
+    const learnedItems: Array<{
+      id: string;
+      title: string;
+      type: "item" | "structure";
+      learnedAt: Date | string;
+      srsData?: SRSData;
+    }> = [];
+
+    // 1. Collect all learned IDs with their metadata
+    const learnedIds = new Map<
+      string,
+      { type: "item" | "structure"; learnedAt: any; srsData?: SRSData }
+    >();
+
+    // Helper to add IDs to the map
+    const addIds = (
+      list: any[],
+      defaultType: "item" | "structure" = "item",
+    ) => {
+      // Defaulting to item, but we'll try to detect
+      if (!list) return;
+      list.forEach((item) => {
+        // We don't strictly know the type from the ID list alone in the current Plan structure
+        // So we will try to fetch from both collections or just fetch based on ID.
+        // For now, we store them. We'll decide the type after fetching.
+        learnedIds.set(item.id, {
+          type: defaultType, // This is just a placeholder
+          learnedAt: item.updatedAt || new Date(),
+          srsData: item.srsData,
+        });
+      });
+    };
+
+    addIds(plan.learnedComponentsIds);
+    addIds(plan.reviewLearnedComponentsIds);
+
+    const allIds = Array.from(learnedIds.keys());
+    if (allIds.length === 0) return [];
+
+    // 2. Fetch details from 'learningItems' and 'learningStructures'
+    // Since we don't know which ID belongs to which collection, we query both.
+    // Optimization: If we had types stored, we could split the queries.
+
+    const fetchDetails = async (
+      collectionName: string,
+      type: "item" | "structure",
+    ) => {
+      const chunks = [];
+      for (let i = 0; i < allIds.length; i += 10) {
+        chunks.push(allIds.slice(i, i + 10));
+      }
+
+      for (const chunk of chunks) {
+        const snap = await db
+          .collection(collectionName)
+          .where(FieldPath.documentId(), "in", chunk)
+          .get();
+
+        snap.docs.forEach((doc) => {
+          const data = doc.data();
+          const metadata = learnedIds.get(doc.id);
+          if (metadata) {
+            // If found in this collection, we use it.
+            // We check if it's already added (in case of ID collision, unlikely but possible)
+            // Ideally we shouldn't have ID collisions between collections if using UUIDs, but Firestore auto-ids are unique globally usually.
+
+            // Check if we already have this item in our result list (from the other collection query?)
+            // No, we are building the list now.
+
+            // Determine title based on type
+            let title = "Untitled";
+            if (type === "item") {
+              title =
+                (data as LearningItem).mainText ||
+                (data as any).title ||
+                "Untitled";
+            } else if (type === "structure") {
+              const struct = data as LearningStructure;
+              title =
+                struct.sentences?.[0]?.words ||
+                (struct as any).title ||
+                `Structure (${struct.type || "Unknown"})`;
+            }
+
+            learnedItems.push({
+              id: doc.id,
+              title: title,
+              type: type,
+              learnedAt: metadata.learnedAt,
+              srsData: metadata.srsData,
+            });
+
+            // Remove from map so we don't try to add it again if we query the other collection (if we were doing that logic)
+            // But simpler: just fetch from both and assume no overlap.
+          }
+        });
+      }
+    };
+
+    // Run in parallel
+    await Promise.all([
+      fetchDetails("learningItems", "item"),
+      fetchDetails("learningStructures", "structure"),
+    ]);
+
+    // Sort by learnedAt (most recent first)
+    learnedItems.sort((a, b) => {
+      const dateA = parseLessonDate(a.learnedAt)?.getTime() || 0;
+      const dateB = parseLessonDate(b.learnedAt)?.getTime() || 0;
+      return dateB - dateA;
+    });
+
+    return serializeFirestoreData(learnedItems);
+  } catch (error) {
+    console.error("Error fetching learned items details:", error);
+    return [];
+  }
+}

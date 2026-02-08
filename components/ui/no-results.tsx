@@ -9,6 +9,8 @@ interface NoResultsProps {
     withSearch?: string;
     withoutSearch?: string;
   };
+  title?: string;
+  description?: string;
   className?: string;
 }
 
@@ -54,6 +56,8 @@ const iconVariants = {
 export const NoResults: React.FC<NoResultsProps> = ({
   searchQuery = "",
   customMessage,
+  title,
+  description,
   className = "",
 }) => {
   const t = useTranslations("NoResults");
@@ -63,7 +67,8 @@ export const NoResults: React.FC<NoResultsProps> = ({
   };
 
   const messages = { ...defaultMessages, ...customMessage };
-  const message = searchQuery ? messages.withSearch : messages.withoutSearch;
+  const message =
+    title || (searchQuery ? messages.withSearch : messages.withoutSearch);
 
   return (
     <motion.div
@@ -93,7 +98,16 @@ export const NoResults: React.FC<NoResultsProps> = ({
         {message}
       </motion.p>
 
-      {searchQuery && (
+      {description && (
+        <motion.p
+          className="mt-2 text-sm text-muted-foreground"
+          variants={itemVariants}
+        >
+          {description}
+        </motion.p>
+      )}
+
+      {searchQuery && !title && (
         <motion.p className="mt-2 text-sm" variants={itemVariants}>
           {t("adjustSearch")}
         </motion.p>
