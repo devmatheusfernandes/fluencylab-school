@@ -1,10 +1,9 @@
-import { Container } from "@/components/ui/container";
 import { PodcastForm } from "@/components/immersion/PodcastForm";
 
 export default function NewPodcastPage() {
   return (
-    <Container>
+    <div className="container-padding">
       <PodcastForm />
-    </Container>
+    </div>
   );
 }

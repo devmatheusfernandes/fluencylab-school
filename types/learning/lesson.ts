@@ -152,6 +152,10 @@ export interface QuizQuestion {
   explanation?: string;
   relatedLearningItemId?: string;
   relatedLearningStructureId?: string;
+  audioRange?: {
+    start: number;
+    end: number;
+  };
 }
 
 export interface QuizSection {

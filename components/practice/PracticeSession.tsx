@@ -29,9 +29,11 @@ import { ListeningChoiceExercise } from "./ListeningChoiceExercise";
 
 interface PracticeSessionProps {
   planId: string;
+  dayOverride?: number;
+  isReplay?: boolean;
 }
 
-export function PracticeSession({ planId }: PracticeSessionProps) {
+export function PracticeSession({ planId, dayOverride, isReplay = false }: PracticeSessionProps) {
   const router = useRouter();
 
   // Session State
@@ -63,8 +65,8 @@ export function PracticeSession({ planId }: PracticeSessionProps) {
       try {
         setIsLoading(true);
 
-        // 1. Try to load saved progress
-        const savedState = await getSessionProgress(planId);
+        // 1. Try to load saved progress (SKIP IF REPLAY)
+        const savedState = !isReplay ? await getSessionProgress(planId) : null;
 
         if (
           savedState &&
@@ -84,7 +86,7 @@ export function PracticeSession({ planId }: PracticeSessionProps) {
         } else {
           // 2. No valid saved state, fetch new daily practice
           console.log("Starting new daily practice for plan:", planId);
-          const dailySession = await getDailyPractice(planId);
+          const dailySession = await getDailyPractice(planId, dayOverride);
           console.log(
             "Daily session received:",
             dailySession
@@ -118,17 +120,19 @@ export function PracticeSession({ planId }: PracticeSessionProps) {
           setResults([]);
 
           // Initialize save state
-          console.log("Saving initial session state...");
-          await saveSessionProgress(planId, {
-            planId,
-            currentDay: dailySession.dayIndex,
-            mode: dailySession.mode,
-            currentIndex: 0,
-            results: [],
-            items: dailySession.items,
-            lastUpdated: new Date(),
-          });
-          console.log("Session state saved successfully");
+          if (!isReplay) {
+            console.log("Saving initial session state...");
+            await saveSessionProgress(planId, {
+              planId,
+              currentDay: dailySession.dayIndex,
+              mode: dailySession.mode,
+              currentIndex: 0,
+              results: [],
+              items: dailySession.items,
+              lastUpdated: new Date(),
+            });
+            console.log("Session state saved successfully");
+          }
         }
       } catch (error) {
         console.error("Failed to initialize session details:", error);
@@ -156,15 +160,17 @@ export function PracticeSession({ planId }: PracticeSessionProps) {
   ) => {
     // Don't await this to keep UI snappy, but track error state if critical
     // In a robust app, we might use optimistic updates + queue
-    saveSessionProgress(planId, {
-      planId,
-      currentDay: 0, // We should store this in state if we want to preserve it accurately
-      mode: sessionMode,
-      currentIndex: newIndex,
-      results: newResults,
-      items: items, // Save items to ensure consistency
-      lastUpdated: new Date(),
-    }).catch((e) => console.error("Auto-save failed:", e));
+    if (!isReplay) {
+      saveSessionProgress(planId, {
+        planId,
+        currentDay: 0, // We should store this in state if we want to preserve it accurately
+        mode: sessionMode,
+        currentIndex: newIndex,
+        results: newResults,
+        items: items, // Save items to ensure consistency
+        lastUpdated: new Date(),
+      }).catch((e) => console.error("Auto-save failed:", e));
+    }
   };
 
   const handleComplete = (
@@ -265,10 +271,12 @@ export function PracticeSession({ planId }: PracticeSessionProps) {
     setIsSaving(true);
     try {
       // 1. Process Results (Update SRS)
-      await processPracticeResults(planId, results);
+      await processPracticeResults(planId, results, isReplay);
 
       // 2. Clear Saved Session
-      await clearSessionProgress(planId);
+      if (!isReplay) {
+        await clearSessionProgress(planId);
+      }
 
       setIsSessionComplete(true);
     } catch (error) {
@@ -295,7 +303,7 @@ export function PracticeSession({ planId }: PracticeSessionProps) {
   if (isSessionComplete) {
     return (
       <PracticeSummary
-        xpGained={correctCount * 10 + streak * 2}
+        xpGained={isReplay ? 0 : correctCount * 10 + streak * 2}
         streak={streak}
         accuracy={(correctCount / items.length) * 100}
         onGoBack={handleClose}

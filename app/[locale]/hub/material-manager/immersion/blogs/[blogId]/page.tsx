@@ -1,24 +1,24 @@
-import { Container } from "@/components/ui/container";
 import { BlogForm } from "@/components/immersion/BlogForm";
 import { immersionService } from "@/services/learning/immersionService";
 import { notFound } from "next/navigation";
 
 interface EditBlogPageProps {
-  params: {
+  params: Promise<{
     blogId: string;
-  };
+  }>;
 }
 
 export default async function EditBlogPage({ params }: EditBlogPageProps) {
-  const blog = await immersionService.getBlogById(params.blogId);
+  const { blogId } = await params;
+  const blog = await immersionService.getBlogById(blogId);
 
   if (!blog) {
     notFound();
   }
 
   return (
-    <Container>
+    <div className="container-padding">
       <BlogForm initialData={blog} />
-    </Container>
+    </div>
   );
 }

@@ -56,7 +56,6 @@ export class EmailService {
           studentInfo,
         }),
       });
-
     } catch (error) {
       console.error("Falha ao enviar e-mail de boas-vindas:", error);
       throw new Error(
@@ -184,7 +183,6 @@ export class EmailService {
           platformLink,
         }),
       });
-
     } catch (error) {
       console.error("Falha ao enviar e-mail de reagendamento:", error);
       throw new Error("Falha ao enviar o e-mail de reagendamento.");
@@ -242,7 +240,6 @@ export class EmailService {
           classId,
         }),
       });
-
     } catch (error) {
       console.error("Falha ao enviar e-mail de cancelamento:", error);
       throw new Error("Falha ao enviar o e-mail de cancelamento.");
@@ -281,7 +278,6 @@ export class EmailService {
           platformLink,
         }),
       });
-
     } catch (error) {
       console.error("Falha ao enviar e-mail de férias do professor:", error);
       throw new Error("Falha ao enviar o e-mail de férias do professor.");
@@ -392,6 +388,7 @@ export class EmailService {
     receiptUrl?: string;
   }) {
     try {
+      /*  TODO: VERIFICAR FROM NOS EMAILS */
       await resend.emails.send({
         from: "Pagamento Confirmado <contato@matheusfernandes.me>",
         to: [email],
@@ -405,7 +402,6 @@ export class EmailService {
           receiptUrl,
         }),
       });
-
     } catch (error) {
       console.error(
         "Falha ao enviar e-mail de confirmação de pagamento:",

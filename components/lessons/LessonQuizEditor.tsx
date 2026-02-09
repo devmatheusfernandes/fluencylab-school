@@ -382,6 +382,58 @@ export function LessonQuizEditor({ lesson }: LessonQuizEditorProps) {
                             />
                           </div>
 
+                          {/* Audio Range Inputs (Only for Timestamp/Listening sections) */}
+                          {/timestamp|listening|audio/i.test(section.type) && (
+                            <div className="grid grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg border border-border/50">
+                              <div className="col-span-2 text-sm font-medium flex items-center gap-2 mb-2">
+                                <Play className="h-3.5 w-3.5" />
+                                Audio Segment Control (seconds)
+                              </div>
+                              <div className="space-y-2">
+                                <label className="text-xs text-muted-foreground">
+                                  Start Time (s)
+                                </label>
+                                <Input
+                                  type="number"
+                                  step="0.1"
+                                  value={question.audioRange?.start ?? ""}
+                                  onChange={(e) => {
+                                    const val = e.target.value === "" ? undefined : parseFloat(e.target.value);
+                                    const currentRange = question.audioRange || { start: 0, end: 0 };
+                                    handleUpdateQuestion(
+                                      sectionIndex,
+                                      questionIndex,
+                                      "audioRange",
+                                      { ...currentRange, start: val ?? 0 }
+                                    );
+                                  }}
+                                  placeholder="e.g. 15.5"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <label className="text-xs text-muted-foreground">
+                                  End Time (s)
+                                </label>
+                                <Input
+                                  type="number"
+                                  step="0.1"
+                                  value={question.audioRange?.end ?? ""}
+                                  onChange={(e) => {
+                                    const val = e.target.value === "" ? undefined : parseFloat(e.target.value);
+                                    const currentRange = question.audioRange || { start: 0, end: 0 };
+                                    handleUpdateQuestion(
+                                      sectionIndex,
+                                      questionIndex,
+                                      "audioRange",
+                                      { ...currentRange, end: val ?? 0 }
+                                    );
+                                  }}
+                                  placeholder="e.g. 20.0"
+                                />
+                              </div>
+                            </div>
+                          )}
+
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {question.options.map((option, optionIndex) => (
                               <div key={optionIndex} className="space-y-2">

@@ -1,9 +1,8 @@
-import { Container } from "@/components/ui/container";
 import { Header } from "@/components/ui/header";
 import { Button } from "@/components/ui/button";
 import { immersionService } from "@/services/learning/immersionService";
 import Link from "next/link";
-import { Plus, Edit } from "lucide-react";
+import { Plus, Edit, Container } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -18,7 +17,7 @@ export default async function BlogsPage() {
   const blogs = await immersionService.getAllBlogs();
 
   return (
-    <Container>
+    <div className="container-padding">
       <Header
         heading="Blogs"
         subheading="Manage your blogs here."
@@ -78,6 +77,6 @@ export default async function BlogsPage() {
           </TableBody>
         </Table>
       </div>
-    </Container>
+    </div>
   );
 }

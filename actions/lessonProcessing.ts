@@ -705,7 +705,8 @@ export async function generateLessonQuiz(lessonId: string) {
                 "correctIndex": 0, 
                 "explanation": "Explicação breve em ${instructionLang}.",
                 "relatedLearningItemId": "ID_DO_ITEM (Opcional, se a pergunta for sobre um item da lista)",
-                "relatedLearningStructureId": "ID_DA_ESTRUTURA (Opcional, se a pergunta for sobre uma estrutura)"
+                "relatedLearningStructureId": "ID_DA_ESTRUTURA (Opcional, se a pergunta for sobre uma estrutura)",
+                "audioRange": { "start": 15.5, "end": 20.0 } // (Opcional) Apenas para perguntas de áudio/timestamp. Use SEGUNDOS (float).
               }
             ]
           }
@@ -728,7 +729,8 @@ export async function generateLessonQuiz(lessonId: string) {
        3. Seção de Timestamps (5-6 perguntas): 
           - Perguntas sobre o que foi dito em trechos específicos. 
           - Use os timestamps fornecidos abaixo. 
-          - O texto da pergunta deve indicar o timestamp, ex: "No trecho 00:15 - 00:20..." 
+          - IMPORTANTE: Preencha "audioRange" com start/end em SEGUNDOS (ex: 1:30 = 90).
+          - O texto da pergunta deve indicar o timestamp para contexto visual, ex: "No trecho 00:15 - 00:20..." 
           - 4 opções de resposta. 
        `
            : ""

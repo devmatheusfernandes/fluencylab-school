@@ -68,7 +68,7 @@ export default function ElevenLabsUsageWidget({ data }: ElevenLabsWidgetProps) {
             </p>
           </div>
         </div>
-        <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none">
+        <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400">
           <CheckCircle2 className="w-3 h-3 mr-1" /> Online
         </Badge>
       </div>

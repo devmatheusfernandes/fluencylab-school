@@ -43,7 +43,7 @@ export default function Caderno() {
   const isStandalone = useIsStandalone();
   const isMobile = useIsMobile();
 
-  const { student, notebooks, tasks, loading, error, updateTask } =
+  const { student, notebooks, tasks, loading, error, updateTask, plan } =
     useStudentPanel(studentId as string);
 
   const [stats, setStats] = useState({
@@ -54,6 +54,10 @@ export default function Caderno() {
     daysSinceClass: 7,
     hasActiveLesson: true,
   });
+
+  // Extract Plan ID properly
+  const activePlanId = plan?.id;
+  const userXP = student?.gamification?.currentXP || 0;
 
   const [statsLoading, setStatsLoading] = useState(true);
   const [isWordModalOpen, setIsWordModalOpen] = useState(false);
@@ -215,6 +219,8 @@ export default function Caderno() {
                 currentDay={stats.currentDay}
                 daysSinceClass={stats.daysSinceClass}
                 hasActiveLesson={stats.hasActiveLesson}
+                userXP={userXP}
+                planId={activePlanId}
               />
             )}
           </div>

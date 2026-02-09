@@ -52,42 +52,41 @@ export function generateQuizItems(
 
       let audioSegment = undefined;
 
-      // 1. Try to find audio segment if related to an item/structure and transcript exists
-      if (lessonContext.transcriptSegments && lessonContext.audioUrl) {
-        const relatedId =
-          question.relatedLearningItemId || question.relatedLearningStructureId;
-        if (relatedId) {
-          const segment = lessonContext.transcriptSegments.find(
-            (seg) =>
-              (seg.learningItemIds &&
-                seg.learningItemIds.includes(relatedId)) ||
-              (seg.learningStructureIds &&
-                seg.learningStructureIds.includes(relatedId)),
-          );
-
-          if (segment) {
-            audioSegment = {
-              start: segment.start,
-              end: segment.end,
-              url: lessonContext.audioUrl,
-            };
-          }
-        }
+      // 1. Check for explicit audio range (New Method)
+      if (lessonContext.audioUrl && question.audioRange) {
+        audioSegment = {
+          start: question.audioRange.start,
+          end: question.audioRange.end,
+          url: lessonContext.audioUrl,
+        };
       }
 
-      // 2. Fallback: Check for timestamps in text (e.g., "38:15 - 43:20") if no segment found yet
-      if (!audioSegment && lessonContext.audioUrl) {
-        // Matches "mm:ss - mm:ss" or "m:ss - m:ss"
-        const timeMatch = question.text.match(/(\d+):(\d+)\s*-\s*(\d+):(\d+)/);
+      // 2. Fallback: Check for timestamps in text (e.g., "38:15 - 43:20")
+      // Only runs if no explicit range and it is an audio-compatible section.
+      const isAudioSection =
+        section.type && /timestamp|listening|audio/i.test(section.type);
+
+      if (!audioSegment && lessonContext.audioUrl && isAudioSection) {
+        // Matches "mm:ss(.ms) - mm:ss(.ms)"
+        // Supports optional decimals/milliseconds with dot or comma
+        // Supports hyphen (-), en-dash (–), or em-dash (—) separator
+        const timeMatch = question.text.match(
+          /(\d+):(\d+(?:[.,]\d+)?)\s*[-–—]\s*(\d+):(\d+(?:[.,]\d+)?)/,
+        );
+
         if (timeMatch) {
-          const startMin = parseInt(timeMatch[1], 10);
-          const startSec = parseInt(timeMatch[2], 10);
-          const endMin = parseInt(timeMatch[3], 10);
-          const endSec = parseInt(timeMatch[4], 10);
+          const parseSeconds = (minStr: string, secStr: string) => {
+            const min = parseInt(minStr, 10);
+            const sec = parseFloat(secStr.replace(",", "."));
+            return min * 60 + sec;
+          };
+
+          const start = parseSeconds(timeMatch[1], timeMatch[2]);
+          const end = parseSeconds(timeMatch[3], timeMatch[4]);
 
           audioSegment = {
-            start: startMin * 60 + startSec,
-            end: endMin * 60 + endSec,
+            start,
+            end,
             url: lessonContext.audioUrl,
           };
         }

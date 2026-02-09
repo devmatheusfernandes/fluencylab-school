@@ -1,9 +1,8 @@
-import { Container } from "@/components/ui/container";
 import { Header } from "@/components/ui/header";
 import { Button } from "@/components/ui/button";
 import { immersionService } from "@/services/learning/immersionService";
 import Link from "next/link";
-import { Plus, Edit, Trash } from "lucide-react";
+import { Plus, Edit, Trash, Container } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -18,7 +17,7 @@ export default async function PodcastsPage() {
   const podcasts = await immersionService.getAllPodcasts();
 
   return (
-    <Container>
+    <div className="container-padding">
       <Header
         heading="Podcasts"
         subheading="Manage your podcasts here."
@@ -84,6 +83,6 @@ export default async function PodcastsPage() {
           </TableBody>
         </Table>
       </div>
-    </Container>
+    </div>
   );
 }

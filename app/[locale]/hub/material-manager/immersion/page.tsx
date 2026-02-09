@@ -1,4 +1,3 @@
-import { Container } from "@/components/ui/container";
 import { Header } from "@/components/ui/header";
 import {
   Card,
@@ -29,7 +28,7 @@ export default function ImmersionManagerPage() {
   ];
 
   return (
-    <Container>
+    <div className="container-padding">
       <Header
         heading="Immersion Management"
         subheading="Manage podcasts and blogs for student immersion."
@@ -60,6 +59,6 @@ export default function ImmersionManagerPage() {
           </Link>
         ))}
       </div>
-    </Container>
+    </div>
   );
 }

@@ -15,6 +15,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Header } from "@/components/ui/header";
 import { planRepository } from "@/repositories"; // Client components can't use repositories directly usually, but let's see if we can use server action instead.
 // Actually we should create a server action for creating/updating plans to be safe.
 // For now I will assume we have one or create one.
@@ -79,13 +80,17 @@ export function PlanTemplatesClient({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-end">
-        <Button onClick={handleCreate}>
-          <Plus className="w-4 h-4 mr-2" />
-          {t("createButton")}
-        </Button>
-      </div>
+    <div className="container-padding">
+      <Header
+        heading={t("title")}
+        subheading={t("description")}
+        icon={
+          <Button onClick={handleCreate}>
+            <Plus className="w-4 h-4 mr-2" />
+            {t("createButton")}
+          </Button>
+        }
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {templates.map((template) => (

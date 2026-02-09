@@ -27,9 +27,12 @@ export function PracticeAudioPlayer({ audioUrl, isOpen, onClose, autoPlay = true
 
   useEffect(() => {
     if (isOpen && audioRef.current) {
-      // Reset to start time when opening or url changes
-      audioRef.current.currentTime = startTime;
-      setProgress(startTime);
+      // Force reset to start time whenever startTime changes or player opens
+      // We check if difference is significant to avoid stutter on small updates
+      if (Math.abs(audioRef.current.currentTime - startTime) > 0.1) {
+          audioRef.current.currentTime = startTime;
+          setProgress(startTime);
+      }
       
       if (autoPlay) {
         audioRef.current.play().catch(() => {});
@@ -115,12 +118,16 @@ export function PracticeAudioPlayer({ audioUrl, isOpen, onClose, autoPlay = true
               <div className="h-1 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
                 <div 
                     className="h-full bg-blue-500 transition-all duration-100 ease-linear"
-                    style={{ width: `${(progress / (duration || 1)) * 100}%` }}
+                    style={{ 
+                      width: endTime 
+                        ? `${Math.max(0, Math.min(100, ((progress - startTime) / (endTime - startTime)) * 100))}%` 
+                        : `${(progress / (duration || 1)) * 100}%` 
+                    }}
                 />
               </div>
               <div className="flex justify-between text-xs text-slate-500">
-                <span>{formatTime(progress)}</span>
-                <span>{formatTime(duration)}</span>
+                <span>{formatTime(endTime ? Math.max(0, progress - startTime) : progress)}</span>
+                <span>{formatTime(endTime ? endTime - startTime : duration)}</span>
               </div>
             </div>
 

@@ -61,7 +61,7 @@ export default async function DashboardPage({
           {t("systemStatus")}
         </h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="lg:row-span-3">
+          <div className="lg:col-span-2">
             <FirebaseUsageWidget data={firebaseData} />
           </div>
           <ResendUsageWidget data={resendData} />

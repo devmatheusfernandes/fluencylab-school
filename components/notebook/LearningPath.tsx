@@ -11,12 +11,25 @@ import {
   Lock,
   Star,
   Coffee,
+  RotateCcw,
 } from "lucide-react";
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { CoffeeIcon } from "@/public/animated/coffee";
 import { useIsStandalone } from "@/hooks/ui/useIsStandalone";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { purchaseReplaySession } from "@/actions/srsActions";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 // --- Interfaces ---
 interface DayNode {
@@ -29,6 +42,8 @@ interface LearningPathProps {
   currentDay: number;
   daysSinceClass?: number;
   hasActiveLesson?: boolean;
+  userXP?: number;
+  planId?: string;
 }
 
 // Configurações visuais (Fáceis de ajustar)
@@ -42,9 +57,61 @@ export function LearningPath({
   currentDay,
   daysSinceClass,
   hasActiveLesson = true,
+  userXP = 0,
+  planId,
 }: LearningPathProps) {
   const t = useTranslations("LearningPath");
   const isStandalone = useIsStandalone();
+  const router = useRouter();
+
+  const [replayModalOpen, setReplayModalOpen] = useState(false);
+  const [selectedReplayDay, setSelectedReplayDay] = useState<number | null>(
+    null,
+  );
+  const [replayCost, setReplayCost] = useState(0);
+  const [isPurchasing, setIsPurchasing] = useState(false);
+
+  const handleDayClick = (day: DayNode) => {
+    // If it's a completed day, we trigger replay logic
+    if (day.status === "completed") {
+      const diff = Math.max(0, currentDay - day.day);
+      const cost = 50 + diff * 10;
+      setReplayCost(cost);
+      setSelectedReplayDay(day.day);
+      setReplayModalOpen(true);
+      return;
+    }
+
+    // If it's locked, do nothing
+    if (day.status === "locked") return;
+
+    // If it's current/atrasado, navigate normally
+    router.push("/hub/student/my-practice");
+  };
+
+  const handleConfirmReplay = async () => {
+    if (!planId || selectedReplayDay === null) return;
+
+    if (userXP < replayCost) {
+      toast.error("Insufficient XP points for this replay.");
+      return;
+    }
+
+    setIsPurchasing(true);
+    try {
+      await purchaseReplaySession(planId, selectedReplayDay, currentDay);
+      toast.success("Session unlocked! Starting replay...");
+      setReplayModalOpen(false);
+      router.push(
+        `/hub/student/my-practice?day=${selectedReplayDay}&replay=true`,
+      );
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to purchase replay session.");
+    } finally {
+      setIsPurchasing(false);
+    }
+  };
 
   if (!hasActiveLesson) {
     return (
@@ -94,6 +161,39 @@ export function LearningPath({
 
   return (
     <div className="w-full relative flex justify-center items-center">
+      {/* Replay Confirmation Modal */}
+      <Dialog open={replayModalOpen} onOpenChange={setReplayModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Replay Day {selectedReplayDay}</DialogTitle>
+            <DialogDescription>
+              Do you want to replay this session?
+              <br />
+              <br />
+              <span className="font-bold text-foreground">
+                Cost: {replayCost} XP
+              </span>
+              <br />
+              <span className="text-muted-foreground">
+                Your Balance: {userXP} XP
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setReplayModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleConfirmReplay}
+              disabled={isPurchasing || userXP < replayCost}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white"
+            >
+              {isPurchasing ? "Unlocking..." : "Confirm & Play"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* ================= MOBILE VIEW (Horizontal) ================= */}
       {/* Container simples flex-row. A linha passa por trás usando um div absoluto */}
       <div
@@ -107,7 +207,12 @@ export function LearningPath({
           <div className="absolute top-1/2 left-4 right-4 h-1 bg-slate-200 dark:bg-slate-800 -z-10 -translate-y-1/2 rounded-full" />
 
           {mobileDays.map((day) => (
-            <NodeItem key={day.day} day={day} isMobile={true} />
+            <NodeItem
+              key={day.day}
+              day={day}
+              isMobile={true}
+              onClick={() => handleDayClick(day)}
+            />
           ))}
         </div>
         <p className="mt-6 text-sm text-slate-400">
@@ -141,7 +246,11 @@ export function LearningPath({
                 marginTop: -40,
               }}
             >
-              <NodeItem day={day} isMobile={false} />
+              <NodeItem
+                day={day}
+                isMobile={false}
+                onClick={() => handleDayClick(day)}
+              />
             </div>
           );
         })}
@@ -205,15 +314,22 @@ function SnakePathSVG({ days }: { days: DayNode[] }) {
 }
 
 // --- Componente Visual do Botão (Node) ---
-function NodeItem({ day, isMobile }: { day: DayNode; isMobile: boolean }) {
+function NodeItem({
+  day,
+  isMobile,
+  onClick,
+}: {
+  day: DayNode;
+  isMobile: boolean;
+  onClick: () => void;
+}) {
   const Icon = getIconForType(day.type);
   const isCurrent = day.status === "current" || day.status === "atrasado";
 
   return (
     <div className="flex flex-col items-center relative group z-10">
-      <Link
-        href={day.status !== "locked" ? "/hub/student/my-practice" : "#"}
-        passHref
+      <div
+        onClick={onClick}
         className={
           day.status === "locked" ? "cursor-default" : "cursor-pointer"
         }
@@ -238,7 +354,12 @@ function NodeItem({ day, isMobile }: { day: DayNode; isMobile: boolean }) {
           )}
         >
           {day.status === "completed" ? (
-            <Star size={32} fill="currentColor" className="text-yellow-100" />
+            <div className="relative">
+              <Star size={32} fill="currentColor" className="text-yellow-100" />
+              <div className="hidden absolute -bottom-2 -right-2 bg-indigo-600 rounded-full p-1 border-2 border-white">
+                <RotateCcw size={10} className="text-white" />
+              </div>
+            </div>
           ) : day.status === "locked" ? (
             <Lock size={28} />
           ) : (
@@ -262,7 +383,7 @@ function NodeItem({ day, isMobile }: { day: DayNode; isMobile: boolean }) {
             </motion.div>
           )}
         </motion.div>
-      </Link>
+      </div>
 
       {/* Texto do Dia */}
       <div

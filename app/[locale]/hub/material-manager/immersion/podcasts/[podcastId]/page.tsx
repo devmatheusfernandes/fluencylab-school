@@ -1,4 +1,3 @@
-import { Container } from "@/components/ui/container";
 import { PodcastForm } from "@/components/immersion/PodcastForm";
 import { immersionService } from "@/services/learning/immersionService";
 import { notFound } from "next/navigation";
@@ -20,8 +19,8 @@ export default async function EditPodcastPage({
   }
 
   return (
-    <Container>
+    <div className="container-padding">
       <PodcastForm initialData={podcast} />
-    </Container>
+    </div>
   );
 }

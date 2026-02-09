@@ -19,6 +19,7 @@ import {
   generateQuizItems,
 } from "@/lib/learning/practiceLogic";
 import { FieldValue, FieldPath } from "firebase-admin/firestore";
+import { User } from "@/types/users/users";
 
 // Helper to ensure data is serializable (converts Timestamps to Dates)
 function serializeFirestoreData(data: any): any {
@@ -165,6 +166,7 @@ function getPracticeCycle(plan: Plan) {
  */
 export async function getDailyPractice(
   planId: string,
+  dayOverride?: number,
 ): Promise<DailyPracticeSession> {
   try {
     // console.log(`[getDailyPractice] Starting for plan ${planId}`);
@@ -196,7 +198,12 @@ export async function getDailyPractice(
     const itemsToPractice: PracticeItem[] = [];
 
     // 1. Determine Cycle & Mode
-    const { currentDay, activeLesson, isClassDay } = getPracticeCycle(plan);
+    let { currentDay, activeLesson, isClassDay } = getPracticeCycle(plan);
+
+    if (dayOverride !== undefined) {
+      currentDay = dayOverride;
+      isClassDay = false;
+    }
     // console.log(`[getDailyPractice] Cycle: Day ${currentDay}, ClassDay: ${isClassDay}, ActiveLesson: ${activeLesson?.id}`);
 
     if (isClassDay) {
@@ -573,8 +580,15 @@ export async function clearSessionProgress(planId: string) {
 export async function processPracticeResults(
   planId: string,
   results: PracticeResult[],
+  isReplay: boolean = false,
 ) {
   try {
+    // If it's a replay session, we don't update SRS, progress, or gamification.
+    // We just acknowledge the completion.
+    if (isReplay) {
+      return { success: true };
+    }
+
     const planRef = db.collection("plans").doc(planId);
 
     await db.runTransaction(async (t) => {
@@ -1065,5 +1079,56 @@ export async function getLearnedItemsDetails(planId: string) {
   } catch (error) {
     console.error("Error fetching learned items details:", error);
     return [];
+  }
+}
+
+/**
+ * Purchase a replay session using XP.
+ * Cost = 50 + (currentDay - sessionDay) * 10 XP.
+ */
+export async function purchaseReplaySession(
+  planId: string,
+  replayDayIndex: number,
+  currentDayIndex: number,
+) {
+  try {
+    const planRef = db.collection("plans").doc(planId);
+
+    await db.runTransaction(async (t) => {
+      const planDoc = await t.get(planRef);
+      if (!planDoc.exists) throw new Error("Plan not found");
+      const planData = planDoc.data() as Plan;
+
+      if (!planData.studentId) throw new Error("Student not found in plan");
+
+      const userRef = db.collection("users").doc(planData.studentId);
+      const userDoc = await t.get(userRef);
+      if (!userDoc.exists) throw new Error("User not found");
+
+      const userData = userDoc.data() as User;
+      const currentXP = userData.gamification?.currentXP || 0;
+
+      // Calculate Cost
+      const daysDiff = Math.max(0, currentDayIndex - replayDayIndex);
+      const cost = 50 + daysDiff * 10;
+
+      if (currentXP < cost) {
+        throw new Error(
+          `Insufficient XP. You need ${cost} XP but have ${currentXP}.`,
+        );
+      }
+
+      // Deduct XP
+      const newXP = currentXP - cost;
+
+      t.update(userRef, {
+        "gamification.currentXP": newXP,
+      });
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error purchasing replay session:", error);
+    throw new Error(error.message || "Failed to purchase replay session");
   }
 }
