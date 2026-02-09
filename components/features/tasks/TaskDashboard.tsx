@@ -12,6 +12,7 @@ import { TaskKanbanView } from "./TaskKanbanView";
 import { TaskWeekView } from "./TaskWeekView";
 import { TaskList } from "./TaskList";
 import { useTranslations } from "next-intl";
+import BreadcrumbActions from "@/components/shared/Breadcrum/BreadcrumbActions";
 
 export function TaskDashboard() {
   const {
@@ -75,41 +76,45 @@ export function TaskDashboard() {
         heading="Tarefas"
         className="items-center"
         icon={
-          <div className="flex items-center gap-2">
-            <div className="bg-muted p-1 rounded-md flex">
+          <BreadcrumbActions>
+            <div className="flex items-center gap-2">
+              <div className="bg-muted p-1 rounded-md flex">
+                <Button
+                  variant={view === "board" ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setView("board")}
+                  className="h-8 w-8 p-0"
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={view === "week" ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setView("week")}
+                  className="h-8 w-8 p-0"
+                >
+                  <Calendar className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={view === "list" ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setView("list")}
+                  className="h-8 w-8 p-0"
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+              </div>
               <Button
-                variant={view === "board" ? "secondary" : "ghost"}
-                size="sm"
-                onClick={() => setView("board")}
-                className="h-8 w-8 p-0"
+                onClick={handleCreate}
+                className="h-10 w-10 p-0 sm:w-auto sm:px-4"
               >
-                <LayoutGrid className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={view === "week" ? "secondary" : "ghost"}
-                size="sm"
-                onClick={() => setView("week")}
-                className="h-8 w-8 p-0"
-              >
-                <Calendar className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={view === "list" ? "secondary" : "ghost"}
-                size="sm"
-                onClick={() => setView("list")}
-                className="h-8 w-8 p-0"
-              >
-                <List className="h-4 w-4" />
+                <Plus className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">
+                  {t("dashboard.newTask")}
+                </span>
               </Button>
             </div>
-            <Button
-              onClick={handleCreate}
-              className="h-10 w-10 p-0 sm:w-auto sm:px-4"
-            >
-              <Plus className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">{t("dashboard.newTask")}</span>
-            </Button>
-          </div>
+          </BreadcrumbActions>
         }
       />
 
