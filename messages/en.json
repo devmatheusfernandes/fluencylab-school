@@ -431,7 +431,9 @@
       "reviewing": "Reviewing",
       "error": "Error",
       "processing": "Processing",
-      "draft": "Draft"
+      "draft": "Draft",
+      "analyzing": "Analyzing",
+      "processing_items": "Processing items"
     },
     "level": "Level",
     "noLessons": "No lessons found.",

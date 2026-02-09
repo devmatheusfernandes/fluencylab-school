@@ -28,12 +28,14 @@ export default async function MyPracticePage({
   const params = await searchParams;
   const dayParam = params.day ? parseInt(params.day as string) : undefined;
   const isReplay = params.replay === "true";
+  const lessonId = params.lessonId as string | undefined;
 
   return (
     <PracticeSession
       planId={activePlan.id}
       dayOverride={dayParam}
       isReplay={isReplay}
+      lessonId={lessonId}
     />
   );
 }

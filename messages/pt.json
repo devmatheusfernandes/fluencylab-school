@@ -417,7 +417,9 @@
       "reviewing": "Revisando",
       "error": "Erro",
       "processing": "Processando",
-      "draft": "Rascunho"
+      "draft": "Rascunho",
+      "analyzing": "Analisando",
+      "processing_items": "Processando itens"
     },
     "level": "Nível",
     "noLessons": "Nenhuma aula encontrada.",

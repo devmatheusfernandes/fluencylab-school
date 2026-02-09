@@ -31,9 +31,10 @@ interface PracticeSessionProps {
   planId: string;
   dayOverride?: number;
   isReplay?: boolean;
+  lessonId?: string;
 }
 
-export function PracticeSession({ planId, dayOverride, isReplay = false }: PracticeSessionProps) {
+export function PracticeSession({ planId, dayOverride, isReplay = false, lessonId }: PracticeSessionProps) {
   const router = useRouter();
 
   // Session State
@@ -86,7 +87,7 @@ export function PracticeSession({ planId, dayOverride, isReplay = false }: Pract
         } else {
           // 2. No valid saved state, fetch new daily practice
           console.log("Starting new daily practice for plan:", planId);
-          const dailySession = await getDailyPractice(planId, dayOverride);
+          const dailySession = await getDailyPractice(planId, dayOverride, lessonId);
           console.log(
             "Daily session received:",
             dailySession
@@ -271,7 +272,7 @@ export function PracticeSession({ planId, dayOverride, isReplay = false }: Pract
     setIsSaving(true);
     try {
       // 1. Process Results (Update SRS)
-      await processPracticeResults(planId, results, isReplay);
+      await processPracticeResults(planId, results, isReplay, streak);
 
       // 2. Clear Saved Session
       if (!isReplay) {

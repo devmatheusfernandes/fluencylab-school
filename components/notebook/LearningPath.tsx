@@ -10,8 +10,6 @@ import {
   Headphones,
   Lock,
   Star,
-  Coffee,
-  RotateCcw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
@@ -106,7 +104,7 @@ export function LearningPath({
         `/hub/student/my-practice?day=${selectedReplayDay}&replay=true`,
       );
     } catch (error) {
-      console.error(error);
+      console.error("purchaseReplaySession error", error);
       toast.error("Failed to purchase replay session.");
     } finally {
       setIsPurchasing(false);
@@ -185,10 +183,14 @@ export function LearningPath({
             </Button>
             <Button
               onClick={handleConfirmReplay}
-              disabled={isPurchasing || userXP < replayCost}
+              disabled={isPurchasing || userXP < replayCost || !planId}
               className="bg-indigo-600 hover:bg-indigo-700 text-white"
             >
-              {isPurchasing ? "Unlocking..." : "Confirm & Play"}
+              {isPurchasing
+                ? "Unlocking..."
+                : !planId
+                  ? "Loading..."
+                  : "Confirm & Play"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -356,9 +358,6 @@ function NodeItem({
           {day.status === "completed" ? (
             <div className="relative">
               <Star size={32} fill="currentColor" className="text-yellow-100" />
-              <div className="hidden absolute -bottom-2 -right-2 bg-indigo-600 rounded-full p-1 border-2 border-white">
-                <RotateCcw size={10} className="text-white" />
-              </div>
             </div>
           ) : day.status === "locked" ? (
             <Lock size={28} />

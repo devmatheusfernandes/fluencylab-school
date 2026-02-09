@@ -33,6 +33,8 @@ import {
 } from "@/components/ui/drawer";
 import { useIsStandalone } from "@/hooks/ui/useIsStandalone";
 import { useIsMobile } from "@/hooks/ui/useMobile";
+import Link from "next/link";
+import { HistoryIcon } from "@/public/animated/history";
 
 export default function Caderno() {
   const t = useTranslations("StudentNotebook");
@@ -60,9 +62,16 @@ export default function Caderno() {
   const userXP = student?.gamification?.currentXP || 0;
 
   const [statsLoading, setStatsLoading] = useState(true);
+  const [activePlanIdState, setActivePlanIdState] = useState<string | null>(
+    null,
+  );
   const [isWordModalOpen, setIsWordModalOpen] = useState(false);
   const [isNotebooksDrawerOpen, setIsNotebooksDrawerOpen] = useState(false);
   const [isTasksDrawerOpen, setIsTasksDrawerOpen] = useState(false);
+
+  // Use either the plan ID from the hook or the one fetched directly
+  // This ensures that if fetchStats succeeds, we have a plan ID even if the hook is still loading
+  const effectivePlanId = activePlanIdState || plan?.id;
 
   const [isLearnedModalOpen, setIsLearnedModalOpen] = useState(false);
   const [learnedItems, setLearnedItems] = useState<any[]>([]);
@@ -92,6 +101,7 @@ export default function Caderno() {
         try {
           const planId = await getActivePlanId(studentId);
           if (planId) {
+            setActivePlanIdState(planId);
             const data = await getStudentLearningStats(planId);
             setStats(data);
           } else {
@@ -207,9 +217,16 @@ export default function Caderno() {
                 : "card-base h-full max-h-[calc(101vh-180px)] overflow-auto"
             }
           >
-            <h3 className="text-lg font-bold text-center mt-3 text-primary">
-              Missions
-            </h3>
+            <div className="flex flex-row justify-between items-center mt-3 px-4">
+              <div />
+              <span className="text-lg font-bold text-primary">Missions</span>
+              <Link
+                className="text-muted-foreground hover:text-primary"
+                href="/hub/student/history"
+              >
+                <HistoryIcon size={20} />
+              </Link>
+            </div>
             {statsLoading ? (
               <div className="flex justify-center p-4">
                 <SpinnerLoading />
@@ -220,7 +237,7 @@ export default function Caderno() {
                 daysSinceClass={stats.daysSinceClass}
                 hasActiveLesson={stats.hasActiveLesson}
                 userXP={userXP}
-                planId={activePlanId}
+                planId={effectivePlanId}
               />
             )}
           </div>

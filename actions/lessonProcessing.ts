@@ -91,25 +91,41 @@ export async function generateLessonPodcast(lessonId: string) {
       - Teacher (Sarah): Especialista, paciente, tom de voz acolhedor e calmo.
       - Student (Leo): Curioso, energético, faz perguntas comuns de alunos.
 
-      DIRETRIZES DE ÁUDIO E EXPRESSIVIDADE (CRÍTICO PARA ELEVENLABS V3):
-      1. Use TAGS DE EMOÇÃO entre colchetes para sons não verbais onde fizer sentido: [laugh], [sigh], [clears throat], [breath].
-      2. Use RETICÊNCIAS (...) para indicar pausas naturais, hesitação ou pensamento (ex: "Deixe-me ver... ah, sim!").
-      3. Use LETRAS MAIÚSCULAS para enfatizar palavras importantes (ex: "Isso é MUITO importante").
-      4. Ritmo:
-         - Teacher: Fala pausada e articulada. Use vírgulas para controlar o ritmo.
-         - Student: Mais dinâmico, pode usar hesitações como "hum..." ou "er..." antes de perguntar.
+      DIRETRIZES DE ÁUDIO E EXPRESSIVIDADE (IMPORTANTE):
+      1. NÃO use tags de instrução como [laugh], [breath] ou [sigh]. O texto será lido literalmente por uma IA.
+      2. Para expressar emoção, escreva a reação no próprio texto:
+         - Risadas: "Hahaha", "Hehe", "Rsrs".
+         - Hesitação/Pensamento: "Hum...", "É...", "Bem...".
+         - Surpresa/Reação: "Uau!", "Nossa!", "Sério?".
+      3. Use PONTUAÇÃO para controlar o ritmo:
+         - Reticências (...) para pausas longas.
+         - Exclamações (!) para entusiasmo.
+         - CAPS LOCK para ênfase em palavras chaves (ex: "Isso é MUITO legal").
+      4. O diálogo deve soar espontâneo, como uma conversa real, não um texto lido.
 
-      DIRETRIZES DE IDIOMA:
-      - Nível da Aula: ${level}.
-      - Idioma Alvo: ${language}.
-      - Se Nível A1/A2: Teacher explica em Português, usa exemplos no idioma alvo. Student pergunta em PT.
-      - Se Nível B1/B2: Misto. Explicações simples no idioma alvo, dúvidas mais complexas em PT.
-      - Se Nível C1/C2: Quase 100% no idioma alvo.
+      DIRETRIZES DE IDIOMA (RIGOROSO):
+      - Nível da Aula: ${level}
+      - Idioma Alvo: ${language}
+      
+      Regras estritas de idioma baseadas no nível:
+      - Nível A1/A2 (Iniciante): 
+        * O Teacher DEVE falar principalmente em PORTUGUÊS (PT-BR) para explicar.
+        * Use o idioma alvo (${language}) APENAS para os exemplos práticos e vocabulário da aula.
+        * O Student faz perguntas e comentários em PORTUGUÊS.
+      
+      - Nível B1/B2 (Intermediário): 
+        * O Teacher alterna naturalmente entre Português e ${language} (Code-Switching).
+        * Explicações gramaticais complexas em PT.
+        * Interações sociais e exemplos simples em ${language}.
+      
+      - Nível C1/C2 (Avançado): 
+        * O diálogo deve ser 90-100% no idioma alvo (${language}).
+        * Português usado apenas se for muito necessário para uma nuance de tradução.
 
       FORMATO JSON OBRIGATÓRIO (Array):
       [
-        { "speaker": "Teacher", "text": "Olá Leo! [breath] Hoje vamos aprender sobre algo FASCINANTE..." },
-        { "speaker": "Student", "text": "Oi Sarah! [laugh] Estou animado. O que é isso?" }
+        { "speaker": "Teacher", "text": "Olá Leo! Hum... hoje vamos ver algo MUITO interessante." },
+        { "speaker": "Student", "text": "Oi Sarah! Hahaha, estou curioso. O que é?" }
       ]
 
       CONTEÚDO DA AULA:

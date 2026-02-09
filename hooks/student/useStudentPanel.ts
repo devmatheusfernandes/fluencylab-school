@@ -6,6 +6,11 @@ import { User } from "@/types/users/users";
 import { StudentClass, ClassStatus } from "@/types/classes/class";
 import { Notebook } from "@/types/notebooks/notebooks";
 import { Plan } from "@/types/learning/plan";
+import {
+  getStudentProfile,
+  getActivePlanId,
+  getStudentPlanDetails,
+} from "@/actions/srsActions";
 
 // Use global Notebook type
 
@@ -95,6 +100,14 @@ export const useStudentPanel = (studentId: string) => {
     if (!studentId) return;
 
     try {
+      // Try to get full student profile via Server Action first
+      // This ensures we get gamification data and other fields not exposed in simple endpoints
+      const profile = await getStudentProfile(studentId);
+      if (profile) {
+        setStudent(profile);
+        return;
+      }
+
       // First, try to get student info from teacher endpoint
       const teacherResponse = await fetch(
         `/api/teacher/students/${studentId}/notebooks`,
@@ -251,7 +264,7 @@ export const useStudentPanel = (studentId: string) => {
     if (!studentId) return;
 
     try {
-      // For students, use their own endpoint (TODO: Implement if needed)
+      // For students, use their own endpoint (Server Action)
       if (typeof window !== "undefined") {
         const sessionResponse = await fetch("/api/auth/session");
         const session = await sessionResponse.json();
@@ -260,7 +273,13 @@ export const useStudentPanel = (studentId: string) => {
           session?.user?.id === studentId &&
           session?.user?.role === "student"
         ) {
-          // Skip for now or implement student specific endpoint
+          const planId = await getActivePlanId(studentId);
+          if (planId) {
+            const planData = await getStudentPlanDetails(planId);
+            if (planData) {
+              setPlan(parsePlanDates(planData));
+            }
+          }
           return;
         }
       }

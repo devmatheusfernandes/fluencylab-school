@@ -20,6 +20,8 @@ import {
 } from "@/lib/learning/practiceLogic";
 import { FieldValue, FieldPath } from "firebase-admin/firestore";
 import { User } from "@/types/users/users";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 // Helper to ensure data is serializable (converts Timestamps to Dates)
 function serializeFirestoreData(data: any): any {
@@ -132,9 +134,11 @@ function getPracticeCycle(plan: Plan) {
     return { currentDay: 0, activeLesson: classToday, isClassDay: true };
   }
 
-  // Find most recent past class
+  // Find most recent past class that is NOT fully completed
   const lastClass = validLessons.find(
-    (l) => differenceInCalendarDays(today, l.parsedDate) > 0,
+    (l) =>
+      differenceInCalendarDays(today, l.parsedDate) > 0 &&
+      (l.completedPracticeDays || 0) < 6,
   );
 
   if (lastClass) {
@@ -167,6 +171,7 @@ function getPracticeCycle(plan: Plan) {
 export async function getDailyPractice(
   planId: string,
   dayOverride?: number,
+  lessonId?: string,
 ): Promise<DailyPracticeSession> {
   try {
     // console.log(`[getDailyPractice] Starting for plan ${planId}`);
@@ -199,6 +204,21 @@ export async function getDailyPractice(
 
     // 1. Determine Cycle & Mode
     let { currentDay, activeLesson, isClassDay } = getPracticeCycle(plan);
+
+    if (lessonId) {
+      // Force specific lesson for replay
+      const foundLesson = plan.lessons?.find((l) => l.id === lessonId);
+      if (foundLesson) {
+        const parsedLesson = {
+          ...foundLesson,
+          parsedDate: parseLessonDate(foundLesson.scheduledDate) || new Date(),
+        };
+        activeLesson = parsedLesson as typeof foundLesson & {
+          parsedDate: Date;
+        };
+        isClassDay = false; // Always practice mode for history replay
+      }
+    }
 
     if (dayOverride !== undefined) {
       currentDay = dayOverride;
@@ -581,6 +601,7 @@ export async function processPracticeResults(
   planId: string,
   results: PracticeResult[],
   isReplay: boolean = false,
+  sessionStreak: number = 0,
 ) {
   try {
     // If it's a replay session, we don't update SRS, progress, or gamification.
@@ -596,9 +617,76 @@ export async function processPracticeResults(
       if (!planDoc.exists) throw new Error("Plan not found");
 
       const planData = planDoc.data() as Plan;
+      if (!planData.studentId) throw new Error("Student ID not found in plan");
+
+      const userRef = db.collection("users").doc(planData.studentId);
+      const userDoc = await t.get(userRef);
+      if (!userDoc.exists) throw new Error("User not found");
+
+      const userData = userDoc.data() as User;
       const updates: any = {
         "metadata.updatedAt": FieldValue.serverTimestamp(),
       };
+
+      // --- GAMIFICATION UPDATE ---
+      const correctCount = results.filter((r) => r.grade >= 3).length;
+      const xpGained = correctCount * 10 + sessionStreak * 2;
+
+      // Initialize gamification if missing
+      const currentGamification = userData.gamification || {
+        currentXP: 0,
+        level: 1,
+        streak: { current: 0, best: 0, lastStudyDate: null },
+        studyHeatmap: {},
+      };
+
+      let newCurrentStreak = currentGamification.streak.current;
+      const lastStudyDate = currentGamification.streak.lastStudyDate
+        ? (currentGamification.streak.lastStudyDate as any).toDate
+          ? (currentGamification.streak.lastStudyDate as any).toDate()
+          : new Date(currentGamification.streak.lastStudyDate as any)
+        : null;
+
+      const today = new Date();
+      const todayStr = today.toISOString().split("T")[0]; // YYYY-MM-DD
+
+      // Check daily streak logic
+      if (lastStudyDate) {
+        const lastDateStr = lastStudyDate.toISOString().split("T")[0];
+        const diffDays = differenceInCalendarDays(today, lastStudyDate);
+
+        if (diffDays === 1) {
+          // Consecutive day
+          newCurrentStreak += 1;
+        } else if (diffDays > 1) {
+          // Broken streak (reset to 1)
+          newCurrentStreak = 1;
+        }
+        // If diffDays === 0 (same day), keep streak as is
+      } else {
+        // First time
+        newCurrentStreak = 1;
+      }
+
+      const newBestStreak = Math.max(
+        newCurrentStreak,
+        currentGamification.streak.best,
+      );
+
+      // Update Heatmap
+      const newHeatmap = { ...currentGamification.studyHeatmap };
+      newHeatmap[todayStr] = (newHeatmap[todayStr] || 0) + 1;
+
+      // Update User Doc
+      t.update(userRef, {
+        "gamification.currentXP": FieldValue.increment(xpGained),
+        "gamification.streak": {
+          current: newCurrentStreak,
+          best: newBestStreak,
+          lastStudyDate: today,
+        },
+        "gamification.studyHeatmap": newHeatmap,
+      });
 
       // Map results for quick lookup
       const resultsMap = new Map(results.map((r) => [r.itemId, r.grade]));
@@ -895,9 +983,11 @@ export async function getStudentLearningStats(planId: string) {
         (a, b) => b.parsedDate.getTime() - a.parsedDate.getTime(),
       );
 
-      // Find most recent past class
+      // Find most recent past class that is NOT fully completed
       const lastClass = validLessons.find(
-        (l) => differenceInCalendarDays(today, l.parsedDate) > 0,
+        (l) =>
+          differenceInCalendarDays(today, l.parsedDate) > 0 &&
+          (l.completedPracticeDays || 0) < 6,
       );
 
       if (lastClass) {
@@ -1083,13 +1173,109 @@ export async function getLearnedItemsDetails(planId: string) {
 }
 
 /**
+ * Retrieves the history of completed lessons for a student plan.
+ */
+export async function getStudentHistory(planId: string) {
+  try {
+    const planRef = db.collection("plans").doc(planId);
+    const planDoc = await planRef.get();
+
+    if (!planDoc.exists) {
+      throw new Error("Plan not found");
+    }
+
+    const plan = planDoc.data() as Plan;
+
+    if (!plan.lessons || !Array.isArray(plan.lessons)) {
+      return [];
+    }
+
+    // Filter lessons that have at least some progress, or all past lessons?
+    // Let's return lessons that have completedPracticeDays > 0, OR are chronologically in the past.
+    // Actually, let's just return all lessons that have started (completedPracticeDays > 0)
+    // AND sort them by order or date.
+
+    const historyLessons = plan.lessons
+      .filter((l) => (l.completedPracticeDays || 0) > 0)
+      .map((l) => ({
+        id: l.id,
+        title: l.title,
+        order: l.order,
+        completedPracticeDays: l.completedPracticeDays || 0,
+        scheduledDate: parseLessonDate(l.scheduledDate),
+      }))
+      .sort((a, b) => {
+        // Sort by order descending (newest first)
+        return b.order - a.order;
+      });
+
+    return serializeFirestoreData(historyLessons);
+  } catch (error) {
+    console.error("Error fetching student history:", error);
+    return [];
+  }
+}
+
+/**
+ * Retrieves the full details of a student plan (all lessons).
+ */
+export async function getStudentPlanDetails(planId: string) {
+  try {
+    const planRef = db.collection("plans").doc(planId);
+    const planDoc = await planRef.get();
+
+    if (!planDoc.exists) {
+      throw new Error("Plan not found");
+    }
+
+    const plan = planDoc.data() as Plan;
+
+    // Return the plan with serialized dates
+    return serializeFirestoreData(plan);
+  } catch (error) {
+    console.error("Error fetching plan details:", error);
+    return null;
+  }
+}
+
+/**
+ * Retrieves archived or completed plans for a student.
+ */
+export async function getStudentArchivedPlans(studentId: string) {
+  try {
+    const plansRef = db.collection("plans");
+    const snapshot = await plansRef
+      .where("studentId", "==", studentId)
+      .where("status", "in", ["completed", "archived"])
+      .orderBy("createdAt", "desc")
+      .get();
+
+    if (snapshot.empty) {
+      return [];
+    }
+
+    const plans = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return serializeFirestoreData(plans);
+  } catch (error) {
+    console.error("Error fetching archived plans:", error);
+    return [];
+  }
+}
+
+/**
  * Purchase a replay session using XP.
  * Cost = 50 + (currentDay - sessionDay) * 10 XP.
+ * If lessonId is provided (past lesson), Cost = 50 + (DaysSinceScheduled * 1) XP.
  */
 export async function purchaseReplaySession(
   planId: string,
   replayDayIndex: number,
   currentDayIndex: number,
+  lessonId?: string,
 ) {
   try {
     const planRef = db.collection("plans").doc(planId);
@@ -1109,8 +1295,28 @@ export async function purchaseReplaySession(
       const currentXP = userData.gamification?.currentXP || 0;
 
       // Calculate Cost
-      const daysDiff = Math.max(0, currentDayIndex - replayDayIndex);
-      const cost = 50 + daysDiff * 10;
+      let cost = 0;
+
+      if (lessonId) {
+        // Replaying a past lesson
+        const lesson = planData.lessons?.find((l) => l.id === lessonId);
+        if (lesson && lesson.scheduledDate) {
+          const scheduledDate = parseLessonDate(lesson.scheduledDate);
+          if (scheduledDate) {
+            const today = startOfDay(new Date());
+            const daysSince = differenceInCalendarDays(today, scheduledDate);
+            cost = 50 + Math.max(0, daysSince) * 1;
+          } else {
+            cost = 50; // Fallback
+          }
+        } else {
+          cost = 50; // Fallback if no date found
+        }
+      } else {
+        // Replaying current lesson cycle
+        const daysDiff = Math.max(0, currentDayIndex - replayDayIndex);
+        cost = 50 + daysDiff * 10;
+      }
 
       if (currentXP < cost) {
         throw new Error(
@@ -1130,5 +1336,34 @@ export async function purchaseReplaySession(
   } catch (error: any) {
     console.error("Error purchasing replay session:", error);
     throw new Error(error.message || "Failed to purchase replay session");
+  }
+}
+
+/**
+ * Fetches the full student profile including gamification data.
+ * Checks session to ensure authorized access.
+ */
+export async function getStudentProfile(
+  studentId: string,
+): Promise<User | null> {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) return null;
+
+  // Allow if user is the student, or has teacher/admin/manager role
+  if (
+    session.user.id !== studentId &&
+    !["teacher", "admin", "manager"].includes(session.user.role as string)
+  ) {
+    console.error("Unauthorized access to student profile");
+    return null;
+  }
+
+  try {
+    const userDoc = await db.collection("users").doc(studentId).get();
+    if (!userDoc.exists) return null;
+    return serializeFirestoreData(userDoc.data()) as User;
+  } catch (error) {
+    console.error("Error fetching student profile:", error);
+    return null;
   }
 }
