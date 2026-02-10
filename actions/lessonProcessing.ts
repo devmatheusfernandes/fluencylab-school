@@ -222,8 +222,6 @@ export async function analyzeLessonContent(
     }
 
     // 2. Configura Prompt Baseado no Idioma
-    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
-
     // Detectando contexto: Assumimos que se a aula é de EN, a base é PT (ou vice-versa para este sistema)
     // Se o sistema for expandir, essa lógica pode vir do user profile.
     const isTargetEnglish = targetLanguage === "en";
@@ -272,55 +270,86 @@ export async function analyzeLessonContent(
     const structureTypesList = allowedStructures.join(", ");
 
     // 3. Prompt Refinado para Conteúdo Misto (Aula)
+    // Verifica se é a primeira análise (sem itens na fila e sem itens relacionados já salvos)
+    const hasExistingItems =
+      (lessonData?.relatedLearningItemIds?.length || 0) > 0 ||
+      currentVocabQueue.length > 0;
+    const isFirstAnalysis = !hasExistingItems;
+
+    // --- CONFIGURAÇÃO DE LIMITES E RETRY (MODO SEGURO) ---
+    const MIN_STRUCTURES_THRESHOLD = 8;
+    const MAX_ITEMS_CAP = 40;
+    const MAX_STRUCT_CAP = 20;
+    let attempts = 0;
+    const MAX_RETRIES = 2; // Mantém 2 para evitar Timeout
+
+    const quantityInstruction = isFirstAnalysis
+      ? `
+      REQUISITO DE QUANTIDADE (CRÍTICO):
+      Como esta é a análise inicial da aula, você DEVE extrair uma quantidade abrangente de conteúdo, respeitando os limites:
+      - Vocabulário: Mínimo de 20, Máximo de ${MAX_ITEMS_CAP} itens.
+      - Estruturas Gramaticais: Mínimo de 10, Máximo de ${MAX_STRUCT_CAP} itens.
+      Explore todo o texto para garantir que atingiu essa meta. Se necessário, inclua palavras de menor frequência mas relevantes para o nível.
+      `
+      : "Gere tantos itens quanto encontrar relevantes. Não há limite mínimo obrigatório para análises subsequentes.";
+
     const prompt = `
-      Atue como um Especialista em Educação de Idiomas.
+      Atue como um Especialista em Educação de Idiomas e Linguística Computacional.
       
       CONTEXTO:
       Você está analisando o texto de uma AULA de idiomas.
       - Idioma Alvo (O que está sendo ensinado): ${targetLanguageName}
       - Idioma de Instrução (Explicações): ${baseLanguageName}
       
-      TAREFA:
-      Analise o texto fornecido e extraia dados estruturados.
+      TAREFA (Fluxo Generativo):
+      Siga estes passos ESTRITAMENTE nesta ordem para garantir consistência:
       
-      1. NÍVEL CEFR: Determine o nível do conteúdo ensinado (A1-C2).
-      
-      2. VOCABULÁRIO (Extração Inteligente):
-         - IGNORE palavras que fazem parte apenas da explicação em ${baseLanguageName}.
-         - Extraia palavras/expressões chaves do idioma ${targetLanguageName} que são o foco da aula.
-         - Se o texto explica "O verbo to be significa ser/estar", o item é "to be" (target), a tradução é "ser/estar" (base).
-         - Use as explicações do texto para preencher o campo "context" e "definition" (no idioma alvo).
-         - Slug: formatação snake_case do termo + tipo (ex: to_be_verb).
+      ${quantityInstruction}
 
-      3. ESTRUTURAS GRAMATICAIS:
-         - Identifique padrões gramaticais do idioma ${targetLanguageName} presentes nos EXEMPLOS da aula.
-         - Tipos permitidos: ${structureTypesList}.
-         - "words": A frase no idioma alvo.
-         - "order": Mapeamento da posição de cada palavra.
-         - "slug": SE a palavra corresponder a um dos itens de VOCABULÁRIO extraídos (mesmo lemma/raiz), inclua o "slug" correspondente. Isso é CRUCIAL para criar links.
-         - "role": Classifique a função gramatical de CADA palavra no contexto.
-           - Use ESTRITAMENTE um destes valores: subject, verb, object, indirect_object, adjective, adverb, preposition, auxiliary, modal, connector, article, other.
+      PASSO 1: IDENTIFICAR VOCABULÁRIO (Vocabulary)
+      - Extraia as palavras-chave e expressões do idioma ${targetLanguageName} ensinadas na aula.
+      - IGNORE palavras que fazem parte apenas da explicação em ${baseLanguageName}.
+      - Slug: formatação snake_case do termo + tipo (ex: apple_noun).
+      
+      PASSO 2: IDENTIFICAR ESTRUTURAS (Structures)
+      - Identifique quais estruturas gramaticais da lista permitida são relevantes para o nível desta aula.
+      - Lista permitida: ${structureTypesList}.
+      
+      PASSO 3: GERAR FRASES E EXPANDIR VOCABULÁRIO (Generation & Expansion)
+      - Para cada estrutura identificada, GERE uma frase de exemplo.
+      - A frase DEVE usar prioritariamente as palavras listadas no Passo 1 (Vocabulary).
+      - REGRA DE INTEGRIDADE TOTAL (CRÍTICO):
+        * Todas as "content words" (substantivos, verbos, adjetivos, advérbios) usadas nas frases geradas DEVEM ter um item correspondente na lista de "vocabulary".
+        * Se você usar uma palavra na frase que NÃO estava no Passo 1, você é OBRIGADO a criar o item completo para ela e adicioná-lo à lista "vocabulary" IMEDIATAMENTE.
+        * NÃO deixe palavras "orfãs" nas estruturas sem definição no vocabulário.
+      
+      PASSO 4: VERIFICAÇÃO FINAL
+      - Revise se todos os slugs usados nas estruturas existem na lista de vocabulário.
+
+      DETALHES DOS CAMPOS:
+      - "slug" na estrutura: OBRIGATÓRIO para todas as content words. Deve corresponder EXATAMENTE a um slug no array "vocabulary".
+      - "role": Classifique a função gramatical de CADA palavra: subject, verb, object, indirect_object, adjective, adverb, preposition, auxiliary, modal, connector, article, other.
 
       FORMATO JSON OBRIGATÓRIO:
       {
         "level": "A1",
         "vocabulary": [
           {
-            "slug": "unique_id",
-            "mainText": "termo no idioma alvo",
-            "type": "verb", // ou noun, adjective, etc.
+            "slug": "apple_noun",
+            "mainText": "apple",
+            "type": "noun",
             "level": "A1",
-            "phonetic": "/.../",
+            "phonetic": "/ˈæp.əl/",
             "meanings": [
               { 
-                "context": "Contexto extraído da explicação da aula", 
-                "definition": "Definição no idioma alvo", 
-                "translation": "Tradução no idioma base", 
-                "example": "Frase de exemplo citada na aula", 
-                "exampleTranslation": "Tradução do exemplo" 
+                "context": "Fruit context", 
+                "definition": "A round fruit with red or green skin.", 
+                "translation": "maçã", 
+                "example": "I eat an apple.", 
+                "exampleTranslation": "Eu como uma maçã." 
               }
             ],
-            "forms": { "base": "...", "past": "..." }
+            "forms": { "singular": "apple", "plural": "apples" }
           }
         ],
         "structures": [
@@ -329,12 +358,12 @@ export async function analyzeLessonContent(
             "type": "s-v-o",
             "sentences": [
               {
-                "words": "I am a doctor",
+                "words": "I eat an apple",
                 "order": [
                   { "word": "I", "order": 0, "role": "subject", "slug": "i_pronoun" },
-                  { "word": "am", "order": 1, "role": "verb", "slug": "be_verb" },
-                  { "word": "a", "order": 2, "role": "article" },
-                  { "word": "doctor", "order": 3, "role": "object", "slug": "doctor_noun" }
+                  { "word": "eat", "order": 1, "role": "verb", "slug": "eat_verb" },
+                  { "word": "an", "order": 2, "role": "article" },
+                  { "word": "apple", "order": 3, "role": "object", "slug": "apple_noun" }
                 ]
               }
             ]
@@ -346,26 +375,71 @@ export async function analyzeLessonContent(
       """ ${contentText} """
     `;
 
-    // 4. Chamada AI
-    const result = await model.generateContent(prompt);
-    const cleanedText = result.response
-      .text()
-      .replace(/```json/g, "")
-      .replace(/```/g, "")
-      .trim();
+    // 4. Chamada AI com Retry e Temperatura Dinâmica
+    let analysis: AnalysisResult | null = null;
+    let lastError: any = null;
 
-    let analysis: AnalysisResult;
-    try {
-      analysis = JSON.parse(cleanedText);
-    } catch (e) {
-      console.error("JSON Parse Error", cleanedText);
-      throw new Error("Falha ao processar resposta da IA");
+    while (attempts < MAX_RETRIES && !analysis) {
+      attempts++;
+
+      // Aumenta temperatura na segunda tentativa para destravar criatividade
+      const currentTemperature = attempts > 1 ? 0.4 : 0.1;
+
+      const model = genAI.getGenerativeModel({
+        model: "gemini-3-pro-preview",
+        generationConfig: {
+          temperature: currentTemperature,
+          responseMimeType: "application/json",
+        },
+      });
+
+      try {
+        const result = await model.generateContent(prompt);
+        const cleanedText = result.response
+          .text()
+          .replace(/```json/g, "")
+          .replace(/```/g, "")
+          .trim();
+
+        const parsed = JSON.parse(cleanedText) as AnalysisResult;
+
+        // Validação Mínima de Estruturas (apenas na primeira análise para garantir qualidade)
+        if (
+          isFirstAnalysis &&
+          parsed.structures.length < MIN_STRUCTURES_THRESHOLD
+        ) {
+          console.warn(
+            `Attempt ${attempts}: Structures count (${parsed.structures.length}) below threshold (${MIN_STRUCTURES_THRESHOLD}).`,
+          );
+          if (attempts < MAX_RETRIES) continue;
+        }
+
+        analysis = parsed;
+      } catch (e) {
+        console.error(`Attempt ${attempts} failed:`, e);
+        lastError = e;
+      }
+    }
+
+    if (!analysis) {
+      throw (
+        lastError ||
+        new Error("Falha ao processar resposta da IA após tentativas.")
+      );
     }
 
     // 5. Filtragem e Salvamento
-    const newVocab = analysis.vocabulary.filter(
+    let newVocab = analysis.vocabulary.filter(
       (item) => !existingSlugs.has(item.slug),
     );
+
+    // Aplica Limites Máximos (Safety Cap)
+    if (newVocab.length > MAX_ITEMS_CAP) {
+      newVocab = newVocab.slice(0, MAX_ITEMS_CAP);
+    }
+    if (analysis.structures.length > MAX_STRUCT_CAP) {
+      analysis.structures = analysis.structures.slice(0, MAX_STRUCT_CAP);
+    }
 
     await lessonRef.update({
       level: analysis.level,
@@ -626,7 +700,14 @@ export async function generateLessonQuiz(lessonId: string) {
       !!data.transcriptSegments && data.transcriptSegments.length > 0;
     const includeTimestamps = hasAudio && hasSegments;
 
-    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+    //const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+    // MODELO: Gemini 2.0 Flash (Usando Temperatura MÉDIA para simular raciocínio do Pro)
+    const model = genAI.getGenerativeModel({
+      model: "gemini-3-pro-preview", //gemini-2.0-flash
+      generationConfig: {
+        temperature: 0.4, // Equilíbrio para criar opções erradas plausíveis
+      },
+    });
 
     // Lógica de Idioma da Pergunta (Suporte para A1/A2)
     const isBeginner = ["A1", "A2"].includes(level);
@@ -683,21 +764,31 @@ export async function generateLessonQuiz(lessonId: string) {
         : "Português";
 
     const prompt = `
-      Crie um Quiz educacional baseado no texto de aula fornecido e nos itens de aprendizado listados.
+    ATUE COMO: Especialista Sênior em Avaliação Linguística e Design Instrucional (CEFR).
+
+    CONTEXTO:
+    Você está criando um Quiz Diagnóstico para um aplicativo de aprendizado de idiomas.
+    O objetivo não é apenas testar, mas ensinar através do erro.
+
+    CONFIGURAÇÃO GERAL:
+    - Nível CEFR da Aula: ${level}
+    - Idioma Alvo (O que se aprende): ${targetLang}
+    - Idioma de Instrução (Enunciados/Explicações): ${instructionLang}
+    - Perfil do Aluno: ${isBeginner ? "Iniciante (Foco em reconhecimento e vocabulário concreto)" : "Avançado (Foco em nuances, pragmática e produção)"}
+
+    REGRAS PEDAGÓGICAS DE OURO (CRÍTICO):
+    1. Distratores Inteligentes: As opções erradas NÃO podem ser aleatórias. Elas devem refletir:
+      - Interferência da L1 (Erros que falantes de ${instructionLang} costumam cometer).
+      - Falsos Cognatos.
+      - Generalização excessiva de regras gramaticais.
+    2. Feedback Específico: O campo "explanation". Se o aluno errar, ele precisa saber POR QUE aquela opção específica está errada.
+
+        ITENS PRIORITÁRIOS (Use estes dados para gerar as questões):
+        - Vocabulário Obrigatório: 
+        ${vocabContext}
+        - Estruturas Obrigatórias: 
+        ${structContext}
       
-      CONFIGURAÇÃO:
-      - Nível da Aula: ${level}
-      - Idioma Alvo (Aprendizado): ${targetLang}
-      - Contexto do Aluno: ${isBeginner ? "Iniciante" : "Intermediário/Avançado"}
-      
-      ITENS DE APRENDIZADO PRIORITÁRIOS:
-      Sempre que possível, crie perguntas que testem estes itens específicos.
-      
-      VOCABULÁRIO:
-      ${vocabContext}
-      
-      ESTRUTURAS:
-      ${structContext}
 
       REGRA IMPORTANTE DE IDIOMA:
       - Como o nível é ${level}, o ENUNCIADO das perguntas e a EXPLICAÇÃO devem estar em ${instructionLang}.
@@ -717,12 +808,11 @@ export async function generateLessonQuiz(lessonId: string) {
             "questions": [
               {
                 "text": "Enunciado da pergunta aqui (${instructionLang})", 
-                "options": ["Opção 1 (Alvo)", "Opção 2 (Alvo)", "Opção 3 (Alvo)", "Opção 4 (Alvo)"], 
+                "options": ["Opção 1", "Opção 2", "Opção 3", "Opção 4"], 
                 "correctIndex": 0, 
                 "explanation": "Explicação breve em ${instructionLang}.",
                 "relatedLearningItemId": "ID_DO_ITEM (Opcional, se a pergunta for sobre um item da lista)",
                 "relatedLearningStructureId": "ID_DA_ESTRUTURA (Opcional, se a pergunta for sobre uma estrutura)",
-                "audioRange": { "start": 15.5, "end": 20.0 } // (Opcional) Apenas para perguntas de áudio/timestamp. Use SEGUNDOS (float).
               }
             ]
           }
@@ -730,32 +820,32 @@ export async function generateLessonQuiz(lessonId: string) {
       }
       
       Estrutura do Quiz (Gere estritamente este JSON): 
-       
+        
        1. Seção de Vocabulário (5-6 perguntas): 
           - Tradução de palavras individuais e frases completas. 
           - 4 opções de resposta. 
-       
+        
        2. Seção de Gramática (5-6 perguntas): 
           - Tempos verbais, concordância, artigos, preposições. 
           - 4 opções de resposta. 
-       
+        
        ${
          includeTimestamps
            ? ` 
        3. Seção de Timestamps (5-6 perguntas): 
           - Perguntas sobre o que foi dito em trechos específicos. 
           - Use os timestamps fornecidos abaixo. 
-          - IMPORTANTE: Preencha "audioRange" com start/end em SEGUNDOS (ex: 1:30 = 90).
-          - O texto da pergunta deve indicar o timestamp para contexto visual, ex: "No trecho 00:15 - 00:20..." 
+          - IMPORTANTE: Crie e preencha "audioRange" com start/end em SEGUNDOS (ex: 1:30 = 90) em cada pergunta.
+          - As perguntas precisam levar em conta o trecho transcrito no timestamp fornecido, elas precisam fazer sentido com ele.
           - 4 opções de resposta. 
        `
            : ""
        } 
-       
+        
        4. Seção de Contexto (5-6 perguntas): 
           - Frases ambíguas, formalidade, expressões idiomáticas. 
           - 4 opções de resposta. 
-       
+        
        5. Seção de Compreensão (3-6 perguntas): 
           - Ideias principais, inferência, relação entre conceitos. 
           - 4 opções de resposta.
@@ -903,11 +993,28 @@ export async function generateLessonTranscript(lessonId: string) {
     const arrayBuffer = await audioResponse.arrayBuffer();
     const base64Audio = Buffer.from(arrayBuffer).toString("base64");
 
-    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" }); // Use o 1.5 Flash explicitamente se possível, é melhor em áudio
+    //const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" }); // Use o 1.5 Flash explicitamente se possível, é melhor em áudio
+    // MODELO: Gemini 2.0 Flash (Temperatura ZERO = Precisão Auditiva Máxima)
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash-native-audio",
+      generationConfig: {
+        temperature: 0.0, // Zero criatividade, fidelidade total ao áudio
+      },
+    });
 
     const prompt = `
       Atue como um transcritor de áudio profissional.
       O áudio é uma aula de idiomas ou diálogo.
+      
+      CONTEXTO DO ÁUDIO:
+      - Tipo: Aula de Idiomas (Ensino de ${data.language || "Inglês"}) ou misto, mudando de um idioma para outro.
+      - Falantes prováveis: Professor (Instrução) e Aluno (Dúvidas/Repetição).
+      - Vocabulário esperado (Dica): ${
+        data.learningItensQueue
+          ?.map((i) => i.mainText)
+          .slice(0, 30)
+          .join(", ") || "Termos gerais"
+      }
       
       TAREFAS:
       1. Transcreva o áudio com precisão, respeitando o idioma falado em cada momento (pode haver mistura de idiomas).
@@ -915,9 +1022,11 @@ export async function generateLessonTranscript(lessonId: string) {
          - Se possível identificar pelo contexto, use rótulos como "Professor" e "Aluno".
          - Se não, use "Speaker 1", "Speaker 2".
          - Se for apenas uma pessoa (monólogo), use "Speaker".
-      3. Gere Timestamps precisos.
-      4. Não use milissegundos, use segundos.
-      5. Para levar em conta o erro, coloque o começo e fim de cada timestamp com uma margem de erro de 1 segundo. Assim, se o áudio começa em 0:04.15, o timestamp deve ser 0:03.15 - 0:05.15.  
+      3. Timestamps Precisos (Segundos):
+      - Formato float (ex: 12.5).
+
+      - AJUSTE FINO: O 'start' deve ser exatamente quando o som começa. O 'end' deve ser exatamente quando o som termina.
+      - IMPORTANTE: NÃO invente texto para preencher silêncio. Se houver silêncio, deixe uma lacuna entre o 'end' de um segmento e o 'start' do próximo.
 
       FORMATO JSON OBRIGATÓRIO (Array de objetos):
       [
@@ -971,6 +1080,171 @@ export async function generateLessonTranscript(lessonId: string) {
     return { success: true, count: segments.length };
   } catch (error) {
     console.error("Error timestamps:", error);
+    return { success: false, error };
+  }
+}
+
+/**
+ * 8. GERAÇÃO DE VOCABULÁRIO FALTANTE (MANUAL FIX)
+ * Recebe uma lista de palavras "órfãs" (sem LearningItem) e gera os itens completos.
+ */
+export async function generateMissingVocabulary(
+  lessonId: string,
+  missingWords: string[],
+) {
+  try {
+    const lessonRef = adminDb.collection("lessons").doc(lessonId);
+    const snap = await lessonRef.get();
+    if (!snap.exists) throw new Error("Lesson not found");
+    const data = snap.data() as Lesson;
+    const language = data.language || "en";
+
+    // Detectando contexto de idioma base
+    const isTargetEnglish = language === "en";
+    const baseLanguageName = isTargetEnglish
+      ? "Português Brasileiro"
+      : "Inglês";
+    const targetLanguageName = isTargetEnglish
+      ? "Inglês"
+      : "Português Brasileiro";
+
+    //const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+    // MODELO: Gemini 2.0 Flash (Estrutura e Rapidez)
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash",
+      generationConfig: {
+        temperature: 0.2, // Baixa temperatura para dados estruturados
+      },
+    });
+
+    const prompt = `
+      Atue como um Especialista em Educação de Idiomas.
+      
+      TAREFA:
+      Você receberá uma lista de palavras em ${targetLanguageName} que foram usadas em frases de exemplo, mas que não possuem definição no sistema.
+      Sua missão é criar o objeto completo de "LearningItem" para cada uma dessas palavras.
+      
+      LISTA DE PALAVRAS: ${missingWords.join(", ")}
+      
+      REGRAS:
+      1. Crie definições claras e exemplos simples.
+      2. O "slug" deve seguir o padrão snake_case + tipo (ex: apple_noun).
+      3. Use o idioma de instrução (${baseLanguageName}) para traduções.
+      
+      FORMATO JSON OBRIGATÓRIO (Array de LearningItem):
+      [
+        {
+          "slug": "word_type",
+          "mainText": "word",
+          "type": "noun", // verb, adjective, adverb, etc.
+          "level": "A1", // Estime o nível
+          "phonetic": "/.../",
+          "meanings": [
+            { 
+              "context": "Contexto principal", 
+              "definition": "Definição no idioma alvo", 
+              "translation": "Tradução no idioma base", 
+              "example": "Frase de exemplo curta", 
+              "exampleTranslation": "Tradução do exemplo" 
+            }
+          ],
+          "forms": { "singular": "...", "plural": "..." } // ou base/past para verbos
+        }
+      ]
+    `;
+
+    const result = await model.generateContent(prompt);
+    const cleanedText = result.response
+      .text()
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
+    let newItems: Array<Omit<LearningItem, "id" | "metadata" | "language">> =
+      [];
+    try {
+      newItems = JSON.parse(cleanedText);
+    } catch (e) {
+      console.error("JSON Parse Error (Missing Vocab):", cleanedText);
+      throw new Error("Falha ao gerar vocabulário faltante.");
+    }
+
+    // Salvar novos itens no Firestore
+    const batch = adminDb.batch();
+    const newIds: string[] = [];
+    const slugToIdMap = new Map<string, string>();
+
+    for (const item of newItems) {
+      const newRef = adminDb.collection("learningItems").doc();
+      const newItem = {
+        ...item,
+        id: newRef.id,
+        language,
+        metadata: {
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+      };
+      batch.set(newRef, newItem);
+      newIds.push(newRef.id);
+      slugToIdMap.set(item.mainText.toLowerCase(), newRef.id);
+      // Fallback: map slug too just in case
+      slugToIdMap.set(item.slug, newRef.id);
+    }
+
+    // Atualizar a Lição (adicionar aos relacionados)
+    if (newIds.length > 0) {
+      batch.update(lessonRef, {
+        relatedLearningItemIds: FieldValue.arrayUnion(...newIds),
+        "metadata.updatedAt": FieldValue.serverTimestamp(),
+      });
+    }
+
+    // Tentar vincular automaticamente às estruturas existentes da lição
+    // Isso requer ler todas as estruturas da lição, atualizar as referências e salvar.
+    // Como pode ser custoso ler tudo, vamos fazer uma atualização "best effort" nas estruturas que estão na fila ou relacionados.
+    // Mas o usuário pediu "salva no lugar correto". O lugar correto é o ID dentro do 'order' da estrutura.
+
+    // Vamos buscar as estruturas relacionadas para tentar corrigir
+    if (data.relatedLearningStructureIds?.length) {
+      // Limit to 50 most recent to avoid massive reads
+      const recentStructs = data.relatedLearningStructureIds.slice(-50);
+      const structsSnap = await adminDb
+        .collection("learningStructures")
+        .where(FieldPath.documentId(), "in", recentStructs)
+        .get();
+
+      structsSnap.docs.forEach((doc) => {
+        const struct = doc.data() as LearningStructure;
+        let changed = false;
+
+        const updatedSentences = struct.sentences.map((sent) => {
+          const updatedOrder = sent.order.map((wordObj) => {
+            // Se não tem ID e a palavra está no nosso mapa de novos itens
+            if (!wordObj.learningItemId) {
+              const key = wordObj.word.toLowerCase();
+              // Tenta casar pela palavra exata ou pelo slug (se tivermos essa info no wordObj, mas geralmente so temos word e role)
+              if (slugToIdMap.has(key)) {
+                changed = true;
+                return { ...wordObj, learningItemId: slugToIdMap.get(key) };
+              }
+            }
+            return wordObj;
+          });
+          return { ...sent, order: updatedOrder };
+        });
+
+        if (changed) {
+          batch.update(doc.ref, { sentences: updatedSentences });
+        }
+      });
+    }
+
+    await batch.commit();
+
+    return { success: true, count: newIds.length, newIds };
+  } catch (error) {
+    console.error("Error generating missing vocabulary:", error);
     return { success: false, error };
   }
 }

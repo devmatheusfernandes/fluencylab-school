@@ -563,7 +563,10 @@
       "positionLabel": "Pos: {order}",
       "updateSuccess": "Structure updated!",
       "updateError": "Error updating structure.",
-      "updateUnknownError": "Unknown error."
+      "updateUnknownError": "Unknown error.",
+      "generateMissing": "Generate missing items",
+      "generationError": "Error generating missing items.",
+      "generationSuccess": "Missing items generated successfully!"
     }
   },
 

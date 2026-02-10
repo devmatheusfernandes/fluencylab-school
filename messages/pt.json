@@ -549,7 +549,10 @@
       "positionLabel": "Pos: {order}",
       "updateSuccess": "Estrutura atualizada!",
       "updateError": "Erro ao atualizar.",
-      "updateUnknownError": "Erro desconhecido."
+      "updateUnknownError": "Erro desconhecido.",
+      "generateMissing": "Gerar itens faltantes",
+      "generationError": "Erro ao gerar itens faltantes.",
+      "generationSuccess": "Itens faltantes gerados com sucesso!"
     }
   },
 

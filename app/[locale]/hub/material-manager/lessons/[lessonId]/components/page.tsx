@@ -120,7 +120,11 @@ export default async function Page({ params }: { params: Promise<{ lessonId: str
         backHref={`/hub/material-manager/lessons/${lessonId}`}
       />
 
-      <LessonComponentsManager vocabulary={vocabulary} structures={structures} />
+      <LessonComponentsManager 
+        vocabulary={vocabulary} 
+        structures={structures} 
+        lessonId={lessonId}
+      />
     </div>
   );
 }

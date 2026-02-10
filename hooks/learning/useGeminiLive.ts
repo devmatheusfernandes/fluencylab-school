@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
 // Configuration
-const MODEL = "models/gemini-2.5-flash-native-audio-preview-12-2025";
+const MODEL = "gemini-2.5-flash-native-audio-latest"; //"models/gemini-2.5-flash-native-audio-preview-12-2025";
 const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 // WebSocket URL - v1beta is required for Live API
 const WS_URL = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${API_KEY}`;
