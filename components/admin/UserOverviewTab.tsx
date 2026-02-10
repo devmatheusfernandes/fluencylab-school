@@ -47,6 +47,9 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
   const [ratePerClassReais, setRatePerClassReais] = useState<
     number | undefined
   >(user.ratePerClassCents != null ? user.ratePerClassCents / 100 : undefined);
+  const [taxRegime, setTaxRegime] = useState<"PF" | "PJ" | undefined>(
+    user.taxRegime,
+  );
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>(
     user.languages || [],
   );
@@ -66,6 +69,7 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
         ratePerClassReais == null
           ? undefined
           : Math.round(ratePerClassReais * 100),
+      taxRegime: role === UserRoles.TEACHER ? taxRegime : undefined,
       languages: selectedLanguages,
     });
     if (success) {
@@ -174,25 +178,48 @@ export default function UserOverviewTab({ user }: UserOverviewTabProps) {
           </Select>
         </div>
         {role === UserRoles.TEACHER && (
-          <div>
-            <label
-              htmlFor="ratePerClassCents"
-              className="block text-sm font-medium mb-1"
-            >
-              {t("ratePerClass")}
-            </label>
-            <Input
-              id="ratePerClassCents"
-              type="number"
-              step="0.01"
-              min="0"
-              value={ratePerClassReais ?? 25}
-              onChange={(e) => {
-                const v = e.target.value;
-                setRatePerClassReais(v === "" ? undefined : Number(v));
-              }}
-              disabled={!canEditUser || isLoading}
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label
+                htmlFor="ratePerClassCents"
+                className="block text-sm font-medium mb-1"
+              >
+                {t("ratePerClass")}
+              </label>
+              <Input
+                id="ratePerClassCents"
+                type="number"
+                step="0.01"
+                min="0"
+                value={ratePerClassReais ?? 25}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setRatePerClassReais(v === "" ? undefined : Number(v));
+                }}
+                disabled={!canEditUser || isLoading}
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="taxRegime"
+                className="block text-sm font-medium mb-1"
+              >
+                {t("taxRegime")}
+              </label>
+              <Select
+                value={taxRegime}
+                onValueChange={(val) => setTaxRegime(val as "PF" | "PJ")}
+                disabled={!canEditUser || isLoading}
+              >
+                <SelectTrigger id="taxRegime">
+                  <SelectValue placeholder="Selecione..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="PF">{t("taxRegimePF")}</SelectItem>
+                  <SelectItem value="PJ">{t("taxRegimePJ")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         )}
 

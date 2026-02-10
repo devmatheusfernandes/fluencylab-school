@@ -128,7 +128,7 @@ export default async function LessonDetailPage({
         subheading={t("description")}
         backHref="/hub/material-manager/lessons"
       />
-      <div className="mt-6">
+      <div>
         <LessonCreationFlow
           lesson={lesson}
           vocabulary={vocabulary}

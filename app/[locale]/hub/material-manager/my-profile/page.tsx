@@ -4,7 +4,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 import { signOut } from "next-auth/react";
-import { MaterialFlowExplanation } from "./_components/MaterialFlowExplanation";
 
 export default function MyProfile() {
   const { user, isLoading } = useCurrentUser();
@@ -25,7 +24,6 @@ export default function MyProfile() {
           />
         </Card>
       )}
-      <MaterialFlowExplanation />
     </div>
   );
 }

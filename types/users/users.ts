@@ -124,7 +124,8 @@ export type User = {
   subscriptionCanceledAt?: Date;
   subscriptionCancellationReason?: string;
 
-  //TEACHER
+  // TECHER
+  taxRegime?: "PF" | "PJ"; // Added for Financial Module
   vacationDaysRemaining?: number;
   ratePerClassCents?: number;
   schedulingSettings?: {

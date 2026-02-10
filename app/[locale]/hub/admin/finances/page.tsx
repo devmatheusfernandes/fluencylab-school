@@ -33,8 +33,11 @@ import {
   Wallet,
   CreditCard,
   Filter,
+  LandmarkIcon,
 } from "lucide-react";
 
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverTrigger,
@@ -49,7 +52,7 @@ import {
   CommandItem,
 } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
-import { ChevronsUpDown, Check } from "lucide-react";
+import { ChevronsUpDown, Check, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Sheet,
@@ -73,6 +76,7 @@ import {
 } from "@/components/ui/modal";
 import { Header } from "@/components/ui/header";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 
 type FinanceTransaction = {
   id: string;
@@ -84,10 +88,35 @@ type FinanceTransaction = {
   method?: string;
   source?: string;
   category?: string;
+  deductible?: boolean;
+  fiscalTag?: "MEI_DEDUCTIBLE" | "NON_DEDUCTIBLE";
   attachmentUrl?: string;
   attachmentFileName?: string;
   attachmentContentType?: string;
 };
+
+const DEDUCTIBLE_CATEGORIES = [
+  "Pagamento de professores (RPA / PJ)",
+  "Softwares e plataformas",
+  "Internet de trabalho",
+  "Contador",
+  "Taxas bancárias da empresa",
+  "Aluguel",
+  "Energia",
+];
+
+const NON_DEDUCTIBLE_CATEGORIES = [
+  "Pró-labore",
+  "Retirada de lucro",
+  "Despesas pessoais",
+  "IRPF",
+  "Multas",
+];
+
+const ALL_FIXED_CATEGORIES = [
+  ...DEDUCTIBLE_CATEGORIES,
+  ...NON_DEDUCTIBLE_CATEGORIES,
+].sort();
 
 const currency = new Intl.NumberFormat("pt-BR", {
   style: "currency",
@@ -129,6 +158,7 @@ export default function AdminFinancesPage() {
     method: string;
     category: string;
     description: string;
+    deductible: boolean;
   }>({
     type: "expense",
     amountBRL: "",
@@ -136,7 +166,19 @@ export default function AdminFinancesPage() {
     method: "",
     category: "",
     description: "",
+    deductible: false,
   });
+
+  // Auto-set deductible based on category
+  useEffect(() => {
+    if (newTx.category) {
+      if (DEDUCTIBLE_CATEGORIES.includes(newTx.category)) {
+        setNewTx((prev) => ({ ...prev, deductible: true }));
+      } else if (NON_DEDUCTIBLE_CATEGORIES.includes(newTx.category)) {
+        setNewTx((prev) => ({ ...prev, deductible: false }));
+      }
+    }
+  }, [newTx.category]);
   const [newFile, setNewFile] = useState<File | null>(null);
   const [uploadingId, setUploadingId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -247,7 +289,7 @@ export default function AdminFinancesPage() {
   }, [displayed]);
 
   const categories = useMemo(() => {
-    const set = new Set<string>();
+    const set = new Set<string>(ALL_FIXED_CATEGORIES);
     transactions.forEach((t) => {
       if (t.category) set.add(t.category);
     });
@@ -655,6 +697,13 @@ export default function AdminFinancesPage() {
       description: newTx.description,
       method: newTx.method || undefined,
       category: newTx.category || undefined,
+      deductible: newTx.type === "expense" ? newTx.deductible : undefined,
+      fiscalTag:
+        newTx.type === "expense"
+          ? newTx.deductible
+            ? "MEI_DEDUCTIBLE"
+            : "NON_DEDUCTIBLE"
+          : undefined,
     };
     const res = await fetch("/api/admin/finance/transactions", {
       method: "POST",
@@ -670,6 +719,7 @@ export default function AdminFinancesPage() {
         method: "",
         category: "",
         description: "",
+        deductible: false,
       });
       if (newFile) {
         const ok = await uploadAttachment(created.id, newFile);
@@ -849,6 +899,12 @@ export default function AdminFinancesPage() {
                 <Calendar className="h-4 w-4" />
               )}
             </Button>
+
+            <Link href="/hub/admin/finances/fiscal">
+              <Button size="icon" variant="glass">
+                <LandmarkIcon className="h-4 w-4" />
+              </Button>
+            </Link>
 
             <Modal open={showManualPayment} onOpenChange={setShowManualPayment}>
               <ModalTrigger asChild>
@@ -1387,6 +1443,50 @@ export default function AdminFinancesPage() {
                     placeholder={t("newTransaction.descriptionPlaceholder")}
                     className="col-span-2 md:col-span-2"
                   />
+
+                  {newTx.type === "expense" && (
+                    <div className="col-span-2 md:col-span-4 flex items-center space-x-2 py-2">
+                      <Switch
+                        id="deductible-mode"
+                        checked={newTx.deductible}
+                        onCheckedChange={(checked) =>
+                          setNewTx((s) => ({ ...s, deductible: checked }))
+                        }
+                      />
+                      <Label
+                        htmlFor="deductible-mode"
+                        className="flex items-center gap-2 cursor-pointer"
+                      >
+                        Dedutível (IRPF)
+                        <Popover>
+                          <PopoverTrigger>
+                            <Info className="w-4 h-4 text-muted-foreground" />
+                          </PopoverTrigger>
+                          <PopoverContent className="w-80 p-4 text-sm">
+                            <p className="font-semibold mb-2">
+                              Regras de Dedutibilidade:
+                            </p>
+                            <div className="space-y-2">
+                              <div>
+                                <span className="text-emerald-600 font-medium">
+                                  Dedutível:
+                                </span>{" "}
+                                Pagamento de professores, Softwares, Internet,
+                                Contador, Taxas, Aluguel, Energia.
+                              </div>
+                              <div>
+                                <span className="text-red-600 font-medium">
+                                  Não Dedutível:
+                                </span>{" "}
+                                Pró-labore, Retirada de lucro, Despesas
+                                pessoais, IRPF, Multas.
+                              </div>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </Label>
+                    </div>
+                  )}
 
                   <div className="col-span-2 md:col-span-1 flex items-center">
                     <Button onClick={handleCreate} className="w-full">

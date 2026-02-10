@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { CheckCircle2, Circle, Lock } from "lucide-react";
+import { Check, Lock } from "lucide-react";
 
 interface Step {
   id: number;
@@ -31,81 +31,92 @@ export function LessonCreationSidebar({
   onStepClick,
 }: LessonCreationSidebarProps) {
   return (
-    <div className="w-full space-y-6">
-      <div className="space-y-1">
-        <h3 className="font-semibold text-lg">Progresso da Aula</h3>
+    <div className="w-full bg-card rounded-xl border shadow-sm p-6 space-y-6">
+      <div className="space-y-1 pb-2 border-b">
+        <h3 className="font-bold text-xl">Progresso</h3>
         <p className="text-sm text-muted-foreground">
-          Passo {currentStep} de {STEPS.length}
+          Etapa <span className="text-primary font-bold">{currentStep}</span> de{" "}
+          {STEPS.length}
         </p>
       </div>
 
-      <div className="relative space-y-0">
-        {/* Vertical Line */}
-        <div className="absolute left-[15px] top-2 bottom-4 w-[2px] bg-muted -z-10" />
+      <div className="relative pl-2">
+        {/* Continuous Vertical Line */}
+        <div
+          className="absolute left-[19px] top-4 bottom-4 w-[2px] bg-muted -z-10"
+          aria-hidden="true"
+        />
 
-        {STEPS.map((step) => {
-          const isCompleted = step.id < currentStep;
-          const isCurrent = step.id === currentStep;
-          const isLocked = step.id > currentStep;
+        <div className="space-y-6">
+          {STEPS.map((step) => {
+            const isCompleted = step.id < currentStep;
+            const isCurrent = step.id === currentStep;
+            const isLocked = step.id > currentStep;
 
-          return (
-            <div
-              key={step.id}
-              className={cn(
-                "flex items-start gap-4 py-3 bg-background",
-                !isLocked &&
-                  onStepClick &&
-                  "cursor-pointer hover:bg-muted/50 rounded-lg px-2 -mx-2 transition-colors",
-              )}
-              onClick={() => {
-                if (!isLocked && onStepClick) {
-                  onStepClick(step.id);
-                }
-              }}
-            >
-              <div className="flex-shrink-0 mt-0.5">
-                {isCompleted ? (
-                  <CheckCircle2 className="w-8 h-8 text-primary fill-background" />
-                ) : isCurrent ? (
-                  <div className="relative">
-                    <Circle className="w-8 h-8 text-primary fill-primary/10" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-xs font-bold text-primary">
-                        {step.id}
-                      </span>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="relative">
-                    <Circle className="w-8 h-8 text-muted-foreground/30 fill-background" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-xs font-medium text-muted-foreground">
-                        {step.id}
-                      </span>
-                    </div>
-                  </div>
+            return (
+              <div
+                key={step.id}
+                className={cn(
+                  "group flex items-start gap-4 relative transition-all duration-200",
+                  !isLocked && onStepClick && "cursor-pointer",
                 )}
-              </div>
-              <div className="space-y-0.5">
-                <p
+                onClick={() => {
+                  if (!isLocked && onStepClick) {
+                    onStepClick(step.id);
+                  }
+                }}
+              >
+                {/* Icon Container */}
+                <div
                   className={cn(
-                    "text-sm font-medium leading-none",
-                    isCurrent
-                      ? "text-primary"
-                      : isLocked
-                        ? "text-muted-foreground"
-                        : "text-foreground",
+                    "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center border-2 z-10 transition-colors duration-300",
+                    isCompleted
+                      ? "bg-primary border-primary text-primary-foreground"
+                      : isCurrent
+                        ? "bg-background border-primary text-primary ring-4 ring-primary/10"
+                        : "bg-background border-muted text-muted-foreground",
                   )}
                 >
-                  {step.label}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {step.description}
-                </p>
+                  {isCompleted ? (
+                    <Check className="w-4 h-4 stroke-[3]" />
+                  ) : isLocked ? (
+                    <span className="text-xs font-medium">{step.id}</span>
+                  ) : (
+                    <span className="text-xs font-bold">{step.id}</span>
+                  )}
+                </div>
+
+                {/* Text Content */}
+                <div
+                  className={cn(
+                    "pt-1 space-y-0.5 transition-opacity duration-200",
+                    isLocked ? "opacity-60" : "opacity-100",
+                  )}
+                >
+                  <p
+                    className={cn(
+                      "text-sm font-semibold leading-none",
+                      isCurrent ? "text-primary" : "text-foreground",
+                      !isLocked &&
+                        !isCurrent &&
+                        "group-hover:text-primary transition-colors",
+                    )}
+                  >
+                    {step.label}
+                  </p>
+                  <p className="text-xs text-muted-foreground line-clamp-1">
+                    {step.description}
+                  </p>
+                </div>
+
+                {/* Active Indicator on right (Mobile hidden usually, but nice touch) */}
+                {isCurrent && (
+                  <div className="absolute -right-6 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-l-full lg:hidden" />
+                )}
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

@@ -21,14 +21,14 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
+  CardFooter,
 } from "@/components/ui/card";
 import {
   Loader2,
   ArrowRight,
-  Mic,
-  FileText,
-  Wand2,
   CheckCircle2,
+  Sparkles,
+  LayoutDashboard,
 } from "lucide-react";
 
 // Existing Components
@@ -37,6 +37,7 @@ import LessonComponentsManager from "@/components/lessons/LessonComponentsManage
 import { LessonTranscriptEditor } from "@/components/lessons/LessonTranscriptEditor";
 import { LessonQuizEditor } from "@/components/lessons/LessonQuizEditor";
 import LessonOperations from "@/components/lessons/LessonOperations";
+import { Separator } from "@/components/ui/separator";
 
 interface LessonCreationFlowProps {
   lesson: Lesson;
@@ -50,11 +51,9 @@ export function LessonCreationFlow({
   structures,
 }: LessonCreationFlowProps) {
   const router = useRouter();
-  // Initialize step from lesson or default to 1
   const [currentStep, setCurrentStep] = useState(lesson.creationStep || 1);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Sync state if lesson updates externally
   useEffect(() => {
     if (lesson.creationStep && lesson.creationStep !== currentStep) {
       setCurrentStep(lesson.creationStep);
@@ -62,9 +61,7 @@ export function LessonCreationFlow({
   }, [lesson.creationStep]);
 
   const handleStepChange = async (step: number) => {
-    // Optimistic update
     setCurrentStep(step);
-    // Persist
     await updateLessonStep(lesson.id, step);
     router.refresh();
   };
@@ -73,53 +70,89 @@ export function LessonCreationFlow({
 
   // --- Step Wrappers ---
 
-  const renderStep1_Editor = () => (
-    <div className="space-y-4 h-full flex flex-col">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Conteúdo da Aula</h2>
-        <Button onClick={handleNext} className="gap-2">
-          Concluir e Analisar <ArrowRight className="w-4 h-4" />
-        </Button>
+  const StepHeader = ({
+    title,
+    action,
+  }: {
+    title: string;
+    action?: React.ReactNode;
+  }) => (
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b">
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight text-foreground">
+          {title}
+        </h2>
       </div>
-      <div className="flex-1 border rounded-xl overflow-hidden bg-card">
+      {action && <div>{action}</div>}
+    </div>
+  );
+
+  const renderStep1_Editor = () => (
+    <div className="flex flex-col h-full">
+      <StepHeader
+        title="Conteúdo da Aula"
+        action={
+          <Button onClick={handleNext} className="gap-2 shadow-sm">
+            Concluir e Analisar <ArrowRight className="w-4 h-4" />
+          </Button>
+        }
+      />
+      <div className="flex-1 border rounded-xl overflow-hidden bg-card shadow-sm ring-1 ring-border/50">
         <LessonEditor lessonId={lesson.id} initialContent={lesson.content} />
       </div>
     </div>
   );
 
   const renderStep4_Components = () => (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Revisão de Componentes</h2>
-        <Button onClick={handleNext} className="gap-2">
-          Marcar como Revisado <CheckCircle2 className="w-4 h-4" />
-        </Button>
-      </div>
-      <p className="text-muted-foreground">
-        Verifique o vocabulário e estruturas extraídos. Você pode editar,
-        remover ou adicionar imagens.
-      </p>
-      <LessonComponentsManager
-        vocabulary={vocabulary}
-        structures={structures}
-        lessonId={lesson.id}
+    <div className="space-y-6">
+      <StepHeader
+        title="Revisão de Componentes"
+        action={
+          <Button onClick={handleNext} className="gap-2 shadow-sm">
+            Marcar como Revisado <CheckCircle2 className="w-4 h-4" />
+          </Button>
+        }
       />
+      <Card className="bg-muted/30 border-dashed">
+        <CardContent className="pt-6">
+          <p className="text-muted-foreground text-sm flex items-center gap-2">
+            <LayoutDashboard className="w-4 h-4" />
+            Verifique o vocabulário e estruturas extraídos. Você pode editar,
+            remover ou adicionar imagens.
+          </p>
+        </CardContent>
+      </Card>
+
+      <div className="rounded-xl border bg-card shadow-sm">
+        <LessonComponentsManager
+          vocabulary={vocabulary}
+          structures={structures}
+          lessonId={lesson.id}
+        />
+      </div>
     </div>
   );
 
   const renderStep5_Audio = () => (
-    <StepAudio lesson={lesson} onComplete={handleNext} />
+    <div className="space-y-6">
+      <StepHeader title="Áudio & Mídia" />
+      <StepAudio lesson={lesson} onComplete={handleNext} />
+    </div>
   );
 
   const renderStep6_TranscriptReview = () => (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Revisão da Transcrição</h2>
-        <Button onClick={handleNext} className="gap-2">
-          Confirmar Transcrição <CheckCircle2 className="w-4 h-4" />
-        </Button>
+    <div className="space-y-6">
+      <StepHeader
+        title="Revisão da Transcrição"
+        action={
+          <Button onClick={handleNext} className="gap-2 shadow-sm">
+            Confirmar Transcrição <CheckCircle2 className="w-4 h-4" />
+          </Button>
+        }
+      />
+      <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+        <LessonTranscriptEditor lesson={lesson} />
       </div>
-      <LessonTranscriptEditor lesson={lesson} />
     </div>
   );
 
@@ -143,47 +176,64 @@ export function LessonCreationFlow({
     };
 
     return (
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold">Geração de Quiz</h2>
-        <Card>
-          <CardHeader>
-            <CardTitle>Quiz Automático</CardTitle>
-            <CardDescription>
-              O sistema irá gerar perguntas de vocabulário, gramática e
-              compreensão baseadas no conteúdo e transcrição.
+      <div className="space-y-6 max-w-3xl mx-auto pt-10">
+        <StepHeader title="Geração de Quiz" />
+        <Card className="border-2 border-primary/10 shadow-lg">
+          <CardHeader className="text-center pb-2">
+            <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+              <Sparkles className="w-6 h-6 text-primary" />
+            </div>
+            <CardTitle className="text-2xl">Quiz Automático com IA</CardTitle>
+            <CardDescription className="text-base max-w-md mx-auto mt-2">
+              O sistema analisará todo o conteúdo e transcrição para criar
+              perguntas de vocabulário, gramática e compreensão.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Button onClick={handleGenQuiz} disabled={isLoading} size="lg">
+          <CardContent className="flex justify-center py-8">
+            <Button
+              onClick={handleGenQuiz}
+              disabled={isLoading}
+              size="lg"
+              className="w-full max-w-sm h-12 text-base shadow-md transition-all hover:scale-105"
+            >
               {isLoading ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
               ) : (
-                <Wand2 className="w-4 h-4 mr-2" />
+                <Sparkles className="w-5 h-5 mr-2" />
               )}
-              Gerar Quiz
+              Gerar Quiz Agora
             </Button>
           </CardContent>
+          <CardFooter className="bg-muted/30 py-4 justify-center">
+            <p className="text-xs text-muted-foreground">
+              Isso pode levar alguns segundos.
+            </p>
+          </CardFooter>
         </Card>
       </div>
     );
   };
 
   const renderStep8_QuizReview = () => (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Revisão do Quiz</h2>
-        <Button onClick={handleNext} className="gap-2">
-          Confirmar Quiz <CheckCircle2 className="w-4 h-4" />
-        </Button>
+    <div className="space-y-6">
+      <StepHeader
+        title="Revisão do Quiz"
+        action={
+          <Button onClick={handleNext} className="gap-2 shadow-sm">
+            Confirmar Quiz <CheckCircle2 className="w-4 h-4" />
+          </Button>
+        }
+      />
+      <div className="rounded-xl border bg-card shadow-sm">
+        <LessonQuizEditor lesson={lesson} />
       </div>
-      <LessonQuizEditor lesson={lesson} />
     </div>
   );
 
   const renderStep9_Publish = () => (
-    <div className="space-y-4">
-      <h2 className="text-2xl font-bold">Publicação</h2>
-      <div className="border rounded-xl overflow-hidden bg-card p-6">
+    <div className="space-y-6 max-w-4xl mx-auto">
+      <StepHeader title="Publicação" />
+      <div className="border rounded-xl overflow-hidden bg-card p-8 shadow-sm">
         <LessonOperations lesson={lesson} />
       </div>
     </div>
@@ -196,9 +246,17 @@ export function LessonCreationFlow({
       case 1:
         return renderStep1_Editor();
       case 2:
-        return <StepAnalysis lesson={lesson} onComplete={handleNext} />;
+        return (
+          <div className="max-w-4xl mx-auto">
+            <StepAnalysis lesson={lesson} onComplete={handleNext} />
+          </div>
+        );
       case 3:
-        return <StepProcessing lesson={lesson} onComplete={handleNext} />;
+        return (
+          <div className="max-w-4xl mx-auto">
+            <StepProcessing lesson={lesson} onComplete={handleNext} />
+          </div>
+        );
       case 4:
         return renderStep4_Components();
       case 5:
@@ -217,22 +275,29 @@ export function LessonCreationFlow({
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 min-h-[calc(100vh-8rem)]">
-      {/* Sidebar - 1/4 */}
-      <div className="w-full lg:w-1/4 lg:sticky lg:top-8 h-fit">
-        <LessonCreationSidebar
-          currentStep={currentStep}
-          onStepClick={(step) => {
-            // Only allow clicking previous steps or current step
-            if (step <= (lesson.creationStep || 1)) {
-              handleStepChange(step);
-            }
-          }}
-        />
-      </div>
+    <div className="container mx-auto px-4 py-6 max-w-[1600px]">
+      <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 min-h-[calc(100vh-8rem)]">
+        {/* Sidebar - Fixed on Desktop */}
+        <aside className="w-full lg:w-72 flex-shrink-0">
+          <div className="lg:sticky lg:top-8">
+            <LessonCreationSidebar
+              currentStep={currentStep}
+              onStepClick={(step) => {
+                if (step <= (lesson.creationStep || 1)) {
+                  handleStepChange(step);
+                }
+              }}
+            />
+          </div>
+        </aside>
 
-      {/* Main Content - 3/4 */}
-      <div className="w-full lg:w-3/4">{renderCurrentStep()}</div>
+        {/* Main Content */}
+        <main className="flex-1 w-full min-w-0">
+          <div className="animate-in fade-in-50 slide-in-from-bottom-4 duration-500">
+            {renderCurrentStep()}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { PlanTemplatesClient } from "./_components/PlanTemplatesClient";
+import { PlanTemplatesClient } from "../../../../../components/plans/PlanTemplatesClient";
 import { planRepository } from "@/repositories";
 
 export default async function PlanTemplatesPage() {

@@ -13,12 +13,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Header } from "@/components/ui/header";
-import { planRepository } from "@/repositories"; // Client components can't use repositories directly usually, but let's see if we can use server action instead.
-// Actually we should create a server action for creating/updating plans to be safe.
-// For now I will assume we have one or create one.
 import { createPlan, updatePlan } from "@/actions/planActions"; // We need to add these
 
 interface PlanTemplatesClientProps {

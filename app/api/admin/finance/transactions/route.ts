@@ -12,15 +12,23 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const monthStr = searchParams.get("month");
+    const yearStr = searchParams.get("year");
     const search = (searchParams.get("search") || "").toLowerCase().trim();
 
-    if (!monthStr || !/^\d{4}-\d{2}$/.test(monthStr)) {
-      return NextResponse.json({ error: "Parâmetro 'month' inválido. Use YYYY-MM." }, { status: 400 });
-    }
+    let start: Date;
+    let end: Date;
 
-    const [year, month] = monthStr.split("-").map((v) => parseInt(v, 10));
-    const start = new Date(year, month - 1, 1, 0, 0, 0, 0);
-    const end = new Date(year, month, 1, 0, 0, 0, 0);
+    if (monthStr && /^\d{4}-\d{2}$/.test(monthStr)) {
+      const [year, month] = monthStr.split("-").map((v) => parseInt(v, 10));
+      start = new Date(year, month - 1, 1, 0, 0, 0, 0);
+      end = new Date(year, month, 1, 0, 0, 0, 0);
+    } else if (yearStr && /^\d{4}$/.test(yearStr)) {
+      const year = parseInt(yearStr, 10);
+      start = new Date(year, 0, 1, 0, 0, 0, 0);
+      end = new Date(year + 1, 0, 1, 0, 0, 0, 0);
+    } else {
+      return NextResponse.json({ error: "Parâmetros inválidos. Informe 'month' (YYYY-MM) ou 'year' (YYYY)." }, { status: 400 });
+    }
 
     const monthlyPaymentsSnap = await adminDb
       .collection("monthlyPayments")
@@ -77,6 +85,8 @@ export async function GET(request: NextRequest) {
             method: (data.method as string) || undefined,
             source: "financeTransaction",
             category: data.category,
+            deductible: data.deductible,
+            fiscalTag: data.fiscalTag,
             attachmentUrl: data.attachmentUrl,
             attachmentFileName: data.attachmentFileName,
             attachmentContentType: data.attachmentContentType,
@@ -122,6 +132,8 @@ export async function POST(request: NextRequest) {
     const description = body.description ? String(body.description) : "";
     const method = body.method ? String(body.method) : undefined;
     const category = body.category ? String(body.category) : undefined;
+    const deductible = typeof body.deductible === 'boolean' ? body.deductible : undefined;
+    const fiscalTag = body.fiscalTag ? String(body.fiscalTag) : undefined;
 
     if (!["income", "expense"].includes(type)) {
       return NextResponse.json({ error: "Tipo inválido." }, { status: 400 });
@@ -158,6 +170,8 @@ export async function POST(request: NextRequest) {
     };
     if (method !== undefined) doc.method = method;
     if (category !== undefined) doc.category = category;
+    if (deductible !== undefined) doc.deductible = deductible;
+    if (fiscalTag !== undefined) doc.fiscalTag = fiscalTag;
 
     const ref = await adminDb.collection("financeTransactions").add(doc);
     return NextResponse.json({ id: ref.id, ...doc }, { status: 201 });

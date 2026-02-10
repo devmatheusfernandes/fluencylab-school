@@ -1066,6 +1066,9 @@
       "months6": "6 Meses",
       "months12": "12 Meses",
       "ratePerClass": "Valor por Aula (R$)",
+      "taxRegime": "Regime Tributário",
+      "taxRegimePF": "Pessoa Física (RPA)",
+      "taxRegimePJ": "Pessoa Jurídica (Nota Fiscal)",
       "teachingLanguages": "Idiomas que Ensina",
       "studyingLanguages": "Idiomas que Estuda",
       "save": "Salvar",
@@ -3220,5 +3223,33 @@
   },
   "LessonTranscriptPage": {
     "subheading": "Gerencie e edite os segmentos de transcrição desta lição."
+  },
+  "FiscalDashboard": {
+    "title": "Painel Fiscal",
+    "subtitle": "Gestão de impostos, fechamento mensal e pagamentos de professores.",
+    "closeMonth": "Fechar Mês",
+    "closeMonthSuccess": "Mês fechado com sucesso!",
+    "meiLimit": "Limite MEI",
+    "meLimit": "Limite ME",
+    "annualRevenue": "Faturamento Anual",
+    "status": "Status Fiscal",
+    "teachers": "Professores",
+    "markAsPaid": "Marcar como Pago",
+    "downloadRPA": "Baixar RPA",
+    "attachInvoice": "Anexar NF",
+    "safe": "Seguro",
+    "warning": "Atenção",
+    "critical": "Crítico",
+    "competence": "Competência",
+    "payment": "Pagamento",
+    "gross": "Bruto",
+    "net": "Líquido",
+    "inss": "INSS",
+    "statusHeader": "Status",
+    "actions": "Ações",
+    "month": "Mês",
+    "year": "Ano",
+    "accrued": "A Pagar",
+    "paid": "Pago"
   }
 }

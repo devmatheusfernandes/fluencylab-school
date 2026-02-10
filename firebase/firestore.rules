@@ -208,6 +208,28 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // --- Módulo Fiscal (Novo) ---
+
+    match /fiscal_years/{year} {
+      allow read: if isManager();
+      allow write: if isAdmin();
+    }
+
+    match /teacher_payments/{paymentId} {
+      allow read: if isManager() || (isTeacher() && resource.data.teacherId == request.auth.uid);
+      allow write: if isAdmin();
+    }
+
+    match /monthly_revenue/{month} {
+      allow read: if isManager();
+      allow write: if isAdmin();
+    }
+
+    match /company_config/{configId} {
+      allow read: if isManager();
+      allow write: if isAdmin();
+    }
+
     // --- Sistema e Comunicação ---
 
     match /announcements/{announceId} {

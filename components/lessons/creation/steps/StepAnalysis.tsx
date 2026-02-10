@@ -13,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
+  CardFooter,
 } from "@/components/ui/card";
 import {
   Select,
@@ -21,7 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import {
   Loader2,
   CheckCircle2,
@@ -29,9 +31,14 @@ import {
   XCircle,
   RefreshCw,
   ArrowRight,
+  Gauge,
+  Languages,
+  BookOpen,
+  Info,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 interface StepAnalysisProps {
   lesson: Lesson;
@@ -108,38 +115,46 @@ export function StepAnalysis({ lesson, onComplete }: StepAnalysisProps) {
     }
   };
 
+  // --- Empty State ---
   if (!analysis) {
     return (
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Análise de Qualidade (IA)</CardTitle>
-          <CardDescription>
-            Vamos verificar se sua aula segue os padrões pedagógicos da
-            FluencyLab. Isso inclui verificação de estrutura, nível e pilares de
-            ensino.
+      <Card className="w-full border-2 border-dashed shadow-sm">
+        <CardHeader className="text-center">
+          <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+            <Gauge className="w-8 h-8 text-muted-foreground" />
+          </div>
+          <CardTitle className="text-2xl">Análise de Qualidade (IA)</CardTitle>
+          <CardDescription className="max-w-lg mx-auto mt-2 text-base">
+            Vamos verificar se sua aula segue os padrões pedagógicos, incluindo
+            estrutura, nível de proficiência e pilares de ensino.
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col items-center justify-center py-10 space-y-6">
-          <div className="p-4 bg-muted rounded-full">
-            <RefreshCw className="w-12 h-12 text-muted-foreground" />
-          </div>
-          <Button size="lg" onClick={handleAnalyze} disabled={isAnalyzing}>
-            {isAnalyzing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-            {isAnalyzing ? "Analisando..." : "Iniciar Análise"}
+        <CardContent className="flex flex-col items-center justify-center pb-12 pt-4">
+          <Button
+            size="lg"
+            onClick={handleAnalyze}
+            disabled={isAnalyzing}
+            className="px-8 shadow-md"
+          >
+            {isAnalyzing && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
+            {isAnalyzing
+              ? "Analisando Conteúdo..."
+              : "Iniciar Análise Automática"}
           </Button>
         </CardContent>
       </Card>
     );
   }
 
+  // --- Helpers ---
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "pass":
-        return <CheckCircle2 className="w-5 h-5 text-green-500" />;
+        return <CheckCircle2 className="w-5 h-5 text-emerald-500" />;
       case "partial":
         return <AlertTriangle className="w-5 h-5 text-amber-500" />;
       case "fail":
-        return <XCircle className="w-5 h-5 text-red-500" />;
+        return <XCircle className="w-5 h-5 text-rose-500" />;
       default:
         return null;
     }
@@ -148,169 +163,233 @@ export function StepAnalysis({ lesson, onComplete }: StepAnalysisProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pass":
-        return "text-green-700 bg-green-50 border-green-200";
+        return "border-l-4 border-l-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20";
       case "partial":
-        return "text-amber-700 bg-amber-50 border-amber-200";
+        return "border-l-4 border-l-amber-500 bg-amber-50/50 dark:bg-amber-950/20";
       case "fail":
-        return "text-red-700 bg-red-50 border-red-200";
+        return "border-l-4 border-l-rose-500 bg-rose-50/50 dark:bg-rose-950/20";
       default:
         return "";
     }
   };
 
+  const scoreColor =
+    analysis.score >= 80
+      ? "text-emerald-600"
+      : analysis.score >= 50
+        ? "text-amber-600"
+        : "text-rose-600";
+  const scoreRing =
+    analysis.score >= 80
+      ? "ring-emerald-500/20"
+      : analysis.score >= 50
+        ? "ring-amber-500/20"
+        : "ring-rose-500/20";
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Resultado da Análise</h2>
-        <Button onClick={onComplete} className="gap-2">
-          Continuar <ArrowRight className="w-4 h-4" />
-        </Button>
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b pb-6">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">
+            Resultado da Análise
+          </h2>
+          <p className="text-muted-foreground">
+            Revise os parâmetros pedagógicos detectados.
+          </p>
+        </div>
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={handleAnalyze}
+            disabled={isAnalyzing}
+            className="gap-2"
+          >
+            {isAnalyzing ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <RefreshCw className="w-4 h-4" />
+            )}
+            Refazer
+          </Button>
+          <Button onClick={onComplete} className="gap-2 shadow-sm">
+            Aceitar e Continuar <ArrowRight className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Pontuação Geral
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{analysis.score}/100</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {analysis.isCompliant ? "Aprovado" : "Requer Atenção"}
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Editable Level */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Nível Sugerido
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Select
-              value={analysis.suggestedLevel}
-              onValueChange={(val) => handleUpdateParams("level", val)}
-              disabled={isUpdating}
-            >
-              <SelectTrigger className="w-full text-xl font-bold h-12 border-none shadow-none px-0 hover:bg-muted/50">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {LEVELS.map((l) => (
-                  <SelectItem key={l} value={l}>
-                    {l}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground mt-1">
-              Baseado no vocabulário
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Editable Languages */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Idiomas</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="space-y-1">
-              <label className="text-xs text-muted-foreground uppercase font-bold">
-                Target (Alvo)
-              </label>
-              <Select
-                value={analysis.targetLanguage}
-                onValueChange={(val) => handleUpdateParams("target", val)}
-                disabled={isUpdating}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left Column: Score & Params */}
+        <div className="lg:col-span-4 space-y-6">
+          {/* Score Card */}
+          <Card className="overflow-hidden">
+            <CardHeader className="bg-muted/30 pb-4">
+              <CardTitle className="text-sm font-medium uppercase text-muted-foreground tracking-wider flex items-center gap-2">
+                <Gauge className="w-4 h-4" /> Qualidade Geral
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center justify-center py-8">
+              <div
+                className={cn(
+                  "relative flex items-center justify-center w-32 h-32 rounded-full ring-8 mb-4 bg-background",
+                  scoreRing,
+                )}
               >
-                <SelectTrigger className="h-8 text-sm font-semibold border-none shadow-none px-0 hover:bg-muted/50">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {LANGUAGES.map((l) => (
-                    <SelectItem key={l.code} value={l.name}>
-                      {l.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs text-muted-foreground uppercase font-bold">
-                Base (Instrução)
-              </label>
-              <Select
-                value={analysis.baseLanguage}
-                onValueChange={(val) => handleUpdateParams("base", val)}
-                disabled={isUpdating}
+                <span
+                  className={cn(
+                    "text-5xl font-black tracking-tighter",
+                    scoreColor,
+                  )}
+                >
+                  {analysis.score}
+                </span>
+                <span className="absolute text-xs font-medium text-muted-foreground -bottom-6">
+                  de 100
+                </span>
+              </div>
+              <Badge
+                variant={analysis.isCompliant ? "default" : "destructive"}
+                className="px-3 py-1 text-sm"
               >
-                <SelectTrigger className="h-8 text-sm font-semibold border-none shadow-none px-0 hover:bg-muted/50">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {LANGUAGES.map((l) => (
-                    <SelectItem key={l.code} value={l.name}>
-                      {l.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+                {analysis.isCompliant ? "Aprovado" : "Requer Atenção"}
+              </Badge>
+            </CardContent>
+          </Card>
 
-      {/* General Feedback */}
-      <Alert>
-        <AlertTitle>Feedback Geral</AlertTitle>
-        <AlertDescription className="mt-2">
-          {analysis.generalFeedback}
-        </AlertDescription>
-      </Alert>
+          {/* Parameters Card */}
+          <Card>
+            <CardHeader className="bg-muted/30 pb-4">
+              <CardTitle className="text-sm font-medium uppercase text-muted-foreground tracking-wider flex items-center gap-2">
+                <BookOpen className="w-4 h-4" /> Parâmetros Detectados
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6 py-6">
+              {/* Level */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase text-muted-foreground">
+                  Nível Sugerido (CEFR)
+                </label>
+                <Select
+                  value={analysis.suggestedLevel}
+                  onValueChange={(val) => handleUpdateParams("level", val)}
+                  disabled={isUpdating}
+                >
+                  <SelectTrigger className="h-12 text-lg font-bold bg-muted/20 border-muted-foreground/20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LEVELS.map((l) => (
+                      <SelectItem key={l} value={l} className="font-medium">
+                        {l}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-      {/* Detailed Sections */}
-      <div className="grid grid-cols-1 gap-4">
-        {Object.entries(analysis.sections).map(
-          ([key, section]: [string, any]) => (
-            <Card
-              key={key}
-              className={`border ${getStatusColor(section.status)}`}
-            >
-              <CardHeader className="py-3">
-                <div className="flex items-center gap-3">
-                  {getStatusIcon(section.status)}
-                  <CardTitle className="text-base capitalize">
-                    {key.replace(/([A-Z])/g, " $1").trim()}
-                  </CardTitle>
+              <Separator />
+
+              {/* Languages */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Languages className="w-4 h-4" />
+                  <span className="text-xs font-bold uppercase">Idiomas</span>
                 </div>
-              </CardHeader>
-              <CardContent className="py-3 pt-0 text-sm">
-                {section.feedback}
-              </CardContent>
-            </Card>
-          ),
-        )}
-      </div>
 
-      <div className="flex justify-end gap-2 pt-4">
-        <Button
-          variant="outline"
-          onClick={handleAnalyze}
-          disabled={isAnalyzing}
-        >
-          {isAnalyzing ? (
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-          ) : (
-            <RefreshCw className="w-4 h-4 mr-2" />
-          )}
-          Refazer Análise
-        </Button>
-        <Button onClick={onComplete}>Aceitar e Continuar</Button>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground">
+                      Alvo (Target)
+                    </span>
+                    <Select
+                      value={analysis.targetLanguage}
+                      onValueChange={(val) => handleUpdateParams("target", val)}
+                      disabled={isUpdating}
+                    >
+                      <SelectTrigger className="bg-muted/20 border-muted-foreground/20">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {LANGUAGES.map((l) => (
+                          <SelectItem key={l.code} value={l.name}>
+                            {l.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground">
+                      Base (Instrução)
+                    </span>
+                    <Select
+                      value={analysis.baseLanguage}
+                      onValueChange={(val) => handleUpdateParams("base", val)}
+                      disabled={isUpdating}
+                    >
+                      <SelectTrigger className="bg-muted/20 border-muted-foreground/20">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {LANGUAGES.map((l) => (
+                          <SelectItem key={l.code} value={l.name}>
+                            {l.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Column: Feedback Details */}
+        <div className="lg:col-span-8 space-y-6">
+          <Card className="bg-primary/5 border-primary/20 shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-primary">
+                <Info className="w-5 h-5" /> Feedback Geral
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm leading-relaxed text-foreground/90">
+                {analysis.generalFeedback}
+              </p>
+            </CardContent>
+          </Card>
+
+          <div className="space-y-3">
+            <h3 className="text-sm font-bold uppercase text-muted-foreground tracking-wider mb-2">
+              Detalhamento por Seção
+            </h3>
+            {Object.entries(analysis.sections).map(
+              ([key, section]: [string, any]) => (
+                <div
+                  key={key}
+                  className={cn(
+                    "group rounded-lg border p-4 shadow-sm transition-all hover:shadow-md bg-card",
+                    getStatusColor(section.status),
+                  )}
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="mt-1 flex-shrink-0 bg-background rounded-full p-1 shadow-sm">
+                      {getStatusIcon(section.status)}
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="font-semibold text-base capitalize flex items-center gap-2">
+                        {key.replace(/([A-Z])/g, " $1").trim()}
+                      </h4>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {section.feedback}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ),
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
