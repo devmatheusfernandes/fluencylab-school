@@ -996,7 +996,7 @@ export async function generateLessonTranscript(lessonId: string) {
     //const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" }); // Use o 1.5 Flash explicitamente se possível, é melhor em áudio
     // MODELO: Gemini 2.0 Flash (Temperatura ZERO = Precisão Auditiva Máxima)
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash-native-audio",
+      model: "gemini-3-pro-preview",
       generationConfig: {
         temperature: 0.0, // Zero criatividade, fidelidade total ao áudio
       },

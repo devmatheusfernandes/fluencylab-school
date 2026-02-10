@@ -5,7 +5,6 @@ import { User } from "@/types/users/users";
 import { UserRoles } from "@/types/users/userRoles";
 import { rolePermissionsMap } from "@/config/permissions";
 import { EmailService } from "../communication/emailService";
-import { languages } from "@/types/core/languages";
 
 const emailService = new EmailService();
 
