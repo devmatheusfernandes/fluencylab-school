@@ -27,7 +27,6 @@ import { WordOfTheDayModal } from "@/components/word-of-the-day/word-of-the-day-
 import BreadcrumbActions from "@/components/shared/Breadcrum/BreadcrumbActions";
 import BreadcrumbActionIcon from "@/components/shared/Breadcrum/BreadcrumbActionIcon";
 import { Settings } from "lucide-react";
-import router from "next/navigation";
 import Link from "next/link";
 
 const ProfileHeaderSkeleton = () => (

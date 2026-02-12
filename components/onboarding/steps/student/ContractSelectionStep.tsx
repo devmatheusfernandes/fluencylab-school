@@ -67,7 +67,7 @@ export const ContractSelectionStep: React.FC<OnboardingStepProps> = ({
             }
           `}
         >
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+          <div className="w-max absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
             {tPlans("annual.badge")}
           </div>
 

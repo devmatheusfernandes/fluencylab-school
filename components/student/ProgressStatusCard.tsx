@@ -28,7 +28,6 @@ import {
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-// Utilitário para classes (pode colocar no seu lib/utils.ts)
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }

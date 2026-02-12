@@ -26,7 +26,7 @@ export default function DatePicker({
   const t = useTranslations("DatePicker");
   const tMonths = useTranslations("Months");
   const tWeekdays = useTranslations("Weekdays");
-  
+
   const [isOpen, setIsOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(value || null);
@@ -47,7 +47,15 @@ export default function DatePicker({
     "december",
   ];
 
-  const weekdays = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+  const weekdays = [
+    "sunday",
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+  ];
 
   const resolvedPlaceholder = placeholder || t("selectDate");
 
@@ -302,7 +310,8 @@ export default function DatePicker({
               </div>
 
               <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                {tMonths(months[currentDate.getMonth()])} {currentDate.getFullYear()}
+                {tMonths(months[currentDate.getMonth()])}{" "}
+                {currentDate.getFullYear()}
               </div>
 
               <div className="flex items-center gap-2">

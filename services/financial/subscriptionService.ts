@@ -42,6 +42,8 @@ export class SubscriptionService {
       initialPaymentAmount,
       addLateCredits,
       lateCreditsAmount,
+      cellPhone,
+      taxId,
     } = params;
 
     // Validate user role
@@ -70,6 +72,8 @@ export class SubscriptionService {
       initialPaymentAmount,
       addLateCredits,
       lateCreditsAmount,
+      cellPhone,
+      taxId,
     });
   }
 
@@ -87,6 +91,8 @@ export class SubscriptionService {
     initialPaymentAmount?: number;
     addLateCredits?: boolean;
     lateCreditsAmount?: number;
+    cellPhone?: string;
+    taxId?: string;
   }) {
     const {
       userId,
@@ -99,6 +105,8 @@ export class SubscriptionService {
       initialPaymentAmount,
       addLateCredits,
       lateCreditsAmount,
+      cellPhone,
+      taxId,
     } = params;
 
     console.log(
@@ -137,6 +145,22 @@ export class SubscriptionService {
 
     // Generate all contract payments in advance
     await this.generateContractPayments(subscription, initialPaymentAmount);
+
+    if (cellPhone || taxId) {
+      await adminDb
+        .collection("users")
+        .doc(userId)
+        .collection("private") // Subcollection segura
+        .doc("sensitive_data") // Documento específico
+        .set(
+          {
+            taxId: taxId || null,
+            cellPhone: cellPhone || null,
+            updatedAt: new Date(),
+          },
+          { merge: true },
+        );
+    }
 
     // Create the first PIX payment (make it available immediately)
     const firstPayment = await this.makePaymentAvailable(subscription.id, 1);
@@ -980,21 +1004,46 @@ export class SubscriptionService {
     const subscription = await this.getSubscriptionPrivate(subscriptionId);
     if (!subscription) throw new Error("Subscription not found");
 
-    const user = await this.getUser(subscription.userId);
-    if (!user) throw new Error("User not found");
+    // BUSCA HÍBRIDA: Perfil Público + Dados Privados
+    const userDoc = await adminDb
+      .collection("users")
+      .doc(subscription.userId)
+      .get();
+    const userData = userDoc.data();
+
+    // Busca dados sensíveis na subcollection private
+    const privateDoc = await adminDb
+      .collection("users")
+      .doc(subscription.userId)
+      .collection("private")
+      .doc("sensitive_data")
+      .get();
+
+    const privateData = privateDoc.data();
+
+    // RESOLUÇÃO DE DADOS (Prioriza private, fallback para public)
+    const customerPhone = privateData?.cellPhone || userData?.phoneNumber;
+    const customerTaxId =
+      privateData?.taxId || userData?.taxId || userData?.cpf; // Tenta taxId ou cpf
+
+    if (!customerPhone || !customerTaxId) {
+      throw new Error(
+        `Dados do cliente incompletos (CPF ou Telefone) para usuário ${subscription.userId}`,
+      );
+    }
 
     const expiresInSeconds =
       ABACATEPAY_CONFIG.PIX_EXPIRATION_DAYS * 24 * 60 * 60;
-    
+
     const qr = await createAbacatePayPixQrCode({
       amountCents: payment.amount,
       expiresInSeconds,
       description: payment.description.slice(0, 37),
       customer: {
-        name: user.name,
-        email: user.email,
-        taxId: user.taxId,
-        cellphone: user.phoneNumber,
+        name: userData?.name || "Cliente",
+        email: userData?.email,
+        taxId: customerTaxId, // Usando a variável resolvida
+        cellphone: customerPhone, // Usando a variável resolvida
       },
       metadata: {
         subscription_id: subscriptionId,

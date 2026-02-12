@@ -2979,6 +2979,8 @@
   "Onboarding": {
     "Steps": {
       "welcome": "Início",
+      "basic-info": "Informações Básicas",
+      "best-practices": "Práticas Recomendadas",
       "profile": "Perfil",
       "rules": "Regras",
       "plan": "Plano",
@@ -2986,7 +2988,9 @@
       "payment": "Pagamento",
       "finish": "Conclusão",
       "banking": "Bancário",
-      "schedule": "Agenda"
+      "schedule": "Agenda",
+      "contract-selection": "Seleção de Contrato",
+      "contract-review": "Revisão de Contrato"
     },
     "Buttons": {
       "back": "Voltar",
@@ -2998,7 +3002,7 @@
       "confirmPlan": "Confirmar Plano",
       "signContinue": "Assinar para continuar",
       "signedContinue": "Contrato assinado, continuar",
-      "pay": "Realizar pagamento",
+      "pay": "Continuar",
       "paidContinue": "Pagamento confirmado, continuar",
       "confirmSchedule": "Confirmar Agenda",
       "saveData": "Salvar Dados",
@@ -3049,7 +3053,7 @@
           },
           "cancellation": {
             "title": "Cancelamento",
-            "text": "Para cancelar sem multa, é necessário aviso prévio de 30 dias."
+            "text": "Para cancelar sem multa, você deve ser no último mês do contrato."
           }
         }
       },

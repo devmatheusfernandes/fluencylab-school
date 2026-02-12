@@ -29,7 +29,9 @@ export const WelcomeEmail: React.FC<WelcomeEmailProps> = ({
         <Container style={container}>
           <Section style={header}>
             <Img
-              src={`${process.env.NEXT_PUBLIC_APP_URL}/logo.png`}
+              src={
+                "https://raw.githubusercontent.com/devmatheusfernandes/fluencylab-school/refs/heads/main/public/brand/Logo.png"
+              }
               alt="Fluency Lab"
               style={logo}
             />

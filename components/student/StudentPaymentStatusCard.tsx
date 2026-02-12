@@ -16,6 +16,7 @@ import {
   QrCode,
   Loader2,
   Wallet,
+  CheckCheckIcon,
 } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
 import { useTranslations, useLocale } from "next-intl";
@@ -148,16 +149,10 @@ export function StudentPaymentStatusCard() {
     }
   };
 
-  // ----------------------------------------------------------------------
-  // LOADING STATE
-  // ----------------------------------------------------------------------
   if (loading) {
     return <Skeleton className="w-full h-full min-h-[320px] rounded-xl" />;
   }
 
-  // ----------------------------------------------------------------------
-  // EMPTY STATE
-  // ----------------------------------------------------------------------
   if (!paymentStatus || !paymentStatus.subscriptionId) {
     return (
       <div className="flex flex-col items-center justify-center p-8 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl h-full shadow-sm">
@@ -228,6 +223,18 @@ export function StudentPaymentStatusCard() {
           <StatusIcon className="w-3.5 h-3.5" />
           <span>{statusConfig.label}</span>
         </div>
+        {/* // TODO: BOTÃO QUE FAZ A CHECAGEM MANUAL */}
+        {/* <div
+          onClick={fetchPaymentStatus}
+          className={cn(
+            "flex items-center p-2 rounded-full text-xs font-semibold border transition-colors",
+            statusConfig.bg,
+            statusConfig.text,
+            statusConfig.border,
+          )}
+        >
+          <CheckCheckIcon className="w-3.5 h-3.5" />
+        </div> */}
       </div>
 
       {/* BODY CONTENT - FLEX GROWS TO FILL SPACE */}

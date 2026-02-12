@@ -2994,6 +2994,8 @@
   "Onboarding": {
     "Steps": {
       "welcome": "Start",
+      "basic-info": "Basic Info",
+      "best-practices": "Best Practices",
       "profile": "Profile",
       "rules": "Rules",
       "plan": "Plan",
@@ -3001,7 +3003,9 @@
       "payment": "Payment",
       "finish": "Conclusion",
       "banking": "Banking",
-      "schedule": "Schedule"
+      "schedule": "Schedule",
+      "contract-selection": "Contract Selection",
+      "contract-review": "Contract Review"
     },
     "Buttons": {
       "back": "Back",
@@ -3013,7 +3017,7 @@
       "confirmPlan": "Confirm Plan",
       "signContinue": "Sign to continue",
       "signedContinue": "Contract signed, continue",
-      "pay": "Make payment",
+      "pay": "Continue",
       "paidContinue": "Payment confirmed, continue",
       "confirmSchedule": "Confirm Schedule",
       "saveData": "Save Data",
@@ -3064,7 +3068,7 @@
           },
           "cancellation": {
             "title": "Cancellation",
-            "text": "To cancel without penalty, 30 days prior notice is required."
+            "text": "To cancel without penalty, you must be on the last month of your contract."
           }
         }
       },

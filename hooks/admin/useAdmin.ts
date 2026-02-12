@@ -39,9 +39,9 @@ export const useAdmin = () => {
       if (!response.ok)
         throw new Error(result.error || "Falha ao criar utilizador.");
 
-      setSuccessMessage(
-        `Utilizador para '${result.data.email}' criado com sucesso! Um e-mail de boas-vindas foi enviado.`,
-      );
+      // setSuccessMessage(
+      //   `Utilizador para '${result.data.email}' criado com sucesso! Um e-mail de boas-vindas foi enviado.`,
+      // );
       return true; // Retorna sucesso
     } catch (err: any) {
       setError(err.message);

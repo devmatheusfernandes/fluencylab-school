@@ -21,7 +21,7 @@ export function PaymentStatusWidget({ className }: PaymentStatusWidgetProps) {
   const locale = useLocale();
 
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | null>(
-    null
+    null,
   );
   const [loading, setLoading] = useState(true);
   const [generatingPix, setGeneratingPix] = useState(false);
@@ -69,7 +69,7 @@ export function PaymentStatusWidget({ className }: PaymentStatusWidgetProps) {
                 pixQrCode: data.pixQrCode,
                 pixExpiresAt: new Date(data.expiresAt),
               }
-            : null
+            : null,
         );
         toast.success(t("pixGenerated"));
       } else {
@@ -166,7 +166,7 @@ export function PaymentStatusWidget({ className }: PaymentStatusWidgetProps) {
           <StatusIcon className="w-5 h-5" />
           <h3 className="text-lg font-semibold">{t("paymentStatusTitle")}</h3>
         </div>
-        <Badge >
+        <Badge>
           {statusInfo.text}
           {paymentStatus.overdueDays && paymentStatus.overdueDays > 0 && (
             <span className="ml-1">({paymentStatus.overdueDays}d)</span>
@@ -189,9 +189,7 @@ export function PaymentStatusWidget({ className }: PaymentStatusWidgetProps) {
 
             {paymentStatus.pixCode ? (
               <div className="space-y-3">
-                <p className="text-xs text-yellow-700">
-                  {t("usePixCode")}
-                </p>
+                <p className="text-xs text-yellow-700">{t("usePixCode")}</p>
                 <div className="bg-white p-3 rounded border">
                   <code className="text-xs break-all font-mono">
                     {paymentStatus.pixCode}
@@ -209,7 +207,13 @@ export function PaymentStatusWidget({ className }: PaymentStatusWidgetProps) {
                   </Button>
                   {paymentStatus.pixExpiresAt && (
                     <span className="text-xs text-yellow-600 self-center">
-                      {t("expiresIn", { date: new Date(paymentStatus.pixExpiresAt).toLocaleDateString(locale === "pt" ? "pt-BR" : "en-US") })}
+                      {t("expiresIn", {
+                        date: new Date(
+                          paymentStatus.pixExpiresAt,
+                        ).toLocaleDateString(
+                          locale === "pt" ? "pt-BR" : "en-US",
+                        ),
+                      })}
                     </span>
                   )}
                 </div>
@@ -241,7 +245,7 @@ export function PaymentStatusWidget({ className }: PaymentStatusWidgetProps) {
             <span className="font-medium">{t("nextDue")}</span>
             <span>
               {new Date(paymentStatus.nextPaymentDue).toLocaleDateString(
-                locale === "pt" ? "pt-BR" : "en-US"
+                locale === "pt" ? "pt-BR" : "en-US",
               )}
             </span>
           </div>
@@ -252,7 +256,7 @@ export function PaymentStatusWidget({ className }: PaymentStatusWidgetProps) {
             <span className="font-medium">{t("lastPayment")}</span>
             <span>
               {new Date(paymentStatus.lastPaymentDate).toLocaleDateString(
-                locale === "pt" ? "pt-BR" : "en-US"
+                locale === "pt" ? "pt-BR" : "en-US",
               )}
             </span>
           </div>

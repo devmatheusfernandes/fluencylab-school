@@ -45,7 +45,7 @@ export const BestPracticesStep: React.FC<OnboardingStepProps> = () => {
         <p className="text-muted-foreground">{t("subtitle")}</p>
       </div>
 
-      <div className="grid gap-4">
+      <div className="grid gap-4 max-h-[calc(70vh-300px)] overflow-auto">
         {rules.map((rule, idx) => (
           <div
             key={idx}

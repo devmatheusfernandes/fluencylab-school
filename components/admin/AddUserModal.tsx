@@ -204,7 +204,7 @@ export default function AddUserModal({
     try {
       await onUserCreated(userData);
       toast.success("Usuário criado com sucesso!", {
-        description: `Um email foi enviado para ${userData.email} com as instruções de acesso`,
+        description: `Um email foi enviado com as instruções de acesso`,
       });
 
       // Reset form

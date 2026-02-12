@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import { OnboardingStepProps } from "../../OnboardingModal";
 import { Button } from "@/components/ui/button";
-import { Check, ChevronDown, ChevronUp, FileText, PenTool } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, PenTool, Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useTranslations } from "next-intl";
+import { useSession } from "next-auth/react";
+import ContratoPDF from "@/components/contract/ContratoPDF";
+import { validateCPF, formatCPF, cleanCPF } from "@/lib/validation/cpf";
 
 export const ContractReviewStep: React.FC<OnboardingStepProps> = ({
   data,
@@ -21,9 +24,12 @@ export const ContractReviewStep: React.FC<OnboardingStepProps> = ({
     "Onboarding.Student.ContractReview.Form.address",
   );
 
+  const { data: session } = useSession();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+
   const [formData, setFormData] = useState({
-    name: data.nickname || "",
+    name: data.nickname || session?.user?.name || "",
     cpf: "",
     birthDate: "",
     phone: "",
@@ -39,50 +45,91 @@ export const ContractReviewStep: React.FC<OnboardingStepProps> = ({
     termsAccepted: false,
   });
 
-  const handleSign = () => {
-    // Basic validation
-    if (
-      !formData.name ||
-      !formData.cpf ||
-      !formData.address.street ||
-      !formData.address.city
-    ) {
-      toast.error(tValidation("fillAll"));
-      return;
-    }
-
-    if (!formData.termsAccepted) {
-      toast.error(tValidation("acceptTerms"));
-      return;
-    }
-
-    if (formData.cpf.length < 11) {
-      toast.error(tValidation("invalidCPF"));
-      return;
-    }
-
-    // Simulate signing process
-    try {
-      // In a real app, this would call an API
-      onDataChange({
-        contractSigned: true,
-        contractData: {
-          signedAt: new Date().toISOString(),
-          signerName: formData.name,
-          signerCpf: formData.cpf,
-        },
-      });
-      toast.success(t("signedSuccess"));
-    } catch (e) {
-      toast.error(t("signedError"));
-    }
-  };
-
   const updateAddress = (field: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
       address: { ...prev.address, [field]: value },
     }));
+  };
+
+  const handleSign = async () => {
+    // 1. Validação de Campos Vazios
+    if (
+      !formData.name ||
+      !formData.cpf ||
+      !formData.address.street ||
+      !formData.address.city ||
+      !formData.address.zipCode
+    ) {
+      toast.error(tValidation("fillAll"));
+      return;
+    }
+
+    // 2. Validação dos Termos
+    if (!formData.termsAccepted) {
+      toast.error(tValidation("acceptTerms"));
+      return;
+    }
+
+    // 3. Validação REAL do CPF (Usando seu lib)
+    if (!validateCPF(formData.cpf)) {
+      toast.error(tValidation("invalidCPF"));
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const fullAddressString = `${formData.address.street}, ${formData.address.number} ${formData.address.complement ? `- ${formData.address.complement}` : ""} - ${formData.address.neighborhood}`;
+
+      // Limpa o CPF antes de enviar para o Backend (apenas números)
+      const cleanedCPF = cleanCPF(formData.cpf);
+
+      const signaturePayload = {
+        name: formData.name,
+        cpf: cleanedCPF, // Envia limpo
+        birthDate: formData.birthDate,
+        phone: formData.phone,
+        zipCode: formData.address.zipCode,
+        address: fullAddressString,
+        city: formData.address.city,
+        state: formData.address.state,
+        agreedToTerms: formData.termsAccepted,
+        email: session?.user?.email || "",
+      };
+
+      const res = await fetch("/api/onboarding/sign-contract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          signatureData: signaturePayload,
+          contractLengthMonths: data.contractLengthMonths,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Erro ao assinar");
+
+      const result = await res.json();
+
+      onDataChange({
+        contractSigned: true,
+        phoneNumber: formData.phone,
+        cpf: cleanedCPF,
+        contractData: result.contractStatus || {
+          signedAt: new Date().toISOString(),
+          signerName: formData.name,
+          signerCpf: cleanedCPF,
+          signerPhone: formData.phone,
+        },
+      });
+
+      toast.success(t("signedSuccess"));
+    } catch (e) {
+      console.error(e);
+      toast.error(t("signedError"));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (data.contractSigned) {
@@ -98,6 +145,19 @@ export const ContractReviewStep: React.FC<OnboardingStepProps> = ({
       </div>
     );
   }
+
+  // Para o PDF Preview, mantemos o CPF formatado (com pontos e traço) para ficar bonito visualmente
+  const previewData = {
+    name: formData.name,
+    cpf: formData.cpf,
+    birthDate: formData.birthDate,
+    email: session?.user?.email || "",
+    address: `${formData.address.street}, ${formData.address.number}`,
+    city: formData.address.city,
+    state: formData.address.state,
+    zipCode: formData.address.zipCode,
+    id: session?.user?.id || "",
+  };
 
   return (
     <div className="space-y-6 p-1">
@@ -126,23 +186,7 @@ export const ContractReviewStep: React.FC<OnboardingStepProps> = ({
 
       {isExpanded && (
         <div className="h-64 overflow-y-auto border rounded-lg p-4 bg-gray-50 dark:bg-gray-900 text-sm">
-          <div className="space-y-4">
-            <div className="flex items-center justify-center p-4">
-              <FileText className="w-8 h-8 text-gray-400" />
-            </div>
-            <p>
-              <strong>CONTRATO DE PRESTAÇÃO DE SERVIÇOS EDUCACIONAIS</strong>
-            </p>
-            <p>
-              Pelo presente instrumento particular, de um lado a FLUENCY LAB...
-            </p>
-            <p>(Conteúdo completo do contrato seria renderizado aqui...)</p>
-            <p>
-              Cláusula 1ª...
-              <br />
-              Cláusula 2ª...
-            </p>
-          </div>
+          <ContratoPDF alunoData={previewData} contractStatus={null} />
         </div>
       )}
 
@@ -157,16 +201,21 @@ export const ContractReviewStep: React.FC<OnboardingStepProps> = ({
               }
             />
           </div>
+
+          {/* INPUT DE CPF ATUALIZADO */}
           <div className="space-y-2">
             <Label>{tForm("cpf")}</Label>
             <Input
               value={formData.cpf}
               onChange={(e) =>
-                setFormData({ ...formData, cpf: e.target.value })
+                // Aplica formatação automática enquanto digita
+                setFormData({ ...formData, cpf: formatCPF(e.target.value) })
               }
               placeholder="000.000.000-00"
+              maxLength={14} // Limita caracteres (11 dígitos + 3 símbolos)
             />
           </div>
+
           <div className="space-y-2">
             <Label>{tForm("birthDate")}</Label>
             <Input
@@ -250,10 +299,15 @@ export const ContractReviewStep: React.FC<OnboardingStepProps> = ({
 
       <Button
         onClick={handleSign}
+        disabled={isSubmitting || !formData.termsAccepted}
         className="w-full bg-violet-600 hover:bg-violet-700 text-white"
         size="lg"
       >
-        <PenTool className="w-4 h-4 mr-2" />
+        {isSubmitting ? (
+          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+        ) : (
+          <PenTool className="w-4 h-4 mr-2" />
+        )}
         {t("signButton")}
       </Button>
     </div>

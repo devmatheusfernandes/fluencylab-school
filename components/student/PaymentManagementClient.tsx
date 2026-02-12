@@ -211,15 +211,15 @@ export function PaymentManagementClient() {
   const getPaymentStatusBadge = (status: MonthlyPayment["status"]) => {
     switch (status) {
       case "paid":
-        return { color: "success" as const, text: t("status.paid") };
+        return { color: "green-500" as const, text: t("status.paid") };
       case "pending":
-        return { color: "warning" as const, text: t("status.pending") };
+        return { color: "slate-500" as const, text: t("status.pending") };
       case "available":
-        return { color: "secondary" as const, text: t("status.available") };
+        return { color: "emerald-500" as const, text: t("status.available") };
       case "overdue":
         return { color: "destructive" as const, text: t("status.overdue") };
       case "canceled":
-        return { color: "warning" as const, text: t("status.canceled") };
+        return { color: "amber-500" as const, text: t("status.canceled") };
       case "failed":
         return { color: "destructive" as const, text: t("status.failed") };
       default:
@@ -591,13 +591,15 @@ export function PaymentManagementClient() {
               return (
                 <div
                   key={payment.id}
-                  className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                  className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <h4 className="font-medium">{payment.description}</h4>
-                        <Badge className="">{statusInfo.text}</Badge>
+                        <Badge className={`bg-${statusInfo.color} text-white`}>
+                          {statusInfo.text}
+                        </Badge>
                       </div>
 
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600">

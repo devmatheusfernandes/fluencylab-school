@@ -6,10 +6,10 @@
 export interface MonthlySubscription {
   id: string;
   userId: string;
-  planType: 'pix';
+  planType: "pix";
   amount: number; // Amount in centavos
-  currency: 'BRL';
-  status: 'active' | 'pending' | 'overdue' | 'canceled' | 'suspended';
+  currency: "BRL";
+  status: "active" | "pending" | "overdue" | "canceled" | "suspended";
   paymentMethod: PaymentMethod;
   billingDay: number; // Day of the month for billing (1-28)
   nextBillingDate: Date;
@@ -17,7 +17,7 @@ export interface MonthlySubscription {
   canceledAt?: Date;
   cancellationReason?: string;
   cancellationFee?: number; // Fee in centavos if applicable
-  
+
   // Contract information
   contractLengthMonths: 6 | 12; // Contract duration
   contractStartDate: Date; // When the contract started
@@ -30,7 +30,7 @@ export interface MonthlySubscription {
  * Payment method information
  */
 export interface PaymentMethod {
-  type: 'pix';
+  type: "pix";
 }
 
 /**
@@ -43,9 +43,9 @@ export interface MonthlyPayment {
   amount: number; // Amount in centavos
   dueDate: Date;
   paidAt?: Date;
-  status: 'pending' | 'paid' | 'overdue' | 'canceled' | 'failed' | 'available';
-  paymentMethod: 'pix';
-  provider: 'abacatepay';
+  status: "pending" | "paid" | "overdue" | "canceled" | "failed" | "available";
+  paymentMethod: "pix";
+  provider: "abacatepay";
   providerPaymentId?: string; // AbacatePay PixQRCode id
   pixCode?: string;
   pixQrCode?: string; // Base64 QR code
@@ -56,11 +56,11 @@ export interface MonthlyPayment {
   };
   createdAt: Date;
   updatedAt: Date;
-  
+
   // Payment sequence information
   paymentNumber: number; // Which payment in the sequence (1, 2, 3...)
   description: string; // e.g., "Mensalidade Janeiro 2024 (1/12)"
-  type?: 'monthly' | 'cancellation_fee';
+  type?: "monthly" | "cancellation_fee";
 }
 
 /**
@@ -69,7 +69,7 @@ export interface MonthlyPayment {
 export interface PaymentStatus {
   subscriptionId?: string; // Added for API calls
   userIsActive?: boolean; // Added for cancellation flow
-  subscriptionStatus: 'active' | 'overdue' | 'canceled' | 'pending';
+  subscriptionStatus: "active" | "overdue" | "canceled" | "pending";
   nextPaymentDue?: Date;
   lastPaymentDate?: Date;
   currentPeriodStart?: Date;
@@ -78,7 +78,7 @@ export interface PaymentStatus {
   pixQrCode?: string;
   pixExpiresAt?: Date;
   amount?: number;
-  paymentMethod?: 'pix';
+  paymentMethod?: "pix";
   overdueDays?: number;
 }
 
@@ -89,7 +89,7 @@ export interface CreateSubscriptionParams {
   userId: string;
   userEmail: string;
   userRole: string;
-  paymentMethod: 'pix';
+  paymentMethod: "pix";
   billingDay: number;
   contractLengthMonths: 6 | 12; // Contract duration
   contractStartDate?: Date;
@@ -97,6 +97,8 @@ export interface CreateSubscriptionParams {
   initialPaymentDueDate?: Date;
   addLateCredits?: boolean;
   lateCreditsAmount?: number;
+  cellPhone?: string;
+  taxId?: string;
 }
 
 /**

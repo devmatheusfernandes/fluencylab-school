@@ -17,7 +17,6 @@ import { useTranslations } from "next-intl";
 import {
   WelcomeStep,
   BasicInfoStep,
-  EmailVerificationStep,
   BestPracticesStep,
   ContractSelectionStep,
   ContractReviewStep,
@@ -70,7 +69,6 @@ interface OnboardingModalProps {
 const STEPS = [
   { id: "welcome", component: WelcomeStep },
   { id: "basic-info", component: BasicInfoStep },
-  // { id: "email-verification", component: EmailVerificationStep },
   { id: "best-practices", component: BestPracticesStep },
   {
     id: "contract-selection",
@@ -88,7 +86,6 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   onComplete,
 }) => {
   const { data: session } = useSession();
-  const t = useTranslations("Onboarding");
   const tSteps = useTranslations("Onboarding.Steps");
   const tButtons = useTranslations("Onboarding.Buttons");
   const tToasts = useTranslations("Onboarding.Toasts");
@@ -99,10 +96,10 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   const [data, setData] = useState<OnboardingData>({
     nickname: session?.user?.name || "",
     interfaceLanguage: "pt",
-    theme: "light",
+    theme: "dark",
     themeColor: "violet",
-    emailVerified: false,
-    contractLengthMonths: 12, // Default para o mais vantajoso
+    emailVerified: true,
+    contractLengthMonths: 12,
     contractSigned: false,
     paymentMethod: null,
     paymentCompleted: false,
@@ -164,7 +161,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
       case "contract-review":
         return data.contractSigned;
       case "payment":
-        return data.paymentCompleted;
+        return data.subscriptionId !== undefined;
       case "finish":
         return true;
       default:
@@ -182,9 +179,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
     }
 
     if (stepId === "payment") {
-      return data.paymentCompleted
-        ? tButtons("paidContinue")
-        : tButtons("pay");
+      return data.paymentCompleted ? tButtons("paidContinue") : tButtons("pay");
     }
 
     if (currentStep === STEPS.length - 1) return tButtons("dashboard");
@@ -290,21 +285,20 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
         <ModalFooter>
           {!isFirstStep && (
             <ModalSecondaryButton onClick={handleBack} disabled={isLoading}>
-              <ArrowLeft className="w-4 h-4 md:mr-2" />
+              <ArrowLeft className="w-4 h-4" />
               <span>{tButtons("back")}</span>
             </ModalSecondaryButton>
           )}
 
-            <ModalPrimaryButton
-              onClick={isLastStep ? handleCompleteOnboarding : handleNext}
-              disabled={(!stepCompleted && !isActionStep) || isLoading}
-              className={`${!stepCompleted && isActionStep ? "opacity-50 cursor-not-allowed" : ""}`}
-            >
-              {isLoading ? tButtons("processing") : getButtonText()}
-              {!isLastStep && <ArrowRight className="w-4 h-4 ml-2" />}
-              {isLastStep && <Check className="w-4 h-4 ml-2" />}
-            </ModalPrimaryButton>
-          
+          <ModalPrimaryButton
+            onClick={isLastStep ? handleCompleteOnboarding : handleNext}
+            disabled={(!stepCompleted && !isActionStep) || isLoading}
+            className={`${!stepCompleted && isActionStep ? "opacity-50 cursor-not-allowed" : ""}`}
+          >
+            {isLoading ? tButtons("processing") : getButtonText()}
+            {!isLastStep && <ArrowRight className="w-4 h-4" />}
+            {isLastStep && <Check className="w-4 h-4" />}
+          </ModalPrimaryButton>
         </ModalFooter>
       </ModalContent>
     </Modal>
