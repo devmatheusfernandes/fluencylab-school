@@ -177,9 +177,7 @@ function HubLayoutContent({
                   {!pathname?.includes("/my-chat") && <HubHeader />}
                   <Container
                     className={`flex-1 flex-col flex ${
-                      isChatPage
-                        ? "p-0 sm:p-0 rounded sm:rounded-md"
-                        : "p-1 sm:p-2"
+                      isChatPage ? "p-0 sm:p-0" : "p-1 sm:p-2"
                     }`}
                   >
                     {children}

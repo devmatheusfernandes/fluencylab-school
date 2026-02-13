@@ -13,7 +13,6 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-  CardFooter,
 } from "@/components/ui/card";
 import {
   Select,
@@ -222,7 +221,7 @@ export function StepAnalysis({ lesson, onComplete }: StepAnalysisProps) {
         <div className="lg:col-span-4 space-y-6">
           {/* Score Card */}
           <Card className="overflow-hidden">
-            <CardHeader className="bg-muted/30 pb-4">
+            <CardHeader className="pb-4">
               <CardTitle className="text-sm font-medium uppercase text-muted-foreground tracking-wider flex items-center gap-2">
                 <Gauge className="w-4 h-4" /> Qualidade Geral
               </CardTitle>
@@ -248,7 +247,7 @@ export function StepAnalysis({ lesson, onComplete }: StepAnalysisProps) {
               </div>
               <Badge
                 variant={analysis.isCompliant ? "default" : "destructive"}
-                className="px-3 py-1 text-sm"
+                className="px-3 py-1 text-sm mt-3"
               >
                 {analysis.isCompliant ? "Aprovado" : "Requer Atenção"}
               </Badge>
@@ -257,7 +256,7 @@ export function StepAnalysis({ lesson, onComplete }: StepAnalysisProps) {
 
           {/* Parameters Card */}
           <Card>
-            <CardHeader className="bg-muted/30 pb-4">
+            <CardHeader className="pb-4">
               <CardTitle className="text-sm font-medium uppercase text-muted-foreground tracking-wider flex items-center gap-2">
                 <BookOpen className="w-4 h-4" /> Parâmetros Detectados
               </CardTitle>

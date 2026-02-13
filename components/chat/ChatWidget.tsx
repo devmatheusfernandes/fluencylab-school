@@ -509,7 +509,7 @@ export default function ChatWidget() {
     );
 
   return (
-    <div className="h-full w-full overflow-hidden">
+    <div className="h-full w-full overflow-hidden ">
       <Chat client={client} theme="messaging">
         <ChatLayout />
       </Chat>

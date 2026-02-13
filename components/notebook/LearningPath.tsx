@@ -196,8 +196,6 @@ export function LearningPath({
         </DialogContent>
       </Dialog>
 
-      {/* ================= MOBILE VIEW (Horizontal) ================= */}
-      {/* Container simples flex-row. A linha passa por trás usando um div absoluto */}
       <div
         className={cn(
           "flex lg:hidden flex-col items-center w-full py-8",
@@ -223,7 +221,6 @@ export function LearningPath({
       </div>
 
       {/* ================= DESKTOP VIEW (Vertical ZigZag) ================= */}
-      {/* Altura fixa calculada baseada no número de itens x altura de cada um */}
       <div
         className={cn(
           "hidden lg:block relative w-[300px]",
@@ -231,10 +228,8 @@ export function LearningPath({
         )}
         style={{ height: allDays.length * CONFIG.desktopItemHeight + 50 }}
       >
-        {/* 1. O Desenho da Linha (SVG) fica no fundo absoluto */}
         <SnakePathSVG days={allDays} />
 
-        {/* 2. Os Botões posicionados absolutamente sobre a linha */}
         {allDays.map((day, index) => {
           const pos = getPosition(index); // Pega X e Y exatos
           return (
@@ -243,7 +238,6 @@ export function LearningPath({
               className="absolute top-0 left-0 transition-all duration-500"
               style={{
                 transform: `translate(${pos.x}px, ${pos.y}px)`,
-                // Centraliza o elemento no ponto X,Y (assumindo botão de 80px)
                 marginLeft: -40,
                 marginTop: -40,
               }}

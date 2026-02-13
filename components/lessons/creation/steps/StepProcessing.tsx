@@ -23,8 +23,6 @@ import {
   BrainCircuit,
   ArrowRight,
   CheckCircle2,
-  Layers,
-  ArrowDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -86,7 +84,6 @@ export function StepProcessing({ lesson, onComplete }: StepProcessingProps) {
       }
 
       if (completed) {
-        onComplete();
         router.refresh();
       } else {
         toast.warning("Lote processado. Clique novamente para continuar.");
@@ -120,7 +117,7 @@ export function StepProcessing({ lesson, onComplete }: StepProcessingProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start relative">
         {/* Connector Icon for Desktop */}
         <div className="hidden md:flex absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 bg-background p-2 rounded-full border shadow-sm text-muted-foreground">
-          <ArrowRight className="w-6 h-6" />
+          <ArrowRight className="w-4 h-4" />
         </div>
 
         {/* 1. Extraction Card */}
@@ -217,7 +214,7 @@ export function StepProcessing({ lesson, onComplete }: StepProcessingProps) {
                 </span>
               </div>
               <Progress
-                value={totalQueue === 0 ? 100 : 10}
+                value={totalQueue === 0 ? 100 : 0}
                 className={cn(
                   "h-3",
                   totalQueue === 0 ? "bg-muted" : "bg-muted",
@@ -248,8 +245,11 @@ export function StepProcessing({ lesson, onComplete }: StepProcessingProps) {
           </CardContent>
 
           {isQueueEmpty && isExtractionDone && (
-            <CardFooter className="bg-green-100/50 dark:bg-green-900/20 py-3 justify-center">
-              <p className="text-sm font-medium text-green-700 dark:text-green-400 flex items-center gap-2">
+            <CardFooter className="bg-green-100/50 dark:bg-green-900/20 py-3 justify-center rounded-md mt-4 cursor-pointer">
+              <p
+                onClick={onComplete}
+                className="text-sm font-medium text-green-700 dark:text-green-400 flex items-center gap-2"
+              >
                 <CheckCircle2 className="w-4 h-4" /> Tudo pronto para prosseguir
               </p>
             </CardFooter>

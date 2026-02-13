@@ -51,7 +51,9 @@ export default function Home() {
   const t = useTranslations("WorkbookScreen");
 
   // Fallback para capas que falharem ao carregar
-  const [failedCoverIds, setFailedCoverIds] = useState<Record<string, boolean>>({});
+  const [failedCoverIds, setFailedCoverIds] = useState<Record<string, boolean>>(
+    {},
+  );
 
   const [workbookCollectionsState, setWorkbookCollectionsState] = useState<
     string[]
@@ -105,7 +107,7 @@ export default function Home() {
 
         const lessonsColRef = collection(
           db,
-          `Apostilas/${workbookName}/Lessons`
+          `Apostilas/${workbookName}/Lessons`,
         );
         const unsubscribe = onSnapshot(lessonsColRef, (snapLessons) => {
           const notebooks: Notebook[] = [];
@@ -145,7 +147,6 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    // ... (search useEffect - no changes needed here)
     if (!searchQuery.trim()) {
       setSearchResults([]);
       return;
@@ -205,7 +206,7 @@ export default function Home() {
     id: string,
     newLevel: string,
     newGuidelines: string,
-    newCoverFile?: File
+    newCoverFile?: File,
   ) => {
     const docRef = doc(db, "Apostilas", id);
     let newCoverURL = "";
@@ -213,7 +214,7 @@ export default function Home() {
     if (newCoverFile) {
       const imageRef = ref(
         storage,
-        `workbookCovers/${uuidv4()}_${newCoverFile.name}`
+        `workbookCovers/${uuidv4()}_${newCoverFile.name}`,
       );
       await uploadBytes(imageRef, newCoverFile);
       newCoverURL = await getDownloadURL(imageRef);
@@ -239,7 +240,7 @@ export default function Home() {
             return updatedWb;
           }
           return wb;
-        })
+        }),
       );
     } else if (newCoverFile) {
       // Case where only cover was changed, but newCoverURL was set
@@ -253,13 +254,13 @@ export default function Home() {
       acc[wb.level].push(wb);
       return acc;
     },
-    {} as Record<string, Workbook[]>
+    {} as Record<string, Workbook[]>,
   );
 
   const sortedLevels = Object.keys(grouped).sort(
     (a, b) =>
       levelOrder[a as keyof typeof levelOrder] -
-      levelOrder[b as keyof typeof levelOrder]
+      levelOrder[b as keyof typeof levelOrder],
   );
 
   // Framer Motion variants for staggered animation
@@ -316,7 +317,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="p-4 md:p-8 space-y-6">
+      <div className="container-padding rounded-b-md">
         {/* Header & Search */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <Header heading={t("title")} subheading={t("subtitle")} />
@@ -438,7 +439,7 @@ export default function Home() {
                       className="block flex-grow"
                     >
                       <div className="aspect-[3/4] bg-gray-100 dark:bg-gray-200 relative overflow-hidden">
-                        {(!failedCoverIds[workbook.id] && !!workbook.coverURL) ? (
+                        {!failedCoverIds[workbook.id] && !!workbook.coverURL ? (
                           <Image
                             priority
                             width={400}
@@ -447,13 +448,27 @@ export default function Home() {
                             alt={workbook.title}
                             className="w-full h-full object-cover ease-in-out transform-all duration-500 group-hover:contrast-125"
                             onError={() =>
-                              setFailedCoverIds((prev) => ({ ...prev, [workbook.id]: true }))
+                              setFailedCoverIds((prev) => ({
+                                ...prev,
+                                [workbook.id]: true,
+                              }))
                             }
                           />
                         ) : (
                           <div className="flex items-center justify-center h-full text-center p-4 text-gray-500 dark:text-gray-400">
-                            <svg className="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            <svg
+                              className="w-12 h-12 mx-auto mb-2"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="1"
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                              ></path>
                             </svg>
                             <p className="text-sm">Capa indisponível</p>
                           </div>

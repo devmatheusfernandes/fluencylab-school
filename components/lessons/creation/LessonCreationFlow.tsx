@@ -109,12 +109,12 @@ export function LessonCreationFlow({
         title="Revisão de Componentes"
         action={
           <Button onClick={handleNext} className="gap-2 shadow-sm">
-            Marcar como Revisado <CheckCircle2 className="w-4 h-4" />
+            Marcar como Revisado <CheckCircle2 className="w-4 h-4 ml-2" />
           </Button>
         }
       />
       <Card className="bg-muted/30 border-dashed">
-        <CardContent className="pt-6">
+        <CardContent>
           <p className="text-muted-foreground text-sm flex items-center gap-2">
             <LayoutDashboard className="w-4 h-4" />
             Verifique o vocabulário e estruturas extraídos. Você pode editar,
@@ -123,13 +123,11 @@ export function LessonCreationFlow({
         </CardContent>
       </Card>
 
-      <div className="rounded-xl border bg-card shadow-sm">
-        <LessonComponentsManager
-          vocabulary={vocabulary}
-          structures={structures}
-          lessonId={lesson.id}
-        />
-      </div>
+      <LessonComponentsManager
+        vocabulary={vocabulary}
+        structures={structures}
+        lessonId={lesson.id}
+      />
     </div>
   );
 

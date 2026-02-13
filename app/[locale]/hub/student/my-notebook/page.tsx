@@ -57,8 +57,6 @@ export default function Caderno() {
     hasActiveLesson: true,
   });
 
-  // Extract Plan ID properly
-  const activePlanId = plan?.id;
   const userXP = student?.gamification?.currentXP || 0;
 
   const [statsLoading, setStatsLoading] = useState(true);
@@ -68,9 +66,6 @@ export default function Caderno() {
   const [isWordModalOpen, setIsWordModalOpen] = useState(false);
   const [isNotebooksDrawerOpen, setIsNotebooksDrawerOpen] = useState(false);
   const [isTasksDrawerOpen, setIsTasksDrawerOpen] = useState(false);
-
-  // Use either the plan ID from the hook or the one fetched directly
-  // This ensures that if fetchStats succeeds, we have a plan ID even if the hook is still loading
   const effectivePlanId = activePlanIdState || plan?.id;
 
   const [isLearnedModalOpen, setIsLearnedModalOpen] = useState(false);

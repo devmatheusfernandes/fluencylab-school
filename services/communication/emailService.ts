@@ -47,7 +47,7 @@ export class EmailService {
         : "Bem-vindo(a) à Fluency Lab! Defina sua senha.";
 
       await resend.emails.send({
-        from: "Matheus Fernandes <contato@fluencylab.me>",
+        from: "Matheus Fernandes <contato@matheusfernandes.me>",
         to: email,
         subject,
         react: await WelcomeEmail({
@@ -80,7 +80,7 @@ export class EmailService {
       });
 
       await resend.emails.send({
-        from: "Agendamento <contato@fluencylab.me>",
+        from: "Agendamento <contato@matheusfernandes.me>",
         to: [email],
         subject: "Nova aula agendada - Fluency Lab",
         react: await ClassScheduledEmail({
@@ -114,7 +114,7 @@ export class EmailService {
       });
 
       await resend.emails.send({
-        from: "Agendamento <contato@fluencylab.me>",
+        from: "Agendamento <contato@matheusfernandes.me>",
         to: [email],
         subject: "Nova aula agendada com você - Fluency Lab",
         react: await ClassScheduledEmail({
@@ -167,7 +167,7 @@ export class EmailService {
           : "Aula reagendada - Fluency Lab";
 
       await resend.emails.send({
-        from: "Reagendamento <contato@fluencylab.me>",
+        from: "Reagendamento <contato@matheusfernandes.me>",
         to: [email],
         subject,
         react: await ClassRescheduledEmail({
@@ -223,7 +223,7 @@ export class EmailService {
           : "Aula cancelada - Fluency Lab";
 
       await resend.emails.send({
-        from: "Cancelamento <contato@fluencylab.me>",
+        from: "Cancelamento <contato@matheusfernandes.me>",
         to: [email],
         subject,
         react: await ClassCanceledEmail({
@@ -265,7 +265,7 @@ export class EmailService {
   }) {
     try {
       await resend.emails.send({
-        from: "Férias <contato@fluencylab.me>",
+        from: "Férias <contato@matheusfernandes.me>",
         to: [email],
         subject:
           "Suas aulas foram afetadas por férias do professor - Fluency Lab",
@@ -303,7 +303,7 @@ export class EmailService {
   }) {
     try {
       await resend.emails.send({
-        from: "Férias Canceladas <contato@fluencylab.me>",
+        from: "Férias Canceladas <contato@matheusfernandes.me>",
         to: [email],
         subject:
           "Férias do professor canceladas - Suas aulas foram reagendadas - Fluency Lab",
@@ -350,7 +350,7 @@ export class EmailService {
   }) {
     try {
       await resend.emails.send({
-        from: "Renovação de Contrato <contato@fluencylab.me>",
+        from: "Renovação de Contrato <contato@matheusfernandes.me>",
         to: [email],
         subject: "🎉 Seu contrato foi renovado automaticamente - Fluency Lab",
         react: await ContractRenewalEmail({
@@ -390,7 +390,7 @@ export class EmailService {
     try {
       /*  TODO: VERIFICAR FROM NOS EMAILS */
       await resend.emails.send({
-        from: "Pagamento Confirmado <contato@fluencylab.me>",
+        from: "Pagamento Confirmado <contato@matheusfernandes.me>",
         to: [email],
         subject: "Pagamento Confirmado! 🎉 - Fluency Lab",
         react: await PaymentConfirmationEmail({
