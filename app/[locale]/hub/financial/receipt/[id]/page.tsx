@@ -1,7 +1,6 @@
 import { subscriptionService } from "@/services/financial/subscriptionService";
-import { ReceiptView } from "./components/receipt-view";
+import { ReceiptView } from "../../../../../../components/financial/receipt-view";
 import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
 import { adminDb } from "@/lib/firebase/admin";
 
 interface PageProps {

@@ -2,14 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Header } from "@/components/ui/header";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardFooter,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -41,10 +34,8 @@ import {
   TrendingUp,
   Wallet,
   PieChart,
-  DollarSign,
   Calendar,
   CheckCircle2,
-  XCircle,
   Settings,
 } from "lucide-react";
 import { markTeacherPaymentAsPaid } from "@/actions/financial";
@@ -246,15 +237,17 @@ export default function FiscalDashboardPage() {
             </SelectContent>
           </Select>
 
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setIsConfigOpen(true)}
-            title="Configurar IRPF"
-          >
-            <Settings className="w-4 h-4" />
-          </Button>
-          <FiscalHelpModal />
+          <div className="flex flex-row items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setIsConfigOpen(true)}
+              title="Configurar IRPF"
+            >
+              <Settings className="w-4 h-4" />
+            </Button>
+            <FiscalHelpModal />
+          </div>
         </div>
       </div>
 
@@ -444,7 +437,6 @@ export default function FiscalDashboardPage() {
               <Button
                 onClick={handleCloseMonth}
                 disabled={!canClose || closingLoading}
-                size="sm"
                 variant={canClose ? "glass" : "secondary"}
                 className={cn(!canClose && "opacity-50")}
               >
@@ -459,12 +451,6 @@ export default function FiscalDashboardPage() {
 
         {/* Right Column: Payments (Takes 2/3 on large screens) */}
         <div className="lg:col-span-2 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold tracking-tight">
-              {t("teachers")}
-            </h3>
-          </div>
-
           <Card>
             <CardContent className="p-0">
               {/* Desktop Table View */}
