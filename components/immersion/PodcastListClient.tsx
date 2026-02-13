@@ -2,7 +2,14 @@
 
 import { Podcast, UserPodcastProgress } from "@/types/learning/immersion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PlayCircle, CheckCircle2, Clock, Search, Filter } from "lucide-react";
+import {
+  PlayCircle,
+  CheckCircle2,
+  Clock,
+  Search,
+  Filter,
+  ArrowLeft,
+} from "lucide-react";
 import { useState, useMemo } from "react";
 import { FloatingPodcastPlayer } from "./FloatingPodcastPlayer";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +21,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import BreadcrumbActions from "../shared/Breadcrum/BreadcrumbActions";
+import BreadcrumbActionIcon from "../shared/Breadcrum/BreadcrumbActionIcon";
+import Link from "next/link";
 
 interface PodcastListClientProps {
   podcasts: Podcast[];
@@ -90,6 +100,12 @@ export function PodcastListClient({
 
   return (
     <>
+      <BreadcrumbActions placement="start">
+        <Link href="/hub/student/my-immersion">
+          <BreadcrumbActionIcon icon={ArrowLeft} />
+        </Link>
+      </BreadcrumbActions>
+
       {/* Filters Section */}
       <div className="flex flex-col md:flex-row gap-4 mb-8">
         <div className="relative flex-1">

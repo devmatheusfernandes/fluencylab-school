@@ -223,7 +223,7 @@ export function StudentPaymentStatusCard() {
           <StatusIcon className="w-3.5 h-3.5" />
           <span>{statusConfig.label}</span>
         </div>
-        {/* // TODO: BOTÃO QUE FAZ A CHECAGEM MANUAL */}
+        {/* TODO: BOTÃO QUE FAZ A CHECAGEM MANUAL */}
         {/* <div
           onClick={fetchPaymentStatus}
           className={cn(

@@ -780,7 +780,9 @@
     "components": "Componentes",
     "tasks": "Tarefas",
     "immersion": "Imersão",
-    "achievementes": "Conquistas"
+    "achievementes": "Conquistas",
+    "mySubscription": "Minhas Assinaturas",
+    "myHistory": "Meu Histórico"
   },
   "UserProfileHeader": {
     "profilePicture": "Foto de perfil",

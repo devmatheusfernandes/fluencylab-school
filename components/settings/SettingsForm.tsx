@@ -111,7 +111,7 @@ export default function SettingsForm({
   const { needRefresh, updateServiceWorker } = usePWAUpdate();
 
   const [soundEnabled, setSoundEnabled] = useState(
-    session?.user?.preferences?.soundEffectsEnabled ?? true
+    session?.user?.preferences?.soundEffectsEnabled ?? true,
   );
 
   const handleToggleSound = (enabled: boolean) => {
@@ -163,6 +163,7 @@ export default function SettingsForm({
     if (!session?.user?.email) return;
     setIsSendingReset(true);
     try {
+      //TODO: USAR O TEMPLATE DE EMAIL
       await sendPasswordResetEmail(auth, session.user.email);
       toast.success(t("security.passwordResetSentDesc"));
     } catch (error) {

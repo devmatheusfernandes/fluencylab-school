@@ -38,7 +38,7 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>(
           isMobile &&
             "relative bg-slate-100! dark:bg-slate-950! border-b border-slate-200 dark:border-b dark:border-slate-800! sticky top-0 z-10",
           isStandalone &&
-            "bg-slate-200! dark:bg-slate-900! border-t-none! border-b-none! dark:border-transparent!",
+            "bg-slate-200! dark:bg-slate-900! border-t-none! border-b-none! dark:border-t-none! dark:border-b-none! dark:border-transparent!",
         )}
       >
         {onToggleSidebar && !isMobile && (

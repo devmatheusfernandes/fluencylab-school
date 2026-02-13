@@ -80,7 +80,7 @@ export default function MeusAlunos() {
   }
 
   return (
-    <div className="container-padding space-y-6">
+    <div className="container-padding">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <Header heading={t("title")} subheading={t("subheading")} />
         <div className="w-full md:w-auto md:min-w-[300px]">
@@ -93,7 +93,7 @@ export default function MeusAlunos() {
       </div>
 
       {/* Students List */}
-      <div className="flex-1 py-3">
+      <div className="flex-1 py-2">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {loading ? (
             Array.from({ length: 6 }).map((_, index) => (

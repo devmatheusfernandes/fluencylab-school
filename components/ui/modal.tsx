@@ -101,7 +101,7 @@ const ModalContent = React.forwardRef<
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm flex items-end justify-center"
+              className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end justify-center"
             >
               <Dialog.Content
                 className={twMerge(
@@ -130,7 +130,7 @@ const ModalContent = React.forwardRef<
                 >
                   {/* Handle Bar */}
                   {showHandle && (
-                    <div className="flex justify-center pt-4 pb-6">
+                    <div className="flex justify-center pt-2 pb-6">
                       <div className="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full" />
                     </div>
                   )}
@@ -160,11 +160,11 @@ const ModalContent = React.forwardRef<
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm flex items-end justify-center"
+              className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end justify-center"
             >
               <Dialog.Content
                 className={twMerge(
-                  `relative w-full max-w-lg mx-4 mb-4 sm:mb-6 no-scrollbar
+                  `relative w-full max-w-lg mx-3 mb-4 sm:mb-6 no-scrollbar
                   bg-white dark:bg-gray-900/95 
                   backdrop-blur-xl
                   rounded-2xl shadow-2xl

@@ -149,16 +149,8 @@ export function SubscriptionCreationClient() {
     const StatusIcon = statusConfig.icon;
 
     return (
-      <div className="max-w-2xl mx-auto mt-8">
-        <Card
-          className={cn(
-            "p-8 text-center border overflow-hidden relative",
-            statusConfig.bg,
-            statusConfig.border,
-          )}
-        >
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-current to-transparent opacity-20" />
-
+      <div className="container-padding">
+        <Card className="p-8 text-center border overflow-hidden relative">
           <div className="flex justify-center mb-6">
             <div
               className={cn("p-4 rounded-full shadow-sm", statusConfig.iconBg)}
@@ -223,13 +215,7 @@ export function SubscriptionCreationClient() {
             onClick={() =>
               (window.location.href = `/${locale}/hub/student/my-payments`)
             }
-            size="lg"
-            className={cn(
-              "w-full md:w-auto font-semibold shadow-lg transition-all",
-              isPending
-                ? "bg-amber-600 hover:bg-amber-700 text-white"
-                : "bg-emerald-600 hover:bg-emerald-700 text-white",
-            )}
+            variant={isPending ? "warning" : "success"}
           >
             <CreditCard className="w-4 h-4 mr-2" />
             {isPending ? t("finishPayment") : t("goToPayments")}

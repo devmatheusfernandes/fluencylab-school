@@ -427,8 +427,6 @@ export default function ClassDetailsView({
             </AccordionItem>
           )}
         </Accordion>
-
-        {/* TODO: PUT NOTEBOOKS LIST HERE */}
       </motion.div>
     </motion.div>
   );

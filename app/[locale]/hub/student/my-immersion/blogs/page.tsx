@@ -1,7 +1,6 @@
-import { BlogPageContent, BlogSkeleton } from "@/components/immersion/BlogList";
+import { BlogPageContent } from "@/components/immersion/BlogList";
 import { Header } from "@/components/ui/header";
 import { immersionService } from "@/services/learning/immersionService";
-import { Suspense } from "react";
 
 export default async function StudentBlogsPage() {
   // Buscando dados reais
@@ -18,15 +17,13 @@ export default async function StudentBlogsPage() {
         backHref="/hub/student/my-immersion"
       />
 
-      <Suspense fallback={<BlogSkeleton />}>
-        {blogs.length > 0 ? (
-          <BlogPageContent blogs={blogs} popularBlogs={popularBlogs} />
-        ) : (
-          <p className="text-center text-muted-foreground py-20">
-            No new posts found.
-          </p>
-        )}
-      </Suspense>
+      {blogs.length > 0 ? (
+        <BlogPageContent blogs={blogs} popularBlogs={popularBlogs} />
+      ) : (
+        <p className="text-center text-muted-foreground py-20">
+          No new posts found.
+        </p>
+      )}
     </div>
   );
 }

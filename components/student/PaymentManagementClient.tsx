@@ -393,7 +393,6 @@ export function PaymentManagementClient() {
   }
 
   const statusInfo = getStatusInfo(paymentStatus.subscriptionStatus);
-  const StatusIcon = statusInfo.icon;
 
   return (
     <div className="container-padding space-y-6">
@@ -591,7 +590,7 @@ export function PaymentManagementClient() {
               return (
                 <div
                   key={payment.id}
-                  className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
+                  className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors item-base"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1">

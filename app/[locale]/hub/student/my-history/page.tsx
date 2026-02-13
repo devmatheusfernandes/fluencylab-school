@@ -39,12 +39,16 @@ import {
   CheckCircle,
   Clock,
   Archive,
+  ArrowLeft,
 } from "lucide-react";
 import { format, isFuture, isPast, isToday } from "date-fns";
 import { useStudentPanel } from "@/hooks/student/useStudentPanel";
 import { cn } from "@/lib/utils";
 
 import { StudentProfileHeader } from "@/components/student/StudentProfileHeader";
+import BreadcrumbActions from "@/components/shared/Breadcrum/BreadcrumbActions";
+import Link from "next/link";
+import BreadcrumbActionIcon from "@/components/shared/Breadcrum/BreadcrumbActionIcon";
 
 export default function HistoryPage() {
   const t = useTranslations("HistoryPage");
@@ -186,7 +190,11 @@ export default function HistoryPage() {
         icon={<Map className="w-8 h-8 text-primary" />}
         backHref="/hub/student/my-notebook"
       />
-
+      <BreadcrumbActions placement="start">
+        <Link href="/hub/student/my-notebook">
+          <BreadcrumbActionIcon icon={ArrowLeft} />
+        </Link>
+      </BreadcrumbActions>
       <StudentProfileHeader student={student} loading={studentLoading} />
 
       <Tabs defaultValue="roadmap" className="w-full">

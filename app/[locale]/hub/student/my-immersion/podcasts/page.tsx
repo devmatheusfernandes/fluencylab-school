@@ -1,4 +1,3 @@
-import { Container } from "@/components/ui/container";
 import { Header } from "@/components/ui/header";
 import { immersionService } from "@/services/learning/immersionService";
 import { PodcastListClient } from "@/components/immersion/PodcastListClient";
@@ -11,7 +10,6 @@ export default async function StudentPodcastsPage() {
     user.id,
   );
 
-  // Convert array to map for easier lookup: podcastId -> UserPodcastProgress
   const progressMap = progressList.reduce(
     (acc, progress) => {
       acc[progress.podcastId] = progress;
@@ -27,7 +25,6 @@ export default async function StudentPodcastsPage() {
         subheading="Listen and learn."
         backHref="/hub/student/my-immersion"
       />
-
       <PodcastListClient podcasts={podcasts} progressMap={progressMap} />
     </div>
   );

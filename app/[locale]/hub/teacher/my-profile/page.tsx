@@ -68,7 +68,7 @@ export default function MyProfile() {
   }, [myClasses]);
 
   return (
-    <div className="container-padding space-y-6">
+    <div className="container-padding space-y-2">
       {isLoading ? (
         <Skeleton className="w-full h-36" />
       ) : (
@@ -80,11 +80,11 @@ export default function MyProfile() {
               className="w-full"
             />
           </Card>
-          <div className="mt-4">
+          <div className="">
             <TeacherContractStatusCard />
           </div>
 
-          <Card className="mt-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
+          <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
             <div className="p-6 border-b border-slate-200 dark:border-slate-700">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-primary/20 rounded-lg">

@@ -6,7 +6,7 @@ import { SubscriptionService } from "@/services/financial/subscriptionService";
 import { UserRoles } from "@/types/users/userRoles";
 
 export async function POST(request: NextRequest) {
-  //TODO: MESMO COM ERRO ELE ESTAVA SALVANDO NO FIREBASE O MONTHLY PAYMENT E SUBSCRIPTION, MAS NOA TAVA SALVANDO. PRECISO VERIFICAR
+  //TODO: MESMO COM ERRO ELE ESTAVA SALVANDO NO FIREBASE O MONTHLY PAYMENT E SUBSCRIPTION, MAS NAO TAVA SALVANDO. PRECISO VERIFICAR
   try {
     const session = await getServerSession(authOptions);
 

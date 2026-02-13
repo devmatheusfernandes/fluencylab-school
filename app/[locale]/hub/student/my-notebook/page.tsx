@@ -222,7 +222,7 @@ export default function Caderno() {
               <span className="text-lg font-bold text-primary">Missions</span>
               <Link
                 className="text-muted-foreground hover:text-primary"
-                href="/hub/student/history"
+                href="/hub/student/my-history"
               >
                 <HistoryIcon size={20} />
               </Link>

@@ -5,12 +5,10 @@ import { useSearchParams } from "next/navigation";
 import { useStudentPanel } from "@/hooks/student/useStudentPanel";
 import { ClassStatus } from "@/types/classes/class";
 
-import TasksCard from "@/components/teacher/TaskCard";
 import NotebooksCard from "@/components/teacher/NotebooksCard";
 import ClassesCard from "@/components/teacher/ClassesCard";
 import PlanCalendarCard from "@/components/teacher/PlanCalendarCard";
 
-import { Container } from "@/components/ui/container";
 import ErrorAlert from "@/components/ui/error-alert";
 import { ContainerCard } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -32,24 +30,6 @@ const StudentPanelSkeleton = () => (
               <Skeleton className=" h-3 w-1/2 rounded" />
             </div>
             <Skeleton className=" h-8 w-8 rounded-full" />
-          </div>
-        ))}
-      </div>
-    </Skeleton>
-
-    {/* Tasks card skeleton */}
-    <Skeleton className=" rounded-xl p-4 min-h-[300px] flex flex-col gap-4">
-      <div className="flex justify-between items-center">
-        <Skeleton className=" h-6 w-1/3 rounded" />
-        <Skeleton className=" h-6 w-12 rounded" />
-      </div>
-      <Skeleton className=" h-2 w-full rounded-full" />
-      <Skeleton className=" h-10 rounded-lg" />
-      <div className="space-y-3">
-        {[...Array(3)].map((_, index) => (
-          <div key={index} className="flex items-center gap-3">
-            <Skeleton className=" h-5 w-5 rounded shrink-0" />
-            <Skeleton className=" h-4 w-full rounded" />
           </div>
         ))}
       </div>
@@ -111,7 +91,6 @@ export default function StudentDetailsPanel() {
   const {
     student,
     notebooks,
-    tasks,
     classes,
     plan,
     loading,
@@ -121,9 +100,6 @@ export default function StudentDetailsPanel() {
     createNotebook: createNotebookAction,
     updateClassStatus,
     updateClassFeedback,
-    updateTask: updateTaskAction,
-    deleteTask: deleteTaskAction,
-    deleteAllTasks: deleteAllTasksAction,
     fetchPlan,
   } = useStudentPanel(id);
 
@@ -160,7 +136,7 @@ export default function StudentDetailsPanel() {
   }
 
   return (
-    <ContainerCard className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <ContainerCard className="grid grid-cols-1 lg:grid-cols-3 gap-3">
       <NotebooksCard
         student={student}
         notebooks={notebooks}
@@ -169,15 +145,6 @@ export default function StudentDetailsPanel() {
         onAddTask={addTaskAction}
         loading={loading}
       />
-
-      {/* <TasksCard
-        tasks={tasks}
-        onAddTask={addTaskAction}
-        onUpdateTask={updateTaskAction}
-        onDeleteTask={deleteTaskAction}
-        onDeleteAllTasks={deleteAllTasksAction}
-        userRole={session?.user?.role}
-      /> */}
 
       <ClassesCard
         classes={classes}

@@ -794,7 +794,9 @@
     "components": "Components",
     "tasks": "Tasks",
     "immersion": "Immersion",
-    "achievementes": "Achievementes"
+    "achievementes": "Achievementes",
+    "mySubscription": "My Subscriptions",
+    "myHistory": "My History"
   },
   "UserProfileHeader": {
     "profilePicture": "Profile picture",
