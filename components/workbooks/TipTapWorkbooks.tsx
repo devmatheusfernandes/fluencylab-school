@@ -96,7 +96,7 @@ const Tiptap = ({ onChange, content, isEditable }: any) => {
     ],
     editorProps: {
       attributes: {
-        class: "p-6 outline-none",
+        class: "p-6 outline-none ring-none active:ring-0",
       },
     },
     immediatelyRender: false,

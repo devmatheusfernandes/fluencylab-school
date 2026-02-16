@@ -79,11 +79,11 @@ export default function LessonComponentsManager({
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="vocabulary" className="mt-6">
+        <TabsContent value="vocabulary">
           <VocabularyList items={vocabulary} />
         </TabsContent>
 
-        <TabsContent value="structures" className="mt-6">
+        <TabsContent value="structures">
           <StructuresList items={structures} lessonId={lessonId} />
         </TabsContent>
       </Tabs>

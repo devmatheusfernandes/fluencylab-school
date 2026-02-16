@@ -68,7 +68,7 @@ export default async function Page() {
   }
 
   return (
-    <div className="container-padding space-y-6 max-w7xl">
+    <div className="container-padding">
       <Header
         heading={tPage("globalHeading")}
         subheading={tPage("globalSubheading")}

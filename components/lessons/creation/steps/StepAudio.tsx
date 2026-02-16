@@ -13,7 +13,6 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-  CardFooter,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -23,7 +22,6 @@ import {
   Wand2,
   ArrowRight,
   Upload,
-  Play,
   Trash2,
   Headphones,
   Music,
@@ -261,9 +259,9 @@ export function StepAudio({ lesson, onComplete }: StepAudioProps) {
         </div>
       ) : (
         <div className="max-w-3xl mx-auto">
-          <Card className="overflow-hidden border-primary/20 shadow-md">
+          <Card className="overflow-hidden border-primary/20">
             {/* Audio Player Header */}
-            <div className="bg-muted/30 p-6 flex flex-col sm:flex-row items-center gap-6 border-b">
+            <div className="bg-muted/30 p-6 rounded-md flex flex-col sm:flex-row items-center gap-6">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
                 <Headphones className="w-8 h-8 text-primary" />
               </div>

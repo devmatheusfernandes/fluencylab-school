@@ -165,7 +165,7 @@ export function SignInClient({ messages }: SignInClientProps) {
                   {t.description}
                 </p>
 
-                <form onSubmit={handleSubmit} className="space-y-5">
+                <form onSubmit={handleSubmit} className="space-y-3">
                   <Input
                     type="email"
                     value={email}
@@ -187,7 +187,7 @@ export function SignInClient({ messages }: SignInClientProps) {
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full"
+                    className="w-full mt-4"
                     size="lg"
                   >
                     {isCredentialsLoading ? (
@@ -210,7 +210,7 @@ export function SignInClient({ messages }: SignInClientProps) {
                     </p>
                   )}
 
-                  <div className="relative my-3 mb-6">
+                  <div className="relative">
                     <div className="absolute inset-0 flex items-center">
                       <span className="w-full border-t border-gray-300 dark:border-gray-700" />
                     </div>

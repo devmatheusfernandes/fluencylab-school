@@ -1,8 +1,10 @@
 // config/sidebarItems.tsx
 import { SidebarItemType } from "@/components/shared/Sidebar/Sidebar";
+import BrandLmStudioIcon from "@/public/animated/brand-lmstudio";
 import { CalendarDaysIcon } from "@/public/animated/calendar";
 import { CircleCheckIcon } from "@/public/animated/circle-check";
 import { DollarSignIcon } from "@/public/animated/finances";
+import LayersIcon from "@/public/animated/layers-icon";
 import LayoutDashboardIcon from "@/public/animated/layout-dashboard-icon";
 import { BookTextIcon } from "@/public/animated/lesson";
 import { MessageSquareIcon } from "@/public/animated/message-square";
@@ -189,13 +191,13 @@ const materialManagerItems = [
     href: "/[locale]/hub/material-manager/lessons",
     label: "Lessons",
     labelKey: "lessons",
-    icon: <BookTextIcon size={20} />,
+    icon: <BrandLmStudioIcon size={20} />,
   },
   {
     href: "/[locale]/hub/material-manager/plans",
     label: "Plans",
     labelKey: "plans",
-    icon: <DollarSignIcon size={20} />,
+    icon: <LayersIcon size={20} />,
   },
   {
     href: "/[locale]/hub/material-manager/components",

@@ -508,12 +508,12 @@ export default function SettingsForm({
                     >
                       {t("googleCalendar.disconnectButton")}
                     </Button>
-                    <Button size="sm" onClick={handleConnectGoogleCalendar}>
+                    <Button onClick={handleConnectGoogleCalendar}>
                       {t("googleCalendar.reconnectButton")}
                     </Button>
                   </>
                 ) : (
-                  <Button size="sm" onClick={handleConnectGoogleCalendar}>
+                  <Button onClick={handleConnectGoogleCalendar}>
                     {t("googleCalendar.connectButton")}
                   </Button>
                 )}

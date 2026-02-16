@@ -33,7 +33,7 @@ export function TaskList({
   isLoading,
 }: TaskListProps) {
   const { users } = useStaffUsers();
-  const t = useTranslations("list");
+  const t = useTranslations("TasksCard");
 
   if (isLoading) {
     return (
@@ -65,7 +65,7 @@ export function TaskList({
       ))}
       {tasks.length === 0 && (
         <div className="col-span-full h-64 flex flex-col items-center justify-center text-muted-foreground">
-          <p>{t("list.noTasks")}</p>
+          <p>{t("noTasks")}</p>
         </div>
       )}
     </motion.div>

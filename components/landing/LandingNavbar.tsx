@@ -11,7 +11,6 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { GalleryVerticalEndIcon } from "@/public/animated/galery-vertical";
-import SubmitButton from "../ui/submit-button";
 
 export function LandingNavbar() {
   const t = useTranslations("LandingPage");
@@ -144,7 +143,7 @@ export function LandingNavbar() {
         >
           {/* Fundo Unificado (Merge) */}
           <motion.div
-            className="absolute inset-0 rounded-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-md -z-10"
+            className="absolute inset-0 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-md -z-10"
             initial={{ opacity: 0 }}
             animate={{ opacity: isScrolled ? 1 : 0 }}
             transition={backgroundTransition}

@@ -204,14 +204,14 @@ export function StepAnalysis({ lesson, onComplete }: StepAnalysisProps) {
             className="gap-2"
           >
             {isAnalyzing ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             ) : (
-              <RefreshCw className="w-4 h-4" />
+              <RefreshCw className="w-4 h-4 mr-2" />
             )}
             Refazer
           </Button>
-          <Button onClick={onComplete} className="gap-2 shadow-sm">
-            Aceitar e Continuar <ArrowRight className="w-4 h-4" />
+          <Button onClick={onComplete}>
+            Aceitar e Continuar <ArrowRight className="ml-2 w-4 h-4" />
           </Button>
         </div>
       </div>
@@ -256,12 +256,12 @@ export function StepAnalysis({ lesson, onComplete }: StepAnalysisProps) {
 
           {/* Parameters Card */}
           <Card>
-            <CardHeader className="pb-4">
+            <CardHeader>
               <CardTitle className="text-sm font-medium uppercase text-muted-foreground tracking-wider flex items-center gap-2">
                 <BookOpen className="w-4 h-4" /> Parâmetros Detectados
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6 py-6">
+            <CardContent className="space-y-6 pt-2">
               {/* Level */}
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase text-muted-foreground">
@@ -272,7 +272,7 @@ export function StepAnalysis({ lesson, onComplete }: StepAnalysisProps) {
                   onValueChange={(val) => handleUpdateParams("level", val)}
                   disabled={isUpdating}
                 >
-                  <SelectTrigger className="h-12 text-lg font-bold bg-muted/20 border-muted-foreground/20">
+                  <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -294,7 +294,7 @@ export function StepAnalysis({ lesson, onComplete }: StepAnalysisProps) {
                   <span className="text-xs font-bold uppercase">Idiomas</span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-wrap gap-2">
                   <div className="space-y-1.5">
                     <span className="text-[10px] uppercase font-bold text-muted-foreground">
                       Alvo (Target)

@@ -2915,12 +2915,12 @@
     "subtitle": "Visão geral do sistema e métricas principais.",
     "systemStatus": "Status do Sistema",
     "firebase": {
-      "title": "Uso do Firebase (Firestore)",
+      "title": "Uso do Firebase",
       "description": "Monitoramento de leituras e escritas.",
       "status": {
         "connected": "Monitoramento Ativo"
       },
-      "estimatedCost": "Custo Estimado (Mês)",
+      "estimatedCost": "Custo Estimado",
       "planType": "Plano Atual",
       "reads": "Leituras",
       "writes": "Escritas",

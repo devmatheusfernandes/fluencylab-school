@@ -12,7 +12,10 @@ interface LessonEditorProps {
   initialContent: string;
 }
 
-export default function LessonEditor({ lessonId, initialContent }: LessonEditorProps) {
+export default function LessonEditor({
+  lessonId,
+  initialContent,
+}: LessonEditorProps) {
   const [content, setContent] = useState(initialContent);
   const [status, setStatus] = useState<"saved" | "saving" | "error">("saved");
   const t = useTranslations("LessonEditor");
@@ -53,20 +56,24 @@ export default function LessonEditor({ lessonId, initialContent }: LessonEditorP
             status === "saving"
               ? "text-amber-600"
               : status === "error"
-              ? "text-rose-600"
-              : "text-emerald-600"
+                ? "text-rose-600"
+                : "text-emerald-600"
           }`}
         >
           {status === "saving"
             ? t("statusSaving")
             : status === "error"
-            ? t("statusError")
-            : t("statusSaved")}
+              ? t("statusError")
+              : t("statusSaved")}
         </span>
       </div>
 
-      <div className="flex-1 bg-card border overflow-auto">
-        <TipTapWorkbooks content={content} isEditable={true} onChange={setContent} />
+      <div className="flex-1 bg-card overflow-auto">
+        <TipTapWorkbooks
+          content={content}
+          isEditable={true}
+          onChange={setContent}
+        />
       </div>
     </div>
   );

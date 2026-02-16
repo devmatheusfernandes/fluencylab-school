@@ -17,7 +17,6 @@ import {
   Activity,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-// NOTA: Usamos 'import type' para evitar que o código de backend vaze para o cliente
 import type { FirebaseUsageData } from "@/services/admin/firebaseUsageService";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -39,9 +38,6 @@ export default function FirebaseUsageWidget({
   const router = useRouter();
   const [periodLabel, setPeriodLabel] = useState<string>("30d");
 
-  // --- Lógica de Datas e Limites ---
-
-  // Determina quantos dias o período selecionado representa para estimar a cota gratuita
   let periodDays = 30;
   if (periodLabel === "24h") periodDays = 1;
   else if (periodLabel === "7d") periodDays = 7;
@@ -103,14 +99,14 @@ export default function FirebaseUsageWidget({
   const getPeriodText = () => {
     if (periodLabel === "24h") return "Últimas 24h";
     if (periodLabel === "7d") return "Últimos 7 dias";
-    if (periodLabel === "30d") return "Últimos 30 dias";
+    if (periodLabel === "30d") return "30 dias";
 
     const [year, month] = periodLabel.split("-").map(Number);
     if (!isNaN(year) && !isNaN(month)) {
       const date = new Date(year, month - 1);
       return date.toLocaleString("pt-BR", { month: "long", year: "numeric" });
     }
-    return "Últimos 30 dias";
+    return "30 dias";
   };
 
   const getLastMonths = () => {
@@ -130,10 +126,7 @@ export default function FirebaseUsageWidget({
 
   const lastMonths = getLastMonths();
 
-  // --- Renderização do Conteúdo ---
-
   const renderContent = () => {
-    // Caso: Erro de Permissão
     if (data.status === "no_permission") {
       return (
         <div className="mb-6 p-4 rounded-lg bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20">
@@ -141,7 +134,6 @@ export default function FirebaseUsageWidget({
             <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
             {t("permissionError")}
           </p>
-          {/* Mostra dados parciais se disponíveis (ex: métricas públicas) */}
           <div className="mt-4 opacity-50 pointer-events-none filter grayscale">
             <span className="text-xs">
               Dados limitados devido à permissão...
@@ -163,7 +155,6 @@ export default function FirebaseUsageWidget({
       );
     }
 
-    // Caso: Sucesso (Dashboard Completo)
     return (
       <div className="space-y-6">
         {/* Banner de Custo Estimado */}
@@ -189,7 +180,7 @@ export default function FirebaseUsageWidget({
               variant="outline"
               className="bg-white/50 dark:bg-black/20 border-orange-200 text-orange-700"
             >
-              Blaze (Pay as you go)
+              Blaze
             </Badge>
           </div>
         </div>
@@ -197,7 +188,7 @@ export default function FirebaseUsageWidget({
         {/* SEÇÃO 1: BANCO DE DADOS (Firestore) */}
         <div className="space-y-4">
           <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Banco de Dados (Firestore)
+            Banco de Dados
           </h4>
 
           {/* Reads */}

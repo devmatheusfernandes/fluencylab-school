@@ -92,12 +92,12 @@ export function LessonCreationFlow({
       <StepHeader
         title="Conteúdo da Aula"
         action={
-          <Button onClick={handleNext} className="gap-2 shadow-sm">
-            Concluir e Analisar <ArrowRight className="w-4 h-4" />
+          <Button onClick={handleNext}>
+            Concluir e Analisar <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         }
       />
-      <div className="flex-1 border rounded-xl overflow-hidden bg-card shadow-sm ring-1 ring-border/50">
+      <div className="flex-1 rounded-md overflow-hidden">
         <LessonEditor lessonId={lesson.id} initialContent={lesson.content} />
       </div>
     </div>
@@ -108,7 +108,7 @@ export function LessonCreationFlow({
       <StepHeader
         title="Revisão de Componentes"
         action={
-          <Button onClick={handleNext} className="gap-2 shadow-sm">
+          <Button onClick={handleNext}>
             Marcar como Revisado <CheckCircle2 className="w-4 h-4 ml-2" />
           </Button>
         }
@@ -133,7 +133,6 @@ export function LessonCreationFlow({
 
   const renderStep5_Audio = () => (
     <div className="space-y-6">
-      <StepHeader title="Áudio & Mídia" />
       <StepAudio lesson={lesson} onComplete={handleNext} />
     </div>
   );

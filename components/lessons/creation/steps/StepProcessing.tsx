@@ -108,8 +108,8 @@ export function StepProcessing({ lesson, onComplete }: StepProcessingProps) {
           </p>
         </div>
         {isQueueEmpty && isExtractionDone && (
-          <Button onClick={onComplete} className="gap-2 shadow-sm" size="lg">
-            Continuar para Componentes <ArrowRight className="w-4 h-4" />
+          <Button onClick={onComplete}>
+            Continuar para Componentes <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         )}
       </div>

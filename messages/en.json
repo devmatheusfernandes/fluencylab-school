@@ -2930,12 +2930,12 @@
     "subtitle": "System overview and key metrics.",
     "systemStatus": "System Status",
     "firebase": {
-      "title": "Firebase Usage (Firestore)",
+      "title": "Firebase Usage",
       "description": "Read and write monitoring.",
       "status": {
         "connected": "Monitoring Active"
       },
-      "estimatedCost": "Estimated Cost (MTD)",
+      "estimatedCost": "Estimated Cost",
       "planType": "Current Plan",
       "reads": "Reads",
       "writes": "Writes",
