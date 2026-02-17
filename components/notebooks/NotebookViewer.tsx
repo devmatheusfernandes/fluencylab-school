@@ -36,6 +36,7 @@ interface Notebook {
   student: string;
   content: any;
   transcriptions?: { date: any; content: string }[];
+  studentName?: string;
 }
 
 export default function NotebookViewer({
@@ -141,6 +142,7 @@ export default function NotebookViewer({
             student: alunoId as string,
             content: fetchedContent,
             transcriptions: notebookData.transcriptions || [],
+            studentName: notebookData.studentName || "Aluno",
           });
 
           setContent(fetchedContent);
@@ -354,6 +356,7 @@ export default function NotebookViewer({
         notebookId={notebookId}
         title={notebook.title}
         onTitleChange={handleTitleChange}
+        studentName={notebook.studentName}
       />
     </motion.div>
   );

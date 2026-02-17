@@ -28,6 +28,7 @@ import { MusicToolModal } from "@/components/tiptap/extensions/Music/MusicToolMo
 import { WorkbookToolModal } from "@/components/tiptap/extensions/Workbooks/WorkbookToolModal";
 import { TasksToolSheet } from "@/components/tiptap/extensions/Tasks/TasksToolSheet";
 import { TranscriptionsToolModal } from "@/components/tiptap/extensions/Transcriptions/TranscriptionsToolModal";
+import { StudentPlanModal } from "../extensions/Plans/PlansModal";
 
 type ToolItem = {
   id: string;
@@ -55,6 +56,12 @@ const TOOL_CATEGORIES: ToolCategory[] = [
         description: "Navegue e insira conteúdo de aulas das apostilas.",
         keywords: ["apostila", "livro", "lição", "aula", "conteúdo"],
       },
+      {
+        id: "plans",
+        label: "Plano",
+        description: "Navegue e insira conteúdo de aulas das apostilas.",
+        keywords: ["apostila", "livro", "lição", "aula", "conteúdo"],
+      },
     ],
   },
   {
@@ -65,7 +72,8 @@ const TOOL_CATEGORIES: ToolCategory[] = [
       {
         id: "transcriptions",
         label: "Transcrições",
-        description: "Visualize o histórico de transcrições e resumos das aulas",
+        description:
+          "Visualize o histórico de transcrições e resumos das aulas",
         keywords: ["transcrição", "resumo", "aula", "histórico", "reunião"],
       },
       {
@@ -84,26 +92,37 @@ const TOOL_CATEGORIES: ToolCategory[] = [
       {
         id: "questions",
         label: "Perguntas/Quizzes",
-        description:
-          "Crie perguntas, selecione existentes e monte decks",
+        description: "Crie perguntas, selecione existentes e monte decks",
         keywords: ["quiz", "pergunta", "deck", "prova", "atividade"],
       },
       {
         id: "music",
         label: "Música/YouTube",
-        description: "Integre vídeo e letra sincronizada (LRCLIB) com modo de completar.",
+        description:
+          "Integre vídeo e letra sincronizada (LRCLIB) com modo de completar.",
         keywords: ["youtube", "music", "lyrics", "lrclib", "jogo"],
       },
     ],
   },
 ];
-type BaseModalProps = { isOpen: boolean; onClose: () => void; editor: Editor; studentID?: string; notebookId?: string };
-export const MODAL_COMPONENTS: Record<string, React.ComponentType<BaseModalProps>> = {
+type BaseModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  editor: Editor;
+  studentId?: string;
+  notebookId?: string;
+};
+export const MODAL_COMPONENTS: Record<
+  string,
+  React.ComponentType<BaseModalProps>
+> = {
   questions: QuestionsToolModal as React.ComponentType<BaseModalProps>,
   music: MusicToolModal as React.ComponentType<BaseModalProps>,
   workbooks: WorkbookToolModal as React.ComponentType<BaseModalProps>,
   tasks: TasksToolSheet as React.ComponentType<BaseModalProps>,
-  transcriptions: TranscriptionsToolModal as React.ComponentType<BaseModalProps>,
+  transcriptions:
+    TranscriptionsToolModal as React.ComponentType<BaseModalProps>,
+  plans: StudentPlanModal as React.ComponentType<BaseModalProps>,
 };
 
 export type ToolbarToolsSheetProps = {
@@ -113,6 +132,7 @@ export type ToolbarToolsSheetProps = {
   side?: "top" | "right" | "bottom" | "left";
   className?: string;
   modalTools?: string[];
+  studentID?: string;
 };
 
 export function ToolbarToolsSheet({
@@ -120,6 +140,7 @@ export function ToolbarToolsSheet({
   onOpenDialog,
   side = "right",
   modalTools = Object.keys(MODAL_COMPONENTS),
+  studentID,
 }: ToolbarToolsSheetProps) {
   const [query, setQuery] = useState("");
 
@@ -131,7 +152,7 @@ export function ToolbarToolsSheet({
       items: cat.items.filter((item) => {
         const inLabel = item.label.toLowerCase().includes(q);
         const inKeywords = (item.keywords || []).some((k) =>
-          k.toLowerCase().includes(q)
+          k.toLowerCase().includes(q),
         );
         const inDescription = item.description.toLowerCase().includes(q);
         return inLabel || inKeywords || inDescription;

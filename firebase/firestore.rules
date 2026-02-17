@@ -61,6 +61,14 @@ service cloud.firestore {
       allow update: if isOwner(userId) || isAdmin();
       allow delete: if isAdmin();
 
+      match /Tasks/{taskId} {
+        // Leitura: O dono do perfil (aluno), Professores ou Managers
+        allow read: if isOwner(userId) || isTeacher() || isManager();
+
+        // Escrita (Criar, Editar, "Deletar"): O dono, Professores ou Managers
+        allow write: if isOwner(userId) || isTeacher() || isManager();
+      }
+
       // Regras para Cadernos (Notebooks) e Colaboração (Yjs)
       match /Notebooks/{notebookId} {
         allow read: if isOwner(userId) || isTeacher() || isManager();
@@ -142,6 +150,13 @@ service cloud.firestore {
     match /placement_progress/{docId} {
       allow read: if isOwner(docId) || isTeacher();
       allow write: if isOwner(docId) || isAdmin();
+    }
+    
+    match /placement_questions/{questionId} {
+      // Qualquer usuário logado pode ler para fazer o teste
+      allow read: if isAuthenticated();
+      // Apenas Admins/Managers podem criar ou editar (Sincronizar)
+      allow write: if isMaterialManager(); 
     }
 
     // --- Agendamento e Aulas ---

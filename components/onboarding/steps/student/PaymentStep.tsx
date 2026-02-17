@@ -18,7 +18,7 @@ export const PaymentStep: React.FC<OnboardingStepProps> = ({
   const [loading, setLoading] = useState(false);
 
   // Cálculo de Preço
-  const basePrice = 29900;
+  const basePrice = 16500;
   const price =
     data.contractLengthMonths === 12 ? Math.round(basePrice * 0.85) : basePrice;
 

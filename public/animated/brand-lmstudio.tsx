@@ -1,107 +1,86 @@
 import { forwardRef, useImperativeHandle, useCallback } from "react";
-import { AnimatedIconHandle, AnimatedIconProps } from "@/types/animated/types";
 import { motion, useAnimate } from "motion/react";
-
-const lines = [
-  ".lm-line-1",
-  ".lm-line-2",
-  ".lm-line-3",
-  ".lm-line-4",
-  ".lm-line-5",
-  ".lm-line-6",
-];
+import { AnimatedIconHandle, AnimatedIconProps } from "@/types/animated/types";
 
 const BrandLmStudioIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(
   (
-    { size = 24, color = "currentColor", strokeWidth = 1, className = "" },
+    { size = 24, color = "currentColor", strokeWidth = 2, className = "" },
     ref,
   ) => {
     const [scope, animate] = useAnimate();
 
     const start = useCallback(() => {
-      lines.forEach((line, i) => {
-        const strength = 1 + i * 0.06;
-        animate(
-          line,
-          {
-            scaleX: [1, strength, 0.9, strength * 0.95, 1],
-          },
-          {
-            duration: 1.4,
-            delay: i * 0.08,
-            ease: "easeInOut",
-            repeat: Infinity,
-          },
-        );
-      });
+      // The Book Pick Cycle
+      // Book 2 (Selected): Lifts and tilts
+      animate(
+        ".book-2",
+        { y: -3, rotate: -8 },
+        { duration: 0.4, ease: [0.175, 0.885, 0.32, 1.275] }, // BackOut feel
+      );
+
+      // Book 3 (Neighbor): Leans Left
+      animate(".book-3", { rotate: -12 }, { duration: 0.4, ease: "easeOut" });
+
+      // Book 4 (Outer): Subtle Lean Left
+      animate(".book-4", { rotate: -5 }, { duration: 0.4, ease: "easeOut" });
+
+      // Book 1 (Tilted Book): Leans further Right
+      animate(".book-1", { rotate: 12 }, { duration: 0.4, ease: "easeOut" });
     }, [animate]);
 
     const stop = useCallback(() => {
       animate(
-        lines.join(", "),
-        { scaleX: 1 },
-        { duration: 0.2, ease: "easeOut" },
+        ".book-1, .book-2, .book-3, .book-4",
+        { rotate: 0, y: 0 },
+        { duration: 0.3, ease: "easeInOut" },
       );
     }, [animate]);
 
-    useImperativeHandle(
-      ref,
-      () => ({
-        startAnimation: start,
-        stopAnimation: stop,
-      }),
-      [start, stop],
-    );
+    useImperativeHandle(ref, () => ({
+      startAnimation: start,
+      stopAnimation: stop,
+    }));
 
     return (
       <motion.svg
         ref={scope}
+        onHoverStart={start}
+        onHoverEnd={stop}
+        xmlns="http://www.w3.org/2000/svg"
         width={size}
         height={size}
         viewBox="0 0 24 24"
-        fill={color}
+        fill="none"
+        stroke={color}
         strokeWidth={strokeWidth}
-        className={className}
-        xmlns="http://www.w3.org/2000/svg"
-        onHoverStart={start}
-        onHoverEnd={stop}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={`cursor-pointer ${className}`}
+        style={{ overflow: "visible" }}
       >
-        <title>LM Studio</title>
-
+        {/* Book 1 (The tilted book) */}
         <motion.path
-          className="lm-line-1"
-          style={{ transformBox: "fill-box", transformOrigin: "center" }}
-          d="M2.84 2a1.273 1.273 0 100 2.547h10.287a1.274 1.274 0 000-2.547H2.84z"
+          className="book-1"
+          d="m16 6 4 14"
+          style={{ transformOrigin: "18px 20px" }}
         />
-
+        {/* Book 2 (The picked book) */}
         <motion.path
-          className="lm-line-2"
-          style={{ transformBox: "fill-box", transformOrigin: "center" }}
-          d="M7.935 5.33a1.273 1.273 0 000 2.548H18.22a1.274 1.274 0 000-2.547H7.935z"
+          className="book-2"
+          d="M12 6v14"
+          style={{ transformOrigin: "12px 20px" }}
         />
-
+        {/* Book 3 */}
         <motion.path
-          className="lm-line-3"
-          style={{ transformBox: "fill-box", transformOrigin: "center" }}
-          d="M3.624 9.935c0-.704.57-1.274 1.274-1.274h10.286a1.273 1.273 0 010 2.547H4.898c-.703 0-1.274-.57-1.274-1.273z"
+          className="book-3"
+          d="M8 8v12"
+          style={{ transformOrigin: "8px 20px" }}
         />
-
+        {/* Book 4 */}
         <motion.path
-          className="lm-line-4"
-          style={{ transformBox: "fill-box", transformOrigin: "center" }}
-          d="M1.273 12.188a1.273 1.273 0 100 2.547H11.56a1.274 1.274 0 000-2.547H1.273z"
-        />
-
-        <motion.path
-          className="lm-line-5"
-          style={{ transformBox: "fill-box", transformOrigin: "center" }}
-          d="M3.624 16.792c0-.704.57-1.274 1.274-1.274h10.286a1.273 1.273 0 110 2.547H4.898c-.703 0-1.274-.57-1.274-1.273z"
-        />
-
-        <motion.path
-          className="lm-line-6"
-          style={{ transformBox: "fill-box", transformOrigin: "center" }}
-          d="M13.029 18.849a1.273 1.273 0 100 2.547h5.78a1.273 1.273 0 100-2.547h-5.78z"
+          className="book-4"
+          d="M4 4v16"
+          style={{ transformOrigin: "4px 20px" }}
         />
       </motion.svg>
     );

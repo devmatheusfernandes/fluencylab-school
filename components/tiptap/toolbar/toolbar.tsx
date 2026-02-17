@@ -16,16 +16,24 @@ import "@/components/tiptap-node/blockquote-node/blockquote-node.scss";
 import "@/components/tiptap-node/image-node/image-node.scss";
 import "@/components/tiptap-node/image-upload-node/image-upload-node.scss";
 import { useSession } from "next-auth/react";
- 
+
 interface ToolbarProps {
   editor: Editor | null;
   title?: string;
   onTitleChange?: (newTitle: string) => void;
   studentID?: string;
   notebookId?: string;
+  name?: string;
 }
 
-const Toolbar: React.FC<ToolbarProps> = ({ editor, title, onTitleChange, studentID, notebookId }) => {
+const Toolbar: React.FC<ToolbarProps> = ({
+  editor,
+  title,
+  onTitleChange,
+  studentID,
+  notebookId,
+  name,
+}) => {
   const { data: session } = useSession();
   const [openModalId, setOpenModalId] = useState<string | null>(null);
   if (!editor) {
@@ -33,6 +41,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, title, onTitleChange, student
   }
 
   const handleCloseDialog = () => setOpenModalId(null);
+  const firstName = name?.split(" ")[0] ?? "Aluno";
 
   const ActiveModal = openModalId ? MODAL_COMPONENTS[openModalId] : null;
   return (
@@ -41,22 +50,38 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, title, onTitleChange, student
         <div className="flex items-center justify-between gap-4">
           {/* Esquerda */}
           <div className="flex items-center gap-1 min-w-0">
-            <BackButton routerBack={true} />
-            {title !== undefined && onTitleChange && session?.user.role === 'teacher' && (
-              <TitleEditor title={title} onTitleChange={onTitleChange} />
-            )}
+            <BackButton
+              href={
+                session?.user.role === "teacher"
+                  ? `/hub/teacher/my-students/${firstName}?id=${studentID}`
+                  : "/hub/student/my-notebook"
+              }
+            />
+            {title !== undefined &&
+              onTitleChange &&
+              session?.user.role === "teacher" && (
+                <TitleEditor title={title} onTitleChange={onTitleChange} />
+              )}
           </div>
 
           {/* Centro: itens principais compartilhados */}
           <div className="flex flex-wrap items-center justify-center gap-1 flex-1">
             {TOOL_ITEMS.map((item) => {
               if (item.isDivider) {
-                const DividerComp = item.component as React.ComponentType<Record<string, unknown>>;
+                const DividerComp = item.component as React.ComponentType<
+                  Record<string, unknown>
+                >;
                 return <DividerComp key={item.id} {...(item.props || {})} />;
               }
-              const EditorComp = item.component as React.ComponentType<{ editor: Editor } & Record<string, unknown>>;
+              const EditorComp = item.component as React.ComponentType<
+                { editor: Editor } & Record<string, unknown>
+              >;
               return (
-                <EditorComp key={item.id} editor={editor} {...(item.props || {})} />
+                <EditorComp
+                  key={item.id}
+                  editor={editor}
+                  {...(item.props || {})}
+                />
               );
             })}
           </div>
@@ -64,18 +89,25 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, title, onTitleChange, student
           {/* Direita */}
           <div className="flex items-center gap-1 min-w-0">
             <ThemeSwitcher />
-            {session?.user.role === 'teacher' && (
+            {session?.user.role === "teacher" && (
               <ToolbarToolsSheet
                 onOpenDialog={(toolId) => setOpenModalId(toolId)}
                 modalTools={Object.keys(MODAL_COMPONENTS)}
                 side="right"
+                studentID={studentID}
               />
             )}
           </div>
         </div>
       </div>
       {ActiveModal && (
-        <ActiveModal isOpen={true} onClose={handleCloseDialog} editor={editor} studentID={studentID} notebookId={notebookId} />
+        <ActiveModal
+          isOpen={true}
+          onClose={handleCloseDialog}
+          editor={editor}
+          studentId={studentID}
+          notebookId={notebookId}
+        />
       )}
     </div>
   );

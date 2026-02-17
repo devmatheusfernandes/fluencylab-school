@@ -55,6 +55,7 @@ interface TiptapEditorProps {
   title?: string;
   onTitleChange?: (newTitle: string) => void;
   enableFullscreenOnScroll?: boolean;
+  studentName?: string;
 }
 
 const TiptapEditor: React.FC<TiptapEditorProps> = ({
@@ -73,6 +74,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   title,
   onTitleChange,
   enableFullscreenOnScroll = false,
+  studentName,
 }) => {
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastSavedContentRef = useRef<string>(content);
@@ -286,6 +288,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
             title={title}
             onTitleChange={onTitleChange}
             studentID={studentID}
+            name={studentName}
             notebookId={notebookId || docId}
           />
         )}

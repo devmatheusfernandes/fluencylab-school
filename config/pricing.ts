@@ -8,13 +8,13 @@ import { UserRoles } from "@/types/users/userRoles";
  */
 export const SUBSCRIPTION_PRICING = {
   REGULAR_STUDENT: {
-    amount: 29900,
+    amount: 16500,
     currency: "BRL",
     description: "Mensalidade Estudante Regular",
     planId: "regular_student_monthly",
   },
   GUARDED_STUDENT: {
-    amount: 39900,
+    amount: 16500,
     currency: "BRL",
     description: "Mensalidade Estudante Acompanhado",
     planId: "guarded_student_monthly",

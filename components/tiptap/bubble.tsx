@@ -123,7 +123,7 @@ function Popovers({ editor }: PopoversProps) {
   const fetchWordInfo = async (word: string) => {
     try {
       const response = await fetch(
-        `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`
+        `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`,
       );
       if (!response.ok) throw new Error("Word not found");
 
@@ -161,7 +161,7 @@ function Popovers({ editor }: PopoversProps) {
 
   const processTextWithAI = async (
     prompt: string,
-    selectedText: string
+    selectedText: string,
   ): Promise<string | null> => {
     if (!API_KEY) {
       toast.error("Chave da API não configurada.");
@@ -187,7 +187,7 @@ function Popovers({ editor }: PopoversProps) {
   };
 
   const handleAiAction = async (
-    actionType: "simplify" | "harden" | "questions" | "custom"
+    actionType: "simplify" | "harden" | "questions" | "custom",
   ) => {
     const { from, to, empty } = editor.state.selection;
     const selectedText = empty
@@ -370,7 +370,7 @@ function Popovers({ editor }: PopoversProps) {
           </motion.div>
         </motion.div>
       </AnimatePresence>,
-      document.body
+      document.body,
     );
   };
 
@@ -385,6 +385,7 @@ function Popovers({ editor }: PopoversProps) {
         //     onHide: handleBubbleHide,
         //   },
         // } as any)}
+        // TODO: IMPLEMENTAR ISSO AQUI
         editor={editor}
       >
         {/* Grupo Leitura */}
@@ -395,7 +396,7 @@ function Popovers({ editor }: PopoversProps) {
             onClick={readAloud}
             className={cn(
               "h-8 w-8 p-0",
-              window.speechSynthesis.speaking && "text-red-500 animate-pulse"
+              window.speechSynthesis.speaking && "text-red-500 animate-pulse",
             )}
             title="Ler em voz alta"
           >
@@ -431,7 +432,7 @@ function Popovers({ editor }: PopoversProps) {
                       className={cn(
                         "w-full text-left px-3 py-1.5 text-xs hover:bg-accent hover:text-accent-foreground flex items-center justify-between",
                         selectedSpeed === s.value &&
-                          "bg-accent/50 text-accent-foreground font-medium"
+                          "bg-accent/50 text-accent-foreground font-medium",
                       )}
                     >
                       {s.label}
@@ -471,7 +472,7 @@ function Popovers({ editor }: PopoversProps) {
                 }}
                 className={cn(
                   "h-8 gap-1.5 px-2",
-                  isAiLoading && "opacity-70 cursor-not-allowed"
+                  isAiLoading && "opacity-70 cursor-not-allowed",
                 )}
                 disabled={isAiLoading}
               >

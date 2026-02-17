@@ -65,7 +65,6 @@ const NotebookPDFContent = React.forwardRef<
 NotebookPDFContent.displayName = "NotebookPDFContent";
 
 export default function NotebooksCard({
-  student,
   notebooks,
   onCreateNotebook,
   userRole,
@@ -188,7 +187,7 @@ export default function NotebooksCard({
                 <Link
                   href={
                     userRole === "teacher"
-                      ? `/hub/teacher/my-students/${student?.id}/notebook/${notebook.id}`
+                      ? `/hub/teacher/my-students/${notebook.student}/notebook/${notebook.id}`
                       : `/hub/student/my-notebook/notebook/${notebook.id}`
                   }
                   className="block flex-1"
