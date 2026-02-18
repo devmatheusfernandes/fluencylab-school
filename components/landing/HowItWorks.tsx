@@ -69,7 +69,7 @@ export default function HowItWorks() {
   };
 
   return (
-    <section className="py-12 bg-white dark:bg-slate-950">
+    <section className="py-12">
       <div className="container px-4 mx-auto max-w-5xl">
         {/* Cabeçalho Minimalista como na foto */}
         <div className="flex items-baseline gap-2 mb-16">
@@ -105,9 +105,7 @@ export default function HowItWorks() {
                   "group relative cursor-pointer border-t border-slate-200 dark:border-slate-800 py-8 md:py-10 px-4 md:px-8 transition-colors",
                   // Definimos uma variável CSS local para a cor de fundo ativa (ajuste conforme seu tema)
                   "hover:z-10",
-                  isActive
-                    ? "border-transparent z-10 rounded-xl shadow-sm"
-                    : "",
+                  isActive ? "border-transparent z-10 rounded-xl" : "",
                 )}
                 style={{
                   // @ts-ignore

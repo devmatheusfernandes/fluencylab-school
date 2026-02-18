@@ -31,7 +31,7 @@ export function LandingHero() {
     <main className="w-full h-full relative grid grid-cols-1 lg:grid-cols-2 flex-1">
       <div className="flex flex-col justify-center lg:justify-end px-6 md:px-12 lg:px-14 pb-12 lg:pb-20 z-20 order-1 pt-22 lg:pt-0">
         <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000 flex flex-col text-center sm:text-left">
-          <p className="text-gray-600 dark:text-gray-300 font-medium text-sm md:text-sm max-w-md">
+          <p className="text-gray-200 dark:text-gray-300 font-medium text-sm md:text-sm max-w-md">
             <span
               dangerouslySetInnerHTML={{
                 __html: t.raw("heroSubtitle"),
@@ -40,7 +40,7 @@ export function LandingHero() {
           </p>
 
           {/* MUDANÇA: Texto principal mais escuro/nítido */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter text-gray-900 dark:text-white leading-[0.95] mb-8 mt-2">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter text-white leading-[0.95] mb-8 mt-2">
             {t("title")}
           </h1>
 
@@ -48,15 +48,17 @@ export function LandingHero() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="flex flex-row items-center justify-center gap-2 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white px-8 py-4 rounded-full font-medium border border-gray-200 dark:border-gray-700"
+              //className="flex flex-row items-center justify-center gap-2 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white px-8 py-4 rounded-full font-medium border border-gray-200 dark:border-gray-700"
+              className="flex flex-row items-center justify-center gap-2 bg-primary/90 hover:bg-primary/95 text-white px-8 py-4 rounded-full font-bold duration-300 ease-in-out transform-all"
             >
               <CalendarDaysIcon size={24} />
               {t("primaryCta")}
             </motion.button>
+            {/* NÃO VAMOS USAR POR ENQUANTO */}
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-6 py-4 rounded-full font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="hidden px-6 py-4 rounded-full font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
               {t("secondaryCta")}
             </motion.button>

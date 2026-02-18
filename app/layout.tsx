@@ -57,7 +57,7 @@ export default async function RootLayout({
 
   return (
     <html
-      lang="en"
+      lang="pt"
       suppressHydrationWarning
       className={themeColorClass}
       data-scroll-behavior="smooth"
@@ -66,7 +66,7 @@ export default async function RootLayout({
         <AuthProvider>
           <ThemeProvider
             attribute="class"
-            defaultTheme="system"
+            defaultTheme="dark"
             enableSystem
             disableTransitionOnChange
           >

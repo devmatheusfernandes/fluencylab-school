@@ -33,7 +33,7 @@ export function HomeScreen() {
   return (
     <div className="flex flex-col gap-4 h-full">
       {/* Header App */}
-      <header className="sticky top-0 z-20 bg-white/95 dark:bg-gray-950/95 backdrop-blur-md pt-12 pb-4 px-6 border-b border-gray-100 dark:border-gray-800">
+      <header className="sticky top-0 z-20 bg-gray-100 dark:bg-gray-950/95 backdrop-blur-md pt-12 pb-4 px-6 border-b border-gray-100 dark:border-gray-800">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
             <Avatar size="sm">

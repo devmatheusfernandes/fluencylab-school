@@ -52,9 +52,9 @@ export function PathScreen() {
   ];
 
   return (
-    <div className="flex flex-col h-full relative bg-white dark:bg-gray-950">
+    <div className="flex flex-col h-full relative bg-gray-100 dark:bg-gray-950">
       {/* Header Dinâmico */}
-      <header className="sticky top-0 z-20 bg-white/95 dark:bg-gray-950/95 backdrop-blur-md pt-12 pb-4 px-6 border-b border-gray-100 dark:border-gray-800">
+      <header className="sticky top-0 z-20 bg-gray-100 dark:bg-gray-950/95 backdrop-blur-md pt-12 pb-4 px-6 border-b border-gray-100 dark:border-gray-800 rounded-md">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
             <Avatar size="sm">

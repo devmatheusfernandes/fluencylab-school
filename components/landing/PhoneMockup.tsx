@@ -39,23 +39,23 @@ export function PhoneMockup({ children }: PhoneMockupProps) {
         mass: 1,
         delay: 0.2,
       }}
-      className="relative z-10 w-[380px] md:w-[320px] lg:w-[500px] -translate-y-22 translate-x-5 lg:translate-y-0 lg:mt-0 cursor-pointer"
+      className="relative z-10 w-[410px] md:w-[620px] lg:w-[530px] -translate-y-22 translate-x-5 lg:translate-y-0 lg:mt-0 cursor-pointer"
     >
       {/* MUDANÇA: Borda do telefone ajustada para combinar com o tema */}
-      <div className="w-full h-full bg-white dark:bg-gray-900 rounded-[3rem] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] border-[6px] border-gray-100 dark:border-gray-800 ring-1 ring-gray-900/5 flex flex-col overflow-hidden relative">
+      <div className="w-full h-full bg-gray-100 dark:bg-gray-900 rounded-[3rem] border-[6px] border-gray-100 dark:border-gray-800 ring-1 ring-gray-900/5 flex flex-col overflow-hidden relative">
         {/* Status Bar */}
-        <div className="absolute top-0 w-full h-6 z-20 flex justify-between px-6 p-6 items-center mt-3">
+        <div className="absolute top-0 w-full h-6 z-99 flex justify-between px-6 p-6 items-center mt-3">
           <div className="text-[10px] font-bold text-gray-800 dark:text-gray-200">
             {currentTime || "9:41"}
           </div>
           <div className="flex gap-1">
-            <div className="w-4 h-2.5 bg-gray-800 dark:bg-gray-200 rounded-[2px]" />
+            <div className="w-6 h-2.5 bg-green-500 rounded-md" />
           </div>
         </div>
 
         {/* Conteúdo da Tela com Scroll */}
         {/* MUDANÇA: Fundo interno do telefone */}
-        <div className="flex-1 bg-gray-50 dark:bg-gray-950 pt-10 px-5 pb-6 flex flex-col gap-4 overflow-hidden">
+        <div className="flex-1 bg-gray-100 dark:bg-gray-950 pt-10 px-5 pb-6 flex flex-col gap-4 overflow-hidden">
           {children}
         </div>
       </div>

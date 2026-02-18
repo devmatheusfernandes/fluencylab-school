@@ -155,7 +155,7 @@ export function LandingNavbar() {
             className="relative flex items-center gap-2 p-2 rounded-full transition-all duration-300"
           >
             <motion.div
-              className="absolute inset-0 rounded-full bg-white dark:bg-white/5 shadow-xs -z-20"
+              className="absolute inset-0 rounded-full bg-white/20 dark:bg-white/5 shadow-xs -z-20"
               initial={{ opacity: 1 }}
               animate={{ opacity: isScrolled ? 0 : 1 }}
               transition={backgroundTransition}
@@ -171,7 +171,13 @@ export function LandingNavbar() {
                   className="object-contain"
                 />
               </div>
-              <nav className="flex items-center gap-1">
+              <nav
+                className={
+                  isScrolled
+                    ? "flex items-center gap-1 text-black dark:text-white"
+                    : "flex items-center gap-1 text-white"
+                }
+              >
                 {navLinksLeft.map((link) => (
                   <NavItem key={link.id} {...link} />
                 ))}
@@ -188,14 +194,20 @@ export function LandingNavbar() {
             className="relative flex items-center gap-2 p-2 rounded-full"
           >
             <motion.div
-              className="absolute inset-0 rounded-full bg-white dark:bg-white/5 shadow-xs -z-20"
+              className="absolute inset-0 rounded-full bg-white/20 dark:bg-white/5 shadow-xs -z-20"
               initial={{ opacity: 1 }}
               animate={{ opacity: isScrolled ? 0 : 1 }}
               transition={backgroundTransition}
             />
 
             <div className="relative z-10 flex items-center gap-2">
-              <nav className="flex items-center gap-1">
+              <nav
+                className={
+                  isScrolled
+                    ? "flex items-center gap-1 text-black dark:text-white"
+                    : "flex items-center gap-1 text-white"
+                }
+              >
                 {navLinksRight.map((link) => (
                   <NavItem key={link.id} {...link} />
                 ))}
@@ -227,10 +239,18 @@ export function LandingNavbar() {
                     </>
                   ) : (
                     <>
-                      <span className="whitespace-nowrap">
+                      <span
+                        className={isScrolled ? "text-black" : "text-white"}
+                      >
                         {t("nav.login")}
                       </span>
-                      <DoorOpenIcon className="w-4 h-4" />
+                      <DoorOpenIcon
+                        className={
+                          isScrolled
+                            ? "w-4 h-4 text-black"
+                            : "w-4 h-4 text-white"
+                        }
+                      />
                     </>
                   )}
                 </motion.button>
@@ -281,7 +301,7 @@ export function LandingNavbar() {
 
         <button
           onClick={handleLoginClick}
-          className="bg-black/3 dark:bg-white/2 hover:bg-black/10 dark:hover:bg-white/10 text-black dark:text-white px-4 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2"
+          className="bg-black/3 dark:bg-white/2 hover:bg-black/10 dark:hover:bg-white/10 text-white px-4 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2"
         >
           {session ? (
             <>

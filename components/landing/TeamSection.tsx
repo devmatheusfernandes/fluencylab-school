@@ -85,8 +85,8 @@ const TutorCard = ({ member }: { member: (typeof team)[0] }) => (
 
 export default function TeamSection() {
   return (
-    <section className="py-16 bg-white dark:bg-slate-950 overflow-hidden">
-      <div className="container px-4 mx-auto max-w-7xl">
+    <section className="py-16 overflow-hidden">
+      <div className="px-4 mx-auto max-w-7xl">
         <div className="flex flex-col lg:flex-row items-start gap-16 lg:gap-24">
           {/* --- LADO ESQUERDO: GRID DE TUTORES (Desktop) / CAROUSEL (Mobile) --- */}
           <div className="w-full lg:w-1/2 order-2 lg:order-1">
@@ -147,7 +147,7 @@ export default function TeamSection() {
               </Badge>
               <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 dark:text-slate-50 mb-6">
                 Conheça nosso time de{" "}
-                <span className="text-primary">coaches</span>
+                <span className="text-primary">profissionais</span>
               </h2>
               <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed mb-8 max-w-xl mx-auto lg:mx-0">
                 Tutores dedicados prontos para personalizar sua jornada de
@@ -160,19 +160,20 @@ export default function TeamSection() {
                   size="lg"
                   className="rounded-full px-8 text-base font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:scale-105"
                 >
-                  Conheça o time
+                  Quero marcar uma aula teste
                 </Button>
+                {/* ESCONDIDO POR ENQUANTO */}
                 <Button
                   variant="ghost"
                   size="lg"
-                  className="rounded-full px-8 text-base gap-2 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  className="hidden rounded-full px-8 text-base gap-2 hover:bg-slate-100 dark:hover:bg-slate-800"
                 >
                   Junte-se a nós <ArrowRight className="w-4 h-4" />
                 </Button>
               </div>
 
-              {/* Estatística rápida (Elemento de prova social) */}
-              <div className="mt-12 pt-8 border-t border-slate-100 dark:border-slate-800 flex items-center justify-center lg:justify-start gap-8">
+              {/* ESCONDIDO POR ENQUANTO */}
+              <div className="hidden mt-12 pt-8 border-t border-slate-100 dark:border-slate-800 flex items-center justify-center lg:justify-start gap-8">
                 <div>
                   <p className="text-3xl font-bold text-slate-900 dark:text-slate-50">
                     +150

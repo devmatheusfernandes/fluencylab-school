@@ -97,7 +97,7 @@ const ComparisonCard = ({ item }: { item: (typeof comparisons)[0] }) => (
     </div>
 
     {/* Parte Inferior: A Solução */}
-    <div className="bg-white dark:bg-slate-950 p-6 flex-1 relative">
+    <div className="p-6 flex-1 relative">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-slate-950 p-1 rounded-full border border-slate-100 dark:border-slate-800 shadow-sm">
         <ArrowRight className="w-5 h-5 text-slate-400 rotate-90" />
       </div>
@@ -143,8 +143,8 @@ export default function ComparisonSection() {
   };
 
   return (
-    <section className="py-24 bg-slate-50 dark:bg-slate-950">
-      <div className="container px-4 mx-auto max-w-7xl">
+    <section className="py-24">
+      <div className="px-4 mx-auto max-w-7xl">
         {/* Cabeçalho */}
         <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16 space-y-4">
           <Badge

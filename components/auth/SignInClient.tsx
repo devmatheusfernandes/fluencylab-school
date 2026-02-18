@@ -151,7 +151,7 @@ export function SignInClient({ messages }: SignInClientProps) {
           <LanguageSwitcher />
           <ThemeSwitcher />
         </div>
-        <div className="w-full max-w-4xl bg-white/60 dark:bg-gray-900 rounded-xl shadow-2xl overflow-hidden">
+        <div className="w-full max-w-4xl bg-slate-100 dark:bg-gray-900 rounded-xl overflow-hidden mt-8">
           <div className="flex flex-col lg:flex-row">
             <div className="hidden lg:flex flex-col items-center justify-center lg:w-1/2 bg-gray-100 dark:bg-gray-800 p-8 lg:p-12 relative min-h-[300px] lg:min-h-[600px]">
               <BackgroundLogin />
@@ -215,7 +215,7 @@ export function SignInClient({ messages }: SignInClientProps) {
                       <span className="w-full border-t border-gray-300 dark:border-gray-700" />
                     </div>
                     <div className="relative flex justify-center text-sm">
-                      <span className="px-2 bg-white dark:bg-gray-900 text-gray-500">
+                      <span className="px-2 bg-slate-100 dark:bg-gray-900 text-gray-500 rounded-ful">
                         {t.or}
                       </span>
                     </div>
@@ -223,15 +223,17 @@ export function SignInClient({ messages }: SignInClientProps) {
 
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="ghost"
                     onClick={handleGoogleSignIn}
                     disabled={isLoading}
                     className="w-full"
                     size="lg"
                   >
-                    <BrandGoogleIcon
-                      ref={googleIconRef}
-                      size={20}
+                    <img
+                      src="/icons/google.svg"
+                      alt="Google Icon"
+                      width={20}
+                      height={20}
                       className="mr-2"
                     />
                     {t.signInWithGoogle}
