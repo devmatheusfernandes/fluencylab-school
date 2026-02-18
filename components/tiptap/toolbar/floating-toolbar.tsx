@@ -23,11 +23,7 @@ interface ToolbarProps {
   notebookId?: string;
 }
 
-const Toolbar: React.FC<ToolbarProps> = ({
-  editor,
-  studentID,
-  notebookId,
-}) => {
+const Toolbar: React.FC<ToolbarProps> = ({ editor, studentID, notebookId }) => {
   const [openModalId, setOpenModalId] = useState<string | null>(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -136,7 +132,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
           isOpen={true}
           onClose={handleCloseDialog}
           editor={editor}
-          studentID={studentID}
+          studentId={studentID}
           notebookId={notebookId}
         />
       )}
