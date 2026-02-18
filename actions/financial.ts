@@ -6,7 +6,6 @@ import {
   FiscalYear,
   MonthlyRevenue,
   TeacherPaymentRecord,
-  CompanyType,
   FiscalStatus,
 } from "@/types/financial/financial";
 import { User } from "@/types/users/users";
