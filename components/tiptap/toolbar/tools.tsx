@@ -132,7 +132,7 @@ export type ToolbarToolsSheetProps = {
   side?: "top" | "right" | "bottom" | "left";
   className?: string;
   modalTools?: string[];
-  studentID?: string;
+  studentId?: string;
 };
 
 export function ToolbarToolsSheet({
@@ -140,7 +140,6 @@ export function ToolbarToolsSheet({
   onOpenDialog,
   side = "right",
   modalTools = Object.keys(MODAL_COMPONENTS),
-  studentID,
 }: ToolbarToolsSheetProps) {
   const [query, setQuery] = useState("");
 
@@ -235,7 +234,7 @@ export function ToolbarToolsSheet({
                   <Accordion.Content className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
                     <div className="space-y-3 p-4">
                       {cat.items.map((item) => (
-                        <Card key={item.id} className="p-3">
+                        <Card key={item.id} className="p-3 item-base">
                           <div className="flex items-start justify-between gap-4">
                             <div>
                               <div className="text-sm font-medium">

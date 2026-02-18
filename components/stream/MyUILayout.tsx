@@ -33,6 +33,18 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalDescription,
+  ModalFooter,
+  ModalHeader,
+  ModalIcon,
+  ModalPrimaryButton,
+  ModalSecondaryButton,
+  ModalTitle,
+} from "../ui/modal";
 
 // --- HOOK PARA DETECTAR MOBILE/STANDALONE ---
 const useStandalone = () => {
@@ -264,6 +276,18 @@ export const JoinUI: React.FC<JoinUIProps> = ({
 };
 
 // --- MAIN LAYOUT ---
+const requestManualPermission = async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true,
+    });
+    stream.getTracks().forEach((t) => t.stop());
+    return true;
+  } catch {
+    return false;
+  }
+};
 
 export const MyUILayout: React.FC = (): JSX.Element => {
   const { data: session } = useSession();
@@ -338,6 +362,7 @@ export const MyUILayout: React.FC = (): JSX.Element => {
   const constraintsRef = useRef<HTMLDivElement>(null);
   const [hasJoined, setHasJoined] = useState(false);
   const isJoiningRef = useRef(false);
+  const [showPermissionModal, setShowPermissionModal] = useState(false);
 
   // Chrome background throttling handling
   useEffect(() => {
@@ -529,13 +554,35 @@ export const MyUILayout: React.FC = (): JSX.Element => {
       console.error(e);
     }
   };
+
   const handleToggleVideo = async () => {
     try {
+      // Se a câmera estiver desligada (ou seja, queremos LIGAR), testamos a permissão antes
+      if (camStatus === "disabled") {
+        const hasPermission = await requestManualPermission();
+        if (!hasPermission) {
+          setShowPermissionModal(true);
+          return; // Para aqui e não tenta o toggle do SDK
+        }
+      }
+
+      // Se passou, tenta o toggle do SDK
       await call?.camera.toggle();
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      console.error("Erro ao ligar câmera:", e);
+      // Se mesmo assim der erro de permissão, abre o modal
+      if (
+        e.toString().includes("Permission") ||
+        e.toString().includes("not allowed") ||
+        e.toString().includes("device")
+      ) {
+        setShowPermissionModal(true);
+      } else {
+        toast.error("Erro ao acessar a câmera.");
+      }
     }
   };
+
   const togglePiP = () => {
     setIsPiP((prev) => !prev);
     setShowMobileMenu(false);
@@ -895,6 +942,11 @@ export const MyUILayout: React.FC = (): JSX.Element => {
 
   return (
     <>
+      <PermissionErrorModal
+        isOpen={showPermissionModal}
+        onClose={setShowPermissionModal}
+      />
+
       <AnimatePresence mode="wait">
         {!showCall ? (
           <JoinUI
@@ -920,5 +972,57 @@ export const MyUILayout: React.FC = (): JSX.Element => {
         )}
       </AnimatePresence>
     </>
+  );
+};
+
+const PermissionErrorModal = ({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean;
+  onClose: (open: boolean) => void;
+}) => {
+  return (
+    <Modal open={isOpen} onOpenChange={onClose}>
+      <ModalContent>
+        <ModalHeader>
+          <ModalIcon type="warning" />
+          <ModalTitle>Câmera Bloqueada</ModalTitle>
+        </ModalHeader>
+
+        <ModalBody>
+          {/* ModalDescription usado apenas para texto simples */}
+          <ModalDescription className="text-left">
+            O navegador bloqueou o acesso à sua câmera. O sistema não consegue
+            ligá-la automaticamente.
+          </ModalDescription>
+
+          {/* Lista movida para fora do Description para evitar erro de <p> > <ul> */}
+          <div className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed text-left mt-4">
+            <strong>Tente o seguinte:</strong>
+            <ul className="list-disc pl-5 mt-2 space-y-1">
+              <li>
+                Clique no ícone de <strong>cadeado</strong> 🔒 na barra de
+                endereço (url).
+              </li>
+              <li>
+                Ative a opção <strong>Câmera</strong> e{" "}
+                <strong>Microfone</strong>.
+              </li>
+              <li>Clique no botão "Recarregar Página" abaixo.</li>
+            </ul>
+          </div>
+        </ModalBody>
+
+        <ModalFooter>
+          <ModalSecondaryButton onClick={() => onClose(false)}>
+            Cancelar
+          </ModalSecondaryButton>
+          <ModalPrimaryButton onClick={() => window.location.reload()}>
+            Recarregar Página
+          </ModalPrimaryButton>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 };

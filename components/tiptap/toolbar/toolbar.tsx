@@ -94,7 +94,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
                 onOpenDialog={(toolId) => setOpenModalId(toolId)}
                 modalTools={Object.keys(MODAL_COMPONENTS)}
                 side="right"
-                studentID={studentID}
+                studentId={studentID}
               />
             )}
           </div>

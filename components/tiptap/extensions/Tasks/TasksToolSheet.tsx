@@ -15,7 +15,13 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Trash2, Plus, Calendar as CalendarIcon, Loader2, CheckCircle2 } from "lucide-react";
+import {
+  Trash2,
+  Plus,
+  Calendar as CalendarIcon,
+  Loader2,
+  CheckCircle2,
+} from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
@@ -32,7 +38,11 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { toast } from "sonner";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { Task } from "@/types/tasks/tasks";
@@ -52,13 +62,13 @@ interface TasksToolSheetProps {
   isOpen: boolean;
   onClose: () => void;
   editor: Editor;
-  studentID?: string;
+  studentId?: string;
 }
 
 export const TasksToolSheet: React.FC<TasksToolSheetProps> = ({
   isOpen,
   onClose,
-  studentID,
+  studentId,
 }) => {
   const { data: session } = useSession();
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -66,12 +76,11 @@ export const TasksToolSheet: React.FC<TasksToolSheetProps> = ({
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskDate, setNewTaskDate] = useState<Date | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  // State para o Alert Dialog de exclusão
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
-
-  const isTeacher = session?.user?.role === "teacher" || session?.user?.role === "admin";
-  const targetStudentId = studentID || (session?.user?.role === "student" ? session.user.id : null);
+  const isTeacher =
+    session?.user?.role === "teacher" || session?.user?.role === "admin";
+  const targetStudentId =
+    studentId || (session?.user?.role === "student" ? session.user.id : null);
 
   useEffect(() => {
     if (!isOpen || !targetStudentId) return;
@@ -81,7 +90,7 @@ export const TasksToolSheet: React.FC<TasksToolSheetProps> = ({
       collection(db, `users/${targetStudentId}/Tasks`),
       where("isDeleted", "!=", true),
       orderBy("isDeleted"),
-      orderBy("createdAt", "desc")
+      orderBy("createdAt", "desc"),
     );
 
     const unsubscribe = onSnapshot(
@@ -107,7 +116,7 @@ export const TasksToolSheet: React.FC<TasksToolSheetProps> = ({
         console.error("Erro ao buscar tarefas:", error);
         toast.error("Erro ao carregar tarefas.");
         setLoading(false);
-      }
+      },
     );
 
     return () => unsubscribe();
@@ -138,7 +147,10 @@ export const TasksToolSheet: React.FC<TasksToolSheetProps> = ({
     }
   };
 
-  const toggleTaskCompletion = async (taskId: string, currentStatus: boolean) => {
+  const toggleTaskCompletion = async (
+    taskId: string,
+    currentStatus: boolean,
+  ) => {
     if (!targetStudentId) return;
     try {
       await updateDoc(doc(db, `users/${targetStudentId}/Tasks`, taskId), {
@@ -174,7 +186,9 @@ export const TasksToolSheet: React.FC<TasksToolSheetProps> = ({
         <SheetContent>
           <SheetHeader>
             <SheetTitle>Tarefas</SheetTitle>
-            <SheetDescription>Selecione um aluno para ver as tarefas.</SheetDescription>
+            <SheetDescription>
+              Selecione um aluno para ver as tarefas.
+            </SheetDescription>
           </SheetHeader>
         </SheetContent>
       </Sheet>
@@ -216,11 +230,13 @@ export const TasksToolSheet: React.FC<TasksToolSheetProps> = ({
                           size="sm"
                           className={cn(
                             "w-[140px] justify-start text-left font-normal bg-background",
-                            !newTaskDate && "text-muted-foreground"
+                            !newTaskDate && "text-muted-foreground",
                           )}
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {newTaskDate ? format(newTaskDate, "dd/MM/yyyy") : "Data"}
+                          {newTaskDate
+                            ? format(newTaskDate, "dd/MM/yyyy")
+                            : "Data"}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
@@ -233,14 +249,18 @@ export const TasksToolSheet: React.FC<TasksToolSheetProps> = ({
                         />
                       </PopoverContent>
                     </Popover>
-                    
-                    <Button 
-                      size="sm" 
-                      onClick={handleAddTask} 
+
+                    <Button
+                      size="sm"
+                      onClick={handleAddTask}
                       disabled={isSubmitting || !newTaskTitle.trim()}
                       className="flex-1"
                     >
-                      {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4 mr-1" />}
+                      {isSubmitting ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Plus className="h-4 w-4 mr-1" />
+                      )}
                       Adicionar Tarefa
                     </Button>
                   </div>
@@ -261,7 +281,9 @@ export const TasksToolSheet: React.FC<TasksToolSheetProps> = ({
                     <CheckCircle2 className="h-8 w-8 opacity-50" />
                   </div>
                   <p className="font-medium">Tudo limpo!</p>
-                  <p className="text-sm">Nenhuma tarefa pendente para este aluno.</p>
+                  <p className="text-sm">
+                    Nenhuma tarefa pendente para este aluno.
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-2 pb-4">
@@ -270,37 +292,43 @@ export const TasksToolSheet: React.FC<TasksToolSheetProps> = ({
                       key={task.id}
                       className={cn(
                         "group flex items-start gap-3 p-3 rounded-lg border transition-all duration-200 hover:shadow-sm",
-                        task.completed 
-                          ? "bg-muted/40 border-muted text-muted-foreground" 
-                          : "bg-card border-border hover:border-primary/30"
+                        task.completed
+                          ? "bg-muted/40 border-muted text-muted-foreground"
+                          : "bg-card border-border hover:border-primary/30",
                       )}
                     >
                       <Checkbox
                         id={`task-${task.id}`}
                         checked={task.completed}
-                        onCheckedChange={() => toggleTaskCompletion(task.id, task.completed)}
+                        onCheckedChange={() =>
+                          toggleTaskCompletion(task.id, task.completed)
+                        }
                         className={cn(
                           "mt-1 transition-colors data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
-                          task.completed && "opacity-50"
+                          task.completed && "opacity-50",
                         )}
                       />
-                      
+
                       <div className="flex-1 min-w-0 space-y-1 pt-0.5">
                         <Label
                           htmlFor={`task-${task.id}`}
                           className={cn(
                             "text-sm font-medium leading-snug cursor-pointer block break-words transition-all",
-                            task.completed && "line-through opacity-70"
+                            task.completed && "line-through opacity-70",
                           )}
                         >
                           {task.text}
                         </Label>
-                        
+
                         {task.dueDate && (
-                          <div className={cn(
-                            "flex items-center text-xs",
-                            task.completed ? "text-muted-foreground/70" : "text-muted-foreground"
-                          )}>
+                          <div
+                            className={cn(
+                              "flex items-center text-xs",
+                              task.completed
+                                ? "text-muted-foreground/70"
+                                : "text-muted-foreground",
+                            )}
+                          >
                             <CalendarIcon className="h-3 w-3 mr-1" />
                             {format(task.dueDate, "PPP", { locale: ptBR })}
                           </div>
@@ -326,7 +354,10 @@ export const TasksToolSheet: React.FC<TasksToolSheetProps> = ({
         </SheetContent>
       </Sheet>
 
-      <Modal open={!!taskToDelete} onOpenChange={(open) => !open && setTaskToDelete(null)}>
+      <Modal
+        open={!!taskToDelete}
+        onOpenChange={(open) => !open && setTaskToDelete(null)}
+      >
         <ModalContent>
           <ModalIcon type="delete" />
           <ModalHeader>
