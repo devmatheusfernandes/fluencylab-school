@@ -16,6 +16,7 @@ import { UserRoles } from "@/types/users/userRoles";
 import { FieldValue } from "firebase-admin/firestore";
 import { AuditService } from "@/services/core/auditService";
 import { AdminService } from "@/services/admin/adminService";
+import { emailService } from "../communication/emailService";
 
 // Usando instâncias singleton centralizadas
 const userAdminRepo = userAdminRepository;
@@ -23,6 +24,24 @@ const classRepo = classRepository;
 const paymentRepo = paymentRepository;
 
 export class UserService {
+  async resendWelcomeLink(email: string) {
+    try {
+      // 1. O Firebase Admin gera o link (incluindo o oobCode embutido)
+      const actionLink = await adminAuth.generatePasswordResetLink(email, {
+        url: `${process.env.NEXTAUTH_URL}/create-password`,
+        handleCodeInApp: true,
+      });
+
+      // 2. Você envia esse link usando seu provedor de email
+      await emailService.sendSetPasswordEmailAgain(email, actionLink);
+
+      return true;
+    } catch (error) {
+      console.error("Erro ao gerar link:", error);
+      throw new Error("Falha ao gerar novo link de acesso.");
+    }
+  }
+
   /**
    * Obtém uma lista de usuários com base nos filtros fornecidos.
    */

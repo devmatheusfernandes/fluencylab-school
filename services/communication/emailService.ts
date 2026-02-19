@@ -9,6 +9,7 @@ import { TeacherVacationEmail } from "@/emails/templates/TeacherVacationEmail";
 import { ContractRenewalEmail } from "@/emails/templates/ContractRenewalEmail";
 import { PaymentConfirmationEmail } from "@/emails/templates/PaymentConfirmationEmail";
 import { TeacherVacationCancellationEmail } from "@/emails/templates/TeacherVacationCancellationEmail";
+import { NewAccessLinkEmail } from "@/emails/templates/NewAccessLinkEmail";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -408,6 +409,43 @@ export class EmailService {
         error,
       );
       // We don't throw error here to avoid breaking the payment flow if email fails
+    }
+  }
+
+  async sendSetPasswordEmailAgain(email: string, actionLink: string) {
+    try {
+      const buildCustomLink = (link: string) => {
+        try {
+          const u = new URL(link);
+          const oobCode = u.searchParams.get("oobCode");
+          const lang = u.searchParams.get("lang") || "pt";
+          const locale = lang.split("-")[0];
+          const base = process.env.NEXTAUTH_URL || "http://localhost:3000";
+          if (!oobCode) return link;
+          return `${base}/${locale}/create-password?oobCode=${encodeURIComponent(
+            oobCode,
+          )}&lang=${encodeURIComponent(lang)}`;
+        } catch {
+          return link;
+        }
+      };
+      const customActionLink = buildCustomLink(actionLink);
+      const subject =
+        "Bem-vindo(a) à Fluency Lab! Defina sua senha para acessar a conta do estudante.";
+
+      await resend.emails.send({
+        from: "Matheus Fernandes <contato@matheusfernandes.me>",
+        to: email,
+        subject,
+        react: await NewAccessLinkEmail({
+          actionLink: customActionLink,
+        }),
+      });
+    } catch (error) {
+      console.error("Falha ao enviar e-mail de boas-vindas:", error);
+      throw new Error(
+        "Usuário criado, mas falha ao enviar o e-mail de boas-vindas.",
+      );
     }
   }
 }

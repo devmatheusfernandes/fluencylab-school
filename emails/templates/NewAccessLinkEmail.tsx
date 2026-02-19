@@ -11,18 +11,12 @@ import {
 } from "@react-email/components";
 import { EmailButton } from "../components/EmailButton";
 
-interface WelcomeEmailProps {
-  name: string;
+interface NewAccessLinkEmailProps {
   actionLink: string;
-  studentInfo?: string;
 }
 
-/*TODO: CRIAR OPCIONAL PARA ALUNOS COM REPSONSAVEL, ELE DEVE CONTER OUTRAS INFORMAÇÕES*/
-
-export const WelcomeEmail: React.FC<WelcomeEmailProps> = ({
-  name,
+export const NewAccessLinkEmail: React.FC<NewAccessLinkEmailProps> = ({
   actionLink,
-  studentInfo,
 }) => {
   return (
     <Html>
@@ -39,24 +33,30 @@ export const WelcomeEmail: React.FC<WelcomeEmailProps> = ({
             />
           </Section>
 
-          <Heading style={heading}>Bem-vindo(a) à Fluency Lab! 🎉</Heading>
+          <Heading style={heading}>Seu novo link chegou! 🔒</Heading>
+
+          <Text style={paragraph}>Olá!</Text>
 
           <Text style={paragraph}>
-            Olá, <strong>{name}</strong>!
-          </Text>
-          <Text style={paragraph}>
-            {studentInfo
-              ? `Uma conta foi criada para o aluno(a) ${studentInfo}. Você já pode acessar a plataforma para gerenciar as aulas.`
-              : `Sua conta foi criada com sucesso! Estamos muito felizes em ter você conosco.`}
+            Vimos que o seu link anterior expirou ou que você solicitou um novo
+            acesso. Não se preocupe, os links de criação de senha expiram
+            naturalmente por questões de segurança.
           </Text>
 
           <Text style={paragraph}>
-            Para começar, defina sua senha segura clicando abaixo:
+            Para garantir seu acesso à Fluency Lab, clique no botão abaixo e
+            defina sua senha:
           </Text>
 
           <Section style={buttonSection}>
             <EmailButton href={actionLink}>Definir Minha Senha</EmailButton>
           </Section>
+
+          <Text style={footer}>
+            Lembrando: por segurança, este link é válido por tempo limitado. Se
+            você não solicitou este link, pode ignorar este e-mail com
+            segurança.
+          </Text>
         </Container>
       </Body>
     </Html>
@@ -89,5 +89,12 @@ const paragraph = {
   lineHeight: "26px",
   color: "#484848",
   margin: "16px 0",
+};
+const footer = {
+  fontSize: "14px",
+  lineHeight: "22px",
+  color: "#8898aa",
+  margin: "32px 0 0 0",
+  textAlign: "center" as const,
 };
 const buttonSection = { textAlign: "center" as const, marginTop: "32px" };

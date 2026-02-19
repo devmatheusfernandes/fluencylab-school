@@ -45,6 +45,7 @@ export function ForgotPasswordClient({ messages }: ForgotPasswordClientProps) {
         url: `${window.location.origin}/${locale}/reset-password`,
         handleCodeInApp: true,
       };
+      // TODO: chamar rota de API para enviar email de redefinição de senha personalizado
       await sendPasswordResetEmail(auth, email, actionCodeSettings);
       setSuccess(true);
       toast.success(t.resetEmailSent, {
@@ -124,7 +125,7 @@ export function ForgotPasswordClient({ messages }: ForgotPasswordClientProps) {
                   </form>
                 ) : (
                   <div className="space-y-5">
-                     <Button
+                    <Button
                       onClick={() => router.push(`/${locale}/signin`)}
                       className="w-full"
                       size="lg"
@@ -133,7 +134,7 @@ export function ForgotPasswordClient({ messages }: ForgotPasswordClientProps) {
                     </Button>
                   </div>
                 )}
-                
+
                 {!success && (
                   <p className="text-center text-gray-600 dark:text-gray-300 mt-8 text-sm">
                     <a

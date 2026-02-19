@@ -43,7 +43,6 @@ export class AdminService {
       email: authEmail, // Usa email do responsável se for menor
       displayName: isMinor ? `${name} (via ${guardian.name})` : name,
       emailVerified: true,
-      // 🚫 Removemos a criação de senha temporária daqui
     });
 
     await adminAuth.setCustomUserClaims(userRecord.uid, { role });

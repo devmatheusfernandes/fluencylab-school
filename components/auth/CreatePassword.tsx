@@ -32,6 +32,12 @@ export default function CreatePasswordPage() {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
 
+  // Estados para gerenciar o reenvio
+  const [isExpired, setIsExpired] = useState<boolean>(false);
+  const [resendEmail, setResendEmail] = useState<string>("");
+  const [resending, setResending] = useState<boolean>(false);
+  const [resendSuccess, setResendSuccess] = useState<boolean>(false);
+
   useEffect(() => {
     const oobCode = searchParams.get("oobCode");
     if (!oobCode) {
@@ -39,18 +45,59 @@ export default function CreatePasswordPage() {
       setLoading(false);
       return;
     }
+
     verifyPasswordResetCode(auth, oobCode)
       .then((userEmail) => {
         setEmail(userEmail || "");
         setCodeValid(true);
         setLoading(false);
       })
-      .catch(() => {
-        setError("Este link de criação de senha é inválido ou expirou.");
+      .catch((err) => {
+        // Verifica especificamente se o código expirou ou é inválido
+        if (
+          err.code === "auth/expired-action-code" ||
+          err.code === "auth/invalid-action-code"
+        ) {
+          setIsExpired(true);
+          setError("Este link expirou ou já foi utilizado.");
+        } else {
+          setError("Erro ao verificar o link de criação de senha.");
+        }
         setCodeValid(false);
         setLoading(false);
       });
   }, [searchParams]);
+
+  // Função para reenviar o link
+  const handleResendLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resendEmail) return;
+
+    setResending(true);
+    setError("");
+
+    try {
+      const response = await fetch("/api/auth/resend-invite", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: resendEmail }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao reenviar");
+      }
+
+      setResendSuccess(true);
+    } catch (err: any) {
+      setError(
+        "Não foi possível enviar o link. Verifique se o e-mail está correto.",
+      );
+    } finally {
+      setResending(false);
+    }
+  };
 
   const validatePassword = (value: string) => {
     if (value.length < 8) return "A senha deve ter pelo menos 8 caracteres.";
@@ -105,7 +152,7 @@ export default function CreatePasswordPage() {
 
   return (
     <div className="min-h-screen min-w-screen flex items-center justify-center bg-slate-100 dark:bg-slate-900 p-4">
-      <Card className="w-full max-w-[400px]">
+      <Card className="w-full max-w-[600px] py-12 item-base">
         <CardHeader className="text-center space-y-2">
           <CardTitle className="text-2xl font-bold">
             Definir sua senha
@@ -124,10 +171,44 @@ export default function CreatePasswordPage() {
               <Skeleton className="h-10 w-full bg-slate-200 dark:bg-slate-800" />
             </div>
           ) : !codeValid ? (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error || "Link inválido."}</AlertDescription>
-            </Alert>
+            <div className="space-y-4">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+
+              {/* Formulário de reenvio se estiver expirado */}
+              {isExpired && !resendSuccess && (
+                <form onSubmit={handleResendLink} className="space-y-3 mt-4">
+                  <p className="text-sm text-muted-foreground text-center">
+                    Insira seu e-mail abaixo para enviarmos um novo link de
+                    acesso.
+                  </p>
+                  <Input
+                    type="email"
+                    placeholder="Seu e-mail cadastrado"
+                    value={resendEmail}
+                    onChange={(e) => setResendEmail(e.target.value)}
+                    required
+                  />
+                  <Button type="submit" className="w-full" disabled={resending}>
+                    {resending ? "Enviando..." : "Enviar novo link"}
+                  </Button>
+                </form>
+              )}
+
+              {/* Mensagem de sucesso ao reenviar */}
+              {resendSuccess && (
+                <Alert className="bg-emerald-50 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-700">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                  <AlertDescription>
+                    Novo link enviado! Verifique sua caixa de entrada.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
           ) : success ? (
             <div className="space-y-6 text-center">
               <div className="flex flex-col items-center gap-2 text-emerald-600 dark:text-emerald-400">
