@@ -277,14 +277,20 @@ export const JoinUI: React.FC<JoinUIProps> = ({
 
 // --- MAIN LAYOUT ---
 const requestManualPermission = async () => {
+  if (
+    typeof navigator === "undefined" ||
+    !navigator.mediaDevices?.getUserMedia
+  ) {
+    return false;
+  }
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
       video: true,
-      audio: true,
     });
     stream.getTracks().forEach((t) => t.stop());
     return true;
-  } catch {
+  } catch (error) {
+    console.error(error);
     return false;
   }
 };

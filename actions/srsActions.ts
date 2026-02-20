@@ -473,9 +473,10 @@ export async function getDailyPractice(
       id: string;
       srsData?: SRSData;
       type: "item" | "structure";
+      lastReviewedAt?: Date | string;
     }[] = [];
 
-    const checkDue = (list: any[], type: "item" | "structure") => {
+    const checkDue = (list: any[]) => {
       if (!list) return;
       list.forEach((item) => {
         // Skip if item is currently in the active lesson (avoid double practice)
@@ -484,43 +485,40 @@ export async function getDailyPractice(
         if (item.srsData && item.srsData.dueDate) {
           const dueDate = parseLessonDate(item.srsData.dueDate);
           if (dueDate && startOfDay(dueDate) <= today) {
-            dueItems.push({ ...item, type });
+            if (item.type === "item" || item.type === "structure") {
+              dueItems.push(item);
+            }
           }
         }
       });
     };
 
-    checkDue(plan.learnedComponentsIds, "item"); // Assuming learnedComponentsIds stores mixed or we check type logic
-    // Note: Ideally learnedComponentsIds should store type, or we infer it.
-    // For simplicity, let's assume we try to fetch from both or we know the IDs.
-    // Actually, existing code implies `learningItems` and `learningStructures`.
-    // Let's check `reviewLearnedComponentsIds` too.
-    checkDue(plan.reviewLearnedComponentsIds, "item");
-
-    // Fetch Due Items
-    // Since we don't know for sure if it's item or structure just by ID in `learnedComponentsIds` (unless structure is explicit),
-    // we might need a robust way. Assuming for now they are mostly items or we check both collections if needed.
-    // Or better: The plan should store the type.
-    // If we can't determine, we might skip or try one.
-    // Let's assume for this implementation we treat them as Items for review standard.
+    checkDue(plan.learnedComponentsIds);
+    checkDue(plan.reviewLearnedComponentsIds);
 
     if (dueItems.length > 0) {
-      // We need a dummy lesson context for review items if they don't belong to active lesson
-      // Or we fetch their original lesson? Too expensive.
-      // We'll pass a minimal context.
       const dummyContext = { id: "review", title: "Review" } as Lesson;
 
-      await fetchAndGenerate(
-        dueItems,
-        "learningItems",
-        dummyContext,
-        "review_standard",
-      );
-      // If structures are in the same list, we might miss them if we only query learningItems.
-      // In a real app, `learnedComponentsIds` should probably store { id, type: 'item' | 'structure' }.
-    }
+      const items = dueItems.filter((d) => d.type === "item");
+      const structures = dueItems.filter((d) => d.type === "structure");
 
-    // console.log(`[getDailyPractice] Returning ${itemsToPractice.length} items`);
+      if (items.length > 0) {
+        await fetchAndGenerate(
+          items,
+          "learningItems",
+          dummyContext,
+          "review_standard",
+        );
+      }
+      if (structures.length > 0) {
+        await fetchAndGenerate(
+          structures,
+          "learningStructures",
+          dummyContext,
+          "review_standard",
+        );
+      }
+    }
 
     return {
       mode,
@@ -711,11 +709,8 @@ export async function processPracticeResults(
                 updatedAt: new Date(),
               };
 
-              // Graduation Logic: If interval >= 1 (meaning successfully reviewed at least once), mark as learned
-              // We COPY it to the learned list so it counts for stats and future reviews,
-              // but we keep it here so the lesson cycle continues.
-              if (newSRS.interval >= 1) {
-                itemsToAddToLearned.push(updatedItem);
+              if (newSRS.repetition >= 2) {
+                itemsToAddToLearned.push({ ...updatedItem, type: "item" });
               }
 
               return updatedItem;
@@ -739,7 +734,10 @@ export async function processPracticeResults(
 
               // Graduation Logic
               if (newSRS.interval >= 1) {
-                itemsToAddToLearned.push(updatedStruct);
+                itemsToAddToLearned.push({
+                  ...updatedStruct,
+                  type: "structure",
+                });
               }
 
               return updatedStruct;
@@ -1068,41 +1066,40 @@ export async function getLearnedItemsDetails(planId: string) {
     >();
 
     // Helper to add IDs to the map
-    const addIds = (
-      list: any[],
-      defaultType: "item" | "structure" = "item",
-    ) => {
-      // Defaulting to item, but we'll try to detect
+    const addIds = (list: any[]) => {
       if (!list) return;
       list.forEach((item) => {
-        // We don't strictly know the type from the ID list alone in the current Plan structure
-        // So we will try to fetch from both collections or just fetch based on ID.
-        // For now, we store them. We'll decide the type after fetching.
-        learnedIds.set(item.id, {
-          type: defaultType, // This is just a placeholder
-          learnedAt: item.updatedAt || new Date(),
-          srsData: item.srsData,
-        });
+        if (item.type === "item" || item.type === "structure") {
+          learnedIds.set(item.id, {
+            type: item.type,
+            learnedAt: item.updatedAt || new Date(),
+            srsData: item.srsData,
+          });
+        }
       });
     };
 
     addIds(plan.learnedComponentsIds);
     addIds(plan.reviewLearnedComponentsIds);
 
-    const allIds = Array.from(learnedIds.keys());
-    if (allIds.length === 0) return [];
+    const allEntries = Array.from(learnedIds.entries());
+    if (allEntries.length === 0) return [];
 
-    // 2. Fetch details from 'learningItems' and 'learningStructures'
-    // Since we don't know which ID belongs to which collection, we query both.
-    // Optimization: If we had types stored, we could split the queries.
+    const itemIds = allEntries
+      .filter(([, v]) => v.type === "item")
+      .map(([k]) => k);
+    const structIds = allEntries
+      .filter(([, v]) => v.type === "structure")
+      .map(([k]) => k);
 
     const fetchDetails = async (
       collectionName: string,
       type: "item" | "structure",
+      ids: string[],
     ) => {
       const chunks = [];
-      for (let i = 0; i < allIds.length; i += 10) {
-        chunks.push(allIds.slice(i, i + 10));
+      for (let i = 0; i < ids.length; i += 10) {
+        chunks.push(ids.slice(i, i + 10));
       }
 
       for (const chunk of chunks) {
@@ -1115,14 +1112,6 @@ export async function getLearnedItemsDetails(planId: string) {
           const data = doc.data();
           const metadata = learnedIds.get(doc.id);
           if (metadata) {
-            // If found in this collection, we use it.
-            // We check if it's already added (in case of ID collision, unlikely but possible)
-            // Ideally we shouldn't have ID collisions between collections if using UUIDs, but Firestore auto-ids are unique globally usually.
-
-            // Check if we already have this item in our result list (from the other collection query?)
-            // No, we are building the list now.
-
-            // Determine title based on type
             let title = "Untitled";
             if (type === "item") {
               title =
@@ -1144,18 +1133,14 @@ export async function getLearnedItemsDetails(planId: string) {
               learnedAt: metadata.learnedAt,
               srsData: metadata.srsData,
             });
-
-            // Remove from map so we don't try to add it again if we query the other collection (if we were doing that logic)
-            // But simpler: just fetch from both and assume no overlap.
           }
         });
       }
     };
 
-    // Run in parallel
     await Promise.all([
-      fetchDetails("learningItems", "item"),
-      fetchDetails("learningStructures", "structure"),
+      fetchDetails("learningItems", "item", itemIds),
+      fetchDetails("learningStructures", "structure", structIds),
     ]);
 
     // Sort by learnedAt (most recent first)

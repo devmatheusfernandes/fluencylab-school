@@ -71,6 +71,7 @@ export interface Plan {
   //Esses dois arrays vão servir para funcionalidades futuras, o primeiro marca o que o aluno já aprendeu, os itens vão sair de learningItensIds e learningStrucutreIds para essa lista quando forem marcados como aprendidos
   learnedComponentsIds: Array<{
     id: string;
+    type: "item" | "structure";
     srsData?: SRSData;
     /*Optional, initializes if missing*/ updatedAt: any;
     lastReviewedAt?: Date | string;
@@ -78,6 +79,7 @@ export interface Plan {
   //Já esse aqui abaixo vai receber ids de learnedComponentsIds e vai marcar os itens que foram aprendidos e que precisam ser revisados depois de um tempo
   reviewLearnedComponentsIds: Array<{
     id: string;
+    type: "item" | "structure";
     srsData?: SRSData;
     /*Optional, initializes if missing*/ updatedAt: any;
     lastReviewedAt?: Date | string;
