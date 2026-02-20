@@ -2,8 +2,6 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "@/lib/firebase/config";
 import { NextIntlClientProvider, useLocale } from "next-intl";
 
 import { Input } from "@/components/ui/input";
@@ -41,25 +39,35 @@ export function ForgotPasswordClient({ messages }: ForgotPasswordClientProps) {
     }
 
     try {
-      const actionCodeSettings = {
-        url: `${window.location.origin}/${locale}/reset-password`,
-        handleCodeInApp: true,
-      };
-      // TODO: chamar rota de API para enviar email de redefinição de senha personalizado
-      await sendPasswordResetEmail(auth, email, actionCodeSettings);
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, locale }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+        const code = data?.code;
+
+        if (code === "auth/user-not-found") {
+          setLocalError(t.userNotFound);
+        } else if (code === "auth/invalid-email") {
+          setLocalError(t.emailInvalid);
+        } else {
+          setLocalError(t.internalError);
+        }
+        return;
+      }
+
       setSuccess(true);
       toast.success(t.resetEmailSent, {
         description: t.resetEmailSentDesc,
       });
-    } catch (err: any) {
+    } catch (err) {
       console.error("Forgot password error", err);
-      if (err.code === "auth/user-not-found") {
-        setLocalError(t.userNotFound);
-      } else if (err.code === "auth/invalid-email") {
-        setLocalError(t.emailInvalid);
-      } else {
-        setLocalError(t.internalError);
-      }
+      setLocalError(t.internalError);
     } finally {
       setIsLoading(false);
     }

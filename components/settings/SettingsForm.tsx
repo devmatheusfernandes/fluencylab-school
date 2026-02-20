@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "@/lib/firebase/config";
 import { useSettings } from "@/hooks/core/useSettings";
 import { useContract } from "@/hooks/financial/useContract";
 import { Card } from "@/components/ui/card";
@@ -163,8 +161,19 @@ export default function SettingsForm({
     if (!session?.user?.email) return;
     setIsSendingReset(true);
     try {
-      //TODO: USAR O TEMPLATE DE EMAIL
-      await sendPasswordResetEmail(auth, session.user.email);
+      const response = await fetch("/api/auth/send-password-setup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ locale: currentLanguage }),
+      });
+
+      if (!response.ok) {
+        toast.error("Erro ao enviar email de redefinição.");
+        return;
+      }
+
       toast.success(t("security.passwordResetSentDesc"));
     } catch (error) {
       toast.error("Erro ao enviar email de redefinição.");

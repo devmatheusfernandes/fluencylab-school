@@ -10,6 +10,8 @@ import { ContractRenewalEmail } from "@/emails/templates/ContractRenewalEmail";
 import { PaymentConfirmationEmail } from "@/emails/templates/PaymentConfirmationEmail";
 import { TeacherVacationCancellationEmail } from "@/emails/templates/TeacherVacationCancellationEmail";
 import { NewAccessLinkEmail } from "@/emails/templates/NewAccessLinkEmail";
+import { ResetPasswordEmail } from "@/emails/templates/ResetPasswordEmail";
+import { PasswordSetupEmail } from "@/emails/templates/PasswordSetupEmail";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -446,6 +448,80 @@ export class EmailService {
       throw new Error(
         "Usuário criado, mas falha ao enviar o e-mail de boas-vindas.",
       );
+    }
+  }
+
+  async sendPasswordSetupEmail(
+    email: string,
+    actionLink: string,
+    localeHint?: string,
+  ) {
+    try {
+      const buildCustomLink = (link: string, locale?: string) => {
+        try {
+          const u = new URL(link);
+          const oobCode = u.searchParams.get("oobCode");
+          const langParam = u.searchParams.get("lang") || locale || "pt";
+          const localeFromLang = langParam.split("-")[0];
+          const base = process.env.NEXTAUTH_URL || "http://localhost:3000";
+          if (!oobCode) return link;
+          return `${base}/${localeFromLang}/create-password?oobCode=${encodeURIComponent(
+            oobCode,
+          )}&lang=${encodeURIComponent(langParam)}`;
+        } catch {
+          return link;
+        }
+      };
+      const customActionLink = buildCustomLink(actionLink, localeHint);
+
+      await resend.emails.send({
+        from: "Fluency Lab <contato@matheusfernandes.me>",
+        to: email,
+        subject: "Defina uma senha para sua conta Fluency Lab",
+        react: await PasswordSetupEmail({
+          actionLink: customActionLink,
+        }),
+      });
+    } catch (error) {
+      console.error("Falha ao enviar e-mail de definição de senha:", error);
+      throw new Error("Falha ao enviar o e-mail de definição de senha.");
+    }
+  }
+
+  async sendPasswordResetEmail(
+    email: string,
+    actionLink: string,
+    localeHint?: string,
+  ) {
+    try {
+      const buildCustomLink = (link: string, locale?: string) => {
+        try {
+          const u = new URL(link);
+          const oobCode = u.searchParams.get("oobCode");
+          const langParam = u.searchParams.get("lang") || locale || "pt";
+          const localeFromLang = langParam.split("-")[0];
+          const base = process.env.NEXTAUTH_URL || "http://localhost:3000";
+          if (!oobCode) return link;
+          return `${base}/${localeFromLang}/reset-password?oobCode=${encodeURIComponent(
+            oobCode,
+          )}&lang=${encodeURIComponent(langParam)}`;
+        } catch {
+          return link;
+        }
+      };
+      const customActionLink = buildCustomLink(actionLink, localeHint);
+
+      await resend.emails.send({
+        from: "Fluency Lab <contato@matheusfernandes.me>",
+        to: email,
+        subject: "Redefina sua senha de acesso à Fluency Lab",
+        react: await ResetPasswordEmail({
+          actionLink: customActionLink,
+        }),
+      });
+    } catch (error) {
+      console.error("Falha ao enviar e-mail de redefinição de senha:", error);
+      throw new Error("Falha ao enviar o e-mail de redefinição de senha.");
     }
   }
 }

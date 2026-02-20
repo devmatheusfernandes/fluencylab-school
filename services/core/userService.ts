@@ -26,19 +26,44 @@ const paymentRepo = paymentRepository;
 export class UserService {
   async resendWelcomeLink(email: string) {
     try {
-      // 1. O Firebase Admin gera o link (incluindo o oobCode embutido)
       const actionLink = await adminAuth.generatePasswordResetLink(email, {
         url: `${process.env.NEXTAUTH_URL}/create-password`,
         handleCodeInApp: true,
       });
 
-      // 2. Você envia esse link usando seu provedor de email
       await emailService.sendSetPasswordEmailAgain(email, actionLink);
 
       return true;
     } catch (error) {
       console.error("Erro ao gerar link:", error);
       throw new Error("Falha ao gerar novo link de acesso.");
+    }
+  }
+
+  async sendPasswordSetupEmail(email: string, locale?: string) {
+    try {
+      const actionLink = await adminAuth.generatePasswordResetLink(email, {
+        url: `${process.env.NEXTAUTH_URL}/create-password`,
+        handleCodeInApp: true,
+      });
+
+      await emailService.sendPasswordSetupEmail(email, actionLink, locale);
+
+      return true;
+    } catch (error) {
+      console.error("Erro ao gerar link para definição de senha:", error);
+      throw new Error("Falha ao gerar link para definição de senha.");
+    }
+  }
+
+  async sendPasswordResetEmail(email: string, locale?: string) {
+    try {
+      const actionLink = await adminAuth.generatePasswordResetLink(email);
+      await emailService.sendPasswordResetEmail(email, actionLink, locale);
+      return true;
+    } catch (error) {
+      console.error("Erro ao gerar link de redefinição de senha:", error);
+      throw error;
     }
   }
 
