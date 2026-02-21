@@ -215,9 +215,7 @@ export async function createPlan(data: Partial<Plan>) {
 
     const planData = {
       ...data,
-      learnedComponentsIds: [],
-      reviewLearnedComponentsIds: [],
-      // Ensure lessons have necessary structure
+      srsMap: {},
       lessons:
         data.lessons?.map((l: any) => ({
           ...l,
@@ -226,7 +224,6 @@ export async function createPlan(data: Partial<Plan>) {
             (l.relatedLearningItemIds
               ? l.relatedLearningItemIds.map((id: string) => ({
                   id,
-                  updatedAt: new Date(),
                 }))
               : []),
           learningStructureIds:
@@ -234,7 +231,6 @@ export async function createPlan(data: Partial<Plan>) {
             (l.relatedLearningStructureIds
               ? l.relatedLearningStructureIds.map((id: string) => ({
                   id,
-                  updatedAt: new Date(),
                 }))
               : []),
         })) || [],
@@ -288,7 +284,6 @@ export async function updatePlan(id: string, data: Partial<Plan>) {
           (l.relatedLearningItemIds
             ? l.relatedLearningItemIds.map((id: string) => ({
                 id,
-                updatedAt: new Date(),
               }))
             : []),
         learningStructureIds:
@@ -296,7 +291,6 @@ export async function updatePlan(id: string, data: Partial<Plan>) {
           (l.relatedLearningStructureIds
             ? l.relatedLearningStructureIds.map((id: string) => ({
                 id,
-                updatedAt: new Date(),
               }))
             : []),
       }));

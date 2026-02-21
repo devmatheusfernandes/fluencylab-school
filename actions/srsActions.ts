@@ -1,7 +1,13 @@
 "use server";
 
 import { adminDb as db } from "@/lib/firebase/admin";
-import { Plan, SRSData, PracticeResult } from "@/types/learning/plan";
+import {
+  Plan,
+  SRSData,
+  PracticeResult,
+  PlanSRSState,
+  SRSStatus,
+} from "@/types/learning/plan";
 import {
   DailyPracticeSession,
   PracticeItem,
@@ -22,8 +28,8 @@ import { FieldValue, FieldPath } from "firebase-admin/firestore";
 import { User } from "@/types/users/users";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { calculateNextReview } from "@/lib/learning/srsAlgorithm";
 
-// Helper to ensure data is serializable (converts Timestamps to Dates)
 function serializeFirestoreData(data: any): any {
   if (data === null || data === undefined) return data;
 
@@ -49,7 +55,6 @@ function serializeFirestoreData(data: any): any {
   return data;
 }
 
-// Helper to safely parse dates
 function parseLessonDate(date: any): Date | null {
   if (!date) return null;
   try {
@@ -61,52 +66,35 @@ function parseLessonDate(date: any): Date | null {
   }
 }
 
-// Helper: SM-2 Algorithm Implementation
-function calculateNextSRS(
-  currentSRS: SRSData | undefined,
-  grade: number,
-): SRSData {
-  // Defaults for new item
-  let interval = 0;
-  let repetition = 0;
-  let easeFactor = 2.5;
+function getSRSStatus(interval: number): SRSStatus {
+  if (interval < 7) return "learning";
+  if (interval < 30) return "learned";
+  return "mastered";
+}
 
-  if (currentSRS) {
-    interval = currentSRS.interval || 0;
-    repetition = currentSRS.repetition || 0;
-    easeFactor = currentSRS.easeFactor || 2.5;
-  }
+function getDueItemsFromSrsMap(
+  srsMap: Record<string, PlanSRSState>,
+  today: Date,
+  excludeIds: Set<string>,
+) {
+  const start = startOfDay(today).getTime();
 
-  if (grade >= 3) {
-    // Correct response
-    if (repetition === 0) {
-      interval = 1;
-    } else if (repetition === 1) {
-      interval = 6;
-    } else {
-      interval = Math.round(interval * easeFactor);
-    }
-    repetition += 1;
-  } else {
-    // Incorrect response: Reset interval
-    repetition = 0;
-    interval = 1;
-  }
-
-  // Update Ease Factor
-  // Formula: EF' = EF + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02))
-  easeFactor = easeFactor + (0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02));
-  if (easeFactor < 1.3) easeFactor = 1.3; // Minimum threshold
-
-  const dueDate = new Date();
-  dueDate.setDate(dueDate.getDate() + interval);
-
-  return {
-    interval,
-    repetition,
-    easeFactor,
-    dueDate: dueDate,
-  };
+  return Object.entries(srsMap)
+    .filter(([id, state]) => {
+      if (excludeIds.has(id)) return false;
+      const due = parseLessonDate(state.dueDate)?.getTime() ?? 0;
+      return due <= start;
+    })
+    .map(([id, state]) => ({
+      id,
+      type: state.type,
+      srsData: {
+        interval: state.interval,
+        repetition: state.repetition,
+        easeFactor: state.easeFactor,
+        dueDate: state.dueDate,
+      } as SRSData,
+    }));
 }
 
 function getPracticeCycle(plan: Plan) {
@@ -309,22 +297,18 @@ export async function getDailyPractice(
             };
           }
 
-          // Build SRS Map from all possible sources in the plan to link progress
           const srsMap = new Map<string, SRSData>();
-
-          const addToMap = (list: any[]) => {
-            if (!list) return;
-            list.forEach((i) => {
-              if (i.srsData) srsMap.set(i.id, i.srsData);
+          if (plan.srsMap) {
+            Object.entries(plan.srsMap).forEach(([id, state]) => {
+              srsMap.set(id, {
+                interval: state.interval,
+                repetition: state.repetition,
+                easeFactor: state.easeFactor,
+                dueDate: state.dueDate,
+              });
             });
-          };
+          }
 
-          addToMap(activeLesson.learningItemsIds);
-          addToMap(activeLesson.learningStructureIds);
-          addToMap(plan.learnedComponentsIds);
-          addToMap(plan.reviewLearnedComponentsIds);
-
-          // Use effectiveMode here so if we fell back, items are generated as quiz items
           const quizItems = generateQuizItems(
             fullLessonContext,
             effectiveMode,
@@ -348,13 +332,9 @@ export async function getDailyPractice(
       };
     }
 
-    // STANDARD PRACTICE LOGIC (Day 1-4)
-    // Helper to fetch and generate payload
     const fetchAndGenerate = async (
       itemIds: {
         id: string;
-        srsData?: SRSData;
-        lastReviewedAt?: Date | string;
       }[],
       collectionName: string,
       lessonContext: Lesson,
@@ -364,7 +344,29 @@ export async function getDailyPractice(
       if (itemIds.length === 0) return;
 
       const validIds = itemIds.map((i) => i.id);
-      const srsMap = new Map(itemIds.map((i) => [i.id, i]));
+      const srsMap = new Map<
+        string,
+        { id: string; srsData?: SRSData; lastReviewedAt?: Date | string }
+      >(
+        itemIds.map((i) => {
+          const fromPlan = plan.srsMap?.[i.id];
+          return [
+            i.id,
+            {
+              id: i.id,
+              srsData: fromPlan
+                ? {
+                    interval: fromPlan.interval,
+                    repetition: fromPlan.repetition,
+                    easeFactor: fromPlan.easeFactor,
+                    dueDate: fromPlan.dueDate,
+                  }
+                : undefined,
+              lastReviewedAt: fromPlan?.lastReviewedAt,
+            },
+          ];
+        }),
+      );
 
       const chunks = [];
       for (let i = 0; i < validIds.length; i += 10) {
@@ -457,8 +459,6 @@ export async function getDailyPractice(
       }
     }
 
-    // 3. Add Review Items (Due Today)
-    // Prevent duplication: Collect IDs currently in Active Lesson
     const activeLessonItemIds = new Set<string>();
     if (activeLesson) {
       activeLesson.learningItemsIds?.forEach((i) =>
@@ -469,32 +469,9 @@ export async function getDailyPractice(
       );
     }
 
-    const dueItems: {
-      id: string;
-      srsData?: SRSData;
-      type: "item" | "structure";
-      lastReviewedAt?: Date | string;
-    }[] = [];
-
-    const checkDue = (list: any[]) => {
-      if (!list) return;
-      list.forEach((item) => {
-        // Skip if item is currently in the active lesson (avoid double practice)
-        if (activeLessonItemIds.has(item.id)) return;
-
-        if (item.srsData && item.srsData.dueDate) {
-          const dueDate = parseLessonDate(item.srsData.dueDate);
-          if (dueDate && startOfDay(dueDate) <= today) {
-            if (item.type === "item" || item.type === "structure") {
-              dueItems.push(item);
-            }
-          }
-        }
-      });
-    };
-
-    checkDue(plan.learnedComponentsIds);
-    checkDue(plan.reviewLearnedComponentsIds);
+    const dueItems = plan.srsMap
+      ? getDueItemsFromSrsMap(plan.srsMap, today, activeLessonItemIds)
+      : [];
 
     if (dueItems.length > 0) {
       const dummyContext = { id: "review", title: "Review" } as Lesson;
@@ -686,136 +663,36 @@ export async function processPracticeResults(
         "gamification.studyHeatmap": newHeatmap,
       });
 
-      // Map results for quick lookup
       const resultsMap = new Map(results.map((r) => [r.itemId, r.grade]));
-      const itemsToAddToLearned: any[] = []; // Track items that graduate to "Learned" status
+      const nextSrsMap: Record<string, PlanSRSState> = {
+        ...(planData.srsMap || {}),
+      };
 
-      // 1. Update items in Active Lessons (learningItemsIds / learningStructureIds)
-      if (planData.lessons && Array.isArray(planData.lessons)) {
-        const updatedLessons = planData.lessons.map((lesson) => {
-          let changed = false;
-
-          // Update Learning Items
-          const newItems = lesson.learningItemsIds?.map((item) => {
-            if (resultsMap.has(item.id)) {
-              const grade = resultsMap.get(item.id)!;
-              const newSRS = calculateNextSRS(item.srsData, grade);
-              changed = true;
-
-              const updatedItem = {
-                ...item,
-                srsData: newSRS,
-                lastReviewedAt: new Date(),
-                updatedAt: new Date(),
-              };
-
-              if (newSRS.repetition >= 2) {
-                itemsToAddToLearned.push({ ...updatedItem, type: "item" });
-              }
-
-              return updatedItem;
+      resultsMap.forEach((grade, itemId) => {
+        const current = nextSrsMap[itemId];
+        const currentData: SRSData | undefined = current
+          ? {
+              interval: current.interval,
+              repetition: current.repetition,
+              easeFactor: current.easeFactor,
+              dueDate: current.dueDate,
             }
-            return item;
-          });
+          : undefined;
 
-          // Update Learning Structures
-          const newStructures = lesson.learningStructureIds?.map((struct) => {
-            if (resultsMap.has(struct.id)) {
-              const grade = resultsMap.get(struct.id)!;
-              const newSRS = calculateNextSRS(struct.srsData, grade);
-              changed = true;
+        const next = calculateNextReview(grade as any, currentData);
 
-              const updatedStruct = {
-                ...struct,
-                srsData: newSRS,
-                lastReviewedAt: new Date(),
-                updatedAt: new Date(),
-              };
+        const type = results.find((r) => r.itemId === itemId)?.type || "item";
 
-              // Graduation Logic
-              if (newSRS.interval >= 1) {
-                itemsToAddToLearned.push({
-                  ...updatedStruct,
-                  type: "structure",
-                });
-              }
+        nextSrsMap[itemId] = {
+          ...next,
+          type,
+          lastReviewedAt: new Date(),
+          status: getSRSStatus(next.interval),
+        };
+      });
 
-              return updatedStruct;
-            }
-            return struct;
-          });
+      updates.srsMap = nextSrsMap;
 
-          if (changed) {
-            return {
-              ...lesson,
-              learningItemsIds: newItems || lesson.learningItemsIds,
-              learningStructureIds:
-                newStructures || lesson.learningStructureIds,
-            };
-          }
-          return lesson;
-        });
-
-        updates.lessons = updatedLessons;
-      }
-
-      // 2. Update items in Review Queue (learnedComponentsIds / reviewLearnedComponentsIds)
-      if (planData.learnedComponentsIds) {
-        const updatedLearned = planData.learnedComponentsIds.map((comp) => {
-          if (resultsMap.has(comp.id)) {
-            const grade = resultsMap.get(comp.id)!;
-            const newSRS = calculateNextSRS(comp.srsData, grade);
-            return { ...comp, srsData: newSRS, lastReviewedAt: new Date() };
-          }
-          return comp;
-        });
-        updates.learnedComponentsIds = updatedLearned;
-      }
-
-      if (planData.reviewLearnedComponentsIds) {
-        const updatedReview = planData.reviewLearnedComponentsIds.map(
-          (comp) => {
-            if (resultsMap.has(comp.id)) {
-              const grade = resultsMap.get(comp.id)!;
-              const newSRS = calculateNextSRS(comp.srsData, grade);
-              return { ...comp, srsData: newSRS, lastReviewedAt: new Date() };
-            }
-            return comp;
-          },
-        );
-        updates.reviewLearnedComponentsIds = updatedReview;
-      }
-
-      // 3. Add Graduated Items to Learned List
-      if (itemsToAddToLearned.length > 0) {
-        // Get the latest state of learned list (either from updates or original)
-        const currentLearned =
-          updates.learnedComponentsIds || planData.learnedComponentsIds || [];
-        const currentReview =
-          updates.reviewLearnedComponentsIds ||
-          planData.reviewLearnedComponentsIds ||
-          [];
-
-        // Create a Set of existing IDs to prevent duplicates
-        // Check both lists because an item might have moved to review list already
-        const existingIds = new Set([
-          ...currentLearned.map((i: any) => i.id),
-          ...currentReview.map((i: any) => i.id),
-        ]);
-
-        // Filter out items that are already in the learned/review lists
-        const uniqueNewItems = itemsToAddToLearned.filter(
-          (item) => !existingIds.has(item.id),
-        );
-
-        if (uniqueNewItems.length > 0) {
-          // Append new items to learnedComponentsIds
-          updates.learnedComponentsIds = [...currentLearned, ...uniqueNewItems];
-        }
-      }
-
-      // 4. Update completedPracticeDays (Progress Tracking)
-      // Increment completed days for the active lesson to advance the cycle
       const lessonsSource = updates.lessons || planData.lessons;
       if (lessonsSource && Array.isArray(lessonsSource)) {
         const today = startOfDay(new Date());
@@ -888,79 +765,27 @@ export async function getStudentLearningStats(planId: string) {
 
     let reviewedToday = 0;
     let dueToday = 0;
-    let totalLearned =
-      (plan.learnedComponentsIds?.length || 0) +
-      (plan.reviewLearnedComponentsIds?.length || 0);
+    let totalLearned = 0;
 
-    // Calculate Due Today
-    const isDue = (item: { srsData?: SRSData }) => {
-      try {
-        if (!item.srsData || !item.srsData.dueDate) return false;
-        const dueDate =
-          typeof item.srsData.dueDate === "string"
-            ? parseISO(item.srsData.dueDate)
-            : (item.srsData.dueDate as any).toDate
-              ? (item.srsData.dueDate as any).toDate()
-              : new Date(item.srsData.dueDate as any);
-        return startOfDay(dueDate) <= today;
-      } catch (e) {
-        return false;
-      }
-    };
-
-    if (plan.reviewLearnedComponentsIds) {
-      dueToday += plan.reviewLearnedComponentsIds.filter(isDue).length;
-    }
-    if (plan.learnedComponentsIds) {
-      dueToday += plan.learnedComponentsIds.filter(isDue).length;
-    }
-
-    // Check items in active lessons
-    if (plan.lessons && Array.isArray(plan.lessons)) {
-      plan.lessons.forEach((lesson) => {
-        if (lesson.learningItemsIds) {
-          dueToday += lesson.learningItemsIds.filter(isDue).length;
+    if (plan.srsMap) {
+      Object.values(plan.srsMap).forEach((state) => {
+        if (state.status === "learned" || state.status === "mastered") {
+          totalLearned += 1;
         }
-        if (lesson.learningStructureIds) {
-          dueToday += lesson.learningStructureIds.filter(isDue).length;
+
+        const dueDate = parseLessonDate(state.dueDate);
+        if (dueDate && startOfDay(dueDate) <= today) {
+          dueToday += 1;
         }
-      });
-    }
 
-    // Calculate Reviewed Today
-    const isReviewedToday = (item: { lastReviewedAt?: any }) => {
-      try {
-        if (!item.lastReviewedAt) return false;
-        const reviewDate =
-          typeof item.lastReviewedAt === "string"
-            ? parseISO(item.lastReviewedAt)
-            : (item.lastReviewedAt as any).toDate
-              ? (item.lastReviewedAt as any).toDate()
-              : new Date(item.lastReviewedAt as any);
-        return startOfDay(reviewDate).getTime() === today.getTime();
-      } catch (e) {
-        return false;
-      }
-    };
-
-    if (plan.learnedComponentsIds) {
-      reviewedToday += plan.learnedComponentsIds.filter(isReviewedToday).length;
-    }
-    if (plan.reviewLearnedComponentsIds) {
-      reviewedToday +=
-        plan.reviewLearnedComponentsIds.filter(isReviewedToday).length;
-    }
-
-    // Check items in active lessons
-    if (plan.lessons && Array.isArray(plan.lessons)) {
-      plan.lessons.forEach((lesson) => {
-        if (lesson.learningItemsIds) {
-          reviewedToday +=
-            lesson.learningItemsIds.filter(isReviewedToday).length;
-        }
-        if (lesson.learningStructureIds) {
-          reviewedToday +=
-            lesson.learningStructureIds.filter(isReviewedToday).length;
+        if (state.lastReviewedAt) {
+          const reviewDate = parseLessonDate(state.lastReviewedAt);
+          if (
+            reviewDate &&
+            startOfDay(reviewDate).getTime() === today.getTime()
+          ) {
+            reviewedToday += 1;
+          }
         }
       });
     }
@@ -1059,36 +884,18 @@ export async function getLearnedItemsDetails(planId: string) {
       srsData?: SRSData;
     }> = [];
 
-    // 1. Collect all learned IDs with their metadata
-    const learnedIds = new Map<
-      string,
-      { type: "item" | "structure"; learnedAt: any; srsData?: SRSData }
-    >();
+    if (!plan.srsMap) return [];
 
-    // Helper to add IDs to the map
-    const addIds = (list: any[]) => {
-      if (!list) return;
-      list.forEach((item) => {
-        if (item.type === "item" || item.type === "structure") {
-          learnedIds.set(item.id, {
-            type: item.type,
-            learnedAt: item.updatedAt || new Date(),
-            srsData: item.srsData,
-          });
-        }
-      });
-    };
+    const learnedEntries = Object.entries(plan.srsMap).filter(
+      ([, state]) => state.status === "learned" || state.status === "mastered",
+    );
 
-    addIds(plan.learnedComponentsIds);
-    addIds(plan.reviewLearnedComponentsIds);
+    if (learnedEntries.length === 0) return [];
 
-    const allEntries = Array.from(learnedIds.entries());
-    if (allEntries.length === 0) return [];
-
-    const itemIds = allEntries
+    const itemIds = learnedEntries
       .filter(([, v]) => v.type === "item")
       .map(([k]) => k);
-    const structIds = allEntries
+    const structIds = learnedEntries
       .filter(([, v]) => v.type === "structure")
       .map(([k]) => k);
 
@@ -1110,30 +917,35 @@ export async function getLearnedItemsDetails(planId: string) {
 
         snap.docs.forEach((doc) => {
           const data = doc.data();
-          const metadata = learnedIds.get(doc.id);
-          if (metadata) {
-            let title = "Untitled";
-            if (type === "item") {
-              title =
-                (data as LearningItem).mainText ||
-                (data as any).title ||
-                "Untitled";
-            } else if (type === "structure") {
-              const struct = data as LearningStructure;
-              title =
-                struct.sentences?.[0]?.words ||
-                (struct as any).title ||
-                `Structure (${struct.type || "Unknown"})`;
-            }
+          const state = plan.srsMap?.[doc.id];
+          if (!state) return;
 
-            learnedItems.push({
-              id: doc.id,
-              title: title,
-              type: type,
-              learnedAt: metadata.learnedAt,
-              srsData: metadata.srsData,
-            });
+          let title = "Untitled";
+          if (type === "item") {
+            title =
+              (data as LearningItem).mainText ||
+              (data as any).title ||
+              "Untitled";
+          } else if (type === "structure") {
+            const struct = data as LearningStructure;
+            title =
+              struct.sentences?.[0]?.words ||
+              (struct as any).title ||
+              `Structure (${struct.type || "Unknown"})`;
           }
+
+          learnedItems.push({
+            id: doc.id,
+            title: title,
+            type: type,
+            learnedAt: state.lastReviewedAt || state.dueDate,
+            srsData: {
+              interval: state.interval,
+              repetition: state.repetition,
+              easeFactor: state.easeFactor,
+              dueDate: state.dueDate,
+            },
+          });
         });
       }
     };
