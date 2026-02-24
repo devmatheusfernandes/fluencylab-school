@@ -7,11 +7,19 @@ import { useTranslations, useLocale } from "next-intl";
 interface ContratoPDFProps {
   alunoData: Student | null;
   contractStatus: ContractStatus | null;
+  guardianData?: {
+    name: string;
+    cpf: string;
+    email: string;
+    phone: string;
+    address?: string;
+  };
 }
 
 const ContratoPDF: React.FC<ContratoPDFProps> = ({
   alunoData,
   contractStatus,
+  guardianData,
 }) => {
   const t = useTranslations("ContractPDF");
   const locale = useLocale();
@@ -54,8 +62,13 @@ const ContratoPDF: React.FC<ContratoPDFProps> = ({
     );
   }
 
-  const studentName = alunoData.name || "___________";
-  const studentCPF = alunoData.cpf || "___________";
+  const studentName = alunoData?.name || "___________";
+  const studentCPF = alunoData?.cpf || "___________";
+  
+  // Se houver guardianData, o contratante é o guardian
+  const contractorName = guardianData ? guardianData.name : studentName;
+  const contractorCPF = guardianData ? guardianData.cpf : studentCPF;
+  
   const contractSignedDate = formatDate(contractStatus?.signedAt);
   const studentSignedShortDate = formatShortDate(contractStatus?.signedAt);
   const adminSignedShortDate = formatShortDate(contractStatus?.adminSignedAt);
@@ -72,7 +85,11 @@ const ContratoPDF: React.FC<ContratoPDFProps> = ({
             {t("partiesTitle")}
           </h2>
           <p className="mb-3 leading-relaxed">
-            <strong>{t("contractor")}</strong> {t("contractorDesc", { name: studentName, cpf: studentCPF })}
+            <strong>{t("contractor")}</strong>{" "}
+            {guardianData 
+              ? `${contractorName}, CPF ${contractorCPF}, responsável legal pelo aluno ${studentName}`
+              : t("contractorDesc", { name: studentName, cpf: studentCPF })
+            }
           </p>
           <p className="mb-3 leading-relaxed">
             <strong>{t("hired")}</strong> {t("hiredDesc")}

@@ -146,7 +146,7 @@ export class SubscriptionService {
     // Generate all contract payments in advance
     await this.generateContractPayments(subscription, initialPaymentAmount);
 
-    if (cellPhone || taxId) {
+    if (cellPhone || taxId || userEmail) {
       await adminDb
         .collection("users")
         .doc(userId)
@@ -156,6 +156,7 @@ export class SubscriptionService {
           {
             taxId: taxId || null,
             cellPhone: cellPhone || null,
+            email: userEmail || null, // Salva o email de cobrança
             updatedAt: new Date(),
           },
           { merge: true },
@@ -201,7 +202,7 @@ export class SubscriptionService {
   }
 
   /**
-   * Generates a PIX payment for a specific payment number (legacy method for contract system)
+   * Generates a PIX payment for a specific payment number (ele vai chamar a função mais nova, tentei chamar ela direto mas não funciona)
    */
   async generateMonthlyPixPayment(
     subscriptionId: string,
@@ -1025,10 +1026,11 @@ export class SubscriptionService {
     const customerPhone = privateData?.cellPhone || userData?.phoneNumber;
     const customerTaxId =
       privateData?.taxId || userData?.taxId || userData?.cpf; // Tenta taxId ou cpf
+    const customerEmail = privateData?.email || userData?.email; // Prioriza email salvo em private (pode ser do guardian)
 
-    if (!customerPhone || !customerTaxId) {
+    if (!customerPhone || !customerTaxId || !customerEmail) {
       throw new Error(
-        `Dados do cliente incompletos (CPF ou Telefone) para usuário ${subscription.userId}`,
+        `Dados do cliente incompletos (CPF, Telefone ou Email) para usuário`,
       );
     }
 
@@ -1041,7 +1043,7 @@ export class SubscriptionService {
       description: payment.description.slice(0, 37),
       customer: {
         name: userData?.name || "Cliente",
-        email: userData?.email,
+        email: customerEmail,
         taxId: customerTaxId, // Usando a variável resolvida
         cellphone: customerPhone, // Usando a variável resolvida
       },

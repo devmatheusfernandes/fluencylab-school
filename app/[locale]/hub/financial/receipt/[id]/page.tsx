@@ -30,6 +30,9 @@ export default async function ReceiptPage({ params }: PageProps) {
     description: payment.description,
     studentName: userData?.name || "Aluno",
     studentEmail: userData?.email || "",
+    guardianName: userData?.guardian?.name || "Professor",
+    birthDate: userData?.birthDate || "",
+    //TODO COLOCAR CPF AQUI PARA IR PARA O COMPROVANTE
   };
 
   return <ReceiptView payment={receiptData} />;

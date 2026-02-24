@@ -240,14 +240,18 @@ export function LandingNavbar() {
                   ) : (
                     <>
                       <span
-                        className={isScrolled ? "text-black" : "text-white"}
+                        className={
+                          isScrolled
+                            ? "text-black dark:text-white"
+                            : "text-white"
+                        }
                       >
                         {t("nav.login")}
                       </span>
                       <DoorOpenIcon
                         className={
                           isScrolled
-                            ? "w-4 h-4 text-black"
+                            ? "w-4 h-4 text-black dark:text-white"
                             : "w-4 h-4 text-white"
                         }
                       />

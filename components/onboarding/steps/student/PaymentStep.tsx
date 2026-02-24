@@ -33,8 +33,17 @@ export const PaymentStep: React.FC<OnboardingStepProps> = ({
           paymentMethod: "pix",
           billingDay,
           contractLengthMonths: data.contractLengthMonths,
-          cellPhone: data?.phoneNumber,
-          taxId: data.cpf,
+          // If minor, use guardian data for payment/contact
+          cellPhone:
+            data.isMinor && data.guardian?.phone
+              ? data.guardian.phone
+              : data.phoneNumber,
+          taxId:
+            data.isMinor && data.guardian?.cpf ? data.guardian.cpf : data.cpf,
+          email:
+            data.isMinor && data.guardian?.email
+              ? data.guardian.email
+              : data.email,
         }),
       });
 

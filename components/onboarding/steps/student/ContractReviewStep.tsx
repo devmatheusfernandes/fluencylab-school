@@ -29,27 +29,72 @@ export const ContractReviewStep: React.FC<OnboardingStepProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
 
   const [formData, setFormData] = useState({
-    name: data.nickname || session?.user?.name || "",
-    cpf: "",
-    birthDate: "",
-    phone: "",
+    // If minor, use guardian data, otherwise user data
+    name: data.isMinor
+      ? data.guardian?.name || ""
+      : data.nickname || session?.user?.name || "",
+    cpf: data.isMinor ? data.guardian?.cpf || "" : "",
+    birthDate: "", // Usually we don't have birthdate for guardian in basic profile unless saved
+    phone: data.isMinor ? data.guardian?.phone || "" : data.phoneNumber || "",
+    email: data.isMinor
+      ? data.guardian?.email || ""
+      : session?.user?.email || "",
     address: {
-      zipCode: "",
-      street: "",
-      number: "",
-      complement: "",
-      neighborhood: "",
-      city: "",
-      state: "",
+      zipCode: data.address?.zipCode || "",
+      street: data.address?.street || "",
+      number: data.address?.number || "",
+      complement: data.address?.complement || "",
+      neighborhood: data.address?.neighborhood || "",
+      city: data.address?.city || "",
+      state: data.address?.state || "",
     },
     termsAccepted: false,
   });
+
+  const [isLoadingZip, setIsLoadingZip] = useState(false);
 
   const updateAddress = (field: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
       address: { ...prev.address, [field]: value },
     }));
+  };
+
+  const handleZipCodeBlur = async () => {
+    const zipCode = formData.address.zipCode.replace(/\D/g, "");
+
+    if (zipCode.length !== 8) {
+      return;
+    }
+
+    setIsLoadingZip(true);
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${zipCode}/json/`);
+      const data = await response.json();
+
+      if (data.erro) {
+        toast.error("CEP não encontrado");
+        return;
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        address: {
+          ...prev.address,
+          street: data.logradouro,
+          neighborhood: data.bairro,
+          city: data.localidade,
+          state: data.uf,
+          complement: data.complemento || prev.address.complement,
+        },
+      }));
+      toast.success("Endereço encontrado!");
+    } catch (error) {
+      console.error("Erro ao buscar CEP:", error);
+      toast.error("Erro ao buscar CEP");
+    } finally {
+      setIsLoadingZip(false);
+    }
   };
 
   const handleSign = async () => {
@@ -95,7 +140,12 @@ export const ContractReviewStep: React.FC<OnboardingStepProps> = ({
         city: formData.address.city,
         state: formData.address.state,
         agreedToTerms: formData.termsAccepted,
-        email: session?.user?.email || "",
+        email: formData.email || session?.user?.email || "",
+        // Add guardian flag if minor
+        isGuardian: data.isMinor,
+        studentName: data.isMinor
+          ? data.nickname || session?.user?.name
+          : undefined,
       };
 
       const res = await fetch("/api/onboarding/sign-contract", {
@@ -121,6 +171,16 @@ export const ContractReviewStep: React.FC<OnboardingStepProps> = ({
           signerCpf: cleanedCPF,
           signerPhone: formData.phone,
         },
+        // Update guardian data in main state if changed
+        guardian: data.isMinor
+          ? {
+              ...data.guardian,
+              name: formData.name,
+              email: formData.email,
+              cpf: cleanedCPF,
+              phone: formData.phone,
+            }
+          : undefined,
       });
 
       toast.success(t("signedSuccess"));
@@ -184,102 +244,113 @@ export const ContractReviewStep: React.FC<OnboardingStepProps> = ({
         </Button>
       </div>
 
-      {isExpanded && (
+      {isExpanded ? (
         <div className="h-64 overflow-y-auto border rounded-lg p-4 bg-gray-50 dark:bg-gray-900 text-sm">
           <ContratoPDF alunoData={previewData} contractStatus={null} />
         </div>
+      ) : (
+        <div className="grid gap-4 py-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>{tForm("name")}</Label>
+              <Input
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+              />
+            </div>
+
+            {/* INPUT DE CPF ATUALIZADO */}
+            <div className="space-y-2">
+              <Label>
+                {tForm("cpf")} {data.isMinor ? "do Responsável" : ""}
+              </Label>
+              <Input
+                value={formData.cpf}
+                onChange={(e) =>
+                  // Aplica formatação automática enquanto digita
+                  setFormData({ ...formData, cpf: formatCPF(e.target.value) })
+                }
+                placeholder="000.000.000-00"
+                maxLength={14} // Limita caracteres (11 dígitos + 3 símbolos)
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>{tForm("birthDate")}</Label>
+              <Input
+                type="date"
+                value={formData.birthDate}
+                onChange={(e) =>
+                  setFormData({ ...formData, birthDate: e.target.value })
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{tForm("phone")}</Label>
+              <Input
+                value={formData.phone}
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
+                placeholder="(00) 00000-0000"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2 pt-2 border-t">
+            <Label>{tAddress("title")}</Label>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="relative col-span-1">
+                <Input
+                  placeholder={tAddress("zip")}
+                  value={formData.address.zipCode}
+                  onChange={(e) => updateAddress("zipCode", e.target.value)}
+                  onBlur={handleZipCodeBlur}
+                  maxLength={9}
+                />
+                {isLoadingZip && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  </div>
+                )}
+              </div>
+              <Input
+                placeholder={tAddress("street")}
+                value={formData.address.street}
+                onChange={(e) => updateAddress("street", e.target.value)}
+              />
+              <Input
+                placeholder={tAddress("number")}
+                className="col-span-1"
+                value={formData.address.number}
+                onChange={(e) => updateAddress("number", e.target.value)}
+              />
+              <Input
+                placeholder={tAddress("complement")}
+                value={formData.address.complement}
+                onChange={(e) => updateAddress("complement", e.target.value)}
+              />
+              <Input
+                placeholder={tAddress("neighborhood")}
+                value={formData.address.neighborhood}
+                onChange={(e) => updateAddress("neighborhood", e.target.value)}
+              />
+              <Input
+                placeholder={tAddress("city")}
+                value={formData.address.city}
+                onChange={(e) => updateAddress("city", e.target.value)}
+              />
+              <Input
+                placeholder={tAddress("state")}
+                value={formData.address.state}
+                onChange={(e) => updateAddress("state", e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
       )}
-
-      <div className="grid gap-4 py-2">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>{tForm("name")}</Label>
-            <Input
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-            />
-          </div>
-
-          {/* INPUT DE CPF ATUALIZADO */}
-          <div className="space-y-2">
-            <Label>{tForm("cpf")}</Label>
-            <Input
-              value={formData.cpf}
-              onChange={(e) =>
-                // Aplica formatação automática enquanto digita
-                setFormData({ ...formData, cpf: formatCPF(e.target.value) })
-              }
-              placeholder="000.000.000-00"
-              maxLength={14} // Limita caracteres (11 dígitos + 3 símbolos)
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>{tForm("birthDate")}</Label>
-            <Input
-              type="date"
-              value={formData.birthDate}
-              onChange={(e) =>
-                setFormData({ ...formData, birthDate: e.target.value })
-              }
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>{tForm("phone")}</Label>
-            <Input
-              value={formData.phone}
-              onChange={(e) =>
-                setFormData({ ...formData, phone: e.target.value })
-              }
-              placeholder="(00) 00000-0000"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2 pt-2 border-t">
-          <Label>{tAddress("title")}</Label>
-          <div className="grid grid-cols-2 gap-3">
-            <Input
-              placeholder={tAddress("zip")}
-              value={formData.address.zipCode}
-              onChange={(e) => updateAddress("zipCode", e.target.value)}
-            />
-            <Input
-              placeholder={tAddress("street")}
-              value={formData.address.street}
-              onChange={(e) => updateAddress("street", e.target.value)}
-            />
-            <Input
-              placeholder={tAddress("number")}
-              className="col-span-1"
-              value={formData.address.number}
-              onChange={(e) => updateAddress("number", e.target.value)}
-            />
-            <Input
-              placeholder={tAddress("complement")}
-              value={formData.address.complement}
-              onChange={(e) => updateAddress("complement", e.target.value)}
-            />
-            <Input
-              placeholder={tAddress("neighborhood")}
-              value={formData.address.neighborhood}
-              onChange={(e) => updateAddress("neighborhood", e.target.value)}
-            />
-            <Input
-              placeholder={tAddress("city")}
-              value={formData.address.city}
-              onChange={(e) => updateAddress("city", e.target.value)}
-            />
-            <Input
-              placeholder={tAddress("state")}
-              value={formData.address.state}
-              onChange={(e) => updateAddress("state", e.target.value)}
-            />
-          </div>
-        </div>
-      </div>
 
       <div className="flex items-start space-x-2 pt-2">
         <Checkbox

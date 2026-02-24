@@ -29,9 +29,9 @@ export const useOnboarding = () => {
     //   sessionUser: session?.user
     // });
 
-    // Check if user is a rgular student student AND hasn't completed onboarding. this is onyl for regular students
+    // Check if user is a regular student OR guarded student AND hasn't completed onboarding.
     if (
-      session?.user?.role === UserRoles.STUDENT &&
+      (session?.user?.role === UserRoles.STUDENT || session?.user?.role === UserRoles.GUARDED_STUDENT) &&
       !session?.user?.tutorialCompleted
     ) {
       // Show onboarding for new students who haven't completed tutorial

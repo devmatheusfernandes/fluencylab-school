@@ -231,6 +231,7 @@ export const sidebarItemsByRole: Record<string, SidebarItemType[]> = {
   [UserRoles.MANAGER]: managerItems,
   [UserRoles.TEACHER]: teacherItems,
   [UserRoles.STUDENT]: studentItems,
+  [UserRoles.GUARDED_STUDENT]: studentItems,
   [UserRoles.MATERIAL_MANAGER]: materialManagerItems,
 };
 

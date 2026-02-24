@@ -39,6 +39,7 @@ export interface OnboardingData {
   paymentMethod: "pix" | null;
   paymentCompleted: boolean;
   subscriptionId?: string;
+  email?: string;
   cpf?: string;
   phoneNumber?: string;
   address?: {
@@ -49,6 +50,14 @@ export interface OnboardingData {
     city: string;
     state: string;
     zipCode: string;
+  };
+  isMinor?: boolean;
+  guardian?: {
+    name: string;
+    email: string;
+    cpf?: string;
+    phone?: string;
+    relationship?: string;
   };
 }
 
@@ -95,6 +104,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   const [isLoaded, setIsLoaded] = useState(false); // Controls when auto-save can start
   const [data, setData] = useState<OnboardingData>({
     nickname: session?.user?.name || "",
+    email: session?.user?.email || "",
     interfaceLanguage: "pt",
     theme: "dark",
     themeColor: "violet",
@@ -103,26 +113,63 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
     contractSigned: false,
     paymentMethod: null,
     paymentCompleted: false,
+    isMinor: false,
   });
 
-  // Load draft from localStorage on mount
+  // Load draft from localStorage on mount and fetch user details
   React.useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STUDENT_ONBOARDING_STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed.data) {
-          setData((prev) => ({ ...prev, ...parsed.data }));
+    const loadData = async () => {
+      try {
+        // 1. Load draft
+        const saved = localStorage.getItem(STUDENT_ONBOARDING_STORAGE_KEY);
+        let draftData = {};
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed.data) {
+            draftData = parsed.data;
+          }
+          if (typeof parsed.step === "number") {
+            setCurrentStep(parsed.step);
+          }
         }
-        if (typeof parsed.step === "number") {
-          setCurrentStep(parsed.step);
+
+        // 2. Fetch user details to check for guardian/minor status
+        const response = await fetch("/api/users/me");
+        if (response.ok) {
+          const userProfile = await response.json();
+
+          // Determine if user is minor based on role or birthDate
+          // The backend might already have set the role to GUARDED_STUDENT
+          const isMinor = userProfile.role === "guarded_student";
+
+          setData((prev) => ({
+            ...prev,
+            ...draftData,
+            // Ensure guardian data from profile overrides draft if not present in draft
+            isMinor: isMinor,
+            guardian: userProfile.guardian || prev.guardian,
+            email:
+              prev.email || userProfile.email || session?.user?.email || "",
+            // Also set basic info if available
+            nickname:
+              prev.nickname ||
+              userProfile.nickname ||
+              userProfile.name?.split(" ")[0] ||
+              "",
+            phoneNumber: prev.phoneNumber || userProfile.phoneNumber,
+          }));
+        } else {
+          // Fallback to just draft data if fetch fails
+          setData((prev) => ({ ...prev, ...draftData }));
         }
+      } catch (error) {
+        console.error("Failed to load onboarding data:", error);
+      } finally {
+        setIsLoaded(true);
       }
-    } catch (error) {
-      console.error("Failed to load onboarding draft:", error);
-    } finally {
-      setIsLoaded(true);
-    }
+    };
+
+    loadData();
   }, []);
 
   // Save draft to localStorage whenever data or step changes

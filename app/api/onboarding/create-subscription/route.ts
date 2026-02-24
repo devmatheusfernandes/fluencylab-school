@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
       addLateCredits,
       cellPhone,
       taxId,
+      email, // Pode ser o email do Guardian
     } = body;
 
     // Validate input
@@ -70,7 +71,7 @@ export async function POST(request: NextRequest) {
 
     const result = await subscriptionService.createSubscription({
       userId: session.user.id,
-      userEmail: session.user.email,
+      userEmail: email || session.user.email, // Usa o email do body se existir (guardian), senão session
       userRole,
       cellPhone,
       taxId,
