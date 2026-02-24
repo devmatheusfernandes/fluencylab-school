@@ -13,10 +13,17 @@ interface GapFillExerciseProps {
   sentenceWithGap: string;
   correctAnswer: string;
   audioSegment?: { start: number; end: number; url: string };
+  audioText?: string;
   onComplete: (isCorrect: boolean, userAnswer: string) => void;
 }
 
-export function GapFillExercise({ sentenceWithGap, correctAnswer, audioSegment, onComplete }: GapFillExerciseProps) {
+export function GapFillExercise({
+  sentenceWithGap,
+  correctAnswer,
+  audioSegment,
+  audioText,
+  onComplete,
+}: GapFillExerciseProps) {
   const [answer, setAnswer] = useState('');
   const [parts, setParts] = useState<string[]>([]);
   const [showAudio, setShowAudio] = useState(false);
@@ -35,7 +42,7 @@ export function GapFillExercise({ sentenceWithGap, correctAnswer, audioSegment, 
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-8 p-4">
-      {audioSegment && (
+      {(audioSegment || audioText) && (
         <Button 
             variant="outline" 
             size="lg" 
@@ -79,14 +86,15 @@ export function GapFillExercise({ sentenceWithGap, correctAnswer, audioSegment, 
         </div>
       </form>
 
-      {audioSegment && (
+      {(audioSegment || audioText) && (
         <PracticeAudioPlayer 
-            audioUrl={audioSegment.url} 
+            audioUrl={audioSegment ? audioSegment.url : ""} 
             isOpen={showAudio} 
             onClose={() => setShowAudio(false)} 
             autoPlay={true}
-            startTime={audioSegment.start}
-            endTime={audioSegment.end}
+            startTime={audioSegment?.start}
+            endTime={audioSegment?.end}
+            textToSpeak={audioSegment ? undefined : audioText}
         />
       )}
     </div>

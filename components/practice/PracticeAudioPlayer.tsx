@@ -14,9 +14,19 @@ interface PracticeAudioPlayerProps {
   startTime?: number;
   endTime?: number;
   onComplete?: () => void;
+  textToSpeak?: string;
 }
 
-export function PracticeAudioPlayer({ audioUrl, isOpen, onClose, autoPlay = true, startTime = 0, endTime, onComplete }: PracticeAudioPlayerProps) {
+export function PracticeAudioPlayer({
+  audioUrl,
+  isOpen,
+  onClose,
+  autoPlay = true,
+  startTime = 0,
+  endTime,
+  onComplete,
+  textToSpeak,
+}: PracticeAudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(startTime);
@@ -26,29 +36,61 @@ export function PracticeAudioPlayer({ audioUrl, isOpen, onClose, autoPlay = true
   const [isMuted, setIsMuted] = useState(false);
 
   useEffect(() => {
-    if (isOpen && audioRef.current) {
-      // Force reset to start time whenever startTime changes or player opens
-      // We check if difference is significant to avoid stutter on small updates
-      if (Math.abs(audioRef.current.currentTime - startTime) > 0.1) {
-          audioRef.current.currentTime = startTime;
-          setProgress(startTime);
+    if (!isOpen) return;
+
+    if (textToSpeak) {
+      if (autoPlay && typeof window !== "undefined" && "speechSynthesis" in window) {
+        const utterance = new SpeechSynthesisUtterance(textToSpeak);
+        utterance.onend = () => {
+          setIsPlaying(false);
+          if (onComplete) onComplete();
+        };
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
+        setIsPlaying(true);
       }
-      
+      return;
+    }
+
+    if (audioRef.current) {
+      if (Math.abs(audioRef.current.currentTime - startTime) > 0.1) {
+        audioRef.current.currentTime = startTime;
+        setProgress(startTime);
+      }
+
       if (autoPlay) {
         audioRef.current.play().catch(() => {});
         setIsPlaying(true);
       }
     }
-  }, [isOpen, autoPlay, audioUrl, startTime]);
+  }, [isOpen, autoPlay, audioUrl, startTime, textToSpeak, onComplete]);
 
   const togglePlay = () => {
+    if (textToSpeak) {
+      if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+
+      if (isPlaying) {
+        window.speechSynthesis.cancel();
+        setIsPlaying(false);
+      } else {
+        const utterance = new SpeechSynthesisUtterance(textToSpeak);
+        utterance.onend = () => {
+          setIsPlaying(false);
+          if (onComplete) onComplete();
+        };
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
+        setIsPlaying(true);
+      }
+      return;
+    }
+
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause();
       } else {
-        // If we reached the end, restart from startTime
         if (endTime && audioRef.current.currentTime >= endTime) {
-             audioRef.current.currentTime = startTime;
+          audioRef.current.currentTime = startTime;
         }
         audioRef.current.play();
       }
@@ -57,6 +99,8 @@ export function PracticeAudioPlayer({ audioUrl, isOpen, onClose, autoPlay = true
   };
 
   const handleTimeUpdate = () => {
+    if (textToSpeak) return;
+
     if (audioRef.current) {
       const current = audioRef.current.currentTime;
       setProgress(current);
@@ -73,6 +117,8 @@ export function PracticeAudioPlayer({ audioUrl, isOpen, onClose, autoPlay = true
   };
 
   const handleSeek = (value: number[]) => {
+    if (textToSpeak) return;
+
     if (audioRef.current) {
       audioRef.current.currentTime = value[0];
       setProgress(value[0]);
@@ -80,6 +126,8 @@ export function PracticeAudioPlayer({ audioUrl, isOpen, onClose, autoPlay = true
   };
 
   const toggleMute = () => {
+    if (textToSpeak) return;
+
     if (audioRef.current) {
       audioRef.current.muted = !isMuted;
       setIsMuted(!isMuted);
@@ -87,6 +135,7 @@ export function PracticeAudioPlayer({ audioUrl, isOpen, onClose, autoPlay = true
   };
 
   const changeSpeed = () => {
+    if (textToSpeak) return;
     const speeds = [0.5, 1, 1.5, 2];
     const nextIndex = (speeds.indexOf(playbackRate) + 1) % speeds.length;
     const newSpeed = speeds[nextIndex];

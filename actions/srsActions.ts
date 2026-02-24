@@ -430,15 +430,17 @@ export async function getDailyPractice(
 
       if (fullLessonContext) {
         // Pass true to ignoreReviewCheck for active lesson items to allow catch-up multiple sessions per day
-        await fetchAndGenerate(
-          activeLesson.learningItemsIds || [],
-          "learningItems",
-          fullLessonContext,
-          mode,
-          true,
-        );
+        if (mode !== "gap_fill_listening") {
+          await fetchAndGenerate(
+            activeLesson.learningItemsIds || [],
+            "learningItems",
+            fullLessonContext,
+            mode,
+            true,
+          );
+        }
 
-        // Only include structures if the mode is appropriate (Unscramble, Gap Fill, Quiz)
+        // Only include structures if the mode is appropriate (Unscramble, Gap Fill, Quiz, Gap Fill Listening)
         // We exclude them from Flashcard modes (Day 1 & 4) to avoid the "Structure Practice" placeholder card.
         const structureModes = [
           "sentence_unscramble",
@@ -965,6 +967,110 @@ export async function getLearnedItemsDetails(planId: string) {
     return serializeFirestoreData(learnedItems);
   } catch (error) {
     console.error("Error fetching learned items details:", error);
+    return [];
+  }
+}
+
+export async function getReviewedItemsDetails(planId: string) {
+  try {
+    const planRef = db.collection("plans").doc(planId);
+    const planDoc = await planRef.get();
+    if (!planDoc.exists) throw new Error("Plan not found");
+
+    const plan = planDoc.data() as Plan;
+    const reviewedItems: Array<{
+      id: string;
+      title: string;
+      type: "item" | "structure";
+      reviewedAt: Date | string;
+      srsData?: SRSData;
+    }> = [];
+
+    if (!plan.srsMap) return [];
+
+    const today = startOfDay(new Date());
+
+    const reviewedEntries = Object.entries(plan.srsMap).filter(([, state]) => {
+      if (!state.lastReviewedAt) return false;
+      const reviewDate = parseLessonDate(state.lastReviewedAt);
+      if (!reviewDate) return false;
+      return startOfDay(reviewDate).getTime() === today.getTime();
+    });
+
+    if (reviewedEntries.length === 0) return [];
+
+    const itemIds = reviewedEntries
+      .filter(([, v]) => v.type === "item")
+      .map(([k]) => k);
+    const structIds = reviewedEntries
+      .filter(([, v]) => v.type === "structure")
+      .map(([k]) => k);
+
+    const fetchDetails = async (
+      collectionName: string,
+      type: "item" | "structure",
+      ids: string[],
+    ) => {
+      const chunks = [];
+      for (let i = 0; i < ids.length; i += 10) {
+        chunks.push(ids.slice(i, i + 10));
+      }
+
+      for (const chunk of chunks) {
+        const snap = await db
+          .collection(collectionName)
+          .where(FieldPath.documentId(), "in", chunk)
+          .get();
+
+        snap.docs.forEach((doc) => {
+          const data = doc.data();
+          const state = plan.srsMap?.[doc.id];
+          if (!state || !state.lastReviewedAt) return;
+
+          let title = "Untitled";
+          if (type === "item") {
+            title =
+              (data as LearningItem).mainText ||
+              (data as any).title ||
+              "Untitled";
+          } else if (type === "structure") {
+            const struct = data as LearningStructure;
+            title =
+              struct.sentences?.[0]?.words ||
+              (struct as any).title ||
+              `Structure (${struct.type || "Unknown"})`;
+          }
+
+          reviewedItems.push({
+            id: doc.id,
+            title: title,
+            type: type,
+            reviewedAt: state.lastReviewedAt,
+            srsData: {
+              interval: state.interval,
+              repetition: state.repetition,
+              easeFactor: state.easeFactor,
+              dueDate: state.dueDate,
+            },
+          });
+        });
+      }
+    };
+
+    await Promise.all([
+      fetchDetails("learningItems", "item", itemIds),
+      fetchDetails("learningStructures", "structure", structIds),
+    ]);
+
+    reviewedItems.sort((a, b) => {
+      const dateA = parseLessonDate(a.reviewedAt)?.getTime() || 0;
+      const dateB = parseLessonDate(b.reviewedAt)?.getTime() || 0;
+      return dateB - dateA;
+    });
+
+    return serializeFirestoreData(reviewedItems);
+  } catch (error) {
+    console.error("Error fetching reviewed items details:", error);
     return [];
   }
 }

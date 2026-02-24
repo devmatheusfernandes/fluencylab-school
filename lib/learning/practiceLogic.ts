@@ -155,80 +155,41 @@ export function generatePayload(
       }
       break;
 
-    case "gap_fill_listening": // Dia 2: Ouvir e Escrever
-      // Find TranscriptSegment
-      // Note: transcriptSegments might be undefined in Lesson type if not populated
-      let segmentIndex = lessonContext.transcriptSegments?.findIndex((s) =>
-        s.learningItemIds?.includes(dbItem.id),
-      );
+    case "gap_fill_listening": // Dia 2: Ouvir e Escrever (Structure → Palavra)
+      if (!isItem) {
+        const struct = dbItem as LearningStructure;
+        const sentenceData = struct.sentences[0];
 
-      // Fallback: Try to match by text if not found by ID
-      if (
-        (segmentIndex === undefined || segmentIndex === -1) &&
-        isItem &&
-        lessonContext.transcriptSegments
-      ) {
-        const item = dbItem as LearningItem;
-        segmentIndex = lessonContext.transcriptSegments.findIndex((s) =>
-          new RegExp(`\\b${escapeRegExp(item.mainText)}\\b`, "i").test(s.text),
-        );
-      }
+        if (sentenceData) {
+          const orderedTokens = [...sentenceData.order].sort(
+            (a, b) => a.order - b.order,
+          );
+          const words = orderedTokens.map((o) => o.word);
+          const fullSentence = words.join(" ");
 
-      if (
-        segmentIndex !== undefined &&
-        segmentIndex !== -1 &&
-        isItem &&
-        lessonContext.transcriptSegments
-      ) {
-        const segment = lessonContext.transcriptSegments[segmentIndex];
+          const contentTokens = orderedTokens.filter(
+            (o) => o.role !== "article" && o.role !== "other",
+          );
+          const targetToken =
+            contentTokens[Math.floor(Math.random() * contentTokens.length)] ||
+            orderedTokens[0];
 
-        // Smart Context Window: Merge if short (< 3s)
-        let start = segment.start;
-        let end = segment.end;
+          const pattern = new RegExp(
+            `\\b${escapeRegExp(targetToken.word)}\\b`,
+            "i",
+          );
+          const sentenceWithGap = fullSentence.replace(pattern, "___");
 
-        // Simple heuristic: check duration. Assuming start/end are in seconds.
-        const duration = end - start;
-        if (duration < 3) {
-          // Try to expand
-          const prev = lessonContext.transcriptSegments[segmentIndex - 1];
-          const next = lessonContext.transcriptSegments[segmentIndex + 1];
-
-          if (prev) start = prev.start;
-          if (next) end = next.end;
-        }
-
-        const item = dbItem as LearningItem;
-        base.gapFill = {
-          sentenceWithGap: segment.text.replace(
-            new RegExp(escapeRegExp(item.mainText), "gi"),
-            "___",
-          ),
-          correctAnswer: item.mainText,
-          audioSegment: {
-            start: start,
-            end: end,
-            url: lessonContext.audioUrl || "",
-          },
-        };
-      } else {
-        // Fallback if no audio found
-        if (isItem) {
-          // Items fallback to Flashcard
-          base.renderMode = "flashcard_visual";
-          const item = dbItem as LearningItem;
-          base.flashcard = {
-            front: item.mainText,
-            back: item.meanings[0]?.translation || "",
-            imageUrl: item.imageUrl,
+          base.gapFill = {
+            sentenceWithGap,
+            correctAnswer: targetToken.word,
           };
         } else {
-          // Structures fallback to Unscramble (Day 3 mode) instead of broken Flashcard
-          // This ensures the user still practices the structure even without audio
           base.renderMode = "sentence_unscramble";
-          const struct = dbItem as LearningStructure;
-          const sentenceData = struct.sentences[0]; // Take first example
-          if (sentenceData) {
-            const words = sentenceData.order
+          const fallbackStruct = dbItem as LearningStructure;
+          const fallbackSentence = fallbackStruct.sentences[0];
+          if (fallbackSentence) {
+            const words = fallbackSentence.order
               .sort((a, b) => a.order - b.order)
               .map((o) => o.word);
             base.unscramble = {
@@ -236,7 +197,6 @@ export function generatePayload(
               scrambledWords: [...words].sort(() => Math.random() - 0.5),
             };
           } else {
-            // Last resort if no sentence data (should not happen for structures)
             base.renderMode = "flashcard_visual";
             base.flashcard = {
               front: "Structure",
@@ -244,6 +204,14 @@ export function generatePayload(
             };
           }
         }
+      } else {
+        base.renderMode = "flashcard_visual";
+        const item = dbItem as LearningItem;
+        base.flashcard = {
+          front: item.mainText,
+          back: item.meanings[0]?.translation || "",
+          imageUrl: item.imageUrl,
+        };
       }
       break;
 

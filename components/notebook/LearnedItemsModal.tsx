@@ -92,3 +92,81 @@ export function LearnedItemsModal({
     </Modal>
   );
 }
+
+interface ReviewedItem {
+  id: string;
+  title: string;
+  type: "item" | "structure";
+  reviewedAt: Date | string;
+  srsData?: any;
+}
+
+interface ReviewedItemsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  items: ReviewedItem[];
+  loading: boolean;
+}
+
+export function ReviewedItemsModal({
+  isOpen,
+  onClose,
+  items,
+  loading,
+}: ReviewedItemsModalProps) {
+  const t = useTranslations("StudentNotebook");
+  const locale = useLocale();
+  const dateLocale = locale === "pt" ? ptBR : enUS;
+
+  return (
+    <Modal open={isOpen} onOpenChange={onClose}>
+      <ModalContent className="max-w-2xl h-[70vh] flex flex-col">
+        <ModalHeader>
+          <ModalTitle>{t("reviewedItemsTitle")}</ModalTitle>
+          <ModalDescription>{t("reviewedItemsDescription")}</ModalDescription>
+        </ModalHeader>
+
+        <div className="flex-1 overflow-y-auto h-[calc(80vh-120px)] pb-22">
+          {loading ? (
+            <div className="flex justify-center items-center h-40">
+              <SpinnerLoading />
+            </div>
+          ) : items.length === 0 ? (
+            <NoResults
+              title={t("noReviewedItemsTitle")}
+              description={t("noReviewedItemsDescription")}
+            />
+          ) : (
+            <div className="space-y-3 pb-6">
+              {items.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                >
+                  <div className="flex flex-col gap-1">
+                    <span className="font-medium text-base">{item.title}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {t("reviewedOn")}{" "}
+                      {format(new Date(item.reviewedAt), "PPP", {
+                        locale: dateLocale,
+                      })}
+                    </span>
+                  </div>
+                  <Badge
+                    variant={
+                      item.type === "structure" ? "secondary" : "outline"
+                    }
+                  >
+                    {item.type === "structure"
+                      ? t("structure")
+                      : t("vocabulary")}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </ModalContent>
+    </Modal>
+  );
+}

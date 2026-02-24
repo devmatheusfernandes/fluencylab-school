@@ -365,6 +365,11 @@ export function PracticeSession({ planId, dayOverride, isReplay = false, lessonI
               sentenceWithGap={currentItem.gapFill.sentenceWithGap}
               correctAnswer={currentItem.gapFill.correctAnswer}
               audioSegment={currentItem.gapFill.audioSegment}
+              audioText={
+                currentItem.gapFill.audioSegment
+                  ? undefined
+                  : currentItem.gapFill.correctAnswer
+              }
               onComplete={(isCorrect, ans) => {
                 const grade = calculateWritingGrade(
                   ans,

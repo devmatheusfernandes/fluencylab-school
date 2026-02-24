@@ -9,6 +9,7 @@ import {
   getStudentLearningStats,
   getActivePlanId,
   getLearnedItemsDetails,
+  getReviewedItemsDetails,
 } from "@/actions/srsActions";
 import ErrorAlert from "@/components/ui/error-alert";
 import { Header } from "@/components/ui/header";
@@ -17,7 +18,10 @@ import TasksCard from "@/components/teacher/TaskCard";
 import { useGoogleCalendarSync } from "@/hooks/student/useGoogleCalendarSync";
 import { SpinnerLoading } from "@/components/transitions/spinner-loading";
 import { WordOfTheDayModal } from "@/components/word-of-the-day/word-of-the-day-modal";
-import { LearnedItemsModal } from "@/components/notebook/LearnedItemsModal";
+import {
+  LearnedItemsModal,
+  ReviewedItemsModal,
+} from "@/components/notebook/LearnedItemsModal";
 import { Star, CircleCheckIcon, NotebookIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import BreadcrumbActions from "@/components/shared/Breadcrum/BreadcrumbActions";
@@ -72,6 +76,10 @@ export default function Caderno() {
   const [learnedItems, setLearnedItems] = useState<any[]>([]);
   const [learnedItemsLoading, setLearnedItemsLoading] = useState(false);
 
+  const [isReviewedModalOpen, setIsReviewedModalOpen] = useState(false);
+  const [reviewedItems, setReviewedItems] = useState<any[]>([]);
+  const [reviewedItemsLoading, setReviewedItemsLoading] = useState(false);
+
   const handleLearnedClick = async () => {
     setIsLearnedModalOpen(true);
     if (learnedItems.length === 0 && studentId) {
@@ -86,6 +94,24 @@ export default function Caderno() {
         console.error("Failed to load learned items", error);
       } finally {
         setLearnedItemsLoading(false);
+      }
+    }
+  };
+
+  const handleReviewedClick = async () => {
+    setIsReviewedModalOpen(true);
+    if (reviewedItems.length === 0 && studentId) {
+      setReviewedItemsLoading(true);
+      try {
+        const planId = await getActivePlanId(studentId);
+        if (planId) {
+          const items = await getReviewedItemsDetails(planId);
+          setReviewedItems(items);
+        }
+      } catch (error) {
+        console.error("Failed to load reviewed items", error);
+      } finally {
+        setReviewedItemsLoading(false);
       }
     }
   };
@@ -181,6 +207,7 @@ export default function Caderno() {
                 reviewedToday={stats.reviewedToday}
                 dueToday={stats.dueToday}
                 totalLearned={stats.totalLearned}
+                onReviewedClick={handleReviewedClick}
                 onLearnedClick={handleLearnedClick}
               />
             )}
@@ -250,6 +277,13 @@ export default function Caderno() {
         onClose={() => setIsLearnedModalOpen(false)}
         items={learnedItems}
         loading={learnedItemsLoading}
+      />
+
+      <ReviewedItemsModal
+        isOpen={isReviewedModalOpen}
+        onClose={() => setIsReviewedModalOpen(false)}
+        items={reviewedItems}
+        loading={reviewedItemsLoading}
       />
 
       <Drawer

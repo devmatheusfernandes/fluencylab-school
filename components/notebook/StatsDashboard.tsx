@@ -55,6 +55,7 @@ interface StatsDashboardProps {
   reviewedToday: number;
   dueToday: number;
   totalLearned: number;
+  onReviewedClick?: () => void;
   onLearnedClick?: () => void;
 }
 
@@ -62,6 +63,7 @@ export function StatsDashboard({
   reviewedToday,
   dueToday,
   totalLearned,
+  onReviewedClick,
   onLearnedClick,
 }: StatsDashboardProps) {
   return (
@@ -74,6 +76,7 @@ export function StatsDashboard({
         value={reviewedToday}
         icon={<CheckCircle className="w-4 h-4 lg:w-5 lg:h-5 text-white" />}
         variant="success"
+        onClick={onReviewedClick}
       />
 
       <StatCard
