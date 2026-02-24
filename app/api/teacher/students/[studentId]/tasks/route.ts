@@ -36,7 +36,9 @@ export async function GET(
   // Allow teachers, admins, and students to access this endpoint
   if (
     !session?.user?.role ||
-    !["teacher", "admin", "student"].includes(session.user.role)
+    !["teacher", "admin", "student", "guarded_student"].includes(
+      session.user.role,
+    )
   ) {
     console.log("Invalid role detected:", session.user.role);
     return NextResponse.json(
@@ -49,7 +51,10 @@ export async function GET(
     const { studentId } = await params;
 
     // Permission checks based on user role
-    if (session.user.role === "student") {
+    if (
+      session.user.role === "student" ||
+      session.user.role === "guarded_student"
+    ) {
       // Students can only access their own tasks
       if (session.user.id !== studentId) {
         return NextResponse.json(

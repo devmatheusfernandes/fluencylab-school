@@ -25,7 +25,9 @@ export async function GET(
   // Allow teachers, admins, and students to access this endpoint
   if (
     !session?.user?.role ||
-    !["teacher", "admin", "student"].includes(session.user.role)
+    !["teacher", "admin", "student", "guarded_student"].includes(
+      session.user.role,
+    )
   ) {
     console.log("Invalid role detected:", session.user.role);
     return NextResponse.json(
@@ -38,7 +40,10 @@ export async function GET(
     const { studentId } = await params;
 
     // Permission checks based on user role
-    if (session.user.role === "student") {
+    if (
+      session.user.role === "student" ||
+      session.user.role === "guarded_student"
+    ) {
       // Students can only access their own notebooks
       if (session.user.id !== studentId) {
         return NextResponse.json(
@@ -51,11 +56,11 @@ export async function GET(
       const teacherId = session.user.id;
       const studentDoc = await adminDb.doc(`users/${studentId}`).get();
 
-      console.log("Teacher access check:", {
-        teacherId,
-        studentId,
-        studentExists: studentDoc.exists,
-      });
+      // console.log("Teacher access check:", {
+      //   teacherId,
+      //   studentId,
+      //   studentExists: studentDoc.exists,
+      // });
 
       if (!studentDoc.exists) {
         return NextResponse.json(
@@ -67,12 +72,12 @@ export async function GET(
       const studentData = studentDoc.data();
       const studentTeachers = studentData?.teachersIds || [];
 
-      console.log("Teacher-student relationship check:", {
-        teacherId,
-        studentId,
-        studentTeachers,
-        hasAccess: studentTeachers.includes(teacherId),
-      });
+      // console.log("Teacher-student relationship check:", {
+      //   teacherId,
+      //   studentId,
+      //   studentTeachers,
+      //   hasAccess: studentTeachers.includes(teacherId),
+      // });
 
       if (!studentTeachers.includes(teacherId)) {
         return NextResponse.json(

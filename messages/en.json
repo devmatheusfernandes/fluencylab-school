@@ -254,7 +254,11 @@
     "learnedOn": "Learned on",
     "structure": "Structure",
     "vocabulary": "Vocabulary",
-    "close": "Close"
+    "close": "Close",
+    "reviewedItemsTitle": "Reviewed Items",
+    "noReviewedItemsDescription": "No items have been reviewed yet.",
+    "reviewedItemsDescription": "Aqui você pode ver todos os itens que já revisaram.",
+    "noReviewedItemsTitle": "Nenhum item revisado ainda"
   },
   "LearningPath": {
     "noLessonsTitle": "No lessons this week!",

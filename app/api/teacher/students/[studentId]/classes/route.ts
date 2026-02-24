@@ -17,7 +17,7 @@ interface Class {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ studentId: string }> }
+  { params }: { params: Promise<{ studentId: string }> },
 ) {
   const session = await getServerSession(authOptions);
 
@@ -30,19 +30,21 @@ export async function GET(
   if (!session?.user?.id) {
     return NextResponse.json(
       { error: "Acesso não autorizado." },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
   // Allow teachers, admins, and students to access this endpoint
   if (
     !session?.user?.role ||
-    !["teacher", "admin", "student"].includes(session.user.role)
+    !["teacher", "admin", "student", "guarded_student"].includes(
+      session.user.role,
+    )
   ) {
     console.log("Invalid role detected:", session.user.role);
     return NextResponse.json(
       { error: "Acesso não autorizado." },
-      { status: 403 }
+      { status: 403 },
     );
   }
 
@@ -50,12 +52,15 @@ export async function GET(
     const { studentId } = await params;
 
     // Permission checks based on user role
-    if (session.user.role === "student") {
+    if (
+      session.user.role === "student" ||
+      session.user.role === "guarded_student"
+    ) {
       // Students can only access their own classes
       if (session.user.id !== studentId) {
         return NextResponse.json(
           { error: "Acesso não autorizado." },
-          { status: 403 }
+          { status: 403 },
         );
       }
     } else if (session.user.role === "teacher") {
@@ -72,7 +77,7 @@ export async function GET(
       if (!studentDoc.exists) {
         return NextResponse.json(
           { error: "Aluno não encontrado." },
-          { status: 404 }
+          { status: 404 },
         );
       }
 
@@ -89,7 +94,7 @@ export async function GET(
       if (!studentTeachers.includes(teacherId)) {
         return NextResponse.json(
           { error: "Acesso não autorizado." },
-          { status: 403 }
+          { status: 403 },
         );
       }
     }
@@ -107,7 +112,7 @@ export async function GET(
       ...new Set(
         classesSnapshot.docs
           .map((doc) => doc.data().teacherId)
-          .filter((id) => id)
+          .filter((id) => id),
       ),
     ];
 
@@ -118,7 +123,7 @@ export async function GET(
         .where(FieldPath.documentId(), "in", teacherIds)
         .get();
       teacherMap = new Map(
-        teachers.docs.map((doc) => [doc.id, doc.data().name])
+        teachers.docs.map((doc) => [doc.id, doc.data().name]),
       );
     }
 
@@ -151,7 +156,7 @@ export async function GET(
     console.error("Error fetching classes:", error);
     return NextResponse.json(
       { error: "Failed to fetch classes" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -240,7 +240,11 @@
     "learnedOn": "Aprendido em",
     "structure": "Estrutura",
     "vocabulary": "Vocabulário",
-    "close": "Fechar"
+    "close": "Fechar",
+    "reviewedItemsTitle": "Itens Revisados",
+    "noReviewedItemsDescription": "Nenhum item foi revisado ainda.",
+    "reviewedItemsDescription": "Aqui você pode ver todos os itens que já revisaram.",
+    "noReviewedItemsTitle": "Nenhum item revisado ainda"
   },
   "LearningPath": {
     "noLessonsTitle": "Sem aulas esta semana!",
