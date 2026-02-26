@@ -162,7 +162,6 @@ export async function getDailyPractice(
   lessonId?: string,
 ): Promise<DailyPracticeSession> {
   try {
-    // console.log(`[getDailyPractice] Starting for plan ${planId}`);
     const planRef = db.collection("plans").doc(planId);
     const planDoc = await planRef.get();
 
@@ -212,10 +211,8 @@ export async function getDailyPractice(
       currentDay = dayOverride;
       isClassDay = false;
     }
-    // console.log(`[getDailyPractice] Cycle: Day ${currentDay}, ClassDay: ${isClassDay}, ActiveLesson: ${activeLesson?.id}`);
 
     if (isClassDay) {
-      // console.log("[getDailyPractice] It is class day, returning empty session.");
       return { mode: "review_standard", dayIndex: 0, items: [] };
     }
 
@@ -314,8 +311,6 @@ export async function getDailyPractice(
             effectiveMode,
             srsMap,
           );
-
-          // console.log(`[getDailyPractice] Generated ${quizItems.length} quiz items`);
 
           return {
             mode: effectiveMode,

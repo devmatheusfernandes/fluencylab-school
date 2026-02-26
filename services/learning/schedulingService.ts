@@ -135,13 +135,6 @@ export class SchedulingService {
       });
     }
 
-    // 👇 ADICIONE ESTE LOG
-    // console.log(`[SERVIÇO] Dados recebidos para o professor ${teacherId}:`, {
-    //   slots: slots.length,
-    //   exceptions: exceptions.length,
-    //   bookedClasses: populatedBookedClasses.length,
-    // });
-
     return { slots, exceptions, bookedClasses: populatedBookedClasses };
   }
 
@@ -1476,14 +1469,6 @@ export class SchedulingService {
     const originalClass = await classRepository.findClassById(classId);
     const rescheduler = await userAdminRepository.findUserById(reschedulerId);
 
-    console.log(`[rescheduleClass] Original class data:`, {
-      classId,
-      status: originalClass?.status,
-      creditType: originalClass?.creditType,
-      isReschedulable: originalClass?.isReschedulable,
-      creditId: originalClass?.creditId,
-    });
-
     // --- Validações Iniciais ---
     if (!originalClass) throw new Error("Aula original não encontrada.");
     if (!rescheduler)
@@ -1501,15 +1486,6 @@ export class SchedulingService {
     ) {
       throw new Error("Usuário não autorizado para reagendar esta aula.");
     }
-
-    console.log(`[rescheduleClass] Checking status validation:`, {
-      currentStatus: originalClass.status,
-      scheduledStatus: ClassStatus.SCHEDULED,
-      noShowStatus: ClassStatus.NO_SHOW,
-      teacherMakeupStatus: ClassStatus.CANCELED_TEACHER_MAKEUP,
-      creditType: originalClass.creditType,
-      isReschedulable: originalClass.isReschedulable,
-    });
 
     if (
       originalClass.status !== ClassStatus.SCHEDULED &&
@@ -1772,13 +1748,8 @@ export class SchedulingService {
           rescheduleBy: getReschedulerName(),
           platformLink: `${platformLink}/hub/teacher/my-classes`,
         });
-
-        console.log(
-          `E-mails de reagendamento enviados para estudante (${student.email}) e professor (${teacher.email})`,
-        );
       }
     } catch (emailError) {
-      console.error("Erro ao enviar e-mails de reagendamento:", emailError);
       // Não falha a operação se o e-mail falhar, apenas loga o erro
     }
 
@@ -1910,10 +1881,6 @@ export class SchedulingService {
           });
         }
       } catch (emailError) {
-        console.error(
-          "Erro ao enviar e-mails de férias do professor:",
-          emailError,
-        );
         // Não falha a operação se o e-mail falhar, apenas loga o erro
       }
     }
@@ -2040,17 +2007,9 @@ export class SchedulingService {
           });
         }
       } catch (emailError) {
-        console.error(
-          "Erro ao enviar e-mails de cancelamento de férias do professor:",
-          emailError,
-        );
         // Não falha a operação se o e-mail falhar, apenas loga o erro
       }
     }
-
-    console.log(
-      `Período de férias cancelado com sucesso. ${durationInDays} dias reembolsados ao professor ${teacher.name}.`,
-    );
   }
 
   /**
@@ -2121,10 +2080,6 @@ export class SchedulingService {
         teachersIds: currentTeachersIds,
       });
     } catch (error) {
-      console.error(
-        `Error updating teachersIds for student ${studentId}:`,
-        error,
-      );
       throw error;
     }
   }
@@ -2279,17 +2234,10 @@ export class SchedulingService {
 
           if (updateCount > 0) {
             await batch.commit();
-            console.log(
-              `Updated ${updateCount} classes for student ${studentId} with new teacher ${change.newTeacherId} for ${day} at ${hour}`,
-            );
           }
         }
       }
     } catch (error) {
-      console.error(
-        `Error updating classes with new teacher info for student ${studentId}:`,
-        error,
-      );
       throw error;
     }
   }
@@ -2381,16 +2329,12 @@ export class SchedulingService {
           .collection("users")
           .doc(studentId)
           .update({ completedClassesCount: FieldValue.increment(1) });
-      } catch (err) {
-        console.error("Failed to increment completedClassesCount:", err);
-      }
+      } catch (err) {}
       try {
         const { achievementService } =
           await import("@/services/learning/achievementService");
         await achievementService.evaluateAndSyncStudentAchievements(studentId);
-      } catch (err) {
-        console.error("Failed to evaluate achievements after completion:", err);
-      }
+      } catch (err) {}
     }
 
     return { ...classToUpdate, ...updateData };
@@ -2501,17 +2445,6 @@ export class SchedulingService {
       (slot) => slot.type === AvailabilityType.MAKEUP,
     );
 
-    console.log("[getTeacherAvailabilityForStudent] Debug:", {
-      totalSlots: slots.length,
-      availableSlotsAfterFilter: availableSlots.length,
-      slotTypes: slots.map((s) => ({ id: s.id, type: s.type, title: s.title })),
-      filteredSlots: availableSlots.map((s) => ({
-        id: s.id,
-        type: s.type,
-        title: s.title,
-      })),
-    });
-
     return {
       slots: availableSlots,
       exceptions,
@@ -2597,7 +2530,6 @@ export class SchedulingService {
         ...doc.data(),
       })) as StudentClass[];
     } catch (error) {
-      console.error("Erro ao buscar aulas do professor:", error);
       throw new Error("Falha ao buscar aulas do professor");
     }
   }
@@ -2618,7 +2550,6 @@ export class SchedulingService {
       const classData = await classRepository.findClassById(classId);
       return classData?.studentId === studentId;
     } catch (error) {
-      console.error("Erro ao verificar ownership da aula:", error);
       return false;
     }
   }
@@ -2634,7 +2565,6 @@ export class SchedulingService {
       const classData = await classRepository.findClassById(classId);
       return classData?.teacherId === teacherId;
     } catch (error) {
-      console.error("Erro ao verificar contexto do professor:", error);
       return false;
     }
   }
@@ -2668,7 +2598,6 @@ export class SchedulingService {
 
       return hoursUntilClass >= cancellationHours;
     } catch (error) {
-      console.error("Erro ao verificar se aula pode ser cancelada:", error);
       return false;
     }
   }
@@ -2701,7 +2630,6 @@ export class SchedulingService {
       const snapshot = await query.get();
       return snapshot.size;
     } catch (error) {
-      console.error("Erro ao contar reagendamentos mensais:", error);
       return 0;
     }
   }
@@ -2767,7 +2695,6 @@ export class SchedulingService {
 
       return true;
     } catch (error) {
-      console.error("Erro ao verificar se aula pode ser reagendada:", error);
       return false;
     }
   }
@@ -2825,7 +2752,6 @@ export class SchedulingService {
         }
       }
     } catch (error) {
-      console.error("Erro ao cancelar aula:", error);
       throw error;
     }
   }

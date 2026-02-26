@@ -11,10 +11,6 @@ export async function POST(request: NextRequest) {
     console.log("🔄 Starting teacher onboarding completion...");
 
     const session = await getServerSession(authOptions);
-    console.log("👤 Session user:", {
-      id: session?.user?.id,
-      role: session?.user?.role,
-    });
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -23,19 +19,13 @@ export async function POST(request: NextRequest) {
     if (session.user.role !== "teacher") {
       return NextResponse.json(
         { error: "Only teachers can complete teacher onboarding" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
     const data: TeacherOnboardingData = await request.json();
-    console.log("📝 Received onboarding data:", {
-      nickname: data.nickname,
-      scheduleSlots: data.scheduleSlots?.length,
-      hasBankingInfo: !!data.bankingInfo,
-    });
 
     // Update user document with onboarding completion
-    console.log("📄 Updating user document...");
     const userRef = adminDb.doc(`users/${session.user.id}`);
     await userRef.update({
       nickname: data.nickname,
@@ -45,12 +35,10 @@ export async function POST(request: NextRequest) {
       onboardingCompletedAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     });
-    console.log("✅ User document updated successfully");
 
     // Save banking information (in a real app, this should be encrypted and stored securely)
-    console.log("🏦 Saving banking information...");
     const bankingInfoRef = adminDb.collection("teacherBankingInfo");
-    
+
     const bankingData: any = {
       teacherId: session.user.id,
       fullName: data.bankingInfo.fullName,
@@ -73,18 +61,9 @@ export async function POST(request: NextRequest) {
     }
 
     await bankingInfoRef.add(bankingData);
-    console.log("✅ Banking information saved successfully");
 
     // Save availability slots
-    console.log("📅 Saving availability slots...");
     const availabilityPromises = data.scheduleSlots.map(async (slot, index) => {
-      console.log(`📅 Creating slot ${index + 1}:`, {
-        dayOfWeek: slot.dayOfWeek,
-        startTime: slot.startTime,
-        endTime: slot.endTime,
-        title: slot.title,
-      });
-
       // Create a start date for this slot (next occurrence of the day)
       const now = new Date();
       const startDate = new Date(now);
@@ -112,7 +91,9 @@ export async function POST(request: NextRequest) {
       const availabilityRef = adminDb.collection("availabilities");
       return availabilityRef.add({
         teacherId: session.user.id,
-        title: slot.title || (slot.type === "makeup" ? "Horário de Reposição" : "Aula Regular"),
+        title:
+          slot.title ||
+          (slot.type === "makeup" ? "Horário de Reposição" : "Aula Regular"),
         type: slot.type || "regular",
         startDate: startDate,
         startTime: slot.startTime,
@@ -129,17 +110,15 @@ export async function POST(request: NextRequest) {
     });
 
     await Promise.all(availabilityPromises);
-    console.log("✅ All availability slots saved successfully");
 
     return NextResponse.json({
       success: true,
       message: "Teacher onboarding completed successfully",
     });
   } catch (error) {
-    console.error("Error completing teacher onboarding:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

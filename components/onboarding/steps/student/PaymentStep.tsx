@@ -24,7 +24,6 @@ export const PaymentStep: React.FC<OnboardingStepProps> = ({
 
   const handleCreateSubscription = async () => {
     setLoading(true);
-    console.log(data);
     try {
       const res = await fetch("/api/onboarding/create-subscription", {
         method: "POST",

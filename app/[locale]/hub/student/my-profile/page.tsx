@@ -108,7 +108,6 @@ export default function MeuPerfil() {
           if (planId) {
             const data = await getStudentLearningStats(planId);
             setStats(data);
-            console.log("Stats:", data);
           } else {
             setStats({
               reviewedToday: 0,

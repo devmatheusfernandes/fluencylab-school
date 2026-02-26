@@ -60,7 +60,6 @@ export class EmailService {
         }),
       });
     } catch (error) {
-      console.error("Falha ao enviar e-mail de boas-vindas:", error);
       throw new Error(
         "Usuário criado, mas falha ao enviar o e-mail de boas-vindas.",
       );
@@ -95,10 +94,7 @@ export class EmailService {
           platformLink: `${platformLink}/hub/student/my-class`,
         }),
       });
-    } catch (error) {
-      console.error("Falha ao enviar e-mail de agendamento (aluno):", error);
-      // Não lançar erro para não quebrar o fluxo principal
-    }
+    } catch (error) {}
   }
 
   async sendClassScheduledTeacherEmail(
@@ -129,13 +125,7 @@ export class EmailService {
           platformLink: `${platformLink}/hub/teacher/my-classes`,
         }),
       });
-    } catch (error) {
-      console.error(
-        "Falha ao enviar e-mail de agendamento (professor):",
-        error,
-      );
-      // Não lançar erro para não quebrar o fluxo principal
-    }
+    } catch (error) {}
   }
 
   async sendClassRescheduledEmail({
@@ -187,7 +177,6 @@ export class EmailService {
         }),
       });
     } catch (error) {
-      console.error("Falha ao enviar e-mail de reagendamento:", error);
       throw new Error("Falha ao enviar o e-mail de reagendamento.");
     }
   }
@@ -244,7 +233,6 @@ export class EmailService {
         }),
       });
     } catch (error) {
-      console.error("Falha ao enviar e-mail de cancelamento:", error);
       throw new Error("Falha ao enviar o e-mail de cancelamento.");
     }
   }
@@ -282,7 +270,6 @@ export class EmailService {
         }),
       });
     } catch (error) {
-      console.error("Falha ao enviar e-mail de férias do professor:", error);
       throw new Error("Falha ao enviar o e-mail de férias do professor.");
     }
   }
@@ -319,15 +306,7 @@ export class EmailService {
           platformLink,
         }),
       });
-
-      console.log(
-        `E-mail de cancelamento de férias do professor enviado para ${email}`,
-      );
     } catch (error) {
-      console.error(
-        "Falha ao enviar e-mail de cancelamento de férias do professor:",
-        error,
-      );
       throw new Error(
         "Falha ao enviar o e-mail de cancelamento de férias do professor.",
       );
@@ -365,10 +344,7 @@ export class EmailService {
           platformLink,
         }),
       });
-
-      console.log(`E-mail de renovação de contrato enviado para ${email}`);
     } catch (error) {
-      console.error("Falha ao enviar e-mail de renovação de contrato:", error);
       throw new Error("Falha ao enviar o e-mail de renovação de contrato.");
     }
   }
@@ -391,7 +367,6 @@ export class EmailService {
     receiptUrl?: string;
   }) {
     try {
-      /*  TODO: VERIFICAR FROM NOS EMAILS */
       await resend.emails.send({
         from: "Pagamento Confirmado <contato@matheusfernandes.me>",
         to: [email],
@@ -406,11 +381,7 @@ export class EmailService {
         }),
       });
     } catch (error) {
-      console.error(
-        "Falha ao enviar e-mail de confirmação de pagamento:",
-        error,
-      );
-      // We don't throw error here to avoid breaking the payment flow if email fails
+      throw new Error("Falha ao enviar o e-mail de confirmação de pagamento.");
     }
   }
 
@@ -444,7 +415,6 @@ export class EmailService {
         }),
       });
     } catch (error) {
-      console.error("Falha ao enviar e-mail de boas-vindas:", error);
       throw new Error(
         "Usuário criado, mas falha ao enviar o e-mail de boas-vindas.",
       );
@@ -483,7 +453,6 @@ export class EmailService {
         }),
       });
     } catch (error) {
-      console.error("Falha ao enviar e-mail de definição de senha:", error);
       throw new Error("Falha ao enviar o e-mail de definição de senha.");
     }
   }
@@ -520,7 +489,6 @@ export class EmailService {
         }),
       });
     } catch (error) {
-      console.error("Falha ao enviar e-mail de redefinição de senha:", error);
       throw new Error("Falha ao enviar o e-mail de redefinição de senha.");
     }
   }

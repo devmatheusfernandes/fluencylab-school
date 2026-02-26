@@ -9,12 +9,6 @@ export async function GET(
 ) {
   const session = await getServerSession(authOptions);
 
-  // console.log('Notebooks API - Session info:', {
-  //   userId: session?.user?.id,
-  //   userRole: session?.user?.role,
-  //   hasSession: !!session
-  // });
-
   if (!session?.user?.id) {
     return NextResponse.json(
       { error: "Acesso não autorizado." },
@@ -29,7 +23,6 @@ export async function GET(
       session.user.role,
     )
   ) {
-    console.log("Invalid role detected:", session.user.role);
     return NextResponse.json(
       { error: "Acesso não autorizado." },
       { status: 403 },
@@ -56,12 +49,6 @@ export async function GET(
       const teacherId = session.user.id;
       const studentDoc = await adminDb.doc(`users/${studentId}`).get();
 
-      // console.log("Teacher access check:", {
-      //   teacherId,
-      //   studentId,
-      //   studentExists: studentDoc.exists,
-      // });
-
       if (!studentDoc.exists) {
         return NextResponse.json(
           { error: "Aluno não encontrado." },
@@ -72,13 +59,6 @@ export async function GET(
       const studentData = studentDoc.data();
       const studentTeachers = studentData?.teachersIds || [];
 
-      // console.log("Teacher-student relationship check:", {
-      //   teacherId,
-      //   studentId,
-      //   studentTeachers,
-      //   hasAccess: studentTeachers.includes(teacherId),
-      // });
-
       if (!studentTeachers.includes(teacherId)) {
         return NextResponse.json(
           { error: "Acesso não autorizado." },
@@ -86,8 +66,8 @@ export async function GET(
         );
       }
     }
-    // Admins have access to all notebooks (no additional check needed)
 
+    // Admins have access to all notebooks (no additional check needed)
     // Fetch notebooks from Firestore
     const notebooksSnapshot = await adminDb
       .collection(`users/${studentId}/Notebooks`)
@@ -110,7 +90,6 @@ export async function GET(
 
     return NextResponse.json(notebooks);
   } catch (error: any) {
-    console.error("Error fetching notebooks:", error);
     return NextResponse.json(
       { error: "Failed to fetch notebooks" },
       { status: 500 },
@@ -186,7 +165,6 @@ export async function POST(
 
     return NextResponse.json(newNotebook, { status: 201 });
   } catch (error: any) {
-    console.error("Erro ao criar o caderno do aluno:", error);
     return NextResponse.json(
       { error: "Erro interno do servidor." },
       { status: 500 },

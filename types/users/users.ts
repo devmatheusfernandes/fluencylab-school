@@ -4,7 +4,6 @@ import { UserPermission } from "./userPermissions";
 import { RegularClassCredit } from "../credits/regularClassCredits";
 import { StudentAchievement } from "./achievements";
 
-// Google Calendar types
 export interface GoogleCalendarTokens {
   accessToken: string;
   refreshToken?: string;
@@ -23,29 +22,28 @@ export interface GoogleCalendarDefaultTimes {
   sunday?: { startTime: string; endTime: string };
 }
 
-//firebase > db > users > user.id
 export type User = {
   id: string;
-  firebaseUid?: string; // UID do Firebase Auth
+  firebaseUid?: string;
   name: string;
   nickname?: string;
   email: string;
   role: UserRoles;
   permissions: UserPermission[];
   createdAt: Date;
-  updatedAt?: Date; // Campo para armazenar a data de última atualização
+  updatedAt?: Date;
   isActive: boolean;
-  deactivatedAt?: Date; //If the user is deactivated, this field will be filled
+  deactivatedAt?: Date;
 
   avatarUrl: string;
   interfaceLanguage: string;
   theme?: "light" | "dark";
   themeColor?: "violet" | "rose" | "indigo" | "yellow" | "green";
   tutorialCompleted: boolean;
-  onboardingCompletedAt?: Date; // Campo para armazenar quando o onboarding foi concluído
+  onboardingCompletedAt?: Date;
 
   //PERSONAL INFO
-  birthDate?: Date; //Required
+  birthDate?: Date;
   gender?: "male" | "female";
   phoneNumber?: string;
   taxId?: string; // CPF
@@ -55,7 +53,7 @@ export type User = {
     name: string;
     email: string;
     phoneNumber?: string;
-    relationship?: string; // "pai", "mãe", "responsável legal", etc.
+    relationship?: string;
   };
 
   address?: {
@@ -71,15 +69,12 @@ export type User = {
 
   //STUDENT
   teachersIds?: string[];
-  // badges?: string[]; //Maybe put in a differente collection TODO: Check if this is still needed
-  // coursesIds?: string[]; //Maybe put in a differente collection TODO: Check if this is still needed
   languages?: string[];
 
   // ACHIEVEMENTS
   achievements?: StudentAchievement[];
-  completedClassesCount?: number; // TODO: Check if this is still needed
+  completedClassesCount?: number;
 
-  // TODO: Check if this is still needed
   // GAMIFICATION
   gamification?: {
     currentXP: number;
@@ -89,15 +84,14 @@ export type User = {
       best: number;
       lastStudyDate: Date | null;
     };
-    studyHeatmap: Record<string, number>; // "YYYY-MM-DD": intensity (count of reviews)
+    studyHeatmap: Record<string, number>;
   };
 
-  // CAMPOS ADICIONADOS PARA CONTRATO E REAGENDAMENTO
   contractStartDate?: Date;
   contractLengthMonths?: 6 | 12;
 
   monthlyReschedules?: {
-    month: string; // Formato "YYYY-MM"
+    month: string;
     count: number;
   }[];
 
@@ -108,7 +102,7 @@ export type User = {
 
   placementDone?: boolean;
 
-  // REGULAR STUDENTS - Extra class credits system
+  // REGULAR STUDENTS
   regularClassCredits?: RegularClassCredit[];
 
   // PAYMENT
@@ -118,14 +112,14 @@ export type User = {
   // SUBSCRIPTION FIELDS
   currentSubscriptionId?: string | null;
   subscriptionPaymentMethod?: "pix" | "credit_card" | null;
-  subscriptionBillingDay?: number; // Day of month for billing (1-28)
+  subscriptionBillingDay?: number;
   subscriptionNextBilling?: Date;
   subscriptionCreatedAt?: Date;
   subscriptionCanceledAt?: Date;
   subscriptionCancellationReason?: string;
 
   // TECHER
-  taxRegime?: "PF" | "PJ"; // Added for Financial Module
+  taxRegime?: "PF" | "PJ";
   vacationDaysRemaining?: number;
   ratePerClassCents?: number;
   schedulingSettings?: {
@@ -134,15 +128,6 @@ export type User = {
     cancellationPolicyHours?: number;
   };
 
-  // TODO: Check if this is still needed
-  // PROFILE
-  profile?: {
-    bio?: string;
-    specialties?: string[];
-    languages?: string[];
-  };
-
-  // PREFERENCES
   preferences?: {
     soundEffectsEnabled?: boolean;
     autoJoinClasses?: boolean;
@@ -151,10 +136,8 @@ export type User = {
     [key: string]: any;
   };
 
-  // Auth fields
   hasPassword?: boolean;
 
-  // TWO-FACTOR AUTHENTICATION FIELDS
   twoFactorEnabled?: boolean;
   twoFactorSecret?: string;
   twoFactorBackupCodes?: string[];

@@ -330,7 +330,6 @@ export class UserService {
       contractStartDate: data.contractStartDate,
       contractLengthMonths: data.contractLengthMonths,
       ratePerClassCents: data.ratePerClassCents,
-      profile: data.profile,
       // Adicione outros campos que o admin pode editar aqui
     };
 

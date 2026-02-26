@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { PopulatedStudentClass } from "@/types/classes/class";
-import { AvailabilitySlot, AvailabilityException } from "@/types/time/availability";
+import {
+  AvailabilitySlot,
+  AvailabilityException,
+} from "@/types/time/availability";
 
 export interface AvailableTimeSlot {
   date: Date;
@@ -10,7 +13,7 @@ export interface AvailableTimeSlot {
 
 export const useTeacherAvailabilityForReschedule = (
   isOpen: boolean,
-  classToReschedule: PopulatedStudentClass | null
+  classToReschedule: PopulatedStudentClass | null,
 ) => {
   const [availableSlots, setAvailableSlots] = useState<AvailableTimeSlot[]>([]);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
@@ -32,29 +35,21 @@ export const useTeacherAvailabilityForReschedule = (
       setIsLoadingSlots(true);
       try {
         // Call the new dedicated API endpoint
-        const response = await fetch(`/api/student/reschedule-availability?teacherId=${classToReschedule.teacherId}`);
+        const response = await fetch(
+          `/api/student/reschedule-availability?teacherId=${classToReschedule.teacherId}`,
+        );
         if (!response.ok) {
-          console.error('Failed to fetch reschedule availability:', response.status, response.statusText);
           setAvailableSlots([]);
           setIsLoadingSlots(false);
           return;
         }
-        
+
         const data = await response.json();
         setRawData(data);
-        
-        console.log('[useTeacherAvailabilityForReschedule] Raw API Response:', {
-          slotsCount: data.slots?.length || 0,
-          exceptionsCount: data.exceptions?.length || 0,
-          bookedClassesCount: data.bookedClasses?.length || 0,
-          settings: data.settings || {},
-          sampleSlots: data.slots?.slice(0, 3) // Show first 3 slots for debugging
-        });
 
         const { slots, exceptions, bookedClasses, settings } = data;
 
         if (!slots || slots.length === 0) {
-          console.warn('[useTeacherAvailabilityForReschedule] No slots available for rescheduling');
           setAvailableSlots([]);
           setIsLoadingSlots(false);
           return;
@@ -68,19 +63,12 @@ export const useTeacherAvailabilityForReschedule = (
         const horizonDays = settings?.bookingHorizonDays || 30;
 
         const minBookingDate = new Date(
-          now.getTime() + leadTimeHours * 60 * 60 * 1000
+          now.getTime() + leadTimeHours * 60 * 60 * 1000,
         );
         const maxBookingDate = new Date(
-          now.getTime() + horizonDays * 24 * 60 * 60 * 1000
+          now.getTime() + horizonDays * 24 * 60 * 60 * 1000,
         );
         maxBookingDate.setHours(23, 59, 59, 999);
-
-        console.log('[useTeacherAvailabilityForReschedule] Business rules:', {
-          leadTimeHours,
-          horizonDays,
-          minBookingDate: minBookingDate.toISOString(),
-          maxBookingDate: maxBookingDate.toISOString()
-        });
 
         slots.forEach((slot: AvailabilitySlot) => {
           // For non-repeating slots, combine startDate with startTime
@@ -94,33 +82,34 @@ export const useTeacherAvailabilityForReschedule = (
               // Validation: Is it an exception?
               const isException = exceptions.some(
                 (ex: AvailabilityException) =>
-                  new Date(ex.date).toDateString() === slotDate.toDateString()
+                  new Date(ex.date).toDateString() === slotDate.toDateString(),
               );
 
               // Validation: Is there already a class scheduled at this exact time?
               const isBooked = bookedClasses.some(
                 (booked: any) =>
-                  new Date(booked.scheduledAt).getTime() === slotDate.getTime()
+                  new Date(booked.scheduledAt).getTime() === slotDate.getTime(),
               );
 
               if (!isException && !isBooked) {
                 concreteSlots.push({
                   date: slotDate,
                   availabilitySlotId: slot.id!,
-                  slotTitle: slot.title
+                  slotTitle: slot.title,
                 });
               }
             }
             return; // Skip the repeating logic when handled above
           }
-          
+
           // For regular repeating slots, use the existing logic
           const [hour, minute] = slot.startTime.split(":").map(Number);
           const currentDate = new Date(slot.startDate);
 
           // Generate concrete dates based on recurrence
           let iterations = 0;
-          while (currentDate <= maxBookingDate && iterations < 100) { // Add safety limit
+          while (currentDate <= maxBookingDate && iterations < 100) {
+            // Add safety limit
             iterations++;
             const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday...
 
@@ -138,21 +127,21 @@ export const useTeacherAvailabilityForReschedule = (
                 const isException = exceptions.some(
                   (ex: AvailabilityException) =>
                     new Date(ex.date).toDateString() ===
-                    potentialSlotDate.toDateString()
+                    potentialSlotDate.toDateString(),
                 );
 
                 // 3. Validation: Is there already a class scheduled at this time?
                 const isBooked = bookedClasses.some(
                   (booked: any) =>
                     new Date(booked.scheduledAt).getTime() ===
-                    potentialSlotDate.getTime()
+                    potentialSlotDate.getTime(),
                 );
 
                 if (!isException && !isBooked) {
                   concreteSlots.push({
                     date: potentialSlotDate,
                     availabilitySlotId: slot.id!,
-                    slotTitle: slot.title
+                    slotTitle: slot.title,
                   });
                 }
               }
@@ -172,22 +161,13 @@ export const useTeacherAvailabilityForReschedule = (
           }
 
           if (iterations >= 100) {
-            console.warn('[Safety limit reached for slot]:', slot.id);
+            //TODO: TOAST?
+            console.warn("[Safety limit reached for slot]:", slot.id);
           }
-        });
-
-        console.log('[useTeacherAvailabilityForReschedule] Generated concrete slots:', {
-          totalGenerated: concreteSlots.length,
-          sampleSlots: concreteSlots.slice(0, 5).map(s => ({
-            date: s.date.toISOString(),
-            slotId: s.availabilitySlotId,
-            title: s.slotTitle
-          }))
         });
 
         setAvailableSlots(concreteSlots);
       } catch (err: any) {
-        console.error('[useTeacherAvailabilityForReschedule] Error:', err);
         setAvailableSlots([]);
       } finally {
         setIsLoadingSlots(false);

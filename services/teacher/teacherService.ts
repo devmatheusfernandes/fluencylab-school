@@ -6,12 +6,11 @@ const userAdminRepo = userAdminRepository;
 
 export class TeacherService {
   async getPopulatedScheduledClasses(
-    teacherId: string
+    teacherId: string,
   ): Promise<PopulatedStudentClass[]> {
     // 1. Busca todas as aulas futuras do professor
-    const classes = await classRepository.findFutureClassesByTeacherId(
-      teacherId
-    );
+    const classes =
+      await classRepository.findFutureClassesByTeacherId(teacherId);
     if (classes.length === 0) {
       return [];
     }
@@ -40,14 +39,9 @@ export class TeacherService {
 
   async getMyStudentsWithNextClass(teacherId: string) {
     try {
-      console.log(`Fetching future classes for teacher: ${teacherId}`);
       // 1. Busca todas as aulas futuras do professor
-      const classes = await classRepository.findFutureClassesByTeacherId(
-        teacherId
-      );
-      console.log(
-        `Found ${classes.length} future classes for teacher: ${teacherId}`
-      );
+      const classes =
+        await classRepository.findFutureClassesByTeacherId(teacherId);
 
       if (classes.length === 0) {
         return [];
@@ -58,9 +52,6 @@ export class TeacherService {
 
       // 3. Busca os perfis de todos esses alunos de uma só vez
       const students = await userAdminRepo.findUsersByIds(studentIds);
-      console.log(
-        `Found ${students.length} students for teacher: ${teacherId}`
-      );
 
       // 4. Cria um "mapa" para facilitar a busca do aluno pelo ID
       const studentMap = new Map(students.map((s) => [s.id, s]));
@@ -103,14 +94,8 @@ export class TeacherService {
         // Se nenhum tem próxima aula, mantém a ordem
         return 0;
       });
-
-      // console.log(
-      //   `Returning ${sortedStudents.length} students with next class info for teacher: ${teacherId}`
-      // );
-
       return sortedStudents;
     } catch (error) {
-      console.error("Error in getMyStudentsWithNextClass:", error);
       throw error;
     }
   }

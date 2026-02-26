@@ -223,18 +223,6 @@ export function StudentPaymentStatusCard() {
           <StatusIcon className="w-3.5 h-3.5" />
           <span>{statusConfig.label}</span>
         </div>
-        {/* TODO: BOTÃO QUE FAZ A CHECAGEM MANUAL */}
-        {/* <div
-          onClick={fetchPaymentStatus}
-          className={cn(
-            "flex items-center p-2 rounded-full text-xs font-semibold border transition-colors",
-            statusConfig.bg,
-            statusConfig.text,
-            statusConfig.border,
-          )}
-        >
-          <CheckCheckIcon className="w-3.5 h-3.5" />
-        </div> */}
       </div>
 
       {/* BODY CONTENT - FLEX GROWS TO FILL SPACE */}

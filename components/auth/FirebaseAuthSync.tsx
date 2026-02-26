@@ -14,28 +14,25 @@ export default function FirebaseAuthSync() {
       if (status === "authenticated" && session?.user?.id) {
         // Evita chamadas duplicadas se já estiver logado com o mesmo usuário
         if (auth.currentUser?.uid === session.user.id) return;
-        
+
         if (isSigningIn.current) return;
         isSigningIn.current = true;
 
         try {
           const res = await fetch("/api/auth/firebase-token");
           if (!res.ok) throw new Error("Failed to fetch token");
-          
+
           const data = await res.json();
           if (data.token) {
             await signInWithCustomToken(auth, data.token);
-            // console.log("Firebase Auth Synced");
           }
         } catch (err) {
-          console.error("Error syncing Firebase Auth:", err);
         } finally {
           isSigningIn.current = false;
         }
       } else if (status === "unauthenticated") {
         if (auth.currentUser) {
           await signOut(auth);
-          // console.log("Firebase Auth Signed Out");
         }
       }
     };

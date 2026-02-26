@@ -14,7 +14,7 @@ export async function POST(request: Request) {
   if (!session?.user?.id) {
     return NextResponse.json(
       { error: "Acesso não autorizado." },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
   if (!session.user.role || !["admin", "manager"].includes(session.user.role)) {
     return NextResponse.json(
       { error: "Permissão insuficiente." },
-      { status: 403 }
+      { status: 403 },
     );
   }
 
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
         {
           error: "Dados obrigatórios não fornecidos.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -93,9 +93,6 @@ export async function POST(request: Request) {
           await userAdminRepository.update(studentId, {
             teachersIds: updatedTeacherIds,
           });
-          console.log(
-            `Added teacher ${teacherId} to student ${studentId} teachersIds array`
-          );
         }
       }
     } catch (error) {
@@ -113,7 +110,7 @@ export async function POST(request: Request) {
       {
         error: error.message || "Erro interno do servidor.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

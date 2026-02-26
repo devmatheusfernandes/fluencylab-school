@@ -69,12 +69,6 @@ export async function getResendUsage(): Promise<ResendUsageData> {
     const dailyUsed = response.headers.get("x-resend-daily-quota") || null;
     const monthlyUsed = response.headers.get("x-resend-monthly-quota") || null;
 
-    console.log("[Resend Usage] Headers:", {
-      daily: dailyUsed,
-      monthly: monthlyUsed,
-      // status: response.status
-    });
-
     // Resend does not provide limit headers, only usage
     // If we have a successful connection but no usage headers, return specific status
     if (dailyUsed === null && monthlyUsed === null) {

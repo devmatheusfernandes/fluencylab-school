@@ -14,7 +14,6 @@ export class ClassTemplateRepository {
     const docSnap = await docRef.get();
 
     if (!docSnap.exists) {
-      console.log(`Nenhum template encontrado para o aluno: ${studentId}`);
       return null;
     }
 
@@ -29,7 +28,6 @@ export class ClassTemplateRepository {
   async upsert(studentId: string, templateData: ClassTemplate): Promise<void> {
     const docRef = templatesCollection.doc(studentId);
     await docRef.set(templateData, { merge: true });
-    // console.log(`Template para o aluno ${studentId} foi salvo com sucesso.`);
   }
 
   /**
@@ -39,6 +37,5 @@ export class ClassTemplateRepository {
   async delete(studentId: string): Promise<void> {
     const docRef = templatesCollection.doc(studentId);
     await docRef.delete();
-    console.log(`Template para o aluno ${studentId} foi deletado.`);
   }
 }

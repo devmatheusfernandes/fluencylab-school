@@ -28,7 +28,6 @@ export async function initializeCompanyConfig() {
       inssRate: 0.11,
     };
     await configRef.set(defaultConfig);
-    console.log("Company Config initialized.");
   }
 }
 
@@ -44,10 +43,6 @@ export async function closeMonthAction(year: number, month: number) {
   // Define range for the month (Local time considerations might apply, but using server time for now)
   const start = startOfMonth(monthDate);
   const end = endOfMonth(monthDate);
-
-  console.log(
-    `Closing month: ${monthKey} (${start.toISOString()} - ${end.toISOString()})`,
-  );
 
   // 1. Check if already closed
   const revenueRef = adminDb.collection("monthly_revenue").doc(monthKey);

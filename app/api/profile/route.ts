@@ -16,9 +16,9 @@ function getAllowedProfileFieldsForRole(role: string): string[] {
     case "admin":
       return ["*"]; // Admin pode modificar todos os campos
     case "manager":
-      return [...baseFields, "department", "permissions"];
+      return [...baseFields, "permissions"];
     case "teacher":
-      return [...baseFields, "specialties", "experience", "certifications"];
+      return [...baseFields];
     case "student":
       return baseFields;
     default:

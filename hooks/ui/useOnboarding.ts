@@ -21,24 +21,15 @@ export const useOnboarding = () => {
       return;
     }
 
-    // console.log("🔍 useOnboarding - Session check:", {
-    //   status,
-    //   userId: session?.user?.id,
-    //   role: session?.user?.role,
-    //   tutorialCompleted: session?.user?.tutorialCompleted,
-    //   sessionUser: session?.user
-    // });
-
     // Check if user is a regular student OR guarded student AND hasn't completed onboarding.
     if (
-      (session?.user?.role === UserRoles.STUDENT || session?.user?.role === UserRoles.GUARDED_STUDENT) &&
+      (session?.user?.role === UserRoles.STUDENT ||
+        session?.user?.role === UserRoles.GUARDED_STUDENT) &&
       !session?.user?.tutorialCompleted
     ) {
       // Show onboarding for new students who haven't completed tutorial
-      //console.log("✅ Showing onboarding modal for user - tutorialCompleted:", session?.user?.tutorialCompleted);
       setShowOnboarding(true);
     } else {
-      // console.log("❌ NOT showing onboarding modal - tutorialCompleted:", session?.user?.tutorialCompleted, "role:", session?.user?.role);
       setShowOnboarding(false);
     }
 

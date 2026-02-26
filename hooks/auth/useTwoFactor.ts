@@ -15,9 +15,6 @@ export const useTwoFactor = () => {
     setError(null);
 
     try {
-      // This would call the API to enable 2FA
-      // Implementation depends on your specific API structure
-      console.log("Enabling 2FA");
     } catch (err: any) {
       setError(err.message || "Failed to enable 2FA");
     } finally {
@@ -30,9 +27,6 @@ export const useTwoFactor = () => {
     setError(null);
 
     try {
-      // This would call the API to disable 2FA
-      // Implementation depends on your specific API structure
-      console.log("Disabling 2FA");
     } catch (err: any) {
       setError(err.message || "Failed to disable 2FA");
     } finally {

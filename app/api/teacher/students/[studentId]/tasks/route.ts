@@ -20,12 +20,6 @@ export async function GET(
 ) {
   const session = await getServerSession(authOptions);
 
-  // console.log('Tasks API - Session info:', {
-  //   userId: session?.user?.id,
-  //   userRole: session?.user?.role,
-  //   hasSession: !!session
-  // });
-
   if (!session?.user?.id) {
     return NextResponse.json(
       { error: "Acesso não autorizado." },
@@ -40,7 +34,6 @@ export async function GET(
       session.user.role,
     )
   ) {
-    console.log("Invalid role detected:", session.user.role);
     return NextResponse.json(
       { error: "Acesso não autorizado." },
       { status: 403 },
@@ -67,12 +60,6 @@ export async function GET(
       const teacherId = session.user.id;
       const studentDoc = await adminDb.doc(`users/${studentId}`).get();
 
-      console.log("Teacher access check:", {
-        teacherId,
-        studentId,
-        studentExists: studentDoc.exists,
-      });
-
       if (!studentDoc.exists) {
         return NextResponse.json(
           { error: "Aluno não encontrado." },
@@ -83,13 +70,6 @@ export async function GET(
       const studentData = studentDoc.data();
       const studentTeachers = studentData?.teachersIds || [];
 
-      console.log("Teacher-student relationship check:", {
-        teacherId,
-        studentId,
-        studentTeachers,
-        hasAccess: studentTeachers.includes(teacherId),
-      });
-
       if (!studentTeachers.includes(teacherId)) {
         return NextResponse.json(
           { error: "Acesso não autorizado." },
@@ -98,7 +78,6 @@ export async function GET(
       }
     }
     // Admins have access to all tasks (no additional check needed)
-
     // Fetch tasks from Firestore (excluding deleted tasks)
     const tasksSnapshot = await adminDb
       .collection("users")
@@ -116,7 +95,6 @@ export async function GET(
 
     return NextResponse.json(tasks);
   } catch (error: any) {
-    console.error("Error fetching tasks:", error);
     return NextResponse.json(
       { error: "Failed to fetch tasks" },
       { status: 500 },
@@ -189,7 +167,6 @@ export async function POST(
 
     return NextResponse.json(newTask, { status: 201 });
   } catch (error: any) {
-    console.error("Erro ao criar a tarefa do aluno:", error);
     return NextResponse.json(
       { error: "Erro interno do servidor." },
       { status: 500 },
@@ -266,7 +243,6 @@ export async function DELETE(
       message: "Todas as tarefas foram marcadas como deletadas com sucesso.",
     });
   } catch (error: any) {
-    console.error("Erro ao deletar todas as tarefas do aluno:", error);
     return NextResponse.json(
       { error: "Erro interno do servidor." },
       { status: 500 },

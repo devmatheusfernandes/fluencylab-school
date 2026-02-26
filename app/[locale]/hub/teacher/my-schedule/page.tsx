@@ -47,14 +47,6 @@ export default async function TeacherSettingsPage() {
     session!.user.id,
   );
 
-  // // Debug logs
-  // console.log("[DEBUG] Schedule Data:", {
-  //   slots: scheduleData.slots?.length || 0,
-  //   exceptions: scheduleData.exceptions?.length || 0,
-  //   bookedClasses: scheduleData.bookedClasses?.length || 0,
-  //   slotsData: scheduleData.slots,
-  // });
-
   // Combine availability slots with all classes
   const calendarEvents = [
     ...mapTeacherEventsToCalendar(
@@ -65,12 +57,6 @@ export default async function TeacherSettingsPage() {
     ),
     ...mapTeacherClassesToCalendar(allClasses, t),
   ];
-
-  // console.log(
-  //   "[DEBUG] Calendar Events Generated:",
-  //   calendarEvents.length,
-  //   calendarEvents
-  // );
 
   // Serialize data before passing to Client Component
   const serializedEvents = serializeForClientComponent(calendarEvents);

@@ -81,14 +81,9 @@ export class ClassRepository {
    * @returns Uma lista de aulas agendadas.
    */
   async findClassesByTeacherId(teacherId: string): Promise<StudentClass[]> {
-    const now = Timestamp.now();
     const snapshot = await this.collectionRef
       .where("teacherId", "==", teacherId)
-      // TODO: CRIAR O ÍNDICE scheduledAt_asc
-      //.where('scheduledAt', '>=', now
       .get();
-
-    //console.log(`[REPOSITÓRIO] Busca por aulas do professor ${teacherId}. Encontrado(s): ${snapshot.docs.length}`);
 
     if (snapshot.empty) {
       return [];
@@ -136,10 +131,6 @@ export class ClassRepository {
       .where("teacherId", "==", teacherId) // Apenas filtra pelo professor
       .orderBy("scheduledAt", "desc") // Ordena da mais recente para a mais antiga
       .get();
-
-    console.log(
-      `[REPOSITÓRIO all] Busca por aulas do professor ${teacherId}. Encontrado(s): ${snapshot.docs.length}`,
-    );
 
     if (snapshot.empty) {
       return [];
@@ -349,7 +340,6 @@ export class ClassRepository {
     });
 
     await batch.commit();
-    console.log(`${classes.length} aulas foram criadas com sucesso em lote.`);
   }
 
   /**
@@ -383,9 +373,6 @@ export class ClassRepository {
           updatedAt: Timestamp.now(),
         });
       });
-      console.log(
-        `${snapshot.size} aulas foram atualizadas para o status ${newStatus}.`,
-      );
     }
   }
 
@@ -513,7 +500,6 @@ export class ClassRepository {
     }
 
     await batch.commit();
-    console.log(`Exclusão em cascata concluída para o aluno ${studentId}.`);
   }
 
   /**
@@ -543,13 +529,6 @@ export class ClassRepository {
     if (snapshot.docs.length > 0) {
       await batch.commit();
     }
-
-    // console.log(
-    //   `Excluídas ${
-    //     snapshot.docs.length
-    //   } aulas futuras do aluno ${studentId} a partir de ${fromDate.toISOString()}.`
-    // );
-
     return snapshot.docs.length;
   }
 
@@ -583,13 +562,6 @@ export class ClassRepository {
     if (snapshot.docs.length > 0) {
       await batch.commit();
     }
-
-    // console.log(
-    //   `Excluídas ${
-    //     snapshot.docs.length
-    //   } aulas futuras do aluno ${studentId} entre ${fromDate.toISOString()} e ${toDate.toISOString()}.`
-    // );
-
     return snapshot.docs.length;
   }
 
@@ -639,10 +611,6 @@ export class ClassRepository {
     if (deletedCount > 0) {
       await batch.commit();
     }
-
-    // console.log(
-    //   `Excluídas ${deletedCount} aulas futuras do aluno ${studentId} a partir de ${fromDate.toISOString()} para entradas específicas do template.`
-    // );
 
     return deletedCount;
   }
@@ -696,10 +664,6 @@ export class ClassRepository {
     if (deletedCount > 0) {
       await batch.commit();
     }
-
-    // console.log(
-    //   `Excluídas ${deletedCount} aulas futuras do aluno ${studentId} entre ${fromDate.toISOString()} e ${toDate.toISOString()} para entradas específicas do template.`
-    // );
 
     return deletedCount;
   }
@@ -769,12 +733,8 @@ export class ClassRepository {
 
       if (updateCount > 0) {
         await batch.commit();
-        // console.log(
-        //   `Updated ${updateCount} classes for student ${studentId} with new teacher ${newTeacherId} for ${day} at ${hour}`
-        // );
       }
     } catch (error) {
-      console.error(`Error updating classes for student ${studentId}:`, error);
       throw error;
     }
   }

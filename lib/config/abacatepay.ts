@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { getEnv } from "@/lib/env/validation";
 
-const ABACATEPAY_API_BASE_URL = "https://api.abacatepay.com/v1" as const; // TODO: Mover para env
+const ABACATEPAY_API_BASE_URL = process.env.ABACATEPAY_API_BASE_URL as string;
 
 export const ABACATEPAY_CONFIG = {
   BASE_URL: getEnv("NEXT_PUBLIC_APP_URL"),
@@ -119,4 +119,3 @@ export function verifyAbacatePaySignature(
 
   return A.length === B.length && crypto.timingSafeEqual(A, B);
 }
-

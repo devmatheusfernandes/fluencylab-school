@@ -51,7 +51,7 @@ export async function POST(request: Request) {
           error:
             "Tipo de arquivo inválido. Por favor, selecione uma imagem (JPEG, PNG, GIF, WEBP).",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
         {
           error: `A imagem deve ter menos de 5MB. Tamanho atual: ${(file.size / (1024 * 1024)).toFixed(2)}MB`,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -70,11 +70,11 @@ export async function POST(request: Request) {
     const storageBucket = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
     if (!storageBucket) {
       console.error(
-        "Firebase storage bucket not configured in environment variables"
+        "Firebase storage bucket not configured in environment variables",
       );
       return NextResponse.json(
         { error: "Storage not configured properly" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -116,10 +116,9 @@ export async function POST(request: Request) {
     if (oldAvatarFileName) {
       try {
         const oldFileRef = bucket.file(
-          `avatars/${user.id}/${oldAvatarFileName}`
+          `avatars/${user.id}/${oldAvatarFileName}`,
         );
         await oldFileRef.delete();
-        console.log(`Deleted old avatar: ${oldAvatarFileName}`);
       } catch (error) {
         console.error("Error deleting old avatar:", error);
         // Don't fail the whole operation if we can't delete the old avatar
@@ -140,7 +139,7 @@ export async function POST(request: Request) {
     }
     return NextResponse.json(
       { error: error.message || "Failed to upload avatar" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

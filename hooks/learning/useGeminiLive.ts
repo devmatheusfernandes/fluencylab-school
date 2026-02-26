@@ -136,7 +136,6 @@ export const useGeminiLive = () => {
       audioContextRef.current = context;
       return context;
     } catch (err) {
-      console.error("Audio init error:", err);
       setState((prev) => ({ ...prev, error: "Falha ao inicializar áudio." }));
       return null;
     }
@@ -147,7 +146,6 @@ export const useGeminiLive = () => {
     try {
       if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
-      console.log("Connecting to Gemini Live...");
       setState((prev) => ({ ...prev, isConnecting: true, error: null }));
 
       // Initialize Audio Context immediately (requires user interaction via click)
@@ -165,7 +163,6 @@ export const useGeminiLive = () => {
       wsRef.current = ws;
 
       ws.onopen = () => {
-        console.log("WebSocket connected");
         setState((prev) => ({
           ...prev,
           isConnected: true,
@@ -238,10 +235,6 @@ Fase 3: Conclusão
             ],
           },
         };
-        console.log(
-          "Sending Setup Message:",
-          JSON.stringify(setupMsg, null, 2),
-        );
         ws.send(JSON.stringify(setupMsg));
         startTimer();
       };
@@ -254,7 +247,6 @@ Fase 3: Conclusão
 
         try {
           const data = JSON.parse(textData);
-          // console.log("Received:", data); // Debug log (optional, noisy)
 
           // Handle Server Content
           if (data.serverContent) {
@@ -275,7 +267,6 @@ Fase 3: Conclusão
 
           // Handle Tool Call (Function Calling)
           if (data.toolCall) {
-            console.log("Tool Call Received:", data.toolCall);
             const functionCalls = data.toolCall.functionCalls;
             if (functionCalls && functionCalls.length > 0) {
               const call = functionCalls[0];
@@ -286,13 +277,10 @@ Fase 3: Conclusão
               }
             }
           }
-        } catch (e) {
-          console.error("Error parsing WebSocket message:", e);
-        }
+        } catch (e) {}
       };
 
       ws.onerror = (err) => {
-        console.error("WebSocket error:", err);
         setState((prev) => ({
           ...prev,
           error: "Erro na conexão com IA.",
@@ -301,7 +289,6 @@ Fase 3: Conclusão
       };
 
       ws.onclose = (event) => {
-        console.log("WebSocket closed", event.code, event.reason);
         setState((prev) => ({
           ...prev,
           isConnected: false,
@@ -311,7 +298,6 @@ Fase 3: Conclusão
         stopTimer();
       };
     } catch (err) {
-      console.error("Connection error:", err);
       setState((prev) => ({
         ...prev,
         isConnecting: false,
@@ -369,7 +355,6 @@ Fase 3: Conclusão
   const playAudioChunk = async (base64: string) => {
     try {
       if (!audioContextRef.current) {
-        console.warn("Audio context not ready, dropping audio chunk");
         return;
       }
 
@@ -395,9 +380,7 @@ Fase 3: Conclusão
 
       audioQueueRef.current.push(buffer);
       processAudioQueue();
-    } catch (e) {
-      console.error("Audio decode error:", e);
-    }
+    } catch (e) {}
   };
 
   const processAudioQueue = () => {
@@ -511,7 +494,6 @@ Fase 3: Conclusão
       audioWorkletNodeRef.current = worklet;
       setState((prev) => ({ ...prev, isRecording: true }));
     } catch (err) {
-      console.error("Recording start error:", err);
       setState((prev) => ({ ...prev, error: "Erro ao acessar microfone." }));
     }
   }, [state.isRecording, initAudio]);

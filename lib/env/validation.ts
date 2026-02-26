@@ -143,9 +143,9 @@ export function validateEnv(): EnvConfig {
     // Important: In the browser, Next.js replaces `process.env.NEXT_PUBLIC_*`
     // at build time, but `process.env` itself is not populated.
     // So we must construct the client env explicitly using direct references.
-  const envToValidate = isServer
-    ? process.env
-    : {
+    const envToValidate = isServer
+      ? process.env
+      : ({
           NEXT_PUBLIC_FIREBASE_API_KEY:
             process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
           NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN:
@@ -158,8 +158,9 @@ export function validateEnv(): EnvConfig {
             process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
           NEXT_PUBLIC_FIREBASE_APP_ID: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
           NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
-          NEXT_PUBLIC_VAPID_PUBLIC_KEY: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
-        } as Record<string, string | undefined>;
+          NEXT_PUBLIC_VAPID_PUBLIC_KEY:
+            process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+        } as Record<string, string | undefined>);
 
     validatedEnv = schema.parse(envToValidate) as EnvConfig;
     return validatedEnv;
@@ -170,11 +171,10 @@ export function validateEnv(): EnvConfig {
         return `${path}: ${err.message}`;
       });
 
-      console.error("❌ Environment variables validation failed:");
       errorMessages.forEach((msg) => console.error(`  - ${msg}`));
 
       throw new Error(
-        `Environment variables validation failed:\n${errorMessages.join("\n")}`
+        `Environment variables validation failed:\n${errorMessages.join("\n")}`,
       );
     }
     throw error;
@@ -212,81 +212,21 @@ export function checkCriticalEnvVars(): string[] {
   return criticalVars.filter((varName) => !process.env[varName]);
 }
 
-// /**
-//  * Verifica se há environment variables com valores inseguros
-//  * @returns Lista de problemas de segurança encontrados
-//  */
-// export function checkSecurityIssues(): string[] {
-//   const issues: string[] = [];
-
-//   // Verificar se secrets não são valores padrão ou inseguros
-//   const insecureValues = ['password', '123456', 'secret', 'test', 'development'];
-
-//   const secretVars = [
-//     'NEXTAUTH_SECRET',
-//     'ENCRYPTION_SECRET',
-//     'FIREBASE_ADMIN_PRIVATE_KEY'
-//   ];
-
-//   secretVars.forEach(varName => {
-//     const value = process.env[varName];
-//     if (value) {
-//       if (insecureValues.some(insecure => value.toLowerCase().includes(insecure))) {
-//         issues.push(`${varName} contém valor inseguro`);
-//       }
-//       if (value.length < 20) {
-//         issues.push(`${varName} é muito curto (menos de 20 caracteres)`);
-//       }
-//     }
-//   });
-
-//   // Verificar se URLs de produção não apontam para localhost
-//   if (process.env.NODE_ENV === 'production') {
-//     const urlVars = ['NEXTAUTH_URL', 'NEXT_PUBLIC_APP_URL'];
-//     urlVars.forEach(varName => {
-//       const value = process.env[varName];
-//       if (value && (value.includes('localhost') || value.includes('127.0.0.1'))) {
-//         issues.push(`${varName} não deve apontar para localhost em produção`);
-//       }
-//     });
-//   }
-
-//   return issues;
-// }
-
-/**
- * Executa validação completa das environment variables
- * Inclui validação de schema, variáveis críticas e segurança
- */
 export function runFullValidation(): void {
-  console.log("🔍 Validando environment variables...");
-
   // 1. Verificar variáveis críticas
   const missingCritical = checkCriticalEnvVars();
   if (missingCritical.length > 0) {
-    console.error("❌ Variáveis críticas ausentes:", missingCritical);
     if (process.env.NODE_ENV === "production") {
       throw new Error(
-        `Variáveis críticas ausentes: ${missingCritical.join(", ")}`
+        `Variáveis críticas ausentes: ${missingCritical.join(", ")}`,
       );
     }
   }
 
-  // // 2. Verificar problemas de segurança
-  // const securityIssues = checkSecurityIssues();
-  // if (securityIssues.length > 0) {
-  //   console.warn("⚠️ Problemas de segurança encontrados:", securityIssues);
-  //   if (process.env.NODE_ENV === "production") {
-  //     throw new Error(`Problemas de segurança: ${securityIssues.join(", ")}`);
-  //   }
-  // }
-
   // 3. Validar schema completo
   try {
     validateEnv();
-    console.log("✅ Environment variables validadas com sucesso");
   } catch (error) {
-    console.error("❌ Falha na validação do schema:", error);
     throw error;
   }
 }
@@ -296,11 +236,9 @@ export function runFullValidation(): void {
  */
 export function debugEnvVars(): void {
   if (process.env.NODE_ENV !== "development") {
-    console.warn("debugEnvVars() só deve ser usado em desenvolvimento");
     return;
   }
 
-  console.log("🐛 Debug Environment Variables:");
   const schema = (
     typeof window === "undefined" ? serverEnvSchema : clientEnvSchema
   ).shape;
@@ -313,8 +251,6 @@ export function debugEnvVars(): void {
         ? "[HIDDEN]"
         : value
       : "undefined";
-
-    console.log(`  ${status} ${key}: ${displayValue}`);
   });
 }
 

@@ -37,7 +37,7 @@ export class VacationRepository {
    */
   createWithTransaction(
     transaction: Transaction,
-    vacationData: Omit<Vacation, "id">
+    vacationData: Omit<Vacation, "id">,
   ): void {
     const newVacationRef = vacationsCollection.doc(); // Gera um ID automático
 
@@ -63,7 +63,7 @@ export class VacationRepository {
    */
   async findByTeacherAndYear(
     teacherId: string,
-    year: number
+    year: number,
   ): Promise<Vacation[]> {
     const startDate = new Date(year, 0, 1); // 1º de Janeiro do ano
     const endDate = new Date(year, 11, 31); // 31 de Dezembro do ano
@@ -98,9 +98,6 @@ export class VacationRepository {
       .where("teacherId", "==", teacherId)
       .orderBy("startDate", "desc")
       .get();
-    console.log(
-      `[REPOSITÓRIO vacations] A consulta para o professor ${teacherId} encontrou ${snapshot.docs.length} documentos.`
-    );
 
     if (snapshot.empty) return [];
 

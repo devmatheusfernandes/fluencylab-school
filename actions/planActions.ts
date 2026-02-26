@@ -43,10 +43,6 @@ function cleanFirestoreData(obj: any): any {
 
 export async function connectPlanToClasses(planId: string, studentId: string) {
   try {
-    console.log(
-      `[connectPlanToClasses] Starting for plan ${planId} and student ${studentId}`,
-    );
-
     // 1. Fetch Plan and Student Classes
     const plan = await planRepository.findById(planId);
     if (!plan) throw new Error("Plan not found");
@@ -77,10 +73,6 @@ export async function connectPlanToClasses(planId: string, studentId: string) {
         status: doc.data().status,
       }))
       .filter((c) => c.status === "scheduled"); // Filter in memory to avoid complex compound queries index issues if not needed
-
-    console.log(
-      `[connectPlanToClasses] Found ${futureClasses.length} valid scheduled classes starting from ${today.toISOString()}`,
-    );
 
     // 2. Prepare Updates
     const batch = adminDb.batch();
@@ -144,9 +136,6 @@ export async function connectPlanToClasses(planId: string, studentId: string) {
       }),
     );
 
-    console.log(
-      `[connectPlanToClasses] Committing batch with ${updatesCount} class updates`,
-    );
     await batch.commit();
 
     revalidatePath(`/hub/manager/users/${studentId}`);

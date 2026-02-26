@@ -17,8 +17,6 @@ interface WelcomeEmailProps {
   studentInfo?: string;
 }
 
-/*TODO: CRIAR OPCIONAL PARA ALUNOS COM REPSONSAVEL, ELE DEVE CONTER OUTRAS INFORMAÇÕES*/
-
 export const WelcomeEmail: React.FC<WelcomeEmailProps> = ({
   name,
   actionLink,

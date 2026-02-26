@@ -19,7 +19,7 @@ export class AvailabilityRepository {
   private exceptionsRef = adminDb.collection("availabilityExceptions");
 
   async create(
-    slotData: Omit<AvailabilitySlot, "id">
+    slotData: Omit<AvailabilitySlot, "id">,
   ): Promise<AvailabilitySlot> {
     // 1. Começamos com os dados que sempre existem
     const dataToSave: any = {
@@ -99,7 +99,7 @@ export class AvailabilityRepository {
   async createException(
     slotId: string,
     teacherId: string,
-    exceptionDate: Date
+    exceptionDate: Date,
   ): Promise<void> {
     await this.exceptionsRef.add({
       originalSlotId: slotId,
@@ -109,7 +109,7 @@ export class AvailabilityRepository {
   }
 
   async findExceptionsByTeacherId(
-    teacherId: string
+    teacherId: string,
   ): Promise<AvailabilityException[]> {
     const q = this.exceptionsRef.where("teacherId", "==", teacherId);
     const snapshot = await q.get();
@@ -129,7 +129,7 @@ export class AvailabilityRepository {
     transaction: Transaction,
     slotId: string,
     teacherId: string,
-    exceptionDate: Date
+    exceptionDate: Date,
   ) {
     const newExceptionRef = this.exceptionsRef.doc();
     transaction.set(newExceptionRef, {
@@ -141,7 +141,7 @@ export class AvailabilityRepository {
 
   async findAndDeleteException(
     originalSlotId: string,
-    exceptionDate: Date
+    exceptionDate: Date,
   ): Promise<void> {
     // Define o início e o fim do dia da exceção
     const startOfDay = new Date(exceptionDate);
@@ -165,9 +165,7 @@ export class AvailabilityRepository {
       const batch = adminDb.batch();
       snapshot.docs.forEach((doc) => batch.delete(doc.ref));
       await batch.commit();
-      //console.log(`Exceção para o slot ${originalSlotId} na data ${exceptionDate.toDateString()} foi removida.`);
     } else {
-      //console.warn(`Nenhuma exceção encontrada para o slot ${originalSlotId} na data ${exceptionDate.toDateString()}`);
     }
   }
 }

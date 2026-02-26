@@ -174,7 +174,7 @@ export default function RescheduleModal({
                   </div>
                 )}
 
-                {/*TODO: DECIDIR SE MOSTRO DEPOIS*/}
+                {/*DESNECESSÁRIO AGORA, MAS PODE SER ÚTIL NO FUTURO*/}
                 {!isTeacherMakeupClass && (
                   <div className="mt-4 hidden">
                     <label

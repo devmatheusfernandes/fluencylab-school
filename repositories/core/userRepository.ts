@@ -1,10 +1,9 @@
-import { adminDb } from '@/lib/firebase/admin';
-import { User } from '@/types/users/users';
+import { adminDb } from "@/lib/firebase/admin";
+import { User } from "@/types/users/users";
 
-const usersCollection = adminDb.collection('users');
+const usersCollection = adminDb.collection("users");
 
 export class UserRepository {
-
   async findById(id: string): Promise<User | null> {
     const docRef = usersCollection.doc(id);
     const docSnap = await docRef.get();
@@ -40,6 +39,5 @@ export class UserRepository {
     };
 
     await userRef.update(dataToUpdate);
-    console.log(`Usuário ${userId} atualizado com sucesso.`);
   }
 }
