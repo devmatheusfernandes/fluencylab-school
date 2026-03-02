@@ -8,7 +8,4 @@ export interface FullUserDetails extends User {
   scheduledClasses?: StudentClass[];
   vacationDaysRemaining?: number;
   bankingInfo?: BankingInfo;
-
-  // contractStatus?: 'signed' | 'pending' | 'none'; // Exemplo para o futuro
-  // paymentHistory?: any[]; // Exemplo para o futuro
 }

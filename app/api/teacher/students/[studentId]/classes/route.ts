@@ -80,11 +80,12 @@ export async function GET(
     }
     // Admins have access to all classes (no additional check needed)
 
-    // Fetch classes from Firestore
+    // Fetch classes from Firestore with a limit to prevent unbounded reads
     const classesSnapshot = await adminDb
       .collection("classes")
       .where("studentId", "==", studentId)
       .orderBy("scheduledAt", "desc")
+      .limit(100) // Safety limit
       .get();
 
     // Get teacher names
@@ -98,13 +99,23 @@ export async function GET(
 
     let teacherMap = new Map();
     if (teacherIds.length > 0) {
-      const teachers = await adminDb
-        .collection("users")
-        .where(FieldPath.documentId(), "in", teacherIds)
-        .get();
-      teacherMap = new Map(
-        teachers.docs.map((doc) => [doc.id, doc.data().name]),
-      );
+      // Handle potential large IN query by chunking (Firestore limit is 30 for IN queries)
+      const chunkSize = 30;
+      const chunks = [];
+      for (let i = 0; i < teacherIds.length; i += chunkSize) {
+        chunks.push(teacherIds.slice(i, i + chunkSize));
+      }
+
+      for (const chunk of chunks) {
+        const teachers = await adminDb
+          .collection("users")
+          .where(FieldPath.documentId(), "in", chunk)
+          .get();
+        
+        teachers.docs.forEach((doc) => {
+          teacherMap.set(doc.id, doc.data().name);
+        });
+      }
     }
 
     const classes = classesSnapshot.docs.map((doc) => {

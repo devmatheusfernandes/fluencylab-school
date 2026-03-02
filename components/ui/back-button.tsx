@@ -23,7 +23,7 @@ export const BackButton: React.FC<BackButtonProps> = ({
     return (
       <Link href={href} aria-label={ariaLabel}>
         <Button variant="ghost" size="icon" className={className}>
-          <ArrowLeft className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+          <ArrowLeft className="h-5 w-5 text-primary" />
         </Button>
       </Link>
     );
@@ -36,7 +36,7 @@ export const BackButton: React.FC<BackButtonProps> = ({
       aria-label={ariaLabel}
       onClick={() => router.back()}
     >
-      <ArrowLeft className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+      <ArrowLeft className="h-5 w-5 text-primary" />
     </Button>
   );
 };

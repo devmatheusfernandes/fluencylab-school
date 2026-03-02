@@ -56,8 +56,8 @@ export default function UserDetailsClient({
           <TabsList className="mt-0 flex-wrap h-full">
             <TabsTrigger value="overview">{t("overview")}</TabsTrigger>
 
-            {user.role === "student" ||
-              (user.role === "guarded_student" && (
+            {user.role === UserRoles.STUDENT ||
+              (user.role === UserRoles.GUARDED_STUDENT && (
                 <>
                   <TabsTrigger value="plan">{t("plan") || "Plano"}</TabsTrigger>
                   <TabsTrigger value="schedule">{t("schedule")}</TabsTrigger>
