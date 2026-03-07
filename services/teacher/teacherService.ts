@@ -53,9 +53,6 @@ export class TeacherService {
       // 3. Busca os perfis de todos esses alunos de uma só vez
       const students = await userAdminRepo.findUsersByIds(studentIds);
 
-      // 4. Cria um "mapa" para facilitar a busca do aluno pelo ID
-      const studentMap = new Map(students.map((s) => [s.id, s]));
-
       // 5. Para cada aluno, encontra a próxima aula
       const studentsWithNextClass = students.map((student) => {
         // Filtra as aulas deste aluno e ordena por data

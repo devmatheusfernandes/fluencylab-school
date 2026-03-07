@@ -71,7 +71,7 @@ export function FlashcardExercise({
 
             {imageUrl && (
               <div className="mb-6 w-full max-h-[180px] flex justify-center">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+                { }
                 <Image
                   src={imageUrl}
                   fill

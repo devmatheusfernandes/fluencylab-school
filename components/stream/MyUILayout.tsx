@@ -46,7 +46,6 @@ import {
   ModalTitle,
 } from "../ui/modal";
 
-// --- HOOK PARA DETECTAR MOBILE/STANDALONE ---
 const useStandalone = () => {
   const [isStandalone, setIsStandalone] = useState(false);
 
@@ -65,7 +64,6 @@ const useStandalone = () => {
   return isStandalone;
 };
 
-// --- ESTILOS COMPARTILHADOS ---
 // Ajustado para ser mais responsivo (largura total no mobile, parcial no desktop)
 const getGlassContainerClasses = (isMobile: boolean) => `
   fixed z-[9999]
@@ -344,8 +342,8 @@ export const MyUILayout: React.FC = (): JSX.Element => {
   const { transcription } = useCallSettings() || {};
   const isTranscribing = useIsCallTranscribingInProgress();
 
-  const isMicEnabled = micStatus === "enabled";
-  const isCamEnabled = camStatus === "enabled";
+  const isMicEnabled = micStatus === "disabled";
+  const isCamEnabled = camStatus === "disabled";
 
   // FAILSAFE: Força a transcrição se não estiver ativa
   useEffect(() => {
@@ -563,29 +561,10 @@ export const MyUILayout: React.FC = (): JSX.Element => {
 
   const handleToggleVideo = async () => {
     try {
-      // Se a câmera estiver desligada (ou seja, queremos LIGAR), testamos a permissão antes
-      if (camStatus === "disabled") {
-        const hasPermission = await requestManualPermission();
-        if (!hasPermission) {
-          setShowPermissionModal(true);
-          return; // Para aqui e não tenta o toggle do SDK
-        }
-      }
-
-      // Se passou, tenta o toggle do SDK
       await call?.camera.toggle();
     } catch (e: any) {
       console.error("Erro ao ligar câmera:", e);
-      // Se mesmo assim der erro de permissão, abre o modal
-      if (
-        e.toString().includes("Permission") ||
-        e.toString().includes("not allowed") ||
-        e.toString().includes("device")
-      ) {
-        setShowPermissionModal(true);
-      } else {
-        toast.error("Erro ao acessar a câmera.");
-      }
+      //setShowPermissionModal(true);
     }
   };
 

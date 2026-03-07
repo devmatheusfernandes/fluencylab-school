@@ -97,7 +97,7 @@ export async function GET(
       ),
     ];
 
-    let teacherMap = new Map();
+    const teacherMap = new Map();
     if (teacherIds.length > 0) {
       // Handle potential large IN query by chunking (Firestore limit is 30 for IN queries)
       const chunkSize = 30;

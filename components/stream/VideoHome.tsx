@@ -11,9 +11,7 @@ import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { useCallContext } from "@/context/CallContext";
 import { Loader2 } from "lucide-react";
-const apiKey = process.env.NEXT_PUBLIC_STREAM_API_KEY as string; // TODO apenas teste, precisa mudar
-
-// VideoHome.tsx
+const apiKey = process.env.NEXT_PUBLIC_STREAM_API_KEY as string;
 
 export default function VideoHome() {
   const { data: session } = useSession();
@@ -21,7 +19,6 @@ export default function VideoHome() {
   const [call, setCall] = useState<any | null>(null);
   const { callData } = useCallContext();
 
-  // Juntei a lógica de token e criação do client para evitar "states" intermediários desnecessários
   useEffect(() => {
     const init = async () => {
       if (!session?.user?.id || !callData?.callId) return;
@@ -51,14 +48,14 @@ export default function VideoHome() {
         };
 
         const newClient = new StreamVideoClient({
-          // Use construtor direto é mais seguro em useEffects com cleanup
           apiKey,
           user,
           token,
         });
 
         // 3. Create Call
-        const newCall = newClient.call("development", callId);
+        const newCall = newClient.call("default", callId);
+
         await newCall.getOrCreate({
           data: {
             settings_override: {
@@ -79,7 +76,6 @@ export default function VideoHome() {
 
     init();
 
-    // Cleanup function para desconectar o usuário ao desmontar o componente
     return () => {
       if (client) {
         client.disconnectUser();
@@ -87,8 +83,8 @@ export default function VideoHome() {
         setCall(null);
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.user?.id, callData?.callId]); // Dependências essenciais
+     
+  }, [session?.user?.id, callData?.callId]);
 
   if (!client || !call) {
     return (

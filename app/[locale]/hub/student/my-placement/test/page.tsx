@@ -172,7 +172,7 @@ export default function TestPage() {
       }
     };
     loadData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [session?.user?.id, langParam, router]);
 
   const startNewTest = async (lang: "en" | "pt") => {

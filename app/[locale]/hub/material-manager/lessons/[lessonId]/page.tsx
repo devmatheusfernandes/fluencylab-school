@@ -44,7 +44,7 @@ export default async function LessonDetailPage({
   };
 
   // Fetch Vocabulary
-  let vocabulary: LearningItem[] = [];
+  const vocabulary: LearningItem[] = [];
   if (
     lesson.relatedLearningItemIds &&
     lesson.relatedLearningItemIds.length > 0
@@ -83,7 +83,7 @@ export default async function LessonDetailPage({
   }
 
   // Fetch Structures
-  let structures: LearningStructure[] = [];
+  const structures: LearningStructure[] = [];
   if (
     lesson.relatedLearningStructureIds &&
     lesson.relatedLearningStructureIds.length > 0

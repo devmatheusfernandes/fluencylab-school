@@ -400,7 +400,7 @@ export class ContractRepository {
 
     let length = cnpj.length - 2;
     let numbers = cnpj.substring(0, length);
-    let digits = cnpj.substring(length);
+    const digits = cnpj.substring(length);
     let sum = 0;
     let pos = length - 7;
 

@@ -56,7 +56,7 @@ export function usePodcastPlayer({
       audio.removeEventListener("ended", handleEnded);
       audioRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [audioUrl, podcastId]);
 
   // Save progress logic

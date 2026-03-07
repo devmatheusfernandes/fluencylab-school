@@ -140,7 +140,7 @@ export default function ContentCuratorPage() {
 
   useEffect(() => {
     fetchQuestions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [activeLang]);
 
   // --- 2. Upload (JSON Local -> Firebase) ---

@@ -236,9 +236,9 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         // Debug: listar extensões e marks disponíveis
         // Útil para verificar se 'comment' está carregado
         // Remova se não precisar do log.
-        // eslint-disable-next-line no-console
+         
         // console.log("Tiptap extensions:", editor.extensionManager.extensions.map((e: any) => e.name));
-        // eslint-disable-next-line no-console
+         
         // console.log("Tiptap marks:", Object.keys((editor as any).schema?.marks || {}));
       } catch {}
       if (content && content !== "<p></p>" && editor.isEmpty) {

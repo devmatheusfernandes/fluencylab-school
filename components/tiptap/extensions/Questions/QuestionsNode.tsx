@@ -437,7 +437,7 @@ export const QuestionsNodeView: React.FC<any> = ({ node, updateAttributes }) => 
       return () => {
         active = false;
       };
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+       
     }, [d.id, JSON.stringify(d.questionIds)]);
 
     const goPrev = () => {

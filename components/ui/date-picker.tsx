@@ -1,7 +1,7 @@
 import { ArrowLeft, ArrowRight, Calendar, X } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { daysOfWeek, months } from "@/types/time/times";
+import { daysOfWeek } from "@/types/time/times";
 
 interface DatePickerProps {
   value?: Date | null;

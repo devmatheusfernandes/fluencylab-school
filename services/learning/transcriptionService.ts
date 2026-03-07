@@ -1,7 +1,7 @@
-import { StreamClient } from '@stream-io/node-sdk';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { adminDb } from '@/lib/firebase/admin';
-import { FieldValue } from 'firebase-admin/firestore';
+import { StreamClient } from "@stream-io/node-sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { adminDb } from "@/lib/firebase/admin";
+import { FieldValue } from "firebase-admin/firestore";
 
 export class TranscriptionService {
   private streamClient: StreamClient;
@@ -20,100 +20,131 @@ export class TranscriptionService {
     this.geminiKey = geminiKey;
   }
 
-  async saveCallMetadata(callId: string, studentId: string, notebookId: string) {
+  async saveCallMetadata(
+    callId: string,
+    studentId: string,
+    notebookId: string,
+  ) {
     console.log(`[TranscriptionService] Saving metadata for call ${callId}`);
-    
+
     await adminDb
-      .collection('users')
+      .collection("users")
       .doc(studentId)
-      .collection('Notebooks')
+      .collection("Notebooks")
       .doc(notebookId)
-      .set({
-        transcriptions: FieldValue.arrayUnion({
-          date: new Date(),
-          content: '',
-          summary: '',
-          callId: callId,
-          status: 'pending',
-          updatedAt: new Date()
-        })
-      }, { merge: true });
-      
+      .set(
+        {
+          transcriptions: FieldValue.arrayUnion({
+            date: new Date(),
+            content: "",
+            summary: "",
+            callId: callId,
+            status: "pending",
+            updatedAt: new Date(),
+          }),
+        },
+        { merge: true },
+      );
+
     console.log("[TranscriptionService] Metadata saved");
   }
 
   async fetchAndParseTranscription(url: string): Promise<string | null> {
     try {
-        const response = await fetch(url);
-        if (response.ok) {
-            const rawText = await response.text();
-            
-            if (rawText && rawText.trim().length > 0) {
-                let transcriptText = rawText;
-                
-                if (url.endsWith('.jsonl') || rawText.trim().startsWith('{')) {
-                     try {
-                         const lines = rawText.trim().split('\n');
-                         transcriptText = lines.map(line => {
-                             try {
-                                 if (!line.trim()) return "";
-                                 const json = JSON.parse(line);
-                                 return (json.results || []).map((r: any) => 
-                                     r.alternatives?.[0]?.transcript || ""
-                                 ).join(" ") || json.text || ""; 
-                             } catch { return ""; }
-                         }).join(" ");
-                     } catch (e) {
-                         transcriptText = rawText;
-                     }
-                }
-                
-                if (transcriptText.trim().length > 0) {
-                    return transcriptText;
-                }
+      const response = await fetch(url);
+      if (response.ok) {
+        const rawText = await response.text();
+
+        if (rawText && rawText.trim().length > 0) {
+          let transcriptText = rawText;
+
+          if (url.endsWith(".jsonl") || rawText.trim().startsWith("{")) {
+            try {
+              const lines = rawText.trim().split("\n");
+              transcriptText = lines
+                .map((line) => {
+                  try {
+                    if (!line.trim()) return "";
+                    const json = JSON.parse(line);
+                    return (
+                      (json.results || [])
+                        .map((r: any) => r.alternatives?.[0]?.transcript || "")
+                        .join(" ") ||
+                      json.text ||
+                      ""
+                    );
+                  } catch {
+                    return "";
+                  }
+                })
+                .join(" ");
+            } catch {
+              transcriptText = rawText;
             }
+          }
+
+          if (transcriptText.trim().length > 0) {
+            return transcriptText;
+          }
         }
+      }
     } catch (e) {
-        console.error("[TranscriptionService] Error fetching/parsing transcription:", e);
+      console.error(
+        "[TranscriptionService] Error fetching/parsing transcription:",
+        e,
+      );
     }
     return null;
   }
 
   async checkTranscriptionAvailability(callId: string) {
     console.log(`[TranscriptionService] Checking transcription for ${callId}`);
-    const call = this.streamClient.video.call('development', callId);
-    
+    const call = this.streamClient.video.call("development", callId);
+
     // Check transcriptions
     try {
-        const { transcriptions } = await call.listTranscriptions();
-        
-        const latestTranscript = transcriptions.sort((a, b) => 
-            new Date(b.end_time).getTime() - new Date(a.end_time).getTime()
-        )[0];
+      const { transcriptions } = await call.listTranscriptions();
 
-        if (latestTranscript?.url) {
-            console.log(`[TranscriptionService] Found transcription url: ${latestTranscript.url}`);
-            
-            const text = await this.fetchAndParseTranscription(latestTranscript.url);
-            
-            if (text) {
-                console.log(`[TranscriptionService] Transcription text length: ${text.length}`);
-                return { available: true, text };
-            } else {
-                console.log(`[TranscriptionService] Failed to get text from URL`);
-            }
+      const latestTranscript = transcriptions.sort(
+        (a, b) =>
+          new Date(b.end_time).getTime() - new Date(a.end_time).getTime(),
+      )[0];
+
+      if (latestTranscript?.url) {
+        console.log(
+          `[TranscriptionService] Found transcription url: ${latestTranscript.url}`,
+        );
+
+        const text = await this.fetchAndParseTranscription(
+          latestTranscript.url,
+        );
+
+        if (text) {
+          console.log(
+            `[TranscriptionService] Transcription text length: ${text.length}`,
+          );
+          return { available: true, text };
         } else {
-            console.log(`[TranscriptionService] No transcription URL found in list`);
+          console.log(`[TranscriptionService] Failed to get text from URL`);
         }
+      } else {
+        console.log(
+          `[TranscriptionService] No transcription URL found in list`,
+        );
+      }
     } catch (e) {
-        console.error("[TranscriptionService] Error fetching transcription list:", e);
+      console.error(
+        "[TranscriptionService] Error fetching transcription list:",
+        e,
+      );
     }
-    
-    return { available: false, text: '' };
+
+    return { available: false, text: "" };
   }
 
   async generateSummary(text: string) {
-    if (!text || text.length < 50) return "Transcrição muito curta para gerar resumo.";
+    if (!text || text.length < 50)
+      return "Transcrição muito curta para gerar resumo.";
 
     const genAI = new GoogleGenerativeAI(this.geminiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
@@ -132,117 +163,148 @@ export class TranscriptionService {
     return response.text();
   }
 
-  async updateTranscription(studentId: string, notebookId: string, callId: string, updates: any, transcriptionId?: string) {
-    const docRef = adminDb.collection('users').doc(studentId).collection('Notebooks').doc(notebookId);
+  async updateTranscription(
+    studentId: string,
+    notebookId: string,
+    callId: string,
+    updates: any,
+    transcriptionId?: string,
+  ) {
+    const docRef = adminDb
+      .collection("users")
+      .doc(studentId)
+      .collection("Notebooks")
+      .doc(notebookId);
     const docSnap = await docRef.get();
-    
+
     if (docSnap.exists) {
-        const data = docSnap.data();
-        let transcriptions = data?.transcriptions || [];
-        
-        let index = -1;
-        
-        // 1. If transcriptionId is provided, find by ID (Most precise)
-        if (transcriptionId) {
-            index = transcriptions.findIndex((t: any) => t.id === transcriptionId);
-        }
-        
-        // 2. If no ID, find by callId. 
-        // Logic: Find the LATEST entry with that callId, preferring 'pending' status if multiple.
-        if (index === -1) {
-            // Find all matches
-            const matches = transcriptions
-                .map((t: any, idx: number) => ({ ...t, originalIndex: idx }))
-                .filter((t: any) => t.callId === callId);
+      const data = docSnap.data();
+      const transcriptions = data?.transcriptions || [];
 
-            if (matches.length > 0) {
-                // Sort by date descending (newest first)
-                matches.sort((a: any, b: any) => {
-                     const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date);
-                     const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date);
-                     return dateB.getTime() - dateA.getTime();
-                });
+      let index = -1;
 
-                // Prefer the newest pending one
-                const pendingMatch = matches.find((t: any) => t.status === 'pending');
-                
-                if (pendingMatch) {
-                    index = pendingMatch.originalIndex;
-                } else {
-                    // If no pending, just take the newest one
-                    index = matches[0].originalIndex;
-                }
-            }
-        }
+      // 1. If transcriptionId is provided, find by ID (Most precise)
+      if (transcriptionId) {
+        index = transcriptions.findIndex((t: any) => t.id === transcriptionId);
+      }
 
-        if (index !== -1) {
-            transcriptions[index] = { ...transcriptions[index], ...updates, updatedAt: new Date() };
-            await docRef.update({ transcriptions });
-            return transcriptions[index];
+      // 2. If no ID, find by callId.
+      // Logic: Find the LATEST entry with that callId, preferring 'pending' status if multiple.
+      if (index === -1) {
+        // Find all matches
+        const matches = transcriptions
+          .map((t: any, idx: number) => ({ ...t, originalIndex: idx }))
+          .filter((t: any) => t.callId === callId);
+
+        if (matches.length > 0) {
+          // Sort by date descending (newest first)
+          matches.sort((a: any, b: any) => {
+            const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date);
+            const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date);
+            return dateB.getTime() - dateA.getTime();
+          });
+
+          // Prefer the newest pending one
+          const pendingMatch = matches.find((t: any) => t.status === "pending");
+
+          if (pendingMatch) {
+            index = pendingMatch.originalIndex;
+          } else {
+            // If no pending, just take the newest one
+            index = matches[0].originalIndex;
+          }
         }
+      }
+
+      if (index !== -1) {
+        transcriptions[index] = {
+          ...transcriptions[index],
+          ...updates,
+          updatedAt: new Date(),
+        };
+        await docRef.update({ transcriptions });
+        return transcriptions[index];
+      }
     }
     throw new Error("Transcription not found");
   }
 
   // Deprecated/Legacy support wrapper
-  async processAndSaveSummary(callId: string, studentId: string, notebookId: string) {
-      await this.saveCallMetadata(callId, studentId, notebookId);
-      // We don't wait for completion anymore in the new flow, 
-      // but if this is called by legacy code expecting a result, we might need to simulate it 
-      // or just return empty.
-      return { summary: '', transcriptText: '' };
+  async processAndSaveSummary(
+    callId: string,
+    studentId: string,
+    notebookId: string,
+  ) {
+    await this.saveCallMetadata(callId, studentId, notebookId);
+    // We don't wait for completion anymore in the new flow,
+    // but if this is called by legacy code expecting a result, we might need to simulate it
+    // or just return empty.
+    return { summary: "", transcriptText: "" };
   }
 
   async handleWebhookEvent(event: any) {
-    if (event.type !== 'call.transcription_ready') return;
+    if (event.type !== "call.transcription_ready") return;
 
-    const callId = event.call_cid.split(':')[1]; // assuming video:callId
+    const callId = event.call_cid.split(":")[1]; // assuming video:callId
     const transcription = event.transcription;
     const customData = event.call?.custom || {};
-    
+
     console.log(`[TranscriptionService] Webhook received for ${callId}`);
 
     const studentId = customData.studentId;
     const notebookId = customData.notebookId;
 
     if (!studentId || !notebookId) {
-        console.error(`[TranscriptionService] Missing studentId or notebookId in call custom data for ${callId}`);
-        // Fallback: Try to find in Firestore if possible, but for now just return
-        return;
+      console.error(
+        `[TranscriptionService] Missing studentId or notebookId in call custom data for ${callId}`,
+      );
+      // Fallback: Try to find in Firestore if possible, but for now just return
+      return;
     }
 
     if (!transcription?.url) {
-        console.error(`[TranscriptionService] No transcription URL in webhook for ${callId}`);
-        return;
+      console.error(
+        `[TranscriptionService] No transcription URL in webhook for ${callId}`,
+      );
+      return;
     }
 
-    console.log(`[TranscriptionService] Processing transcription from webhook for ${callId}`);
+    console.log(
+      `[TranscriptionService] Processing transcription from webhook for ${callId}`,
+    );
 
     try {
-        const text = await this.fetchAndParseTranscription(transcription.url);
-        
-        if (text) {
-            const summary = await this.generateSummary(text);
-            
-            await this.updateTranscription(studentId, notebookId, callId, {
-                content: text,
-                summary: summary,
-                status: 'available'
-            });
-            console.log(`[TranscriptionService] Successfully updated transcription via webhook for ${callId}`);
-        } else {
-             await this.updateTranscription(studentId, notebookId, callId, {
-                status: 'failed'
-            });
-            console.error(`[TranscriptionService] Failed to parse text from webhook URL for ${callId}`);
-        }
+      const text = await this.fetchAndParseTranscription(transcription.url);
+
+      if (text) {
+        const summary = await this.generateSummary(text);
+
+        await this.updateTranscription(studentId, notebookId, callId, {
+          content: text,
+          summary: summary,
+          status: "available",
+        });
+        console.log(
+          `[TranscriptionService] Successfully updated transcription via webhook for ${callId}`,
+        );
+      } else {
+        await this.updateTranscription(studentId, notebookId, callId, {
+          status: "failed",
+        });
+        console.error(
+          `[TranscriptionService] Failed to parse text from webhook URL for ${callId}`,
+        );
+      }
     } catch (e) {
-        console.error(`[TranscriptionService] Error processing webhook for ${callId}:`, e);
-         try {
-            await this.updateTranscription(studentId, notebookId, callId, {
-                status: 'failed'
-            });
-         } catch {}
+      console.error(
+        `[TranscriptionService] Error processing webhook for ${callId}:`,
+        e,
+      );
+      try {
+        await this.updateTranscription(studentId, notebookId, callId, {
+          status: "failed",
+        });
+      } catch {}
     }
   }
 }

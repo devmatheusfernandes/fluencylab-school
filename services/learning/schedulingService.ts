@@ -1387,13 +1387,6 @@ export class SchedulingService {
       if (classData) {
         // Check if it's a teacher makeup class
         if (classData.status === ClassStatus.CANCELED_TEACHER_MAKEUP) {
-          const canceledDate = new Date(classData.scheduledAt);
-          const canceledMonth = canceledDate.getMonth();
-          const canceledYear = canceledDate.getFullYear();
-          const now = new Date();
-          const currentMonth = now.getMonth();
-          const currentYear = now.getFullYear();
-
           // Teacher makeup classes can be rescheduled using credits without time restrictions
           // The credit system handles the expiration (45 days from cancellation)
           return {

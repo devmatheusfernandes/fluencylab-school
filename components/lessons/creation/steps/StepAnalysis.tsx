@@ -88,7 +88,7 @@ export function StepAnalysis({ lesson, onComplete }: StepAnalysisProps) {
 
     setIsUpdating(true);
 
-    let newData = {
+    const newData = {
       suggestedLevel: analysis.suggestedLevel,
       targetLanguage: analysis.targetLanguage,
       baseLanguage: analysis.baseLanguage,

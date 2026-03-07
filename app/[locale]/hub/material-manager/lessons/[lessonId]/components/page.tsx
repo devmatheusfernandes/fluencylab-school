@@ -38,7 +38,7 @@ export default async function Page({ params }: { params: Promise<{ lessonId: str
   };
 
   // 2. Fetch Vocabulary
-  let vocabulary: LearningItem[] = [];
+  const vocabulary: LearningItem[] = [];
   if (lesson.relatedLearningItemIds && lesson.relatedLearningItemIds.length > 0) {
     // Firestore 'in' query limit is 10 or 30 depending on field.
     // For large arrays, we need to batch. For simplicity here, assuming < 30.
@@ -77,7 +77,7 @@ export default async function Page({ params }: { params: Promise<{ lessonId: str
   }
 
   // 3. Fetch Structures
-  let structures: LearningStructure[] = [];
+  const structures: LearningStructure[] = [];
   if (lesson.relatedLearningStructureIds && lesson.relatedLearningStructureIds.length > 0) {
     const chunks = [];
     const ids = lesson.relatedLearningStructureIds;

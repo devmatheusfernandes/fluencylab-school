@@ -437,7 +437,7 @@ export default function EditCourseForm() {
     lessonId?: string,
   ) => {
     if (!courseId) return;
-    let items: (Section | Lesson)[] =
+    const items: (Section | Lesson)[] =
       type === "section"
         ? [...sections]
         : sections.find((s) => s.id === sectionId)?.lessons || [];
