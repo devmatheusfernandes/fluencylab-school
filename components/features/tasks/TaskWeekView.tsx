@@ -192,9 +192,8 @@ export function TaskWeekView({
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       collisionDetection={closestCorners}
-      // REMOVIDO: dropAnimation={...} não deve estar aqui
     >
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-4 px-1 gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-4 px-1 gap-4 min-w-[93vw]">
         <div className="flex items-center gap-2 bg-muted/40 p-1 rounded-lg">
           <Button
             onClick={isMobile ? handlePrevView : handlePrevWeek}

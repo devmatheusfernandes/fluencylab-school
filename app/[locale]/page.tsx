@@ -8,6 +8,8 @@ import HowItWorks from "@/components/landing/HowItWorks";
 import TeamSection from "@/components/landing/TeamSection";
 import Footer from "@/components/landing/Footer";
 
+import { PwaWelcomeScreen } from "@/components/landing/PwaWelcomeScreen";
+
 export default function LandingPage() {
   const isStandalone = useIsStandalone();
 
@@ -50,7 +52,7 @@ export default function LandingPage() {
           <Footer />
         </div>
       ) : (
-        <p>PWA</p>
+        <PwaWelcomeScreen />
       )}
     </>
   );

@@ -157,7 +157,7 @@ export function TaskDashboard() {
         }
       />
 
-      <div className="flex-1 overflow-hidden min-h-[500px]">
+      <div className="flex-1 overflow-hidden min-h-[500px] max-w-fit">
         {view === "board" && (
           <TaskKanbanView
             tasks={tasks}

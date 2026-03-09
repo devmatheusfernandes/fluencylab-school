@@ -219,7 +219,7 @@ function KanbanColumn({
     <div
       ref={setNodeRef}
       className={cn(
-        "flex-1 min-w-[300px] rounded-xl flex flex-col gap-3 transition-colors duration-200",
+        "flex-1 min-w-[300px] max-w-[93vw] rounded-xl flex flex-col gap-3 transition-colors duration-200",
         isOver ? "bg-muted/80 ring-2 ring-primary/20" : "bg-muted/30",
       )}
     >
@@ -292,7 +292,7 @@ function KanbanSkeleton({ isMobile }: { isMobile: boolean }) {
       {[1, 2, 3, 4].map((i) => (
         <div
           key={i}
-          className="flex-1 min-w-[300px] bg-muted/30 rounded-xl p-4 flex flex-col gap-3"
+          className="flex-1 min-w-[300px] max-w-[93vw] bg-muted/30 rounded-xl p-4 flex flex-col gap-3"
         >
           <div className="flex justify-between items-center mb-2">
             <div className="h-4 w-24 bg-muted animate-pulse rounded" />
