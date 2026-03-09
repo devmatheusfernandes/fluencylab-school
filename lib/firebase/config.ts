@@ -1,7 +1,12 @@
 // lib/firebase/config.ts
 
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import {
+  getFirestore,
+  initializeFirestore,
+  persistentLocalCache,
+  type Firestore,
+} from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 import { getEnv } from "@/lib/env/validation";
@@ -21,7 +26,19 @@ const firebaseConfig = {
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 // Exporta as instâncias dos serviços que você usará no projeto.
-const db = getFirestore(app);
+// Inicializa o Firestore com persistência de cache (substitui enableIndexedDbPersistence depreciado)
+let db: Firestore;
+try {
+  if (typeof window !== "undefined") {
+    db = initializeFirestore(app, { localCache: persistentLocalCache() });
+  } else {
+    db = getFirestore(app);
+  }
+} catch (e) {
+  // Fallback para getFirestore caso já tenha sido inicializado (ex: Hot Reload)
+  db = getFirestore(app);
+}
+
 const auth = getAuth(app);
 const storage = getStorage(app);
 

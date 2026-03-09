@@ -163,6 +163,7 @@ const ModalContent = React.forwardRef<
               className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end justify-center"
             >
               <Dialog.Content
+                aria-describedby="modal-description"
                 className={twMerge(
                   `relative w-full max-w-lg mx-3 mb-4 sm:mb-6 no-scrollbar
                   bg-white dark:bg-gray-900/95 

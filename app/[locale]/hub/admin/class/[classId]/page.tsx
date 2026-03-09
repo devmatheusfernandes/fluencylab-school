@@ -38,9 +38,6 @@ export default async function ClassPage({
   }
 
   return (
-    <ClassDetailsView
-      backHref="/hub/admin/classes"
-      classDetails={classDetails}
-    />
+    <ClassDetailsView backHref="/hub/admin/users" classDetails={classDetails} />
   );
 }

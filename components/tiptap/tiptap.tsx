@@ -3,12 +3,10 @@
 import React, { useEffect, useRef, useCallback } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
 import { TextStyle } from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
 import Highlight from "@tiptap/extension-highlight";
-import Link from "@tiptap/extension-link";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCaret from "@tiptap/extension-collaboration-caret";
 
@@ -38,6 +36,7 @@ import FloatStudentCallButton from "../stream/FloatStudentCallButton";
 import FloatTeacherCallButton from "../stream/FloatTeacherCallButton";
 import { useSession } from "next-auth/react";
 import Bubble from "./bubble";
+import Link from "@tiptap/extension-link";
 
 interface TiptapEditorProps {
   content: string;
@@ -163,8 +162,15 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
           levels: [1, 2, 3, 4, 5, 6],
         },
         undoRedo: false,
+        link: {
+          openOnClick: false,
+          HTMLAttributes: {
+            class:
+              "text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300",
+          },
+        },
       }),
-      Underline,
+      //Underline,
       TextAlign.configure({
         types: ["heading", "paragraph"],
       }),
@@ -183,14 +189,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
       }),
       TaskList,
       TaskItem.configure({ nested: true }),
-      Link.configure({
-        openOnClick: false,
-        HTMLAttributes: {
-          class:
-            "text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300",
-        },
-      }),
-      // Add collaboration extension when ydoc is provided
+
       ...(ydoc
         ? [
             Collaboration.configure({
@@ -236,9 +235,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         // Debug: listar extensões e marks disponíveis
         // Útil para verificar se 'comment' está carregado
         // Remova se não precisar do log.
-         
         // console.log("Tiptap extensions:", editor.extensionManager.extensions.map((e: any) => e.name));
-         
         // console.log("Tiptap marks:", Object.keys((editor as any).schema?.marks || {}));
       } catch {}
       if (content && content !== "<p></p>" && editor.isEmpty) {

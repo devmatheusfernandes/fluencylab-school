@@ -56,15 +56,23 @@ export default function UserDetailsClient({
           <TabsList className="mt-0 flex-wrap h-full">
             <TabsTrigger value="overview">{t("overview")}</TabsTrigger>
 
-            {user.role === UserRoles.STUDENT ||
-              (user.role === UserRoles.GUARDED_STUDENT && (
-                <>
-                  <TabsTrigger value="plan">{t("plan") || "Plano"}</TabsTrigger>
-                  <TabsTrigger value="schedule">{t("schedule")}</TabsTrigger>
-                  <TabsTrigger value="classes">{t("classes")}</TabsTrigger>
-                  <TabsTrigger value="credits">{t("credits")}</TabsTrigger>
-                </>
-              ))}
+            {user.role === UserRoles.STUDENT && (
+              <>
+                <TabsTrigger value="plan">{t("plan") || "Plano"}</TabsTrigger>
+                <TabsTrigger value="schedule">{t("schedule")}</TabsTrigger>
+                <TabsTrigger value="classes">{t("classes")}</TabsTrigger>
+                <TabsTrigger value="credits">{t("credits")}</TabsTrigger>
+              </>
+            )}
+
+            {user.role === UserRoles.GUARDED_STUDENT && (
+              <>
+                <TabsTrigger value="plan">{t("plan") || "Plano"}</TabsTrigger>
+                <TabsTrigger value="schedule">{t("schedule")}</TabsTrigger>
+                <TabsTrigger value="classes">{t("classes")}</TabsTrigger>
+                <TabsTrigger value="credits">{t("credits")}</TabsTrigger>
+              </>
+            )}
             <TabsTrigger value="financial">{t("financial")}</TabsTrigger>
             <TabsTrigger value="contracts">{t("contracts")}</TabsTrigger>
 

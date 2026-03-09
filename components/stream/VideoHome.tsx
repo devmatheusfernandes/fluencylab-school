@@ -20,6 +20,9 @@ export default function VideoHome() {
   const { callData } = useCallContext();
 
   useEffect(() => {
+    let mounted = true;
+    let myClient: StreamVideoClient | null = null;
+
     const init = async () => {
       if (!session?.user?.id || !callData?.callId) return;
 
@@ -37,6 +40,8 @@ export default function VideoHome() {
 
         const { token } = await response.json();
         if (!token) throw new Error("Token não encontrado");
+
+        if (!mounted) return;
 
         // 2. Create Client
         const user: User = {
@@ -67,6 +72,12 @@ export default function VideoHome() {
           },
         });
 
+        if (!mounted) {
+          await newClient.disconnectUser();
+          return;
+        }
+
+        myClient = newClient;
         setClient(newClient);
         setCall(newCall);
       } catch (error) {
@@ -77,11 +88,12 @@ export default function VideoHome() {
     init();
 
     return () => {
-      if (client) {
-        client.disconnectUser();
-        setClient(null);
-        setCall(null);
+      mounted = false;
+      if (myClient) {
+        myClient.disconnectUser();
       }
+      setClient(null);
+      setCall(null);
     };
      
   }, [session?.user?.id, callData?.callId]);
