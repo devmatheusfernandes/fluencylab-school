@@ -112,7 +112,7 @@ export function FeedbackSheet({
       emerald:
         "bg-emerald-100 border-emerald-200 dark:bg-emerald-950 dark:border-emerald-900",
       green:
-        "bg-green-100 border-green-200 dark:bg-green-950 dark:border-green-900",
+        "bg-green-100 border-green-200 dark:bg-green-950 border-green-900 dark:border-green-900",
       slate:
         "bg-slate-100 border-slate-200 dark:bg-slate-950 dark:border-slate-900",
     }[config.color] || "bg-slate-100 border-slate-200";
@@ -139,13 +139,17 @@ export function FeedbackSheet({
 
   const buttonClass =
     {
-      rose: "bg-rose-500 hover:bg-rose-600 text-white shadow-rose-700",
-      amber: "bg-amber-500 hover:bg-amber-600 text-white shadow-amber-700",
-      indigo: "bg-indigo-500 hover:bg-indigo-600 text-white shadow-indigo-700",
+      rose: "bg-rose-500 hover:bg-rose-600 text-white shadow-rose-700 border-transparent",
+      amber:
+        "bg-amber-500 hover:bg-amber-600 text-white shadow-amber-700 border-transparent",
+      indigo:
+        "bg-indigo-500 hover:bg-indigo-600 text-white shadow-indigo-700 border-transparent",
       emerald:
-        "bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-700",
-      green: "bg-green-500 hover:bg-green-600 text-white shadow-green-700",
-      slate: "bg-slate-500 hover:bg-slate-600 text-white shadow-slate-700",
+        "bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-700 border-transparent",
+      green:
+        "bg-green-500 hover:bg-green-600 text-white shadow-green-700 border-transparent",
+      slate:
+        "bg-slate-500 hover:bg-slate-600 text-white shadow-slate-700 border-transparent",
     }[config.color] || "bg-slate-500";
 
   return (

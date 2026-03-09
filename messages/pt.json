@@ -244,7 +244,8 @@
     "reviewedItemsTitle": "Itens Revisados",
     "noReviewedItemsDescription": "Nenhum item foi revisado ainda.",
     "reviewedItemsDescription": "Aqui você pode ver todos os itens que já revisaram.",
-    "noReviewedItemsTitle": "Nenhum item revisado ainda"
+    "noReviewedItemsTitle": "Nenhum item revisado ainda",
+    "reviewedOn": "Revisado em"
   },
   "LearningPath": {
     "noLessonsTitle": "Sem aulas esta semana!",

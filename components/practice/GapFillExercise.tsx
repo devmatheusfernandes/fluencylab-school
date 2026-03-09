@@ -14,6 +14,7 @@ interface GapFillExerciseProps {
   correctAnswer: string;
   audioSegment?: { start: number; end: number; url: string };
   audioText?: string;
+  language?: string;
   onComplete: (isCorrect: boolean, userAnswer: string) => void;
 }
 
@@ -22,6 +23,7 @@ export function GapFillExercise({
   correctAnswer,
   audioSegment,
   audioText,
+  language,
   onComplete,
 }: GapFillExerciseProps) {
   const [answer, setAnswer] = useState('');
@@ -88,13 +90,14 @@ export function GapFillExercise({
 
       {(audioSegment || audioText) && (
         <PracticeAudioPlayer 
-            audioUrl={audioSegment ? audioSegment.url : ""} 
+            audioUrl={audioSegment?.url} 
             isOpen={showAudio} 
             onClose={() => setShowAudio(false)} 
             autoPlay={true}
             startTime={audioSegment?.start}
             endTime={audioSegment?.end}
             textToSpeak={audioSegment ? undefined : audioText}
+            language={language}
         />
       )}
     </div>

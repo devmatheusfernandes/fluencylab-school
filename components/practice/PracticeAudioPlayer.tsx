@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface PracticeAudioPlayerProps {
-  audioUrl: string;
+  audioUrl?: string | null;
   isOpen: boolean;
   onClose: () => void;
   autoPlay?: boolean;
@@ -15,10 +14,11 @@ interface PracticeAudioPlayerProps {
   endTime?: number;
   onComplete?: () => void;
   textToSpeak?: string;
+  language?: string;
 }
 
 export function PracticeAudioPlayer({
-  audioUrl,
+  audioUrl = null,
   isOpen,
   onClose,
   autoPlay = true,
@@ -26,14 +26,15 @@ export function PracticeAudioPlayer({
   endTime,
   onComplete,
   textToSpeak,
+  language = "en-US",
 }: PracticeAudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(startTime);
   const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(1);
   const [playbackRate, setPlaybackRate] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
-  const pathname = usePathname();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -45,7 +46,7 @@ export function PracticeAudioPlayer({
         "speechSynthesis" in window
       ) {
         const utterance = new SpeechSynthesisUtterance(textToSpeak);
-        utterance.lang = pathname?.split("/")[1] === "pt" ? "pt-BR" : "en-US";
+        utterance.lang = language;
         utterance.onend = () => {
           setIsPlaying(false);
           if (onComplete) onComplete();
@@ -68,15 +69,7 @@ export function PracticeAudioPlayer({
         setIsPlaying(true);
       }
     }
-  }, [
-    isOpen,
-    autoPlay,
-    audioUrl,
-    startTime,
-    textToSpeak,
-    onComplete,
-    pathname,
-  ]);
+  }, [isOpen, autoPlay, audioUrl, startTime, textToSpeak, onComplete]);
 
   const togglePlay = () => {
     if (textToSpeak) {
@@ -88,7 +81,7 @@ export function PracticeAudioPlayer({
         setIsPlaying(false);
       } else {
         const utterance = new SpeechSynthesisUtterance(textToSpeak);
-        utterance.lang = pathname?.split("/")[1] === "pt" ? "pt-BR" : "en-US";
+        utterance.lang = language;
         utterance.onend = () => {
           setIsPlaying(false);
           if (onComplete) onComplete();
@@ -171,7 +164,7 @@ export function PracticeAudioPlayer({
         >
           <audio
             ref={audioRef}
-            src={audioUrl}
+            src={audioUrl || undefined}
             onTimeUpdate={handleTimeUpdate}
             onEnded={() => setIsPlaying(false)}
           />

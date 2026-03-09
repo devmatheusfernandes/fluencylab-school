@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { PracticeHeader } from "./PracticeHeader";
 import { FeedbackSheet } from "./FeedbackSheet";
@@ -41,6 +42,21 @@ export function PracticeSession({
   lessonId,
 }: PracticeSessionProps) {
   const router = useRouter();
+  const { data: session } = useSession();
+
+  // Helper to get language code
+  const getLanguageCode = (lang?: string) => {
+    if (!lang) return 'en-US';
+    const map: Record<string, string> = {
+      'Inglês': 'en-US',
+      'Espanhol': 'es-ES',
+      'Português': 'pt-BR',
+      'Libras': 'pt-BR',
+    };
+    return map[lang] || 'en-US';
+  };
+
+  const targetLanguage = getLanguageCode(session?.user?.languages?.[0]);
 
   // Session State
   const [items, setItems] = useState<PracticeItem[]>([]);
@@ -366,6 +382,7 @@ export function PracticeSession({
                   ? undefined
                   : currentItem.gapFill.correctAnswer
               }
+              language={targetLanguage}
               onComplete={(isCorrect, ans) => {
                 const grade = calculateWritingGrade(
                   ans,

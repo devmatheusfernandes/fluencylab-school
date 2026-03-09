@@ -16,6 +16,7 @@ declare module "next-auth" {
       tutorialCompleted?: boolean;
       twoFactorEnabled?: boolean;
       hasPassword?: boolean;
+      languages?: string[];
       avatarUrl?: string | null;
       preferences?: {
         soundEffectsEnabled?: boolean;
@@ -51,6 +52,7 @@ declare module "next-auth/jwt" {
     tutorialCompleted?: boolean;
     twoFactorEnabled?: boolean;
     hasPassword?: boolean;
+    languages?: string[];
     preferences?: {
       soundEffectsEnabled?: boolean;
       [key: string]: any;

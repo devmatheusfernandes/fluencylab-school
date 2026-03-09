@@ -36,7 +36,7 @@ export const authOptions: NextAuthOptions = {
           //console.log(`[NextAuth] Validando usuário...`);
           const user = await authService.validateUser(
             credentials.email,
-            credentials.password
+            credentials.password,
           );
           if (!user) {
             // console.log(
@@ -65,7 +65,7 @@ export const authOptions: NextAuthOptions = {
             // Verify the 2FA token
             const isValid = await authService.verifyTwoFactorToken(
               user.id,
-              credentials.twoFactorCode
+              credentials.twoFactorCode,
             );
             if (!isValid) {
               // console.log(
@@ -74,7 +74,7 @@ export const authOptions: NextAuthOptions = {
               // Try to verify as backup code
               const isBackupValid = await authService.verifyBackupCode(
                 user.id,
-                credentials.twoFactorCode
+                credentials.twoFactorCode,
               );
               if (isBackupValid) {
                 // console.log(
@@ -83,7 +83,7 @@ export const authOptions: NextAuthOptions = {
                 // Invalidate the used backup code
                 await authService.invalidateBackupCode(
                   user.id,
-                  credentials.twoFactorCode
+                  credentials.twoFactorCode,
                 );
               } else {
                 //console.log(`[NextAuth] Código de backup também inválido`);
@@ -166,7 +166,7 @@ export const authOptions: NextAuthOptions = {
           // Sync Google profile picture if user has no avatar
           const userDoc = snapshot.docs[0];
           const userData = userDoc.data();
-          
+
           // Google profile usually has 'picture' field
           // We use 'as any' or check specifically if using typed profile
           const googlePicture = (profile as any)?.picture;
@@ -207,6 +207,7 @@ export const authOptions: NextAuthOptions = {
             token.permissions = firestoreUser.permissions;
             token.tutorialCompleted = firestoreUser.tutorialCompleted;
             token.twoFactorEnabled = firestoreUser.twoFactorEnabled;
+            token.languages = firestoreUser.languages;
             token.preferences = firestoreUser.preferences;
 
             // Fetch hasPassword status
@@ -219,6 +220,7 @@ export const authOptions: NextAuthOptions = {
           token.permissions = user.permissions;
           token.tutorialCompleted = user.tutorialCompleted;
           token.twoFactorEnabled = user.twoFactorEnabled;
+          token.languages = user.languages;
           token.hasPassword = user.hasPassword;
           token.preferences = user.preferences;
         }
@@ -228,13 +230,14 @@ export const authOptions: NextAuthOptions = {
       if (trigger === "update" || (!user && token.id)) {
         try {
           const refreshedUser = await authService.getUserById(
-            token.id as string
+            token.id as string,
           );
           if (refreshedUser) {
             token.role = refreshedUser.role;
             token.permissions = refreshedUser.permissions;
             token.tutorialCompleted = refreshedUser.tutorialCompleted;
             token.twoFactorEnabled = refreshedUser.twoFactorEnabled;
+            token.languages = refreshedUser.languages;
             token.hasPassword = refreshedUser.hasPassword;
             token.preferences = refreshedUser.preferences;
           }
@@ -253,6 +256,7 @@ export const authOptions: NextAuthOptions = {
         session.user.tutorialCompleted = token.tutorialCompleted as boolean;
         session.user.twoFactorEnabled = token.twoFactorEnabled as boolean;
         session.user.hasPassword = token.hasPassword as boolean;
+        session.user.languages = token.languages as string[];
         session.user.preferences = token.preferences as any;
       }
       return session;
