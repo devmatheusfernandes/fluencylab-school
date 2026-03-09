@@ -2002,7 +2002,7 @@
   "StudentPaymentStatusCard": {
     "title": "Status",
     "creditCard": "do Cartão",
-    "pix": "do Pix",
+    "pix": "do pagamento",
     "active": "Em dia",
     "activeDesc": "Sua mensalidade está em dia",
     "overdue": "Em atraso",
@@ -3261,5 +3261,10 @@
     "year": "Ano",
     "accrued": "A Pagar",
     "paid": "Pago"
+  },
+  "WordOfTheDay": {
+    "title": "Palavra do Dia",
+    "description": "Aqui está sua palavra de hoje para ajudar você a aprender!",
+    "gotIt": "Entendi!"
   }
 }

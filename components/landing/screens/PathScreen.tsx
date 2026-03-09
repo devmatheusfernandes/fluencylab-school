@@ -13,7 +13,6 @@ export function PathScreen() {
   const { data: session } = useSession();
   const [greeting, setGreeting] = useState<string>("");
 
-  // Lógica de Saudação (vinda do seu HomeScreen)
   useEffect(() => {
     const updateGreeting = () => {
       const now = new Date();
@@ -108,7 +107,7 @@ export function PathScreen() {
         {/* Linha de fundo do Path */}
         <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-5 dark:opacity-10">
           <path
-            d="M 50% 0 Q 80% 150, 50% 300 T 50% 600"
+            d="M 50 0 Q 80 150, 50 300 T 50 600"
             fill="none"
             stroke="currentColor"
             strokeWidth="12"

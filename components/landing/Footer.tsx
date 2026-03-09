@@ -1,14 +1,7 @@
 "use client";
-
-import { motion } from "framer-motion";
-import {
-  ArrowUp,
-  Instagram,
-  MessageCircle,
-  AtSign,
-  ArrowRight,
-  Send,
-} from "lucide-react";
+import Image from "next/image";
+import Logo from "../../public/brand/Group.png";
+import { ArrowUp, Instagram, MessageCircle, AtSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -20,15 +13,11 @@ export default function Footer() {
 
   return (
     <footer id="faq" className="container-padding pb-4 md:pb-0">
-      {/* Ajuste de rounded para mobile (xl) e desktop (2rem) */}
       <div className="relative bg-slate-100 dark:bg-slate-900 rounded-3xl md:rounded-[2rem] overflow-hidden transition-all">
-        {/* --- BACKGROUND TEXTURE (Sutil) --- */}
         <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] dark:opacity-[0.05] pointer-events-none"></div>
 
-        {/* Ajuste de padding vertical: py-8 no mobile, py-16 no desktop */}
         <div className="container mx-auto px-6 py-8 md:py-16 relative z-10">
-          {/* --- CTA MINIMALISTA --- */}
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-8 mb-12 md:mb-16 md:px-4">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-3 mb-12 md:mb-16 md:px-4">
             <div className="space-y-3 text-center lg:text-left">
               <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
                 Pronto para fluência?
@@ -54,15 +43,10 @@ export default function Footer() {
 
           <hr className="border-slate-100 dark:border-slate-800 mb-8 md:mb-12" />
 
-          {/* --- LINKS (Grid Otimizado) --- */}
-          {/* Mobile: grid-cols-2 (links lado a lado) */}
-          {/* Desktop: Mantém estrutura original */}
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-12 gap-x-4 gap-y-10 lg:gap-8 items-start">
-            {/* Logo e Descrição - Ocupa 2 colunas no mobile (largura total) */}
             <div className="col-span-2 lg:col-span-4 space-y-4 text-center lg:text-left flex flex-col items-center lg:items-start">
               <div className="flex items-center gap-1.5 font-bold tracking-tighter text-xl text-slate-900 dark:text-white select-none">
-                <span className="text-primary">FLUENCY</span>LAB
-                <span className="text-slate-300">.</span>
+                <Image src={Logo} alt="Logo" width={200} height={200} />
               </div>
               <p className="text-slate-500 text-sm leading-relaxed max-w-xs mx-auto lg:mx-0">
                 Transformando o aprendizado de idiomas em uma experiência
@@ -70,7 +54,6 @@ export default function Footer() {
               </p>
             </div>
 
-            {/* Colunas de Navegação */}
             <div className="col-span-1 lg:col-span-2 space-y-4">
               <h4 className="font-semibold text-slate-900 dark:text-slate-100 text-xs uppercase tracking-wider">
                 Aluno
@@ -159,7 +142,6 @@ export default function Footer() {
               </ul>
             </div>
 
-            {/* Social - Alinha com a grade ou ocupa espaço próprio */}
             <div className="col-span-1 lg:col-span-2 space-y-4">
               <h4 className="font-semibold text-slate-900 dark:text-slate-100 text-xs uppercase tracking-wider">
                 Social
@@ -181,10 +163,9 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* --- BOTTOM BAR --- */}
           <div className="mt-12 md:mt-16 pt-8 border-t border-slate-100 dark:border-slate-800 flex flex-col-reverse md:flex-row items-center justify-between gap-4">
             <p className="text-slate-400 text-xs font-medium text-center md:text-left">
-              © 2025 FluencyLab. Todos os direitos reservados.
+              © 2026 FluencyLab. Todos os direitos reservados.
             </p>
 
             <button
@@ -201,7 +182,6 @@ export default function Footer() {
   );
 }
 
-// Sub-componente mantido igual
 function SocialButton({
   children,
   href,

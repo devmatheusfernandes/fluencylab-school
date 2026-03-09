@@ -22,7 +22,7 @@ export function LandingHero() {
         if (prev === "path") return "editor";
         return "home";
       });
-    }, 10000); // Alterna a cada 5 segundos
+    }, 10000);
 
     return () => clearInterval(interval);
   }, []);
@@ -39,7 +39,6 @@ export function LandingHero() {
             />
           </p>
 
-          {/* MUDANÇA: Texto principal mais escuro/nítido */}
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter text-white leading-[0.95] mb-8 mt-2">
             {t("title")}
           </h1>
@@ -48,19 +47,10 @@ export function LandingHero() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              //className="flex flex-row items-center justify-center gap-2 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white px-8 py-4 rounded-full font-medium border border-gray-200 dark:border-gray-700"
               className="flex flex-row items-center justify-center gap-2 bg-primary/90 hover:bg-primary/95 text-white px-8 py-4 rounded-full font-bold duration-300 ease-in-out transform-all"
             >
               <CalendarDaysIcon size={24} />
               {t("primaryCta")}
-            </motion.button>
-            {/* NÃO VAMOS USAR POR ENQUANTO */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="hidden px-6 py-4 rounded-full font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-            >
-              {t("secondaryCta")}
             </motion.button>
           </div>
         </div>
@@ -73,8 +63,6 @@ export function LandingHero() {
             lg:absolute lg:top-32 lg:right-40 lg:w-auto lg:h-auto
           "
         >
-          {/* bottom-14 left-4  */}
-          {/* --- COMPONENTE VISUAL ANIMADO --- */}
           <PhoneMockup>
             <AnimatePresence mode="wait">
               {currentScreen === "home" ? (
@@ -113,7 +101,6 @@ export function LandingHero() {
               )}
             </AnimatePresence>
           </PhoneMockup>
-          {/* --- FIM DO COMPONENTE VISUAL --- */}
         </div>
       </div>
     </main>

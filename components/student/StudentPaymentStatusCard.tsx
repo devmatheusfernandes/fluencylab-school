@@ -16,14 +16,12 @@ import {
   QrCode,
   Loader2,
   Wallet,
-  CheckCheckIcon,
 } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
 import { useTranslations, useLocale } from "next-intl";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-// Utilitário para classes
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -155,8 +153,8 @@ export function StudentPaymentStatusCard() {
 
   if (!paymentStatus || !paymentStatus.subscriptionId) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl h-full shadow-sm">
-        <div className="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-full mb-4 ring-1 ring-zinc-200 dark:ring-zinc-700">
+      <div className="card-base flex flex-col items-center justify-center p-8 h-full">
+        <div className="p-4 bg-amber-50 dark:bg-amber-800 rounded-full mb-4 ring-1 ring-amber-200 dark:ring-amber-700">
           <Wallet className="w-8 h-8 text-zinc-400" />
         </div>
         <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 text-lg mb-2 text-center">
@@ -172,7 +170,7 @@ export function StudentPaymentStatusCard() {
           }
           className="gap-2"
         >
-          <QrCode className="w-4 h-4" />
+          <QrCode className="w-4 h-4 mr-1" />
           {t("managePayments")}
         </Button>
       </div>
@@ -193,7 +191,6 @@ export function StudentPaymentStatusCard() {
           : "border-zinc-200 dark:border-zinc-800",
       )}
     >
-      {/* HEADER */}
       <div className="p-5 flex items-start justify-between border-b border-zinc-100 dark:border-zinc-800/50">
         <div className="flex items-center gap-3">
           <div
@@ -225,15 +222,12 @@ export function StudentPaymentStatusCard() {
         </div>
       </div>
 
-      {/* BODY CONTENT - FLEX GROWS TO FILL SPACE */}
       <div className="flex-1 p-5 flex flex-col justify-center">
         <div className="w-full">
           {(daysUntilDue !== null && daysUntilDue <= 5) || isOverdue ? (
             <div className="space-y-5 animate-in fade-in zoom-in-95 duration-300">
               {paymentStatus.pixCode ? (
-                // STATE: PIX GENERATED
                 <div className="flex flex-col lg:flex-row gap-5 items-center lg:items-start">
-                  {/* QR Code */}
                   <div className="relative shrink-0 group bg-white p-2 rounded-xl border-2 border-dashed border-zinc-200 dark:border-zinc-700 shadow-sm">
                     {paymentStatus.pixQrCode && (
                       <Image
@@ -244,7 +238,6 @@ export function StudentPaymentStatusCard() {
                         className="rounded-lg mix-blend-multiply dark:mix-blend-normal dark:bg-white"
                       />
                     )}
-                    {/* Timer Overlay */}
                     {paymentStatus.pixExpiresAt && (
                       <div className="absolute inset-x-0 -bottom-3 flex justify-center">
                         <span className="bg-zinc-900 text-white text-[10px] px-2 py-0.5 rounded-full shadow-md flex items-center gap-1">
@@ -254,7 +247,6 @@ export function StudentPaymentStatusCard() {
                     )}
                   </div>
 
-                  {/* Copy/Paste Section */}
                   <div className="flex-1 w-full space-y-3 min-w-0">
                     <div className="text-center lg:text-left">
                       <p className="font-medium text-zinc-900 dark:text-zinc-100">
@@ -284,7 +276,6 @@ export function StudentPaymentStatusCard() {
                   </div>
                 </div>
               ) : (
-                // STATE: READY TO GENERATE
                 <div className="flex flex-col items-center text-center py-2">
                   <div className="mb-4 p-4 bg-emerald-50 dark:bg-emerald-900/10 rounded-full">
                     <QrCode className="w-8 h-8 text-emerald-600 dark:text-emerald-500" />
@@ -316,7 +307,6 @@ export function StudentPaymentStatusCard() {
               )}
             </div>
           ) : (
-            // STATE: TOO EARLY
             <div className="flex flex-col items-center justify-center py-6 text-zinc-400">
               <div className="w-12 h-12 rounded-full bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center mb-3">
                 <Clock className="w-6 h-6 opacity-40" />
@@ -332,10 +322,8 @@ export function StudentPaymentStatusCard() {
         </div>
       </div>
 
-      {/* FOOTER DETAILS - RESPONSIVE GRID */}
       <div className="bg-zinc-50/50 dark:bg-zinc-950/30 border-t border-zinc-100 dark:border-zinc-800 p-4 lg:p-5 rounded-b-xl">
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-6">
-          {/* Amount - Always Visible */}
           <div className="flex flex-col col-span-1">
             <span className="text-[10px] uppercase tracking-wider font-bold text-zinc-400 mb-1">
               {t("value")}
@@ -345,7 +333,6 @@ export function StudentPaymentStatusCard() {
             </span>
           </div>
 
-          {/* Next Due - Always Visible */}
           <div className="flex flex-col col-span-1 border-l border-zinc-200 dark:border-zinc-800 pl-4 lg:pl-6">
             <span className="text-[10px] uppercase tracking-wider font-bold text-zinc-400 mb-1">
               {t("nextDue")}
@@ -374,7 +361,6 @@ export function StudentPaymentStatusCard() {
             </div>
           </div>
 
-          {/* Last Payment - Desktop Only or Full Width on Mobile if space permits */}
           <div className="hidden lg:flex flex-col border-l border-zinc-200 dark:border-zinc-800 pl-6">
             <span className="text-[10px] uppercase tracking-wider font-bold text-zinc-400 mb-1">
               {t("lastPayment")}

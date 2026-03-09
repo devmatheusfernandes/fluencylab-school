@@ -102,11 +102,11 @@ export function LandingNavbar() {
           animate={{
             color:
               activeTab === id
-                ? typeof window !== "undefined" &&
-                  window.matchMedia("(prefers-color-scheme: dark)").matches
-                  ? "#ffffffff"
-                  : "#ffffff"
-                : "#dfdfdfff dark:#9ca3af",
+                ? "#ffffff" // Active state (White)
+                : typeof window !== "undefined" &&
+                    window.matchMedia("(prefers-color-scheme: dark)").matches
+                  ? "#9ca3af"
+                  : "#dfdfdf",
           }}
           transition={{ duration: 0.2 }}
         >

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, ChevronDown } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const features = [
@@ -40,11 +40,7 @@ export default function HowItWorks() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [lockedIndex, setLockedIndex] = useState<number | null>(null);
 
-  // Lógica de interação
   const handleMouseEnter = (index: number) => {
-    // Só permite hover se não houver um item "travado" pelo clique
-    // E detectamos se é dispositivo touch via CSS/JS media query na renderização,
-    // mas aqui simplificamos: se tiver locked, ignora hover.
     if (lockedIndex === null) {
       setActiveIndex(index);
     }
@@ -57,12 +53,10 @@ export default function HowItWorks() {
   };
 
   const handleClick = (index: number) => {
-    // Se clicar no item já travado, destrava ele
     if (lockedIndex === index) {
       setLockedIndex(null);
-      setActiveIndex(index); // Mantém aberto mas "destravado" (estado de hover)
+      setActiveIndex(null);
     } else {
-      // Trava o novo item
       setLockedIndex(index);
       setActiveIndex(index);
     }
@@ -71,9 +65,8 @@ export default function HowItWorks() {
   return (
     <section className="py-12">
       <div className="container px-4 mx-auto max-w-5xl">
-        {/* Cabeçalho Minimalista como na foto */}
-        <div className="flex items-baseline gap-2 mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
+        <div className="flex justify-center sm:justify-start items-baseline gap-2 mb-16">
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
             Como funciona
           </h2>
           <span className="text-2xl text-slate-300 dark:text-slate-700 font-light">
@@ -81,11 +74,9 @@ export default function HowItWorks() {
           </span>
         </div>
 
-        {/* Lista de Features */}
         <div className="flex flex-col">
           {features.map((feature, index) => {
             const isActive = activeIndex === index;
-            const isLocked = lockedIndex === index;
 
             return (
               <motion.div
@@ -96,24 +87,21 @@ export default function HowItWorks() {
                 onClick={() => handleClick(index)}
                 animate={{
                   scale: isActive ? 1.02 : 1,
-                  backgroundColor: isActive
-                    ? "var(--bg-active)"
-                    : "rgba(0,0,0,0)",
                 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
                 className={cn(
-                  "group relative cursor-pointer border-t border-slate-200 dark:border-slate-800 py-8 md:py-10 px-4 md:px-8 transition-colors",
-                  // Definimos uma variável CSS local para a cor de fundo ativa (ajuste conforme seu tema)
+                  "group relative cursor-pointer border-t border-slate-200 dark:border-slate-800 py-8 md:py-10 px-4 md:px-8 transition-colors duration-300",
                   "hover:z-10",
-                  isActive ? "border-transparent z-10 rounded-xl" : "",
+                  isActive
+                    ? "border-transparent z-10 bg-[var(--bg-active)]"
+                    : "bg-transparent",
                 )}
                 style={{
                   // @ts-ignore
-                  "--bg-active": "rgba(var(--primary-rgb), 0.03)", // Exemplo de uso sutil da cor primária no fundo
+                  "--bg-active": "rgba(var(--primary-rgb), 0.03)",
                 }}
               >
                 <div className="flex items-start justify-between gap-4 md:gap-8">
-                  {/* Coluna 1: Número */}
                   <span
                     className={cn(
                       "text-sm font-mono transition-colors duration-300 mt-1",
@@ -125,7 +113,6 @@ export default function HowItWorks() {
                     {feature.id}
                   </span>
 
-                  {/* Coluna 2: Conteúdo */}
                   <div className="flex-1">
                     <h3
                       className={cn(
@@ -138,7 +125,6 @@ export default function HowItWorks() {
                       {feature.title}
                     </h3>
 
-                    {/* Subtítulo (aparece sempre ou só quando fechado? Na ref parece limpo, vamos deixar o subtitle visivel sempre mas sutil) */}
                     <p
                       className={cn(
                         "text-sm md:text-base transition-all duration-300 mt-1",
@@ -165,7 +151,6 @@ export default function HowItWorks() {
                             {feature.description}
                           </p>
 
-                          {/* Botão de ação opcional dentro do card expandido */}
                           <div className="pt-4 flex items-center gap-2 text-primary font-medium text-sm">
                             <span>Saber mais</span>
                             <ArrowRight className="w-4 h-4" />
@@ -175,7 +160,6 @@ export default function HowItWorks() {
                     </AnimatePresence>
                   </div>
 
-                  {/* Coluna 3: Ícone/Seta */}
                   <div className="flex items-center justify-end w-8">
                     <motion.div
                       animate={{ rotate: isActive ? 90 : 0 }}
@@ -192,7 +176,6 @@ export default function HowItWorks() {
               </motion.div>
             );
           })}
-          {/* Linha final para fechar a lista */}
           <div className="border-t border-slate-200 dark:border-slate-800" />
         </div>
       </div>

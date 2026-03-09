@@ -172,10 +172,7 @@ export default function MeuPerfil() {
             /https:\/\/console\.firebase\.google\.com[^\s]*/,
           );
           if (match) {
-            console.log(
-              "%c [Firestore] Link para criar índice ausente:",
-              "color: yellow; font-weight: bold; font-size: 12px;",
-            );
+            console.log("%c [Firestore] Link para criar índice ausente:");
             console.log(match[0]);
           }
         }

@@ -127,7 +127,6 @@ const ComparisonCard = ({ item }: { item: (typeof comparisons)[0] }) => (
   </Card>
 );
 
-// --- COMPONENTE PRINCIPAL ---
 export default function ComparisonSection() {
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -143,9 +142,8 @@ export default function ComparisonSection() {
   };
 
   return (
-    <section className="py-24">
+    <section className="py-12">
       <div className="px-4 mx-auto max-w-7xl">
-        {/* Cabeçalho */}
         <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16 space-y-4">
           <Badge
             variant="outline"
@@ -163,8 +161,6 @@ export default function ComparisonSection() {
           </p>
         </div>
 
-        {/* --- VERSÃO MOBILE (CAROUSEL) --- */}
-        {/* 'block lg:hidden' faz aparecer só em telas menores que 1024px */}
         <div className="block lg:hidden px-2">
           <Carousel
             opts={{
@@ -182,12 +178,10 @@ export default function ComparisonSection() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            {/* Controles de navegação (opcional, ajustei para não sobrepor em telas muito pequenas) */}
             <div className="hidden sm:block">
               <CarouselPrevious className="-left-12" />
               <CarouselNext className="-right-12" />
             </div>
-            {/* Indicador visual simples para mobile touch */}
             <div className="mt-4 text-center text-sm text-slate-400 sm:hidden">
               Deslize para ver mais →
             </div>

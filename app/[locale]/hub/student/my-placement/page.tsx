@@ -26,12 +26,10 @@ import BreadcrumbActions from "@/components/shared/Breadcrum/BreadcrumbActions";
 import Link from "next/link";
 import BreadcrumbActionIcon from "@/components/shared/Breadcrum/BreadcrumbActionIcon";
 
-// Utilitário para classes
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// Configuração dos Idiomas
 const LANGUAGES = [
   {
     id: "en",
@@ -102,7 +100,6 @@ export default function PlacementHomePage() {
     router.push(`${pathname}/history`);
   };
 
-  // Animação container
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -133,7 +130,6 @@ export default function PlacementHomePage() {
         </BreadcrumbActions>
       }
 
-      {/* Header Section */}
       <Header
         heading={t("chooseLanguage")}
         subheading={t("adaptTestLevel")}
@@ -144,10 +140,8 @@ export default function PlacementHomePage() {
         }
       />
 
-      {/* Dynamic Content Area */}
       <AnimatePresence mode="wait">
         {incompleteTest ? (
-          /* RESUME CARD */
           <motion.div
             key="resume-card"
             initial={{ opacity: 0, scale: 0.95 }}
@@ -171,7 +165,6 @@ export default function PlacementHomePage() {
                   {t("testInProgress")}
                 </p>
 
-                {/* Visual Progress Bar Mockup */}
                 <div className="w-full h-2 bg-zinc-100 dark:bg-zinc-800 rounded-full mt-3 overflow-hidden">
                   <div
                     className="h-full bg-primary rounded-full"
@@ -196,7 +189,6 @@ export default function PlacementHomePage() {
             </div>
           </motion.div>
         ) : (
-          /* NEW TEST SELECTION */
           <motion.div
             key="selection-area"
             initial={{ opacity: 0 }}
@@ -204,7 +196,6 @@ export default function PlacementHomePage() {
             exit={{ opacity: 0 }}
             className="space-y-8"
           >
-            {/* Language Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mx-auto">
               {LANGUAGES.map((lang) => {
                 const isSelected = selectedLanguage === lang.id;
@@ -223,11 +214,10 @@ export default function PlacementHomePage() {
                         : "border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700",
                     )}
                   >
-                    {/* Flag/Icon Container */}
+                    {" "}
                     <div className="text-4xl shadow-sm rounded-lg overflow-hidden">
                       {lang.flag}
                     </div>
-
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <span
@@ -254,7 +244,6 @@ export default function PlacementHomePage() {
                         )}
                       </div>
                       <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-                        {/* Texto fixo ou traduzido para descrição */}
                         {lang.id === "en"
                           ? "General Proficiency"
                           : "Proficiência Geral"}
@@ -265,7 +254,6 @@ export default function PlacementHomePage() {
               })}
             </div>
 
-            {/* Info Features Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
               <div className="flex flex-col items-center p-4 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 text-center hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors duration-300">
                 <Clock className="w-6 h-6 text-blue-500 mb-2" />
@@ -296,7 +284,6 @@ export default function PlacementHomePage() {
               </div>
             </div>
 
-            {/* Action Button */}
             <div className="flex justify-center pt-2">
               <Button
                 size="lg"
@@ -311,7 +298,6 @@ export default function PlacementHomePage() {
         )}
       </AnimatePresence>
 
-      {/* Footer Link */}
       <motion.div
         variants={containerVariants}
         className="flex justify-center pt-8 border-t border-zinc-100 dark:border-zinc-800"

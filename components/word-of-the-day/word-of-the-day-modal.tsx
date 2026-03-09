@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { getRandomWord } from "@/lib/learning/vocabulary";
 import {
   Modal,
@@ -19,7 +20,6 @@ interface WordOfTheDayModalProps {
   onOpenChange?: (open: boolean) => void;
 }
 
-// Interface para o que vamos salvar no Storage
 interface DailyWordStorage {
   date: string;
   data: { word: string; translation: string };
@@ -30,16 +30,15 @@ export const WordOfTheDayModal = ({
   isOpen: controlledIsOpen,
   onOpenChange,
 }: WordOfTheDayModalProps) => {
+  const t = useTranslations("WordOfTheDay");
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   const [wordData, setWordData] = useState<{
     word: string;
     translation: string;
   } | null>(null);
 
-  // Ref para evitar execução dupla estrita (Race condition lock)
   const isFetchingRef = useRef(false);
 
-  // Determine effective open state
   const isControlled = controlledIsOpen !== undefined;
   const isOpen = isControlled ? controlledIsOpen : internalIsOpen;
 
@@ -56,56 +55,44 @@ export const WordOfTheDayModal = ({
       if (!language) return;
 
       const today = new Date().toDateString();
-      const storageKey = `wordOfTheDay_${language}`; // Chave única por idioma
+      const storageKey = `wordOfTheDay_${language}`;
       const storedItem = localStorage.getItem(storageKey);
 
-      // 1. VERIFICAÇÃO INTELIGENTE:
-      // Se já temos dados salvos E a data é de hoje, usamos o cache.
       if (storedItem) {
         try {
           const parsedItem: DailyWordStorage = JSON.parse(storedItem);
           if (parsedItem.date === today) {
             setWordData(parsedItem.data);
-            // NÃO abrimos automaticamente se já estava no cache (já viu hoje)
             return;
           }
         } catch (e) {
-          console.error("Erro ao ler storage, limpando...", e);
           localStorage.removeItem(storageKey);
         }
       }
 
-      // Evita chamadas duplicadas simultâneas (React Strict Mode)
       if (isFetchingRef.current) return;
       isFetchingRef.current = true;
 
       try {
-        console.log("Buscando nova palavra na API...");
         const data = await getRandomWord(language);
 
-        // Verificação dupla: se outra instância já salvou no storage enquanto buscávamos
         const currentStored = localStorage.getItem(storageKey);
         if (currentStored) {
           try {
             const parsed = JSON.parse(currentStored);
             if (parsed.date === today) {
               setWordData(parsed.data);
-              // Não abrimos, assumindo que a instância que salvou já abriu (ou o usuário já viu)
               return;
             }
-          } catch (e) {
-            // Ignora erro de parse aqui, prossegue para salvar o novo
-          }
+          } catch (e) {}
         }
 
         if (data) {
           setWordData(data);
-          // Se for uma nova palavra, abrimos automaticamente (apenas se não controlado)
           if (!isControlled) {
             setInternalIsOpen(true);
           }
 
-          // 2. SALVAR O OBJETO COMPLETO:
           const newStorageItem: DailyWordStorage = {
             date: today,
             data: data,
@@ -113,14 +100,13 @@ export const WordOfTheDayModal = ({
           localStorage.setItem(storageKey, JSON.stringify(newStorageItem));
         }
       } catch (error) {
-        console.error("Erro ao buscar palavra:", error);
       } finally {
         isFetchingRef.current = false;
       }
     }
 
     checkAndFetchWord();
-  }, [language]); // isControlled is stable enough or ignored in deps to prevent loop
+  }, [language]);
 
   const handleClose = () => {
     handleOpenChange(false);
@@ -133,10 +119,8 @@ export const WordOfTheDayModal = ({
       <ModalContent>
         <ModalIcon type="star" />
         <ModalHeader>
-          <ModalTitle>Word of the Day</ModalTitle>
-          <ModalDescription>
-            Here is your word for today to help you learn!
-          </ModalDescription>
+          <ModalTitle>{t("title")}</ModalTitle>
+          <ModalDescription>{t("description")}</ModalDescription>
         </ModalHeader>
         <ModalBody>
           <div className="text-center p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
@@ -147,7 +131,9 @@ export const WordOfTheDayModal = ({
           </div>
         </ModalBody>
         <ModalFooter>
-          <ModalPrimaryButton onClick={handleClose}>Got it!</ModalPrimaryButton>
+          <ModalPrimaryButton onClick={handleClose}>
+            {t("gotIt")}
+          </ModalPrimaryButton>
         </ModalFooter>
       </ModalContent>
     </Modal>

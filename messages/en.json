@@ -2015,9 +2015,9 @@
     "contractSigned": "Contract Signed"
   },
   "StudentPaymentStatusCard": {
-    "title": "Status",
+    "title": "Payment",
     "creditCard": "Credit Card",
-    "pix": "Pix",
+    "pix": "status",
     "active": "Active",
     "activeDesc": "Your payment is up to date",
     "overdue": "Overdue",
@@ -3276,5 +3276,10 @@
     "year": "Year",
     "accrued": "Accrued",
     "paid": "Paid"
+  },
+  "WordOfTheDay": {
+    "title": "Word of the Day",
+    "description": "Here is your word for today to help you learn!",
+    "gotIt": "Got it!"
   }
 }
