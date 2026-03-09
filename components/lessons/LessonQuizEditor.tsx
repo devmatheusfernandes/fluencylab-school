@@ -398,13 +398,20 @@ export function LessonQuizEditor({ lesson }: LessonQuizEditorProps) {
                                   step="0.1"
                                   value={question.audioRange?.start ?? ""}
                                   onChange={(e) => {
-                                    const val = e.target.value === "" ? undefined : parseFloat(e.target.value);
-                                    const currentRange = question.audioRange || { start: 0, end: 0 };
+                                    const val =
+                                      e.target.value === ""
+                                        ? undefined
+                                        : parseFloat(e.target.value);
+                                    const currentRange =
+                                      question.audioRange || {
+                                        start: 0,
+                                        end: 0,
+                                      };
                                     handleUpdateQuestion(
                                       sectionIndex,
                                       questionIndex,
                                       "audioRange",
-                                      { ...currentRange, start: val ?? 0 }
+                                      { ...currentRange, start: val ?? 0 },
                                     );
                                   }}
                                   placeholder="e.g. 15.5"
@@ -419,13 +426,20 @@ export function LessonQuizEditor({ lesson }: LessonQuizEditorProps) {
                                   step="0.1"
                                   value={question.audioRange?.end ?? ""}
                                   onChange={(e) => {
-                                    const val = e.target.value === "" ? undefined : parseFloat(e.target.value);
-                                    const currentRange = question.audioRange || { start: 0, end: 0 };
+                                    const val =
+                                      e.target.value === ""
+                                        ? undefined
+                                        : parseFloat(e.target.value);
+                                    const currentRange =
+                                      question.audioRange || {
+                                        start: 0,
+                                        end: 0,
+                                      };
                                     handleUpdateQuestion(
                                       sectionIndex,
                                       questionIndex,
                                       "audioRange",
-                                      { ...currentRange, end: val ?? 0 }
+                                      { ...currentRange, end: val ?? 0 },
                                     );
                                   }}
                                   placeholder="e.g. 20.0"

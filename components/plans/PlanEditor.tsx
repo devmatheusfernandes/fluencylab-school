@@ -26,6 +26,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { searchLessons } from "@/actions/lessonSearch";
 import { cn } from "@/lib/utils";
+
 interface PlanEditorProps {
   initialPlan?: Partial<Plan>;
   mode: "create" | "edit";
