@@ -32,6 +32,7 @@ const withPWA = require("@ducanh2912/next-pwa").default({
   disable: process.env.NODE_ENV === "development",
   workboxOptions: {
     disableDevLogs: true,
+    additionalManifestEntries: [{ url: "/~offline", revision: "1" }],
     runtimeCaching: [
       {
         urlPattern: /^https:\/\/fonts\.(?:gstatic)\.com\/.*/i,
@@ -86,6 +87,18 @@ const withPWA = require("@ducanh2912/next-pwa").default({
             maxEntries: 64,
             maxAgeSeconds: 24 * 60 * 60, // 24 hours
           },
+        },
+      },
+      {
+        urlPattern: /\/api\/auth\/session/i,
+        handler: "NetworkFirst",
+        options: {
+          cacheName: "api-auth-session",
+          expiration: {
+            maxEntries: 1,
+            maxAgeSeconds: 60 * 60, // 1 hour
+          },
+          networkTimeoutSeconds: 10,
         },
       },
       {

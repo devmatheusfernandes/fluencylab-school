@@ -1,3 +1,31 @@
+self.OFFLINE_URL = "/~offline";
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    (async () => {
+      if (self.workbox?.routing?.setCatchHandler) {
+        self.workbox.routing.setCatchHandler(async ({ event: wbEvent }) => {
+          if (wbEvent?.request?.destination === "document") {
+            if (self.workbox?.precaching?.matchPrecache) {
+              const match = await self.workbox.precaching.matchPrecache(
+                self.OFFLINE_URL,
+              );
+              if (match) return match;
+            }
+
+            const cached = await caches.match(self.OFFLINE_URL);
+            if (cached) return cached;
+          }
+
+          return Response.error();
+        });
+      }
+
+      await self.clients.claim();
+    })(),
+  );
+});
+
 self.addEventListener("push", function (event) {
   let data = {};
   if (event.data) {

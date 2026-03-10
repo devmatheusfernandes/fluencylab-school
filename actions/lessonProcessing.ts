@@ -3,7 +3,10 @@
 import { adminDb, adminStorage } from "@/lib/firebase/admin";
 import { FieldValue, FieldPath } from "firebase-admin/firestore";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { generateSpeech, VOICE_IDS } from "@/services/elevenLabsService";
+import {
+  generateSpeech,
+  VOICE_IDS,
+} from "@/services/learning/elevenLabsService";
 import {
   Lesson,
   LearningItem,

@@ -16,6 +16,8 @@ export const useCurrentUser = () => {
   const [isLoadingUser, setIsLoadingUser] = useState(true);
 
   useEffect(() => {
+    const storageKey = "fluencylab.currentUser.v1";
+
     const fetchFullUser = async () => {
       // Apenas busca o perfil se a sessão estiver autenticada
       if (status === "authenticated") {
@@ -28,8 +30,21 @@ export const useCurrentUser = () => {
           const userProfile: FullUserDetails = await response.json();
           // Atualiza o estado com o perfil completo do banco de dados
           setCurrentUser(userProfile);
+
+          try {
+            localStorage.setItem(storageKey, JSON.stringify(userProfile));
+          } catch {}
         } catch (error) {
           console.error(error);
+
+          try {
+            const cached = localStorage.getItem(storageKey);
+            if (cached) {
+              setCurrentUser(JSON.parse(cached) as FullUserDetails);
+              return;
+            }
+          } catch {}
+
           // Em caso de erro, usa os dados da sessão como fallback para evitar que a UI quebre
           setCurrentUser(session.user as FullUserDetails);
         } finally {
@@ -39,6 +54,10 @@ export const useCurrentUser = () => {
         // Se não estiver autenticado nem a carregar, limpa o utilizador
         setCurrentUser(null);
         setIsLoadingUser(false);
+
+        try {
+          localStorage.removeItem(storageKey);
+        } catch {}
       }
     };
 
