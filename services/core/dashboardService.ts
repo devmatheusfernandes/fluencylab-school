@@ -3,51 +3,58 @@
 import {
   userAdminRepository,
   classRepository,
-  // paymentRepository // A ser usado no futuro
+  paymentRepository
 } from "@/repositories";
 
 // Usando instâncias singleton centralizadas
 const userAdminRepo = userAdminRepository;
 const classRepo = classRepository;
-// const paymentRepo = paymentRepository;
+const paymentRepo = paymentRepository;
 
 export class DashboardService {
   async getDashboardData() {
+    const now = new Date();
+    
+    // Período: Mês Atual (do dia 1 até agora)
+    const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    
+    // Período: Mês Anterior (todo o mês passado)
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+
     // Busca todos os dados necessários em paralelo para máxima performance
     const [
       newUsersCount,
       activeTeachersCount,
       classesTodayCount,
       recentClasses,
-      // Dados financeiros (placeholders)
-      monthlyRevenue,
-      revenueTrend,
+      revenueThisMonth,
+      revenueLastMonth,
       revenueLast6Months,
     ] = await Promise.all([
       userAdminRepo.countNewUsersThisMonth(),
       userAdminRepo.countActiveTeachers(),
       classRepo.countClassesForToday(),
-      classRepo.findRecentClassesWithUserDetails(5), // Busca as últimas 5 aulas com detalhes
-      // paymentRepo.getRevenueThisMonth(), // Futura implementação
-      // paymentRepo.getRevenueTrend(), // Futura implementação
-      Promise.resolve(1234.56), // Placeholder para receita mensal
-      Promise.resolve(0.15), // Placeholder para tendência (+15%)
-      Promise.resolve([
-        { month: "Jan", revenue: 5000 },
-        { month: "Fev", revenue: 6200 },
-        { month: "Mar", revenue: 5800 },
-        { month: "Abr", revenue: 7100 },
-        { month: "Mai", revenue: 8500 },
-        { month: "Jun", revenue: 9200 },
-      ]), // Placeholder para últimos 6 meses
+      classRepo.findRecentClassesWithUserDetails(5),
+      paymentRepo.getRevenueInPeriod(startOfCurrentMonth, now),
+      paymentRepo.getRevenueInPeriod(startOfLastMonth, endOfLastMonth),
+      paymentRepo.getRevenueLast6Months(),
     ]);
+
+    // Calcula tendência
+    let revenueTrend = 0;
+    if (revenueLastMonth > 0) {
+      revenueTrend = (revenueThisMonth - revenueLastMonth) / revenueLastMonth;
+    } else if (revenueThisMonth > 0) {
+      revenueTrend = 1; // 100% de crescimento se saiu de 0 para algo
+    }
 
     return {
       newUsersCount,
       activeTeachersCount,
       classesTodayCount,
       recentClasses,
-      monthlyRevenue,
+      monthlyRevenue: revenueThisMonth,
       revenueTrend,
       revenueLast6Months,
     };

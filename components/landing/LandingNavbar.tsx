@@ -105,7 +105,7 @@ export function LandingNavbar() {
                 ? "#ffffff" // Active state (White)
                 : typeof window !== "undefined" &&
                     window.matchMedia("(prefers-color-scheme: dark)").matches
-                  ? "#9ca3af"
+                  ? "#ffffffff"
                   : "#dfdfdf",
           }}
           transition={{ duration: 0.2 }}
