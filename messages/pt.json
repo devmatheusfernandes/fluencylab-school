@@ -1054,6 +1054,7 @@
       "schedule": "Horário",
       "classes": "Aulas",
       "credits": "Créditos",
+      "certificate": "Certificado",
       "financial": "Financeiro",
       "contracts": "Contratos",
       "permission": "Permissões",
@@ -1061,6 +1062,36 @@
         "successUpdate": "Permissões atualizadas com sucesso!",
         "errorUpdate": "Erro ao atualizar permissões.",
         "noPermission": "Você não tem permissão para gerenciar este usuário."
+      }
+    },
+    "certificate": {
+      "title": "Certificado de conclusão",
+      "description": "Gere um certificado baseado nas aulas concluídas.",
+      "courseLanguageLabel": "Idioma do curso",
+      "courseLanguagePlaceholder": "Selecione o idioma",
+      "hoursLabel": "Carga horária",
+      "hoursValue": "{classes} aula(s) concluída(s) • {hours} hora(s)",
+      "messageLabel": "Mensagem",
+      "messagePlaceholder": "Digite uma mensagem para o certificado...",
+      "downloadButton": "Baixar PDF",
+      "generatingButton": "Gerando...",
+      "noCompletedClasses": "Nenhuma aula concluída ainda.",
+      "previewTitle": "Prévia",
+      "previewDescription": "O PDF seguirá este conteúdo.",
+      "pdf": {
+        "title": "Certificado de Conclusão",
+        "subtitle": "Conclusão de curso",
+        "body": "Certificamos que {studentName} concluiu o curso de {courseLanguage}, totalizando {hours} hora(s).",
+        "issuedAt": "Emitido em {date}",
+        "coordinatorRole": "Coordenador",
+        "authTitle": "Autenticação",
+        "authBody": "Para verificar a autenticidade deste certificado, utilize o código abaixo na página de validação.",
+        "codeLabel": "Código de validação",
+        "verifyUrlLabel": "Página de validação"
+      },
+      "toasts": {
+        "success": "Certificado gerado com sucesso!",
+        "error": "Erro ao gerar certificado."
       }
     },
     "overview": {
@@ -3267,5 +3298,32 @@
     "title": "Palavra do Dia",
     "description": "Aqui está sua palavra de hoje para ajudar você a aprender!",
     "gotIt": "Entendi!"
+  },
+  "CertificateValidation": {
+    "title": "Validar certificado",
+    "subtitle": "Insira o código para confirmar a autenticidade.",
+    "form": {
+      "title": "Código de validação",
+      "codeLabel": "Código",
+      "codePlaceholder": "Ex: ABCD-1234",
+      "verify": "Validar",
+      "verifying": "Validando...",
+      "clear": "Limpar"
+    },
+    "result": {
+      "title": "Certificado válido",
+      "code": "Código",
+      "student": "Aluno",
+      "language": "Idioma",
+      "hours": "Carga horária",
+      "hoursValue": "{hours} hora(s)",
+      "issuedAt": "Emitido em",
+      "coordinator": "Coordenador",
+      "message": "Mensagem",
+      "downloadPdf": "Baixar PDF"
+    },
+    "errors": {
+      "generic": "Não foi possível validar o certificado."
+    }
   }
 }

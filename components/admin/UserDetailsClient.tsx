@@ -11,6 +11,7 @@ import UserScheduleManager from "./UsersScheduleManager";
 import UserCreditsTab from "./UserCreditsTab";
 import UserContractsTab from "./UserContractsTab";
 import UserPermissionsTab from "./UserPermissionsTab";
+import UserCertificateTab from "./UserCertificateTab";
 import { useSession } from "next-auth/react";
 import { UserRoles } from "@/types/users/userRoles";
 import { useTranslations } from "next-intl";
@@ -62,6 +63,9 @@ export default function UserDetailsClient({
                 <TabsTrigger value="schedule">{t("schedule")}</TabsTrigger>
                 <TabsTrigger value="classes">{t("classes")}</TabsTrigger>
                 <TabsTrigger value="credits">{t("credits")}</TabsTrigger>
+                <TabsTrigger value="certificate">
+                  {t("certificate")}
+                </TabsTrigger>
               </>
             )}
 
@@ -71,6 +75,9 @@ export default function UserDetailsClient({
                 <TabsTrigger value="schedule">{t("schedule")}</TabsTrigger>
                 <TabsTrigger value="classes">{t("classes")}</TabsTrigger>
                 <TabsTrigger value="credits">{t("credits")}</TabsTrigger>
+                <TabsTrigger value="certificate">
+                  {t("certificate")}
+                </TabsTrigger>
               </>
             )}
             <TabsTrigger value="financial">{t("financial")}</TabsTrigger>
@@ -104,6 +111,13 @@ export default function UserDetailsClient({
 
         <TabsContent value="credits" className="mt-4">
           <UserCreditsTab studentId={user.id} />
+        </TabsContent>
+
+        <TabsContent value="certificate" className="mt-4">
+          <UserCertificateTab
+            user={user}
+            classes={user.scheduledClasses || []}
+          />
         </TabsContent>
 
         <TabsContent value="financial" className="mt-4">

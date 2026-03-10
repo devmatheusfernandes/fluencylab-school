@@ -1069,6 +1069,7 @@
       "schedule": "Schedule",
       "classes": "Classes",
       "credits": "Credits",
+      "certificate": "Certificate",
       "financial": "Financial",
       "contracts": "Contracts",
       "permission": "Permissions",
@@ -1076,6 +1077,36 @@
         "successUpdate": "Permissions updated successfully!",
         "errorUpdate": "Error updating permissions.",
         "noPermission": "You do not have permission to manage this user."
+      }
+    },
+    "certificate": {
+      "title": "Course completion certificate",
+      "description": "Generate a certificate based on completed classes.",
+      "courseLanguageLabel": "Course language",
+      "courseLanguagePlaceholder": "Select a language",
+      "hoursLabel": "Workload",
+      "hoursValue": "{classes} completed class(es) • {hours} hour(s)",
+      "messageLabel": "Message",
+      "messagePlaceholder": "Type a message for the certificate...",
+      "downloadButton": "Download PDF",
+      "generatingButton": "Generating...",
+      "noCompletedClasses": "No completed classes yet.",
+      "previewTitle": "Preview",
+      "previewDescription": "The PDF will follow this content.",
+      "pdf": {
+        "title": "Course Completion Certificate",
+        "subtitle": "Course completion",
+        "body": "This certifies that {studentName} has completed the {courseLanguage} course, totaling {hours} hour(s).",
+        "issuedAt": "Issued on {date}",
+        "coordinatorRole": "Coordinator",
+        "authTitle": "Verification",
+        "authBody": "To verify the authenticity of this certificate, use the code below on the validation page.",
+        "codeLabel": "Validation code",
+        "verifyUrlLabel": "Validation page"
+      },
+      "toasts": {
+        "success": "Certificate generated successfully!",
+        "error": "Error generating certificate."
       }
     },
     "overview": {
@@ -3282,5 +3313,32 @@
     "title": "Word of the Day",
     "description": "Here is your word for today to help you learn!",
     "gotIt": "Got it!"
+  },
+  "CertificateValidation": {
+    "title": "Validate certificate",
+    "subtitle": "Enter the code to confirm authenticity.",
+    "form": {
+      "title": "Validation code",
+      "codeLabel": "Code",
+      "codePlaceholder": "e.g. ABCD-1234",
+      "verify": "Validate",
+      "verifying": "Validating...",
+      "clear": "Clear"
+    },
+    "result": {
+      "title": "Valid certificate",
+      "code": "Code",
+      "student": "Student",
+      "language": "Language",
+      "hours": "Workload",
+      "hoursValue": "{hours} hour(s)",
+      "issuedAt": "Issued on",
+      "coordinator": "Coordinator",
+      "message": "Message",
+      "downloadPdf": "Download PDF"
+    },
+    "errors": {
+      "generic": "Could not validate the certificate."
+    }
   }
 }
