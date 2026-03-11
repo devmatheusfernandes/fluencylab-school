@@ -2,8 +2,8 @@
 
 import { db } from "@/lib/firebase/config";
 import { adminDb } from "@/lib/firebase/admin";
-import { PlacementTest } from "@/types/testing/placement";
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore"; // Client-side imports
+import { PlacementTest } from "@/types/placement/types";
 
 export class PlacementRepository {
   /**
@@ -58,7 +58,7 @@ export class PlacementRepository {
    */
   subscribeToPlacementTests(
     userId: string,
-    callback: (tests: PlacementTest[]) => void
+    callback: (tests: PlacementTest[]) => void,
   ) {
     try {
       // Use client SDK for browser subscriptions
@@ -92,7 +92,7 @@ export class PlacementRepository {
         (error) => {
           console.error("Error subscribing to placement tests:", error);
           callback([]);
-        }
+        },
       );
 
       return unsubscribe;

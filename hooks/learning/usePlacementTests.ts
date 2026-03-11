@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useCurrentUser } from "../auth/useCurrentUser";
-import { PlacementTestResult } from "@/types/testing/placement";
+import { PlacementTestResult } from "@/types/placement/types";
 
 export const usePlacementTests = () => {
   const { user } = useCurrentUser();
