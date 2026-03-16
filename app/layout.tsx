@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   title: "Fluency Lab",
   description:
     "Aplicativo web da Fluency Lab, uma plataforma de ensino de idiomas.",
-  manifest: "/manifest.json",
+  manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

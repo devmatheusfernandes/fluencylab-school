@@ -15,7 +15,6 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ["education", "productivity"],
     lang: "pt-BR",
     prefer_related_applications: false,
-    // TODO: melhorar shortcuts
     shortcuts: [
       {
         name: "Início",
@@ -35,7 +34,10 @@ export default function manifest(): MetadataRoute.Manifest {
         description: "Abrir minhas mensagens",
         url: "/hub/my-chat",
         icons: [
-          { src: "android/android-launchericon-192-192.png", sizes: "192x192" },
+          {
+            src: "/android/android-launchericon-192-192.png",
+            sizes: "192x192",
+          },
         ],
       },
       {
@@ -44,7 +46,10 @@ export default function manifest(): MetadataRoute.Manifest {
         description: "Acessar meus cursos",
         url: "/hub/student/my-courses",
         icons: [
-          { src: "android/android-launchericon-192-192.png", sizes: "192x192" },
+          {
+            src: "/android/android-launchericon-192-192.png",
+            sizes: "192x192",
+          },
         ],
       },
     ],
