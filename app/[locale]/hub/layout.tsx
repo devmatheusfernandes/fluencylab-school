@@ -1,29 +1,19 @@
 "use client";
 
-// React & Next.js
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import { useLocale, useMessages } from "next-intl";
 import { useSession } from "next-auth/react";
-
-// Types & Config
 import { UserRoles } from "@/types/users/userRoles";
 import { getSidebarItemsByRole } from "@/config/sidebarItems";
-
-// Components
 import HubHeader from "@/components/shared/Breadcrum/HubHeader";
 import SidebarWrapper from "@/components/shared/Sidebar/SidebarWrapper";
 import { Container } from "@/components/ui/container";
-
-// Contexts
 import { SidebarProvider } from "@/context/SidebarContext";
 import { CallProvider, useCallContext } from "@/context/CallContext";
 import { ChatClientProvider } from "@/context/ChatClientContext";
-
 import { OnboardingWrapper } from "@/components/onboarding/wrapper/OnboardingWrapper";
 import { TeacherOnboardingWrapper } from "@/components/onboarding/wrapper/TeacherOnboardingWrapper";
-
-// StreamIO
 import VideoHome from "@/components/stream/VideoHome";
 import { useCreateChatClient } from "stream-chat-react";
 import { OwnUserResponse, UserResponse } from "stream-chat";
@@ -44,7 +34,6 @@ function HubLayoutContent({
   const isMobile = useIsMobile();
   const isStandalone = useIsStandalone();
 
-  // Stream Chat Logic
   const apiKey = process.env.NEXT_PUBLIC_STREAM_API_KEY!;
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -126,7 +115,6 @@ function HubLayoutContent({
       it.labelKey === "chat" || it.label === "Chat" ? unreadCount : undefined,
   }));
 
-  // Define o caminho base onde queremos esconder a sidebar e header
   const hideLayoutElements =
     (pathname?.startsWith(`/${locale}/hub/teacher/my-students/`) &&
       pathname?.includes("/notebook/")) ||
@@ -140,7 +128,6 @@ function HubLayoutContent({
     pathname?.includes("/workbooks") ||
     pathname?.includes("/blogs");
 
-  // Se estivermos na página do caderno, não renderiza sidebar nem header
   if (hideLayoutElements) {
     return (
       <CallProvider>
@@ -156,7 +143,6 @@ function HubLayoutContent({
     );
   }
 
-  // Layout padrão
   return (
     <OnboardingWrapper>
       <TeacherOnboardingWrapper>
@@ -165,13 +151,11 @@ function HubLayoutContent({
             <SidebarProvider>
               <div className="flex flex-row gap-2 min-w-screen min-h-screen h-full p-0 sm:p-2 sidebar-base transition-colors duration-300 max-w-screen max-h-screen overflow-y-hidden">
                 <SidebarWrapper items={items} />
-
-                {/* Main content area */}
                 <div
                   className={twMerge(
                     "flex-1 flex flex-col gap-[1.5px] overflow-x-hidden pb-14 md:pb-0",
                     isMobile && "gap-[1.5px]!",
-                    isStandalone && "gap-0!",
+                    isStandalone && "gap-0!"
                   )}
                 >
                   {!pathname?.includes("/my-chat") && <HubHeader />}

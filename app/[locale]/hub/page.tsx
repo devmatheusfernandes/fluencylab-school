@@ -12,8 +12,6 @@ export default function HubEntryPoint() {
   useEffect(() => {
     if (status === "authenticated" && session?.user?.role) {
       const userRole = session.user.role;
-
-      // UPDATED: Maps each role to the new URL structure
       const roleToPathMap: { [key: string]: string } = {
         admin: "hub/admin/my-profile",
         teacher: "hub/teacher/my-profile",
@@ -24,8 +22,6 @@ export default function HubEntryPoint() {
       };
 
       const destination = roleToPathMap[userRole] || "/";
-
-      // router.replace to not add this page to browser history
       router.replace(destination);
     }
   }, [status, session, router]);

@@ -11,7 +11,6 @@ import { UnscrambleExercise } from "./UnscrambleExercise";
 import { FlashcardExercise } from "./FlashcardExercise";
 import { QuizExercise } from "./QuizExercise";
 import { PracticeSummary } from "./PracticeSummary";
-import { Spinner } from "@/components/ui/spinner";
 import {
   getDailyPractice,
   getSessionProgress,
@@ -45,7 +44,6 @@ export function PracticeSession({
   const router = useRouter();
   const { data: session } = useSession();
 
-  // Helper to get language code
   const getLanguageCode = (lang?: string) => {
     if (!lang) return "en-US";
     const map: Record<string, string> = {
@@ -309,7 +307,7 @@ export function PracticeSession({
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white dark:bg-slate-950">
-        <Spinner />
+        <SpinnerLoading />
       </div>
     );
   }

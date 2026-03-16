@@ -15,16 +15,13 @@ export default async function MyPracticePage({
   }
 
   const activePlan = await planRepository.findActivePlanByStudent(
-    sessionUser.id,
+    sessionUser.id
   );
 
   if (!activePlan) {
-    // Handle user with no plan (redirect or show message)
-    // For now, redirect back to notebook
     redirect("/hub/student/my-notebook?error=no_plan");
   }
 
-  // Parse Query Params
   const params = await searchParams;
   const dayParam = params.day ? parseInt(params.day as string) : undefined;
   const isReplay = params.replay === "true";

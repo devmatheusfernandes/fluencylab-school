@@ -13,10 +13,8 @@ import ErrorAlert from "@/components/ui/error-alert";
 import { ContainerCard } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// Skeleton component for the student panel
 const StudentPanelSkeleton = () => (
   <ContainerCard className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-    {/* Notebooks card skeleton */}
     <Skeleton className=" rounded-xl p-4 min-h-[300px] flex flex-col gap-4">
       <Skeleton className=" h-10 rounded-lg" />
       <div className="space-y-3">
@@ -35,7 +33,6 @@ const StudentPanelSkeleton = () => (
       </div>
     </Skeleton>
 
-    {/* Classes card skeleton */}
     <Skeleton className=" rounded-xl p-4 min-h-[400px] flex flex-col gap-4">
       <div className="flex gap-2">
         <Skeleton className=" h-10 flex-1 rounded-lg" />
@@ -57,7 +54,6 @@ const StudentPanelSkeleton = () => (
       </div>
     </Skeleton>
 
-    {/* Plan card skeleton */}
     <Skeleton className=" rounded-xl p-4 min-h-[400px] flex flex-col gap-4">
       <div className="flex justify-between items-center">
         <div className="flex gap-2 items-center">
@@ -103,26 +99,22 @@ export default function StudentDetailsPanel() {
     fetchPlan,
   } = useStudentPanel(id);
 
-  // Handle updating class status
   const handleUpdateClassStatus = async (
     classId: string,
-    newStatus: ClassStatus,
+    newStatus: ClassStatus
   ) => {
     const success = await updateClassStatus(classId, newStatus);
     if (success) {
-      // Refresh classes to ensure UI is up to date
       fetchClasses(new Date().getMonth(), new Date().getFullYear());
     }
   };
 
-  // Handle updating class feedback
   const handleUpdateClassFeedback = async (
     classId: string,
-    feedback: string,
+    feedback: string
   ) => {
     const success = await updateClassFeedback(classId, feedback);
     if (success) {
-      // Refresh classes to ensure UI is up to date
       fetchClasses(new Date().getMonth(), new Date().getFullYear());
     }
   };

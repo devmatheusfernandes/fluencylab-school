@@ -26,12 +26,10 @@ export const useAuth = () => {
     if (result?.error) {
       setError("Email ou senha inválidos.");
     } else if (result?.ok) {
-      // Redirect to hub after successful login
       router.push("/hub");
     }
   };
 
-  // Check if user is authenticated
   const isAuthenticated = !!session?.user;
 
   return { login, isLoading, error, isAuthenticated };

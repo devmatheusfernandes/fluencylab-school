@@ -39,13 +39,10 @@ export const useAdmin = () => {
       if (!response.ok)
         throw new Error(result.error || "Falha ao criar utilizador.");
 
-      // setSuccessMessage(
-      //   `Utilizador para '${result.data.email}' criado com sucesso! Um e-mail de boas-vindas foi enviado.`,
-      // );
-      return true; // Retorna sucesso
+      return true;
     } catch (err: any) {
       setError(err.message);
-      return false; // Retorna falha
+      return false;
     } finally {
       setIsLoading(false);
     }
@@ -53,14 +50,14 @@ export const useAdmin = () => {
 
   const updateUser = async (
     userId: string,
-    userData: Partial<User>,
+    userData: Partial<User>
   ): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
     setSuccessMessage(null);
     try {
       const response = await fetch(`/api/admin/users/${userId}`, {
-        method: "PATCH", // <<< MUDANÇA AQUI
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData),
       });
@@ -78,7 +75,6 @@ export const useAdmin = () => {
     }
   };
 
-  // Função para desativar
   const deactivateUser = async (userId: string): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
@@ -100,7 +96,6 @@ export const useAdmin = () => {
     }
   };
 
-  // Função para reativar (chama o updateUser com PATCH)
   const reactivateUser = (userId: string): Promise<boolean> => {
     return updateUser(userId, { isActive: true });
   };
@@ -129,10 +124,10 @@ export const useAdmin = () => {
 
   return {
     createUser,
-    updateUser, // Para atualizações gerais (nome, contrato, etc.)
-    deactivateUser, // Para desativar
-    reactivateUser, // Para reativar
-    deleteUser, // Para deletar (soft delete/desativar via API DELETE)
+    updateUser,
+    deactivateUser,
+    reactivateUser,
+    deleteUser,
     isLoading,
     error,
     successMessage,
