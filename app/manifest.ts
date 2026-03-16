@@ -8,7 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/hub",
     id: "/",
     display: "standalone",
-    display_override: ["window-controls-overlay"],
+    display_override: ["standalone", "window-controls-overlay"],
     orientation: "portrait",
     theme_color: "#1D1D1D",
     background_color: "#1D1D1D",

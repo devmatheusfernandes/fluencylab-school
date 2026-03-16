@@ -8,7 +8,7 @@ self.addEventListener("activate", (event) => {
           if (wbEvent?.request?.destination === "document") {
             if (self.workbox?.precaching?.matchPrecache) {
               const match = await self.workbox.precaching.matchPrecache(
-                self.OFFLINE_URL,
+                self.OFFLINE_URL
               );
               if (match) return match;
             }
@@ -22,7 +22,7 @@ self.addEventListener("activate", (event) => {
       }
 
       await self.clients.claim();
-    })(),
+    })()
   );
 });
 
@@ -38,7 +38,7 @@ self.addEventListener("push", function (event) {
 
   const title = data.title || "Notificação";
   const body = data.body || "";
-  const icon = data.icon || "/favicon.ico"; // TODO: verificar, parece que funciona só no localhost, e fica feio ainda
+  const icon = data.icon || "/favicon.ico";
   const badge = data.badge || "/favicon.ico";
   const url = data.url || "/hub";
   const type = data.type || "info";
@@ -69,7 +69,7 @@ self.addEventListener("push", function (event) {
           type,
         });
       }
-    })(),
+    })()
   );
 });
 
@@ -88,12 +88,6 @@ self.addEventListener("notificationclick", function (event) {
       } else {
         self.clients.openWindow(url);
       }
-    })(),
+    })()
   );
 });
-
-// self.addEventListener("message", (event) => {
-//   if (event.data && event.data.type === "SKIP_WAITING") {
-//     self.skipWaiting();
-//   }
-// });
