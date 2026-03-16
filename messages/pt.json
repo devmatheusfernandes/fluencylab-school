@@ -3325,5 +3325,12 @@
     "errors": {
       "generic": "Não foi possível validar o certificado."
     }
+  },
+  "GapFillExercise": {
+    "instruction": "Escute e preencha o espaço com a palavra",
+    "listenToContext": "Ouvir"
+  },
+  "UnscrambleExercise": {
+    "title": "Reordene as palavras para formar a frase correta"
   }
 }

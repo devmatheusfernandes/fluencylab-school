@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, Volume2, VolumeX, Settings2 } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface PracticeAudioPlayerProps {
@@ -29,66 +29,102 @@ export function PracticeAudioPlayer({
   language = "en-US",
 }: PracticeAudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const shouldAutoPlayRef = useRef(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(startTime);
   const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(1);
   const [playbackRate, setPlaybackRate] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
 
-  useEffect(() => {
-    if (!isOpen) return;
+  const handleSpeechStart = useCallback(() => {
+    setIsPlaying(true);
+  }, []);
 
-    if (textToSpeak) {
-      if (
-        autoPlay &&
-        typeof window !== "undefined" &&
-        "speechSynthesis" in window
-      ) {
-        const utterance = new SpeechSynthesisUtterance(textToSpeak);
-        utterance.lang = language;
-        utterance.onend = () => {
-          setIsPlaying(false);
-          if (onComplete) onComplete();
-        };
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(utterance);
-        setIsPlaying(true);
-      }
-      return;
-    }
+  const handleSpeechEnd = useCallback(() => {
+    setIsPlaying(false);
+    if (onComplete) onComplete();
+  }, [onComplete]);
 
-    if (audioRef.current) {
-      if (Math.abs(audioRef.current.currentTime - startTime) > 0.1) {
-        audioRef.current.currentTime = startTime;
-        setProgress(startTime);
-      }
-
-      if (autoPlay) {
-        audioRef.current.play().catch(() => {});
-        setIsPlaying(true);
-      }
-    }
-  }, [isOpen, autoPlay, audioUrl, startTime, textToSpeak, onComplete]);
-
-  const togglePlay = () => {
-    if (textToSpeak) {
+  const speakText = useCallback(
+    (rateOverride?: number) => {
+      if (!textToSpeak) return;
+      if (isMuted) return;
       if (typeof window === "undefined" || !("speechSynthesis" in window))
         return;
 
+      const utterance = new SpeechSynthesisUtterance(textToSpeak);
+      utterance.lang = language;
+      utterance.rate = rateOverride ?? playbackRate;
+      utterance.onstart = handleSpeechStart;
+      utterance.onend = handleSpeechEnd;
+
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    },
+    [
+      handleSpeechEnd,
+      handleSpeechStart,
+      isMuted,
+      language,
+      playbackRate,
+      textToSpeak,
+    ]
+  );
+
+  useEffect(() => {
+    if (!isOpen) {
+      audioRef.current?.pause();
+      window.speechSynthesis?.cancel();
+      setIsPlaying(false);
+      return;
+    }
+
+    if (textToSpeak && autoPlay) {
+      speakText();
+    }
+  }, [isOpen, autoPlay, speakText, textToSpeak]);
+
+  const handleLoadedMetadata = () => {
+    if (textToSpeak) return;
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.muted = isMuted;
+    audio.playbackRate = playbackRate;
+
+    const nextDuration = audio.duration;
+    setDuration(Number.isFinite(nextDuration) ? nextDuration : 0);
+
+    if (Math.abs(audio.currentTime - startTime) > 0.1) {
+      try {
+        audio.currentTime = startTime;
+      } catch {}
+    }
+    setProgress(audio.currentTime);
+    setIsPlaying(!audio.paused);
+
+    if (shouldAutoPlayRef.current) {
+      audio.play().catch(() => {});
+    }
+  };
+
+  const handleDurationChange = () => {
+    if (textToSpeak) return;
+    const audio = audioRef.current;
+    if (!audio) return;
+    const nextDuration = audio.duration;
+    setDuration(Number.isFinite(nextDuration) ? nextDuration : 0);
+  };
+
+  const togglePlay = () => {
+    if (textToSpeak) {
       if (isPlaying) {
-        window.speechSynthesis.cancel();
+        if (typeof window !== "undefined" && "speechSynthesis" in window) {
+          window.speechSynthesis.cancel();
+        }
         setIsPlaying(false);
       } else {
-        const utterance = new SpeechSynthesisUtterance(textToSpeak);
-        utterance.lang = language;
-        utterance.onend = () => {
-          setIsPlaying(false);
-          if (onComplete) onComplete();
-        };
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(utterance);
-        setIsPlaying(true);
+        speakText();
       }
       return;
     }
@@ -100,7 +136,7 @@ export function PracticeAudioPlayer({
         if (endTime && audioRef.current.currentTime >= endTime) {
           audioRef.current.currentTime = startTime;
         }
-        audioRef.current.play();
+        audioRef.current.play().catch(() => {});
       }
       setIsPlaying(!isPlaying);
     }
@@ -112,42 +148,50 @@ export function PracticeAudioPlayer({
     if (audioRef.current) {
       const current = audioRef.current.currentTime;
       setProgress(current);
-      setDuration(audioRef.current.duration || 0);
+      const nextDuration = audioRef.current.duration;
+      if (Number.isFinite(nextDuration)) {
+        setDuration(nextDuration);
+      }
 
-      // Check for segment end
       if (endTime && current >= endTime) {
         audioRef.current.pause();
         setIsPlaying(false);
-        audioRef.current.currentTime = startTime; // Reset for replay
+        audioRef.current.currentTime = startTime;
         if (onComplete) onComplete();
       }
     }
   };
 
-  const handleSeek = (value: number[]) => {
-    if (textToSpeak) return;
-
-    if (audioRef.current) {
-      audioRef.current.currentTime = value[0];
-      setProgress(value[0]);
-    }
-  };
-
   const toggleMute = () => {
-    if (textToSpeak) return;
+    const nextMuted = !isMuted;
+    setIsMuted(nextMuted);
+
+    if (textToSpeak) {
+      if (nextMuted) {
+        if (typeof window !== "undefined" && "speechSynthesis" in window) {
+          window.speechSynthesis.cancel();
+        }
+        setIsPlaying(false);
+      }
+      return;
+    }
 
     if (audioRef.current) {
-      audioRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
+      audioRef.current.muted = nextMuted;
     }
   };
 
   const changeSpeed = () => {
-    if (textToSpeak) return;
     const speeds = [0.5, 1, 1.5, 2];
     const nextIndex = (speeds.indexOf(playbackRate) + 1) % speeds.length;
     const newSpeed = speeds[nextIndex];
     setPlaybackRate(newSpeed);
+
+    if (textToSpeak) {
+      if (isPlaying) speakText(newSpeed);
+      return;
+    }
+
     if (audioRef.current) {
       audioRef.current.playbackRate = newSpeed;
     }
@@ -165,40 +209,46 @@ export function PracticeAudioPlayer({
           <audio
             ref={audioRef}
             src={audioUrl || undefined}
+            preload="metadata"
+            onLoadedMetadata={handleLoadedMetadata}
+            onDurationChange={handleDurationChange}
             onTimeUpdate={handleTimeUpdate}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
             onEnded={() => setIsPlaying(false)}
           />
 
           <div className="max-w-md mx-auto space-y-4">
-            {/* Progress Bar */}
-            <div className="space-y-2">
-              <div className="h-1 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-blue-500 transition-all duration-100 ease-linear"
-                  style={{
-                    width: endTime
-                      ? `${Math.max(0, Math.min(100, ((progress - startTime) / (endTime - startTime)) * 100))}%`
-                      : `${(progress / (duration || 1)) * 100}%`,
-                  }}
-                />
+            {!textToSpeak && (
+              <div className="space-y-2">
+                <div className="h-1 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-blue-500 transition-all duration-100 ease-linear"
+                    style={{
+                      width: endTime
+                        ? `${Math.max(0, Math.min(100, ((progress - startTime) / (endTime - startTime)) * 100))}%`
+                        : `${(progress / (duration || 1)) * 100}%`,
+                    }}
+                  />
+                </div>
+                <div className="flex justify-between text-xs text-slate-500">
+                  <span>
+                    {formatTime(
+                      endTime ? Math.max(0, progress - startTime) : progress
+                    )}
+                  </span>
+                  <span>
+                    {formatTime(endTime ? endTime - startTime : duration)}
+                  </span>
+                </div>
               </div>
-              <div className="flex justify-between text-xs text-slate-500">
-                <span>
-                  {formatTime(
-                    endTime ? Math.max(0, progress - startTime) : progress,
-                  )}
-                </span>
-                <span>
-                  {formatTime(endTime ? endTime - startTime : duration)}
-                </span>
-              </div>
-            </div>
+            )}
 
-            {/* Controls */}
             <div className="flex items-center justify-between">
               <Button
                 variant="ghost"
                 size="icon"
+                type="button"
                 onClick={changeSpeed}
                 className="text-slate-500 font-bold text-xs w-10 h-10 border-2 rounded-xl"
               >
@@ -207,8 +257,9 @@ export function PracticeAudioPlayer({
 
               <Button
                 size="icon"
+                type="button"
                 onClick={togglePlay}
-                className="w-16 h-16 rounded-full bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/30 text-2xl"
+                className="w-16 h-16 rounded-full bg-indigo-500 hover:bg-indigo-600 border-indigo-500 dark:border-indigo-400 text-white shadow-lg shadow-indigo-500/30 text-2xl"
               >
                 {isPlaying ? (
                   <Pause className="fill-current" />
@@ -221,6 +272,7 @@ export function PracticeAudioPlayer({
                 <Button
                   variant="ghost"
                   size="icon"
+                  type="button"
                   onClick={toggleMute}
                   className="text-slate-500"
                 >
@@ -229,13 +281,12 @@ export function PracticeAudioPlayer({
               </div>
             </div>
 
-            {/* Close Button (Optional if managed by parent) */}
             <div className="w-full flex justify-center pt-2">
               <button
                 onClick={onClose}
                 className="text-slate-400 text-sm hover:text-slate-600"
               >
-                Close Player
+                Close
               </button>
             </div>
           </div>
@@ -246,6 +297,7 @@ export function PracticeAudioPlayer({
 }
 
 function formatTime(seconds: number) {
+  if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
   return `${mins}:${secs.toString().padStart(2, "0")}`;

@@ -4,11 +4,30 @@ import { getAuth } from 'firebase-admin/auth';
 import { getStorage } from 'firebase-admin/storage';
 import { getEnv } from '@/lib/env/validation';
 
+function normalizePrivateKey(privateKey: string | undefined): string | undefined {
+  if (!privateKey) return undefined;
+
+  const rawKey = privateKey.replace(/\\n/g, '\n').trim();
+  const header = '-----BEGIN PRIVATE KEY-----';
+  const footer = '-----END PRIVATE KEY-----';
+
+  const headerIndex = rawKey.indexOf(header);
+  const footerIndex = rawKey.indexOf(footer);
+
+  if (headerIndex === -1 || footerIndex === -1) return rawKey;
+
+  const bodyStart = headerIndex + header.length;
+  const body = rawKey.slice(bodyStart, footerIndex).replace(/\s+/g, '');
+  const wrappedBody = body.match(/.{1,64}/g)?.join('\n') ?? '';
+
+  return `${header}\n${wrappedBody}\n${footer}\n`;
+}
+
 // As credenciais são lidas das variáveis de ambiente validadas
 const serviceAccount = {
   projectId: getEnv('FIREBASE_ADMIN_PROJECT_ID'),
   clientEmail: getEnv('FIREBASE_ADMIN_CLIENT_EMAIL'),
-  privateKey: getEnv('FIREBASE_ADMIN_PRIVATE_KEY')?.replace(/\\n/g, '\n'),
+  privateKey: normalizePrivateKey(getEnv('FIREBASE_ADMIN_PRIVATE_KEY')),
 };
 
 let app: App;

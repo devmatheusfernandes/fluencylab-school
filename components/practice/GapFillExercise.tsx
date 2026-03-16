@@ -1,13 +1,11 @@
+"use client";
 
-'use client';
-
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Check, X } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { PracticeAudioPlayer } from './PracticeAudioPlayer';
-import { Volume2 } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { PracticeAudioPlayer } from "./PracticeAudioPlayer";
+import { Volume2 } from "lucide-react";
 
 interface GapFillExerciseProps {
   sentenceWithGap: string;
@@ -26,51 +24,62 @@ export function GapFillExercise({
   language,
   onComplete,
 }: GapFillExerciseProps) {
-  const [answer, setAnswer] = useState('');
+  const t = useTranslations("GapFillExercise");
+  const [answer, setAnswer] = useState("");
   const [parts, setParts] = useState<string[]>([]);
   const [showAudio, setShowAudio] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
 
   useEffect(() => {
-    setParts(sentenceWithGap.split('___'));
+    setParts(sentenceWithGap.split("___"));
   }, [sentenceWithGap]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLocked) return;
     if (!answer.trim()) return;
-    
-    const isCorrect = answer.trim().toLowerCase() === correctAnswer.toLowerCase();
+
+    const isCorrect =
+      answer.trim().toLowerCase() === correctAnswer.toLowerCase();
+    setIsLocked(true);
     onComplete(isCorrect, answer);
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-8 p-4">
-      {(audioSegment || audioText) && (
-        <Button 
-            variant="outline" 
-            size="lg" 
-            className="rounded-2xl border-2 border-b-4 active:border-b-2 active:translate-y-[2px] border-blue-200 text-blue-500 hover:bg-blue-50 hover:text-blue-600 w-full max-w-xs"
+      <div className="flex flex-row items-center justify-center gap-2 mb-12">
+        <h2 className="text-2xl font-bold text-slate-700 dark:text-slate-200 text-center mb-8">
+          {t("instruction")}
+        </h2>
+        {(audioSegment || audioText) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            type="button"
+            disabled={isLocked}
             onClick={() => setShowAudio(true)}
-        >
-            <Volume2 className="mr-2 h-6 w-6" />
-            Listen to Context
-        </Button>
-      )}
+          >
+            <Volume2 className="h-6 w-6" />
+          </Button>
+        )}
+      </div>
 
       <form onSubmit={handleSubmit} className="w-full max-w-2xl text-center">
-        <div className="text-2xl md:text-3xl font-medium leading-relaxed text-slate-700 dark:text-slate-200 flex flex-wrap items-center justify-center gap-2">
+        <div className="text-xl md:text-2xl font-medium leading-relaxed text-slate-700 dark:text-slate-200 flex flex-wrap items-center justify-center gap-2">
           {parts.map((part, index) => (
             <span key={index} className="whitespace-pre-wrap">
               {part}
               {index < parts.length - 1 && (
                 <span className="inline-block mx-2 relative">
-                    <Input
-                        type="text"
-                        value={answer}
-                        onChange={(e) => setAnswer(e.target.value)}
-                        className="w-32 md:w-48 text-center text-xl font-bold bg-slate-100 dark:bg-slate-800 border-b-4 border-slate-300 focus:border-blue-500 focus:bg-white transition-all rounded-xl h-12 md:h-14 inline-block"
-                        placeholder="..."
-                        autoFocus
-                    />
+                  <Input
+                    type="text"
+                    value={answer}
+                    onChange={(e) => setAnswer(e.target.value)}
+                    disabled={isLocked}
+                    className="w-32 md:w-48 text-center text-xl font-bold bg-slate-100 dark:bg-slate-800 border-b-4 border-slate-300 focus:border-blue-500 focus:bg-white transition-all rounded-xl h-12 md:h-14 inline-block"
+                    placeholder=""
+                    autoFocus
+                  />
                 </span>
               )}
             </span>
@@ -78,26 +87,26 @@ export function GapFillExercise({
         </div>
 
         <div className="mt-12">
-            <Button 
-                type="submit" 
-                disabled={!answer}
-                className="w-full md:w-auto px-12 py-6 text-lg font-bold uppercase tracking-widest rounded-2xl bg-green-500 hover:bg-green-600 text-white shadow-[0_4px_0_0_#15803d] active:shadow-none active:translate-y-1 transition-all disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none"
-            >
-                Check
-            </Button>
+          <Button
+            type="submit"
+            disabled={!answer || isLocked}
+            className="w-full md:w-auto px-12 py-6 text-lg font-bold uppercase tracking-widest rounded-xl bg-green-500 hover:bg-green-600 border-green-500 dark:border-green-400 text-white shadow-[0_4px_0_0_#15803d] active:shadow-none active:translate-y-1 transition-all disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:border-none"
+          >
+            Check
+          </Button>
         </div>
       </form>
 
       {(audioSegment || audioText) && (
-        <PracticeAudioPlayer 
-            audioUrl={audioSegment?.url} 
-            isOpen={showAudio} 
-            onClose={() => setShowAudio(false)} 
-            autoPlay={true}
-            startTime={audioSegment?.start}
-            endTime={audioSegment?.end}
-            textToSpeak={audioSegment ? undefined : audioText}
-            language={language}
+        <PracticeAudioPlayer
+          audioUrl={audioSegment?.url}
+          isOpen={showAudio}
+          onClose={() => setShowAudio(false)}
+          autoPlay={true}
+          startTime={audioSegment?.start}
+          endTime={audioSegment?.end}
+          textToSpeak={audioSegment ? undefined : audioText}
+          language={language}
         />
       )}
     </div>

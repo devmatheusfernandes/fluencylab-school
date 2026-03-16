@@ -17,4 +17,4 @@ export const montserrat = Montserrat ({
     subsets: ['latin'],
     });
 
-export const myFont = localFont({ src: './BrittanySignature.ttf' })
+export const myFont = localFont({ src: './BrittanySignature.ttf', display: 'swap', preload: false })

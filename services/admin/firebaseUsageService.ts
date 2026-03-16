@@ -18,12 +18,29 @@ export interface FirebaseUsageData {
   error?: string;
 }
 
+function normalizePrivateKey(privateKey: string | undefined): string | undefined {
+  if (!privateKey) return undefined;
+
+  const rawKey = privateKey.replace(/\\n/g, "\n").trim();
+  const header = "-----BEGIN PRIVATE KEY-----";
+  const footer = "-----END PRIVATE KEY-----";
+
+  const headerIndex = rawKey.indexOf(header);
+  const footerIndex = rawKey.indexOf(footer);
+
+  if (headerIndex === -1 || footerIndex === -1) return rawKey;
+
+  const bodyStart = headerIndex + header.length;
+  const body = rawKey.slice(bodyStart, footerIndex).replace(/\s+/g, "");
+  const wrappedBody = body.match(/.{1,64}/g)?.join("\n") ?? "";
+
+  return `${header}\n${wrappedBody}\n${footer}\n`;
+}
+
 // Helper to get credentials safely
 const getCredentials = () => {
   try {
-    const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY
-      ? process.env.FIREBASE_ADMIN_PRIVATE_KEY.replace(/\\n/g, "\n")
-      : undefined;
+    const privateKey = normalizePrivateKey(process.env.FIREBASE_ADMIN_PRIVATE_KEY);
 
     const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
     const projectId =

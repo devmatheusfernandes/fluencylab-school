@@ -27,6 +27,7 @@ import {
 } from "@/lib/learning/grading";
 import { CheckCircle, Trophy } from "lucide-react";
 import { ListeningChoiceExercise } from "./ListeningChoiceExercise";
+import { SpinnerLoading } from "../transitions/spinner-loading";
 
 interface PracticeSessionProps {
   planId: string;
@@ -46,14 +47,14 @@ export function PracticeSession({
 
   // Helper to get language code
   const getLanguageCode = (lang?: string) => {
-    if (!lang) return 'en-US';
+    if (!lang) return "en-US";
     const map: Record<string, string> = {
-      'Inglês': 'en-US',
-      'Espanhol': 'es-ES',
-      'Português': 'pt-BR',
-      'Libras': 'pt-BR',
+      Inglês: "en-US",
+      Espanhol: "es-ES",
+      Português: "pt-BR",
+      Libras: "pt-BR",
     };
-    return map[lang] || 'en-US';
+    return map[lang] || "en-US";
   };
 
   const targetLanguage = getLanguageCode(session?.user?.languages?.[0]);
@@ -109,7 +110,7 @@ export function PracticeSession({
           const dailySession = await getDailyPractice(
             planId,
             dayOverride,
-            lessonId,
+            lessonId
           );
 
           if (
@@ -150,7 +151,7 @@ export function PracticeSession({
       } catch (error) {
         console.error("Failed to initialize session details:", error);
         alert(
-          `Failed to load practice session: ${error instanceof Error ? error.message : String(error)}`,
+          `Failed to load practice session: ${error instanceof Error ? error.message : String(error)}`
         );
         router.push("/hub/student/my-notebook");
       } finally {
@@ -169,7 +170,7 @@ export function PracticeSession({
   // Save Progress Helper
   const syncProgress = async (
     newIndex: number,
-    newResults: PracticeResult[],
+    newResults: PracticeResult[]
   ) => {
     // Don't await this to keep UI snappy, but track error state if critical
     // In a robust app, we might use optimistic updates + queue
@@ -190,7 +191,7 @@ export function PracticeSession({
     isCorrect: boolean,
     grade: 0 | 1 | 2 | 3 | 4 | 5,
     userAnswer?: string,
-    explanation?: string,
+    explanation?: string
   ) => {
     const correct = isCorrect;
 
@@ -386,7 +387,7 @@ export function PracticeSession({
               onComplete={(isCorrect, ans) => {
                 const grade = calculateWritingGrade(
                   ans,
-                  currentItem.gapFill!.correctAnswer,
+                  currentItem.gapFill!.correctAnswer
                 );
                 // 3-5 is considered "correct" for streak purposes in strict mode,
                 // but let's use isCorrect boolean from component or logic
@@ -466,7 +467,7 @@ export function PracticeSession({
                   isCorrect,
                   isCorrect ? 5 : 1,
                   undefined,
-                  currentItem.quiz?.explanation,
+                  currentItem.quiz?.explanation
                 );
               }}
             />
@@ -483,8 +484,8 @@ export function PracticeSession({
       />
 
       {isSaving && (
-        <div className="fixed top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-xs">
-          Saving...
+        <div className="absolute min-w-screen min-h-screen flex items-center top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/50 z-99">
+          <SpinnerLoading />
         </div>
       )}
     </div>

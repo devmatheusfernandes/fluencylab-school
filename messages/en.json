@@ -3340,5 +3340,12 @@
     "errors": {
       "generic": "Could not validate the certificate."
     }
+  },
+  "GapFillExercise": {
+    "instruction": "Listen and fill the blank with the word",
+    "listenToContext": "Listen"
+  },
+  "UnscrambleExercise": {
+    "title": "Reorder the words to form the correct sentence"
   }
 }

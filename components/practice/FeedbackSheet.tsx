@@ -112,7 +112,7 @@ export function FeedbackSheet({
       emerald:
         "bg-emerald-100 border-emerald-200 dark:bg-emerald-950 dark:border-emerald-900",
       green:
-        "bg-green-100 border-green-200 dark:bg-green-950 border-green-900 dark:border-green-900",
+        "bg-green-100 border-green-200 dark:bg-green-950 dark:border-green-900",
       slate:
         "bg-slate-100 border-slate-200 dark:bg-slate-950 dark:border-slate-900",
     }[config.color] || "bg-slate-100 border-slate-200";
@@ -162,7 +162,7 @@ export function FeedbackSheet({
           transition={{ type: "spring", damping: 25, stiffness: 200 }}
           className={cn(
             "fixed bottom-0 left-0 right-0 p-6 z-50 border-t-2",
-            bgClass,
+            bgClass
           )}
         >
           <div className="max-w-2xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
@@ -182,9 +182,6 @@ export function FeedbackSheet({
                   </p>
                 )}
 
-                {/* Show Correct Answer only if explicit failure (not just low grade) AND correctAnswer provided */}
-                {/* For Flashcards (grade defined), we usually don't show correct answer here unless we want to. User said NO incorrect/correct label. */}
-                {/* Logic: If grade is undefined (Binary Mode) AND isCorrect is false, show answer. */}
                 {grade === undefined && !isCorrect && correctAnswer && (
                   <p className="text-rose-700 dark:text-rose-300 mt-1">
                     Correct answer:{" "}
@@ -204,7 +201,7 @@ export function FeedbackSheet({
               onClick={onContinue}
               className={cn(
                 "w-full md:w-auto px-8 py-6 text-lg font-bold uppercase tracking-wider shadow-[0_4px_0_0_rgb(0,0,0,0.2)] active:shadow-none active:translate-y-1 transition-all",
-                buttonClass,
+                buttonClass
               )}
             >
               {config.buttonText}
