@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion"; // Importação adicionada
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Modal,
   ModalTrigger,
@@ -26,7 +26,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Dados dos passos
 const steps = [
   {
     id: "revenue",
@@ -118,12 +117,11 @@ const contentVariants = {
     x: direction < 0 ? 20 : -20,
     opacity: 0,
     filter: "blur(4px)",
-    position: "absolute", // Importante para evitar pulos de layout durante a saída
-    width: "100%", // Garante que o elemento saindo não quebre o layout
+    position: "absolute",
+    width: "100%",
   }),
 };
 
-// Variantes para os itens da lista (stagger)
 const containerListVariants = {
   hidden: { opacity: 0 },
   show: {
@@ -143,7 +141,7 @@ const itemListVariants = {
 export function FiscalHelpModal() {
   const [open, setOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const [direction, setDirection] = useState(0); // Controle da direção da animação
+  const [direction, setDirection] = useState(0);
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
@@ -177,14 +175,12 @@ export function FiscalHelpModal() {
       </ModalTrigger>
 
       <ModalContent className="p-0 overflow-hidden sm:max-w-[500px]">
-        {/* Header Visual */}
         <div
           className={cn(
             "h-32 w-full flex items-center justify-center relative transition-colors duration-500 ease-in-out rounded-md",
-            stepData.bg,
+            stepData.bg
           )}
         >
-          {/* AnimatePresence para o ícone trocar suavemente */}
           <AnimatePresence mode="wait">
             <motion.div
               key={currentStep}
@@ -194,7 +190,7 @@ export function FiscalHelpModal() {
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
               className={cn(
                 "p-4 rounded-full bg-white dark:bg-background shadow-sm",
-                stepData.color,
+                stepData.color
               )}
             >
               <Icon className="w-10 h-10" />
@@ -202,7 +198,6 @@ export function FiscalHelpModal() {
           </AnimatePresence>
         </div>
 
-        {/* Corpo do Modal - Onde ocorre a mágica do conteúdo */}
         <ModalBody className="px-6 pt-4 pb-2 relative min-h-[320px]">
           <AnimatePresence mode="popLayout" initial={false} custom={direction}>
             <motion.div
@@ -226,7 +221,6 @@ export function FiscalHelpModal() {
               </div>
 
               <div className="space-y-4 mt-4">
-                {/* Lista com Stagger Effect */}
                 <motion.ul
                   variants={containerListVariants}
                   initial="hidden"
@@ -245,7 +239,6 @@ export function FiscalHelpModal() {
                   ))}
                 </motion.ul>
 
-                {/* Box da Fórmula */}
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -264,7 +257,6 @@ export function FiscalHelpModal() {
           </AnimatePresence>
         </ModalBody>
 
-        {/* Rodapé */}
         <ModalFooter className="px-6 pb-6 pt-2 z-10 relative">
           <div className="flex w-full items-center justify-between">
             <div className="flex gap-1.5">
@@ -275,7 +267,7 @@ export function FiscalHelpModal() {
                     "h-1.5 rounded-full transition-all duration-300 ease-out",
                     idx === currentStep
                       ? "bg-primary w-6"
-                      : "bg-gray-200 dark:bg-gray-700 w-1.5",
+                      : "bg-gray-200 dark:bg-gray-700 w-1.5"
                   )}
                 />
               ))}

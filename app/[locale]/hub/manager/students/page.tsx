@@ -6,8 +6,6 @@ import { getTranslations } from "next-intl/server";
 export default async function StudentProfilesPage() {
   const t = await getTranslations("StudentProfileList");
   const profiles = await getStudentProfiles();
-
-  // Serialize dates to pass to client component
   const formattedProfiles = profiles.map((profile) => ({
     ...profile,
     createdAt: new Date(profile.createdAt).toISOString(),

@@ -6,8 +6,6 @@ import {
   Pause,
   CheckCircle2,
   Search,
-  Headphones,
-  ListFilter,
   Languages,
   Cloud,
   HardDrive,
@@ -19,7 +17,6 @@ import {
   Plus,
   Pencil,
   Save,
-  X,
   Trash2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -49,10 +46,9 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogFooter,
   DialogDescription,
-} from "@/components/ui/dialog"; // Certifique-se de ter o componente Dialog
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
@@ -108,17 +104,17 @@ export default function ContentCuratorPage() {
     try {
       const q = query(
         collection(db, "placement_questions"),
-        where("lang", "==", activeLang),
+        where("lang", "==", activeLang)
       );
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
         const firebaseData = querySnapshot.docs.map(
-          (doc) => doc.data() as Question,
+          (doc) => doc.data() as Question
         );
         // Ordena por ID para ficar bonito na lista
         firebaseData.sort((a, b) =>
-          a.id.localeCompare(b.id, undefined, { numeric: true }),
+          a.id.localeCompare(b.id, undefined, { numeric: true })
         );
         setQuestions(firebaseData);
         setDataSource("firebase");
@@ -140,14 +136,13 @@ export default function ContentCuratorPage() {
 
   useEffect(() => {
     fetchQuestions();
-     
   }, [activeLang]);
 
   // --- 2. Upload (JSON Local -> Firebase) ---
   const handleSyncToFirebase = async () => {
     if (
       !confirm(
-        "Isso irá sobrescrever o banco de dados com os arquivos JSON locais. Continuar?",
+        "Isso irá sobrescrever o banco de dados com os arquivos JSON locais. Continuar?"
       )
     )
       return;
@@ -188,7 +183,7 @@ export default function ContentCuratorPage() {
       // Baixa TODOS do idioma atual, não apenas os filtrados na tela
       const q = query(
         collection(db, "placement_questions"),
-        where("lang", "==", activeLang),
+        where("lang", "==", activeLang)
       );
       const querySnapshot = await getDocs(q);
       const rawData = querySnapshot.docs.map((doc) => doc.data() as Question);
@@ -229,7 +224,7 @@ export default function ContentCuratorPage() {
       await setDoc(doc(db, "placement_questions", firestoreId), payload);
 
       toast.success(
-        editingQuestion ? "Questão atualizada!" : "Questão criada!",
+        editingQuestion ? "Questão atualizada!" : "Questão criada!"
       );
       setIsDialogOpen(false);
       setEditingQuestion(null);
@@ -278,7 +273,7 @@ export default function ContentCuratorPage() {
         q.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
         q.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
         q.topics.some((t) =>
-          t.toLowerCase().includes(searchTerm.toLowerCase()),
+          t.toLowerCase().includes(searchTerm.toLowerCase())
         );
       const matchesLevel = activeLevel === "all" || q.level === activeLevel;
       return matchesSearch && matchesLevel;
@@ -493,7 +488,7 @@ function QuestionReviewCard({
             <div className="flex gap-2 items-center">
               <div
                 className={`h-2.5 w-2.5 rounded-full ${getLevelColor(
-                  question.level,
+                  question.level
                 )}`}
               />
               <Badge
@@ -504,7 +499,7 @@ function QuestionReviewCard({
               </Badge>
               <Badge
                 className={`${getLevelColor(
-                  question.level,
+                  question.level
                 )} text-white border-none hover:opacity-90`}
               >
                 {question.level}

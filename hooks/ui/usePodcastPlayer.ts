@@ -3,7 +3,7 @@ import { savePodcastProgressAction } from "@/actions/learning/immersionActions";
 
 interface UsePodcastPlayerProps {
   podcastId: string;
-  initialProgress?: number; // in seconds
+  initialProgress?: number; 
   audioUrl: string;
 }
 
@@ -18,6 +18,18 @@ export function usePodcastPlayer({
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
   const [isReady, setIsReady] = useState(false);
+
+  const saveProgress = useCallback(
+    async (time: number, completed: boolean) => {
+      if (!podcastId || isNaN(time)) return;
+      try {
+        await savePodcastProgressAction(podcastId, time, completed);
+      } catch (error) {
+        console.error("Failed to save progress", error);
+      }
+    },
+    [podcastId]
+  );
 
   // Initialize audio
   useEffect(() => {
@@ -56,30 +68,17 @@ export function usePodcastPlayer({
       audio.removeEventListener("ended", handleEnded);
       audioRef.current = null;
     };
-     
-  }, [audioUrl, podcastId]);
+  }, [audioUrl, saveProgress]);
 
-  // Save progress logic
-  const saveProgress = async (time: number, completed: boolean) => {
-    if (!podcastId || isNaN(time)) return;
-
-    try {
-      await savePodcastProgressAction(podcastId, time, completed);
-    } catch (error) {
-      console.error("Failed to save progress", error);
-    }
-  };
-
-  // Auto-save every 10 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       if (isPlaying && audioRef.current) {
         saveProgress(audioRef.current.currentTime, false);
       }
-    }, 10000);
+    }, 100000);
 
     return () => clearInterval(interval);
-  }, [isPlaying, podcastId]);
+  }, [isPlaying, saveProgress]);
 
   const togglePlay = useCallback(() => {
     if (audioRef.current) {
@@ -110,7 +109,7 @@ export function usePodcastPlayer({
     if (audioRef.current) {
       const newTime = Math.min(
         Math.max(audioRef.current.currentTime + seconds, 0),
-        audioRef.current.duration,
+        audioRef.current.duration
       );
       audioRef.current.currentTime = newTime;
       setCurrentTime(newTime);

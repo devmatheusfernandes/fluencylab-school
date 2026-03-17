@@ -3,7 +3,6 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { NextIntlClientProvider, useLocale } from "next-intl";
-
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -11,6 +10,7 @@ import { BackButton } from "@/components/ui/back-button";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import BackgroundLogin from "@/public/images/login/background";
 import { toast } from "sonner";
+import { ThemeSwitcher } from "../ThemeSwitcher";
 
 interface ForgotPasswordClientProps {
   messages: Record<string, Record<string, string>>;
@@ -19,7 +19,6 @@ interface ForgotPasswordClientProps {
 export function ForgotPasswordClient({ messages }: ForgotPasswordClientProps) {
   const router = useRouter();
   const locale = useLocale();
-
   const [email, setEmail] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   const [localError, setLocalError] = React.useState<string | null>(null);
@@ -81,8 +80,9 @@ export function ForgotPasswordClient({ messages }: ForgotPasswordClientProps) {
           ariaLabel={t.backToLogin}
           className="absolute top-4 left-4 sm:top-6 sm:left-6 z-10"
         />
-        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10">
+        <div className="flex flex-row gap-2 absolute top-4 right-4 sm:top-6 sm:right-6 z-10">
           <LanguageSwitcher />
+          <ThemeSwitcher />
         </div>
         <div className="w-full max-w-5xl bg-white/60 dark:bg-gray-900 rounded-xl shadow-2xl overflow-hidden">
           <div className="flex flex-col lg:flex-row">
@@ -141,17 +141,6 @@ export function ForgotPasswordClient({ messages }: ForgotPasswordClientProps) {
                       {t.backToLogin}
                     </Button>
                   </div>
-                )}
-
-                {!success && (
-                  <p className="text-center text-gray-600 dark:text-gray-300 mt-8 text-sm">
-                    <a
-                      href={`/${locale}/signin`}
-                      className="text-blue-600 dark:text-blue-400 hover:text-blue-700 hover:dark:text-blue-300 font-medium underline"
-                    >
-                      {t.backToLogin}
-                    </a>
-                  </p>
                 )}
               </div>
             </div>

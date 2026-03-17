@@ -12,18 +12,18 @@ export default async function SignInPage({
 }) {
   const { locale } = await params;
   const { callbackUrl } = await searchParams;
-  
+
   const session = await getServerSession(authOptions);
   if (session) {
-    const target = callbackUrl && typeof callbackUrl === 'string' 
-      ? callbackUrl 
-      : `/${locale}/hub`;
+    const target =
+      callbackUrl && typeof callbackUrl === "string"
+        ? callbackUrl
+        : `/${locale}/hub`;
     redirect(target);
   }
 
-  const messages = (
-    await import(`../../../../messages/${locale}.json`)
-  ).default as Record<string, Record<string, string>>;
+  const messages = (await import(`../../../../messages/${locale}.json`))
+    .default as Record<string, Record<string, string>>;
 
   return <SignInClient messages={messages} />;
 }

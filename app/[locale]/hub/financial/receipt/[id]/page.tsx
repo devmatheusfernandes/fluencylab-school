@@ -1,5 +1,5 @@
 import { subscriptionService } from "@/services/financial/subscriptionService";
-import { ReceiptView } from "../../../../../../components/financial/receipt-view";
+import { ReceiptView } from "@/components/financial/ReceiptViewer";
 import { notFound } from "next/navigation";
 import { adminDb } from "@/lib/firebase/admin";
 
@@ -18,7 +18,6 @@ export default async function ReceiptPage({ params }: PageProps) {
     notFound();
   }
 
-  // Fetch user details for the receipt
   const userDoc = await adminDb.collection("users").doc(payment.userId).get();
   const userData = userDoc.data();
 
@@ -32,7 +31,6 @@ export default async function ReceiptPage({ params }: PageProps) {
     studentEmail: userData?.email || "",
     guardianName: userData?.guardian?.name || "Professor",
     birthDate: userData?.birthDate || "",
-    //TODO COLOCAR CPF AQUI PARA IR PARA O COMPROVANTE
   };
 
   return <ReceiptView payment={receiptData} />;

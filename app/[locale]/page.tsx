@@ -2,12 +2,10 @@
 import { LandingNavbar } from "@/components/landing/LandingNavbar";
 import { LandingHero } from "@/components/landing/LandingHero";
 import { useIsStandalone } from "@/hooks/ui/useIsStandalone";
-
 import ComparisonSection from "@/components/landing/ComparisonSection";
 import HowItWorks from "@/components/landing/HowItWorks";
 import TeamSection from "@/components/landing/TeamSection";
 import Footer from "@/components/landing/Footer";
-
 import { PwaWelcomeScreen } from "@/components/landing/PwaWelcomeScreen";
 
 export default function LandingPage() {

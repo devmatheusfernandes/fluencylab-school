@@ -22,7 +22,6 @@ import {
   Clock,
   Globe,
   Shield,
-  ArrowLeft,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -68,8 +67,6 @@ import {
   QuizQuestion,
 } from "../../../../../../types/quiz/types";
 
-const generateUniqueId = () => `_${Math.random().toString(36).substr(2, 9)}`;
-
 export default function EditCourseForm() {
   const t = useTranslations("AdminCourses.edit");
   const tRoles = useTranslations("AdminCourses.roles");
@@ -101,7 +98,7 @@ export default function EditCourseForm() {
   const [isDeleteSectionAlertOpen, setIsDeleteSectionAlertOpen] =
     useState(false);
   const [sectionIdToDelete, setSectionIdToDelete] = useState<string | null>(
-    null,
+    null
   );
   const [isDeleteLessonAlertOpen, setIsDeleteLessonAlertOpen] = useState(false);
   const [lessonToDelete, setLessonToDelete] = useState<{
@@ -151,7 +148,7 @@ export default function EditCourseForm() {
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
+    >
   ) => {
     const { name, value } = e.target;
     setCourse((prev: any) => ({ ...prev, [name]: value }));
@@ -215,7 +212,7 @@ export default function EditCourseForm() {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ title: sectionData.title }),
-          },
+          }
         );
         if (!res.ok) throw new Error("Falha na API");
       } else {
@@ -234,7 +231,7 @@ export default function EditCourseForm() {
       setIsSectionModalOpen(false);
       toast.success(
         editingSection ? t("toasts.sectionSaved") : t("toasts.sectionCreated"),
-        { id: toastId },
+        { id: toastId }
       );
     } catch (error) {
       console.error("Error saving section: ", error);
@@ -248,7 +245,7 @@ export default function EditCourseForm() {
     try {
       const res = await fetch(
         `/api/admin/courses/${courseId}/sections/${sectionId}`,
-        { method: "DELETE" },
+        { method: "DELETE" }
       );
       if (!res.ok) throw new Error("Falha na API");
       await fetchCourseAndContent();
@@ -259,14 +256,14 @@ export default function EditCourseForm() {
         t("toasts.deleteSectionError", {
           error: error.message || "Erro desconhecido",
         }),
-        { id: toastId },
+        { id: toastId }
       );
     }
   };
 
   const handleOpenLessonModal = (
     sectionId: string,
-    lesson: Lesson | null = null,
+    lesson: Lesson | null = null
   ) => {
     setCurrentSectionIdForLesson(sectionId);
     setEditingLesson(lesson);
@@ -295,13 +292,13 @@ export default function EditCourseForm() {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
-          },
+          }
         );
         if (!res.ok) throw new Error("Falha na API");
         savedLessonId = editingLesson.id;
       } else {
         const currentSection = sections.find(
-          (s) => s.id === currentSectionIdForLesson,
+          (s) => s.id === currentSectionIdForLesson
         );
         const newOrder =
           currentSection && currentSection.lessons.length > 0
@@ -319,7 +316,7 @@ export default function EditCourseForm() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(newLessonData),
-          },
+          }
         );
         if (!res.ok) throw new Error("Falha na API");
         const json = await res.json();
@@ -328,10 +325,10 @@ export default function EditCourseForm() {
       }
       await fetchCourseAndContent();
       const updatedSection = sections.find(
-        (s) => s.id === currentSectionIdForLesson,
+        (s) => s.id === currentSectionIdForLesson
       );
       const latestLesson = updatedSection?.lessons?.find(
-        (l) => l.id === (editingLesson?.id || savedLessonId),
+        (l) => l.id === (editingLesson?.id || savedLessonId)
       );
       if (latestLesson) {
         setEditingLesson(latestLesson);
@@ -339,7 +336,7 @@ export default function EditCourseForm() {
       }
       toast.success(
         editingLesson ? t("toasts.lessonUpdated") : t("toasts.lessonCreated"),
-        { id: toastId },
+        { id: toastId }
       );
     } catch (error) {
       console.error("Error saving lesson: ", error);
@@ -355,12 +352,12 @@ export default function EditCourseForm() {
           return {
             ...section,
             lessons: section.lessons.map((lesson) =>
-              lesson.id === updatedLesson.id ? updatedLesson : lesson,
+              lesson.id === updatedLesson.id ? updatedLesson : lesson
             ),
           };
         }
         return section;
-      }),
+      })
     );
     if (currentLessonForQuiz?.id === updatedLesson.id)
       setCurrentLessonForQuiz(updatedLesson);
@@ -377,7 +374,7 @@ export default function EditCourseForm() {
     try {
       const res = await fetch(
         `/api/admin/courses/${courseId}/sections/${sectionId}/lessons/${lessonId}`,
-        { method: "DELETE" },
+        { method: "DELETE" }
       );
       if (!res.ok) throw new Error("Falha na API");
       await fetchCourseAndContent();
@@ -390,7 +387,7 @@ export default function EditCourseForm() {
 
   const handleOpenQuizModal = (
     lesson: Lesson,
-    question: QuizQuestion | null = null,
+    question: QuizQuestion | null = null
   ) => {
     setCurrentLessonForQuiz(lesson);
     setEditingQuizQuestion(question);
@@ -410,16 +407,16 @@ export default function EditCourseForm() {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ quiz: updatedQuiz }),
-        },
+        }
       );
       if (!res.ok) throw new Error("Falha na API");
       await fetchCourseAndContent();
 
       const updatedSection = sections.find(
-        (s) => s.id === currentLessonForQuiz.sectionId,
+        (s) => s.id === currentLessonForQuiz.sectionId
       );
       const latestLesson = updatedSection?.lessons?.find(
-        (l) => l.id === currentLessonForQuiz.id,
+        (l) => l.id === currentLessonForQuiz.id
       );
       if (latestLesson) setCurrentLessonForQuiz(latestLesson);
 
@@ -434,7 +431,7 @@ export default function EditCourseForm() {
     direction: "up" | "down",
     type: "section" | "lesson",
     sectionId: string,
-    lessonId?: string,
+    lessonId?: string
   ) => {
     if (!courseId) return;
     const items: (Section | Lesson)[] =
@@ -442,7 +439,7 @@ export default function EditCourseForm() {
         ? [...sections]
         : sections.find((s) => s.id === sectionId)?.lessons || [];
     const index = items.findIndex(
-      (item) => item.id === (type === "section" ? sectionId : lessonId),
+      (item) => item.id === (type === "section" ? sectionId : lessonId)
     );
     if (index === -1) return;
     if (direction === "up" && index === 0) return;
@@ -784,7 +781,7 @@ export default function EditCourseForm() {
                                     "up",
                                     "lesson",
                                     section.id,
-                                    lesson.id,
+                                    lesson.id
                                   )
                                 }
                                 disabled={lIdx === 0}
@@ -800,7 +797,7 @@ export default function EditCourseForm() {
                                     "down",
                                     "lesson",
                                     section.id,
-                                    lesson.id,
+                                    lesson.id
                                   )
                                 }
                                 disabled={lIdx === section.lessons.length - 1}

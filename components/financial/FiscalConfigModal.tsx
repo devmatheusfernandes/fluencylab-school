@@ -16,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { IrpfRange } from "@/types/financial/financial";
-import { Loader2, Plus, Trash2, Settings2 } from "lucide-react";
+import { Loader2, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface FiscalConfigModalProps {
@@ -96,7 +96,7 @@ export function FiscalConfigModal({
   const updateRange = (
     index: number,
     field: keyof IrpfRange,
-    value: string,
+    value: string
   ) => {
     const newRanges = [...ranges];
     let parsedValue = 0;

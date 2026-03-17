@@ -12,11 +12,10 @@ export function PwaWelcomeScreen() {
   const t = useTranslations("PwaWelcome");
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 relative overflow-hidden">
-      {/* Background pattern similar to landing page */}
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] dark:opacity-[0.08] pointer-events-none" />
 
       <div className="w-full max-w-md relative z-10">
-        <Card className="border-none shadow-xl bg-card/80 backdrop-blur-sm">
+        <Card className="item-base border-none backdrop-blur-sm">
           <CardContent className="flex flex-col items-center pt-10 pb-10 px-6 text-center space-y-6">
             <div className="relative w-42 h-20 mb-2">
               <Image
@@ -39,11 +38,8 @@ export function PwaWelcomeScreen() {
 
             <div className="w-full pt-4">
               <Link href="/signin" className="w-full">
-                <Button
-                  className="w-full h-12 text-base font-medium gap-2"
-                  size="lg"
-                >
-                  <LogIn className="w-4 h-4 mr-1" />
+                <Button className="w-full font-medium gap-2">
+                  <LogIn className="w-4 h-4 mr-2" />
                   {t("enterButton")}
                 </Button>
               </Link>

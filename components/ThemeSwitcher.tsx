@@ -12,8 +12,6 @@ export function ThemeSwitcher() {
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const t = useTranslations("Theme");
-  
-  // 2. Verifica se é PWA
   const isStandalone = useIsStandalone();
 
   useEffect(() => {
@@ -23,22 +21,22 @@ export function ThemeSwitcher() {
   const themes = [
     { value: "light", label: t("light"), icon: Sun, color: "text-amber-500" },
     { value: "dark", label: t("dark"), icon: Moon, color: "text-violet-400" },
-    { value: "system", label: t("system"), icon: Monitor, color: "text-blue-500" },
+    {
+      value: "system",
+      label: t("system"),
+      icon: Monitor,
+      color: "text-blue-500",
+    },
   ];
 
   const currentTheme = themes.find((t) => t.value === theme) || themes[0];
   const CurrentIcon = currentTheme.icon;
-
-  // 3. Função inteligente de Toggle
   const handleToggle = () => {
     if (isStandalone) {
-      // Lógica de Ciclo: Próximo tema da lista
       const currentIndex = themes.findIndex((t) => t.value === theme);
-      // Se não achar (index -1), vai para o 0. Se achar, vai para o próximo. O % faz o loop voltar ao início.
       const nextIndex = (currentIndex + 1) % themes.length;
       setTheme(themes[nextIndex].value);
     } else {
-      // Comportamento padrão (Menu Dropdown)
       setIsOpen(!isOpen);
     }
   };
@@ -53,11 +51,10 @@ export function ThemeSwitcher() {
 
   return (
     <div className="relative">
-      {/* Toggle Button */}
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        onClick={handleToggle} // <--- 4. Usa a nova função aqui
+        onClick={handleToggle}
         aria-label={t("toggle")}
         className="relative flex h-10 w-10 items-center justify-center rounded-lg border-none border-slate-200/50 dark:border-slate-700/50 bg-white/20 dark:bg-slate-900/35 hover:bg-white/40 dark:hover:bg-slate-800/50 transition-colors duration-200"
       >
@@ -74,11 +71,9 @@ export function ThemeSwitcher() {
         </AnimatePresence>
       </motion.button>
 
-      {/* Dropdown Menu - Só renderiza se não for standalone (segurança visual extra) e estiver aberto */}
       <AnimatePresence>
         {isOpen && !isStandalone && (
           <>
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -87,7 +82,6 @@ export function ThemeSwitcher() {
               className="fixed inset-0 z-40"
             />
 
-            {/* Menu */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -127,7 +121,11 @@ export function ThemeSwitcher() {
                         <motion.div
                           layoutId="active-indicator"
                           className="h-2 w-2 rounded-full bg-primary"
-                          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 300,
+                            damping: 25,
+                          }}
                         />
                       )}
                     </motion.button>

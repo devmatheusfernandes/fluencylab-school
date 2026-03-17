@@ -2,7 +2,7 @@ import { Header } from "@/components/ui/header";
 import { Button } from "@/components/ui/button";
 import { immersionService } from "@/services/learning/immersionService";
 import Link from "next/link";
-import { Plus, Edit, Trash, Container } from "lucide-react";
+import { Plus, Edit } from "lucide-react";
 import {
   Table,
   TableBody,

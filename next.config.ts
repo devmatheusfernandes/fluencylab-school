@@ -1,7 +1,5 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
-
-// Suppress DeprecationWarning: url.parse() behavior is not standardized
 if (typeof process !== "undefined") {
   const originalEmit = process.emit;
   // @ts-ignore

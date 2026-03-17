@@ -3,7 +3,6 @@ import React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import { NextIntlClientProvider, useLocale } from "next-intl";
-
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -189,9 +188,8 @@ export function SignInClient({ messages }: SignInClientProps) {
                   >
                     {isCredentialsLoading ? (
                       <>
-                        <Spinner aria-hidden="true" className="mr-2" />
+                        <Spinner aria-hidden="true" />
                         <span className="sr-only">{t.loading}</span>
-                        {t.loading}
                       </>
                     ) : (
                       <div className="flex flex-row items-center justify-center">

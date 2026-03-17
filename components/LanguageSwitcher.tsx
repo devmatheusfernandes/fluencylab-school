@@ -29,7 +29,6 @@ export default function LanguageSwitcher() {
 
   function setLocale(nextLocale: string) {
     const segments = pathname.split("/");
-    // path starts with '/' so first segment is ''
     if (segments.length > 1) {
       segments[1] = nextLocale;
     }
@@ -85,7 +84,7 @@ export default function LanguageSwitcher() {
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      locale === lang.value ? "opacity-100" : "opacity-0",
+                      locale === lang.value ? "opacity-100" : "opacity-0"
                     )}
                   />
                   {lang.label}

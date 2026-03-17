@@ -1,4 +1,3 @@
-import { Container } from "@/components/ui/container";
 import { StudentProfileSurvey } from "@/components/students/survey/StudentProfileSurvey";
 import { getStudentProfileById } from "@/actions/studentProfile";
 import { notFound } from "next/navigation";
