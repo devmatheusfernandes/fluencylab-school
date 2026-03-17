@@ -215,7 +215,9 @@ const SelectContent = React.forwardRef<
       return (
         <DrawerContent>
           <DrawerTitle className="sr-only">Opções disponíveis</DrawerTitle>
-          <div className="mt-2 flex flex-col px-4 pb-8 pt-2">{children}</div>
+          <div className="mt-2 flex flex-col px-4 pb-8 pt-2 max-h-[70vh] overflow-y-auto">
+            {children}
+          </div>
         </DrawerContent>
       );
     }

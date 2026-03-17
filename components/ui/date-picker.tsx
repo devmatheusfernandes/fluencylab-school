@@ -47,16 +47,6 @@ export default function DatePicker({
     "december",
   ];
 
-  const weekdays = [
-    "sunday",
-    "monday",
-    "tuesday",
-    "wednesday",
-    "thursday",
-    "friday",
-    "saturday",
-  ];
-
   const resolvedPlaceholder = placeholder || t("selectDate");
 
   const sizeClasses = {
@@ -74,7 +64,6 @@ export default function DatePicker({
     },
   };
 
-  // Prevent body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -101,7 +90,6 @@ export default function DatePicker({
       isDisabled: boolean;
     }> = [];
 
-    // Previous month's trailing days
     for (let i = startingDayOfWeek - 1; i >= 0; i--) {
       const day = new Date(year, month, -i);
       days.push({
@@ -111,7 +99,6 @@ export default function DatePicker({
       });
     }
 
-    // Current month's days
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(year, month, day);
       days.push({
@@ -121,7 +108,6 @@ export default function DatePicker({
       });
     }
 
-    // Next month's leading days
     const remainingDays = 42 - days.length;
     for (let day = 1; day <= remainingDays; day++) {
       const date = new Date(year, month + 1, day);
@@ -204,7 +190,6 @@ export default function DatePicker({
 
   return (
     <>
-      {/* Input Field */}
       <div
         className="relative group w-full max-w-full mx-auto"
         ref={containerRef}
@@ -245,16 +230,12 @@ export default function DatePicker({
         />
       </div>
 
-      {/* Bottom Sheet Modal */}
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-end justify-center">
-          {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300"
             onClick={handleClose}
           />
-
-          {/* Bottom Sheet */}
           <div
             className={`
                 relative w-full max-w-lg mx-4 mb-4 sm:mb-6
@@ -266,12 +247,9 @@ export default function DatePicker({
                 animate-in slide-in-from-bottom-4 fade-in-0
               `}
           >
-            {/* Handle Bar */}
             <div className="flex justify-center pt-4 pb-2">
               <div className="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full" />
             </div>
-
-            {/* Header with Close Button */}
             <div className="flex items-center justify-between px-6 pb-4">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 {t("selectDate")}
@@ -285,7 +263,6 @@ export default function DatePicker({
               </button>
             </div>
 
-            {/* Calendar Header */}
             <div className="flex items-center justify-between px-6 pb-4">
               <div className="flex items-center gap-2">
                 <button
@@ -337,7 +314,6 @@ export default function DatePicker({
               </div>
             </div>
 
-            {/* Weekday Headers */}
             <div className="grid grid-cols-7 px-6 pb-2">
               {daysOfWeek.map((day) => (
                 <div
@@ -350,7 +326,6 @@ export default function DatePicker({
               ))}
             </div>
 
-            {/* Calendar Grid */}
             <div className="grid grid-cols-7 px-6 gap-1 pb-6">
               {days.map((day, index) => {
                 const isSelected = isSameDate(day.date, selectedDate);
@@ -399,7 +374,6 @@ export default function DatePicker({
               })}
             </div>
 
-            {/* Footer Actions */}
             <div className="flex gap-3 px-6 pb-6 pt-2 border-t border-gray-200/50 dark:border-gray-700/50">
               <button
                 type="button"

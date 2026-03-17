@@ -1,7 +1,6 @@
 "use client";
 
 import { useTeacher } from "@/hooks/teacher/useTeacher";
-import { User } from "@/types/users/users";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
@@ -15,6 +14,7 @@ import {
   RefreshCw,
   Settings,
   X,
+  Info,
 } from "lucide-react";
 import { ButtonGroup, ButtonGroupSeparator } from "../ui/button-group";
 import { useTranslations } from "next-intl";
@@ -57,10 +57,10 @@ export default function TeacherSettingsForm({
       description: t("form.bookingLeadTimeHours.description"),
       placeholder: "24",
       defaultValue: 24,
-      icon: <Clock className="w-5 h-5" />,
+      icon: <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />,
       unit: t("form.bookingLeadTimeHours.unit"),
       min: 1,
-      max: 168, // 1 week
+      max: 168,
     },
     {
       key: "bookingHorizonDays",
@@ -68,7 +68,9 @@ export default function TeacherSettingsForm({
       description: t("form.bookingHorizonDays.description"),
       placeholder: "30",
       defaultValue: 30,
-      icon: <Calendar className="w-5 h-5" />,
+      icon: (
+        <Calendar className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+      ),
       unit: t("form.bookingHorizonDays.unit"),
       min: 1,
       max: 365,
@@ -104,18 +106,16 @@ export default function TeacherSettingsForm({
 
   return (
     <div className="mx-auto space-y-6 mt-4">
-      {/* Settings Form */}
-      <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
-        <form onSubmit={handleSubmit} className="p-6">
-          <div className="space-y-8">
-            {/* Success/Error Messages */}
+      <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+        <form onSubmit={handleSubmit}>
+          <div className="p-4 sm:p-6 space-y-6 sm:space-y-8">
             {successMessage && (
-              <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-4 border border-emerald-200 dark:border-emerald-800">
+              <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-4 border border-emerald-200 dark:border-emerald-800/50">
                 <div className="flex items-center gap-3">
                   <CheckCheckIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                   <Text
                     size="sm"
-                    className="font-medium text-emerald-700 dark:text-emerald-300"
+                    className="font-medium text-emerald-800 dark:text-emerald-300"
                   >
                     {successMessage}
                   </Text>
@@ -124,12 +124,12 @@ export default function TeacherSettingsForm({
             )}
 
             {error && (
-              <div className="bg-red-50 dark:bg-red-900/20 rounded-xl p-4 border border-red-200 dark:border-red-800">
+              <div className="bg-red-50 dark:bg-red-900/20 rounded-xl p-4 border border-red-200 dark:border-red-800/50">
                 <div className="flex items-center gap-3">
                   <X className="w-5 h-5 text-red-600 dark:text-red-400" />
                   <Text
                     size="sm"
-                    className="font-medium text-red-700 dark:text-red-300"
+                    className="font-medium text-red-800 dark:text-red-300"
                   >
                     {error}
                   </Text>
@@ -137,8 +137,7 @@ export default function TeacherSettingsForm({
               </div>
             )}
 
-            {/* Settings Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {settingFields.map((field) => {
                 const currentValue = settings?.[field.key];
                 const isDefault =
@@ -148,17 +147,14 @@ export default function TeacherSettingsForm({
                 return (
                   <div
                     key={field.key}
-                    className="space-y-4 p-6 bg-slate-300 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700"
+                    className="space-y-4 p-5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-between"
                   >
-                    {/* Field Header */}
                     <div className="flex items-start gap-3">
-                      <div className="p-2 bg-white/10 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
-                        <div className="text-slate-600 dark:text-slate-400">
-                          {field.icon}
-                        </div>
+                      <div className="p-2 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600 shadow-sm">
+                        {field.icon}
                       </div>
                       <div className="flex-1">
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <Text
                             size="base"
                             className="font-semibold text-slate-900 dark:text-slate-100"
@@ -166,7 +162,7 @@ export default function TeacherSettingsForm({
                             {field.label}
                           </Text>
                           {isDefault && (
-                            <span className="px-2 py-1 bg-primary/10 dark:bg-blue-900/30 text-primary dark:text-blue-300 text-xs font-medium rounded-md">
+                            <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[10px] uppercase tracking-wider font-bold rounded-md">
                               {t("form.defaultBadge")}
                             </span>
                           )}
@@ -180,8 +176,7 @@ export default function TeacherSettingsForm({
                       </div>
                     </div>
 
-                    {/* Input Field */}
-                    <div className="space-y-2">
+                    <div className="space-y-2 mt-auto pt-2">
                       <div className="relative">
                         <Input
                           type="number"
@@ -192,7 +187,7 @@ export default function TeacherSettingsForm({
                           placeholder={field.placeholder}
                           min={field.min}
                           max={field.max}
-                          className="pr-16 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600"
+                          className="pr-16 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 h-11"
                           disabled={isLoading}
                         />
                         <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -205,9 +200,8 @@ export default function TeacherSettingsForm({
                         </div>
                       </div>
 
-                      {/* Range indicator */}
                       {field.min !== undefined && field.max !== undefined && (
-                        <div className="flex justify-between">
+                        <div className="flex justify-between px-1">
                           <Text
                             size="xs"
                             className="text-slate-400 dark:text-slate-500"
@@ -228,48 +222,13 @@ export default function TeacherSettingsForm({
               })}
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-between items-center pt-6 border-t border-slate-200 dark:border-slate-700">
-              <Button
-                type="button"
-                onClick={resetToDefaults}
-                disabled={isLoading}
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                {t("buttons.restoreDefaults")}
-              </Button>
-
-              <div className="flex flex-col">
-                <ButtonGroup>
-                <Button type="button" disabled={!hasChanges}>
-                  {t("buttons.cancel")}
-                </Button>
-                <ButtonGroupSeparator />
-                  <Button type="submit" disabled={isLoading || !hasChanges}>
-                    {isLoading ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        {t("buttons.saving")}
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <Settings className="w-4 h-4" />
-                        {t("buttons.save")}
-                      </div>
-                    )}
-                  </Button>
-                </ButtonGroup>
-              </div>
-            </div>
-
-            {/* Changes indicator */}
             {hasChanges && (
-              <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-4 border border-amber-200 dark:border-amber-800">
+              <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-4 border border-amber-200 dark:border-amber-800/50">
                 <div className="flex items-center gap-3">
                   <Clock1 className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                   <Text
                     size="sm"
-                    className="text-amber-700 dark:text-amber-300"
+                    className="font-medium text-amber-800 dark:text-amber-300"
                   >
                     {t("unsavedChanges")}
                   </Text>
@@ -277,38 +236,90 @@ export default function TeacherSettingsForm({
               </div>
             )}
           </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-between items-center p-4 sm:p-6 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-200 dark:border-slate-700">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={resetToDefaults}
+              disabled={isLoading}
+              className="w-full sm:w-auto"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              {t("buttons.restoreDefaults")}
+            </Button>
+
+            <div className="w-full sm:w-auto">
+              <ButtonGroup className="w-full sm:w-auto flex">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  disabled={!hasChanges}
+                  className="flex-1 sm:flex-none"
+                >
+                  {t("buttons.cancel")}
+                </Button>
+                <ButtonGroupSeparator />
+                <Button
+                  type="submit"
+                  disabled={isLoading || !hasChanges}
+                  className="flex-1 sm:flex-none min-w-[120px]"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center gap-2 justify-center">
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      {t("buttons.saving")}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 justify-center">
+                      <Settings className="w-4 h-4" />
+                      {t("buttons.save")}
+                    </div>
+                  )}
+                </Button>
+              </ButtonGroup>
+            </div>
+          </div>
         </form>
       </Card>
 
-      {/* Help Card */}
-      <Card className="bg-slate-300 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
-        <div className="p-6">
+      <Card className="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800/50 shadow-sm overflow-hidden">
+        <div className="p-4 sm:p-6">
           <div className="flex items-start gap-4">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <Settings className="w-5 h-5 text-primary" />
+            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg shrink-0">
+              <Info className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
               <Text
                 size="base"
-                className="font-semibold text-slate-900 dark:text-slate-100 mb-2"
+                className="font-bold text-blue-900 dark:text-blue-100 mb-3"
               >
                 {t("tips.title")}
               </Text>
               <div className="space-y-2">
-                <Text size="sm" className="text-slate-600 dark:text-slate-400">
-                  • {t.rich("tips.leadTime", {
-                      highlight: (chunks) => <strong>{chunks}</strong>
-                    })}
+                <Text size="sm" className="text-blue-800 dark:text-blue-200">
+                  •{" "}
+                  {t.rich("tips.leadTime", {
+                    highlight: (chunks) => (
+                      <strong className="font-semibold">{chunks}</strong>
+                    ),
+                  })}
                 </Text>
-                <Text size="sm" className="text-slate-600 dark:text-slate-400">
-                  • {t.rich("tips.horizon", {
-                      highlight: (chunks) => <strong>{chunks}</strong>
-                    })}
+                <Text size="sm" className="text-blue-800 dark:text-blue-200">
+                  •{" "}
+                  {t.rich("tips.horizon", {
+                    highlight: (chunks) => (
+                      <strong className="font-semibold">{chunks}</strong>
+                    ),
+                  })}
                 </Text>
-                <Text size="sm" className="text-slate-600 dark:text-slate-400">
-                  • {t.rich("tips.dailyLimit", {
-                      highlight: (chunks) => <strong>{chunks}</strong>
-                    })}
+                <Text size="sm" className="text-blue-800 dark:text-blue-200">
+                  •{" "}
+                  {t.rich("tips.dailyLimit", {
+                    highlight: (chunks) => (
+                      <strong className="font-semibold">{chunks}</strong>
+                    ),
+                  })}
                 </Text>
               </div>
             </div>

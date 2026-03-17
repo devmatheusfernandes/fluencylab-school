@@ -7,11 +7,13 @@ import { useEffect, useMemo } from "react";
 import { useTeacher } from "@/hooks/teacher/useTeacher";
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, Settings } from "lucide-react";
 import { daysOfWeek } from "@/types/time/times";
-
+import BreadcrumbActions from "@/components/shared/Breadcrum/BreadcrumbActions";
+import BreadcrumbActionIcon from "@/components/shared/Breadcrum/BreadcrumbActionIcon";
 import { TeacherContractStatusCard } from "@/components/teacher/TeacherContractStatusCard";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 
 export default function MyProfile() {
   const { user, isLoading } = useCurrentUser();
@@ -73,6 +75,12 @@ export default function MyProfile() {
         <Skeleton className="w-full h-36" />
       ) : (
         <>
+          <BreadcrumbActions>
+            <Link href="/hub/teacher/settings">
+              <BreadcrumbActionIcon icon={Settings} />
+            </Link>
+          </BreadcrumbActions>
+
           <Card>
             <UserProfileHeader
               user={user!}
@@ -80,7 +88,7 @@ export default function MyProfile() {
               className="w-full"
             />
           </Card>
-          <div className="">
+          <div>
             <TeacherContractStatusCard />
           </div>
           <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">

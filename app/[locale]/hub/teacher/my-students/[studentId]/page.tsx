@@ -9,6 +9,10 @@ import PlanCalendarCard from "@/components/teacher/PlanCalendarCard";
 import ErrorAlert from "@/components/ui/error-alert";
 import { ContainerCard } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
+import BreadcrumbActions from "@/components/shared/Breadcrum/BreadcrumbActions";
+import Link from "next/link";
+import BreadcrumbActionIcon from "@/components/shared/Breadcrum/BreadcrumbActionIcon";
+import { ArrowLeft } from "lucide-react";
 
 const StudentPanelSkeleton = () => (
   <ContainerCard className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -126,6 +130,12 @@ export default function StudentDetailsPanel() {
 
   return (
     <ContainerCard className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+      <BreadcrumbActions placement="start">
+        <Link href="/hub/teacher/my-students">
+          <BreadcrumbActionIcon icon={ArrowLeft} />
+        </Link>
+      </BreadcrumbActions>
+
       <NotebooksCard
         student={student}
         notebooks={notebooks}

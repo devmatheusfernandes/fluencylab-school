@@ -61,38 +61,44 @@ export default async function TeacherSettingsPage({
   const serializedScheduleData = serializeForClientComponent(scheduleData);
 
   return (
-    <Tabs defaultValue="settings" className="container-padding space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <Tabs defaultValue="settings" className="container-padding space-y-2">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-2">
         <Header heading={t("pageTitle")} subheading={t("pageSubtitle")} />
-        <TabsList className="flex flex-wrap bg-slate-200 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm w-full md:w-auto justify-center md:justify-start">
+
+        <TabsList className="grid grid-cols-3 md:flex md:w-auto bg-slate-200 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm w-full p-1 h-auto gap-1">
           <TabsTrigger
             value="settings"
-            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 rounded-lg font-medium flex-1 md:flex-none"
+            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 rounded-lg h-auto py-2 md:py-1.5"
           >
-            <div className="flex items-center gap-2 justify-center">
-              <Settings className="w-4 h-4" />
-              <span className="hidden sm:inline">{t("tabs.settings")}</span>
-              <span className="sm:hidden">{t("tabs.settings")}</span>
+            <div className="flex flex-col md:flex-row items-center gap-1 md:gap-2 justify-center">
+              <Settings className="w-5 h-5 md:w-4 md:h-4" />
+              <span className="text-[11px] md:text-sm font-medium leading-none md:leading-normal">
+                {t("tabs.settings")}
+              </span>
             </div>
           </TabsTrigger>
+
           <TabsTrigger
             value="vacation"
-            className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 rounded-lg font-medium flex-1 md:flex-none"
+            className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 rounded-lg h-auto py-2 md:py-1.5"
           >
-            <div className="flex items-center gap-2 justify-center">
-              <Ear className="w-4 h-4" />
-              <span className="hidden sm:inline">{t("tabs.vacation")}</span>
-              <span className="sm:hidden">{t("tabs.vacation")}</span>
+            <div className="flex flex-col md:flex-row items-center gap-1 md:gap-2 justify-center">
+              <Ear className="w-5 h-5 md:w-4 md:h-4" />
+              <span className="text-[11px] md:text-sm font-medium leading-none md:leading-normal">
+                {t("tabs.vacation")}
+              </span>
             </div>
           </TabsTrigger>
+
           <TabsTrigger
             value="schedule"
-            className="data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 rounded-lg font-medium flex-1 md:flex-none"
+            className="data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 rounded-lg h-auto py-2 md:py-1.5"
           >
-            <div className="flex items-center gap-2 justify-center">
-              <Calendar className="w-4 h-4" />
-              <span className="hidden sm:inline">{t("tabs.schedule")}</span>
-              <span className="sm:hidden">{t("tabs.schedule")}</span>
+            <div className="flex flex-col md:flex-row items-center gap-1 md:gap-2 justify-center">
+              <Calendar className="w-5 h-5 md:w-4 md:h-4" />
+              <span className="text-[11px] md:text-sm font-medium leading-none md:leading-normal">
+                {t("tabs.schedule")}
+              </span>
             </div>
           </TabsTrigger>
         </TabsList>
