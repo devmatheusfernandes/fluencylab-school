@@ -17,7 +17,7 @@ interface ModalContextProps {
 }
 
 const ModalContext = React.createContext<ModalContextProps | undefined>(
-  undefined,
+  undefined
 );
 
 // Modal Root Component
@@ -29,7 +29,7 @@ const Modal = ({
   ...props
 }: React.ComponentProps<typeof Dialog.Root>) => {
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(
-    defaultOpen ?? false,
+    defaultOpen ?? false
   );
 
   const isOpen = controlledOpen ?? uncontrolledOpen;
@@ -66,7 +66,7 @@ const ModalOverlay = React.forwardRef<
       ref={ref}
       className={twMerge(
         "fixed inset-0 z-50 bg-black/50 backdrop-blur-sm",
-        className,
+        className
       )}
       {...props}
     />
@@ -111,7 +111,7 @@ const ModalContent = React.forwardRef<
                   rounded-2xl shadow-2xl
                   border border-gray-200/50 dark:border-gray-700/50
                   overflow-hidden`,
-                  className,
+                  className
                 )}
                 asChild
                 {...props}
@@ -163,7 +163,7 @@ const ModalContent = React.forwardRef<
               className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end justify-center"
             >
               <Dialog.Content
-                aria-describedby="modal-description"
+                aria-describedby={undefined}
                 className={twMerge(
                   `relative w-full max-w-lg mx-3 mb-4 sm:mb-6 no-scrollbar
                   bg-white dark:bg-gray-900/95 
@@ -171,7 +171,7 @@ const ModalContent = React.forwardRef<
                   rounded-2xl shadow-2xl
                   border border-gray-200/50 dark:border-gray-700/50
                   overflow-hidden`,
-                  className,
+                  className
                 )}
                 asChild
                 forceMount
@@ -229,7 +229,7 @@ const ModalHeader = React.forwardRef<
       className={twMerge(
         "flex items-center justify-between pb-1",
         !showCloseButton && "justify-center",
-        className,
+        className
       )}
       {...props}
     >
@@ -253,7 +253,7 @@ const ModalTitle = React.forwardRef<
       ref={ref}
       className={twMerge(
         "text-xl font-bold text-center leading-tight tracking-tight text-gray-900 dark:text-gray-100",
-        className,
+        className
       )}
       {...props}
     />
@@ -278,7 +278,7 @@ const ModalDescription = React.forwardRef<
       <Dialog.Description
         className={twMerge(
           "text-center text-sm text-gray-600 dark:text-gray-400 leading-relaxed",
-          className,
+          className
         )}
       >
         {children}
@@ -297,7 +297,7 @@ const ModalClose = React.forwardRef<
     <Dialog.Close
       className={twMerge(
         "absolute top-3 right-3 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800",
-        className,
+        className
       )}
       {...props}
     >
@@ -331,7 +331,7 @@ const ModalFooter = ({
       transition={{ delay: 0.2, duration: 0.2 }}
       className={twMerge(
         "flex lg:flex-row md:flex-row flex-col justify-end gap-3 pt-4 border-t border-gray-200/50 dark:border-gray-700/50",
-        className,
+        className
       )}
       {...props}
     />
@@ -418,7 +418,7 @@ const ModalIcon = ({
               const target = e.target as HTMLImageElement;
               target.style.display = "none";
               const fallback = target.parentElement?.querySelector(
-                ".fallback-icon",
+                ".fallback-icon"
               ) as HTMLElement;
               if (fallback) {
                 fallback.style.display = "flex";
@@ -532,7 +532,7 @@ const ModalInput = React.forwardRef<
         ref={ref}
         className={twMerge(
           "h-10 px-4 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-xl",
-          className,
+          className
         )}
         {...props}
       />
@@ -568,7 +568,7 @@ const ModalPrimaryButton = React.forwardRef<
         transition-all duration-150 focus:outline-none 
         disabled:opacity-50 disabled:cursor-not-allowed
         ${variantStyles[variant]}`,
-        className,
+        className
       )}
       {...props}
     />
@@ -595,7 +595,7 @@ const ModalSecondaryButton = React.forwardRef<
         border border-gray-200/50 dark:border-gray-600/50 
         hover:border-gray-300/70 dark:hover:border-gray-500/70
         disabled:opacity-50 disabled:cursor-not-allowed`,
-        className,
+        className
       )}
       {...props}
     />

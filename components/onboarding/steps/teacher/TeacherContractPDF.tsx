@@ -38,10 +38,11 @@ export const TeacherContractPDF: React.FC<TeacherContractPDFProps> = ({
     setIsVisible(true);
   }, []);
 
-  //TODO: Get school name, CNPJ, and address from database 
-  const schoolName = "Fluency Lab"; // Adjust if needed
-  const schoolCNPJ = "47.603.142/0001-07"; // From student contract
-  const schoolAddress = "Rua Vinte e Cinco de Julho, 20. Bairro Centro, Tunápolis - SC"; // From student contract
+  //TODO: Get school name, CNPJ, and address from database
+  const schoolName = "Fluency Lab";
+  const schoolCNPJ = "47.603.142/0001-07";
+  const schoolAddress =
+    "Rua Vinte e Cinco de Julho, 20. Bairro Centro, Tunápolis - SC";
 
   return (
     <div
@@ -186,11 +187,11 @@ export const TeacherContractPDF: React.FC<TeacherContractPDFProps> = ({
             responsabilidade e pagamento.
           </p>
           <p className="mb-3 leading-relaxed">
-            <strong>5.3.</strong> O substituto indicado deverá, obrigatoriamente,
-            possuir a mesma qualificação técnica e cumprir os requisitos da
-            Cláusula Quarta, reservando-se a CONTRATANTE o direito de recusar
-            tecnicamente o serviço caso o substituto não demonstre aptidão para
-            o ensino da metodologia.
+            <strong>5.3.</strong> O substituto indicado deverá,
+            obrigatoriamente, possuir a mesma qualificação técnica e cumprir os
+            requisitos da Cláusula Quarta, reservando-se a CONTRATANTE o direito
+            de recusar tecnicamente o serviço caso o substituto não demonstre
+            aptidão para o ensino da metodologia.
           </p>
         </section>
 
@@ -216,7 +217,9 @@ export const TeacherContractPDF: React.FC<TeacherContractPDFProps> = ({
               integralmente à CONTRATADA.
             </p>
             <p>
-              <strong>6.2.2. Falha na Prestação (No-Show da Contratada):</strong>{" "}
+              <strong>
+                6.2.2. Falha na Prestação (No-Show da Contratada):
+              </strong>{" "}
               Em caso de ausência da CONTRATADA (ou seu preposto) sem aviso
               prévio ou por falha técnica, a hora não será paga. Caso a
               CONTRATANTE precise reembolsar o aluno ou conceder descontos
@@ -293,7 +296,10 @@ export const TeacherContractPDF: React.FC<TeacherContractPDFProps> = ({
 
         <div className="mt-16 pt-8 border-t border-gray-300 dark:border-gray-600">
           <p className="text-center mb-12">
-            Tunápolis, {signedDate ? formatDate(signedDate) : formatDate(new Date().toISOString())}
+            Tunápolis,{" "}
+            {signedDate
+              ? formatDate(signedDate)
+              : formatDate(new Date().toISOString())}
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -309,14 +315,16 @@ export const TeacherContractPDF: React.FC<TeacherContractPDFProps> = ({
 
             <div className="text-center">
               {signedDate ? (
-                 <div className="mb-4 text-blue-600 font-bold font-script text-2xl">
-                   Assinado Digitalmente
-                 </div>
+                <div className="mb-4 text-blue-600 font-bold font-script text-2xl">
+                  Assinado Digitalmente
+                </div>
               ) : (
                 <div className="h-12 mb-4"></div>
               )}
               <div className="border-t border-gray-400 pt-2">
-                <p className="font-bold">{teacherName || "____________________"}</p>
+                <p className="font-bold">
+                  {teacherName || "____________________"}
+                </p>
                 <p className="text-sm">CONTRATADA</p>
               </div>
             </div>

@@ -3,8 +3,8 @@
 import * as React from "react";
 import * as AvatarPrimitive from "@radix-ui/react-avatar";
 import { twMerge } from "tailwind-merge";
+import { getFallbackImages } from "@/actions/get-fallback-images";
 
-// --- Utility function to extract initials from a name ---
 function getInitials(name: string | undefined | null): string {
   if (!name) return "?";
 
@@ -19,22 +19,15 @@ function getInitials(name: string | undefined | null): string {
   return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
 }
 
-import { getFallbackImages } from "@/actions/get-fallback-images";
-
-// Lista inicial vazia - será populada dinamicamente via Server Action
 let globalFallbackImages: string[] = [];
-
-// Cache simples para evitar requests múltiplos
 let isFetched = false;
 let fetchPromise: Promise<string[]> | null = null;
 
-// Definição única de tamanhos para evitar inconsistências
 type SizeVariant = "xs" | "sm" | "md" | "lg" | "xl" | "2xl";
 
 const sizeClasses: Record<SizeVariant, string> = {
   xs: "h-6 w-6 sm:h-8 sm:w-8",
   sm: "h-8 w-8 sm:h-10 sm:w-10",
-  // Ajustei h-17 para h-16 (padrão Tailwind), se precisar de 17 use h-[68px]
   md: "h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16",
   lg: "h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20",
   xl: "h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24",
@@ -63,23 +56,19 @@ const Avatar = React.forwardRef<
       ref={ref}
       className={twMerge(
         "relative flex shrink-0 overflow-hidden rounded-2xl transition-all duration-200",
-        sizeClasses[size], // O tamanho é definido APENAS aqui
-        className,
+        sizeClasses[size],
+        className
       )}
       {...props}
     >
-      {/* Passamos o contexto de tamanho para os filhos via cloneElement se necessário, 
-        mas aqui simplifiquei para usar CSS inheritance (h-full w-full) 
-      */}
       {children}
-
       {status && (
         <span
           className={twMerge(
             "absolute block rounded-full border-background ring-1 ring-background",
             statusSizeClasses[size],
             status === "online" && "bg-green-500",
-            status === "offline" && "bg-subtitle",
+            status === "offline" && "bg-subtitle"
           )}
           aria-label={status === "online" ? "Online" : "Offline"}
         />
@@ -89,7 +78,6 @@ const Avatar = React.forwardRef<
 });
 Avatar.displayName = AvatarPrimitive.Root.displayName;
 
-// --- Styled Image with Loading State ---
 const AvatarImage = React.forwardRef<
   React.ComponentRef<typeof AvatarPrimitive.Image>,
   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
@@ -115,9 +103,9 @@ const AvatarImage = React.forwardRef<
       <AvatarPrimitive.Image
         ref={ref}
         className={twMerge(
-          "aspect-square h-full w-full object-cover rounded-2xl", // h-full w-full preenche o Root
+          "aspect-square h-full w-full object-cover rounded-2xl",
           className,
-          isLoading && "hidden",
+          isLoading && "hidden"
         )}
         onLoad={handleLoad}
         onError={handleError}
@@ -126,19 +114,18 @@ const AvatarImage = React.forwardRef<
       {isLoading && (
         <div
           className={twMerge(
-            "absolute inset-0 flex items-center justify-center rounded-2xl bg-container/80 h-full w-full",
+            "absolute inset-0 flex items-center justify-center rounded-2xl bg-container/80 h-full w-full"
           )}
         >
-          {/* Spinner genérico que se adapta ao tamanho */}
           <div className="h-[40%] w-[40%] animate-spin rounded-full border-2 border-subtitle border-t-transparent" />
         </div>
       )}
     </>
   );
 });
+
 AvatarImage.displayName = AvatarPrimitive.Image.displayName;
 
-// --- Styled Fallback ---
 const AvatarFallback = React.forwardRef<
   React.ComponentRef<typeof AvatarPrimitive.Fallback>,
   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback> & {
@@ -175,14 +162,13 @@ const AvatarFallback = React.forwardRef<
     if (children || images.length === 0) return;
 
     const safeName = name || "default";
-    const today = new Date().toLocaleDateString(); // Usa data local do usuário
+    const today = new Date().toLocaleDateString();
     const storageKey = `daily_avatar_${safeName}`;
 
     try {
       const stored = localStorage.getItem(storageKey);
       if (stored) {
         const { date, src } = JSON.parse(stored);
-        // Se a data for hoje e a imagem ainda existir na lista (segurança), usa ela
         if (date === today && images.includes(src)) {
           setAssignedSrc(src);
           return;
@@ -192,7 +178,6 @@ const AvatarFallback = React.forwardRef<
       // Ignora erro de parse ou acesso
     }
 
-    // Se não encontrou ou expirou: gera nova imagem aleatória
     const randomIndex = Math.floor(Math.random() * images.length);
     const newSrc = images[randomIndex];
 
@@ -201,7 +186,7 @@ const AvatarFallback = React.forwardRef<
     try {
       localStorage.setItem(
         storageKey,
-        JSON.stringify({ date: today, src: newSrc }),
+        JSON.stringify({ date: today, src: newSrc })
       );
     } catch (e) {
       // Ignora erro de cota ou acesso
@@ -212,8 +197,8 @@ const AvatarFallback = React.forwardRef<
     <AvatarPrimitive.Fallback
       ref={ref}
       className={twMerge(
-        "flex h-full w-full items-center justify-center rounded-2xl bg-foreground/10 text-white border-2 border-foreground/10 font-semibold overflow-hidden", // h-full w-full aqui também
-        className,
+        "flex h-full w-full items-center justify-center rounded-2xl bg-foreground/10 text-white border-2 border-foreground/10 font-semibold overflow-hidden",
+        className
       )}
       {...props}
     >
@@ -226,7 +211,6 @@ const AvatarFallback = React.forwardRef<
           className="h-full w-full object-cover"
         />
       ) : (
-        /* Estado vazio/carregando ou sem imagens disponíveis: mostra iniciais se houver nome, ou nada */
         <span className="text-muted-foreground">
           {name ? getInitials(name) : "?"}
         </span>

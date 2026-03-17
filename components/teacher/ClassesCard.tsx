@@ -63,7 +63,6 @@ export default function ClassesCard({
     currentFeedback: string;
   }>({ open: false, classId: null, currentFeedback: "" });
 
-  // Teacher confirmation modals
   const [teacherCancelModal, setTeacherCancelModal] = useState<{
     open: boolean;
     classId: string | null;
@@ -74,7 +73,6 @@ export default function ClassesCard({
     classId: string | null;
   }>({ open: false, classId: null });
 
-  // Enhanced month names for better UX
   const monthNames = [
     tMonths("january"),
     tMonths("february"),
@@ -90,7 +88,6 @@ export default function ClassesCard({
     tMonths("december"),
   ];
 
-  // Filter classes by selected month and year
   const filteredClasses = classes.filter((cls) => {
     const classDate = new Date(cls.scheduledAt);
     return (
@@ -99,12 +96,10 @@ export default function ClassesCard({
     );
   });
 
-  // When month/year changes, fetch classes for that period
   useEffect(() => {
     onFetchClasses(selectedMonth, selectedYear);
   }, [selectedMonth, selectedYear, onFetchClasses]);
 
-  // Handle updating class status with optimistic updates
   const handleUpdateClassStatus = async (
     classId: string,
     newStatus: ClassStatus
@@ -112,21 +107,17 @@ export default function ClassesCard({
     try {
       await onUpdateClassStatus(classId, newStatus);
       onFetchClasses(selectedMonth, selectedYear);
-      console.log("Class status updated successfully.");
       toast.success(t("toastUpdated"));
     } catch (error) {
       console.error("Failed to update class status:", error);
-      // Could add toast notification here
     }
   };
 
-  // Handle updating class feedback
   const handleUpdateClassFeedback = async (
     classId: string,
     feedback: string
   ) => {
     try {
-      // Check if onUpdateClassFeedback is defined before calling it
       if (onUpdateClassFeedback) {
         await onUpdateClassFeedback(classId, feedback);
       }
@@ -137,7 +128,6 @@ export default function ClassesCard({
     }
   };
 
-  // Enhanced status configuration with modern styling
   const getStatusConfig = (status: ClassStatus | string) => {
     const norm = (typeof status === "string" ? status : (status as string))
       .toLowerCase()
@@ -242,7 +232,8 @@ export default function ClassesCard({
     };
 
     return (
-      statusMap[norm] || statusMap[status as ClassStatus] || {
+      statusMap[norm] ||
+      statusMap[status as ClassStatus] || {
         label: t("teacherStatus.other"),
         className:
           "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-950/50 dark:text-gray-300 dark:border-gray-800",
@@ -253,7 +244,6 @@ export default function ClassesCard({
     );
   };
 
-  // Teacher-specific status options (only the 3 main ones + current status if different)
   const getTeacherStatusOptions = (
     currentStatus: ClassStatus
   ): { value: ClassStatus; label: string }[] => {
@@ -266,7 +256,6 @@ export default function ClassesCard({
       { value: ClassStatus.NO_SHOW, label: t("teacherStatus.noShow") },
     ];
 
-    // If current status is not one of the main options, add it to the list
     const isMainOption = mainOptions.some(
       (option) => option.value === currentStatus
     );
@@ -281,7 +270,6 @@ export default function ClassesCard({
     return mainOptions;
   };
 
-  // Handle status change with confirmation modals for teacher
   const handleStatusChange = (classId: string, newStatus: ClassStatus) => {
     if (newStatus === ClassStatus.CANCELED_TEACHER_MAKEUP) {
       setTeacherCancelModal({ open: true, classId });
@@ -292,13 +280,11 @@ export default function ClassesCard({
       return;
     }
 
-    // For completed status, update directly
     handleUpdateClassStatus(classId, newStatus);
   };
 
   return (
     <Card className="min-h-[60vh] lg:h-full">
-      {/* Enhanced Feedback Modal - only for teachers */}
       {onUpdateClassFeedback && (
         <Modal
           open={feedbackModal.open}
@@ -336,7 +322,9 @@ export default function ClassesCard({
                   placeholder={t("reportPlaceholder")}
                 />
                 <div className="text-xs text-gray-500 dark:text-gray-400">
-                  {t("charsCount", { count: feedbackModal.currentFeedback.length })}
+                  {t("charsCount", {
+                    count: feedbackModal.currentFeedback.length,
+                  })}
                 </div>
               </div>
             </ModalBody>
@@ -365,7 +353,6 @@ export default function ClassesCard({
         </Modal>
       )}
 
-      {/* Teacher Cancel Confirmation Modal */}
       <Modal
         open={teacherCancelModal.open}
         onOpenChange={(open) => {
@@ -413,7 +400,6 @@ export default function ClassesCard({
         </ModalContent>
       </Modal>
 
-      {/* Teacher No Show Confirmation Modal */}
       <Modal
         open={noShowModal.open}
         onOpenChange={(open) => {
@@ -459,57 +445,43 @@ export default function ClassesCard({
         </ModalContent>
       </Modal>
 
-      {/* Modern Header with Glass Effect */}
-      <div className="border-b border-gray-200/50 dark:border-gray-700/50 py-2 mb-2">
-        <Card className="flex flex-row w-full gap-4">
-          <div className="space-y-1">
-            <Text size="sm" variant="subtitle">
-              {t("month")}
-            </Text>
-            <Select
-              value={selectedMonth.toString()}
-              onValueChange={(value) => setSelectedMonth(parseInt(value))}
-            >
-              <SelectTrigger className="h-10 lg:w-44 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors">
-                <SelectValue>{monthNames[selectedMonth]}</SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {monthNames.map((month, index) => (
-                  <SelectItem key={index} value={index.toString()}>
-                    {month}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+      <div className="flex gap-2 pb-4">
+        <Select
+          value={selectedMonth.toString()}
+          onValueChange={(value) => setSelectedMonth(parseInt(value))}
+        >
+          <SelectTrigger className="flex-1">
+            <SelectValue>{monthNames[selectedMonth]}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {monthNames.map((month, index) => (
+              <SelectItem key={index} value={index.toString()}>
+                {month}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-          <div className="w-full space-y-1">
-            <Text size="sm" variant="subtitle">
-              {t("year")}
-            </Text>
-            <Select
-              value={selectedYear.toString()}
-              onValueChange={(value) => setSelectedYear(parseInt(value))}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Array.from({ length: 5 }, (_, i) => {
-                  const year = new Date().getFullYear() - 2 + i;
-                  return (
-                    <SelectItem key={year} value={year.toString()}>
-                      {year}
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </Select>
-          </div>
-        </Card>
+        <Select
+          value={selectedYear.toString()}
+          onValueChange={(value) => setSelectedYear(parseInt(value))}
+        >
+          <SelectTrigger className="flex-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {Array.from({ length: 5 }, (_, i) => {
+              const year = new Date().getFullYear() - 2 + i;
+              return (
+                <SelectItem key={year} value={year.toString()}>
+                  {year}
+                </SelectItem>
+              );
+            })}
+          </SelectContent>
+        </Select>
       </div>
 
-      {/* Enhanced Classes Grid */}
       <div className="space-y-4">
         {loading ? (
           <div className="space-y-4">
@@ -521,11 +493,9 @@ export default function ClassesCard({
           <div className="space-y-2">
             {filteredClasses.map((cls, index) => {
               const statusConfig = getStatusConfig(cls.status);
-              // Ensure we have a proper Date object
               const classDate = new Date(cls.scheduledAt);
               const today = new Date();
 
-              // Compare dates by setting time to 00:00:00 for accurate day comparison
               const classDateWithoutTime = new Date(classDate);
               classDateWithoutTime.setHours(0, 0, 0, 0);
 
@@ -537,8 +507,6 @@ export default function ClassesCard({
               const isPast = classDateWithoutTime < todayWithoutTime;
               const isFuture = classDateWithoutTime > todayWithoutTime;
 
-              // Create a unique key that combines the class ID with its scheduled time and index
-              // This ensures uniqueness even for rescheduled classes or classes with same ID
               const uniqueKey = `${cls.id}-${cls.scheduledAt}-${index}`;
 
               return (
@@ -553,14 +521,16 @@ export default function ClassesCard({
                   } backdrop-blur-sm`}
                 >
                   {isToday && (
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-400 to-indigo-600"></div>
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 to-emerald-600" />
+                  )}
+                  {isFuture && (
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-primary/35" />
                   )}
                   {isPast && !isToday && (
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-primary/35"></div>
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gray-400/35" />
                   )}
 
                   <div className="flex flex-col lg:flex-row lg:items-center">
-                    {/* Date Section */}
                     <div className="flex-1">
                       <div className="flex flex-wrap gap-1">
                         <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -584,7 +554,6 @@ export default function ClassesCard({
                       </div>
                     </div>
 
-                    {/* Actions Section */}
                     <div className="flex flex-row gap-2">
                       <>
                         <Select
@@ -658,15 +627,10 @@ export default function ClassesCard({
                               : "bg-gray-100 hover:bg-gray-200 text-gray-500 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-400"
                           }`}
                           title={
-                            cls.feedback
-                              ? t("editReport")
-                              : t("addReport")
+                            cls.feedback ? t("editReport") : t("addReport")
                           }
                         >
-                          <FileUser
-                            height={24}
-                            className="w-6 h-6"
-                          />
+                          <FileUser height={24} className="w-6 h-6" />
                         </button>
                       </>
                     </div>
@@ -679,7 +643,10 @@ export default function ClassesCard({
           <div className="flex flex-col items-center justify-center py-16 px-4">
             <NoResults
               customMessage={{
-                withoutSearch: t("noClassesFound", { month: monthNames[selectedMonth], year: selectedYear }),
+                withoutSearch: t("noClassesFound", {
+                  month: monthNames[selectedMonth],
+                  year: selectedYear,
+                }),
               }}
               className="text-center"
             />

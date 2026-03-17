@@ -26,10 +26,8 @@ export default function StudentCard({ student }: StudentCardProps) {
 
   const formatNextClassDate = (date: string | Date) => {
     try {
-      // Convert to Date object if it's a string
       const classDate = typeof date === "string" ? new Date(date) : date;
 
-      // Check if the date is valid
       if (isNaN(classDate.getTime())) {
         return tStudentCard.invalidDate;
       }
@@ -38,19 +36,16 @@ export default function StudentCard({ student }: StudentCardProps) {
       const tomorrow = new Date(today);
       tomorrow.setDate(tomorrow.getDate() + 1);
 
-      // Check if it's today
       if (classDate.toDateString() === today.toDateString()) {
         const hours = classDate.getHours().toString().padStart(2, "0");
         const minutes = classDate.getMinutes().toString().padStart(2, "0");
         return `${tStudentCard.classToday} ${hours}:${minutes}`;
       }
 
-      // Check if it's tomorrow
       if (classDate.toDateString() === tomorrow.toDateString()) {
         return tStudentCard.classTomorrow;
       }
 
-      // Format as day of week + date
       const days = [
         tStudentCard.sunday,
         tStudentCard.monday,

@@ -1,5 +1,9 @@
-// components/ui/NoResults.tsx
 "use client";
+import {
+  containerVariants,
+  iconVariants,
+  itemVariants,
+} from "@/config/animations";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 
@@ -13,45 +17,6 @@ interface NoResultsProps {
   description?: string;
   className?: string;
 }
-
-// Animation variants
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.2,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
-  visible: {
-    y: 0,
-    opacity: 1,
-    transition: {
-      type: "spring" as const,
-      stiffness: 120,
-      damping: 12,
-    },
-  },
-};
-
-const iconVariants = {
-  hidden: { scale: 0.8, opacity: 0 },
-  visible: {
-    scale: 1,
-    opacity: 1,
-    transition: {
-      type: "spring" as const,
-      stiffness: 150,
-      damping: 12,
-      delay: 0.1,
-    },
-  },
-};
 
 export const NoResults: React.FC<NoResultsProps> = ({
   searchQuery = "",

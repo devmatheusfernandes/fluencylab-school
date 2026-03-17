@@ -1,14 +1,11 @@
 "use client";
-
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { useStudentPanel } from "@/hooks/student/useStudentPanel";
 import { ClassStatus } from "@/types/classes/class";
-
 import NotebooksCard from "@/components/teacher/NotebooksCard";
 import ClassesCard from "@/components/teacher/ClassesCard";
 import PlanCalendarCard from "@/components/teacher/PlanCalendarCard";
-
 import ErrorAlert from "@/components/ui/error-alert";
 import { ContainerCard } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";

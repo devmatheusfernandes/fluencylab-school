@@ -2,6 +2,36 @@ self.OFFLINE_URL = "/~offline";
 self.OFFLINE_CACHE = "offline-fallback-v1";
 self.PAGES_CACHE = "pages-v1";
 
+self.addEventListener("fetch", (event) => {
+  if (self.workbox?.routing?.registerRoute) return;
+  if (event.request.method !== "GET") return;
+
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      (async () => {
+        try {
+          const response = await fetch(event.request);
+          const cache = await caches.open(self.PAGES_CACHE);
+          await cache.put(event.request, response.clone());
+          return response;
+        } catch (e) {
+          const cachedPage = await caches.match(event.request);
+          if (cachedPage) return cachedPage;
+
+          const offline =
+            (await caches.match(self.OFFLINE_URL)) ||
+            (await caches
+              .open(self.OFFLINE_CACHE)
+              .then((c) => c.match(self.OFFLINE_URL))
+              .catch(() => null));
+
+          return offline || Response.error();
+        }
+      })()
+    );
+  }
+});
+
 self.addEventListener("install", (event) => {
   event.waitUntil(
     (async () => {
@@ -71,35 +101,6 @@ self.addEventListener("activate", (event) => {
             return Response.error();
           }
         );
-      } else {
-        self.addEventListener("fetch", (event) => {
-          if (event.request.method !== "GET") return;
-
-          if (event.request.mode === "navigate") {
-            event.respondWith(
-              (async () => {
-                try {
-                  const response = await fetch(event.request);
-                  const cache = await caches.open(self.PAGES_CACHE);
-                  await cache.put(event.request, response.clone());
-                  return response;
-                } catch (e) {
-                  const cachedPage = await caches.match(event.request);
-                  if (cachedPage) return cachedPage;
-
-                  const offline =
-                    (await caches.match(self.OFFLINE_URL)) ||
-                    (await caches
-                      .open(self.OFFLINE_CACHE)
-                      .then((c) => c.match(self.OFFLINE_URL))
-                      .catch(() => null));
-
-                  return offline || Response.error();
-                }
-              })()
-            );
-          }
-        });
       }
 
       if (self.workbox?.routing?.setCatchHandler) {

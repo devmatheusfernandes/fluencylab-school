@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   FileSignature,
@@ -20,6 +19,7 @@ import {
   ModalFooter,
   ModalPrimaryButton,
   ModalSecondaryButton,
+  ModalDescription,
 } from "@/components/ui/modal";
 import { TeacherContractPDF } from "@/components/onboarding/steps/teacher/TeacherContractPDF";
 import { Input } from "@/components/ui/input";
@@ -43,7 +43,6 @@ export const TeacherContractStatusCard = () => {
   const [showSignModal, setShowSignModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Form state for signing
   const [formData, setFormData] = useState({
     name: "",
     cnpj: "",
@@ -63,13 +62,10 @@ export const TeacherContractStatusCard = () => {
         const json = await res.json();
         setData(json);
 
-        // Initialize form data if user info is available
         if (json.student) {
-          // We try to fill what we can
           setFormData((prev) => ({
             ...prev,
             name: json.student.name || "",
-            // We don't have other data easily available unless we fetch banking info or similar
           }));
         }
       }
@@ -132,24 +128,9 @@ export const TeacherContractStatusCard = () => {
 
     setIsSubmitting(true);
     try {
-      // We need to map cnpj to cpf because ContractService expects cpf
-      // Or we should update ContractService to handle cnpj.
-      // For now, let's send both or map it.
-      // Actually, looking at ContractService logic:
-      // contractLogData = { name: signatureData.name, cpf: signatureData.cpf, ... }
-      // So if we send cnpj in 'cpf' field it might work but it's semantically wrong.
-      // However, to avoid changing backend logic too much right now,
-      // let's check what TeacherContractStep does.
-      // TeacherContractStep sends { signatureData: formData }. formData has 'cnpj'.
-      // If ContractService only reads 'cpf', then 'cnpj' is lost.
-      // Let's assume I should fix TeacherContractStep or send 'cpf' as the CNPJ value here for now.
-      // To be safe, I'll send the CNPJ value in the 'cpf' field as well, or just rely on 'cnpj' if I fix the service.
-      // I'll assume for now I should send 'cpf' with the CNPJ value to ensure it gets saved in the log
-      // (since the log table likely has a 'cpf' column and maybe not a 'cnpj' column).
-
       const payload = {
         ...formData,
-        cpf: formData.cnpj, // Mapping CNPJ to CPF field for storage compatibility
+        cpf: formData.cnpj,
       };
 
       const response = await fetch("/api/onboarding/teacher/sign-contract", {
@@ -166,7 +147,7 @@ export const TeacherContractStatusCard = () => {
 
       toast.success(t("successSigned"));
       setShowSignModal(false);
-      fetchStatus(); // Refresh status
+      fetchStatus();
     } catch (error) {
       console.error("Error signing contract:", error);
       toast.error(t("errorSigning"));
@@ -204,12 +185,11 @@ export const TeacherContractStatusCard = () => {
   if (loading) return <Skeleton className="h-48 w-full" />;
 
   const contractStatus = data?.contractStatus;
-  
-  // Status logic based on ProgressStatusCard and previous requirements
   const isCancelled = !!contractStatus?.cancelledAt;
-  const isExpired = !isCancelled && contractStatus?.expiresAt 
-    ? new Date(contractStatus.expiresAt) < new Date() 
-    : false;
+  const isExpired =
+    !isCancelled && contractStatus?.expiresAt
+      ? new Date(contractStatus.expiresAt) < new Date()
+      : false;
   const isSigned = !isCancelled && !isExpired && contractStatus?.signed;
   const isPending = !isCancelled && !isExpired && !isSigned;
 
@@ -243,30 +223,66 @@ export const TeacherContractStatusCard = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            {isSigned && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                <CheckCircle className="w-3 h-3 mr-1" />
-                {t("active")}
-              </span>
-            )}
-            {isExpired && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
-                <AlertTriangle className="w-3 h-3 mr-1" />
-                {t("expired")}
-              </span>
-            )}
-            {isCancelled && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300">
-                <AlertTriangle className="w-3 h-3 mr-1" />
-                {t("cancelled")}
-              </span>
-            )}
-            {isPending && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-                <AlertTriangle className="w-3 h-3 mr-1" />
-                {t("pending")}
-              </span>
-            )}
+            <div className="flex items-center gap-2">
+              {isSigned && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                  <CheckCircle className="w-3 h-3 mr-1" />
+                  {t("active")}
+                </span>
+              )}
+              {isExpired && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
+                  <AlertTriangle className="w-3 h-3 mr-1" />
+                  {t("expired")}
+                </span>
+              )}
+              {isCancelled && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300">
+                  <AlertTriangle className="w-3 h-3 mr-1" />
+                  {t("cancelled")}
+                </span>
+              )}
+              {isPending && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+                  <AlertTriangle className="w-3 h-3 mr-1" />
+                  {t("pending")}
+                </span>
+              )}
+            </div>
+
+            <div>
+              {(isSigned || isExpired || isCancelled) && (
+                <span
+                  className="cursor-pointer inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                  onClick={() => setShowContractModal(true)}
+                >
+                  <Eye className="w-4 h-4 mr-2" />
+                  {t("viewContract")}
+                </span>
+              )}
+
+              {(isExpired || isCancelled) && (
+                <span
+                  className="cursor-pointer inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
+                  onClick={handleRenewContract}
+                >
+                  <RefreshCw
+                    className={`w-4 h-4 mr-2 ${isSubmitting ? "animate-spin" : ""}`}
+                  />
+                  {t("renewContract")}
+                </span>
+              )}
+
+              {isPending && (
+                <span
+                  className="cursor-pointer inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
+                  onClick={() => setShowSignModal(true)}
+                >
+                  <FileSignature className="w-4 h-4 mr-2" />
+                  {t("signContract")}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -299,37 +315,8 @@ export const TeacherContractStatusCard = () => {
             </div>
           </div>
         </div>
-
-        <div className="flex flex-wrap gap-3">
-          {(isSigned || isExpired || isCancelled) && (
-            <Button
-              variant="outline"
-              onClick={() => setShowContractModal(true)}
-            >
-              <Eye className="w-4 h-4 mr-2" />
-              {t("viewContract")}
-            </Button>
-          )}
-
-          {(isExpired || isCancelled) && (
-            <Button onClick={handleRenewContract} disabled={isSubmitting}>
-              <RefreshCw
-                className={`w-4 h-4 mr-2 ${isSubmitting ? "animate-spin" : ""}`}
-              />
-              {t("renewContract")}
-            </Button>
-          )}
-
-          {isPending && (
-            <Button onClick={() => setShowSignModal(true)}>
-              <FileSignature className="w-4 h-4 mr-2" />
-              {t("signContract")}
-            </Button>
-          )}
-        </div>
       </Card>
 
-      {/* View Contract Modal */}
       <Modal open={showContractModal} onOpenChange={setShowContractModal}>
         <ModalContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <ModalHeader>
@@ -339,7 +326,7 @@ export const TeacherContractStatusCard = () => {
             {data?.contractLog ? (
               <TeacherContractPDF
                 teacherName={data.contractLog.name}
-                teacherCnpj={data.contractLog.cpf} // Using cpf field as stored in log
+                teacherCnpj={data.contractLog.cpf}
                 teacherAddress={data.contractLog.address}
                 teacherCity={data.contractLog.city}
                 teacherState={data.contractLog.state}
@@ -352,21 +339,15 @@ export const TeacherContractStatusCard = () => {
               </div>
             )}
           </div>
-          <ModalFooter>
-            <ModalSecondaryButton onClick={() => setShowContractModal(false)}>
-              {t("close")}
-            </ModalSecondaryButton>
-          </ModalFooter>
         </ModalContent>
       </Modal>
 
-      {/* Sign Contract Modal */}
       <Modal open={showSignModal} onOpenChange={setShowSignModal}>
         <ModalContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <ModalHeader>
             <h2 className="text-xl font-bold">{t("signContractTitle")}</h2>
           </ModalHeader>
-          <div className="p-6">
+          <ModalDescription className="p-6">
             <div className="mb-6">
               <TeacherContractPDF
                 teacherName={formData.name}
@@ -513,7 +494,7 @@ export const TeacherContractStatusCard = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </ModalDescription>
           <ModalFooter>
             <ModalSecondaryButton
               onClick={() => setShowSignModal(false)}

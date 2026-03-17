@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -35,10 +34,9 @@ interface NotebooksCardProps {
   onCreateNotebook: (title: string) => Promise<boolean>;
   userRole?: string;
   onAddTask?: (taskText: string) => Promise<boolean>;
-  loading?: boolean; // Added loading prop
+  loading?: boolean;
 }
 
-// PDF Content Component for printing
 const NotebookPDFContent = React.forwardRef<
   HTMLDivElement,
   { notebook: Notebook }
@@ -78,7 +76,6 @@ export default function NotebooksCard({
 
   useEffect(() => {
     if (isModalOpen) {
-      // Small delay to ensure modal is mounted and transition has started
       const timer = setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
@@ -86,14 +83,12 @@ export default function NotebooksCard({
     }
   }, [isModalOpen]);
 
-  // Filter notebooks by search query
   const filteredNotebooks = notebooks.filter(
     (notebook) =>
       notebook.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      notebook.description.toLowerCase().includes(searchQuery.toLowerCase()),
+      notebook.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Handle creating a new notebook
   const handleCreateNotebook = async () => {
     if (!newNotebookTitle.trim()) return;
 
@@ -111,7 +106,6 @@ export default function NotebooksCard({
     }
   };
 
-  // Handle adding notebook as a task for review
   const handleAddNotebookAsTask = async (notebook: Notebook) => {
     if (!onAddTask) return;
 
@@ -132,7 +126,6 @@ export default function NotebooksCard({
     }
   };
 
-  // Handle downloading notebook as PDF
   const handleDownloadNotebookPDF = (notebook: Notebook) => {
     try {
       const success_result = generateNotebookPDF(notebook);
@@ -161,7 +154,7 @@ export default function NotebooksCard({
         {userRole === "teacher" && (
           <Plus
             height={24}
-            className="absolute right-0 top-1/2 transform -translate-y-1/2 p-2 min-w-11 min-h-11 text-secondary hover:text-secondary-hover duration-300 ease-in-out transition-all cursor-pointer"
+            className="absolute right-0 top-1/2 transform -translate-y-1/2 p-2 min-w-11 min-h-11 text-secondary hover:text-primary duration-300 ease-in-out transition-all cursor-pointer"
             onClick={() => setIsModalOpen(true)}
           />
         )}
@@ -173,7 +166,7 @@ export default function NotebooksCard({
             .sort(
               (a, b) =>
                 new Date(b.createdAt).getTime() -
-                new Date(a.createdAt).getTime(),
+                new Date(a.createdAt).getTime()
             )
             .map((notebook, index) => (
               <motion.div
@@ -215,7 +208,7 @@ export default function NotebooksCard({
                       {onAddTask && (
                         <Luggage
                           height={24}
-                          className="w-5 h-5 hover:text-secondary duration-300 easy-in-out transition-all cursor-pointer"
+                          className="w-5 h-5 hover:text-primary duration-300 easy-in-out transition-all cursor-pointer"
                           onClick={(e: React.MouseEvent<SVGSVGElement>) => {
                             e.stopPropagation();
                             e.preventDefault();
@@ -240,7 +233,6 @@ export default function NotebooksCard({
         )}
       </div>
 
-      {/* Modal for creating notebook - only for teachers */}
       {userRole === "teacher" && (
         <Modal open={isModalOpen} onOpenChange={setIsModalOpen}>
           <ModalContent className="max-w-md">

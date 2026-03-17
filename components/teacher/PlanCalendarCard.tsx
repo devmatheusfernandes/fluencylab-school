@@ -42,10 +42,10 @@ export default function PlanCalendarCard({
   const dateLocale = locale === "pt" ? ptBR : enUS;
 
   const [selectedMonth, setSelectedMonth] = useState<number>(
-    new Date().getMonth(),
+    new Date().getMonth()
   );
   const [selectedYear, setSelectedYear] = useState<number>(
-    new Date().getFullYear(),
+    new Date().getFullYear()
   );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -68,12 +68,10 @@ export default function PlanCalendarCard({
   const handleSavePlan = async (planData: Partial<Plan>) => {
     try {
       if (plan) {
-        // Update existing plan
         const result = await updatePlan(plan.id, planData);
         if (!result.success) throw new Error(result.error);
         toast.success("Plano atualizado com sucesso!");
       } else {
-        // Create new plan
         const result = await createPlan({
           ...planData,
           studentId,
@@ -109,7 +107,6 @@ export default function PlanCalendarCard({
     );
   }
 
-  // Common Dialog Content
   const EditorDialog = () => (
     <ModalContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
       <PlanEditor

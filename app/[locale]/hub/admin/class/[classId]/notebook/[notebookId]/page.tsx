@@ -22,10 +22,9 @@ export default async function AdminNotebookPage({
     return <NoResults customMessage={{ withoutSearch: t("notFound") }} />;
   }
 
-  // Fetch class details to get student ID
   const classDetails = await schedulingService.getClassDetails(
     classId,
-    session.user.id,
+    session.user.id
   );
 
   if (!classDetails || !classDetails.student?.id) {
