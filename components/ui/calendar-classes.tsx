@@ -1,13 +1,19 @@
 "use client";
-
 import * as React from "react";
 import { twMerge } from "tailwind-merge";
 import { Button } from "./button";
 import { Text } from "./text";
 import { daysOfWeek, months } from "@/types/time/times";
 import { CalendarEvent, CalendarView } from "@/types/calendar/calendar";
-import { ArrowLeft, ArrowRight, PlusIcon, Calendar as CalendarIcon } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  PlusIcon,
+  Calendar as CalendarIcon,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useIsMobile } from "@/hooks/ui/useMobile";
+import { useEffect } from "react";
 
 export interface CalendarProps {
   events?: CalendarEvent[];
@@ -21,10 +27,9 @@ export interface CalendarProps {
   showViewToggle?: boolean;
   defaultView?: CalendarView;
   locale?: string;
-  isMobile?: boolean; // Force mobile layout
+  isMobile?: boolean;
 }
 
-// Helper functions
 const getDaysInMonth = (year: number, month: number) => {
   return new Date(year, month + 1, 0).getDate();
 };
@@ -88,28 +93,10 @@ const getWeekDates = (date: Date) => {
 
 const getDayHours = () => {
   const hours = [];
-  // Start at 8 AM and go until 22 (10 PM)
   for (let i = 8; i <= 22; i++) {
     hours.push(i);
   }
   return hours;
-};
-
-// Hook to detect mobile
-const useIsMobile = () => {
-  const [isMobile, setIsMobile] = React.useState(false);
-
-  React.useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  return isMobile;
 };
 
 export const Calendar: React.FC<CalendarProps> = ({
@@ -120,29 +107,22 @@ export const Calendar: React.FC<CalendarProps> = ({
   selectedDate,
   className,
   showNavigation = true,
-  showTodayButton = true,
   showViewToggle = true,
   defaultView = "month",
   locale = "pt-BR",
-  isMobile: forceMobile,
 }) => {
-  const detectedMobile = useIsMobile();
-  const isMobile = forceMobile ?? detectedMobile;
+  const isMobile = useIsMobile();
   const tMonths = useTranslations("Months");
   const tDays = useTranslations("Days");
-  const tWeekdays = useTranslations("Weekdays");
   const t = useTranslations("TeacherSchedule.Calendar");
-
   const [currentDate, setCurrentDate] = React.useState(() => {
     return selectedDate || new Date();
   });
-  // initial state
   const [currentView, setCurrentView] = React.useState<CalendarView>(
     isMobile ? "day" : defaultView
   );
 
-  // keep in sync when mobile changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (isMobile) {
       setCurrentView("day");
     }
@@ -199,13 +179,13 @@ export const Calendar: React.FC<CalendarProps> = ({
       const weekDates = getWeekDates(currentDate);
       const startDate = weekDates[0];
       const endDate = weekDates[6];
-      return `${startDate.getDate()} ${
-        tMonths(months[startDate.getMonth()])
-      } - ${endDate.getDate()} ${tMonths(months[endDate.getMonth()])} ${currentYear}`;
+      return `${startDate.getDate()} ${tMonths(
+        months[startDate.getMonth()]
+      )} - ${endDate.getDate()} ${tMonths(months[endDate.getMonth()])} ${currentYear}`;
     } else if (currentView === "day") {
-      return `${currentDate.getDate()} ${
-        tMonths(months[currentDate.getMonth()])
-      } ${currentYear}`;
+      return `${currentDate.getDate()} ${tMonths(
+        months[currentDate.getMonth()]
+      )} ${currentYear}`;
     }
     return "";
   };
@@ -215,7 +195,6 @@ export const Calendar: React.FC<CalendarProps> = ({
     isCompact: boolean = false,
     isTimeline: boolean = false
   ) => {
-    // Apply different styling based on compact mode
     const baseClasses = twMerge(
       isCompact
         ? "px-2 py-1 rounded-lg text-xs cursor-pointer transition-all duration-200 hover:shadow-sm border overflow-hidden"
@@ -223,25 +202,20 @@ export const Calendar: React.FC<CalendarProps> = ({
       getEventColorClasses(event.color)
     );
 
-    // Calculate proportional positioning for timeline view
     let positionStyle = {};
     if (isTimeline && event.startTime && event.endTime) {
       const [startHour, startMinute] = event.startTime.split(":").map(Number);
       const [endHour, endMinute] = event.endTime.split(":").map(Number);
 
-      // Convert to minutes from 8:00 AM (start of day view)
       const dayStartHour = 8;
       const startMinutesFromDayStart =
         (startHour - dayStartHour) * 60 + startMinute;
       const endMinutesFromDayStart = (endHour - dayStartHour) * 60 + endMinute;
-
-      // Determine hour block height based on context (mobile vs desktop)
-      const hourBlockHeight = isMobile ? 60 : 80; // min-h-[60px] for mobile, min-h-[80px] for desktop
+      const hourBlockHeight = isMobile ? 60 : 80;
       const topPosition = (startMinutesFromDayStart / 60) * hourBlockHeight;
       const eventDuration = endMinutesFromDayStart - startMinutesFromDayStart;
-      const eventHeight = Math.max((eventDuration / 60) * hourBlockHeight, 24); // Minimum 24px height
-
-      const horizontalPadding = isMobile ? 12 : 16; // p-3 for mobile, p-4 for desktop
+      const eventHeight = Math.max((eventDuration / 60) * hourBlockHeight, 24);
+      const horizontalPadding = isMobile ? 12 : 16;
 
       positionStyle = {
         position: "absolute" as const,
@@ -268,13 +242,11 @@ export const Calendar: React.FC<CalendarProps> = ({
         >
           {event.title}
         </div>
-        {/* In compact mode, only show time if there's space, hide other details */}
         {!isCompact && event.startTime && event.endTime && (
           <div className="text-xs opacity-70 truncate">
             {event.startTime} - {event.endTime}
           </div>
         )}
-        {/* Show time in compact mode only if no person info */}
         {isCompact &&
           event.startTime &&
           event.endTime &&
@@ -296,13 +268,10 @@ export const Calendar: React.FC<CalendarProps> = ({
 
     return (
       <div className="bg-slate-100 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-        {/* Timeline view with proportional positioning */}
         <div className="relative">
-          {/* Hour grid background */}
           <div className="divide-y divide-gray-100 dark:divide-slate-700">
             {hours.map((hour) => (
               <div key={hour} className="flex min-h-[60px]">
-                {/* Time column */}
                 <div className="w-16 flex-shrink-0 p-3 bg-slate-200 dark:bg-slate-800 border-r border-gray-100 dark:border-slate-700">
                   <Text
                     size="sm"
@@ -312,7 +281,6 @@ export const Calendar: React.FC<CalendarProps> = ({
                   </Text>
                 </div>
 
-                {/* Events column - now just background */}
                 <div className="flex-1 p-3">
                   <div className="h-full flex items-center">
                     <div className="w-full border-b border-dashed border-gray-200 dark:border-slate-600"></div>
@@ -322,7 +290,6 @@ export const Calendar: React.FC<CalendarProps> = ({
             ))}
           </div>
 
-          {/* Absolutely positioned events */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="ml-16 relative h-full pointer-events-auto">
               {dayEvents
@@ -338,7 +305,6 @@ export const Calendar: React.FC<CalendarProps> = ({
   const renderMonthView = () => {
     const daysInMonth = getDaysInMonth(currentYear, currentMonth);
     const firstDayOfMonth = getFirstDayOfMonth(currentYear, currentMonth);
-
     const calendarDays = [];
     const totalDays = firstDayOfMonth + daysInMonth;
     const weeks = Math.ceil(totalDays / 7);
@@ -416,7 +382,9 @@ export const Calendar: React.FC<CalendarProps> = ({
                     .map((event) => renderEventBadge(event, isMobile))}
                   {dayEvents.length > (isMobile ? 2 : 4) && (
                     <div className="px-2 py-1 text-xs text-slate-600 dark:text-slate-400 font-medium bg-slate-100 dark:bg-slate-800 rounded-md">
-                      {t("andMore", { count: dayEvents.length - (isMobile ? 2 : 4) })}
+                      {t("andMore", {
+                        count: dayEvents.length - (isMobile ? 2 : 4),
+                      })}
                     </div>
                   )}
                 </div>
@@ -460,7 +428,6 @@ export const Calendar: React.FC<CalendarProps> = ({
   const renderWeekView = () => {
     if (isMobile) {
       const weekDates = getWeekDates(currentDate);
-
       return (
         <div className="space-y-3">
           {weekDates.map((date) => {
@@ -531,7 +498,6 @@ export const Calendar: React.FC<CalendarProps> = ({
     }
 
     const weekDates = getWeekDates(currentDate);
-
     return (
       <div className="bg-white/60 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm">
         <div className="grid grid-cols-8 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
@@ -632,13 +598,12 @@ export const Calendar: React.FC<CalendarProps> = ({
             size="xl"
             className="font-bold text-slate-900 dark:text-slate-100"
           >
-            {daysOfWeek[currentDate.getDay()]}, {currentDate.getDate()}{" "}
-            {months[currentDate.getMonth()]} {currentYear}
+            {tDays(daysOfWeek[currentDate.getDay()])}, {currentDate.getDate()}{" "}
+            {tMonths(months[currentDate.getMonth()])} {currentYear}
           </Text>
         </div>
 
         <div className="max-h-[600px] overflow-y-auto relative">
-          {/* Hour grid background */}
           <div>
             {hours.map((hour) => (
               <div
@@ -673,7 +638,6 @@ export const Calendar: React.FC<CalendarProps> = ({
             ))}
           </div>
 
-          {/* Absolutely positioned events */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="ml-24 relative h-full pointer-events-auto">
               {dayEvents
@@ -701,7 +665,6 @@ export const Calendar: React.FC<CalendarProps> = ({
 
   return (
     <div className={twMerge("w-full mx-auto", className)}>
-      {/* Header with date navigation */}
       <div
         className={twMerge(
           "flex items-center justify-between mb-6 px-4",
@@ -709,35 +672,24 @@ export const Calendar: React.FC<CalendarProps> = ({
         )}
       >
         {isMobile ? (
-          // Mobile header - horizontal date picker style
           <div className="w-full">
-            {/* Week navigation */}
             <div className="flex items-center justify-between gap-4 mb-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={goToPreviousPeriod}
-              >
+              <Button variant="ghost" size="icon" onClick={goToPreviousPeriod}>
                 <ArrowLeft className="h-5 w-5 text-gray-600 dark:text-gray-400" />
               </Button>
 
               <Text
                 size="lg"
-                className="font-semibold text-gray-900 dark:text-gray-100 min-w-[120px] text-center"
+                className="font-semibold text-gray-900 dark:text-gray-100 min-w-[120px] text-center capitalize"
               >
-                {months[currentDate.getMonth()]} de {currentYear}
+                {tMonths(months[currentDate.getMonth()])} {currentYear}
               </Text>
 
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={goToNextPeriod}
-              >
+              <Button variant="ghost" size="icon" onClick={goToNextPeriod}>
                 <ArrowRight className="h-5 w-5 text-gray-600 dark:text-gray-400" />
               </Button>
             </div>
 
-            {/* Week days selector */}
             <div className="flex justify-between gap-1 mb-4">
               {getWeekDates(currentDate).map((date) => {
                 const isSelected = isSameDay(date, currentDate);
@@ -757,7 +709,7 @@ export const Calendar: React.FC<CalendarProps> = ({
                     )}
                   >
                     <Text size="xs" className="font-medium opacity-70 mb-1">
-                      {daysOfWeek[date.getDay()].slice(0, 1)}
+                      {tDays(daysOfWeek[date.getDay()]).slice(0, 1)}
                     </Text>
                     <Text size="sm" className="font-bold">
                       {date.getDate()}
@@ -767,29 +719,23 @@ export const Calendar: React.FC<CalendarProps> = ({
               })}
             </div>
 
-            {/* Today and Add Event buttons */}
             <div className="flex justify-center gap-3">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={goToToday}
-                className="px-6 py-2 rounded-full border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
+                className="border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
               >
                 {t("today")}
               </Button>
               {onAddEvent && (
-                <Button
-                  size="sm"
-                  onClick={() => onAddEvent(currentDate)}
-                  className="px-6 py-2 rounded-full"
-                >
+                <Button size="sm" onClick={() => onAddEvent(currentDate)}>
                   {t("addEvent")}
                 </Button>
               )}
             </div>
           </div>
         ) : (
-          // Desktop header
           <>
             <div className="flex items-center gap-6">
               {showNavigation && (
@@ -801,11 +747,7 @@ export const Calendar: React.FC<CalendarProps> = ({
                   >
                     <ArrowLeft className="h-5 w-5 text-slate-700 dark:text-slate-300" />
                   </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={goToNextPeriod}
-                  >
+                  <Button size="icon" variant="ghost" onClick={goToNextPeriod}>
                     <ArrowRight className="h-5 w-5 text-slate-700 dark:text-slate-300" />
                   </Button>
                 </div>
@@ -820,18 +762,30 @@ export const Calendar: React.FC<CalendarProps> = ({
             </div>
 
             {showViewToggle && (
-              <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-xl p-1 border border-slate-200 dark:border-slate-700 shadow-sm gap-2">
-                <Button size="sm" onClick={() => setCurrentView("month") }>
+              <div className="flex items-center p-1 gap-2">
+                <Button
+                  variant="glass"
+                  size="sm"
+                  onClick={() => setCurrentView("month")}
+                >
                   <CalendarIcon className="h-4 w-4 mr-2" />
                   {t("month")}
                 </Button>
-                <Button size="sm" onClick={() => setCurrentView("week")}>
+                <Button
+                  variant="glass"
+                  size="sm"
+                  onClick={() => setCurrentView("week")}
+                >
                   {t("week")}
                 </Button>
-                <Button size="sm" onClick={() => setCurrentView("day")}>
+                <Button
+                  variant="glass"
+                  size="sm"
+                  onClick={() => setCurrentView("day")}
+                >
                   {t("day")}
                 </Button>
-                <Button variant="destructive" size="sm" onClick={goToToday}>
+                <Button variant="primary" size="sm" onClick={goToToday}>
                   {t("today")}
                 </Button>
               </div>
@@ -840,7 +794,6 @@ export const Calendar: React.FC<CalendarProps> = ({
         )}
       </div>
 
-      {/* Calendar Content */}
       <div className="relative">{renderCurrentView()}</div>
     </div>
   );

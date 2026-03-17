@@ -1,5 +1,4 @@
 "use client";
-
 import { SpinnerLoading } from "@/components/transitions/spinner-loading";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -26,10 +25,5 @@ export default function HubEntryPoint() {
     }
   }, [status, session, router]);
 
-  // Displays a loading screen while session is being verified
-  return (
-    <div className="h-full justify-center items-center">
-      <SpinnerLoading />
-    </div>
-  );
+  return <SpinnerLoading />;
 }

@@ -185,7 +185,7 @@ export default function NotebooksCard({
                   }
                   className="block flex-1"
                 >
-                  <h3 className="subtitle-base hover:text-primary! duration-300! easy-in-out! transition-all!">
+                  <h3 className="font-bold hover:text-primary! duration-300! easy-in-out! transition-all!">
                     {notebook.title}
                   </h3>
                   <div className="paragraph-base opacity-70">

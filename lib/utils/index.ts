@@ -41,7 +41,7 @@ export function serializeForClientComponent(obj: any): any {
     ) {
       // Convert Firestore Timestamp to Date object
       const timestamp = new Date(
-        obj._seconds * 1000 + obj._nanoseconds / 1000000,
+        obj._seconds * 1000 + obj._nanoseconds / 1000000
       );
       return timestamp;
     }
@@ -168,3 +168,32 @@ export const createDateTimeKey = (date: Date, time: string): string => {
   const day = date.getDate().toString().padStart(2, "0");
   return `${year}-${month}-${day}-${time}`;
 };
+
+export function convertStringToDate(obj: any): any {
+  if (obj === null || obj === undefined) {
+    return obj;
+  }
+
+  if (typeof obj === "string") {
+    if (obj.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)) {
+      return new Date(obj);
+    }
+    return obj;
+  }
+
+  if (typeof obj === "object" && !(obj instanceof Date)) {
+    if (Array.isArray(obj)) {
+      return obj.map((item) => convertStringToDate(item));
+    }
+
+    const converted: any = {};
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        converted[key] = convertStringToDate(obj[key]);
+      }
+    }
+    return converted;
+  }
+
+  return obj;
+}

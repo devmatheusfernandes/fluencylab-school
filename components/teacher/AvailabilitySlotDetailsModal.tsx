@@ -1,16 +1,12 @@
-// components/teacher/AvailabilitySlotDetailsModal.tsx
 "use client";
-
 import {
   Modal,
   ModalBody,
-  ModalClose,
   ModalContent,
   ModalFooter,
   ModalHeader,
   ModalTitle,
   ModalPrimaryButton,
-  ModalSecondaryButton,
 } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
@@ -28,7 +24,7 @@ interface AvailabilitySlotDetailsModalProps {
   onDelete?: (
     slotId: string,
     deleteType: "single" | "future",
-    occurrenceDate: Date,
+    occurrenceDate: Date
   ) => Promise<void>;
   onRefresh?: () => void;
 }
@@ -51,10 +47,8 @@ export default function AvailabilitySlotDetailsModal({
     if (!event?.slotId || !onDelete) return;
     setIsDeleting(true);
     try {
-      // Use event.date directly since it's already a Date object
       await onDelete(event.slotId, deleteType, event.date);
       onClose();
-      // Trigger refresh after successful deletion
       if (onRefresh) {
         onRefresh();
       }
@@ -168,7 +162,6 @@ export default function AvailabilitySlotDetailsModal({
               </div>
             </Card>
 
-            {/* Delete Confirmation Section */}
             {showDeleteOptions && (
               <Card className="p-4 border border-red-200 bg-red-50">
                 <Text variant="title" className="mb-3 text-red-800">
@@ -222,14 +215,12 @@ export default function AvailabilitySlotDetailsModal({
                     </div>
                   </div>
                 ) : (
-                  <Text className="text-red-700">
-                    {t("deleteConfirmation")}
-                  </Text>
+                  <Text>{t("deleteConfirmation")}</Text>
                 )}
 
                 <div className="flex justify-end space-x-2 mt-4">
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     onClick={() => setShowDeleteOptions(false)}
                     disabled={isDeleting}
                   >
@@ -256,9 +247,6 @@ export default function AvailabilitySlotDetailsModal({
               {t("delete")}
             </ModalPrimaryButton>
           )}
-          <ModalSecondaryButton onClick={onClose}>
-            {t("close")}
-          </ModalSecondaryButton>
         </ModalFooter>
       </ModalContent>
     </Modal>

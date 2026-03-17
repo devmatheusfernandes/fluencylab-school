@@ -23,9 +23,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import Toolbar from "./toolbar/toolbar";
 import { TaskList, TaskItem } from "@tiptap/extension-list";
 import { useIsMobile } from "@/hooks/ui/useMobile";
-import { useIsStandalone } from "@/hooks/ui/useIsStandalone";
 import BottomToolbar from "./toolbar/bottom-toolbar";
-import { Spinner } from "../ui/spinner";
 import { CommentMark } from "@/components/tiptap/extensions/Comments/CommentsMark";
 import { CommentsSheet } from "@/components/tiptap/extensions/Comments/CommentsSheet";
 import { QuestionsNode } from "@/components/tiptap/extensions/Questions/QuestionsNode";
@@ -36,7 +34,7 @@ import FloatStudentCallButton from "../stream/FloatStudentCallButton";
 import FloatTeacherCallButton from "../stream/FloatTeacherCallButton";
 import { useSession } from "next-auth/react";
 import Bubble from "./bubble";
-import Link from "@tiptap/extension-link";
+import { SpinnerLoading } from "../transitions/spinner-loading";
 
 interface TiptapEditorProps {
   content: string;
@@ -53,14 +51,12 @@ interface TiptapEditorProps {
   notebookId?: string;
   title?: string;
   onTitleChange?: (newTitle: string) => void;
-  enableFullscreenOnScroll?: boolean;
   studentName?: string;
 }
 
 const TiptapEditor: React.FC<TiptapEditorProps> = ({
   content,
   onSave,
-  placeholder = "Comece a escrever...",
   autoSaveDelay = 2000,
   className = "",
   ydoc = null,
@@ -72,46 +68,23 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   notebookId,
   title,
   onTitleChange,
-  enableFullscreenOnScroll = false,
   studentName,
 }) => {
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastSavedContentRef = useRef<string>(content);
   const isSavingRef = useRef<boolean>(false);
   const isMobile = useIsMobile();
-  const isStandalone = useIsStandalone();
   const imageUrlsRef = useRef<Set<string>>(new Set());
   const { data: session } = useSession();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!enableFullscreenOnScroll || !isStandalone || !container) return;
-
-    const handleScroll = () => {
-      if (container.scrollTop > 50 && !document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {
-          // Ignore errors caused by lack of user interaction
-        });
-      } else if (container.scrollTop < 10 && document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {});
-      }
-    };
-
-    container.addEventListener("scroll", handleScroll);
-    return () => container.removeEventListener("scroll", handleScroll);
-  }, [enableFullscreenOnScroll, isStandalone]);
-
   const debouncedSave = useCallback(
     async (newContent: string) => {
-      // Limpa o timeout anterior se existir
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
       }
 
-      // Define um novo timeout para salvar
       saveTimeoutRef.current = setTimeout(async () => {
-        // Verifica se o conteúdo realmente mudou
         if (
           newContent !== lastSavedContentRef.current &&
           !isSavingRef.current
@@ -128,7 +101,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         }
       }, autoSaveDelay);
     },
-    [onSave, autoSaveDelay],
+    [onSave, autoSaveDelay]
   );
 
   const editor = useEditor({
@@ -136,8 +109,6 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
       CommentMark,
       QuestionsNode,
       MusicNode,
-      //Teaching Extensions
-      //Default Extensions
       Placeholder.configure({
         placeholder: ({ node }) => {
           const headingPlaceholders: { [key: number]: string } = {
@@ -170,7 +141,6 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
           },
         },
       }),
-      //Underline,
       TextAlign.configure({
         types: ["heading", "paragraph"],
       }),
@@ -196,7 +166,6 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
               document: ydoc,
               field: "content",
             }),
-            // Collaboration carets (presence) when provider is available
             ...(provider
               ? [
                   CollaborationCaret.configure({
@@ -232,11 +201,6 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
     },
     onCreate: ({ editor }) => {
       try {
-        // Debug: listar extensões e marks disponíveis
-        // Útil para verificar se 'comment' está carregado
-        // Remova se não precisar do log.
-        // console.log("Tiptap extensions:", editor.extensionManager.extensions.map((e: any) => e.name));
-        // console.log("Tiptap marks:", Object.keys((editor as any).schema?.marks || {}));
       } catch {}
       if (content && content !== "<p></p>" && editor.isEmpty) {
         editor.commands.setContent(content);
@@ -246,7 +210,6 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
     },
   });
 
-  // Atualiza o conteúdo quando a prop content muda externamente (apenas sem colaboração)
   useEffect(() => {
     if (
       !ydoc &&
@@ -260,7 +223,6 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
     }
   }, [content, editor, ydoc]);
 
-  // Cleanup do timeout quando o componente é desmontado
   useEffect(() => {
     return () => {
       if (saveTimeoutRef.current) {
@@ -270,7 +232,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   }, []);
 
   if (!editor) {
-    return <Spinner />;
+    return <SpinnerLoading />;
   }
 
   return (
@@ -292,7 +254,6 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         <Bubble editor={editor} />
         <EditorContent editor={editor} className="min-h-screen no-scrollbar" />
 
-        {/* Spacer para garantir que o conteúdo não fique escondido atrás da BottomToolbar em mobile */}
         {isMobile && <div className="h-20" />}
 
         {session?.user.role === "student" && (
@@ -305,7 +266,13 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
 
         <CommentsSheet editor={editor} docId={docId || "test-comments"} />
       </div>
-      {isMobile && <BottomToolbar editor={editor} />}
+      {isMobile && (
+        <BottomToolbar
+          editor={editor}
+          studentID={studentID}
+          name={studentName}
+        />
+      )}
     </div>
   );
 };

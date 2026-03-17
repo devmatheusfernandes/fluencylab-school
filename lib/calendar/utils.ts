@@ -6,7 +6,6 @@ import {
 import { ClassStatus, PopulatedStudentClass } from "@/types/classes/class";
 import { CalendarEvent } from "@/types/calendar/calendar";
 import { createDateTimeKey } from "@/lib/utils";
-import { getTranslations } from "next-intl/server";
 
 /**
  * Maps teacher availability data to calendar events
@@ -20,7 +19,7 @@ export const mapTeacherEventsToCalendar = (
   slots: AvailabilitySlot[],
   exceptions: AvailabilityException[],
   bookedClasses: PopulatedStudentClass[],
-  t: (key: string) => string,
+  t: (key: string) => string
 ): CalendarEvent[] => {
   const events: CalendarEvent[] = [];
 
@@ -33,7 +32,7 @@ export const mapTeacherEventsToCalendar = (
     if (cls.status === ClassStatus.SCHEDULED) {
       const key = createDateTimeKey(
         cls.scheduledAt,
-        cls.scheduledAt.toTimeString().substring(0, 5),
+        cls.scheduledAt.toTimeString().substring(0, 5)
       );
       bookedKeys.set(key, cls);
     }
@@ -86,7 +85,7 @@ export const mapTeacherEventsToCalendar = (
               startTime: bookedClass.scheduledAt.toTimeString().substring(0, 5),
               endTime: new Date(
                 bookedClass.scheduledAt.getTime() +
-                  bookedClass.durationMinutes * 60000,
+                  bookedClass.durationMinutes * 60000
               )
                 .toTimeString()
                 .substring(0, 5),
@@ -126,17 +125,17 @@ export const mapTeacherEventsToCalendar = (
         switch (slot.repeating.type) {
           case "weekly":
             currentDate.setDate(
-              currentDate.getDate() + 7 * slot.repeating.interval,
+              currentDate.getDate() + 7 * slot.repeating.interval
             );
             break;
           case "bi-weekly":
             currentDate.setDate(
-              currentDate.getDate() + 14 * slot.repeating.interval,
+              currentDate.getDate() + 14 * slot.repeating.interval
             );
             break;
           case "monthly":
             currentDate.setMonth(
-              currentDate.getMonth() + 1 * slot.repeating.interval,
+              currentDate.getMonth() + 1 * slot.repeating.interval
             );
             break;
         }
@@ -163,7 +162,7 @@ export const mapTeacherEventsToCalendar = (
               startTime: bookedClass.scheduledAt.toTimeString().substring(0, 5),
               endTime: new Date(
                 bookedClass.scheduledAt.getTime() +
-                  bookedClass.durationMinutes * 60000,
+                  bookedClass.durationMinutes * 60000
               )
                 .toTimeString()
                 .substring(0, 5),
@@ -217,7 +216,7 @@ export const mapTeacherEventsToCalendar = (
  */
 export const mapTeacherClassesToCalendar = (
   classes: PopulatedStudentClass[],
-  t: (key: string) => string,
+  t: (key: string) => string
 ): CalendarEvent[] => {
   const events: CalendarEvent[] = [];
 

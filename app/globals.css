@@ -2,7 +2,6 @@
 @import "tw-animate-css";
 @import "../styles/_variables.scss";
 
-/* --- 1. CONFIGURAÇÃO DO TEMA (TAILWIND v4) --- */
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -42,7 +41,6 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  /* Animation definitions */
   --animate-shimmer: shimmer 5.5s ease-in-out infinite;
   @keyframes shimmer {
     0% {
@@ -54,10 +52,8 @@
   }
 }
 
-/* --- 2. VARIÁVEIS DE COR (OKLCH) --- */
 :root {
   --radius: 0.65rem;
-  /* Light Mode Defaults */
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
   --card: oklch(1 0 0);
@@ -72,7 +68,7 @@
   --muted-foreground: oklch(0.552 0.016 285.938);
   --accent: oklch(0.967 0.001 286.375);
   --accent-foreground: oklch(0.21 0.006 285.885);
-  --destructive: oklch(0.577 0.245 27.325);
+  --destructive: oklch(58.6% 0.253 17.585);
   --border: oklch(0.92 0.004 286.32);
   --input: oklch(0.92 0.004 286.32);
   --ring: oklch(0.702 0.183 293.541);
@@ -95,13 +91,10 @@
   --received-message-bg: oklch(46.683% 0.01286 285.839);
 }
 
-/* Dark Mode Overrides */
 .dark {
   --background: oklch(0.141 0.005 285.823);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.175 0.042 264.55);
-  /* Cor original: oklch(0.21 0.006 285.885); 
-    Cor atual: oklch(0.175 0.042 264.55)*/
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.21 0.006 285.885);
   --popover-foreground: oklch(0.985 0 0);
@@ -113,7 +106,7 @@
   --muted-foreground: oklch(0.705 0.015 286.067);
   --accent: oklch(0.274 0.006 286.033);
   --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
+  --destructive: oklch(63.7% 0.237 25.331);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.38 0.189 293.745);
@@ -139,7 +132,6 @@
   --received-message-bg: oklch(0.274 0.006 286.033);
 }
 
-/* --- 3. TEMAS ADICIONAIS --- */
 .theme-violet {
   --primary: oklch(0.541 0.281 293.009);
   --primary-foreground: oklch(0.969 0.016 293.756);
@@ -166,23 +158,22 @@
   --sidebar-ring: oklch(0.45 0.24 270);
 }
 .theme-yellow {
-  --primary: oklch(76.9% 0.188 70.08);
+  --primary: oklch(82.8% 0.189 84.429);
   --primary-foreground: oklch(0.21 0.006 285.885);
-  --ring: oklch(76.9% 0.188 70.08);
-  --sidebar-primary: oklch(76.9% 0.188 70.08);
+  --ring: oklch(82.8% 0.189 84.429);
+  --sidebar-primary: oklch(82.8% 0.189 84.429);
   --sidebar-primary-foreground: oklch(0.21 0.006 285.885);
-  --sidebar-ring: oklch(76.9% 0.188 70.08);
+  --sidebar-ring: oklch(82.8% 0.189 84.429);
 }
 .theme-green {
-  --primary: oklch(0.7 0.15 145);
+  --primary: oklch(59.6% 0.145 163.225);
   --primary-foreground: oklch(0.985 0 0);
-  --ring: oklch(0.7 0.15 145);
-  --sidebar-primary: oklch(0.7 0.15 145);
+  --ring: oklch(59.6% 0.145 163.225);
+  --sidebar-primary: oklch(59.6% 0.145 163.225);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-ring: oklch(0.7 0.15 145);
+  --sidebar-ring: oklch(59.6% 0.145 163.225);
 }
 
-/* --- 5. COMPONENTES CUSTOMIZADOS DO USUÁRIO --- */
 @custom-variant dark (&:is(.dark *));
 
 .container-padding {
@@ -213,7 +204,6 @@
   @apply text-xs font-medium text-secondary-foreground/80;
 }
 
-/* Cards */
 .card-base {
   @apply duration-100 ease-in-out transition-all rounded-lg 
          border border-slate-200/50 dark:border-slate-700/50 
@@ -229,7 +219,6 @@
          hover:bg-white/5 dark:hover:bg-gray-950/50;
 }
 
-/* Inputs Gerais */
 .input-base {
   @apply duration-150 ease-in-out transition-all rounded-md 
          border border-slate-200/50 dark:border-slate-700/50 
@@ -243,7 +232,6 @@
          disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-50 dark:disabled:bg-gray-900;
 }
 
-/* --- 6. BASE LAYER --- */
 @layer base {
   html {
     scroll-behavior: smooth;

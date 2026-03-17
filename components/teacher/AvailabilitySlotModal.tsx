@@ -1,6 +1,4 @@
-// components/teacher/AvailabilitySlotModal.tsx
 "use client";
-
 import { useState, useEffect } from "react";
 import {
   Modal,
@@ -10,12 +8,9 @@ import {
   ModalDescription,
   ModalBody,
   ModalFooter,
-  ModalClose,
   ModalPrimaryButton,
 } from "@/components/ui/modal";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Text } from "@/components/ui/text";
 import {
   Select,
   SelectContent,
@@ -26,7 +21,6 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { AvailabilityType } from "@/types/time/availability";
-import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "../ui/spinner";
 import { useTranslations } from "next-intl";
@@ -49,24 +43,22 @@ export default function AvailabilitySlotModal({
   const [startDate, setStartDate] = useState<Date>(selectedDate || new Date());
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("09:45");
-  const [isRepeating, setIsRepeating] = useState(true); // Sempre true para regular por padrão
+  const [isRepeating, setIsRepeating] = useState(true);
   const [repeatingType, setRepeatingType] = useState("weekly");
   const [interval, setInterval] = useState(1);
   const [endDate, setEndDate] = useState("");
-  const [hasEndDate, setHasEndDate] = useState(false); // Novo estado para controlar se tem data fim
+  const [hasEndDate, setHasEndDate] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const t = useTranslations("TeacherSchedule.AvailabilityForm");
 
-  // Atualizar isRepeating baseado no tipo
   useEffect(() => {
     if (type === AvailabilityType.REGULAR) {
-      setIsRepeating(true); // Horários regulares sempre são repetitivos
+      setIsRepeating(true);
     } else {
-      setIsRepeating(false); // Horários de makeup começam como não repetitivos
+      setIsRepeating(false);
     }
   }, [type]);
 
-  // Set default end time when start time changes
   useEffect(() => {
     if (startTime) {
       const [hours, minutes] = startTime.split(":").map(Number);
@@ -78,7 +70,6 @@ export default function AvailabilitySlotModal({
     }
   }, [startTime]);
 
-  // Set default date when selectedDate changes
   useEffect(() => {
     if (selectedDate) {
       setStartDate(selectedDate);
@@ -88,7 +79,6 @@ export default function AvailabilitySlotModal({
     }
   }, [selectedDate]);
 
-  // Set default end date when startDate changes
   useEffect(() => {
     if (startDate) {
       const endDate = new Date(startDate);
@@ -146,14 +136,14 @@ export default function AvailabilitySlotModal({
       <ModalContent className="overflow-y-auto">
         <ModalHeader>
           <ModalTitle>{t("addTitle")}</ModalTitle>
-          <ModalDescription>
-            {t("addDescription")}
-          </ModalDescription>
+          <ModalDescription>{t("addDescription")}</ModalDescription>
         </ModalHeader>
         <form onSubmit={handleSubmit}>
           <ModalBody className="space-y-3">
             <div>
-              <label htmlFor="type">{t("typeLabel")}</label>
+              <label className="text-sm" htmlFor="type">
+                {t("typeLabel")}
+              </label>
               <Select
                 value={type}
                 onValueChange={(value) => setType(value as AvailabilityType)}
@@ -173,7 +163,9 @@ export default function AvailabilitySlotModal({
             </div>
 
             <div>
-              <label htmlFor="startDate">{t("startDateLabel")}</label>
+              <label className="text-sm" htmlFor="startDate">
+                {t("startDateLabel")}
+              </label>
               <Input
                 id="startDate"
                 type="date"
@@ -184,7 +176,9 @@ export default function AvailabilitySlotModal({
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="startTime">{t("startTimeLabel")}</label>
+                <label className="text-sm" htmlFor="startTime">
+                  {t("startTimeLabel")}
+                </label>
                 <Input
                   id="startTime"
                   type="time"
@@ -194,7 +188,9 @@ export default function AvailabilitySlotModal({
                 />
               </div>
               <div>
-                <label htmlFor="endTime">{t("endTimeLabel")}</label>
+                <label className="text-sm" htmlFor="endTime">
+                  {t("endTimeLabel")}
+                </label>
                 <Input
                   id="endTime"
                   type="time"
@@ -215,14 +211,18 @@ export default function AvailabilitySlotModal({
                     setIsRepeating(checked as boolean)
                   }
                 />
-                <label htmlFor="isRepeating">{t("repeatLabel")}</label>
+                <label className="text-sm" htmlFor="isRepeating">
+                  {t("repeatLabel")}
+                </label>
               </div>
             )}
 
             {isRepeating && (
               <div className="space-y-3">
                 <div>
-                  <label htmlFor="repeatingType">{t("frequencyLabel")}</label>
+                  <label className="text-sm" htmlFor="repeatingType">
+                    {t("frequencyLabel")}
+                  </label>
                   <Select
                     value={repeatingType}
                     onValueChange={setRepeatingType}
@@ -231,15 +231,23 @@ export default function AvailabilitySlotModal({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="weekly">{t("frequencies.weekly")}</SelectItem>
-                      <SelectItem value="bi-weekly">{t("frequencies.biWeekly")}</SelectItem>
-                      <SelectItem value="monthly">{t("frequencies.monthly")}</SelectItem>
+                      <SelectItem value="weekly">
+                        {t("frequencies.weekly")}
+                      </SelectItem>
+                      <SelectItem value="bi-weekly">
+                        {t("frequencies.biWeekly")}
+                      </SelectItem>
+                      <SelectItem value="monthly">
+                        {t("frequencies.monthly")}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div>
-                  <label htmlFor="interval">{t("intervalLabel")}</label>
+                  <label className="text-sm" htmlFor="interval">
+                    {t("intervalLabel")}
+                  </label>
                   <Input
                     id="interval"
                     type="number"
@@ -260,7 +268,9 @@ export default function AvailabilitySlotModal({
                         setHasEndDate(checked as boolean)
                       }
                     />
-                    <label htmlFor="hasEndDate">{t("defineEndDateLabel")}</label>
+                    <label className="text-sm" htmlFor="hasEndDate">
+                      {t("defineEndDateLabel")}
+                    </label>
                   </div>
                 )}
 
@@ -268,7 +278,7 @@ export default function AvailabilitySlotModal({
                 {((type === AvailabilityType.REGULAR && hasEndDate) ||
                   type === AvailabilityType.MAKEUP) && (
                   <div>
-                    <label htmlFor="endDate">
+                    <label className="text-sm" htmlFor="endDate">
                       {type === AvailabilityType.REGULAR
                         ? t("endDateLabel")
                         : t("endDateOptionalLabel")}

@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { UserPermission } from "@/types/users/userPermissions";
-import { FullUserDetails } from "@/types/users/userDetails"; // Importa o tipo completo
+import { FullUserDetails } from "@/types/users/userDetails";
 import { useState, useEffect } from "react";
 import { User } from "@/types/users/users";
 
@@ -19,7 +19,6 @@ export const useCurrentUser = () => {
     const storageKey = "fluencylab.currentUser.v1";
 
     const fetchFullUser = async () => {
-      // Apenas busca o perfil se a sessão estiver autenticada
       if (status === "authenticated") {
         setIsLoadingUser(true);
         try {
@@ -28,7 +27,6 @@ export const useCurrentUser = () => {
             throw new Error("Falha ao buscar o perfil completo do utilizador.");
           }
           const userProfile: FullUserDetails = await response.json();
-          // Atualiza o estado com o perfil completo do banco de dados
           setCurrentUser(userProfile);
 
           try {
@@ -45,13 +43,11 @@ export const useCurrentUser = () => {
             }
           } catch {}
 
-          // Em caso de erro, usa os dados da sessão como fallback para evitar que a UI quebre
           setCurrentUser(session.user as FullUserDetails);
         } finally {
           setIsLoadingUser(false);
         }
       } else if (status !== "loading") {
-        // Se não estiver autenticado nem a carregar, limpa o utilizador
         setCurrentUser(null);
         setIsLoadingUser(false);
 
@@ -62,12 +58,10 @@ export const useCurrentUser = () => {
     };
 
     fetchFullUser();
-  }, [status, session]); // Roda sempre que o status da sessão muda
+  }, [status, session]);
 
   return {
-    // Retorna o utilizador completo do Firestore
     user: currentUser,
-    // O status geral de carregamento considera tanto a sessão quanto a busca do perfil
     isLoading: status === "loading" || isLoadingUser,
     isAuthenticated: status === "authenticated",
   };

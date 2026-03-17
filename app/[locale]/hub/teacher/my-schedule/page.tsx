@@ -1,17 +1,14 @@
 import TeacherVacationManager from "@/components/teacher/TeacherVacationManager";
 import TeacherSettingsForm from "@/components/teacher/TeacherSettingsForm";
 import TeacherSettingsClient from "@/components/teacher/TeacherSettingsClient";
-
 import { SchedulingService } from "@/services/learning/schedulingService";
 import { UserAdminRepository } from "@/repositories/admin/userAdminRepository";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-
 import {
   mapTeacherEventsToCalendar,
   mapTeacherClassesToCalendar,
 } from "@/lib/calendar/utils";
-
 import { serializeForClientComponent } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { BadgePoundSterling, Calendar, Ear, Settings } from "lucide-react";
@@ -23,11 +20,15 @@ import { Header } from "@/components/ui/header";
 const userAdminRepo = new UserAdminRepository();
 const schedulingService = new SchedulingService();
 
-export default async function TeacherSettingsPage() {
+export default async function TeacherSettingsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
   const session = await getServerSession(authOptions);
-  const t = await getTranslations("TeacherSchedule");
+  const t = await getTranslations({ locale, namespace: "TeacherSchedule" });
 
-  // Busca as configurações atuais do professor para preencher o formulário
   const teacher = await userAdminRepo.findUserById(session!.user.id);
   const currentSettings = {
     bookingLeadTimeHours:
@@ -37,28 +38,24 @@ export default async function TeacherSettingsPage() {
     bookingHorizonDays: teacher?.schedulingSettings?.bookingHorizonDays ?? 30,
   };
 
-  // Fetch teacher's schedule data
   const scheduleData = await schedulingService.getTeacherAvailability(
-    session!.user.id,
+    session!.user.id
   );
 
-  // Fetch all teacher's classes
   const allClasses = await schedulingService.getPopulatedClassesForTeacher(
-    session!.user.id,
+    session!.user.id
   );
 
-  // Combine availability slots with all classes
   const calendarEvents = [
     ...mapTeacherEventsToCalendar(
       scheduleData.slots,
       scheduleData.exceptions,
       scheduleData.bookedClasses,
-      t,
+      t
     ),
     ...mapTeacherClassesToCalendar(allClasses, t),
   ];
 
-  // Serialize data before passing to Client Component
   const serializedEvents = serializeForClientComponent(calendarEvents);
   const serializedClasses = serializeForClientComponent(allClasses);
   const serializedScheduleData = serializeForClientComponent(scheduleData);
@@ -67,7 +64,7 @@ export default async function TeacherSettingsPage() {
     <Tabs defaultValue="settings" className="container-padding space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <Header heading={t("pageTitle")} subheading={t("pageSubtitle")} />
-        <TabsList className="flex flex-wrap bg-slate-200 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-1 shadow-sm w-full md:w-auto justify-center md:justify-start">
+        <TabsList className="flex flex-wrap bg-slate-200 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm w-full md:w-auto justify-center md:justify-start">
           <TabsTrigger
             value="settings"
             className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200 rounded-lg font-medium flex-1 md:flex-none"
@@ -101,7 +98,6 @@ export default async function TeacherSettingsPage() {
         </TabsList>
       </div>
 
-      {/* Settings Tab */}
       <TabsContent value="settings" className="space-y-6">
         <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
           <div className="p-6 border-b border-slate-200 dark:border-slate-700">
@@ -128,7 +124,6 @@ export default async function TeacherSettingsPage() {
         </Card>
       </TabsContent>
 
-      {/* Vacation Tab */}
       <TabsContent value="vacation" className="space-y-6">
         <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
           <div className="p-6 border-b border-slate-200 dark:border-slate-700">
@@ -154,7 +149,6 @@ export default async function TeacherSettingsPage() {
         </Card>
       </TabsContent>
 
-      {/* Schedule Tab */}
       <TabsContent value="schedule" className="space-y-6">
         <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
           <div className="p-6 border-b border-slate-200 dark:border-slate-700">

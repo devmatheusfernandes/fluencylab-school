@@ -24,7 +24,6 @@ import TiptapEditor from "@/components/tiptap/tiptap";
 interface NotebookViewerProps {
   studentId: string;
   notebookId: string;
-  enableFullscreenOnScroll?: boolean;
 }
 
 interface Notebook {
@@ -42,7 +41,6 @@ interface Notebook {
 export default function NotebookViewer({
   studentId,
   notebookId,
-  enableFullscreenOnScroll,
 }: NotebookViewerProps) {
   const alunoId = studentId;
   const { data: session } = useSession();
@@ -89,10 +87,11 @@ export default function NotebookViewer({
   const [error, setError] = useState<string | null>(null);
   const [provider, setProvider] = useState<FirestoreProvider | null>(null);
   const [content, setContent] = useState<string>("");
-  const [timeLeft, setTimeLeft] = useState<number>(1800000);
+  const [, setTimeLeft] = useState<number>(1800000);
   const ydocRef = useRef<Y.Doc | null>(null);
   const lastSavedContentRef = useRef<string>("");
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const contentRef = useRef<string>("");
 
   useEffect(() => {
     if (!alunoId || !notebookId) return;
@@ -126,7 +125,7 @@ export default function NotebookViewer({
       try {
         setLoading(true);
         const notebookDoc = await getDoc(
-          doc(db, `users/${alunoId}/Notebooks/${notebookId}`),
+          doc(db, `users/${alunoId}/Notebooks/${notebookId}`)
         );
 
         if (notebookDoc.exists()) {
@@ -151,10 +150,10 @@ export default function NotebookViewer({
           if (fetchedContent) {
             const versionRef = collection(
               db,
-              `users/${alunoId}/Notebooks/${notebookId}/versions`,
+              `users/${alunoId}/Notebooks/${notebookId}/versions`
             );
             const recentVersions = await getDocs(
-              query(versionRef, orderBy("timestamp", "desc"), limit(1)),
+              query(versionRef, orderBy("timestamp", "desc"), limit(1))
             );
 
             const shouldSaveInitial =
@@ -192,7 +191,7 @@ export default function NotebookViewer({
         lastSavedContentRef.current = newContent;
       } catch (error) {}
     },
-    [alunoId, notebookId],
+    [alunoId, notebookId]
   );
 
   const handleContentChange = useCallback(
@@ -208,8 +207,12 @@ export default function NotebookViewer({
         setNotebook({ ...notebook, content: newContent });
       }
     },
-    [notebook, debouncedSave],
+    [notebook, debouncedSave]
   );
+
+  useEffect(() => {
+    contentRef.current = content;
+  }, [content]);
 
   const handleTitleChange = async (newTitle: string) => {
     if (!alunoId || !notebookId || !notebook) return;
@@ -234,29 +237,33 @@ export default function NotebookViewer({
       const threshold = oldContent.length * 0.05;
       return lengthDiff > threshold || newContent !== oldContent;
     },
-    [],
+    []
   );
 
   useEffect(() => {
-    if (!alunoId || !notebookId || !content) return;
+    if (!alunoId || !notebookId) return;
 
     const saveVersion = async () => {
       try {
         const versionRef = collection(
           db,
-          `users/${alunoId}/Notebooks/${notebookId}/versions`,
+          `users/${alunoId}/Notebooks/${notebookId}/versions`
         );
         const recentVersions = await getDocs(
-          query(versionRef, orderBy("timestamp", "desc"), limit(1)),
+          query(versionRef, orderBy("timestamp", "desc"), limit(1))
         );
         const lastVersion = recentVersions.empty
           ? ""
           : recentVersions.docs[0].data().content;
-        if (!hasSignificantChanges(content, lastVersion)) {
+        const current = contentRef.current;
+        if (!current) {
+          return;
+        }
+        if (!hasSignificantChanges(current, lastVersion)) {
           return;
         }
         await addDoc(versionRef, {
-          content,
+          content: current,
           timestamp: serverTimestamp(),
           type: "auto",
         });
@@ -281,8 +288,8 @@ export default function NotebookViewer({
         JSON.stringify({
           alunoId,
           notebookId,
-          content,
-        }),
+          content: contentRef.current,
+        })
       );
     };
 
@@ -296,7 +303,7 @@ export default function NotebookViewer({
         clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [content, alunoId, notebookId, hasSignificantChanges]);
+  }, [alunoId, notebookId, hasSignificantChanges]);
 
   if (loading) {
     return (

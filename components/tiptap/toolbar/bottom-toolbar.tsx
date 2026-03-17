@@ -12,16 +12,18 @@ import { useSession } from "next-auth/react";
 
 interface ToolbarProps {
   editor: Editor | null;
+  studentID?: string;
+  name?: string;
 }
 
-const BottomToolbar: React.FC<ToolbarProps> = ({ editor }) => {
+const BottomToolbar: React.FC<ToolbarProps> = ({ editor, studentID, name }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [openModalId, setOpenModalId] = useState<string | null>(null);
   const [visibleButtons, setVisibleButtons] = useState<string[]>([]);
   const [hiddenButtons, setHiddenButtons] = useState<string[]>([]);
   const toolbarRef = useRef<HTMLDivElement>(null);
   const { data: session } = useSession();
-
+  const firstName = name?.split(" ")[0] ?? "Aluno";
   // Configuração compartilhada de botões
   const allButtons: ToolItem[] = TOOL_ITEMS;
 
@@ -216,7 +218,7 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor }) => {
             <BackButton
               href={
                 session?.user.role === "teacher"
-                  ? "/hub/teacher/my-notebook"
+                  ? `/hub/teacher/my-students/${firstName}?id=${studentID}`
                   : "/hub/student/my-notebook"
               }
             />

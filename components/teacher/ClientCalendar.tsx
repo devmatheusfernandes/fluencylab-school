@@ -1,6 +1,4 @@
-// components/teacher/ClientCalendar.tsx
 "use client";
-
 import { Calendar } from "@/components/ui/calendar-classes";
 import { useState } from "react";
 import ClassDetailsModal from "@/components/teacher/ClassDetailsModal";
@@ -12,7 +10,7 @@ import { CalendarEvent } from "@/types/calendar/calendar";
 interface ClientCalendarProps {
   events: CalendarEvent[];
   allClasses: PopulatedStudentClass[];
-  onRefresh?: () => void; // Add refresh callback
+  onRefresh?: () => void;
   onDeleteAvailability?: (
     slotId: string,
     deleteType: "single" | "future",
@@ -37,9 +35,7 @@ export default function ClientCalendar({
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const handleEventClick = (event: CalendarEvent) => {
-    // If this is a class event, show the details modal
     if (event.studentInfo) {
-      // Find the full class data from allClasses
       const fullClassData = allClasses.find(
         (cls) => cls.id === event.id.replace("class-", "")
       );
@@ -49,7 +45,6 @@ export default function ClientCalendar({
         setIsClassModalOpen(true);
       }
     } else {
-      // This is an availability slot event
       setSelectedEvent(event);
       setIsSlotDetailsModalOpen(true);
     }
@@ -61,7 +56,6 @@ export default function ClientCalendar({
   };
 
   const handleSlotCreated = () => {
-    // Close the modal and trigger refresh if provided
     setIsSlotModalOpen(false);
     if (onRefresh) {
       onRefresh();
@@ -79,7 +73,6 @@ export default function ClientCalendar({
         isOpen={isClassModalOpen}
         onClose={() => setIsClassModalOpen(false)}
         classData={selectedClass}
-        onSlotConverted={onRefresh}
       />
       <AvailabilitySlotDetailsModal
         isOpen={isSlotDetailsModalOpen}

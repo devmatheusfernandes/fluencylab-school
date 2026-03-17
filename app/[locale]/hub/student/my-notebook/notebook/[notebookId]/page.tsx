@@ -10,10 +10,6 @@ export default function VisualizarCaderno() {
   const alunoId = session?.user?.id as string;
 
   return (
-    <NotebookViewer
-      studentId={alunoId}
-      notebookId={notebookId as string}
-      enableFullscreenOnScroll={true}
-    />
+    <NotebookViewer studentId={alunoId} notebookId={notebookId as string} />
   );
 }

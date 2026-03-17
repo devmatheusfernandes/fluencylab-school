@@ -12,68 +12,22 @@ import { Text } from "@/components/ui/text";
 import { Card } from "@/components/ui/card";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { useState } from "react";
-import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 interface ClassDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   classData: PopulatedStudentClass | null;
-  onSlotConverted?: () => void; // Callback para atualizar a lista após conversão
+  onSlotConverted?: () => void;
 }
 
 export default function ClassDetailsModal({
   isOpen,
   onClose,
   classData,
-  onSlotConverted,
 }: ClassDetailsModalProps) {
   const t = useTranslations("TeacherSchedule.ClassDetails");
-  const [isConverting, setIsConverting] = useState(false);
   if (!classData) return null;
-
-  // Verificar se a aula pode ser convertida em slot livre
-  const canConvertToSlot =
-    (classData.status === ClassStatus.CANCELED_STUDENT ||
-      classData.status === ClassStatus.CANCELED_TEACHER ||
-      classData.status === ClassStatus.CANCELED_TEACHER_MAKEUP ||
-      classData.status === ClassStatus.CANCELED_CREDIT ||
-      classData.status === ClassStatus.RESCHEDULED) &&
-    !classData.convertedToAvailableSlot;
-
-  const handleConvertToSlot = async () => {
-    if (!classData.id) return;
-
-    setIsConverting(true);
-    try {
-      const response = await fetch(
-        `/api/classes/${classData.id}/convert-to-slot`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.error || "Erro ao converter aula em slot livre"
-        );
-      }
-
-      toast.success("Aula convertida em slot disponível com sucesso!");
-      onSlotConverted?.();
-      onClose();
-    } catch (error: any) {
-      console.error("Erro ao converter aula:", error);
-      toast.error(error.message || "Erro ao converter aula em slot livre");
-    } finally {
-      setIsConverting(false);
-    }
-  };
 
   const getStatusText = (status: ClassStatus | string) => {
     const s = typeof status === "string" ? status : (status as string);
@@ -113,27 +67,27 @@ export default function ClassDetailsModal({
     switch (s) {
       case "scheduled":
       case ClassStatus.SCHEDULED:
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
       case "completed":
       case ClassStatus.COMPLETED:
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
       case "cancelled":
       case ClassStatus.CANCELED_STUDENT:
       case ClassStatus.CANCELED_TEACHER:
       case ClassStatus.CANCELED_TEACHER_MAKEUP:
       case ClassStatus.CANCELED_CREDIT:
-        return "bg-red-100 text-red-800";
+        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
       case "no_show":
       case ClassStatus.NO_SHOW:
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
       case ClassStatus.RESCHEDULED:
-        return "bg-purple-100 text-purple-800";
+        return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300";
       case ClassStatus.TEACHER_VACATION:
-        return "bg-indigo-100 text-indigo-800";
+        return "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300";
       case ClassStatus.OVERDUE:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
     }
   };
 
@@ -148,9 +102,9 @@ export default function ClassDetailsModal({
           <div className="space-y-4">
             <Card className="p-4">
               <div className="flex items-center justify-between">
-                <Text variant="title" size="lg">
+                <p className="font-bold text-md text-primary">
                   {classData.studentName}
-                </Text>
+                </p>
                 <span
                   className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(classData.status)}`}
                 >
@@ -172,13 +126,15 @@ export default function ClassDetailsModal({
             </Card>
 
             <Card className="p-4">
-              <Text variant="title" className="mb-3">
+              <p className="font-bold text-md text-primary mb-3">
                 {t("classInfo")}
-              </Text>
+              </p>
 
               <div className="space-y-2">
                 <div>
-                  <Text className="text-subtitle font-medium">{t("dateAndTime")}</Text>
+                  <Text className="text-subtitle font-medium">
+                    {t("dateAndTime")}
+                  </Text>
                   <Text>
                     {format(new Date(classData.scheduledAt), "PPP 'às' HH:mm", {
                       locale: ptBR,
@@ -187,8 +143,12 @@ export default function ClassDetailsModal({
                 </div>
 
                 <div>
-                  <Text className="text-subtitle font-medium">{t("duration")}</Text>
-                  <Text>{classData.durationMinutes} {t("minutes")}</Text>
+                  <Text className="text-subtitle font-medium">
+                    {t("duration")}
+                  </Text>
+                  <Text>
+                    {classData.durationMinutes} {t("minutes")}
+                  </Text>
                 </div>
 
                 <div>
@@ -196,13 +156,17 @@ export default function ClassDetailsModal({
                     {t("classType")}
                   </Text>
                   <Text>
-                    {classData.classType === "regular" ? t("regular") : t("single")}
+                    {classData.classType === "regular"
+                      ? t("regular")
+                      : t("single")}
                   </Text>
                 </div>
 
                 {classData.notes && (
                   <div>
-                    <Text className="text-subtitle font-medium">{t("notes")}</Text>
+                    <Text className="text-subtitle font-medium">
+                      {t("notes")}
+                    </Text>
                     <Text>{classData.notes}</Text>
                   </div>
                 )}

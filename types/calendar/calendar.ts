@@ -1,7 +1,6 @@
 import { ClassStatus } from "../classes/class";
 import { AvailabilityType } from "../time/availability";
 
-// Types for calendar functionality
 export interface CalendarEvent {
   id: string;
   title: string;
@@ -9,24 +8,28 @@ export interface CalendarEvent {
   date: Date;
   startTime?: string;
   endTime?: string;
-  color?: "primary" | "secondary" | "success" | "warning" | "destructive" | "info";
+  color?:
+    | "primary"
+    | "secondary"
+    | "success"
+    | "warning"
+    | "destructive"
+    | "info";
   isAllDay?: boolean;
-  person?: string; // Person responsible for the event
+  person?: string;
   repeating?: {
     type: "weekly" | "bi-weekly" | "monthly";
-    interval: number; // Every X weeks/bi-weeks/months
-    endDate?: Date; // When the repetition ends
+    interval: number;
+    endDate?: Date;
   };
-  location?: string; // Event location
+  location?: string;
   priority?: "low" | "medium" | "high";
   slotId?: string;
-  // Student information for booked classes
   studentInfo?: {
     studentId: string;
     studentName?: string;
     studentAvatarUrl?: string;
   };
-  // Class type for booked classes
   classType?: "regular" | "makeup";
   status?: ClassStatus;
   availabilityType?: AvailabilityType;

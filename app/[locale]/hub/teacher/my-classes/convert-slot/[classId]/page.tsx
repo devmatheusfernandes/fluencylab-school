@@ -10,24 +10,21 @@ import {
   CalendarClock,
 } from "lucide-react";
 import { toast } from "sonner";
-
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { Container } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
+import { fadeInUp } from "@/config/animations";
 
 export default function ConvertSlotPage() {
   const params = useParams();
   const router = useRouter();
   const { classId } = params;
-
-  // Estados
   const [isLoadingDetails, setIsLoadingDetails] = useState(true);
   const [isConverting, setIsConverting] = useState(false);
   const [isConverted, setIsConverted] = useState(false);
 
-  // Simula o carregamento dos dados da aula para exibir o Skeleton
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoadingDetails(false);
@@ -64,17 +61,9 @@ export default function ConvertSlotPage() {
     router.push("/hub");
   };
 
-  // Variantes de animação
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 20, scale: 0.95 },
-    visible: { opacity: 1, y: 0, scale: 1 },
-    exit: { opacity: 0, y: -20, scale: 0.95 },
-  };
-
   return (
     <Container className="container-padding w-full h-full flex items-center justify-center">
       <AnimatePresence mode="wait">
-        {/* ESTADO 1: CARREGANDO (SKELETON) */}
         {isLoadingDetails && (
           <motion.div
             key="loading"
@@ -99,7 +88,6 @@ export default function ConvertSlotPage() {
           </motion.div>
         )}
 
-        {/* ESTADO 2: SUCESSO */}
         {!isLoadingDetails && isConverted && (
           <motion.div
             key="success"
@@ -145,7 +133,6 @@ export default function ConvertSlotPage() {
           </motion.div>
         )}
 
-        {/* ESTADO 3: AÇÃO (CONVERTER) */}
         {!isLoadingDetails && !isConverted && (
           <motion.div
             key="action"
@@ -180,7 +167,6 @@ export default function ConvertSlotPage() {
                     disabled={isConverting}
                     size="lg"
                     className="w-full relative overflow-hidden"
-                    // Nota: Se o seu tema não tiver variant="success", use className="bg-green-600 hover:bg-green-700 text-white"
                   >
                     {isConverting ? (
                       <div className="flex items-center gap-2">
