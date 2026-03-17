@@ -136,29 +136,26 @@ const ContratoPage: React.FC = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="container mx-auto p-4 md:p-8 min-h-screen flex flex-col justify-center items-center"
+        className="h-full flex flex-col justify-center items-center px-4"
       >
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
         >
-          <FileWarning
-            className="text-red-500 dark:text-red-400 mx-auto mb-6"
-            size={64}
-          />
+          <FileWarning className="text-destructive mx-auto" size={34} />
         </motion.div>
 
         <motion.h1
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="text-2xl md:text-3xl font-bold mb-4 text-red-600 dark:text-red-400"
+          className="text-lg font-bold text-destructive mb-4"
         >
           {t("errorLoadingTitle")}
         </motion.h1>
 
-        <Alert className="max-w-md card-base">
+        <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             {error || t("errorLoadingMessage")}
@@ -168,7 +165,6 @@ const ContratoPage: React.FC = () => {
     );
   }
 
-  // Determine contract status
   let status: "pending" | "signed" | "expired" | "cancelled" = "pending";
 
   if (contractStatus?.cancelledAt) {
@@ -193,15 +189,15 @@ const ContratoPage: React.FC = () => {
             exit={{ opacity: 0, x: 20 }}
             className="flex-1 w-full"
           >
-            <Alert className="card-base border-slate-500/50 dark:border-slate-400/50 bg-slate-100 dark:bg-slate-800/50">
-              <Ban className="h-4 w-4 text-slate-600 dark:text-slate-400" />
-              <AlertDescription className="text-slate-700 dark:text-slate-300">
+            <Alert className="card-base border-destructive/50 dark:border-destructive/50 bg-destructive/10 dark:bg-destructive/90">
+              <Ban className="h-4 w-4 text-destructive" />
+              <AlertDescription className="text-destructive">
                 <span className="font-semibold">{t("cancelledTitle")}</span>
                 {contractStatus?.cancelledAt && (
                   <span className="block mt-1 text-sm opacity-80">
                     {t("cancelledOn", {
                       date: new Date(
-                        contractStatus.cancelledAt,
+                        contractStatus.cancelledAt
                       ).toLocaleDateString("pt-BR"),
                     })}
                   </span>
@@ -234,7 +230,7 @@ const ContratoPage: React.FC = () => {
                   <span className="block mt-1 text-sm opacity-80">
                     {t("expiredOn", {
                       date: new Date(
-                        contractStatus.expiresAt,
+                        contractStatus.expiresAt
                       ).toLocaleDateString("pt-BR"),
                     })}
                   </span>
@@ -248,7 +244,7 @@ const ContratoPage: React.FC = () => {
           ? Math.ceil(
               (new Date(contractStatus.expiresAt).getTime() -
                 new Date().getTime()) /
-                (1000 * 3600 * 24),
+                (1000 * 3600 * 24)
             )
           : 0;
         const showRenewal =
@@ -262,7 +258,7 @@ const ContratoPage: React.FC = () => {
             exit={{ opacity: 0, x: 20 }}
             className="flex-1 w-full"
           >
-            <Alert className="card-base border-green-500/50 dark:border-green-400/50">
+            <Alert>
               <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
               <div className="flex flex-col gap-2 w-full">
                 <AlertDescription className="text-green-700 dark:text-green-300">
@@ -270,7 +266,7 @@ const ContratoPage: React.FC = () => {
                   {contractStatus?.signedAt
                     ? t("signedOn", {
                         date: new Date(
-                          contractStatus.signedAt,
+                          contractStatus.signedAt
                         ).toLocaleDateString("pt-BR"),
                       })
                     : ""}
@@ -278,7 +274,7 @@ const ContratoPage: React.FC = () => {
                     <span className="block mt-1 text-sm opacity-80">
                       {t("validUntil", {
                         date: new Date(
-                          contractStatus.expiresAt,
+                          contractStatus.expiresAt
                         ).toLocaleDateString("pt-BR"),
                       })}
                     </span>
@@ -316,21 +312,18 @@ const ContratoPage: React.FC = () => {
 
   return (
     <div className="container-padding space-y-6">
-      {
-        <BreadcrumbActions placement="start">
-          <Link href="/hub/student/my-profile" className="flex items-center">
-            <BreadcrumbActionIcon icon={ArrowLeft} />
-          </Link>
-        </BreadcrumbActions>
-      }
-      {
-        <BreadcrumbActions placement="end">
-          <BreadcrumbActionIcon
-            icon={showContract ? EyeOff : Eye}
-            onClick={() => setShowContract(!showContract)}
-          />
-        </BreadcrumbActions>
-      }
+      <BreadcrumbActions placement="start">
+        <Link href="/hub/student/my-profile" className="flex items-center">
+          <BreadcrumbActionIcon icon={ArrowLeft} />
+        </Link>
+      </BreadcrumbActions>
+
+      <BreadcrumbActions placement="end">
+        <BreadcrumbActionIcon
+          icon={showContract ? EyeOff : Eye}
+          onClick={() => setShowContract(!showContract)}
+        />
+      </BreadcrumbActions>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -360,7 +353,6 @@ const ContratoPage: React.FC = () => {
           }
         />
 
-        {/* Status Alert */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -404,8 +396,6 @@ const ContratoPage: React.FC = () => {
                   </Button>
                 )}
               </div>
-
-              {/* Contract PDF */}
               <div
                 ref={contractRef}
                 className="p-6 md:p-8 border rounded-lg bg-card text-card-foreground shadow-sm"
@@ -420,7 +410,6 @@ const ContratoPage: React.FC = () => {
         </AnimatePresence>
       </motion.div>
 
-      {/* Signature Modal */}
       {displayData && (
         <SignatureModal
           isOpen={isModalOpen}

@@ -29,6 +29,7 @@ import { User } from "@/types/users/users";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { calculateNextReview } from "@/lib/learning/srsAlgorithm";
+import { getLevelForXP } from "@/config/gamificationLevels";
 
 function serializeFirestoreData(data: any): any {
   if (data === null || data === undefined) return data;
@@ -649,9 +650,11 @@ export async function processPracticeResults(
       const newHeatmap = { ...currentGamification.studyHeatmap };
       newHeatmap[todayStr] = (newHeatmap[todayStr] || 0) + 1;
 
-      // Update User Doc
+      const newXPValue = (currentGamification.currentXP || 0) + xpGained;
+      const newLevel = getLevelForXP(newXPValue);
       t.update(userRef, {
         "gamification.currentXP": FieldValue.increment(xpGained),
+        "gamification.level": newLevel,
         "gamification.streak": {
           current: newCurrentStreak,
           best: newBestStreak,
@@ -1225,8 +1228,10 @@ export async function purchaseReplaySession(
       // Deduct XP
       const newXP = currentXP - cost;
 
+      const newLevel = getLevelForXP(newXP);
       t.update(userRef, {
         "gamification.currentXP": newXP,
+        "gamification.level": newLevel,
       });
     });
 

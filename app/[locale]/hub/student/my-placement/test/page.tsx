@@ -30,8 +30,6 @@ import {
   selectNextQuestion,
 } from "@/lib/utils/placement-utils";
 import { useTranslations } from "next-intl";
-
-// Import questions directly
 import enQuestionsData from "../../../../../../placement/en-questions.json";
 import ptQuestionsData from "../../../../../../placement/pt-questions.json";
 
@@ -45,7 +43,6 @@ export default function TestPage() {
   const [loading, setLoading] = useState(true);
   const [selectedLanguage, setSelectedLanguage] = useState<"en" | "pt">("en");
 
-  // Adaptive Test State
   const [adaptiveState, setAdaptiveState] = useState<AdaptiveState>({
     currentQuestionId: null,
     usedQuestionIds: [],
@@ -55,7 +52,6 @@ export default function TestPage() {
     history: [],
   });
 
-  // Result State
   const [finalResult, setFinalResult] = useState<{
     score: number;
     level: string;
@@ -65,7 +61,6 @@ export default function TestPage() {
 
   const startTimeRef = useRef<number>(0);
 
-  // --- Logic Hooks ---
   const questionPool = useMemo(() => {
     const rawQuestions =
       selectedLanguage === "en"
@@ -95,7 +90,7 @@ export default function TestPage() {
         acc[q.id] = q;
         return acc;
       },
-      {} as Record<string, Question>,
+      {} as Record<string, Question>
     );
   }, [selectedLanguage]);
 
@@ -110,7 +105,6 @@ export default function TestPage() {
     }
   }, [adaptiveState.currentQuestionId, currentQuestion, finalResult]);
 
-  // --- Data Loading ---
   useEffect(() => {
     const loadData = async () => {
       if (!session?.user?.id) {
@@ -123,10 +117,7 @@ export default function TestPage() {
 
         if (progressSnap.exists()) {
           const data = progressSnap.data();
-
-          // If completed, ignore progress and treat as new test request
           if (data.completed) {
-            // If lang param is present, start new test
             if (langParam && (langParam === "en" || langParam === "pt")) {
               setSelectedLanguage(langParam);
               await startNewTest(langParam);
@@ -137,17 +128,14 @@ export default function TestPage() {
               }
             }
           } else {
-            // Check if user wants to start a different language test
             if (langParam && (langParam === "en" || langParam === "pt")) {
               if (data.selectedLanguage !== langParam) {
-                // Language mismatch: Start new test in requested language
                 setSelectedLanguage(langParam);
                 await startNewTest(langParam);
                 return;
               }
             }
 
-            // Resume existing test
             if (data.selectedLanguage)
               setSelectedLanguage(data.selectedLanguage);
             if (data.adaptiveState) {
@@ -155,7 +143,6 @@ export default function TestPage() {
             }
           }
         } else {
-          // No progress doc
           if (langParam && (langParam === "en" || langParam === "pt")) {
             setSelectedLanguage(langParam);
             await startNewTest(langParam);
@@ -172,15 +159,9 @@ export default function TestPage() {
       }
     };
     loadData();
-     
   }, [session?.user?.id, langParam, router]);
 
   const startNewTest = async (lang: "en" | "pt") => {
-    // Need to use the correct pool for the selected language
-    // But questionPool is memoized on selectedLanguage state, which might not be updated yet
-    // So we need to compute it manually or wait.
-    // simpler: compute first question here.
-
     const rawQuestions =
       lang === "en"
         ? (enQuestionsData as Question[])
@@ -238,7 +219,7 @@ export default function TestPage() {
           adaptiveState: newState,
           updatedAt: serverTimestamp(),
         },
-        { merge: true },
+        { merge: true }
       );
     } catch (error) {
       console.error("Error saving progress:", error);
@@ -290,7 +271,7 @@ export default function TestPage() {
     const nextQuestion = selectNextQuestion(
       nextLevel,
       adaptiveState.usedQuestionIds,
-      questionPool,
+      questionPool
     );
 
     if (!nextQuestion) {
@@ -354,7 +335,7 @@ export default function TestPage() {
     const avgTime = totalTime / MAX_QUESTIONS;
     const totalScore = finalState.history.reduce(
       (acc, h) => acc + (h.isCorrect ? LEVEL_SCORES[h.level] : 0),
-      0,
+      0
     );
 
     const resultData = {
@@ -382,7 +363,7 @@ export default function TestPage() {
           {
             completed: true,
           },
-          { merge: true },
+          { merge: true }
         );
         toast.success(t("testCompleted"));
       } catch (error) {
@@ -412,7 +393,6 @@ export default function TestPage() {
   }
 
   if (!currentQuestion) {
-    // Should not happen if loading handled correctly
     return null;
   }
 

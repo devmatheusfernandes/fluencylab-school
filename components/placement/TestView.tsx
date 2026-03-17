@@ -69,7 +69,6 @@ export const TestView = ({
 
   return (
     <div className="flex flex-col items-center w-full max-w-2xl mx-auto">
-      {/* Top Bar */}
       <div className="w-full flex items-center gap-4 mb-4">
         <Button
           variant="ghost"
@@ -119,7 +118,7 @@ export const TestView = ({
                 <motion.div
                   variants={containerVariants}
                   initial="hidden"
-                  animate="show"
+                  animate="visible"
                   className="grid gap-3"
                 >
                   {currentQuestion.options.map((option, idx) => {
@@ -171,7 +170,6 @@ export const TestView = ({
           </Card>
         </motion.div>
         <CardFooter className="fixed bottom-0 md:bottom-12 left-0 w-full bg-white md:dark:bg-transparent dark:bg-black p-4 border-t border-slate-100 dark:border-black/50 z-50 md:relative md:bg-transparent md:border-none md:p-0 md:mt-8 flex flex-col md:flex-row gap-3">
-          {/* Skip Button */}
           <Button
             variant="ghost"
             className="w-full md:w-auto font-bold text-foreground hover:text-primary uppercase tracking-widest hover:bg-transparent"
@@ -179,19 +177,17 @@ export const TestView = ({
           >
             {t("skip")}
           </Button>
-
-          {/* Next Button */}
           <Button
             onClick={handleAnswer}
             disabled={!adaptiveState.answers[currentQuestion.id]}
             className={`
-                            w-full md:flex-1 h-12 text-lg font-bold uppercase tracking-wider rounded-xl border-b-4 active:border-b-0 active:translate-y-1 transition-all
-                            ${
-                              adaptiveState.questionCount === MAX_QUESTIONS - 1
-                                ? "bg-green-500 hover:bg-green-600 border-green-700"
-                                : "bg-green-500 hover:bg-green-600 border-green-700"
-                            }
-                        `}
+              w-full md:flex-1 h-12 text-lg font-bold uppercase tracking-wider rounded-xl border-b-4 active:border-b-0 active:translate-y-1 transition-all
+              ${
+                adaptiveState.questionCount === MAX_QUESTIONS - 1
+                  ? "bg-green-500 hover:bg-green-600 border-green-700"
+                  : "bg-green-500 hover:bg-green-600 border-green-700"
+              }
+            `}
           >
             {adaptiveState.questionCount === MAX_QUESTIONS - 1
               ? t("finishTest")

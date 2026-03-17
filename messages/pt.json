@@ -230,6 +230,12 @@
     "description": "Você não tem permissão para acessar esta página.",
     "backButton": "Voltar para o Início"
   },
+  "PwaWelcome": {
+    "logoAlt": "Logo da FluencyLab School",
+    "title": "Bem-vindo ao FluencyLab",
+    "description": "Sua escola de idiomas agora está instalada no seu dispositivo. Faça login para continuar seus estudos.",
+    "enterButton": "Entrar na Plataforma"
+  },
   "StudentNotebook": {
     "title": "Meu Caderno",
     "subtitle": "Acompanhe seu progresso e revise seu aprendizado.",
@@ -250,6 +256,48 @@
   "LearningPath": {
     "noLessonsTitle": "Sem aulas esta semana!",
     "noLessonsMessage": "Aproveite para revisar o conteúdo ou descansar. Você está em dia!"
+  },
+  "HistoryPage": {
+    "header": {
+      "title": "Meu Plano de Estudos",
+      "subtitle": "Acompanhe seu progresso e revise conquistas anteriores."
+    },
+    "tabs": {
+      "roadmap": "Plano de Aula",
+      "history": "Histórico"
+    },
+    "empty": {
+      "noActivePlan": "Nenhum plano ativo encontrado.",
+      "noCompletedLessons": "Nenhuma aula concluída ainda.",
+      "noPastPlans": "Sem planos anteriores disponíveis.",
+      "noDate": "Sem data"
+    },
+    "labels": {
+      "days": "Dias",
+      "completed": "Concluído",
+      "recentActivity": "Atividade recente",
+      "pastPlans": "Planos anteriores",
+      "completedOn": "Concluído em",
+      "unknownDate": "Data desconhecida",
+      "replayCost": "Custo do Replay",
+      "yourBalance": "Seu saldo",
+      "xp": "XP"
+    },
+    "actions": {
+      "continuePractice": "Continuar Prática",
+      "cancel": "Cancelar",
+      "confirmAndPlay": "Confirmar e Reproduzir",
+      "unlockReplay": "Desbloquear Replay",
+      "unlocking": "Desbloqueando..."
+    },
+    "tip": {
+      "replayTip": "Dica: Repetir uma aula custa XP conforme a idade da aula."
+    },
+    "errors": {
+      "insufficientXP": "Você não tem XP suficiente para esta ação."
+    },
+    "day": "Dia {day}",
+    "replayDescription": "Você está prestes a repetir o Dia {day} de {lessonTitle}"
   },
   "ProgressHero": {
     "onTrackTitle": "Keep going!",
@@ -3332,5 +3380,43 @@
   },
   "UnscrambleExercise": {
     "title": "Reordene as palavras para formar a frase correta"
+  },
+  "ListeningChoiceExercise": {
+    "fullListen": {
+      "title": "Ouça o áudio completo",
+      "description": "Ouça toda a conversa uma vez. Tente entender o contexto antes de praticarmos os detalhes.",
+      "playing": "Reproduzindo...",
+      "tapToPlay": "Toque para reproduzir",
+      "continueButton": "Continuar para prática"
+    },
+    "interactive": {
+      "segmentCounter": "Segmento {current} de {total}",
+      "playingSegment": "Reproduzindo segmento...",
+      "replaySegment": "Reproduzir segmento",
+      "loadingSegment": "Carregando segmento...",
+      "noKeyTerms": "Sem termos-chave neste segmento. Ouça e continue.",
+      "nextSegment": "Próximo segmento",
+      "finishPractice": "Finalizar prática"
+    }
+  },
+  "StudentProfileHeader": {
+    "labels": {
+      "level": "Nível {level}",
+      "studentFallback": "Aluno",
+      "noEmail": "Sem e-mail",
+      "nextXP": "Próximo: {xp} XP",
+      "dayStreak": "Dias seguidos",
+      "totalXP": "XP total",
+      "bestStreak": "Melhor sequência",
+      "daysLower": "dias",
+      "joined": "Entrou",
+      "recent": "Recente"
+    },
+    "activity": {
+      "title": "Atividade de estudo",
+      "less": "Menos",
+      "more": "Mais",
+      "count": "{count, plural, one {atividade} other {atividades}}"
+    }
   }
 }

@@ -7,7 +7,7 @@ export default async function StudentPodcastsPage() {
   const user = await requireAuth();
   const podcasts = await immersionService.getAllPodcasts();
   const progressList = await immersionService.getAllUserPodcastProgress(
-    user.id,
+    user.id
   );
 
   const progressMap = progressList.reduce(
@@ -15,7 +15,7 @@ export default async function StudentPodcastsPage() {
       acc[progress.podcastId] = progress;
       return acc;
     },
-    {} as Record<string, (typeof progressList)[0]>,
+    {} as Record<string, (typeof progressList)[0]>
   );
 
   return (

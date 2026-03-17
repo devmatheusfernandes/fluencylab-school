@@ -27,7 +27,6 @@ export default function TwoFactorSetup() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Check if 2FA is already enabled
   useEffect(() => {
     const checkTwoFactorStatus = async () => {
       if (session?.user?.id) {
@@ -110,7 +109,6 @@ export default function TwoFactorSetup() {
       setIsSetupComplete(true);
       setBackupCodes(data.backupCodes);
 
-      // Update the session to reflect 2FA status
       await update({
         ...session,
         user: {
@@ -148,7 +146,6 @@ export default function TwoFactorSetup() {
       setVerificationCode("");
       setBackupCodes([]);
 
-      // Update the session to reflect 2FA status
       await update({
         ...session,
         user: {
@@ -189,9 +186,9 @@ export default function TwoFactorSetup() {
           <Text variant="subtitle" size="lg" weight="semibold">
             {t("setupTitle")}
           </Text>
-          <Text size="sm" variant="placeholder">
+          <span className="text-sm text-muted-foreground">
             {t("setupSubtitle")}
-          </Text>
+          </span>
         </div>
       </div>
 
@@ -206,7 +203,7 @@ export default function TwoFactorSetup() {
 
         {!isSetupComplete ? (
           <div className="space-y-4">
-            <motion.div 
+            <motion.div
               className="flex items-center justify-between p-4 rounded-lg item-base"
               whileHover={{ scale: 1.01 }}
               transition={{ type: "spring", stiffness: 400 }}
@@ -215,21 +212,22 @@ export default function TwoFactorSetup() {
                 <Lock className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <Text weight="medium">{t("status")}</Text>
-                  <Text size="sm" variant="placeholder">
+                  <span className="text-sm text-muted-foreground">
                     {t("disabledMessage")}
-                  </Text>
+                  </span>
                 </div>
               </div>
               <Button
                 onClick={handleEnableTwoFactor}
                 disabled={isEnabling || isLoading}
+                className="ml-2"
               >
                 {isEnabling ? <Spinner /> : t("enableButton")}
               </Button>
             </motion.div>
 
             {qrCodeUrl && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="mt-6 p-6 border border-card/80 rounded-lg bg-card/20"
@@ -286,7 +284,7 @@ export default function TwoFactorSetup() {
           </div>
         ) : (
           <div className="space-y-4">
-            <motion.div 
+            <motion.div
               className="flex items-center justify-between p-4 rounded-lg item-base"
               whileHover={{ scale: 1.01 }}
               transition={{ type: "spring", stiffness: 400 }}
@@ -310,15 +308,21 @@ export default function TwoFactorSetup() {
             </motion.div>
 
             {backupCodes.length > 0 && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="mt-6 p-4 border border-yellow-200 rounded-lg bg-yellow-50 dark:bg-yellow-900/10 dark:border-yellow-900/30"
               >
-                <Text weight="medium" className="mb-2 text-yellow-800 dark:text-yellow-500">
+                <Text
+                  weight="medium"
+                  className="mb-2 text-yellow-800 dark:text-yellow-500"
+                >
                   {t("backupCodesTitle")}
                 </Text>
-                <Text size="sm" className="mb-3 text-yellow-700 dark:text-yellow-400">
+                <Text
+                  size="sm"
+                  className="mb-3 text-yellow-700 dark:text-yellow-400"
+                >
                   {t("backupCodesInstruction")}
                 </Text>
                 <div className="grid grid-cols-2 gap-2">

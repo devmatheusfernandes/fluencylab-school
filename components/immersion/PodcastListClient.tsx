@@ -55,7 +55,6 @@ export function PodcastListClient({
   const [activePodcast, setActivePodcast] = useState<Podcast | null>(null);
   const [initialProgress, setInitialProgress] = useState(0);
 
-  // Filters
   const [search, setSearch] = useState("");
   const [language, setLanguage] = useState("all");
   const [level, setLevel] = useState("all");
@@ -91,7 +90,7 @@ export function PodcastListClient({
   const handleResume = (
     e: React.MouseEvent,
     podcast: Podcast,
-    progress: number,
+    progress: number
   ) => {
     e.stopPropagation();
     setInitialProgress(progress);
@@ -106,7 +105,6 @@ export function PodcastListClient({
         </Link>
       </BreadcrumbActions>
 
-      {/* Filters Section */}
       <div className="flex flex-col md:flex-row gap-4 mb-8">
         <div className="relative flex-1">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />

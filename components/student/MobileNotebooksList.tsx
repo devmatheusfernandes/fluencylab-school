@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { Notebook } from "@/types/notebooks/notebooks";
 import { SearchBar } from "@/components/ui/search-bar";
@@ -20,7 +20,7 @@ export default function MobileNotebooksList({
   const filteredNotebooks = notebooks.filter(
     (notebook) =>
       notebook.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      notebook.description.toLowerCase().includes(searchQuery.toLowerCase()),
+      notebook.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -40,7 +40,7 @@ export default function MobileNotebooksList({
             .sort(
               (a, b) =>
                 new Date(b.createdAt).getTime() -
-                new Date(a.createdAt).getTime(),
+                new Date(a.createdAt).getTime()
             )
             .map((notebook) => (
               <Link
@@ -48,6 +48,8 @@ export default function MobileNotebooksList({
                 href={`/hub/student/my-notebook/notebook/${notebook.id}`}
                 className="block p-3 rounded-lg border item-base text-card-foreground shadow-sm hover:border-primary transition-colors"
               >
+                {/* TODO: TALVEZ CRIAR UM MEIO DE SALVAR CADERNOS ESPECÍFICOS OFFLINE PARA ESTUDAR DEPOIS QUE SÓ APARECE NO MOBILE */}
+                {/* TODO: COLOCAR O BOTÃO DE SALVAR EM PDF TAMBÉM AQUI NO MOBILE */}
                 <h3 className="font-semibold text-sm mb-1">{notebook.title}</h3>
                 <div className="text-xs text-muted-foreground">
                   {notebook.createdAt &&

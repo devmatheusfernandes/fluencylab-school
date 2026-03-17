@@ -57,15 +57,12 @@ export function PracticeSession({
 
   const targetLanguage = getLanguageCode(session?.user?.languages?.[0]);
 
-  // Session State
   const [items, setItems] = useState<PracticeItem[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [results, setResults] = useState<PracticeResult[]>([]);
   const [sessionMode, setSessionMode] =
     useState<PracticeMode>("flashcard_visual");
   const [isLoading, setIsLoading] = useState(true);
-
-  // UI State
   const [streak, setStreak] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [isSessionComplete, setIsSessionComplete] = useState(false);
@@ -80,13 +77,10 @@ export function PracticeSession({
   }>({ isCorrect: false });
   const [isSaving, setIsSaving] = useState(false);
 
-  // Initialize Session (Load saved or create new)
   useEffect(() => {
     async function initSession() {
       try {
         setIsLoading(true);
-
-        // 1. Try to load saved progress (SKIP IF REPLAY)
         const savedState = !isReplay ? await getSessionProgress(planId) : null;
 
         if (
@@ -98,13 +92,9 @@ export function PracticeSession({
           setCurrentIndex(savedState.currentIndex);
           setResults(savedState.results);
           setSessionMode(savedState.mode);
-
-          // Recalculate streak/correct from results if needed, or just reset visual streak
           const correct = savedState.results.filter((r) => r.grade >= 3).length;
           setCorrectCount(correct);
-          // Streak is harder to reconstruct perfectly without storing it, but starting at 0 is safe/fair on resume
         } else {
-          // 2. No valid saved state, fetch new daily practice
           const dailySession = await getDailyPractice(
             planId,
             dayOverride,
@@ -131,9 +121,7 @@ export function PracticeSession({
           setCurrentIndex(0);
           setResults([]);
 
-          // Initialize save state
           if (!isReplay) {
-            console.log("Saving initial session state...");
             await saveSessionProgress(planId, {
               planId,
               currentDay: dailySession.dayIndex,
@@ -165,21 +153,18 @@ export function PracticeSession({
   const currentItem = items[currentIndex];
   const progress = items.length > 0 ? (currentIndex / items.length) * 100 : 0;
 
-  // Save Progress Helper
   const syncProgress = async (
     newIndex: number,
     newResults: PracticeResult[]
   ) => {
-    // Don't await this to keep UI snappy, but track error state if critical
-    // In a robust app, we might use optimistic updates + queue
     if (!isReplay) {
       saveSessionProgress(planId, {
         planId,
-        currentDay: 0, // We should store this in state if we want to preserve it accurately
+        currentDay: 0,
         mode: sessionMode,
         currentIndex: newIndex,
         results: newResults,
-        items: items, // Save items to ensure consistency
+        items: items,
         lastUpdated: new Date(),
       }).catch((e) => console.error("Auto-save failed:", e));
     }
@@ -196,13 +181,9 @@ export function PracticeSession({
     if (correct) {
       setStreak((prev) => prev + 1);
       setCorrectCount((prev) => prev + 1);
-      // Play success sound
     } else {
       setStreak(0);
-      // Play fail sound
     }
-
-    // Record Result
     const resultEntry: PracticeResult = {
       itemId: currentItem.id,
       grade: grade,
@@ -213,7 +194,6 @@ export function PracticeSession({
     const updatedResults = [...results, resultEntry];
     setResults(updatedResults);
 
-    // Prepare Feedback Data
     let correctAnswerText = undefined;
     if (!correct) {
       if (
@@ -236,9 +216,6 @@ export function PracticeSession({
       }
     }
 
-    // Determine if we should show motivational feedback (based on grade) or simple binary feedback
-    // Only Flashcard modes are truly self-graded and benefit from the "Hard/Easy" motivational messages.
-    // Auto-graded modes (Gap Fill, Unscramble, Quiz) should use binary Correct/Incorrect feedback to ensure correct answer is shown on error.
     const isFlashcardMode = [
       "flashcard_visual",
       "flashcard_recall",
@@ -251,19 +228,6 @@ export function PracticeSession({
       explanation: explanation || currentItem.quiz?.explanation,
       grade: isFlashcardMode ? grade : undefined,
     });
-
-    // Trigger Auto-save (Save CURRENT index + NEW results)
-    // We save the *next* index only when user clicks continue?
-    // Better to save current state "finished item X".
-    // Actually, if we save currentIndex + 1 now, and user closes browser, they skip feedback?
-    // Requirement: "Go back exactly to where it stopped".
-    // If stopped at feedback screen, resuming at next question is acceptable.
-    // Let's save the result now, but keep index same until nextStep.
-    // BUT: If we reload, we reload at currentIndex.
-    // We need to persist that we *finished* this item.
-    // Simplest: Save updated results, keep index. On resume, if results.length > index, we know we are pending next.
-    // Or just save index+1 in `nextStep`.
-
     setShowFeedback(true);
   };
 
@@ -282,10 +246,7 @@ export function PracticeSession({
   const finishSession = async () => {
     setIsSaving(true);
     try {
-      // 1. Process Results (Update SRS)
       await processPracticeResults(planId, results, isReplay, streak);
-
-      // 2. Clear Saved Session
       if (!isReplay) {
         await clearSessionProgress(planId);
       }
@@ -300,16 +261,11 @@ export function PracticeSession({
   };
 
   const handleClose = () => {
-    // Optional: Save one last time? (Auto-save handles it)
     router.push("/hub/student/my-notebook");
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-slate-950">
-        <SpinnerLoading />
-      </div>
-    );
+    return <SpinnerLoading />;
   }
 
   if (isSessionComplete) {

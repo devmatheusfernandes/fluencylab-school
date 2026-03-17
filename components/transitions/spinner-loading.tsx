@@ -11,7 +11,7 @@ export const SpinnerLoading = ({
 }: SpinnerLoadingProps) => {
   return (
     <div
-      className={cn("flex items-center justify-center min-h-screen", className)}
+      className={cn("flex items-center justify-center h-screen", className)}
       {...props}
     >
       <Spinner className="w-[50px] h-[50px] text-primary animate-spin" />

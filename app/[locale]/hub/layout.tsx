@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import { useLocale, useMessages } from "next-intl";
@@ -121,7 +120,8 @@ function HubLayoutContent({
     (pathname?.startsWith(`/${locale}/hub/student/my-notebook/`) &&
       pathname?.includes("/notebook/")) ||
     pathname?.startsWith(`/${locale}/hub/student/my-practice`) ||
-    pathname?.startsWith(`/${locale}/hub/student/my-courses/course/lesson`);
+    pathname?.startsWith(`/${locale}/hub/student/my-courses/course/lesson`) ||
+    pathname?.startsWith(`/${locale}/hub/student/my-placement/test`);
 
   const isChatPage =
     pathname?.includes("/my-chat") ||

@@ -7,6 +7,14 @@ import { useAchievements } from "@/hooks/student/useAchievements";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "../ui/skeleton";
 import { useTranslations } from "next-intl";
+import { AlertCircle } from "lucide-react";
+import {
+  Empty,
+  EmptyHeader,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyMedia,
+} from "@/components/ui/empty";
 
 interface AchievementListProps {
   userId: string | undefined;
@@ -19,7 +27,6 @@ const AchievementList: React.FC<AchievementListProps> = ({ userId, limit }) => {
   const router = useRouter();
   const t = useTranslations("AchievementList");
 
-  // Filter achievements based on the selected filter
   const filteredAchievements = achievements.filter((achievement) => {
     if (filter === "all") return true;
     if (filter === "unlocked") return achievement.unlocked;
@@ -27,26 +34,28 @@ const AchievementList: React.FC<AchievementListProps> = ({ userId, limit }) => {
     return true;
   });
 
-  // Apply limit if provided
   const displayedAchievements = limit
     ? filteredAchievements.slice(0, limit)
     : filteredAchievements;
 
-  // Reusable grid class to ensure Skeleton and Content match perfectly
   const gridClassName = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2";
 
   if (loading) {
     return (
       <div className="w-full">
-        {!limit && 
-        <div className="flex gap-2 mb-4 overflow-hidden">
-          <Skeleton className="h-10 w-24 rounded-xl" />
-          <Skeleton className="h-10 w-24 rounded-xl" />
-        </div>}
+        {!limit && (
+          <div className="flex gap-2 mb-4 overflow-hidden">
+            <Skeleton className="h-10 w-24 rounded-xl" />
+            <Skeleton className="h-10 w-24 rounded-xl" />
+          </div>
+        )}
 
         <div className={gridClassName}>
           {Array.from({ length: limit || 6 }).map((_, index) => (
-            <div key={index} className=" rounded-2xl p-5 border border-gray-100 dark:border-gray-800">
+            <div
+              key={index}
+              className=" rounded-2xl p-5 border border-gray-100 dark:border-gray-800"
+            >
               <div className="flex items-start gap-4">
                 <Skeleton className=" w-14 h-14 rounded-lg flex-shrink-0" />
                 <div className="flex-1 min-w-0 space-y-2">
@@ -64,16 +73,15 @@ const AchievementList: React.FC<AchievementListProps> = ({ userId, limit }) => {
 
   if (error) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-red-50 border border-red-200 text-red-700 px-4 py-4 rounded-xl shadow-sm dark:bg-red-900/20 dark:border-red-800 dark:text-red-200"
-      >
-        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-          <strong className="font-bold">{t("errorTitle")}</strong>
-          <span>{t("errorDesc")}</span>
-        </div>
-      </motion.div>
+      <Empty className="py-24">
+        <EmptyMedia>
+          <AlertCircle size={48} className="text-primary" />
+        </EmptyMedia>
+        <EmptyHeader>
+          <EmptyTitle>{t("errorTitle")}</EmptyTitle>
+          <EmptyDescription>{t("errorDesc")}</EmptyDescription>
+        </EmptyHeader>
+      </Empty>
     );
   }
 
@@ -124,7 +132,6 @@ const AchievementList: React.FC<AchievementListProps> = ({ userId, limit }) => {
         </div>
       )}
 
-      {/* Empty State */}
       {loading && displayedAchievements.length === 0 ? (
         <motion.div
           initial={{ opacity: 0 }}
@@ -133,42 +140,39 @@ const AchievementList: React.FC<AchievementListProps> = ({ userId, limit }) => {
         >
           <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
             <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-full mb-4">
-                <svg
-                  className="w-8 h-8 text-gray-400 dark:text-gray-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="1.5"
-                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                  ></path>
-                </svg>
+              <svg
+                className="w-8 h-8 text-gray-400 dark:text-gray-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="1.5"
+                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                ></path>
+              </svg>
             </div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
               {filter === "all"
                 ? t("emptyAllTitle")
                 : filter === "unlocked"
-                ? t("emptyUnlockedTitle")
-                : t("emptyLockedTitle")}
+                  ? t("emptyUnlockedTitle")
+                  : t("emptyLockedTitle")}
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               {filter === "all"
                 ? t("emptyAllDesc")
                 : filter === "unlocked"
-                ? t("emptyUnlockedDesc")
-                : t("emptyLockedDesc")}
+                  ? t("emptyUnlockedDesc")
+                  : t("emptyLockedDesc")}
             </p>
           </div>
         </motion.div>
       ) : (
-        <motion.div
-          layout
-          className={gridClassName}
-        >
+        <motion.div layout className={gridClassName}>
           {displayedAchievements.map((achievement, index) => (
             <motion.div
               layout
@@ -176,10 +180,11 @@ const AchievementList: React.FC<AchievementListProps> = ({ userId, limit }) => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.2, delay: index * 0.05 }}
-              className="h-full" // Ensure grid item wrapper is full height
+              className="h-full"
               {...(limit && {
                 onClick: () => router.push("/hub/student/my-achievements"),
-                className: "cursor-pointer active:scale-95 transition-transform h-full", // Better touch feedback + h-full
+                className:
+                  "cursor-pointer active:scale-95 transition-transform h-full",
               })}
             >
               <AchievementCard studentAchievement={achievement} />

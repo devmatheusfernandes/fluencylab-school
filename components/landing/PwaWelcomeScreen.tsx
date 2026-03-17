@@ -6,8 +6,10 @@ import Logo from "../../public/brand/Group.png";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { LogIn } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function PwaWelcomeScreen() {
+  const t = useTranslations("PwaWelcome");
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 relative overflow-hidden">
       {/* Background pattern similar to landing page */}
@@ -19,7 +21,7 @@ export function PwaWelcomeScreen() {
             <div className="relative w-42 h-20 mb-2">
               <Image
                 src={Logo}
-                alt="FluencyLab School Logo"
+                alt={t("logoAlt")}
                 fill
                 className="object-contain"
                 priority
@@ -28,11 +30,10 @@ export function PwaWelcomeScreen() {
 
             <div className="space-y-2">
               <h1 className="text-2xl font-bold tracking-tight">
-                Bem-vindo ao FluencyLab
+                {t("title")}
               </h1>
               <p className="text-muted-foreground text-sm">
-                Sua escola de idiomas agora está instalada no seu dispositivo.
-                Faça login para continuar seus estudos.
+                {t("description")}
               </p>
             </div>
 
@@ -43,7 +44,7 @@ export function PwaWelcomeScreen() {
                   size="lg"
                 >
                   <LogIn className="w-4 h-4 mr-1" />
-                  Entrar na Plataforma
+                  {t("enterButton")}
                 </Button>
               </Link>
             </div>

@@ -13,7 +13,6 @@ import BackgroundLogin from "@/public/images/login/background";
 import TransitionAnimation from "@/components/transitions/login";
 import { ThemeSwitcher } from "../ThemeSwitcher";
 import { DoorOpenIcon } from "lucide-react";
-import BrandGoogleIcon from "@/public/animated/brand-google";
 import { AnimatedIconHandle } from "@/types/animated/types";
 
 interface SignInClientProps {
@@ -67,15 +66,14 @@ export function SignInClient({ messages }: SignInClientProps) {
             sessionStorage.setItem("temp-2fa-data", JSON.stringify(tempData));
             router.push(
               `/${locale}/signin/2fa?callbackUrl=${encodeURIComponent(
-                callbackUrl,
-              )}`,
+                callbackUrl
+              )}`
             );
           } catch (fallbackError) {
             console.error("Erro no storage 2FA:", fallbackError);
             setLocalError(messages?.Auth?.internalError);
           }
         } else {
-          // Map Firebase/NextAuth errors to user-friendly messages
           let errorMessage = messages?.Auth?.invalidCredentials;
 
           switch (result.error) {
@@ -86,7 +84,7 @@ export function SignInClient({ messages }: SignInClientProps) {
               errorMessage = messages?.Auth?.wrongPassword;
               break;
             case "auth/invalid-credential":
-              errorMessage = messages?.Auth?.wrongPassword; // Usually implies wrong password or user not found, safer to say wrong password or generic
+              errorMessage = messages?.Auth?.wrongPassword;
               break;
             case "auth/invalid-login-credentials":
               errorMessage = messages?.Auth?.invalidLoginCredentials;
@@ -108,7 +106,6 @@ export function SignInClient({ messages }: SignInClientProps) {
         }
       } else if (result?.ok) {
         setShowTransition(true);
-        // Delay redirection to show the animation
         setTimeout(() => {
           router.push(callbackUrl);
           router.refresh();
@@ -129,7 +126,7 @@ export function SignInClient({ messages }: SignInClientProps) {
     } catch (error) {
       console.error("Google sign in error", error);
       setLocalError(
-        messages?.Auth?.googleLoginError || "Error with Google Login",
+        messages?.Auth?.googleLoginError || "Error with Google Login"
       );
       setIsGoogleLoading(false);
       googleIconRef.current?.stopAnimation();

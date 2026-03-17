@@ -65,7 +65,7 @@ export default function Caderno() {
 
   const [statsLoading, setStatsLoading] = useState(true);
   const [activePlanIdState, setActivePlanIdState] = useState<string | null>(
-    null,
+    null
   );
   const [isWordModalOpen, setIsWordModalOpen] = useState(false);
   const [isNotebooksDrawerOpen, setIsNotebooksDrawerOpen] = useState(false);

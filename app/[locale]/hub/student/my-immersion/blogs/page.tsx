@@ -3,7 +3,6 @@ import { Header } from "@/components/ui/header";
 import { immersionService } from "@/services/learning/immersionService";
 
 export default async function StudentBlogsPage() {
-  // Buscando dados reais
   const [blogs, popularBlogs] = await Promise.all([
     immersionService.getAllBlogs(),
     immersionService.getPopularBlogs(),

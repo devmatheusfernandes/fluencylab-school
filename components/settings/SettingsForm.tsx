@@ -45,6 +45,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Header } from "../ui/header";
+import { containerVariants, itemVariants } from "@/config/animations";
 
 interface SettingsFormProps {
   currentLanguage: string;
@@ -53,29 +54,6 @@ interface SettingsFormProps {
   googleCalendarConnected?: boolean;
   googleCalendarDefaultTimes?: GoogleCalendarDefaultTimes;
 }
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      type: "spring" as const,
-      stiffness: 300,
-      damping: 24,
-    },
-  },
-};
 
 export default function SettingsForm({
   currentLanguage,
@@ -86,8 +64,6 @@ export default function SettingsForm({
   const t = useTranslations("Settings");
   const router = useRouter();
   const pathname = usePathname();
-
-  // Get language from URL to ensure UI sync
   const urlLocale = pathname.split("/")[1];
   const initialLanguage = ["pt", "en"].includes(urlLocale)
     ? urlLocale
@@ -98,7 +74,7 @@ export default function SettingsForm({
     "violet" | "rose" | "indigo" | "yellow" | "green"
   >(currentThemeColor || "violet");
   const [defaultTimes, setDefaultTimes] = useState<GoogleCalendarDefaultTimes>(
-    googleCalendarDefaultTimes || {},
+    googleCalendarDefaultTimes || {}
   );
   const { updateSettings } = useSettings();
   const { contractStatus, toggleAutoRenewal } = useContract();
@@ -106,10 +82,9 @@ export default function SettingsForm({
   const [isSendingReset, setIsSendingReset] = useState(false);
   const { data: session } = useSession();
   const { isInstallable, install } = usePWAInstall();
-  const { needRefresh, updateServiceWorker } = usePWAUpdate();
 
   const [soundEnabled, setSoundEnabled] = useState(
-    session?.user?.preferences?.soundEffectsEnabled ?? true,
+    session?.user?.preferences?.soundEffectsEnabled ?? true
   );
 
   const handleToggleSound = (enabled: boolean) => {
@@ -144,7 +119,7 @@ export default function SettingsForm({
       "theme-rose",
       "theme-indigo",
       "theme-yellow",
-      "theme-green",
+      "theme-green"
     );
     root.classList.add(`theme-${color}`);
   };
@@ -185,7 +160,7 @@ export default function SettingsForm({
   const handleTimeChange = (
     day: string,
     timeType: "startTime" | "endTime",
-    value: string,
+    value: string
   ) => {
     setDefaultTimes((prev) => ({
       ...prev,
@@ -252,9 +227,9 @@ export default function SettingsForm({
                   <Text variant="subtitle" size="lg" weight="semibold">
                     {t("pwa.title")}
                   </Text>
-                  <Text size="sm" variant="placeholder" className="max-w-md">
+                  <span className="text-sm text-muted-foreground max-w-md">
                     {t("pwa.description")}
-                  </Text>
+                  </span>
                 </div>
               </div>
               <Button onClick={install} className="w-full sm:w-auto shrink-0">
@@ -277,9 +252,9 @@ export default function SettingsForm({
               <Text variant="subtitle" size="lg" weight="semibold">
                 {t("interface.title")}
               </Text>
-              <Text size="sm" variant="placeholder">
+              <span className="text-sm text-muted-foreground">
                 {t("interface.subtitle")}
-              </Text>
+              </span>
             </div>
           </div>
 
@@ -402,9 +377,9 @@ export default function SettingsForm({
                 <Text variant="subtitle" size="lg" weight="semibold">
                   {t("contract.title")}
                 </Text>
-                <Text size="sm" variant="placeholder">
+                <span className="text-sm text-muted-foreground">
                   {t("contract.subtitle")}
-                </Text>
+                </span>
               </div>
             </div>
 
@@ -420,9 +395,9 @@ export default function SettingsForm({
                     <label htmlFor="autoRenewal" className="font-medium block">
                       {t("contract.autoRenewal")}
                     </label>
-                    <Text size="sm" variant="placeholder">
+                    <span className="text-sm text-muted-foreground">
                       {t("contract.autoRenewalDescription")}
-                    </Text>
+                    </span>
                   </div>
                 </div>
                 {contractStatus.cancelledAt ? (
@@ -462,15 +437,15 @@ export default function SettingsForm({
               <Text variant="subtitle" size="lg" weight="semibold">
                 {t("googleCalendar.title")}
               </Text>
-              <Text size="sm" variant="placeholder">
+              <span className="text-sm text-muted-foreground">
                 {t("googleCalendar.subtitle")}
-              </Text>
+              </span>
             </div>
           </div>
 
           <div className="space-y-4">
             <motion.div
-              className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-lg item-base"
+              className="flex items-center justify-between p-4 rounded-lg item-base"
               whileHover={{ scale: 1.01 }}
               transition={{ type: "spring", stiffness: 400 }}
             >
@@ -494,9 +469,9 @@ export default function SettingsForm({
                       : t("googleCalendar.connect")}
                   </Text>
                   {!googleCalendarConnected && (
-                    <Text size="sm" variant="placeholder">
+                    <span className="text-sm text-muted-foreground">
                       {t("googleCalendar.syncDescription")}
-                    </Text>
+                    </span>
                   )}
                 </div>
               </div>
@@ -607,9 +582,9 @@ export default function SettingsForm({
                 <Text variant="subtitle" size="lg" weight="semibold">
                   {t("security.title")}
                 </Text>
-                <Text size="sm" variant="placeholder">
+                <span className="text-sm text-muted-foreground">
                   {t("security.subtitle")}
-                </Text>
+                </span>
               </div>
             </div>
 
@@ -621,9 +596,9 @@ export default function SettingsForm({
                     <label className="font-medium block">
                       {t("security.noPassword")}
                     </label>
-                    <Text size="sm" variant="placeholder">
+                    <span className="text-sm text-muted-foreground">
                       {t("security.setPasswordDesc")}
-                    </Text>
+                    </span>
                   </div>
                 </div>
                 <Button onClick={handleSetPassword} disabled={isSendingReset}>

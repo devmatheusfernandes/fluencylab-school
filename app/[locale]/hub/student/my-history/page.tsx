@@ -15,13 +15,16 @@ import {
 } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalTitle,
+  ModalDescription,
+  ModalFooter,
+  ModalIcon,
+  ModalPrimaryButton,
+  ModalSecondaryButton,
+} from "@/components/ui/modal";
 import {
   getActivePlanId,
   getStudentPlanDetails,
@@ -30,7 +33,6 @@ import {
 } from "@/actions/srsActions";
 import { toast } from "sonner";
 import {
-  History,
   PlayCircle,
   Lock,
   CalendarDays,
@@ -41,7 +43,7 @@ import {
   Archive,
   ArrowLeft,
 } from "lucide-react";
-import { format, isFuture, isPast, isToday } from "date-fns";
+import { format, isFuture, isToday } from "date-fns";
 import { useStudentPanel } from "@/hooks/student/useStudentPanel";
 import { cn } from "@/lib/utils";
 
@@ -55,20 +57,17 @@ export default function HistoryPage() {
   const { data: session } = useSession();
   const studentId = session?.user?.id;
   const router = useRouter();
-
   const [loading, setLoading] = useState(true);
   const [activePlan, setActivePlan] = useState<any>(null);
   const [archivedPlans, setArchivedPlans] = useState<any[]>([]);
-
-  // Replay Modal State
   const [replayModalOpen, setReplayModalOpen] = useState(false);
   const [selectedLesson, setSelectedLesson] = useState<any>(null);
-  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [selectedDay, setSelectedDay] = useState<number>(0);
   const [replayCost, setReplayCost] = useState(0);
   const [isPurchasing, setIsPurchasing] = useState(false);
 
   const { student, loading: studentLoading } = useStudentPanel(
-    studentId as string,
+    studentId as string
   );
   const userXP = student?.gamification?.currentXP || 0;
 
@@ -78,12 +77,9 @@ export default function HistoryPage() {
 
       try {
         const pid = await getActivePlanId(studentId);
-
-        // Fetch Active Plan Details
         if (pid) {
           const planData = await getStudentPlanDetails(pid);
           if (planData) {
-            // Sort lessons by scheduledDate (ascending) for Roadmap view
             planData.lessons.sort((a: any, b: any) => {
               const dateA = new Date(a.scheduledDate).getTime();
               const dateB = new Date(b.scheduledDate).getTime();
@@ -93,7 +89,6 @@ export default function HistoryPage() {
           }
         }
 
-        // Fetch Archived Plans
         const archived = await getStudentArchivedPlans(studentId);
         setArchivedPlans(archived);
       } catch (error) {
@@ -108,7 +103,6 @@ export default function HistoryPage() {
   }, [studentId]);
 
   const handleDayClick = (lesson: any, day: number) => {
-    // Logic for replay
     if (!lesson.scheduledDate) {
       setReplayCost(50);
     } else {
@@ -125,8 +119,6 @@ export default function HistoryPage() {
   };
 
   const handleStartLesson = (lesson: any) => {
-    // Navigate to practice page for current lesson
-    // Determine the next day index
     const completed = lesson.completedPracticeDays || 0;
     const nextDay = completed < 6 ? completed + 1 : 7;
 
@@ -147,14 +139,14 @@ export default function HistoryPage() {
         activePlan.id,
         selectedDay,
         0,
-        selectedLesson.id,
+        selectedLesson.id
       );
 
       toast.success("Session unlocked! Starting replay...");
       setReplayModalOpen(false);
 
       router.push(
-        `/hub/student/my-practice?day=${selectedDay}&replay=true&lessonId=${selectedLesson.id}`,
+        `/hub/student/my-practice?day=${selectedDay}&replay=true&lessonId=${selectedLesson.id}`
       );
     } catch (error) {
       console.error(error);
@@ -165,28 +157,23 @@ export default function HistoryPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <SpinnerLoading />
-      </div>
-    );
+    return <SpinnerLoading />;
   }
 
-  // Derived Data for History Tab
   const completedLessons =
     activePlan?.lessons
       ?.filter((l: any) => (l.completedPracticeDays || 0) > 0)
       .sort(
         (a: any, b: any) =>
           new Date(b.scheduledDate).getTime() -
-          new Date(a.scheduledDate).getTime(),
+          new Date(a.scheduledDate).getTime()
       ) || [];
 
   return (
     <div className="container-padding mx-auto space-y-6 pb-32">
       <Header
-        heading="My Learning Plan"
-        subheading="Track your progress and review past achievements."
+        heading={t("header.title")}
+        subheading={t("header.subtitle")}
         icon={<Map className="w-8 h-8 text-primary" />}
         backHref="/hub/student/my-notebook"
       />
@@ -195,20 +182,20 @@ export default function HistoryPage() {
           <BreadcrumbActionIcon icon={ArrowLeft} />
         </Link>
       </BreadcrumbActions>
+
       <StudentProfileHeader student={student} loading={studentLoading} />
 
       <Tabs defaultValue="roadmap" className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-6">
-          <TabsTrigger value="roadmap">Lesson Plan</TabsTrigger>
-          <TabsTrigger value="history">History</TabsTrigger>
+          <TabsTrigger value="roadmap">{t("tabs.roadmap")}</TabsTrigger>
+          <TabsTrigger value="history">{t("tabs.history")}</TabsTrigger>
         </TabsList>
 
-        {/* TAB 1: ROADMAP (LESSON PLAN) */}
         <TabsContent value="roadmap" className="space-y-4">
           {!activePlan ? (
             <div className="flex flex-col items-center justify-center py-16 text-muted-foreground border-2 border-dashed rounded-xl bg-muted/30">
               <Map className="w-12 h-12 mb-4 opacity-20" />
-              <p>No active plan found.</p>
+              <p>{t("empty.noActivePlan")}</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -220,31 +207,17 @@ export default function HistoryPage() {
               </div>
 
               <div className="relative border-l-2 border-muted ml-4 sm:ml-6 space-y-8 py-4">
-                {activePlan.lessons?.map((lesson: any, index: number) => {
+                {activePlan.lessons?.map((lesson: any) => {
                   const isCompleted = (lesson.completedPracticeDays || 0) >= 6;
-                  const isStarted = (lesson.completedPracticeDays || 0) > 0;
                   const scheduledDate = new Date(lesson.scheduledDate);
                   const isFutureDate =
                     isFuture(scheduledDate) && !isToday(scheduledDate);
-                  // Logic: Current if not completed and not future (or is today/past)
-                  const isCurrent =
-                    !isCompleted &&
-                    !isFutureDate &&
-                    // It's the first non-completed lesson that is available
-                    true;
-
-                  // Refined Logic for "Current/Locked":
-                  // A lesson is "Locked" if it's in the future AND the previous lesson isn't done?
-                  // Or just purely based on Date? Usually based on Date + Progress.
-                  // For now, let's stick to Date for "Future" status visualization.
-
                   let status: "completed" | "current" | "future" = "future";
                   if (isCompleted) status = "completed";
                   else if (!isFutureDate) status = "current";
 
                   return (
                     <div key={lesson.id} className="relative pl-8 sm:pl-10">
-                      {/* Timeline Dot */}
                       <div
                         className={cn(
                           "absolute -left-[9px] top-1 w-5 h-5 rounded-full border-2 flex items-center justify-center bg-background transition-colors",
@@ -252,7 +225,7 @@ export default function HistoryPage() {
                             ? "border-green-500 bg-green-500 text-white"
                             : status === "current"
                               ? "border-primary bg-primary text-white"
-                              : "border-muted-foreground/30 bg-muted",
+                              : "border-muted-foreground/30 bg-muted"
                         )}
                       >
                         {status === "completed" && (
@@ -266,7 +239,6 @@ export default function HistoryPage() {
                         )}
                       </div>
 
-                      {/* Content Card */}
                       <div
                         className={cn(
                           "rounded-xl border p-4 transition-all",
@@ -274,7 +246,7 @@ export default function HistoryPage() {
                             ? "bg-card shadow-md border-primary/50 ring-1 ring-primary/20"
                             : status === "completed"
                               ? "bg-muted/20 opacity-80"
-                              : "bg-muted/10 opacity-60 grayscale",
+                              : "bg-muted/10 opacity-60 grayscale"
                         )}
                       >
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -282,7 +254,7 @@ export default function HistoryPage() {
                             <h3
                               className={cn(
                                 "font-semibold text-lg",
-                                status === "future" && "text-muted-foreground",
+                                status === "future" && "text-muted-foreground"
                               )}
                             >
                               {lesson.title}
@@ -296,10 +268,11 @@ export default function HistoryPage() {
                                     "text-xs font-medium px-2 py-0.5 rounded-full ml-2",
                                     status === "completed"
                                       ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                                      : "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400",
+                                      : "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400"
                                   )}
                                 >
-                                  {lesson.completedPracticeDays || 0}/6 Days
+                                  {lesson.completedPracticeDays || 0}/6{" "}
+                                  {t("labels.days")}
                                 </span>
                               )}
                             </div>
@@ -312,7 +285,7 @@ export default function HistoryPage() {
                                 size="sm"
                                 className="w-full sm:w-auto"
                               >
-                                Continue Practice
+                                {t("actions.continuePractice")}
                               </Button>
                             )}
                             {status === "completed" && (
@@ -322,7 +295,7 @@ export default function HistoryPage() {
                                 disabled
                                 className="text-green-600"
                               >
-                                Completed
+                                {t("labels.completed")}
                               </Button>
                             )}
                           </div>
@@ -336,18 +309,16 @@ export default function HistoryPage() {
           )}
         </TabsContent>
 
-        {/* TAB 2: HISTORY */}
         <TabsContent value="history" className="space-y-8">
-          {/* Section 1: Completed Lessons (Active Plan) */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <Clock className="w-5 h-5 text-muted-foreground" />
-              Recent Activity
+              {t("labels.recentActivity")}
             </h3>
 
             {completedLessons.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground text-sm border rounded-xl bg-muted/10">
-                No completed lessons yet.
+                {t("empty.noCompletedLessons")}
               </div>
             ) : (
               <Accordion type="single" collapsible className="w-full space-y-4">
@@ -355,7 +326,7 @@ export default function HistoryPage() {
                   const completedDays = lesson.completedPracticeDays || 0;
                   const progressPercentage = Math.min(
                     (completedDays / 6) * 100,
-                    100,
+                    100
                   );
 
                   return (
@@ -377,10 +348,10 @@ export default function HistoryPage() {
                               <CalendarDays className="w-3 h-3" />
                               {lesson.scheduledDate
                                 ? format(new Date(lesson.scheduledDate), "PPP")
-                                : "No Date"}
+                                : t("empty.noDate")}
                             </span>
                             <span className="font-medium text-primary">
-                              {completedDays}/6 Days
+                              {completedDays}/6 {t("labels.days")}
                             </span>
                           </div>
 
@@ -407,7 +378,7 @@ export default function HistoryPage() {
                                     "h-20 sm:h-24 flex flex-col gap-2 rounded-xl border-2 transition-all relative overflow-hidden",
                                     canReplay
                                       ? "border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary hover:scale-[1.02] active:scale-95"
-                                      : "border-transparent bg-muted/40 opacity-60 cursor-not-allowed",
+                                      : "border-transparent bg-muted/40 opacity-60 cursor-not-allowed"
                                   )}
                                   disabled={!canReplay}
                                   onClick={() =>
@@ -419,10 +390,10 @@ export default function HistoryPage() {
                                       "text-[10px] font-bold uppercase tracking-wider",
                                       canReplay
                                         ? "text-primary"
-                                        : "text-muted-foreground",
+                                        : "text-muted-foreground"
                                     )}
                                   >
-                                    Day {day}
+                                    {t("day", { day })}
                                   </span>
                                   {canReplay ? (
                                     <PlayCircle className="ml-2 w-8 h-8 text-primary animate-in zoom-in duration-300" />
@@ -431,13 +402,12 @@ export default function HistoryPage() {
                                   )}
                                 </Button>
                               );
-                            },
+                            }
                           )}
                         </div>
                         <div className="mt-4 text-center">
                           <p className="text-xs text-muted-foreground">
-                            Tip: Replaying costs XP based on how old the lesson
-                            is.
+                            {t("tip.replayTip")}
                           </p>
                         </div>
                       </AccordionContent>
@@ -448,16 +418,15 @@ export default function HistoryPage() {
             )}
           </div>
 
-          {/* Section 2: Archived Plans */}
           <div className="space-y-4 pt-4 border-t">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <Archive className="w-5 h-5 text-muted-foreground" />
-              Past Plans
+              {t("labels.pastPlans")}
             </h3>
 
             {archivedPlans.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground text-sm border rounded-xl bg-muted/10">
-                No past plans available.
+                {t("empty.noPastPlans")}
               </div>
             ) : (
               <div className="grid gap-4">
@@ -469,10 +438,10 @@ export default function HistoryPage() {
                     <div>
                       <h4 className="font-semibold">{plan.name}</h4>
                       <p className="text-xs text-muted-foreground">
-                        Completed on{" "}
+                        {t("labels.completedOn")}{" "}
                         {plan.updatedAt
                           ? format(new Date(plan.updatedAt), "PPP")
-                          : "Unknown date"}
+                          : t("labels.unknownDate")}
                       </p>
                     </div>
                     <div className="px-3 py-1 rounded-full bg-muted text-xs font-medium uppercase">
@@ -486,47 +455,45 @@ export default function HistoryPage() {
         </TabsContent>
       </Tabs>
 
-      {/* Replay Confirmation Modal */}
-      <Dialog open={replayModalOpen} onOpenChange={setReplayModalOpen}>
-        <DialogContent className="sm:max-w-md w-[95%] rounded-xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Coins className="text-yellow-500 w-5 h-5" />
-              Unlock Replay
-            </DialogTitle>
-            <DialogDescription className="pt-2">
-              You are about to replay <strong>Day {selectedDay}</strong> of{" "}
-              <span className="text-foreground font-medium">
-                {selectedLesson?.title}
-              </span>
-              .
-            </DialogDescription>
-          </DialogHeader>
+      <Modal open={replayModalOpen} onOpenChange={setReplayModalOpen}>
+        <ModalContent className="sm:max-w-md w-[95%] rounded-xl">
+          <ModalIcon type="unlock" />
+          <ModalHeader>
+            <ModalTitle>{t("actions.unlockReplay")}</ModalTitle>
+            <ModalDescription className="pt-2">
+              {t("replayDescription", {
+                day: selectedDay,
+                lessonTitle: selectedLesson?.title,
+              })}
+            </ModalDescription>
+          </ModalHeader>
 
           <div className="bg-muted/50 p-4 rounded-lg space-y-3 my-2 border">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Replay Cost</span>
+              <span className="text-sm text-muted-foreground">
+                {t("labels.replayCost")}
+              </span>
               <span className="font-bold text-lg text-foreground flex items-center gap-1">
                 -{replayCost}{" "}
                 <span className="text-xs font-normal text-muted-foreground">
-                  XP
+                  {t("labels.xp")}
                 </span>
               </span>
             </div>
             <div className="h-px bg-border w-full" />
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">
-                Your Balance
+                {t("labels.yourBalance")}
               </span>
               <span
                 className={cn(
                   "font-bold text-lg flex items-center gap-1",
-                  userXP < replayCost ? "text-red-500" : "text-green-600",
+                  userXP < replayCost ? "text-red-500" : "text-green-600"
                 )}
               >
                 {userXP}{" "}
                 <span className="text-xs font-normal text-muted-foreground">
-                  XP
+                  {t("labels.xp")}
                 </span>
               </span>
             </div>
@@ -534,40 +501,34 @@ export default function HistoryPage() {
 
           {userXP < replayCost && (
             <div className="bg-red-500/10 text-red-600 text-xs p-2 rounded text-center font-medium">
-              You don't have enough XP for this action.
+              {t("errors.insufficientXP")}
             </div>
           )}
 
-          <DialogFooter className="flex-col sm:flex-row gap-2 mt-2">
-            <Button
-              variant="outline"
+          <ModalFooter className="flex-col sm:flex-row gap-2 mt-2">
+            <ModalSecondaryButton
               onClick={() => setReplayModalOpen(false)}
               className="w-full sm:w-auto"
             >
-              Cancel
-            </Button>
-            <Button
+              {t("actions.cancel")}
+            </ModalSecondaryButton>
+            <ModalPrimaryButton
               onClick={handleConfirmReplay}
               disabled={isPurchasing || userXP < replayCost}
-              className={cn(
-                "w-full sm:w-auto text-white transition-all",
-                isPurchasing
-                  ? "opacity-80"
-                  : "bg-indigo-600 hover:bg-indigo-700",
-              )}
+              className={cn("w-full sm:w-auto")}
             >
               {isPurchasing ? (
                 <>
-                  <SpinnerLoading className="w-4 h-4 mr-2 text-white border-white" />
-                  Unlocking...
+                  <SpinnerLoading className="w-4 h-4 mr-2" />
+                  {t("actions.unlocking")}
                 </>
               ) : (
-                "Confirm & Play"
+                t("actions.confirmAndPlay")
               )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </ModalPrimaryButton>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }

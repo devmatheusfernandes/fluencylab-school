@@ -6,7 +6,6 @@ import {
   CheckCircle2,
   History,
   Globe,
-  Play,
   Clock,
   Zap,
   BarChart3,
@@ -20,15 +19,10 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { Header } from "@/components/ui/header";
 import { useTranslations } from "next-intl";
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
 import BreadcrumbActions from "@/components/shared/Breadcrum/BreadcrumbActions";
 import Link from "next/link";
 import BreadcrumbActionIcon from "@/components/shared/Breadcrum/BreadcrumbActionIcon";
-
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+import { cn } from "@/lib/utils";
 
 const LANGUAGES = [
   {
@@ -122,13 +116,11 @@ export default function PlacementHomePage() {
       exit="exit"
       className="container-padding space-y-6"
     >
-      {
-        <BreadcrumbActions placement="start">
-          <Link href="/hub/student/my-profile" className="flex items-center">
-            <BreadcrumbActionIcon icon={ArrowLeft} />
-          </Link>
-        </BreadcrumbActions>
-      }
+      <BreadcrumbActions placement="start">
+        <Link href="/hub/student/my-profile" className="flex items-center">
+          <BreadcrumbActionIcon icon={ArrowLeft} />
+        </Link>
+      </BreadcrumbActions>
 
       <Header
         heading={t("chooseLanguage")}
@@ -211,7 +203,7 @@ export default function PlacementHomePage() {
                       "bg-white dark:bg-zinc-900 hover:shadow-md dark:hover:shadow-zinc-800/50",
                       isSelected
                         ? cn(lang.borderSelected, lang.bgSelected)
-                        : "border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700",
+                        : "border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700"
                     )}
                   >
                     {" "}
@@ -225,7 +217,7 @@ export default function PlacementHomePage() {
                             "text-lg font-bold",
                             isSelected
                               ? "text-zinc-900 dark:text-zinc-100"
-                              : "text-zinc-600 dark:text-zinc-400",
+                              : "text-zinc-600 dark:text-zinc-400"
                           )}
                         >
                           {tLang(lang.labelKey)}
@@ -236,7 +228,7 @@ export default function PlacementHomePage() {
                             animate={{ scale: 1 }}
                             className={cn(
                               "rounded-full p-1",
-                              lang.textSelected,
+                              lang.textSelected
                             )}
                           >
                             <CheckCircle2 className="w-6 h-6 fill-current" />

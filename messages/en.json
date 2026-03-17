@@ -244,6 +244,12 @@
     "description": "You do not have permission to access this page.",
     "backButton": "Back to Home"
   },
+  "PwaWelcome": {
+    "logoAlt": "FluencyLab School Logo",
+    "title": "Welcome to FluencyLab",
+    "description": "Your language school is now installed on your device. Sign in to continue your studies.",
+    "enterButton": "Sign In to the Platform"
+  },
   "StudentNotebook": {
     "title": "My Notebook",
     "subtitle": "Track your progress and review your learning.",
@@ -264,6 +270,48 @@
   "LearningPath": {
     "noLessonsTitle": "No lessons this week!",
     "noLessonsMessage": "Take time to review or relax. You are all caught up!"
+  },
+  "HistoryPage": {
+    "header": {
+      "title": "My Learning Plan",
+      "subtitle": "Track your progress and review past achievements."
+    },
+    "tabs": {
+      "roadmap": "Lesson Plan",
+      "history": "History"
+    },
+    "empty": {
+      "noActivePlan": "No active plan found.",
+      "noCompletedLessons": "No completed lessons yet.",
+      "noPastPlans": "No past plans available.",
+      "noDate": "No Date"
+    },
+    "labels": {
+      "days": "Days",
+      "completed": "Completed",
+      "recentActivity": "Recent Activity",
+      "pastPlans": "Past Plans",
+      "completedOn": "Completed on",
+      "unknownDate": "Unknown date",
+      "replayCost": "Replay Cost",
+      "yourBalance": "Your Balance",
+      "xp": "XP"
+    },
+    "actions": {
+      "continuePractice": "Continue Practice",
+      "cancel": "Cancel",
+      "confirmAndPlay": "Confirm & Play",
+      "unlockReplay": "Unlock Replay",
+      "unlocking": "Unlocking..."
+    },
+    "tip": {
+      "replayTip": "Tip: Replaying costs XP based on how old the lesson is."
+    },
+    "errors": {
+      "insufficientXP": "You don't have enough XP for this action."
+    },
+    "day": "Day {day}",
+    "replayDescription": "You are about to replay Day {day} of {lessonTitle}"
   },
   "ProgressHero": {
     "onTrackTitle": "Keep going!",
@@ -3347,5 +3395,43 @@
   },
   "UnscrambleExercise": {
     "title": "Reorder the words to form the correct sentence"
+  },
+  "ListeningChoiceExercise": {
+    "fullListen": {
+      "title": "Listen to the Full Audio",
+      "description": "Listen to the entire conversation once. Try to understand the context before we practice details.",
+      "playing": "Playing...",
+      "tapToPlay": "Tap to Play",
+      "continueButton": "Continue to Practice"
+    },
+    "interactive": {
+      "segmentCounter": "Segment {current} of {total}",
+      "playingSegment": "Playing Segment...",
+      "replaySegment": "Replay Segment",
+      "loadingSegment": "Loading segment...",
+      "noKeyTerms": "No key terms in this segment. Listen and continue.",
+      "nextSegment": "Next Segment",
+      "finishPractice": "Finish Practice"
+    }
+  },
+  "StudentProfileHeader": {
+    "labels": {
+      "level": "Lvl {level}",
+      "studentFallback": "Student",
+      "noEmail": "No email",
+      "nextXP": "Next: {xp} XP",
+      "dayStreak": "Day Streak",
+      "totalXP": "Total XP",
+      "bestStreak": "Best Streak",
+      "daysLower": "days",
+      "joined": "Joined",
+      "recent": "Recent"
+    },
+    "activity": {
+      "title": "Study Activity",
+      "less": "Less",
+      "more": "More",
+      "count": "{count, plural, one {activity} other {activities}}"
+    }
   }
 }

@@ -39,9 +39,7 @@ import {
 } from "@/components/ui/empty";
 import { Course } from "../../../../../types/quiz/types";
 import { BookmarkIcon } from "@/public/animated/bookmark";
-import { courseService } from "@/services/learning/courseService";
 
-// Extensão do tipo Course para incluir dados calculados
 type StudentCourse = Course & {
   sectionCount: number;
   lessonCount: number;
@@ -80,12 +78,11 @@ export default function StudentCoursesPage() {
     }
   }, [session, router]);
 
-  // Filtro local
   const filteredCourses = useMemo(() => {
     return courses.filter(
       (c) =>
         c.title.toLowerCase().includes(search.toLowerCase()) ||
-        c.language.toLowerCase().includes(search.toLowerCase()),
+        c.language.toLowerCase().includes(search.toLowerCase())
     );
   }, [courses, search]);
 

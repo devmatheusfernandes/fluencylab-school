@@ -4,7 +4,13 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
-import { Calendar, ChevronRight, History } from "lucide-react";
+import {
+  ArrowLeft,
+  Calendar,
+  ChevronRight,
+  History,
+  HistoryIcon,
+} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { HistoryItem } from "../../../../../../types/placement/types";
@@ -12,6 +18,16 @@ import { ResultView } from "../../../../../../components/placement/ResultView";
 import { motion, AnimatePresence } from "framer-motion";
 import { Header } from "@/components/ui/header";
 import { useTranslations } from "next-intl";
+import BreadcrumbActionIcon from "@/components/shared/Breadcrum/BreadcrumbActionIcon";
+import BreadcrumbActions from "@/components/shared/Breadcrum/BreadcrumbActions";
+import Link from "next/link";
+import {
+  Empty,
+  EmptyHeader,
+  EmptyTitle,
+  EmptyMedia,
+  EmptyDescription,
+} from "@/components/ui/empty";
 
 export default function HistoryPage() {
   const { data: session } = useSession();
@@ -83,6 +99,12 @@ export default function HistoryPage() {
   return (
     <div className="flex flex-col py-6 px-4 w-full">
       <div className="space-y-4">
+        <BreadcrumbActions placement="start">
+          <Link href="/hub/student/my-placement" className="flex items-center">
+            <BreadcrumbActionIcon icon={ArrowLeft} />
+          </Link>
+        </BreadcrumbActions>
+
         <Header
           heading={t("historyTitle")}
           backHref="/hub/student/my-placement"
@@ -91,9 +113,14 @@ export default function HistoryPage() {
         />
 
         {historyList.length === 0 ? (
-          <div className="text-center py-12 text-slate-500">
-            {t("noHistory")}
-          </div>
+          <Empty className="py-24">
+            <EmptyMedia>
+              <HistoryIcon size={48} className="text-primary" />
+            </EmptyMedia>
+            <EmptyHeader>
+              <EmptyDescription>{t("noHistory")}</EmptyDescription>
+            </EmptyHeader>
+          </Empty>
         ) : (
           <div className="space-y-3">
             <AnimatePresence>
@@ -112,8 +139,8 @@ export default function HistoryPage() {
                         item.assignedLevel.startsWith("A")
                           ? "bg-orange-400"
                           : item.assignedLevel.startsWith("B")
-                          ? "bg-blue-400"
-                          : "bg-purple-400"
+                            ? "bg-blue-400"
+                            : "bg-purple-400"
                       }`}
                     >
                       {item.assignedLevel}

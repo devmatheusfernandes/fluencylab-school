@@ -5,6 +5,10 @@ import AchievementList from "@/components/student/AchievementList";
 import { Skeleton } from "../ui/skeleton";
 import { Header } from "../ui/header";
 import { motion } from "framer-motion";
+import BreadcrumbActions from "../shared/Breadcrum/BreadcrumbActions";
+import Link from "next/link";
+import BreadcrumbActionIcon from "../shared/Breadcrum/BreadcrumbActionIcon";
+import { ArrowLeft } from "lucide-react";
 
 export default function AchievementsPage() {
   const { user, isLoading } = useCurrentUser();
@@ -17,6 +21,11 @@ export default function AchievementsPage() {
       className="container-padding space-y-6"
     >
       <div>
+        <BreadcrumbActions placement="start">
+          <Link href="/hub/student/my-profile" className="flex items-center">
+            <BreadcrumbActionIcon icon={ArrowLeft} />
+          </Link>
+        </BreadcrumbActions>
         <Header heading="Todas as Conquistas" className="mb-6" />
         {isLoading ? (
           <div className="space-y-4">

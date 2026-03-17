@@ -1,15 +1,8 @@
 "use client";
-
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import {
-  Play,
-  Pause,
-  CheckCircle,
-  ArrowRight,
-  Volume2,
-  HelpCircle,
-} from "lucide-react";
+import { Play, Pause, CheckCircle, ArrowRight, Volume2 } from "lucide-react";
 import { TranscriptSegment, LearningItem } from "@/types/learning/lesson";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
@@ -24,7 +17,7 @@ interface ListeningChoiceExerciseProps {
 type GapState = {
   hasGap: boolean;
   correctWord: string;
-  displayParts: [string, string]; // [before, after]
+  displayParts: [string, string];
   options: string[];
   selectedOption: string | null;
   isCorrect: boolean | null;
@@ -36,38 +29,30 @@ export function ListeningChoiceExercise({
   learningItems,
   onComplete,
 }: ListeningChoiceExerciseProps) {
+  const t = useTranslations("ListeningChoiceExercise");
   const [phase, setPhase] = useState<"full_listen" | "interactive">(
-    "full_listen",
+    "full_listen"
   );
   const [isPlaying, setIsPlaying] = useState(false);
-  const [hasListenedOnce, setHasListenedOnce] = useState(false);
-
-  // Interactive Phase
+  const [hasListenedOnce, setHasListenedOnce] = useState(true);
   const [currentSegmentIndex, setCurrentSegmentIndex] = useState(0);
   const [gapState, setGapState] = useState<GapState | null>(null);
   const [score, setScore] = useState(0);
   const [totalGaps, setTotalGaps] = useState(0);
-
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // Initialize Gap for current segment
   useEffect(() => {
     if (phase === "interactive" && transcriptSegments[currentSegmentIndex]) {
       const segment = transcriptSegments[currentSegmentIndex];
       const text = segment.text;
-
-      // Find matching learning item
-      // Sort by length desc to match longest phrases first
       const sortedItems = [...learningItems].sort(
-        (a, b) => b.mainText.length - a.mainText.length,
+        (a, b) => b.mainText.length - a.mainText.length
       );
 
       let match: LearningItem | null = null;
       let matchIndex = -1;
 
       for (const item of sortedItems) {
-        // Simple case-insensitive match
-        // Ensure word boundary or at least not inside another word if possible
         const regex = new RegExp(`\\b${item.mainText}\\b`, "i");
         const found = text.match(regex);
         if (found && found.index !== undefined) {
@@ -81,22 +66,18 @@ export function ListeningChoiceExercise({
         const before = text.substring(0, matchIndex);
         const after = text.substring(matchIndex + match.mainText.length);
         const correctWord = match.mainText;
-
-        // Generate Options
         const distractors = learningItems
           .filter((i) => i.id !== match!.id)
           .sort(() => 0.5 - Math.random())
           .slice(0, 2)
           .map((i) => i.mainText);
 
-        // If not enough distractors, add some dummy ones or random words from text?
-        // Fallback to "Option A", "Option B" if really broken, but unlikely with decent lesson
         while (distractors.length < 2) {
           distractors.push("...");
         }
 
         const options = [correctWord, ...distractors].sort(
-          () => 0.5 - Math.random(),
+          () => 0.5 - Math.random()
         );
 
         setGapState({
@@ -119,20 +100,18 @@ export function ListeningChoiceExercise({
         });
       }
 
-      // Auto-play segment
       if (audioRef.current) {
         audioRef.current.currentTime = segment.start;
         audioRef.current.play().catch(() => {});
         setIsPlaying(true);
 
-        // Schedule pause
         const duration = (segment.end - segment.start) * 1000;
         const timeout = setTimeout(() => {
           if (audioRef.current) {
             audioRef.current.pause();
             setIsPlaying(false);
           }
-        }, duration + 200); // Small buffer
+        }, duration + 200);
         return () => clearTimeout(timeout);
       }
     }
@@ -165,7 +144,7 @@ export function ListeningChoiceExercise({
   };
 
   const handleOptionSelect = (option: string) => {
-    if (!gapState || gapState.selectedOption) return; // Already answered
+    if (!gapState || gapState.selectedOption) return;
 
     const isCorrect =
       option.toLowerCase() === gapState.correctWord.toLowerCase();
@@ -182,13 +161,11 @@ export function ListeningChoiceExercise({
     if (currentSegmentIndex < transcriptSegments.length - 1) {
       setCurrentSegmentIndex((prev) => prev + 1);
     } else {
-      // Finished
-      const finalScore = totalGaps > 0 ? (score / totalGaps) * 5 : 5; // 0-5 scale
+      const finalScore = totalGaps > 0 ? (score / totalGaps) * 5 : 5;
       onComplete(finalScore);
     }
   };
 
-  // Phase 1: Full Listening UI
   if (phase === "full_listen") {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8 animate-in fade-in">
@@ -200,11 +177,10 @@ export function ListeningChoiceExercise({
             />
           </div>
           <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
-            Listen to the Full Audio
+            {t("fullListen.title")}
           </h2>
           <p className="text-slate-600 dark:text-slate-400">
-            Listen to the entire conversation once. Try to understand the
-            context before we practice details.
+            {t("fullListen.description")}
           </p>
         </div>
 
@@ -224,7 +200,7 @@ export function ListeningChoiceExercise({
               "rounded-full w-16 h-16 flex items-center justify-center",
               isPlaying
                 ? "bg-slate-200 text-slate-700 hover:bg-slate-300"
-                : "bg-indigo-600 text-white hover:bg-indigo-700",
+                : "bg-indigo-600 text-white hover:bg-indigo-700"
             )}
             onClick={togglePlay}
           >
@@ -236,7 +212,7 @@ export function ListeningChoiceExercise({
           </Button>
 
           <p className="text-sm font-medium text-slate-500">
-            {isPlaying ? "Playing..." : "Tap to Play"}
+            {isPlaying ? t("fullListen.playing") : t("fullListen.tapToPlay")}
           </p>
         </div>
 
@@ -246,30 +222,31 @@ export function ListeningChoiceExercise({
             className="w-full max-w-xs"
             size="lg"
           >
-            Continue to Practice <ArrowRight className="ml-2 w-4 h-4" />
+            {t("fullListen.continueButton")}{" "}
+            <ArrowRight className="ml-2 w-4 h-4" />
           </Button>
         )}
       </div>
     );
   }
 
-  // Phase 2: Interactive UI
   const progress = (currentSegmentIndex / transcriptSegments.length) * 100;
 
   return (
     <div className="flex flex-col min-h-[60vh] max-w-2xl mx-auto w-full space-y-6 animate-in fade-in">
-      {/* Header / Progress */}
       <div className="w-full space-y-2">
         <div className="flex justify-between text-sm text-slate-500">
           <span>
-            Segment {currentSegmentIndex + 1} of {transcriptSegments.length}
+            {t("interactive.segmentCounter", {
+              current: currentSegmentIndex + 1,
+              total: transcriptSegments.length,
+            })}
           </span>
           <span>{Math.round(progress)}%</span>
         </div>
         <Progress value={progress} className="h-2" />
       </div>
 
-      {/* Audio Control for Segment */}
       <div className="flex justify-center py-4">
         <audio ref={audioRef} src={audioUrl || undefined} className="hidden" />
         <Button
@@ -277,7 +254,7 @@ export function ListeningChoiceExercise({
           size="sm"
           className={cn(
             "rounded-full px-6",
-            isPlaying && "border-indigo-500 text-indigo-600",
+            isPlaying && "border-indigo-500 text-indigo-600"
           )}
           onClick={togglePlay}
         >
@@ -286,43 +263,45 @@ export function ListeningChoiceExercise({
           ) : (
             <Play size={16} className="mr-2" />
           )}
-          {isPlaying ? "Playing Segment..." : "Replay Segment"}
+          {isPlaying
+            ? t("interactive.playingSegment")
+            : t("interactive.replaySegment")}
         </Button>
       </div>
 
-      {/* Transcript Display */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm min-h-[160px] flex items-center justify-center text-center">
+      <div className="bg-item rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm min-h-[160px] flex items-center justify-center text-center">
         {gapState ? (
-          <p className="text-xl md:text-2xl leading-relaxed font-medium text-slate-700 dark:text-slate-200">
+          <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
             {gapState.displayParts[0]}
             {gapState.hasGap ? (
               <span
                 className={cn(
                   "inline-block min-w-[80px] border-b-2 mx-1 px-2 py-0.5 rounded transition-colors",
                   !gapState.selectedOption
-                    ? "border-slate-300 bg-slate-50 text-transparent"
+                    ? "border-slate-300 bg-slate-50 dark:bg-slate-800 text-transparent"
                     : "",
                   gapState.selectedOption && gapState.isCorrect
                     ? "border-green-500 bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400"
                     : "",
                   gapState.selectedOption && !gapState.isCorrect
                     ? "border-red-500 bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400"
-                    : "",
+                    : ""
                 )}
               >
                 {gapState.selectedOption || "____"}
               </span>
             ) : (
-              <span>{gapState.displayParts[0] /* No gap, just text */}</span>
+              <span>{gapState.displayParts[0]}</span>
             )}
             {gapState.displayParts[1]}
           </p>
         ) : (
-          <div className="text-slate-400">Loading segment...</div>
+          <div className="text-slate-400">
+            {t("interactive.loadingSegment")}
+          </div>
         )}
       </div>
 
-      {/* Options / Action Area */}
       <div className="flex-1 flex flex-col justify-end space-y-4">
         {gapState?.hasGap ? (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -340,7 +319,7 @@ export function ListeningChoiceExercise({
                     "bg-red-100 border-red-500 text-red-700 hover:bg-red-100 hover:text-red-700",
                   gapState.selectedOption &&
                     gapState.selectedOption !== option &&
-                    "opacity-50 cursor-not-allowed",
+                    "opacity-50 cursor-not-allowed"
                 )}
                 onClick={() => handleOptionSelect(option)}
                 disabled={!!gapState.selectedOption}
@@ -350,15 +329,14 @@ export function ListeningChoiceExercise({
             ))}
           </div>
         ) : (
-          <div className="text-center text-slate-500 py-4 italic">
-            No key terms in this segment. Listen and continue.
+          <div className="text-center text-slate-500 py-4 italic text-xs">
+            {t("interactive.noKeyTerms")}
           </div>
         )}
 
-        {/* Continue Button */}
         {(!gapState?.hasGap || gapState?.selectedOption) && (
           <Button
-            className="w-full h-12 text-lg animate-in slide-in-from-bottom-2"
+            className="w-full animate-in slide-in-from-bottom-2"
             onClick={nextSegment}
             variant={
               gapState?.hasGap && !gapState.isCorrect ? "secondary" : "outline"
@@ -366,11 +344,12 @@ export function ListeningChoiceExercise({
           >
             {currentSegmentIndex < transcriptSegments.length - 1 ? (
               <>
-                Next Segment <ArrowRight className="ml-2" />
+                {t("interactive.nextSegment")} <ArrowRight className="ml-2" />
               </>
             ) : (
               <>
-                Finish Practice <CheckCircle className="ml-2" />
+                {t("interactive.finishPractice")}{" "}
+                <CheckCircle className="ml-2" />
               </>
             )}
           </Button>
