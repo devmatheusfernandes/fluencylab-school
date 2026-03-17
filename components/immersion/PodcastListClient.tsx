@@ -24,29 +24,21 @@ import {
 import BreadcrumbActions from "../shared/Breadcrum/BreadcrumbActions";
 import BreadcrumbActionIcon from "../shared/Breadcrum/BreadcrumbActionIcon";
 import Link from "next/link";
+import { LANGUAGES, LEVEL_LABELS } from "@/lib/utils/placement-utils";
+import {
+  Empty,
+  EmptyMedia,
+  EmptyHeader,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyContent,
+} from "@/components/ui/empty";
+import { Button } from "@/components/ui/button";
 
 interface PodcastListClientProps {
   podcasts: Podcast[];
   progressMap: Record<string, UserPodcastProgress>;
 }
-
-const LANGUAGES = [
-  { value: "all", label: "All Languages" },
-  { value: "en", label: "English" },
-  { value: "pt", label: "Portuguese" },
-  { value: "es", label: "Spanish" },
-  { value: "fr", label: "French" },
-];
-
-const LEVELS = [
-  { value: "all", label: "All Levels" },
-  { value: "A1", label: "A1 - Beginner" },
-  { value: "A2", label: "A2 - Elementary" },
-  { value: "B1", label: "B1 - Intermediate" },
-  { value: "B2", label: "B2 - Upper Intermediate" },
-  { value: "C1", label: "C1 - Advanced" },
-  { value: "C2", label: "C2 - Proficiency" },
-];
 
 export function PodcastListClient({
   podcasts,
@@ -134,7 +126,7 @@ export function PodcastListClient({
               <SelectValue placeholder="Level" />
             </SelectTrigger>
             <SelectContent>
-              {LEVELS.map((lvl) => (
+              {LEVEL_LABELS.map((lvl) => (
                 <SelectItem key={lvl.value} value={lvl.value}>
                   {lvl.label}
                 </SelectItem>
@@ -146,13 +138,29 @@ export function PodcastListClient({
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredPodcasts.length === 0 ? (
-          <div className="col-span-full flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
-            <Filter className="h-12 w-12 mb-4 opacity-20" />
-            <p className="text-lg font-medium">No podcasts found</p>
-            <p className="text-sm">
-              Try adjusting your filters or search terms.
-            </p>
-          </div>
+          <Empty className="col-span-full py-24">
+            <EmptyMedia>
+              <Filter size={48} className="text-primary" />
+            </EmptyMedia>
+            <EmptyHeader>
+              <EmptyTitle>No podcasts found</EmptyTitle>
+              <EmptyDescription>
+                Try adjusting your filters or search terms.
+              </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <Button
+                variant="link"
+                onClick={() => {
+                  setSearch("");
+                  setLanguage("all");
+                  setLevel("all");
+                }}
+              >
+                Clear filters
+              </Button>
+            </EmptyContent>
+          </Empty>
         ) : (
           filteredPodcasts.map((podcast) => {
             const progress = progressMap[podcast.id];

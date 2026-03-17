@@ -2,6 +2,23 @@ import { Level, Question } from "@/types/placement/types";
 
 export const MAX_QUESTIONS = 20;
 export const LEVELS: Level[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
+export const LEVEL_LABELS = [
+  { value: "all", label: "All Levels" },
+  { value: "A1", label: "A1 - Beginner" },
+  { value: "A2", label: "A2 - Elementary" },
+  { value: "B1", label: "B1 - Intermediate" },
+  { value: "B2", label: "B2 - Upper Intermediate" },
+  { value: "C1", label: "C1 - Advanced" },
+  { value: "C2", label: "C2 - Proficiency" },
+];
+export const LANGUAGES = [
+  { value: "all", label: "All Languages" },
+  { value: "en", label: "English" },
+  { value: "pt", label: "Portuguese" },
+  { value: "es", label: "Spanish" },
+  { value: "fr", label: "French" },
+];
+
 export const SKILL_PAGE_SIZE = 5;
 
 export const LEVEL_SCORES: Record<Level, number> = {
@@ -39,7 +56,7 @@ export const getMacroSkill = (topic: string) => {
 
 export const getNextLevel = (
   currentLevel: Level,
-  isLastAnswerCorrect: boolean,
+  isLastAnswerCorrect: boolean
 ): Level => {
   const currentIndex = LEVELS.indexOf(currentLevel);
   if (isLastAnswerCorrect) {
@@ -52,7 +69,7 @@ export const getNextLevel = (
 export const selectNextQuestion = (
   targetLevel: Level,
   usedIds: string[],
-  questionPool: Record<Level, Question[]>,
+  questionPool: Record<Level, Question[]>
 ): Question | null => {
   const targetIndex = LEVELS.indexOf(targetLevel);
   const sortedLevels = [...LEVELS].sort((a, b) => {
@@ -63,7 +80,7 @@ export const selectNextQuestion = (
 
   for (const level of sortedLevels) {
     const availableQuestions = questionPool[level].filter(
-      (q) => !usedIds.includes(q.id),
+      (q) => !usedIds.includes(q.id)
     );
     if (availableQuestions.length > 0) {
       const randomIndex = Math.floor(Math.random() * availableQuestions.length);

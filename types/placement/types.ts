@@ -19,7 +19,7 @@ export interface HistoryItem {
   assignedLevel: string;
   totalScore: number;
   language: "en" | "pt";
-  completedAt: any; // Firestore Timestamp
+  completedAt: any;
   diagnostics: DiagnosticResult;
   averageTimePerQuestion?: number;
 }
