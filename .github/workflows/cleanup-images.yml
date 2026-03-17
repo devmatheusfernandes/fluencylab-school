@@ -1,0 +1,18 @@
+name: Limpeza Diária de Imagens Órfãs
+
+on:
+  schedule:
+    # Roda todos os dias às 03:00 da manhã (UTC)
+    - cron: "0 3 * * *"
+  # Permite rodar o script manualmente pelo painel do GitHub, útil para testes
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Chamar API de Limpeza
+        run: |
+          curl -i -L -X GET \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.NEXT_PUBLIC_BASE_URL }}/api/cron/cleanup-images"

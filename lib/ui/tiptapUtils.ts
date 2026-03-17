@@ -9,8 +9,8 @@ import {
 import type { Editor, NodeWithPos } from "@tiptap/react";
 import { getSession } from "next-auth/react";
 
-export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-export const MAX_AUDIO_FILE_SIZE = 4 * 1024 * 1024; // 4MB
+export const MAX_FILE_SIZE = 5 * 1024 * 1024;
+export const MAX_AUDIO_FILE_SIZE = 4 * 1024 * 1024;
 
 export const MAC_SYMBOLS: Record<string, string> = {
   mod: "⌘",
@@ -67,7 +67,7 @@ export function isMac(): boolean {
 export const formatShortcutKey = (
   key: string,
   isMac: boolean,
-  capitalize: boolean = true,
+  capitalize: boolean = true
 ) => {
   if (isMac) {
     const lowerKey = key.toLowerCase();
@@ -107,7 +107,7 @@ export const parseShortcutKeys = (props: {
  */
 export const isMarkInSchema = (
   markName: string,
-  editor: Editor | null,
+  editor: Editor | null
 ): boolean => {
   if (!editor?.schema) return false;
   return editor.schema.spec.marks.get(markName) !== undefined;
@@ -121,7 +121,7 @@ export const isMarkInSchema = (
  */
 export const isNodeInSchema = (
   nodeName: string,
-  editor: Editor | null,
+  editor: Editor | null
 ): boolean => {
   if (!editor?.schema) return false;
   return editor.schema.spec.nodes.get(nodeName) !== undefined;
@@ -176,7 +176,7 @@ export function isValidPosition(pos: number | null | undefined): pos is number {
  */
 export function isExtensionAvailable(
   editor: Editor | null,
-  extensionNames: string | string[],
+  extensionNames: string | string[]
 ): boolean {
   if (!editor) return false;
 
@@ -185,12 +185,12 @@ export function isExtensionAvailable(
     : [extensionNames];
 
   const found = names.some((name) =>
-    editor.extensionManager.extensions.some((ext) => ext.name === name),
+    editor.extensionManager.extensions.some((ext) => ext.name === name)
   );
 
   if (!found) {
     console.warn(
-      `None of the extensions [${names.join(", ")}] were found in the editor schema. Ensure they are included in the editor configuration.`,
+      `None of the extensions [${names.join(", ")}] were found in the editor schema. Ensure they are included in the editor configuration.`
     );
   }
 
@@ -282,7 +282,7 @@ export function findNodePosition(props: {
 export function isNodeTypeSelected(
   editor: Editor | null,
   nodeTypeNames: string[] = [],
-  checkAncestorNodes: boolean = false,
+  checkAncestorNodes: boolean = false
 ): boolean {
   if (!editor || !editor.state.selection) return false;
 
@@ -320,7 +320,7 @@ export function isNodeTypeSelected(
  */
 export function selectionWithinConvertibleTypes(
   editor: Editor,
-  types: string[] = [],
+  types: string[] = []
 ): boolean {
   if (!editor || types.length === 0) return false;
 
@@ -358,14 +358,14 @@ export function selectionWithinConvertibleTypes(
 export const handleImageUpload = async (
   file: File,
   onProgress?: (event: { progress: number }) => void,
-  abortSignal?: AbortSignal,
+  abortSignal?: AbortSignal
 ): Promise<string> => {
   if (!file) {
     throw new Error("No file provided");
   }
   if (file.size > MAX_FILE_SIZE) {
     throw new Error(
-      `File size exceeds maximum allowed (${MAX_FILE_SIZE / (1024 * 1024)}MB)`,
+      `File size exceeds maximum allowed (${MAX_FILE_SIZE / (1024 * 1024)}MB)`
     );
   }
 
@@ -413,14 +413,14 @@ export const handleImageUpload = async (
 export const handleAudioUpload = async (
   file: File,
   onProgress?: (event: { progress: number }) => void,
-  abortSignal?: AbortSignal,
+  abortSignal?: AbortSignal
 ): Promise<string> => {
   if (!file) {
     throw new Error("No file provided");
   }
   if (file.size > MAX_AUDIO_FILE_SIZE) {
     throw new Error(
-      `File size exceeds maximum allowed (${MAX_AUDIO_FILE_SIZE / (1024 * 1024)}MB)`,
+      `File size exceeds maximum allowed (${MAX_AUDIO_FILE_SIZE / (1024 * 1024)}MB)`
     );
   }
 
@@ -511,7 +511,7 @@ const ATTR_WHITESPACE =
 
 export function isAllowedUri(
   uri: string | undefined,
-  protocols?: ProtocolConfig,
+  protocols?: ProtocolConfig
 ) {
   const allowedProtocols: string[] = [
     "http",
@@ -543,8 +543,8 @@ export function isAllowedUri(
       new RegExp(
         // eslint-disable-next-line no-useless-escape
         `^(?:(?:${allowedProtocols.join("|")}):|[^a-z]|[a-z0-9+.\-]+(?:[^a-z+.\-:]|$))`,
-        "i",
-      ),
+        "i"
+      )
     )
   );
 }
@@ -552,7 +552,7 @@ export function isAllowedUri(
 export function sanitizeUrl(
   inputUrl: string,
   baseUrl: string,
-  protocols?: ProtocolConfig,
+  protocols?: ProtocolConfig
 ): string {
   try {
     const url = new URL(inputUrl, baseUrl);
@@ -580,7 +580,7 @@ export function updateNodesAttr<A extends string = string, V = unknown>(
   tr: Transaction,
   targets: readonly NodeWithPos[],
   attrName: A,
-  next: V | ((prev: V | undefined) => V | undefined),
+  next: V | ((prev: V | undefined) => V | undefined)
 ): boolean {
   if (!targets.length) return false;
 

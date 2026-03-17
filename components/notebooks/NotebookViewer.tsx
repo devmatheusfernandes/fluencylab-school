@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import * as Y from "yjs";
@@ -33,7 +33,6 @@ interface Notebook {
   createdAt: any;
   updatedAt: any;
   student: string;
-  content: any;
   transcriptions?: { date: any; content: string }[];
   studentName?: string;
 }
@@ -42,185 +41,138 @@ export default function NotebookViewer({
   studentId,
   notebookId,
 }: NotebookViewerProps) {
-  const alunoId = studentId;
   const { data: session } = useSession();
-  const rawName = (session?.user?.name ||
-    session?.user?.email ||
-    "Usuário") as string;
-  const first = rawName.split(" ")[0] || rawName;
-  const userName = first.charAt(0).toUpperCase() + first.slice(1).toLowerCase();
-  const seedSource = (session?.user?.id || rawName) as string;
-  const seed = Array.from(seedSource).reduce((a, c) => a + c.charCodeAt(0), 0);
-  const seededRandom = (s: number) => {
-    let x = s % 2147483647;
-    if (x <= 0) x += 2147483646;
-    return () => (x = (x * 16807) % 2147483647) / 2147483647;
-  };
-  const toHex = (v: number) => {
-    const h = v.toString(16);
-    return h.length === 1 ? "0" + h : h;
-  };
-  const hslToHex = (h: number, s: number, l: number) => {
-    s /= 100;
-    l /= 100;
-    const k = (n: number) => (n + h / 30) % 12;
-    const a = s * Math.min(l, 1 - l);
-    const f = (n: number) =>
-      l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
-    const r = Math.round(255 * f(0));
-    const g = Math.round(255 * f(8));
-    const b = Math.round(255 * f(4));
-    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-  };
-  const rand = seededRandom(seed);
-  const paletteSize = 16;
-  const palette = Array.from({ length: paletteSize }, () => {
-    const h = Math.floor(rand() * 360);
-    const s = 60 + Math.floor(rand() * 30);
-    const l = 45 + Math.floor(rand() * 20);
-    return hslToHex(h, s, l);
-  });
-  const userColor = palette[Math.floor(rand() * paletteSize)];
+
+  // 1. OTIMIZAÇÃO: Gerar cores apenas uma vez no carregamento, evitando recálculos
+  const { userName, userColor } = useMemo(() => {
+    const rawName = (session?.user?.name ||
+      session?.user?.email ||
+      "Usuário") as string;
+    const first = rawName.split(" ")[0] || rawName;
+    const name = first.charAt(0).toUpperCase() + first.slice(1).toLowerCase();
+
+    const seedSource = (session?.user?.id || rawName) as string;
+    const seed = Array.from(seedSource).reduce(
+      (a, c) => a + c.charCodeAt(0),
+      0
+    );
+    const seededRandom = (s: number) => {
+      let x = s % 2147483647;
+      if (x <= 0) x += 2147483646;
+      return () => (x = (x * 16807) % 2147483647) / 2147483647;
+    };
+    const toHex = (v: number) => {
+      const h = v.toString(16);
+      return h.length === 1 ? "0" + h : h;
+    };
+    const hslToHex = (h: number, s: number, l: number) => {
+      s /= 100;
+      l /= 100;
+      const k = (n: number) => (n + h / 30) % 12;
+      const a = s * Math.min(l, 1 - l);
+      const f = (n: number) =>
+        l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+      const r = Math.round(255 * f(0));
+      const g = Math.round(255 * f(8));
+      const b = Math.round(255 * f(4));
+      return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+    };
+
+    const rand = seededRandom(seed);
+    const paletteSize = 16;
+    const palette = Array.from({ length: paletteSize }, () => {
+      return hslToHex(
+        Math.floor(rand() * 360),
+        60 + Math.floor(rand() * 30),
+        45 + Math.floor(rand() * 20)
+      );
+    });
+
+    return {
+      userName: name,
+      userColor: palette[Math.floor(rand() * paletteSize)],
+    };
+  }, [session]);
 
   const [notebook, setNotebook] = useState<Notebook | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [provider, setProvider] = useState<FirestoreProvider | null>(null);
-  const [content, setContent] = useState<string>("");
-  const [, setTimeLeft] = useState<number>(1800000);
-  const ydocRef = useRef<Y.Doc | null>(null);
-  const lastSavedContentRef = useRef<string>("");
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const contentRef = useRef<string>("");
 
+  // Referência do documento Yjs e da última versão salva para o sistema de backup de 5 min
+  const ydocRef = useRef<Y.Doc | null>(null);
+  const lastSavedVersionRef = useRef<string>("");
+
+  // 2. INICIALIZAÇÃO DO YJS: Conecta o provider que sincronizará os binários silenciosamente
   useEffect(() => {
-    if (!alunoId || !notebookId) return;
+    if (!studentId || !notebookId) return;
 
     if (!ydocRef.current) {
       ydocRef.current = new Y.Doc();
     }
 
-    const basePath: string[] = [
-      "users",
-      alunoId as string,
-      "Notebooks",
-      notebookId as string,
-    ];
+    const basePath: string[] = ["users", studentId, "Notebooks", notebookId];
     const newProvider = new FirestoreProvider(app, ydocRef.current, basePath);
 
-    newProvider.on("synced", (isSynced: boolean) => {});
-
     setProvider(newProvider);
-    return () => {
-      if (newProvider) {
-        newProvider.destroy();
-      }
-    };
-  }, [alunoId, notebookId]);
 
+    return () => {
+      newProvider.destroy();
+    };
+  }, [studentId, notebookId]);
+
+  // 3. BUSCA DE METADADOS: Pega apenas título e infos, o texto real o Yjs carrega sozinho
   useEffect(() => {
-    const fetchNotebookContent = async () => {
-      if (!alunoId || !notebookId) return;
+    const fetchNotebookMetadata = async () => {
+      if (!studentId || !notebookId) return;
 
       try {
         setLoading(true);
         const notebookDoc = await getDoc(
-          doc(db, `users/${alunoId}/Notebooks/${notebookId}`)
+          doc(db, `users/${studentId}/Notebooks/${notebookId}`)
         );
 
         if (notebookDoc.exists()) {
-          const notebookData = notebookDoc.data();
-          const fetchedContent = notebookData.content || "";
-
+          const data = notebookDoc.data();
           setNotebook({
-            id: notebookId as string,
-            title: notebookData.title || "Caderno",
-            description: notebookData.description || "",
-            createdAt: notebookData.createdAt,
-            updatedAt: notebookData.updatedAt,
-            student: alunoId as string,
-            content: fetchedContent,
-            transcriptions: notebookData.transcriptions || [],
-            studentName: notebookData.studentName || "Aluno",
+            id: notebookId,
+            title: data.title || "Caderno",
+            description: data.description || "",
+            createdAt: data.createdAt,
+            updatedAt: data.updatedAt,
+            student: studentId,
+            transcriptions: data.transcriptions || [],
+            studentName: data.studentName || "Aluno",
           });
 
-          setContent(fetchedContent);
-          lastSavedContentRef.current = fetchedContent;
-
-          if (fetchedContent) {
-            const versionRef = collection(
-              db,
-              `users/${alunoId}/Notebooks/${notebookId}/versions`
-            );
-            const recentVersions = await getDocs(
-              query(versionRef, orderBy("timestamp", "desc"), limit(1))
-            );
-
-            const shouldSaveInitial =
-              recentVersions.empty ||
-              recentVersions.docs[0].data().content !== fetchedContent;
-
-            if (shouldSaveInitial) {
-              await addDoc(versionRef, {
-                content: fetchedContent,
-                timestamp: serverTimestamp(),
-                type: "initial",
-              });
-            }
+          // Puxa a última versão de backup apenas para ter uma base de comparação
+          const versionRef = collection(
+            db,
+            `users/${studentId}/Notebooks/${notebookId}/versions`
+          );
+          const recentVersions = await getDocs(
+            query(versionRef, orderBy("timestamp", "desc"), limit(1))
+          );
+          if (!recentVersions.empty) {
+            lastSavedVersionRef.current =
+              recentVersions.docs[0].data().content || "";
           }
         }
-      } catch (error) {
+      } catch (err) {
         setError("Erro ao carregar o caderno. Por favor, tente novamente.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchNotebookContent();
-  }, [alunoId, notebookId]);
-
-  const debouncedSave = useCallback(
-    async (newContent: string) => {
-      if (!alunoId || !notebookId) return;
-      if (newContent === lastSavedContentRef.current) return;
-      try {
-        await updateDoc(doc(db, `users/${alunoId}/Notebooks/${notebookId}`), {
-          content: newContent,
-          updatedAt: serverTimestamp(),
-        });
-        lastSavedContentRef.current = newContent;
-      } catch (error) {}
-    },
-    [alunoId, notebookId]
-  );
-
-  const handleContentChange = useCallback(
-    (newContent: string) => {
-      setContent(newContent);
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
-      saveTimeoutRef.current = setTimeout(() => {
-        debouncedSave(newContent);
-      }, 3000);
-      if (notebook) {
-        setNotebook({ ...notebook, content: newContent });
-      }
-    },
-    [notebook, debouncedSave]
-  );
-
-  useEffect(() => {
-    contentRef.current = content;
-  }, [content]);
+    fetchNotebookMetadata();
+  }, [studentId, notebookId]);
 
   const handleTitleChange = async (newTitle: string) => {
-    if (!alunoId || !notebookId || !notebook) return;
-
+    if (!studentId || !notebookId || !notebook) return;
     setNotebook({ ...notebook, title: newTitle });
-
     try {
-      await updateDoc(doc(db, `users/${alunoId}/Notebooks/${notebookId}`), {
+      await updateDoc(doc(db, `users/${studentId}/Notebooks/${notebookId}`), {
         title: newTitle,
         updatedAt: serverTimestamp(),
       });
@@ -234,76 +186,85 @@ export default function NotebookViewer({
       if (!oldContent) return true;
       if (!newContent) return false;
       const lengthDiff = Math.abs(newContent.length - oldContent.length);
-      const threshold = oldContent.length * 0.05;
+      const threshold = oldContent.length * 0.05; // 5% de mudança
       return lengthDiff > threshold || newContent !== oldContent;
     },
     []
   );
 
+  // 4. BACKUP DE 5 MINUTOS: Lê da memória (Y.Doc) e salva um backup legível
   useEffect(() => {
-    if (!alunoId || !notebookId) return;
+    if (!studentId || !notebookId) return;
 
     const saveVersion = async () => {
+      if (!ydocRef.current) return;
+
+      // Extrai o conteúdo do Tiptap que vive no Yjs no fragmento 'default'
+      const currentJson = ydocRef.current.getXmlFragment("default").toJSON();
+      const stringifiedContent = JSON.stringify(currentJson || {});
+
+      // Evita salvar documentos vazios
+      if (
+        !stringifiedContent ||
+        stringifiedContent === "{}" ||
+        stringifiedContent === "[]"
+      )
+        return;
+
+      // Só faz requisição se houve diferença de fato
+      if (
+        !hasSignificantChanges(stringifiedContent, lastSavedVersionRef.current)
+      ) {
+        return;
+      }
+
       try {
         const versionRef = collection(
           db,
-          `users/${alunoId}/Notebooks/${notebookId}/versions`
+          `users/${studentId}/Notebooks/${notebookId}/versions`
         );
-        const recentVersions = await getDocs(
-          query(versionRef, orderBy("timestamp", "desc"), limit(1))
-        );
-        const lastVersion = recentVersions.empty
-          ? ""
-          : recentVersions.docs[0].data().content;
-        const current = contentRef.current;
-        if (!current) {
-          return;
-        }
-        if (!hasSignificantChanges(current, lastVersion)) {
-          return;
-        }
         await addDoc(versionRef, {
-          content: current,
+          content: stringifiedContent,
           timestamp: serverTimestamp(),
-          type: "auto",
+          type: "auto-5min",
         });
-      } catch (error) {}
+
+        lastSavedVersionRef.current = stringifiedContent;
+      } catch (error) {
+        console.error("Erro no auto-save:", error);
+      }
     };
 
-    const saveInterval = setInterval(() => {
-      saveVersion();
-      setTimeLeft(1800000);
-    }, 1800000);
+    const INTERVAL_5_MIN = 5 * 60 * 1000;
+    const saveInterval = setInterval(saveVersion, INTERVAL_5_MIN);
 
-    const countdownInterval = setInterval(() => {
-      setTimeLeft((prev) => Math.max(prev - 1000, 0));
-    }, 1000);
-
+    // Salva ao fechar a aba do navegador
     const handleBeforeUnload = () => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
+      if (!ydocRef.current) return;
+      const currentJson = ydocRef.current.getXmlFragment("default").toJSON();
+      const stringifiedContent = JSON.stringify(currentJson || {});
+
+      if (
+        hasSignificantChanges(stringifiedContent, lastSavedVersionRef.current)
+      ) {
+        navigator.sendBeacon(
+          `/api/save-notebook`,
+          JSON.stringify({
+            alunoId: studentId,
+            notebookId,
+            content: stringifiedContent,
+          })
+        );
       }
-      navigator.sendBeacon(
-        `/api/save-notebook`,
-        JSON.stringify({
-          alunoId,
-          notebookId,
-          content: contentRef.current,
-        })
-      );
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
       clearInterval(saveInterval);
-      clearInterval(countdownInterval);
       window.removeEventListener("beforeunload", handleBeforeUnload);
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
     };
-  }, [alunoId, notebookId, hasSignificantChanges]);
+  }, [studentId, notebookId, hasSignificantChanges]);
 
   if (loading) {
     return (
@@ -313,30 +274,18 @@ export default function NotebookViewer({
     );
   }
 
-  if (error) {
+  if (error || !notebook) {
     return (
       <div className="flex justify-center items-center h-64">
         <div
           className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
           role="alert"
         >
-          <strong className="font-bold">Erro! </strong>
-          <span className="block sm:inline">{error}</span>
-        </div>
-      </div>
-    );
-  }
-
-  if (!notebook) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div
-          className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative"
-          role="alert"
-        >
-          <strong className="font-bold">Caderno não encontrado! </strong>
+          <strong className="font-bold">
+            {error ? "Erro! " : "Não encontrado! "}
+          </strong>
           <span className="block sm:inline">
-            O caderno solicitado não foi encontrado.
+            {error || "O caderno solicitado não foi encontrado."}
           </span>
         </div>
       </div>
@@ -350,13 +299,10 @@ export default function NotebookViewer({
       className="fade-in min-h-screen"
     >
       <TiptapEditor
-        content={content || notebook?.content || ""}
-        onSave={handleContentChange}
-        placeholder="Comece a escrever o conteúdo do caderno..."
         className="min-h-screen"
         ydoc={ydocRef.current}
         provider={provider}
-        docId={`notebook_${String(alunoId)}_${String(notebookId)}`}
+        docId={`notebook_${String(studentId)}_${String(notebookId)}`}
         userName={userName}
         userColor={userColor}
         studentID={studentId}

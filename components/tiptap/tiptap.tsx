@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useCallback } from "react";
+import React, { useRef } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import TextAlign from "@tiptap/extension-text-align";
@@ -13,12 +13,7 @@ import CollaborationCaret from "@tiptap/extension-collaboration-caret";
 import * as Y from "yjs";
 import { ImageUploadNode } from "@/components/tiptap-node/image-upload-node";
 import { Image } from "@tiptap/extension-image";
-import {
-  MAX_FILE_SIZE,
-  handleImageUpload,
-  extractImageSrcsFromHtml,
-  deleteImageByUrl,
-} from "@/lib/ui/tiptapUtils";
+import { MAX_FILE_SIZE, handleImageUpload } from "@/lib/ui/tiptapUtils";
 import Placeholder from "@tiptap/extension-placeholder";
 import Toolbar from "./toolbar/toolbar";
 import { TaskList, TaskItem } from "@tiptap/extension-list";
@@ -37,10 +32,6 @@ import Bubble from "./bubble";
 import { SpinnerLoading } from "../transitions/spinner-loading";
 
 interface TiptapEditorProps {
-  content: string;
-  onSave: (content: string) => void;
-  placeholder?: string;
-  autoSaveDelay?: number;
   className?: string;
   ydoc?: Y.Doc | null;
   provider?: any | null;
@@ -55,9 +46,6 @@ interface TiptapEditorProps {
 }
 
 const TiptapEditor: React.FC<TiptapEditorProps> = ({
-  content,
-  onSave,
-  autoSaveDelay = 2000,
   className = "",
   ydoc = null,
   provider = null,
@@ -70,39 +58,9 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   onTitleChange,
   studentName,
 }) => {
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const lastSavedContentRef = useRef<string>(content);
-  const isSavingRef = useRef<boolean>(false);
   const isMobile = useIsMobile();
-  const imageUrlsRef = useRef<Set<string>>(new Set());
   const { data: session } = useSession();
   const containerRef = useRef<HTMLDivElement>(null);
-
-  const debouncedSave = useCallback(
-    async (newContent: string) => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
-
-      saveTimeoutRef.current = setTimeout(async () => {
-        if (
-          newContent !== lastSavedContentRef.current &&
-          !isSavingRef.current
-        ) {
-          try {
-            isSavingRef.current = true;
-            onSave(newContent);
-            lastSavedContentRef.current = newContent;
-          } catch (error) {
-            console.error("Erro ao salvar automaticamente:", error);
-          } finally {
-            isSavingRef.current = false;
-          }
-        }
-      }, autoSaveDelay);
-    },
-    [onSave, autoSaveDelay]
-  );
 
   const editor = useEditor({
     extensions: [
@@ -159,7 +117,6 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
       }),
       TaskList,
       TaskItem.configure({ nested: true }),
-
       ...(ydoc
         ? [
             Collaboration.configure({
@@ -180,7 +137,6 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
           ]
         : []),
     ],
-    content,
     immediatelyRender: false,
     editorProps: {
       attributes: {
@@ -188,48 +144,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
           "sm:px-[25vw] px-[8vw] prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none dark:prose-invert prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-strong:text-gray-900 dark:prose-strong:text-gray-100 prose-em:text-gray-700 dark:prose-em:text-gray-300 prose-blockquote:text-gray-600 dark:prose-blockquote:text-gray-400 prose-blockquote:border-gray-300 dark:prose-blockquote:border-gray-600 prose-code:text-gray-900 dark:prose-code:text-gray-100 prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-pre:bg-gray-100 dark:prose-pre:bg-gray-800 prose-ol:text-gray-700 dark:prose-ol:text-gray-300 prose-ul:text-gray-700 dark:prose-ul:text-gray-300 prose-li:text-gray-700 dark:prose-li:text-gray-300 min-h-[300px] p-4",
       },
     },
-    onUpdate: ({ editor }) => {
-      const html = editor.getHTML();
-      const current = new Set(extractImageSrcsFromHtml(html));
-      for (const url of imageUrlsRef.current) {
-        if (!current.has(url)) {
-          deleteImageByUrl(url).catch(() => {});
-        }
-      }
-      imageUrlsRef.current = current;
-      debouncedSave(html);
-    },
-    onCreate: ({ editor }) => {
-      try {
-      } catch {}
-      if (content && content !== "<p></p>" && editor.isEmpty) {
-        editor.commands.setContent(content);
-        lastSavedContentRef.current = content;
-        imageUrlsRef.current = new Set(extractImageSrcsFromHtml(content));
-      }
-    },
   });
-
-  useEffect(() => {
-    if (
-      !ydoc &&
-      editor &&
-      content !== editor.getHTML() &&
-      content !== lastSavedContentRef.current
-    ) {
-      editor.commands.setContent(content);
-      lastSavedContentRef.current = content;
-      imageUrlsRef.current = new Set(extractImageSrcsFromHtml(content));
-    }
-  }, [content, editor, ydoc]);
-
-  useEffect(() => {
-    return () => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
-    };
-  }, []);
 
   if (!editor) {
     return <SpinnerLoading />;
@@ -251,6 +166,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
             notebookId={notebookId || docId}
           />
         )}
+
         <Bubble editor={editor} />
         <EditorContent editor={editor} className="min-h-screen no-scrollbar" />
 
@@ -266,6 +182,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
 
         <CommentsSheet editor={editor} docId={docId || "test-comments"} />
       </div>
+
       {isMobile && (
         <BottomToolbar
           editor={editor}
