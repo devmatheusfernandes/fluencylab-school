@@ -54,9 +54,11 @@ export function Keyboard({
                   ? "⌫"
                   : key.toUpperCase();
 
-            const flexWidth = isAction ? "flex-[1.5]" : "flex-1";
+            const flexWidth = isAction
+              ? "flex-[1.5] max-w-[4rem]"
+              : "flex-1 max-w-[4rem]";
 
-            const base = `h-12 sm:h-14 ${flexWidth} rounded font-semibold text-xs sm:text-sm flex items-center justify-center select-none transition-colors duration-200 shadow-sm active:scale-95`;
+            const base = `h-9 sm:h-14 ${flexWidth} rounded font-semibold text-xs sm:text-sm flex items-center justify-center select-none transition-colors duration-200 shadow-sm active:scale-95`;
             const cls = twMerge(base, keyClass(state));
 
             const handler =

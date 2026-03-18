@@ -1,8 +1,14 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, History } from "lucide-react";
 import { SpinnerLoading } from "@/components/transitions/spinner-loading";
 import { Button } from "@/components/ui/button";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
 import { Keyboard } from "../Keyboard";
 import { WordleBoard } from "./WordleBoard";
 import { WordleResultBanner } from "./WordleResultBanner";
@@ -10,7 +16,7 @@ import { WordleDetailsModal } from "./WordleDetailsModal";
 import { WordleHistoryModal } from "./WordleHistoryModal";
 import { LanguageSelect } from "../LanguageSelect";
 import { useWordleGame } from "@/hooks/immersion/useWordleGame";
-import { ImmersionGameHeader } from "../ImmersionGameHeader";
+import { Header } from "@/components/ui/header";
 
 export default function WordleGame() {
   const {
@@ -31,14 +37,12 @@ export default function WordleGame() {
     onLetter,
     onBackspace,
     shaking,
-    liveMessage,
     historyOpen,
     setHistoryOpen,
     historyEntries,
     openHistory,
   } = useWordleGame();
 
-  // === Renders ===
   if (loading) return <SpinnerLoading />;
 
   if (!target) {
@@ -52,83 +56,114 @@ export default function WordleGame() {
   }
 
   return (
-    <div className="relative min-h-[85dvh] w-full flex flex-col items-center py-4 px-4 gap-8">
-      <div aria-live="polite" className="sr-only">
-        {liveMessage}
-      </div>
+    <div className="container-padding">
+      <Header
+        heading="Jogue o Wordle"
+        subheading="Tente adivinhar a palavra em 6 tentativas."
+        backHref="/hub/student/my-immersion"
+        icon={
+          <div className="flex flex-row items-center gap-2">
+            <LanguageSelect
+              value={selectedLang}
+              options={langOptions}
+              onChange={(next) => {
+                setSelectedLang(next);
+                startNewGame(next);
+              }}
+              disabled={langOptions.length <= 1}
+            />
 
-      {/* Top Actions */}
-      <ImmersionGameHeader>
-        <LanguageSelect
-          value={selectedLang}
-          options={langOptions}
-          onChange={(next) => {
-            setSelectedLang(next);
-            startNewGame(next);
-          }}
-          disabled={langOptions.length <= 1}
-        />
-
-        <Button
-          variant="ghost"
-          className="rounded-full text-muted-foreground hover:text-foreground"
-          onClick={openHistory}
-        >
-          Histórico
-        </Button>
-      </ImmersionGameHeader>
-
-      {/* Board sempre visível */}
-      <WordleBoard
-        maxAttempts={maxAttempts}
-        length={length}
-        guesses={guesses}
-        current={current}
-        finished={finished}
-        evaluations={evaluations}
-        shaking={shaking}
+            <Button
+              variant="ghost"
+              className="rounded-full text-muted-foreground hover:text-foreground"
+              onClick={openHistory}
+            >
+              <History className="h-5 w-5" />
+            </Button>
+          </div>
+        }
       />
 
-      {/* Troca suave entre Teclado e Tela de Resultados */}
-      <div className="w-full max-w-lg flex flex-col items-center justify-center min-h-[200px]">
-        <AnimatePresence mode="wait">
-          {finished ? (
-            <motion.div
-              key="results"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.3 }}
-              className="w-full flex flex-col items-center gap-4"
-            >
-              <WordleResultBanner finished={finished} />
-              <WordleDetailsModal
-                word={target.word}
-                lang={(target.lang || selectedLang || "en").toLowerCase()}
-                onPlayAgain={() => {
-                  startNewGame(selectedLang);
-                }}
+      {/* Container Principal com Carousel */}
+      <div className="w-full flex flex-col items-center justify-center">
+        <Carousel
+          className="w-full"
+          opts={{
+            watchDrag: !!finished, // Evita arrastar sem querer enquanto joga
+            loop: false,
+          }}
+        >
+          <CarouselContent>
+            {/* Slide 1: Board + Teclado (ou Indicação de Arrastar) */}
+            <CarouselItem className="w-full flex flex-col items-center">
+              <WordleBoard
+                maxAttempts={maxAttempts}
+                length={length}
+                guesses={guesses}
+                current={current}
+                finished={finished}
+                evaluations={evaluations}
+                shaking={shaking}
               />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="keyboard"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 15 }}
-              transition={{ duration: 0.2 }}
-              className="w-full px-2"
-            >
-              <Keyboard
-                onLetter={onLetter}
-                onEnter={enter}
-                onBackspace={onBackspace}
-                letterStates={letterStates}
-                disabled={!!finished}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+
+              <div className="w-full flex flex-col items-center justify-center">
+                <AnimatePresence mode="wait">
+                  {!finished ? (
+                    <motion.div
+                      key="keyboard"
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 15 }}
+                      transition={{ duration: 0.2 }}
+                      className="w-full px-2 pt-8"
+                    >
+                      <Keyboard
+                        onLetter={onLetter}
+                        onEnter={enter}
+                        onBackspace={onBackspace}
+                        letterStates={letterStates}
+                        disabled={!!finished}
+                      />
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="swipe-hint"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.5, duration: 0.3 }}
+                      className="flex items-center gap-3 text-muted-foreground bg-muted/40 px-4 py-2 rounded-full border border-border/50 animate-pulse"
+                    >
+                      <span className="text-sm font-medium">
+                        Deslize para ver o resultado
+                      </span>
+                      <ArrowRight className="w-4 h-4" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </CarouselItem>
+
+            {/* Slide 2: Resultados (Aparece apenas quando o jogo acaba) */}
+            {finished && (
+              <CarouselItem className="w-full flex flex-col items-center justify-center gap-6 pb-8">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full flex flex-col items-center gap-6"
+                >
+                  <WordleDetailsModal
+                    word={target.word}
+                    lang={(target.lang || selectedLang || "en").toLowerCase()}
+                    onPlayAgain={() => {
+                      startNewGame(selectedLang);
+                    }}
+                  />
+                </motion.div>
+              </CarouselItem>
+            )}
+          </CarouselContent>
+        </Carousel>
       </div>
 
       <WordleHistoryModal

@@ -20,75 +20,72 @@ export function WordleDetailsModal({
   return (
     <WordLookup word={word} lang={lang}>
       {({ detailsLoading, details, imageLoading, image, retry }) => (
-        <div className="w-full max-w-lg rounded-3xl border border-border/50 bg-background/80 backdrop-blur-md p-6 shadow-xl ring-1 ring-black/5 dark:ring-white/5">
-          <div className="flex flex-col items-center justify-center space-y-1 pb-4 border-b border-border/50">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80 bg-muted px-2 py-0.5 rounded-full">
+        <div className="w-full max-w-lg rounded-2xl border border-border/50 bg-background/90 backdrop-blur-md p-4 sm:p-5 shadow-xl ring-1 ring-black/5 dark:ring-white/5 flex flex-col">
+          {/* Cabeçalho */}
+          <div className="flex flex-col items-center justify-center pb-3 border-b border-border/50">
+            <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground bg-muted px-2 py-0.5 rounded-full mb-1">
               Palavra do Jogo
             </span>
-            <h2 className="text-3xl font-black tracking-widest text-foreground uppercase drop-shadow-sm">
+            <h2 className="text-2xl font-black tracking-widest text-foreground uppercase drop-shadow-sm">
               {word}
             </h2>
           </div>
 
-          <div className="mt-4 overflow-y-auto max-h-[55vh] pr-2 custom-scrollbar">
+          {/* Área de Scroll */}
+          <div className="mt-3 overflow-y-auto max-h-[48vh] pr-1 custom-scrollbar">
             {detailsLoading ? (
-              <div className="flex flex-col items-center justify-center py-16 gap-4">
-                <Spinner className="w-8 h-8 text-primary animate-spin-slow" />
+              <div className="flex flex-col items-center justify-center py-10 gap-3">
+                <Spinner className="w-6 h-6 text-primary animate-spin-slow" />
                 <span className="text-sm text-muted-foreground font-medium animate-pulse">
-                  Buscando no dicionário...
+                  Buscando...
                 </span>
               </div>
             ) : !details ? (
-              <div className="flex flex-col items-center justify-center gap-4 py-12 text-center bg-muted/20 rounded-2xl border border-dashed border-border/60">
-                <div className="text-4xl opacity-50">📚</div>
-                <div className="text-muted-foreground text-sm max-w-[200px]">
-                  Não conseguimos encontrar os detalhes para esta palavra.
+              <div className="flex flex-col items-center justify-center gap-3 py-8 text-center bg-muted/20 rounded-xl border border-dashed border-border/60">
+                <div className="text-3xl opacity-50">📚</div>
+                <div className="text-muted-foreground text-xs max-w-[200px]">
+                  Não conseguimos encontrar os detalhes.
                 </div>
                 <Button
                   variant="secondary"
-                  className="rounded-full mt-2"
+                  size="sm"
+                  className="rounded-full mt-1"
                   onClick={retry}
                 >
                   Tentar novamente
                 </Button>
               </div>
             ) : (
-              <div className="flex flex-col gap-5 pb-2">
-                <div className="bg-muted/30 p-4 rounded-2xl border border-border/40 space-y-3 transition-colors hover:bg-muted/40">
-                  <h3 className="flex items-center gap-2 text-sm font-bold text-foreground uppercase tracking-wider opacity-80">
+              <div className="flex flex-col gap-3 pb-1">
+                {/* Imagem */}
+                <div className="bg-muted/20 p-3 rounded-xl border border-border/40 space-y-2">
+                  <h3 className="flex items-center gap-1.5 text-xs font-bold text-foreground uppercase opacity-80">
                     <span className="text-primary">🖼️</span> Imagem
                   </h3>
-
                   {imageLoading ? (
-                    <div className="flex items-center justify-center py-10">
-                      <Spinner className="w-6 h-6 text-primary animate-spin-slow" />
+                    <div className="flex justify-center py-6">
+                      <Spinner className="w-5 h-5 text-primary animate-spin-slow" />
                     </div>
                   ) : !image ? (
-                    <p className="text-sm italic text-muted-foreground pl-7">
-                      Nenhuma imagem encontrada.
+                    <p className="text-xs italic text-muted-foreground">
+                      Sem imagem.
                     </p>
                   ) : (
-                    <div className="space-y-3">
-                      <div className="relative w-full aspect-[16/9] overflow-hidden rounded-xl border border-border/40 bg-muted/40">
+                    <div className="space-y-1.5">
+                      <div className="relative w-full h-28 sm:h-36 overflow-hidden rounded-lg border border-border/40 bg-muted/40">
                         <Image
                           src={image.urls.regular || image.urls.small}
-                          alt={
-                            image.altDescription ||
-                            image.description ||
-                            `Imagem de ${word}`
-                          }
+                          alt={image.altDescription || `Imagem de ${word}`}
                           fill
                           sizes="(max-width: 640px) 100vw, 512px"
                           className="object-cover"
                         />
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        Foto por{" "}
+                      <div className="text-[10px] text-muted-foreground truncate">
+                        Por{" "}
                         <a
-                          className="underline underline-offset-4 hover:text-foreground"
-                          href={`https://unsplash.com/@${encodeURIComponent(
-                            image.author.username
-                          )}`}
+                          className="underline hover:text-foreground"
+                          href={`https://unsplash.com/@${encodeURIComponent(image.author.username)}`}
                           target="_blank"
                           rel="noreferrer"
                         >
@@ -96,7 +93,7 @@ export function WordleDetailsModal({
                         </a>{" "}
                         no{" "}
                         <a
-                          className="underline underline-offset-4 hover:text-foreground"
+                          className="underline hover:text-foreground"
                           href={image.links.html}
                           target="_blank"
                           rel="noreferrer"
@@ -109,22 +106,23 @@ export function WordleDetailsModal({
                   )}
                 </div>
 
-                <div className="bg-muted/30 p-4 rounded-2xl border border-border/40 space-y-3 transition-colors hover:bg-muted/40">
-                  <h3 className="flex items-center gap-2 text-sm font-bold text-foreground uppercase tracking-wider opacity-80">
+                {/* Significados */}
+                <div className="bg-muted/20 p-3 rounded-xl border border-border/40 space-y-2">
+                  <h3 className="flex items-center gap-1.5 text-xs font-bold text-foreground uppercase opacity-80">
                     <span className="text-primary">📖</span> Significados
                   </h3>
                   {details.definitions.length === 0 ? (
-                    <p className="text-sm italic text-muted-foreground pl-7">
-                      Nenhuma definição encontrada.
+                    <p className="text-xs italic text-muted-foreground">
+                      Nenhuma definição.
                     </p>
                   ) : (
-                    <ul className="space-y-3 pl-1 text-foreground/90 text-[15px] leading-relaxed">
+                    <ul className="space-y-1.5 text-sm text-foreground/90">
                       {details.definitions.slice(0, 3).map((d, idx) => (
                         <li
                           key={`def-${idx}`}
-                          className="flex items-start gap-3"
+                          className="flex items-start gap-2 leading-tight"
                         >
-                          <span className="text-primary/60 font-bold text-sm mt-0.5 select-none">
+                          <span className="text-primary/60 font-bold text-xs mt-0.5">
                             {idx + 1}.
                           </span>
                           <span>{d}</span>
@@ -134,20 +132,21 @@ export function WordleDetailsModal({
                   )}
                 </div>
 
-                <div className="bg-muted/30 p-4 rounded-2xl border border-border/40 space-y-3 transition-colors hover:bg-muted/40">
-                  <h3 className="flex items-center gap-2 text-sm font-bold text-foreground uppercase tracking-wider opacity-80">
+                {/* Sinônimos */}
+                <div className="bg-muted/20 p-3 rounded-xl border border-border/40 space-y-2">
+                  <h3 className="flex items-center gap-1.5 text-xs font-bold text-foreground uppercase opacity-80">
                     <span className="text-primary">✨</span> Sinônimos
                   </h3>
                   {details.synonyms.length === 0 ? (
-                    <p className="text-sm italic text-muted-foreground pl-7">
-                      Nenhum sinônimo encontrado.
+                    <p className="text-xs italic text-muted-foreground">
+                      Nenhum sinônimo.
                     </p>
                   ) : (
-                    <div className="flex flex-wrap gap-2 pl-1">
-                      {details.synonyms.slice(0, 3).map((s, idx) => (
+                    <div className="flex flex-wrap gap-1.5">
+                      {details.synonyms.slice(0, 4).map((s, idx) => (
                         <span
                           key={`syn-${idx}`}
-                          className="text-sm px-3 py-1 rounded-full border border-border bg-background text-foreground shadow-sm font-medium hover:border-primary/40 transition-colors cursor-default"
+                          className="text-[11px] px-2.5 py-0.5 rounded-full border border-border bg-background text-foreground shadow-sm font-medium"
                         >
                           {s}
                         </span>
@@ -156,20 +155,21 @@ export function WordleDetailsModal({
                   )}
                 </div>
 
-                <div className="bg-muted/30 p-4 rounded-2xl border border-border/40 space-y-3 transition-colors hover:bg-muted/40">
-                  <h3 className="flex items-center gap-2 text-sm font-bold text-foreground uppercase tracking-wider opacity-80">
-                    <span className="text-primary">💬</span> Exemplos de uso
+                {/* Exemplos */}
+                <div className="bg-muted/20 p-3 rounded-xl border border-border/40 space-y-2">
+                  <h3 className="flex items-center gap-1.5 text-xs font-bold text-foreground uppercase opacity-80">
+                    <span className="text-primary">💬</span> Exemplos
                   </h3>
                   {details.examples.length === 0 ? (
-                    <p className="text-sm italic text-muted-foreground pl-7">
-                      Nenhum exemplo encontrado.
+                    <p className="text-xs italic text-muted-foreground">
+                      Nenhum exemplo.
                     </p>
                   ) : (
-                    <div className="space-y-3 pl-1">
-                      {details.examples.slice(0, 3).map((ex, idx) => (
+                    <div className="space-y-2 text-sm">
+                      {details.examples.slice(0, 2).map((ex, idx) => (
                         <blockquote
                           key={`ex-${idx}`}
-                          className="relative border-l-2 border-primary/40 pl-4 py-1.5 text-muted-foreground italic text-[15px] bg-gradient-to-r from-primary/5 to-transparent rounded-r-lg"
+                          className="border-l-2 border-primary/40 pl-3 py-0.5 text-muted-foreground italic bg-gradient-to-r from-primary/5 to-transparent rounded-r-md leading-tight"
                         >
                           &ldquo;{ex}&rdquo;
                         </blockquote>
@@ -181,9 +181,10 @@ export function WordleDetailsModal({
             )}
           </div>
 
-          <div className="mt-6 pt-4 border-t border-border/50">
+          {/* Botão Final */}
+          <div className="mt-4 pt-3 border-t border-border/50 shrink-0">
             <ImmersionButton
-              className="w-full rounded-2xl font-bold text-md h-14 shadow-lg shadow-primary/20 transition-transform active:scale-[0.98]"
+              className="w-full rounded-xl font-bold text-sm h-12 shadow-md transition-transform active:scale-[0.98]"
               onClick={onPlayAgain}
             >
               Jogar Nova Palavra

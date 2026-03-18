@@ -28,7 +28,6 @@ import {
 import TwoFactorSetup from "./TwoFactorSetup";
 import { GoogleCalendarDefaultTimes } from "@/types/users/users";
 import { usePWAInstall } from "@/hooks/ui/usePWAInstall";
-import { usePWAUpdate } from "@/hooks/ui/usePWAUpdate";
 import { ThemeSwitcher } from "../ThemeSwitcher";
 import {
   Palette,

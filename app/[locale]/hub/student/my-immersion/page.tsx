@@ -3,7 +3,14 @@ import { Header } from "@/components/ui/header";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import Image from "next/image";
-import { Headphones, BookOpen, Construction, Gamepad2 } from "lucide-react";
+import {
+  Headphones,
+  BookOpen,
+  Construction,
+  Music,
+  ALargeSmall,
+  WavesLadder,
+} from "lucide-react";
 import {
   Carousel,
   CarouselContent,
@@ -14,15 +21,21 @@ export default function MyImmersionPage() {
   const constructionItems = [
     {
       title: "Wordle",
-      icon: Gamepad2,
+      icon: ALargeSmall,
       color: "bg-emerald-950",
       link: "/hub/student/my-immersion/wordle",
     },
     {
-      title: "Guessly",
-      icon: Gamepad2,
-      color: "bg-stone-900",
-      link: "/hub/student/my-immersion/guessly",
+      title: "Lyrics",
+      icon: Music,
+      color: "bg-sky-950",
+      link: "/hub/student/my-immersion/lyrics-training",
+    },
+    {
+      title: "Word Ladder",
+      icon: WavesLadder,
+      color: "bg-rose-950",
+      link: "/hub/student/my-immersion/word-ladder",
     },
   ];
 

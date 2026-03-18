@@ -14,7 +14,7 @@ export interface HeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * The subheading text below the main heading
    */
-  subheading?: string;
+  subheading?: React.ReactNode;
   /**
    * The icon to display on the far right
    */
@@ -47,7 +47,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
       className,
       ...props
     },
-    ref,
+    ref
   ) => {
     const headingSizeClasses = {
       xl: "text-xl",
@@ -71,7 +71,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
         className={twMerge(
           "items-start justify-between gap-4",
           isStandalone ? "hidden" : "flex mb-4",
-          className,
+          className
         )}
         {...props}
       >
@@ -93,7 +93,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
             <h1
               className={twMerge(
                 "font-bold title-base leading-tight tracking-tight",
-                headingSizeClasses[headingSize],
+                headingSizeClasses[headingSize]
               )}
             >
               {heading}
@@ -102,7 +102,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
               <p
                 className={twMerge(
                   "text-subtitle leading-relaxed",
-                  subheadingSizeClasses[subheadingSize],
+                  subheadingSizeClasses[subheadingSize]
                 )}
               >
                 {subheading}
@@ -117,7 +117,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
         )}
       </div>
     );
-  },
+  }
 );
 
 Header.displayName = "Header";
