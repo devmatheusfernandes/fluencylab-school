@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/modal";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Text } from "@/components/ui/text";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "../ui/skeleton";
 import { FileUser } from "lucide-react";

@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import { useIsStandalone } from "@/hooks/ui/useIsStandalone"
+import { useIsStandalone } from "@/hooks/ui/useIsStandalone";
 import {
   CircleCheckIcon,
   InfoIcon,
   Loader2Icon,
   OctagonXIcon,
   TriangleAlertIcon,
-} from "lucide-react"
-import { useTheme } from "next-themes"
-import { Toaster as Sonner, type ToasterProps } from "sonner"
+} from "lucide-react";
+import { useTheme } from "next-themes";
+import { Toaster as Sonner, type ToasterProps } from "sonner";
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme } = useTheme()
+  const { theme } = useTheme();
   const isPWA = useIsStandalone();
 
   return (
@@ -29,15 +29,18 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       toastOptions={{
         style: {
-          background: "var(--accent)",
-          color: "var(--primary)",
-          border: "1px solid var(--border)",
+          background: "var(--primary)",
+          color: "white",
+          border: "1px solid var(--primary)",
           borderRadius: "var(--radius)",
-         },
+        },
+        classNames: {
+          description: "!text-white",
+        },
       }}
       {...props}
     />
-  )
-}
+  );
+};
 
-export { Toaster }
+export { Toaster };
