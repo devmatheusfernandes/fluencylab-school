@@ -1,7 +1,6 @@
 import { getSession } from "next-auth/react";
-import ptVocab from "@/vocabulary/pt.json";
-import esVocab from "@/vocabulary/es.json";
-import deVocab from "@/vocabulary/de.json";
+import ptWords from "@/vocabulary/palavras.json";
+import enWords from "@/vocabulary/words.json";
 
 export type LearnedWord = {
   id: string;
@@ -16,10 +15,13 @@ const isValidLength = (w: string) =>
   w.length >= WORD_LENGTH.min && w.length <= WORD_LENGTH.max;
 
 function normalizeWord(input: string): string {
-  const onlyLetters = input.normalize("NFKD").replace(/[^\p{L}]/gu, "");
-  return onlyLetters.toLowerCase();
+  return input
+    .normalize("NFKD")
+    .replace(/[^\p{L}]/gu, "")
+    .toLowerCase();
 }
 
+// client-only
 export async function fetchLearnedWords(): Promise<LearnedWord[]> {
   try {
     const res = await fetch("/api/srs/learned", {
@@ -32,11 +34,8 @@ export async function fetchLearnedWords(): Promise<LearnedWord[]> {
     const seen = new Set<string>();
     const words: LearnedWord[] = [];
     for (const it of items) {
-      const title = typeof it.title === "string" ? it.title : "";
-      const w = normalizeWord(title);
-      if (!w) continue;
-      if (!isValidLength(w)) continue;
-      if (seen.has(w)) continue;
+      const w = normalizeWord(typeof it.title === "string" ? it.title : "");
+      if (!w || !isValidLength(w) || seen.has(w)) continue;
       seen.add(w);
       words.push({
         id: String(it.id),
@@ -53,101 +52,67 @@ export async function fetchLearnedWords(): Promise<LearnedWord[]> {
 // client-only
 export async function getStudentLanguages(): Promise<string[]> {
   const s = await getSession();
-  const langs = (s?.user?.languages || []).filter((x) => typeof x === "string");
-  if (langs.length === 0) return ["en"];
-  return langs.map((x) => x.toLowerCase());
+  const langs = (s?.user?.languages || []).filter(
+    (x): x is string => typeof x === "string"
+  );
+  return langs.length ? langs.map((x) => x.toLowerCase()) : ["en"];
 }
 
-type VocabWordEntry = {
-  englishWord?: string;
-  targetWord?: string;
-  rank?: number;
+// Para adicionar um novo idioma futuramente, basta importar o JSON (string[])
+// e adicionar uma entrada aqui: ex. fr: frWords as string[]
+const VOCAB_LISTS: Record<string, string[]> = {
+  en: enWords as string[],
+  pt: ptWords as string[],
 };
 
-type VocabFile = {
-  words: VocabWordEntry[];
-};
+const vocabWordSetCache: Record<string, Set<string>> = {};
 
-const vocabWordSetCache: Partial<Record<string, Set<string>>> = {};
-
-function vocabFileFromLang(code: string): VocabFile | null {
-  const normalized = code.toLowerCase();
-  const base = normalized.split("-")[0];
-  if (base === "en") return ptVocab as VocabFile;
-  if (base === "pt") return ptVocab as VocabFile;
-  if (base === "es") return esVocab as VocabFile;
-  if (base === "de") return deVocab as VocabFile;
-  return null;
-}
-
-function getVocabWordSet(code: string): Set<string> {
-  const normalized = code.toLowerCase();
-  const baseLang = normalized.split("-")[0];
-  const existing = vocabWordSetCache[baseLang];
-  if (existing) return existing;
-
-  const file = vocabFileFromLang(baseLang);
+function getVocabWordSet(lang: string): Set<string> {
+  const base = lang.toLowerCase().split("-")[0];
+  if (vocabWordSetCache[base]) return vocabWordSetCache[base];
   const set = new Set<string>();
-  const list = Array.isArray(file?.words) ? file.words : [];
-
-  for (const w of list) {
-    const rawWord =
-      baseLang === "en"
-        ? typeof w.englishWord === "string"
-          ? w.englishWord
-          : ""
-        : typeof w.targetWord === "string"
-          ? w.targetWord
-          : "";
-    const normalizedWord = normalizeWord(rawWord);
-    if (!normalizedWord) continue;
-    set.add(normalizedWord);
+  for (const w of VOCAB_LISTS[base] ?? []) {
+    const normalized = normalizeWord(w);
+    if (normalized) set.add(normalized);
   }
-
-  vocabWordSetCache[baseLang] = set;
-  return set;
+  return (vocabWordSetCache[base] = set);
 }
 
 export function wordExistsInVocabulary(word: string, lang: string): boolean {
-  const normalizedLang = (lang || "").toLowerCase().split("-")[0] || "en";
-  const normalizedWord = normalizeWord(word || "");
-  if (!normalizedWord) return false;
-  return getVocabWordSet(normalizedLang).has(normalizedWord);
+  return getVocabWordSet(lang).has(normalizeWord(word));
+}
+
+export function getVocabularyWords(lang: string): string[] {
+  return Array.from(getVocabWordSet(lang)).filter(isValidLength);
 }
 
 function wordsFromVocabulary(code: string): LearnedWord[] {
-  const langBase = code.toLowerCase().split("-")[0];
-  const map: Record<string, VocabFile> = {
-    pt: ptVocab as VocabFile,
-    es: esVocab as VocabFile,
-    de: deVocab as VocabFile,
-  };
-  const data = langBase === "en" ? (ptVocab as VocabFile) : map[langBase];
-  if (!data || !Array.isArray(data.words)) return [];
+  const base = code.toLowerCase().split("-")[0];
+  const seen = new Set<string>();
   const result: LearnedWord[] = [];
-  for (const w of data.words) {
-    const rawWord =
-      langBase === "en"
-        ? typeof w.englishWord === "string"
-          ? w.englishWord
-          : ""
-        : typeof w.targetWord === "string"
-          ? w.targetWord
-          : "";
-    const normalized = normalizeWord(rawWord);
-    if (!normalized) continue;
-    if (!isValidLength(normalized)) continue;
-    result.push({
-      id: String(w.rank ?? rawWord),
-      word: normalized,
-      type: "item",
-      lang: code,
-    });
+  for (const w of VOCAB_LISTS[base] ?? []) {
+    const normalized = normalizeWord(w);
+    if (!normalized || !isValidLength(normalized) || seen.has(normalized))
+      continue;
+    seen.add(normalized);
+    result.push({ id: normalized, word: normalized, type: "item", lang: code });
+    if (result.length >= 4000) break;
   }
   return result;
 }
 
+// ─── LocalStorage helpers ────────────────────────────────────────────────────
+
 type BlockedEntry = { word: string; ts: number };
+
+export type PlayedEntry = {
+  word: string;
+  ts: number;
+  success?: boolean;
+  attempts?: number;
+  lang?: string;
+  length?: number;
+};
 
 const BLOCKED_KEY = "immersion_wordle_blocked_words";
 const HISTORY_KEY = "immersion_wordle_history";
@@ -195,33 +160,11 @@ function setBlockedStore(arr: BlockedEntry[]) {
 }
 
 // client-only
-function isBlockedWord(word: string): boolean {
-  const store = getBlockedStore();
-  const now = Date.now();
-  for (const entry of store) {
-    if (entry.word === word) {
-      const diff = now - entry.ts;
-      if (diff < 2 * 24 * 60 * 60 * 1000) return true;
-    }
-  }
-  return false;
-}
-
-// client-only
 export function markWordPlayed(word: string) {
   const store = getBlockedStore();
   store.push({ word, ts: Date.now() });
   setBlockedStore(store);
 }
-
-export type PlayedEntry = {
-  word: string;
-  ts: number;
-  success?: boolean;
-  attempts?: number;
-  lang?: string;
-  length?: number;
-};
 
 // client-only
 function getHistoryStore(): PlayedEntry[] {
@@ -247,18 +190,17 @@ export function recordGameResult(entry: PlayedEntry) {
   const store = getHistoryStore();
   let updated = false;
   for (let i = store.length - 1; i >= 0; i--) {
-    const e = store[i];
-    if (e.word === entry.word) {
-      store[i] = { ...e, ...entry };
+    if (store[i].word === entry.word) {
+      store[i] = { ...store[i], ...entry };
       updated = true;
       break;
     }
   }
-  if (!updated) {
-    store.push(entry);
-  }
+  if (!updated) store.push(entry);
   setHistoryStore(store);
 }
+
+// ─── Word selection ──────────────────────────────────────────────────────────
 
 // client-only
 export async function getAvailableWords(): Promise<LearnedWord[]> {
@@ -266,25 +208,25 @@ export async function getAvailableWords(): Promise<LearnedWord[]> {
   const blockedSet = new Set<string>();
   const now = Date.now();
   for (const e of blocked) {
-    if (now - e.ts < 2 * 24 * 60 * 60 * 1000) {
-      blockedSet.add(e.word);
-    }
+    if (now - e.ts < 2 * 24 * 60 * 60 * 1000) blockedSet.add(e.word);
   }
 
   const learned = await fetchLearnedWords();
   const filteredLearned = learned.filter((w) => !blockedSet.has(w.word));
   if (filteredLearned.length >= 10) return filteredLearned;
+
   const langs = await getStudentLanguages();
   const fallback: LearnedWord[] = [];
   for (const code of langs) {
     fallback.push(...wordsFromVocabulary(code));
   }
+
   const seen = new Set(filteredLearned.map((w) => w.word));
   const fallbackFiltered = fallback.filter(
     (w) => !seen.has(w.word) && !blockedSet.has(w.word)
   );
-  const combined = [...filteredLearned, ...fallbackFiltered];
-  return combined;
+
+  return [...filteredLearned, ...fallbackFiltered];
 }
 
 export function pickTargetWord(words: LearnedWord[]): LearnedWord | null {
@@ -293,12 +235,16 @@ export function pickTargetWord(words: LearnedWord[]): LearnedWord | null {
   if (!five.length && process.env.NODE_ENV !== "production") {
     console.warn(
       "[wordle] pickTargetWord fallback: no 5-letter words in pool",
-      { total: words.length }
+      {
+        total: words.length,
+      }
     );
   }
   const pool = five.length ? five : words;
   return pool[Math.floor(Math.random() * pool.length)];
 }
+
+// ─── Word details ────────────────────────────────────────────────────────────
 
 export type WordDetails = {
   definitions: string[];
@@ -321,10 +267,11 @@ export async function fetchWordDetails(
     });
     if (!res.ok) return { definitions: [], synonyms: [], examples: [] };
     const data = await res.json();
-    const defs = Array.isArray(data.definitions) ? data.definitions : [];
-    const syns = Array.isArray(data.synonyms) ? data.synonyms : [];
-    const exs = Array.isArray(data.examples) ? data.examples : [];
-    return { definitions: defs, synonyms: syns, examples: exs };
+    return {
+      definitions: Array.isArray(data.definitions) ? data.definitions : [],
+      synonyms: Array.isArray(data.synonyms) ? data.synonyms : [],
+      examples: Array.isArray(data.examples) ? data.examples : [],
+    };
   } catch {
     return { definitions: [], synonyms: [], examples: [] };
   }

@@ -1,47 +1,45 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { SpinnerLoading } from "@/components/transitions/spinner-loading";
 import { Button } from "@/components/ui/button";
 import { Keyboard } from "../Keyboard";
-import { WordleBoard } from "./WordleBoard";
-import { WordleResultBanner } from "./WordleResultBanner";
-import { WordleDetailsModal } from "./WordleDetailsModal";
-import { WordleHistoryModal } from "./WordleHistoryModal";
 import { LanguageSelect } from "../LanguageSelect";
-import { useWordleGame } from "@/hooks/immersion/useWordleGame";
+import { useWordLadderGame } from "@/hooks/immersion/useWordLadderGame";
+import { WordLadderBoard } from "./WordLadderBoard";
+import { WordLadderResultBanner } from "./WordLadderResultBanner";
+import { WordLadderWordsCarousel } from "./WordLadderWordsCarousel";
 import { ImmersionGameHeader } from "../ImmersionGameHeader";
 
-export default function WordleGame() {
+export default function WordLadderGame() {
   const {
     loading,
-    target,
-    guesses,
-    current,
-    finished,
+    status,
     selectedLang,
     setSelectedLang,
     langOptions,
-    maxAttempts,
     length,
+    startWord,
+    goalWord,
+    steps,
+    current,
     evaluations,
     letterStates,
     enter,
-    startNewGame,
     onLetter,
     onBackspace,
+    startNewGame,
+    hint,
+    revealSolution,
+    hasSolution,
+    learningMode,
+    setLearningMode,
     shaking,
-    liveMessage,
-    historyOpen,
-    setHistoryOpen,
-    historyEntries,
-    openHistory,
-  } = useWordleGame();
+  } = useWordLadderGame();
 
-  // === Renders ===
-  if (loading) return <SpinnerLoading />;
+  if (loading || status === "loading") return <SpinnerLoading />;
 
-  if (!target) {
+  if (status === "empty") {
     return (
       <div className="min-h-[100dvh] flex flex-col items-center justify-center gap-4 p-4">
         <div className="text-center text-muted-foreground">
@@ -51,13 +49,10 @@ export default function WordleGame() {
     );
   }
 
+  const finished = status === "win" || status === "end";
+
   return (
     <div className="relative min-h-[85dvh] w-full flex flex-col items-center py-4 px-4 gap-8">
-      <div aria-live="polite" className="sr-only">
-        {liveMessage}
-      </div>
-
-      {/* Top Actions */}
       <ImmersionGameHeader>
         <LanguageSelect
           value={selectedLang}
@@ -72,24 +67,52 @@ export default function WordleGame() {
         <Button
           variant="ghost"
           className="rounded-full text-muted-foreground hover:text-foreground"
-          onClick={openHistory}
+          onClick={() => setLearningMode((p) => !p)}
         >
-          Histórico
+          {learningMode ? "Aprendizagem: on" : "Aprendizagem: off"}
+        </Button>
+
+        <Button
+          variant="ghost"
+          className="rounded-full text-muted-foreground hover:text-foreground"
+          onClick={hint}
+          disabled={!hasSolution || finished}
+        >
+          Dica
+        </Button>
+
+        <Button
+          variant="ghost"
+          className="rounded-full text-muted-foreground hover:text-foreground"
+          onClick={revealSolution}
+          disabled={!hasSolution || finished}
+        >
+          Solução
         </Button>
       </ImmersionGameHeader>
 
-      {/* Board sempre visível */}
-      <WordleBoard
-        maxAttempts={maxAttempts}
+      <div className="w-full max-w-lg flex flex-col items-center gap-2 px-2 text-center">
+        <div className="text-sm text-muted-foreground">
+          Troque apenas 1 letra por passo. Objetivo:{" "}
+          <span className="font-semibold text-foreground">
+            {goalWord.toUpperCase()}
+          </span>
+        </div>
+        <div className="text-xs text-muted-foreground/80">
+          Início: {startWord.toUpperCase()} • Tamanho: {length} letras
+        </div>
+      </div>
+
+      <WordLadderBoard
         length={length}
-        guesses={guesses}
+        steps={steps}
         current={current}
-        finished={finished}
         evaluations={evaluations}
         shaking={shaking}
+        finished={finished}
+        maxRows={5}
       />
 
-      {/* Troca suave entre Teclado e Tela de Resultados */}
       <div className="w-full max-w-lg flex flex-col items-center justify-center min-h-[200px]">
         <AnimatePresence mode="wait">
           {finished ? (
@@ -101,14 +124,16 @@ export default function WordleGame() {
               transition={{ duration: 0.3 }}
               className="w-full flex flex-col items-center gap-4"
             >
-              <WordleResultBanner finished={finished} />
-              <WordleDetailsModal
-                word={target.word}
-                lang={(target.lang || selectedLang || "en").toLowerCase()}
-                onPlayAgain={() => {
-                  startNewGame(selectedLang);
-                }}
+              <WordLadderResultBanner
+                status={status === "win" ? "win" : "end"}
+                stepsCount={Math.max(0, steps.length - 1)}
+                startWord={startWord}
+                goalWord={goalWord}
+                onPlayAgain={() => startNewGame(selectedLang)}
+                onRevealSolution={revealSolution}
+                canRevealSolution={status !== "win" && hasSolution}
               />
+              {learningMode ? <WordLadderWordsCarousel words={steps} /> : null}
             </motion.div>
           ) : (
             <motion.div
@@ -124,18 +149,12 @@ export default function WordleGame() {
                 onEnter={enter}
                 onBackspace={onBackspace}
                 letterStates={letterStates}
-                disabled={!!finished}
+                disabled={false}
               />
             </motion.div>
           )}
         </AnimatePresence>
       </div>
-
-      <WordleHistoryModal
-        open={historyOpen}
-        onOpenChange={setHistoryOpen}
-        entries={historyEntries}
-      />
     </div>
   );
 }

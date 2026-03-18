@@ -12,8 +12,18 @@ import {
 
 export default function MyImmersionPage() {
   const constructionItems = [
-    { title: "Wordle", icon: Gamepad2, color: "bg-emerald-950" },
-    { title: "Guessly", icon: Gamepad2, color: "bg-stone-900" },
+    {
+      title: "Wordle",
+      icon: Gamepad2,
+      color: "bg-emerald-950",
+      link: "/hub/student/my-immersion/wordle",
+    },
+    {
+      title: "Guessly",
+      icon: Gamepad2,
+      color: "bg-stone-900",
+      link: "/hub/student/my-immersion/guessly",
+    },
   ];
 
   return (
@@ -84,18 +94,20 @@ export default function MyImmersionPage() {
                 key={index}
                 className="basis-1/2 md:basis-1/4 lg:basis-1/5"
               >
-                <Card
-                  className={`relative aspect-square overflow-hidden border-0 ${item.color} text-white`}
-                >
-                  <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
-                    <item.icon className="h-10 w-10 mb-3 opacity-80" />
-                    <span className="text-lg font-bold">{item.title}</span>
-                    <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-black/30 px-2 py-0.5 text-xs font-medium text-white/80">
-                      <Construction className="h-3 w-3" />
-                      Em construção
+                <Link href={item.link}>
+                  <Card
+                    className={`relative aspect-square overflow-hidden border-0 ${item.color} text-white`}
+                  >
+                    <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
+                      <item.icon className="h-10 w-10 mb-3 opacity-80" />
+                      <span className="text-lg font-bold">{item.title}</span>
+                      <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-black/30 px-2 py-0.5 text-xs font-medium text-white/80">
+                        <Construction className="h-3 w-3" />
+                        Em construção
+                      </div>
                     </div>
-                  </div>
-                </Card>
+                  </Card>
+                </Link>
               </CarouselItem>
             ))}
           </CarouselContent>

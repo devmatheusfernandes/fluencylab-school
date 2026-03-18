@@ -1,17 +1,18 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import type { CellState, FinishedState } from "./types";
+import type { CellState } from "../wordle/types";
 import { LetterTile } from "../LetterTile";
 
-type WordleBoardProps = {
-  maxAttempts: number;
+type WordLadderBoardProps = {
   length: number;
-  guesses: string[];
+  steps: string[];
   current: string;
-  finished: FinishedState;
   evaluations: CellState[][];
   shaking: boolean;
+  maxRows?: number;
+  finished: boolean;
 };
 
 const stateLabel: Record<CellState, string> = {
@@ -21,15 +22,15 @@ const stateLabel: Record<CellState, string> = {
   correct: "correta",
 };
 
-export function WordleBoard({
-  maxAttempts,
+export function WordLadderBoard({
   length,
-  guesses,
+  steps,
   current,
-  finished,
   evaluations,
   shaking,
-}: WordleBoardProps) {
+  maxRows = 5,
+  finished,
+}: WordLadderBoardProps) {
   const [isShaking, setIsShaking] = useState(false);
 
   useEffect(() => {
@@ -37,18 +38,20 @@ export function WordleBoard({
     queueMicrotask(() => setIsShaking(true));
   }, [shaking]);
 
+  const rows = Array.from({ length: maxRows });
+
   return (
     <div
       className="flex-1 flex flex-col justify-center items-center w-full px-4 mb-6"
       role="application"
-      aria-label="Tabuleiro do Wordle"
+      aria-label="Tabuleiro do Word Ladder"
     >
-      <div className="grid grid-rows-6 gap-1.5 sm:gap-2 w-full max-w-[320px] sm:max-w-[400px]">
-        {Array.from({ length: maxAttempts }).map((_, rowIdx) => {
-          const isCurrentRow = guesses.length === rowIdx && !finished;
-          const isSubmittedRow = rowIdx < guesses.length;
-          const guess = guesses[rowIdx] || "";
-          const evalRow = evaluations[rowIdx] || [];
+      <div className="grid gap-1.5 sm:gap-2 w-full max-w-[320px] sm:max-w-[400px]">
+        {rows.map((_, rowIdx) => {
+          const isSubmittedRow = rowIdx < steps.length;
+          const isCurrentRow = rowIdx === steps.length && !finished;
+          const word = isSubmittedRow ? steps[rowIdx] || "" : isCurrentRow ? current : "";
+          const evalRow = isSubmittedRow ? evaluations[rowIdx] || [] : [];
           const shouldShake = isCurrentRow && isShaking;
 
           return (
@@ -66,13 +69,9 @@ export function WordleBoard({
               }}
             >
               {Array.from({ length }).map((_, colIdx) => {
-                const ch =
-                  isCurrentRow && colIdx < current.length
-                    ? current[colIdx]
-                    : guess[colIdx] || "";
-
+                const ch = word[colIdx] || "";
                 const state = isSubmittedRow
-                  ? (evalRow[colIdx] as CellState)
+                  ? ((evalRow[colIdx] || "empty") as CellState)
                   : "empty";
 
                 const a11yStateLabel = isSubmittedRow
@@ -80,7 +79,7 @@ export function WordleBoard({
                   : ch
                     ? "digitada"
                     : "vazia";
-                const ariaLabel = `Tentativa ${rowIdx + 1}, letra ${colIdx + 1}: ${ch ? ch.toUpperCase() : "vazia"}, ${a11yStateLabel}`;
+                const ariaLabel = `Passo ${rowIdx + 1}, letra ${colIdx + 1}: ${ch ? ch.toUpperCase() : "vazia"}, ${a11yStateLabel}`;
 
                 return (
                   <LetterTile

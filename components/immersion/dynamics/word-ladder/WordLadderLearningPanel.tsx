@@ -1,52 +1,57 @@
 "use client";
 
+import Image from "next/image";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import { WordLookup } from "@/components/shared/Hub/WordLookup";
-import { ImmersionButton } from "../ImmersionButton";
 
-type WordleDetailsModalProps = {
+type WordLadderLearningPanelProps = {
   word: string;
   lang: string;
-  onPlayAgain: () => void;
+  enabled: boolean;
 };
 
-export function WordleDetailsModal({
+export function WordLadderLearningPanel({
   word,
   lang,
-  onPlayAgain,
-}: WordleDetailsModalProps) {
+  enabled,
+}: WordLadderLearningPanelProps) {
   return (
-    <WordLookup word={word} lang={lang}>
+    <WordLookup word={word} lang={lang} enabled={enabled}>
       {({ detailsLoading, details, imageLoading, image, retry }) => (
         <div className="w-full max-w-lg rounded-3xl border border-border/50 bg-background/80 backdrop-blur-md p-6 shadow-xl ring-1 ring-black/5 dark:ring-white/5">
           <div className="flex flex-col items-center justify-center space-y-1 pb-4 border-b border-border/50">
             <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80 bg-muted px-2 py-0.5 rounded-full">
-              Palavra do Jogo
+              Modo aprendizagem
             </span>
             <h2 className="text-3xl font-black tracking-widest text-foreground uppercase drop-shadow-sm">
-              {word}
+              {word || "—"}
             </h2>
           </div>
 
-          <div className="mt-4 overflow-y-auto max-h-[55vh] pr-2 custom-scrollbar">
-            {detailsLoading ? (
-              <div className="flex flex-col items-center justify-center py-16 gap-4">
+          <div className="mt-4 overflow-y-auto max-h-[45vh] pr-2 custom-scrollbar">
+            {!enabled ? (
+              <div className="flex flex-col items-center justify-center gap-3 py-10 text-center bg-muted/20 rounded-2xl border border-dashed border-border/60">
+                <div className="text-muted-foreground text-sm max-w-[260px]">
+                  Ative o modo aprendizagem para ver significado, exemplos e
+                  imagem.
+                </div>
+              </div>
+            ) : detailsLoading ? (
+              <div className="flex flex-col items-center justify-center py-12 gap-4">
                 <Spinner className="w-8 h-8 text-primary animate-spin-slow" />
                 <span className="text-sm text-muted-foreground font-medium animate-pulse">
                   Buscando no dicionário...
                 </span>
               </div>
             ) : !details ? (
-              <div className="flex flex-col items-center justify-center gap-4 py-12 text-center bg-muted/20 rounded-2xl border border-dashed border-border/60">
-                <div className="text-4xl opacity-50">📚</div>
-                <div className="text-muted-foreground text-sm max-w-[200px]">
+              <div className="flex flex-col items-center justify-center gap-4 py-10 text-center bg-muted/20 rounded-2xl border border-dashed border-border/60">
+                <div className="text-muted-foreground text-sm max-w-[260px]">
                   Não conseguimos encontrar os detalhes para esta palavra.
                 </div>
                 <Button
                   variant="secondary"
-                  className="rounded-full mt-2"
+                  className="rounded-full"
                   onClick={retry}
                 >
                   Tentar novamente
@@ -136,28 +141,6 @@ export function WordleDetailsModal({
 
                 <div className="bg-muted/30 p-4 rounded-2xl border border-border/40 space-y-3 transition-colors hover:bg-muted/40">
                   <h3 className="flex items-center gap-2 text-sm font-bold text-foreground uppercase tracking-wider opacity-80">
-                    <span className="text-primary">✨</span> Sinônimos
-                  </h3>
-                  {details.synonyms.length === 0 ? (
-                    <p className="text-sm italic text-muted-foreground pl-7">
-                      Nenhum sinônimo encontrado.
-                    </p>
-                  ) : (
-                    <div className="flex flex-wrap gap-2 pl-1">
-                      {details.synonyms.slice(0, 3).map((s, idx) => (
-                        <span
-                          key={`syn-${idx}`}
-                          className="text-sm px-3 py-1 rounded-full border border-border bg-background text-foreground shadow-sm font-medium hover:border-primary/40 transition-colors cursor-default"
-                        >
-                          {s}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="bg-muted/30 p-4 rounded-2xl border border-border/40 space-y-3 transition-colors hover:bg-muted/40">
-                  <h3 className="flex items-center gap-2 text-sm font-bold text-foreground uppercase tracking-wider opacity-80">
                     <span className="text-primary">💬</span> Exemplos de uso
                   </h3>
                   {details.examples.length === 0 ? (
@@ -179,15 +162,6 @@ export function WordleDetailsModal({
                 </div>
               </div>
             )}
-          </div>
-
-          <div className="mt-6 pt-4 border-t border-border/50">
-            <ImmersionButton
-              className="w-full rounded-2xl font-bold text-md h-14 shadow-lg shadow-primary/20 transition-transform active:scale-[0.98]"
-              onClick={onPlayAgain}
-            >
-              Jogar Nova Palavra
-            </ImmersionButton>
           </div>
         </div>
       )}
