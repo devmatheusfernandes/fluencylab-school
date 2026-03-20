@@ -68,7 +68,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ item, isCollapsed }) => {
             className={twMerge(
               "flex items-center h-12 px-3 py-3 rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors duration-200",
               isActive && "bg-accent text-accent-foreground",
-              isCollapsed && "justify-center px-3",
+              isCollapsed && "justify-center px-3"
             )}
           >
             <motion.div
@@ -119,7 +119,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ item, isCollapsed }) => {
             animate={{ opacity: 1 }}
             className={twMerge(
               "pl-6 flex flex-col gap-1 py-1",
-              isCollapsed && "pl-0",
+              isCollapsed && "pl-0"
             )}
           >
             {item.subItems.map((subItem, index) => (
@@ -134,7 +134,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ item, isCollapsed }) => {
                   className={twMerge(
                     "flex items-center h-10 px-3 py-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors duration-200",
                     pathname === subItem.href && "bg-muted text-foreground",
-                    isCollapsed && "justify-center px-3",
+                    isCollapsed && "justify-center px-3"
                   )}
                 >
                   <div className="w-4 h-4 flex items-center justify-center">
@@ -171,7 +171,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ item, isCollapsed }) => {
         className={twMerge(
           "flex items-center h-12 px-3 py-3 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/15 transition-all ease-in-out duration-300",
           isActive && "bg-primary/30 text-primary font-semibold",
-          isCollapsed && "justify-center px-3",
+          isCollapsed && "justify-center px-3"
         )}
       >
         <motion.div
@@ -239,7 +239,7 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({
           "relative flex items-center justify-center transition-colors duration-200 w-full h-full",
           isActive
             ? "bg-primary/15 rounded-full px-4 py-2 gap-2"
-            : "p-2 text-muted-foreground hover:text-primary",
+            : "p-2 text-muted-foreground hover:text-primary"
         )}
       >
         <motion.div
@@ -300,13 +300,13 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
   const tSidebar = (useMessages()?.Sidebar ?? {}) as Record<string, string>;
   const [openSection, setOpenSection] = React.useState<string | null>(null);
   const [activeTab, setActiveTab] = React.useState<"menu" | "notifications">(
-    "menu",
+    "menu"
   );
 
   React.useEffect(() => {
     // Determine active section based on current path
     const activeSection = items.find((item) =>
-      item.subItems?.some((sub) => pathname === sub.href),
+      item.subItems?.some((sub) => pathname === sub.href)
     );
     if (activeSection) {
       setOpenSection(activeSection.label);
@@ -329,7 +329,7 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
       {/* The Drawer itself - Morphs from the Navbar using layoutId */}
       <motion.div
         layoutId={layoutId}
-        className="fixed bottom-0 left-0 right-0 bg-background dark:bg-slate-950 rounded-t-xl z-50 md:hidden overflow-hidden flex flex-col shadow-2xl"
+        className="fixed bottom-0 left-0 right-0 bg-background dark:bg-slate-950 rounded-t-xl z-50 md:hidden overflow-hidden flex flex-col shadow-2xl h-[85vh] max-h-[85vh]"
         transition={{ type: "spring", bounce: 0, duration: 0.5 }}
       >
         {/* Content Wrapper - Fades in slightly after morph starts */}
@@ -338,7 +338,7 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3, delay: 0.1 }}
-          className="flex flex-col h-full max-h-[85vh]"
+          className="flex flex-col h-full"
         >
           {/* Handle */}
           <div className="flex justify-center pt-3 pb-2 shrink-0">
@@ -382,7 +382,7 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
                 "flex-1 py-3 px-4 text-sm font-medium transition-colors relative",
                 activeTab === "menu"
                   ? "text-primary"
-                  : "text-muted-foreground hover:text-red-500",
+                  : "text-muted-foreground hover:text-red-500"
               )}
             >
               {tSidebar.menu ?? "Menu"}
@@ -400,7 +400,7 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
                 "flex-1 py-3 px-4 text-sm font-medium transition-colors relative flex items-center justify-center gap-2",
                 activeTab === "notifications"
                   ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground",
+                  : "text-muted-foreground hover:text-foreground"
               )}
             >
               <span>{tSidebar.notifications ?? "Notificações"}</span>
@@ -444,9 +444,7 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
                               whileTap={{ scale: 0.98 }}
                               onClick={() =>
                                 setOpenSection(
-                                  openSection === item.label
-                                    ? null
-                                    : item.label,
+                                  openSection === item.label ? null : item.label
                                 )
                               }
                               className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted transition-colors"
@@ -498,7 +496,7 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
                                             "flex items-center gap-3 p-2 rounded-lg transition-colors",
                                             isActive
                                               ? "bg-muted text-foreground font-medium"
-                                              : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                                              : "text-muted-foreground hover:bg-muted hover:text-foreground"
                                           )}
                                         >
                                           <div className="w-4 h-4 flex items-center justify-center">
@@ -523,7 +521,7 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
                               "flex items-center gap-3 p-3 rounded-lg transition-colors",
                               pathname === item.href
                                 ? "bg-muted text-foreground font-medium"
-                                : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                                : "text-muted-foreground hover:bg-muted hover:text-foreground"
                             )}
                           >
                             <div className="w-5 h-5 flex items-center justify-center">
@@ -586,11 +584,30 @@ const Sidebar: React.FC<SidebarProps> = ({
   onDeleteNotification,
   onClearAllNotifications,
 }) => {
+  const pathname = usePathname();
   const { isCollapsed } = useSidebar();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const isMobile = useIsMobile();
   const isStandalone = useIsStandalone();
   const unreadCount = notifications.filter((n) => !n.read).length;
+
+  const mobileItems = React.useMemo(
+    () => items.filter((item) => !item.subItems),
+    [items]
+  );
+
+  const mobileVisibleItems = React.useMemo(() => {
+    const windowSize = 4;
+    const activeIndex = mobileItems.findIndex((item) => item.href === pathname);
+    const maxStart = Math.max(0, mobileItems.length - windowSize);
+
+    const start =
+      activeIndex >= 0
+        ? Math.min(Math.floor(activeIndex / windowSize) * windowSize, maxStart)
+        : 0;
+
+    return mobileItems.slice(start, start + windowSize);
+  }, [mobileItems, pathname]);
 
   return (
     <>
@@ -606,7 +623,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           layout
           className={twMerge(
             "flex flex-col w-full h-full",
-            !isCollapsed && "px-2 gap-3",
+            !isCollapsed && "px-2 gap-3"
           )}
         >
           {/* User Card at top */}
@@ -634,7 +651,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             className={twMerge(
               "flex flex-col gap-2 flex-1",
               isCollapsed && "w-fit",
-              !isCollapsed && "w-full",
+              !isCollapsed && "w-full"
             )}
           >
             {items.map((item, index) => (
@@ -654,7 +671,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             layout
             className={twMerge(
               "border-t border-primary/20 pt-3 w-full",
-              isCollapsed && "border-none pt-0 mb-1",
+              isCollapsed && "border-none pt-0 mb-1"
             )}
           >
             <NotificationCard
@@ -714,7 +731,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 "md:hidden fixed bottom-0 left-0 right-0 px-4 py-2 z-50 flex items-center justify-between",
                 isStandalone && "bg-slate-200! dark:bg-slate-900! border-none!",
                 isMobile &&
-                  "bg-slate-100 dark:bg-slate-950 border-t border-primary",
+                  "bg-slate-100 dark:bg-slate-950 border-t border-primary"
               )}
               transition={{ type: "spring", bounce: 0, duration: 0.5 }}
             >
@@ -726,12 +743,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                {items
-                  .filter((item) => !item.subItems)
-                  .slice(0, 4)
-                  .map((item) => (
-                    <MobileNavItem key={item.label} item={item} />
-                  ))}
+                {mobileVisibleItems.map((item) => (
+                  <MobileNavItem key={item.label} item={item} />
+                ))}
 
                 {/* More/Open Button */}
                 <motion.button
