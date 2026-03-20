@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState, useMemo } from "react";
 import { useStudent } from "@/hooks/student/useStudent";
 import { Text } from "@/components/ui/text";
@@ -11,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import { toast } from "sonner";
 import { Header } from "@/components/ui/header";
 import {
@@ -25,10 +23,8 @@ import {
   ModalSecondaryButton,
   ModalIcon,
 } from "@/components/ui/modal";
-
 import { StudentClass } from "@/types/classes/class";
 import { NoResults } from "@/components/ui/no-results";
-
 import StudentClassCard from "@/components/student/StudentClassCard";
 import { ClassCancellationModal } from "@/components/student/ClassCancellationModal";
 import RescheduleModal from "@/components/student/RescheduleModal";
@@ -54,7 +50,6 @@ export default function StudentClassesComponent() {
   const locale = useLocale();
   const dateLocale = locale === "pt" ? "pt-BR" : "en-US";
   const isStandalone = useIsStandalone();
-  // Helper functions for date filtering
   const monthOptions = useMemo(
     () =>
       Array.from({ length: 12 }, (_, i) => ({
@@ -63,7 +58,7 @@ export default function StudentClassesComponent() {
           month: "long",
         }),
       })),
-    [dateLocale],
+    [dateLocale]
   );
 
   const currentYear = new Date().getFullYear();
@@ -80,10 +75,10 @@ export default function StudentClassesComponent() {
 
   // Filter states
   const [selectedMonth, setSelectedMonth] = useState<number | "all">(
-    new Date().getMonth(),
+    new Date().getMonth()
   );
   const [selectedYear, setSelectedYear] = useState<number | "all">(
-    new Date().getFullYear(),
+    new Date().getFullYear()
   );
   const [monthlyRescheduleData, setMonthlyRescheduleData] = useState<{
     month: string;
@@ -210,7 +205,7 @@ export default function StudentClassesComponent() {
                 label: "OK",
                 onClick: () => {},
               },
-            },
+            }
           );
         } else {
           toast.success(t("cancelSuccess"));
@@ -292,7 +287,7 @@ export default function StudentClassesComponent() {
                 icon={CalendarPlus}
                 onClick={() => {
                   setBookingCreditType(
-                    bonusCredits > 0 ? "bonus" : "late_students",
+                    bonusCredits > 0 ? "bonus" : "late_students"
                   );
                   setIsBookingModalOpen(true);
                 }}
@@ -405,7 +400,7 @@ export default function StudentClassesComponent() {
       <div className="w-full flex flex-col sm:flex-row gap-2">
         <Card className="w-full flex flex-row gap-2">
           <div className="space-y-1">
-            <Text size="sm" variant="subtitle">
+            <Text size="sm" variant="subtitle" className="hidden sm:inline">
               {t("monthLabel")}
             </Text>
             <Select
@@ -433,7 +428,7 @@ export default function StudentClassesComponent() {
           </div>
 
           <div className="space-y-1">
-            <Text size="sm" variant="subtitle">
+            <Text size="sm" variant="subtitle" className="hidden sm:inline">
               {t("yearLabel")}
             </Text>
             <Select
@@ -530,7 +525,7 @@ export default function StudentClassesComponent() {
                   size="sm"
                   onClick={() => {
                     setBookingCreditType(
-                      bonusCredits > 0 ? "bonus" : "late_students",
+                      bonusCredits > 0 ? "bonus" : "late_students"
                     );
                     setIsBookingModalOpen(true);
                   }}

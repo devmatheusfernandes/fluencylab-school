@@ -105,7 +105,7 @@ const AvatarImage = React.forwardRef<
         className={twMerge(
           "aspect-square h-full w-full object-cover rounded-2xl",
           className,
-          isLoading && "hidden"
+          isLoading && "opacity-0"
         )}
         onLoad={handleLoad}
         onError={handleError}

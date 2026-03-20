@@ -45,7 +45,7 @@ const CustomChannelPreview = (props: ChannelPreviewUIComponentProps) => {
   const { client } = useChatContext();
 
   const members = Object.values(channel.state.members).filter(
-    (m) => m.user_id !== client.userID,
+    (m) => m.user_id !== client.userID
   );
   const otherMember = members[0]?.user;
   const { userProfile } = useUserProfile(otherMember?.id);
@@ -59,13 +59,13 @@ const CustomChannelPreview = (props: ChannelPreviewUIComponentProps) => {
         "flex w-full items-center gap-3 p-4 text-left rounded-lg my-1 transition-all duration-200 ease-in-out cursor-pointer",
         active
           ? "bg-foreground/8 transition-all duration-200 ease-in-out cursor-pointer"
-          : "hover:bg-primary/15 hover:border-r hover:border-primary/25 transition-all duration-200 ease-in-out cursor-pointer",
+          : "hover:bg-primary/15 hover:border-r hover:border-primary/25 transition-all duration-200 ease-in-out cursor-pointer"
       )}
     >
       <UserAvatar
         size="sm"
         src={userProfile?.avatarUrl}
-        name={otherMember?.name}
+        name={userProfile?.name}
       />
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-baseline mb-0.5">
@@ -86,7 +86,7 @@ const CustomChannelPreview = (props: ChannelPreviewUIComponentProps) => {
             "text-xs truncate",
             channel.countUnread() > 0
               ? "text-foreground font-bold"
-              : "text-[#a1a1aa]",
+              : "text-[#a1a1aa]"
           )}
         >
           {lastMessage?.text || t("noMessages")}
@@ -141,7 +141,7 @@ const MediaGalleryPanel = () => {
               "flex-1 py-2 px-4 rounded-lg transition-colors",
               activeTab === "images"
                 ? "bg-primary text-primary-foreground"
-                : "bg-secondary/20 hover:bg-secondary/30",
+                : "bg-secondary/20 hover:bg-secondary/30"
             )}
           >
             <ImageIcon size={18} className="inline mr-2" />
@@ -153,7 +153,7 @@ const MediaGalleryPanel = () => {
               "flex-1 py-2 px-4 rounded-lg transition-colors",
               activeTab === "files"
                 ? "bg-primary text-primary-foreground"
-                : "bg-secondary/20 hover:bg-secondary/30",
+                : "bg-secondary/20 hover:bg-secondary/30"
             )}
           >
             <FileText size={18} className="inline mr-2" />
@@ -253,13 +253,13 @@ const CustomChannelHeader = ({
   const { user } = useCurrentUser();
 
   const members = Object.values(channel?.state.members || {}).filter(
-    (m) => m.user_id !== client.userID,
+    (m) => m.user_id !== client.userID
   );
   const otherMember = members[0]?.user;
 
   // Filtra quem está digitando (excluindo o próprio usuário)
   const typingUsers = Object.values(typing || {}).filter(
-    (user) => user.user?.id !== client.userID,
+    (user) => user.user?.id !== client.userID
   );
   const isTyping = typingUsers.length > 0;
 
@@ -276,7 +276,7 @@ const CustomChannelHeader = ({
           </button>
         )}
 
-        <UserAvatar size="sm" src={user?.avatarUrl} name={user?.name} />
+        <UserAvatar size="sm" src={otherMember?.image} name={user?.name} />
         <div className="flex flex-col">
           <span className="font-semibold text-sm text-foreground leading-tight capitalize">
             {otherMember?.name || t("defaultChatName")}
@@ -304,7 +304,7 @@ const CustomChannelHeader = ({
             "p-2 rounded-full transition-colors",
             showGallery
               ? "bg-primary/20 text-primary"
-              : "hover:bg-secondary/20 text-foreground",
+              : "hover:bg-secondary/20 text-foreground"
           )}
           title={t("mediaGallery")}
         >
@@ -331,13 +331,13 @@ const ChatLayout = () => {
       type: "messaging",
       members: { $in: [client.userID as string] },
     }),
-    [client.userID],
+    [client.userID]
   );
 
   const sort = useMemo(() => ({ last_message_at: -1 as const }), []);
   const options = useMemo(
     () => ({ limit: 20, watch: true, presence: true }),
-    [],
+    []
   );
 
   return (
@@ -347,7 +347,7 @@ const ChatLayout = () => {
         className={cn(
           "flex-col  h-full",
           isMobile ? "w-full" : "w-[340px] shrink-0",
-          showList ? "flex" : "hidden",
+          showList ? "flex" : "hidden"
         )}
       >
         <div className="p-4 border-b border-primary/20 h-[60px] flex items-center justify-center shrink-0">
@@ -368,7 +368,7 @@ const ChatLayout = () => {
       <div
         className={cn(
           "flex-col flex-1 h-full bg-background w-full min-w-0",
-          showChat ? "flex" : "hidden",
+          showChat ? "flex" : "hidden"
         )}
       >
         {channel ? (
@@ -413,7 +413,7 @@ const ChatLayout = () => {
         <div
           className={cn(
             "border-l border-primary/20 bg-background h-full transition-all duration-300 ease-in-out",
-            isMobile ? "fixed inset-0 z-50 w-full" : "w-[320px] shrink-0",
+            isMobile ? "fixed inset-0 z-50 w-full" : "w-[320px] shrink-0"
           )}
         >
           {isMobile && (
@@ -458,7 +458,7 @@ export default function ChatWidget() {
         const existingChannels = await client.queryChannels(
           filter,
           {},
-          { limit: 30 },
+          { limit: 30 }
         );
 
         const existingMemberIds = new Set<string>();
@@ -473,7 +473,7 @@ export default function ChatWidget() {
 
         // Filtra contatos que ainda não tem canal
         const contactsNeedingChannel = contacts.filter(
-          (contact) => !existingMemberIds.has(contact.id),
+          (contact) => !existingMemberIds.has(contact.id)
         );
 
         if (contactsNeedingChannel.length === 0) {
@@ -488,7 +488,7 @@ export default function ChatWidget() {
               members: [currentUserId, contact.id],
             });
             await channel.watch();
-          }),
+          })
         );
 
         setChannelsCreated(true);

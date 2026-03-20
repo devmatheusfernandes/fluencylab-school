@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { useState } from "react";
 import RescheduleModal from "./RescheduleModal";
 import { useTranslations, useLocale } from "next-intl";
-import { BookAlert } from "lucide-react";
+import { X } from "lucide-react";
 
 // Mapeamento de status para cores dos badges
 const statusVariants: Record<
@@ -51,6 +51,15 @@ export default function StudentClassCard({
 
   const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
+
+  const scheduledDate = new Date(cls.scheduledAt);
+  const formattedMobileDate = `${String(scheduledDate.getDate()).padStart(
+    2,
+    "0"
+  )}/${String(scheduledDate.getMonth() + 1).padStart(
+    2,
+    "0"
+  )}/${scheduledDate.getFullYear()}`;
 
   const isReschedulable =
     (cls.status === ClassStatus.SCHEDULED ||
@@ -134,23 +143,26 @@ export default function StudentClassCard({
               <h3 className="font-bold text-lg capitalize">
                 {cls.teacherName}
               </h3>
-              <p className="text-sm font-semibold text-subtitle">
-                {new Date(cls.scheduledAt).toLocaleDateString(
+              <p className="text-sm font-semibold text-subtitle sm:hidden">
+                {formattedMobileDate}
+              </p>
+              <p className="hidden sm:block text-sm font-semibold text-subtitle">
+                {scheduledDate.toLocaleDateString(
                   locale === "pt" ? "pt-BR" : "en-US",
                   {
                     weekday: "long",
                     day: "2-digit",
                     month: "long",
-                  },
+                  }
                 )}
               </p>
               <p className="text-sm text-subtitle">
-                {new Date(cls.scheduledAt).toLocaleTimeString(
+                {scheduledDate.toLocaleTimeString(
                   locale === "pt" ? "pt-BR" : "en-US",
                   {
                     hour: "2-digit",
                     minute: "2-digit",
-                  },
+                  }
                 )}
               </p>
 
@@ -197,8 +209,13 @@ export default function StudentClassCard({
                   variant="warning"
                   onClick={handleCancelClick}
                   disabled={isCanceling}
+                  aria-label={isCanceling ? t("canceling") : t("cancel")}
+                  className="px-2 sm:px-3"
                 >
-                  {isCanceling ? t("canceling") : t("cancel")}
+                  <X className="h-4 w-4 sm:hidden" />
+                  <span className="hidden sm:inline">
+                    {isCanceling ? t("canceling") : t("cancel")}
+                  </span>
                 </Button>
               )}
               {isReschedulable && (
