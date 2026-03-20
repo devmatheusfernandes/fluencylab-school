@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, EllipsisVertical } from "lucide-react";
+import { ArrowLeft, ArrowRight, EllipsisVertical } from "lucide-react";
 import { SpinnerLoading } from "@/components/transitions/spinner-loading";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,17 +10,6 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Keyboard } from "../Keyboard";
 import { LanguageSelect } from "../LanguageSelect";
 import { useWordLadderGame } from "@/hooks/immersion/useWordLadderGame";
@@ -27,6 +17,16 @@ import { WordLadderBoard } from "./WordLadderBoard";
 import { WordLadderResultBanner } from "./WordLadderResultBanner";
 import { WordLadderWordsCarousel } from "./WordLadderWordsCarousel";
 import { Header } from "@/components/ui/header";
+import BreadcrumbActions from "@/components/shared/Breadcrum/BreadcrumbActions";
+import BreadcrumbActionIcon from "@/components/shared/Breadcrum/BreadcrumbActionIcon";
+import Link from "next/link";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 
 export default function WordLadderGame() {
   const {
@@ -53,6 +53,7 @@ export default function WordLadderGame() {
     setLearningMode,
     shaking,
   } = useWordLadderGame();
+  const [isOptionsOpen, setIsOptionsOpen] = useState(false);
 
   if (loading || status === "loading") return <SpinnerLoading />;
 
@@ -76,7 +77,33 @@ export default function WordLadderGame() {
         backHref="/hub/student/my-immersion"
         icon={
           <div className="flex flex-row items-center gap-2">
-            <div className="hidden sm:flex flex-row items-center gap-2">
+            <BreadcrumbActions placement="end">
+              <LanguageSelect
+                value={selectedLang}
+                options={langOptions}
+                onChange={(next) => {
+                  setSelectedLang(next);
+                  startNewGame(next);
+                  setIsOptionsOpen(false);
+                }}
+                disabled={langOptions.length <= 1}
+              />
+              <BreadcrumbActionIcon
+                icon={EllipsisVertical}
+                onClick={() => setIsOptionsOpen(true)}
+              />
+            </BreadcrumbActions>
+
+            <BreadcrumbActions placement="start">
+              <Link
+                href="/hub/student/my-immersion"
+                className="flex items-center"
+              >
+                <BreadcrumbActionIcon icon={ArrowLeft} />
+              </Link>
+            </BreadcrumbActions>
+
+            <div className="hidden md:flex flex-row items-center gap-2">
               <LanguageSelect
                 value={selectedLang}
                 options={langOptions}
@@ -113,64 +140,6 @@ export default function WordLadderGame() {
                 Solução
               </Button>
             </div>
-
-            <div className="flex sm:hidden flex-row items-center gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="rounded-full text-muted-foreground hover:text-foreground"
-                    aria-label="Abrir opções"
-                  >
-                    <EllipsisVertical className="w-5 h-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Idioma</DropdownMenuLabel>
-                  <DropdownMenuRadioGroup
-                    value={selectedLang}
-                    onValueChange={(next) => {
-                      setSelectedLang(next);
-                      startNewGame(next);
-                    }}
-                  >
-                    {langOptions.map((lang) => (
-                      <DropdownMenuRadioItem
-                        key={lang}
-                        value={lang}
-                        disabled={langOptions.length <= 1}
-                      >
-                        {lang.toUpperCase()}
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuRadioGroup>
-
-                  <DropdownMenuSeparator />
-
-                  <DropdownMenuCheckboxItem
-                    checked={learningMode}
-                    onCheckedChange={(checked) => setLearningMode(!!checked)}
-                  >
-                    Aprendizagem
-                  </DropdownMenuCheckboxItem>
-
-                  <DropdownMenuItem
-                    onClick={hint}
-                    disabled={!hasSolution || finished}
-                  >
-                    Dica
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem
-                    onClick={revealSolution}
-                    disabled={!hasSolution || finished}
-                  >
-                    Solução
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
           </div>
         }
       />
@@ -186,7 +155,12 @@ export default function WordLadderGame() {
         >
           <CarouselContent>
             {/* Slide 1: WordLadderBoard + Teclado */}
-            <CarouselItem className="w-full flex flex-col items-center">
+            <CarouselItem className="w-full flex flex-col items-center min-h-[calc(100dvh-220px)] md:min-h-0">
+              <div className="w-full flex flex-col items-center justify-center mb-4">
+                <p className="text-lg font-medium">{`A palavra inicial é: ${startWord.toUpperCase()}`}</p>
+                <p className="text-lg font-medium">{`O objetivo é: ${goalWord.toUpperCase()}`}</p>
+              </div>
+
               <WordLadderBoard
                 length={length}
                 steps={steps}
@@ -196,8 +170,7 @@ export default function WordLadderGame() {
                 finished={finished}
                 maxRows={5}
               />
-
-              <div className="w-full min-h-[200px] flex flex-col items-center justify-center mt-6">
+              <div className="w-full flex flex-col flex-1 mt-6">
                 <AnimatePresence mode="wait">
                   {!finished ? (
                     <motion.div
@@ -206,7 +179,7 @@ export default function WordLadderGame() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 15 }}
                       transition={{ duration: 0.2 }}
-                      className="w-full px-2"
+                      className="w-full px-2 mt-auto pb-2"
                     >
                       <Keyboard
                         onLetter={onLetter}
@@ -222,7 +195,7 @@ export default function WordLadderGame() {
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: 0.5, duration: 0.3 }}
-                      className="flex items-center gap-3 text-muted-foreground bg-muted/40 px-5 py-2.5 rounded-full border border-border/50 animate-pulse mt-4"
+                      className="mt-auto mb-2 self-center flex items-center gap-3 text-muted-foreground bg-muted/40 px-5 py-2.5 rounded-full border border-border/50 animate-pulse"
                     >
                       <span className="text-sm font-medium">
                         Deslize para ver o resultado
@@ -261,6 +234,50 @@ export default function WordLadderGame() {
           </CarouselContent>
         </Carousel>
       </div>
+
+      <Drawer open={isOptionsOpen} onOpenChange={setIsOptionsOpen}>
+        <DrawerContent className="h-[80vh]">
+          <DrawerHeader>
+            <DrawerTitle>Opções</DrawerTitle>
+            <DrawerDescription className="sr-only">
+              Opções do jogo
+            </DrawerDescription>
+          </DrawerHeader>
+          <div className="flex flex-col gap-3 overflow-y-auto p-4">
+            <Button
+              variant={learningMode ? "primary" : "outline"}
+              className="w-full justify-start"
+              onClick={() => setLearningMode((p) => !p)}
+            >
+              Aprendizagem
+            </Button>
+
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => {
+                hint();
+                setIsOptionsOpen(false);
+              }}
+              disabled={!hasSolution || finished}
+            >
+              Dica
+            </Button>
+
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => {
+                revealSolution();
+                setIsOptionsOpen(false);
+              }}
+              disabled={!hasSolution || finished}
+            >
+              Solução
+            </Button>
+          </div>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 }

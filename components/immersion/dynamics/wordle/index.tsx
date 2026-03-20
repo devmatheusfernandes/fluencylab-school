@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, History } from "lucide-react";
+import { ArrowLeft, ArrowRight, History } from "lucide-react";
 import { SpinnerLoading } from "@/components/transitions/spinner-loading";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,12 +11,14 @@ import {
 } from "@/components/ui/carousel";
 import { Keyboard } from "../Keyboard";
 import { WordleBoard } from "./WordleBoard";
-import { WordleResultBanner } from "./WordleResultBanner";
 import { WordleDetailsModal } from "./WordleDetailsModal";
 import { WordleHistoryModal } from "./WordleHistoryModal";
 import { LanguageSelect } from "../LanguageSelect";
 import { useWordleGame } from "@/hooks/immersion/useWordleGame";
 import { Header } from "@/components/ui/header";
+import BreadcrumbActions from "@/components/shared/Breadcrum/BreadcrumbActions";
+import BreadcrumbActionIcon from "@/components/shared/Breadcrum/BreadcrumbActionIcon";
+import Link from "next/link";
 
 export default function WordleGame() {
   const {
@@ -63,6 +65,24 @@ export default function WordleGame() {
         backHref="/hub/student/my-immersion"
         icon={
           <div className="flex flex-row items-center gap-2">
+            <BreadcrumbActions placement="start">
+              <Link href="/hub/student/my-immersion">
+                <BreadcrumbActionIcon icon={ArrowLeft} />
+              </Link>
+            </BreadcrumbActions>
+            <BreadcrumbActions placement="end">
+              <LanguageSelect
+                value={selectedLang}
+                options={langOptions}
+                onChange={(next) => {
+                  setSelectedLang(next);
+                  startNewGame(next);
+                }}
+                disabled={langOptions.length <= 1}
+              />
+              <BreadcrumbActionIcon icon={History} onClick={openHistory} />
+            </BreadcrumbActions>
+
             <LanguageSelect
               value={selectedLang}
               options={langOptions}
@@ -95,7 +115,7 @@ export default function WordleGame() {
         >
           <CarouselContent>
             {/* Slide 1: Board + Teclado (ou Indicação de Arrastar) */}
-            <CarouselItem className="w-full flex flex-col items-center">
+            <CarouselItem className="w-full flex flex-col items-center min-h-[calc(100dvh-220px)] md:min-h-0">
               <WordleBoard
                 maxAttempts={maxAttempts}
                 length={length}
@@ -106,7 +126,7 @@ export default function WordleGame() {
                 shaking={shaking}
               />
 
-              <div className="w-full flex flex-col items-center justify-center">
+              <div className="w-full flex flex-col flex-1">
                 <AnimatePresence mode="wait">
                   {!finished ? (
                     <motion.div
@@ -115,7 +135,7 @@ export default function WordleGame() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 15 }}
                       transition={{ duration: 0.2 }}
-                      className="w-full px-2 pt-8"
+                      className="w-full px-2 pt-8 mt-auto pb-2"
                     >
                       <Keyboard
                         onLetter={onLetter}
@@ -131,7 +151,7 @@ export default function WordleGame() {
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: 0.5, duration: 0.3 }}
-                      className="flex items-center gap-3 text-muted-foreground bg-muted/40 px-4 py-2 rounded-full border border-border/50 animate-pulse"
+                      className="mt-auto mb-2 self-center flex items-center gap-3 text-muted-foreground bg-muted/40 px-4 py-2 rounded-full border border-border/50 animate-pulse"
                     >
                       <span className="text-sm font-medium">
                         Deslize para ver o resultado

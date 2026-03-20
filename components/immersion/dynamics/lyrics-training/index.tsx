@@ -11,6 +11,7 @@ import {
   Music2,
   Flame,
   Lightbulb,
+  ArrowLeft,
 } from "lucide-react";
 import { SpinnerLoading } from "@/components/transitions/spinner-loading";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,9 @@ import { useLyricsTrainingGame } from "@/hooks/immersion/useLyricsTrainingGame";
 import { cn } from "@/lib/utils";
 import { LyricsTrainingResultBanner } from "./LyricsTrainingResultBanner";
 import { Header } from "@/components/ui/header";
+import BreadcrumbActions from "@/components/shared/Breadcrum/BreadcrumbActions";
+import BreadcrumbActionIcon from "@/components/shared/Breadcrum/BreadcrumbActionIcon";
+import Link from "next/link";
 
 function normalizeWord(s: string): string {
   return s
@@ -114,6 +118,12 @@ export default function LyricsTrainingGame() {
 
   return (
     <div className="container-padding space-y-4">
+      <BreadcrumbActions placement="start">
+        <Link href="/hub/student/my-immersion" className="flex items-center">
+          <BreadcrumbActionIcon icon={ArrowLeft} />
+        </Link>
+      </BreadcrumbActions>
+
       <Header
         heading="Treine suas habilidades de escuta"
         subheading="Interprete as letras da música e avalie sua performance"
@@ -455,9 +465,9 @@ export default function LyricsTrainingGame() {
               </div>
 
               {/* Rodapé do Jogo (Aviso/Teclado/Próximo) */}
-              <div className="min-h-[220px]">
+              <div className="min-h-[220px] flex flex-col">
                 {showNextButton ? (
-                  <div className="flex justify-center pt-6">
+                  <div className="mt-auto flex justify-center pb-2 pt-6">
                     <Button
                       variant="primary"
                       size="lg"
@@ -469,15 +479,17 @@ export default function LyricsTrainingGame() {
                     </Button>
                   </div>
                 ) : waitingInput ? (
-                  <Keyboard
-                    onLetter={onKeyboardLetter}
-                    onEnter={onKeyboardEnter}
-                    onBackspace={onKeyboardBackspace}
-                    letterStates={keyboardLetterStates}
-                    disabled={tilesDisabled}
-                  />
+                  <div className="mt-auto pb-2">
+                    <Keyboard
+                      onLetter={onKeyboardLetter}
+                      onEnter={onKeyboardEnter}
+                      onBackspace={onKeyboardBackspace}
+                      letterStates={keyboardLetterStates}
+                      disabled={tilesDisabled}
+                    />
+                  </div>
                 ) : (
-                  <div className="flex items-center justify-center h-full">
+                  <div className="mt-auto mb-2 flex items-center justify-center">
                     <div className="flex items-center gap-3 text-sm font-medium text-muted-foreground bg-muted/30 px-6 py-3 rounded-full border border-border/40">
                       <div className="flex gap-1">
                         <span

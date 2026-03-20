@@ -849,7 +849,9 @@
     "immersion": "Immersion",
     "achievementes": "Achievementes",
     "mySubscription": "My Subscriptions",
-    "myHistory": "My History"
+    "myHistory": "My History",
+    "wordLadder": "WordLadder",
+    "lyricsTraining": "Lyrics Training"
   },
   "UserProfileHeader": {
     "profilePicture": "Profile picture",

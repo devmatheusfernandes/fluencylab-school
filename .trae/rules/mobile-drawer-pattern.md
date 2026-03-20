@@ -10,6 +10,11 @@ Melhorar a usabilidade em dispositivos móveis, economizando espaço vertical e 
 
 O componente [`BreadcrumbActions`](file:///components/shared/Breadcrum/BreadcrumbActions.tsx) utiliza um **React Portal** para injetar botões na barra de navegação superior (Breadcrumb), garantindo que as ações fiquem visíveis e acessíveis sem ocupar espaço no corpo da página.
 
+### Placement (start x end)
+
+- Use `placement="start"` para injetar ações no **lado esquerdo** do Breadcrumb (recomendado no Hub/web, porque o lado direito normalmente está ocupado pelo ThemeSwitcher).
+- Use `placement="end"` para injetar ações no **lado direito** do Breadcrumb (aparece no modo **standalone/PWA**, onde o Breadcrumb vira a barra principal e substitui o Header).
+
 ### Como usar:
 
 1.  Importe os componentes:
@@ -28,7 +33,7 @@ O componente [`BreadcrumbActions`](file:///components/shared/Breadcrum/Breadcrum
   icon={
     <div className="flex items-center gap-2">
       {/* Ações Mobile Injetadas no Breadcrumb */}
-      <BreadcrumbActions>
+      <BreadcrumbActions placement="start">
         <BreadcrumbActionIcon icon={Book} onClick={() => setOpenDrawer(true)} />
       </BreadcrumbActions>
 
@@ -95,7 +100,7 @@ export default function MyPage() {
       {/* 1. Botão Mobile (Injetado) */}
       <Header
         icon={
-          <BreadcrumbActions>
+          <BreadcrumbActions placement="start">
             <BreadcrumbActionIcon
               icon={ListIcon}
               onClick={() => setIsDrawerOpen(true)}
@@ -149,7 +154,7 @@ Ele exibe uma lupa que, ao ser clicada, expande e cobre todo o breadcrumb com o 
   icon={
     <div className="flex items-center gap-2">
       {/* Mobile: Busca Expansível no Topo */}
-      <BreadcrumbActions>
+      <BreadcrumbActions placement="start">
         <BreadcrumbSearch
           value={search}
           onChange={setSearch}
@@ -159,10 +164,7 @@ Ele exibe uma lupa que, ao ser clicada, expande e cobre todo o breadcrumb com o 
 
       {/* Desktop: Busca Normal */}
       <div className="hidden md:block w-72">
-        <SearchBar
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+        <SearchBar value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>
     </div>
   }
