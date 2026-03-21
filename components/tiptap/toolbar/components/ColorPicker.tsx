@@ -1,41 +1,39 @@
-import React, { useState } from "react";
+import React from "react";
 import { Editor } from "@tiptap/react";
-import { Palette } from "lucide-react";
+import { Palette, Eraser, Check, Pipette } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/tiptap-ui-primitive/button";
 
-interface ColorPickerProps {
+// Paleta exata solicitada (valores Hex baseados no Tailwind CSS)
+const MINIMAL_PALETTE = [
+  { name: "Preto", hex: "#000000" }, // black
+  { name: "Cinza", hex: "#6B7280" }, // gray-500
+  { name: "Branco", hex: "#FFFFFF" }, // white
+  { name: "Esmeralda", hex: "#10B981" }, // emerald-500
+  { name: "Índigo", hex: "#6366F1" }, // indigo-500
+  { name: "Violeta", hex: "#7C3AED" }, // violet-600
+  { name: "Rosa", hex: "#F43F5E" }, // rose-500
+  { name: "Âmbar", hex: "#F59E0B" }, // amber-500
+];
+
+interface MinimalColorPickerProps {
   editor: Editor;
 }
 
-const ColorPicker: React.FC<ColorPickerProps> = ({ editor }) => {
-  const [customColor, setCustomColor] = useState("#000000");
+const MinimalColorPicker: React.FC<MinimalColorPickerProps> = ({ editor }) => {
+  const currentColor = editor.getAttributes("textStyle").color || "";
 
-  const colorPalette = [
-    { name: "Preto", hex: "#000000" },
-    { name: "Cinza escuro", hex: "#374151" },
-    { name: "Cinza", hex: "#6B7280" },
-    { name: "Cinza claro", hex: "#9CA3AF" },
-    { name: "Branco", hex: "#FFFFFF" },
-    { name: "Vermelho", hex: "#EF4444" },
-    { name: "Laranja", hex: "#F97316" },
-    { name: "Amarelo", hex: "#EAB308" },
-    { name: "Lima", hex: "#84CC16" },
-    { name: "Verde", hex: "#22C55E" },
-    { name: "Esmeralda", hex: "#10B981" },
-    { name: "Ciano", hex: "#06B6D4" },
-    { name: "Azul", hex: "#3B82F6" },
-    { name: "Índigo", hex: "#6366F1" },
-    { name: "Roxo", hex: "#8B5CF6" },
-    { name: "Magenta", hex: "#D946EF" },
-    { name: "Rosa", hex: "#EC4899" },
-    { name: "Âmbar", hex: "#F59E0B" },
-  ];
+  const applyColor = (color: string) => {
+    editor.chain().focus().setColor(color).run();
+  };
+
+  const removeColor = () => {
+    editor.chain().focus().unsetColor().run();
+  };
 
   return (
     <DropdownMenu>
@@ -43,86 +41,100 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ editor }) => {
         <Button
           type="button"
           data-style="ghost"
-          data-active-state="off"
+          data-active-state={currentColor ? "on" : "off"}
           role="button"
-          tooltip="Cor do texto"
-          className="tiptap-button relative"
+          aria-label="Selecionar cor do texto"
+          title="Cor do texto"
+          className="tiptap-button relative group"
         >
           <Palette size={18} className="tiptap-button-text" />
-          {editor.getAttributes("textStyle").color && (
+          {currentColor && (
             <div
-              className="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-background"
-              style={{
-                backgroundColor: editor.getAttributes("textStyle").color,
-              }}
+              className="absolute bottom-1 right-1 w-3.5 h-3.5 rounded-full border-2 border-background shadow-sm transition-transform group-hover:scale-110"
+              style={{ backgroundColor: currentColor }}
             />
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-64 p-3">
-        <div className="space-y-3">
-          <div>
-            <p className="text-xs font-medium text-muted-foreground mb-2">
-              Cores pré-definidas
-            </p>
-            <div className="grid grid-cols-6 gap-2">
-              {colorPalette.map((color) => (
+
+      {/* Container focado no mobile com largura ideal */}
+      <DropdownMenuContent
+        align="start"
+        className="w-[calc(100vw-2rem)] max-w-[260px] p-4 sm:w-auto"
+      >
+        <div className="space-y-4">
+          {/* Grid de 4 colunas perfeito para as 8 cores */}
+          <div className="grid grid-cols-4 gap-3">
+            {MINIMAL_PALETTE.map((color) => {
+              const isActive = currentColor === color.hex;
+              const isWhite = color.hex === "#FFFFFF";
+              return (
                 <button
                   key={color.hex}
-                  onClick={() =>
-                    editor.chain().focus().setColor(color.hex).run()
-                  }
+                  onClick={() => applyColor(color.hex)}
                   className={`
-                    w-8 h-8 rounded-md border-2 transition-all
-                    ${
-                      editor.getAttributes("textStyle").color === color.hex
-                        ? "border-primary scale-110"
-                        : "border-border hover:scale-110 hover:border-muted-foreground"
-                    }
+                    relative w-full aspect-square rounded-full shadow-sm transition-all flex items-center justify-center
+                    focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1
+                    active:scale-90
+                    ${isActive ? "ring-2 ring-primary ring-offset-2" : "hover:scale-110"}
+                    ${isWhite ? "border-2 border-zinc-200" : "border border-transparent"}
                   `}
                   style={{ backgroundColor: color.hex }}
                   title={color.name}
-                />
-              ))}
-            </div>
+                  aria-label={`Mudar cor para ${color.name}`}
+                >
+                  {isActive && (
+                    <Check
+                      size={16}
+                      className={isWhite ? "text-zinc-900" : "text-white"}
+                      strokeWidth={3}
+                    />
+                  )}
+                </button>
+              );
+            })}
           </div>
 
-          <DropdownMenuSeparator />
-
-          <div>
-            <p className="text-xs font-medium text-muted-foreground mb-2">
+          {/* Botão sutil para abrir o seletor nativo do sistema */}
+          <div className="relative">
+            <input
+              type="color"
+              value={currentColor || "#000000"}
+              onChange={(e) => applyColor(e.target.value)}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              aria-label="Abrir seletor de cor nativo"
+            />
+            <Button
+              type="button"
+              className="w-full flex items-center justify-center gap-2 h-9 text-xs font-medium border-dashed text-zinc-500 border-zinc-300 hover:border-zinc-400 hover:bg-zinc-50"
+            >
+              <Pipette size={14} className="text-zinc-400" />
               Cor personalizada
-            </p>
-            <div className="flex gap-2">
-              <input
-                type="color"
-                value={customColor}
-                onChange={(e) => setCustomColor(e.target.value)}
-                className="w-12 h-10 rounded border border-input cursor-pointer bg-background"
-              />
-              <button
-                onClick={() =>
-                  editor.chain().focus().setColor(customColor).run()
-                }
-                className="flex-1 px-3 py-2 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-              >
-                Aplicar
-              </button>
-            </div>
+            </Button>
           </div>
 
-          <DropdownMenuSeparator />
-
-          <button
-            onClick={() => editor.chain().focus().unsetColor().run()}
-            className="w-full px-3 py-2 text-sm text-foreground hover:bg-accent hover:text-accent-foreground rounded-md transition-colors"
-          >
-            Remover cor
-          </button>
+          {/* Rodapé de ação */}
+          <div className="pt-2 border-t border-zinc-100">
+            <button
+              onClick={removeColor}
+              disabled={!currentColor}
+              className={`
+                w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors
+                ${
+                  currentColor
+                    ? "text-red-500 hover:bg-red-50 active:scale-[0.98]"
+                    : "text-zinc-300 cursor-not-allowed"
+                }
+              `}
+            >
+              <Eraser size={16} />
+              Remover cor
+            </button>
+          </div>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 };
 
-export default ColorPicker;
+export default MinimalColorPicker;

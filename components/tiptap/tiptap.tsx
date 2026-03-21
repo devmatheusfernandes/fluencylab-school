@@ -18,11 +18,13 @@ import Placeholder from "@tiptap/extension-placeholder";
 import Toolbar from "./toolbar/toolbar";
 import { TaskList, TaskItem } from "@tiptap/extension-list";
 import { useIsMobile } from "@/hooks/ui/useMobile";
+import { useIsStandalone } from "@/hooks/ui/useIsStandalone";
 import BottomToolbar from "./toolbar/bottom-toolbar";
 import { CommentMark } from "@/components/tiptap/extensions/Comments/CommentsMark";
 import { CommentsSheet } from "@/components/tiptap/extensions/Comments/CommentsSheet";
 import { QuestionsNode } from "@/components/tiptap/extensions/Questions/QuestionsNode";
 import { MusicNode } from "@/components/tiptap/extensions/Music/MusicNode";
+import { twMerge } from "tailwind-merge";
 
 import "./style.scss";
 import FloatStudentCallButton from "../stream/FloatStudentCallButton";
@@ -59,6 +61,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   studentName,
 }) => {
   const isMobile = useIsMobile();
+  const isStandalone = useIsStandalone();
   const { data: session } = useSession();
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -151,7 +154,14 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   }
 
   return (
-    <div className={`bg-white dark:bg-black ${className}`}>
+    <div
+      className={twMerge(
+        "!bg-white dark:!bg-black",
+        className,
+        isMobile && "!bg-slate-100 dark:!bg-slate-950",
+        isStandalone && "!bg-slate-200 dark:!bg-slate-900"
+      )}
+    >
       <div
         ref={containerRef}
         className="relative h-[100dvh] overflow-y-auto no-scrollbar"

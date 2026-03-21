@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useEffect, useRef } from "react";
 import { Editor } from "@tiptap/react";
 import { ChevronUp } from "lucide-react";
@@ -9,6 +8,9 @@ import ToolbarToolsSheet, { MODAL_COMPONENTS } from "./tools";
 import { BackButton } from "@/components/ui/back-button";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { useSession } from "next-auth/react";
+import { useIsMobile } from "@/hooks/ui/useMobile";
+import { useIsStandalone } from "@/hooks/ui/useIsStandalone";
+import { twMerge } from "tailwind-merge";
 
 interface ToolbarProps {
   editor: Editor | null;
@@ -17,6 +19,8 @@ interface ToolbarProps {
 }
 
 const BottomToolbar: React.FC<ToolbarProps> = ({ editor, studentID, name }) => {
+  const isMobile = useIsMobile();
+  const isStandalone = useIsStandalone();
   const [isExpanded, setIsExpanded] = useState(false);
   const [openModalId, setOpenModalId] = useState<string | null>(null);
   const [visibleButtons, setVisibleButtons] = useState<string[]>([]);
@@ -24,10 +28,7 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor, studentID, name }) => {
   const toolbarRef = useRef<HTMLDivElement>(null);
   const { data: session } = useSession();
   const firstName = name?.split(" ")[0] ?? "Aluno";
-  // Configuração compartilhada de botões
   const allButtons: ToolItem[] = TOOL_ITEMS;
-
-  // Ajuste para teclado em mobile/PWA (iOS principalmente)
   const [viewportOffset, setViewportOffset] = useState(0);
 
   useEffect(() => {
@@ -36,9 +37,6 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor, studentID, name }) => {
     const handler = () => {
       const vv = window.visualViewport;
       if (!vv) return;
-
-      // Calcula a distância entre o fundo do visual viewport e o layout viewport
-      // Isso compensa quando o teclado sobe mas o layout viewport não encolhe (iOS overlay)
       const offset = window.innerHeight - vv.height - vv.offsetTop;
 
       setViewportOffset(Math.max(0, offset));
@@ -48,7 +46,6 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor, studentID, name }) => {
     window.visualViewport.addEventListener("scroll", handler);
 
     handler();
-
     return () => {
       window.visualViewport?.removeEventListener("resize", handler);
       window.visualViewport?.removeEventListener("scroll", handler);
@@ -58,8 +55,7 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor, studentID, name }) => {
   useEffect(() => {
     const calculateVisibleButtons = () => {
       if (!toolbarRef.current) return;
-
-      const containerWidth = window.innerWidth - 1; // Espaço para o botão "Mais"
+      const containerWidth = window.innerWidth - 1;
       let accumulatedWidth = 0;
       const visible: string[] = [];
       const hidden: string[] = [];
@@ -142,7 +138,6 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor, studentID, name }) => {
       className="fixed -bottom-0.5 left-0 right-0 z-50 transition-all duration-100 ease-out"
       style={{ bottom: viewportOffset > 0 ? viewportOffset : undefined }}
     >
-      {/* Camada expandida (animada) */}
       <AnimatePresence>
         {isExpanded && (
           <motion.div
@@ -150,7 +145,12 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor, studentID, name }) => {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="bg-background border-t border-border shadow-lg overflow-hidden"
+            className={twMerge(
+              "border-t border-border shadow-lg overflow-hidden",
+              "!bg-white dark:!bg-black",
+              isMobile && "!bg-slate-100 dark:!bg-slate-950",
+              isStandalone && "!bg-slate-200 dark:!bg-slate-900"
+            )}
           >
             <motion.div
               initial={{ y: -20 }}
@@ -204,16 +204,19 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor, studentID, name }) => {
         )}
       </AnimatePresence>
 
-      {/* Camada principal (sempre visível) */}
       <motion.div
         ref={toolbarRef}
         initial={{ y: 100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        className="bg-background border-t border-border shadow-lg"
+        className={twMerge(
+          "border-t border-border shadow-lg",
+          "!bg-white dark:!bg-black",
+          isMobile && "!bg-slate-100 dark:!bg-slate-950",
+          isStandalone && "!bg-slate-200 dark:!bg-slate-900"
+        )}
       >
         <div className="p-1 flex items-center justify-between gap-2">
-          {/* Esquerda */}
           <div className="flex items-center gap-1 min-w-0">
             <BackButton
               href={
@@ -224,12 +227,10 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor, studentID, name }) => {
             />
           </div>
 
-          {/* Centro */}
           <div className="flex items-center gap-1 flex-1 justify-center overflow-x-auto">
             {visibleButtons.map((buttonId) => renderButton(buttonId))}
           </div>
 
-          {/* Direita */}
           <div className="flex items-center gap-2 min-w-0">
             {hiddenButtons.length > 0 && (
               <motion.button

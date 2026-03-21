@@ -16,6 +16,9 @@ import "@/components/tiptap-node/blockquote-node/blockquote-node.scss";
 import "@/components/tiptap-node/image-node/image-node.scss";
 import "@/components/tiptap-node/image-upload-node/image-upload-node.scss";
 import { useSession } from "next-auth/react";
+import { twMerge } from "tailwind-merge";
+import { useIsMobile } from "@/hooks/ui/useMobile";
+import { useIsStandalone } from "@/hooks/ui/useIsStandalone";
 
 interface ToolbarProps {
   editor: Editor | null;
@@ -35,6 +38,8 @@ const Toolbar: React.FC<ToolbarProps> = ({
   name,
 }) => {
   const { data: session } = useSession();
+  const isMobile = useIsMobile();
+  const isStandalone = useIsStandalone();
   const [openModalId, setOpenModalId] = useState<string | null>(null);
   if (!editor) {
     return null;
@@ -45,7 +50,14 @@ const Toolbar: React.FC<ToolbarProps> = ({
 
   const ActiveModal = openModalId ? MODAL_COMPONENTS[openModalId] : null;
   return (
-    <div className="sticky top-0 z-50 bg-white dark:bg-black border-b border-secondary-foreground/10">
+    <div
+      className={twMerge(
+        "sticky top-0 z-50 border-b border-secondary-foreground/10",
+        "!bg-white dark:!bg-black",
+        isMobile && "!bg-slate-100 dark:!bg-slate-950",
+        isStandalone && "!bg-slate-200 dark:!bg-slate-900"
+      )}
+    >
       <div className="p-2">
         <div className="flex items-center justify-between gap-4">
           {/* Esquerda */}
