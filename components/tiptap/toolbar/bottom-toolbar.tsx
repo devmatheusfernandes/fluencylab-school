@@ -96,7 +96,7 @@ const BottomToolbar: React.FC<ToolbarProps> = ({ editor, studentID, name }) => {
     calculateVisibleButtons();
     window.addEventListener("resize", calculateVisibleButtons);
     return () => window.removeEventListener("resize", calculateVisibleButtons);
-  }, []);
+  }, [allButtons]);
 
   if (!editor) {
     return null;

@@ -59,7 +59,7 @@ export default function TeacherSettingsClient({
     } catch (error) {
       console.error("Error refreshing calendar data:", error);
     }
-  }, []);
+  }, [t]);
 
   return (
     <div className="w-full mt-4">

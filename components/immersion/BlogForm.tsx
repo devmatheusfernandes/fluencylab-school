@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Blog } from "@/types/learning/immersion";
 import { useImmersionMutations } from "@/hooks/learning/useImmersion";
 import { Loader2, Trash } from "lucide-react";
@@ -164,10 +165,11 @@ export function BlogForm({ initialData }: BlogFormProps) {
           </div>
           {coverUrl && (
             <div className="mt-2 relative aspect-video w-64 rounded-lg overflow-hidden border">
-              <img
+              <Image
                 src={coverUrl}
                 alt="Cover preview"
-                className="object-cover w-full h-full"
+                fill
+                className="object-cover"
               />
             </div>
           )}

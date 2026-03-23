@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -483,20 +484,20 @@ export function SubscriptionCreationClient() {
               <p className="text-xs text-zinc-400 text-center mt-4 leading-relaxed">
                 {t.rich("termsAgreement", {
                   linkTerms: (chunks) => (
-                    <a
-                      href="/terms"
+                    <Link
+                      href={`/${locale}/terms`}
                       className="text-zinc-600 dark:text-zinc-300 hover:underline"
                     >
                       {chunks}
-                    </a>
+                    </Link>
                   ),
                   linkPrivacy: (chunks) => (
-                    <a
-                      href="/privacy"
+                    <Link
+                      href={`/${locale}/privacy`}
                       className="text-zinc-600 dark:text-zinc-300 hover:underline"
                     >
                       {chunks}
-                    </a>
+                    </Link>
                   ),
                 })}
               </p>

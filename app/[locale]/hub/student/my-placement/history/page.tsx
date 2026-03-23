@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
@@ -24,7 +24,6 @@ import Link from "next/link";
 import {
   Empty,
   EmptyHeader,
-  EmptyTitle,
   EmptyMedia,
   EmptyDescription,
 } from "@/components/ui/empty";
@@ -37,34 +36,35 @@ export default function HistoryPage() {
   const [historyList, setHistoryList] = useState<HistoryItem[]>([]);
   const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null);
 
+  const loadHistory = useCallback(async () => {
+    if (!session?.user?.id) {
+      setLoading(false);
+      return;
+    }
+    try {
+      const historyRef = collection(db, "placement_results");
+      const q = query(
+        historyRef,
+        where("userId", "==", session.user.id),
+        orderBy("completedAt", "desc"),
+      );
+      const querySnapshot = await getDocs(q);
+      const historyData: HistoryItem[] = [];
+      querySnapshot.forEach((doc) => {
+        historyData.push({ id: doc.id, ...doc.data() } as HistoryItem);
+      });
+      setHistoryList(historyData);
+    } catch (error) {
+      console.error("Error loading history:", error);
+      toast.error(t("errorHistory"));
+    } finally {
+      setLoading(false);
+    }
+  }, [session?.user?.id, t]);
+
   useEffect(() => {
-    const loadHistory = async () => {
-      if (!session?.user?.id) {
-        setLoading(false);
-        return;
-      }
-      try {
-        const historyRef = collection(db, "placement_results");
-        const q = query(
-          historyRef,
-          where("userId", "==", session.user.id),
-          orderBy("completedAt", "desc")
-        );
-        const querySnapshot = await getDocs(q);
-        const historyData: HistoryItem[] = [];
-        querySnapshot.forEach((doc) => {
-          historyData.push({ id: doc.id, ...doc.data() } as HistoryItem);
-        });
-        setHistoryList(historyData);
-      } catch (error) {
-        console.error("Error loading history:", error);
-        toast.error(t("errorHistory"));
-      } finally {
-        setLoading(false);
-      }
-    };
     loadHistory();
-  }, [session?.user?.id]);
+  }, [loadHistory]);
 
   if (loading) {
     return (

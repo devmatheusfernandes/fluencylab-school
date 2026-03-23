@@ -69,7 +69,7 @@ export default function SubmitButton({
         onAnimationComplete={(definition) => {
           // Quando a animação de sucesso termina, chama o callback (ex: router.push)
           if (status === "success" && (definition as any).scale === 30) {
-            onAnimationComplete && onAnimationComplete();
+            onAnimationComplete?.();
           }
         }}
       >

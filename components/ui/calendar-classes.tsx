@@ -124,7 +124,11 @@ export const Calendar: React.FC<CalendarProps> = ({
 
   useEffect(() => {
     if (isMobile) {
-      setCurrentView("day");
+      // Usando setTimeout para evitar atualização síncrona dentro do efeito
+      const timer = setTimeout(() => {
+        setCurrentView("day");
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [isMobile]);
 

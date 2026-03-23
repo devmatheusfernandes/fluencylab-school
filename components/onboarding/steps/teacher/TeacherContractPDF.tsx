@@ -35,7 +35,11 @@ export const TeacherContractPDF: React.FC<TeacherContractPDFProps> = ({
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    setIsVisible(true);
+    // Usando setTimeout para evitar atualização síncrona dentro do efeito
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   //TODO: Get school name, CNPJ, and address from database

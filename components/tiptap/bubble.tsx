@@ -358,7 +358,7 @@ function Popovers({ editor }: PopoversProps) {
                             key={idx}
                             className="text-sm italic text-muted-foreground"
                           >
-                            "{ex}"
+                            &quot;{ex}&quot;
                           </li>
                         ))}
                       </ul>

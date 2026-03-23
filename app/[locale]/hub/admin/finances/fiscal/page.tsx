@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Header } from "@/components/ui/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -72,26 +72,29 @@ export default function FiscalDashboardPage() {
   });
 
   // Calculate IRPF based on stored ranges
-  const calculateAnnualIRPF = (taxableIncome: number) => {
-    if (!irpfRanges || irpfRanges.length === 0) return 0;
+  const calculateAnnualIRPF = useCallback(
+    (taxableIncome: number) => {
+      if (!irpfRanges || irpfRanges.length === 0) return 0;
 
-    // Sort by limit to be safe
-    const sorted = [...irpfRanges].sort((a, b) => a.limit - b.limit);
+      // Sort by limit to be safe
+      const sorted = [...irpfRanges].sort((a, b) => a.limit - b.limit);
 
-    for (const range of sorted) {
-      if (taxableIncome <= range.limit) {
-        const tax = taxableIncome * range.rate - range.deduction;
-        return Math.max(0, Math.round(tax));
+      for (const range of sorted) {
+        if (taxableIncome <= range.limit) {
+          const tax = taxableIncome * range.rate - range.deduction;
+          return Math.max(0, Math.round(tax));
+        }
       }
-    }
 
-    // Fallback if above all limits (though last should be infinite)
-    const last = sorted[sorted.length - 1];
-    const tax = taxableIncome * last.rate - last.deduction;
-    return Math.max(0, Math.round(tax));
-  };
+      // Fallback if above all limits (though last should be infinite)
+      const last = sorted[sorted.length - 1];
+      const tax = taxableIncome * last.rate - last.deduction;
+      return Math.max(0, Math.round(tax));
+    },
+    [irpfRanges],
+  );
 
-  const fetchFiscalConfig = async () => {
+  const fetchFiscalConfig = useCallback(async () => {
     try {
       const res = await fetch(
         `/api/admin/finance/fiscal-config?year=${selectedYear}`,
@@ -103,11 +106,15 @@ export default function FiscalDashboardPage() {
     } catch (error) {
       console.error("Failed to fetch fiscal config", error);
     }
-  };
+  }, [selectedYear]);
 
   useEffect(() => {
-    fetchFiscalConfig();
-  }, [selectedYear]);
+    // Usando setTimeout para evitar atualização síncrona dentro do efeito
+    const timer = setTimeout(() => {
+      fetchFiscalConfig();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [fetchFiscalConfig]);
 
   useEffect(() => {
     const fetchMeiData = async () => {
@@ -156,7 +163,7 @@ export default function FiscalDashboardPage() {
     // but this effect depends on [selectedYear].
     // We need to depend on [selectedYear, irpfRanges] to recalculate when config changes.
     fetchMeiData();
-  }, [selectedYear, irpfRanges]);
+  }, [selectedYear, calculateAnnualIRPF]);
 
   // Format month string for filtering payments (e.g., "2023-10")
   const competenceMonthStr = `${selectedYear}-${String(selectedMonth + 1).padStart(2, "0")}`;

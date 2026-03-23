@@ -124,7 +124,7 @@ export function LessonQuizEditor({ lesson }: LessonQuizEditorProps) {
     if (quizData?.quiz_sections?.[0]?.type) {
       setActiveTab(quizData.quiz_sections[0].type);
     }
-  }, []);
+  }, [quizData?.quiz_sections]);
 
   // If no quiz, initialize with default structure
   useEffect(() => {

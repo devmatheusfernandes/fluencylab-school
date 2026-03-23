@@ -18,7 +18,11 @@ export default function OfflinePage() {
   const [isOnline, setIsOnline] = useState(true);
 
   useEffect(() => {
-    setIsOnline(navigator.onLine);
+    // Usando setTimeout para evitar atualização síncrona dentro do efeito
+    const currentStatus = navigator.onLine;
+    const timer = setTimeout(() => {
+      setIsOnline(currentStatus);
+    }, 0);
 
     const onOnline = () => setIsOnline(true);
     const onOffline = () => setIsOnline(false);
@@ -27,6 +31,7 @@ export default function OfflinePage() {
     window.addEventListener("offline", onOffline);
 
     return () => {
+      clearTimeout(timer);
       window.removeEventListener("online", onOnline);
       window.removeEventListener("offline", onOffline);
     };

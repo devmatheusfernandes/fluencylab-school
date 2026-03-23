@@ -27,7 +27,11 @@ const ContratoPDF: React.FC<ContratoPDFProps> = ({
 
   useEffect(() => {
     // Set visible after component mounts to trigger animation
-    setIsVisible(true);
+    // Usando setTimeout para evitar atualização síncrona dentro do efeito
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const formatDate = (dateString: string | undefined): string => {

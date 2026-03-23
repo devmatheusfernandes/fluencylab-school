@@ -170,7 +170,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
     };
 
     loadData();
-  }, []);
+  }, [session?.user?.email]);
 
   // Save draft to localStorage whenever data or step changes
   React.useEffect(() => {

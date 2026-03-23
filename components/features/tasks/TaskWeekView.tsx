@@ -74,19 +74,21 @@ export function TaskWeekView({
   const dateLocale = locale === "pt" ? ptBR : enUS;
   const { users } = useStaffUsers();
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [startDate, setStartDate] = useState(
+  const [startDate, setStartDate] = useState(() =>
     startOfWeek(new Date(), { weekStartsOn: 0 }),
   );
   const isMobile = useIsMobile();
   const [viewOffset, setViewOffset] = useState(0);
 
-  useEffect(() => {
-    setViewOffset(0);
-  }, [startDate, isMobile]);
+  const [prevStartDate, setPrevStartDate] = useState(startDate);
+  const [prevIsMobile, setPrevIsMobile] = useState(isMobile);
 
-  useEffect(() => {
-    setStartDate(startOfWeek(new Date(), { weekStartsOn: 0 }));
-  }, []);
+  // Derivando estado para evitar renderizações em cascata por causa de useEffect
+  if (startDate !== prevStartDate || isMobile !== prevIsMobile) {
+    setPrevStartDate(startDate);
+    setPrevIsMobile(isMobile);
+    setViewOffset(0);
+  }
 
   const visibleDaysCount = isMobile ? 2 : 7;
 

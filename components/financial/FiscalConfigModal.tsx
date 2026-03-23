@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Modal,
   ModalContent,
@@ -43,13 +43,7 @@ export function FiscalConfigModal({
   const [loading, setLoading] = useState(false);
   const [ranges, setRanges] = useState<IrpfRange[]>([]);
 
-  useEffect(() => {
-    if (open) {
-      fetchConfig();
-    }
-  }, [open, year]);
-
-  const fetchConfig = async () => {
+  const fetchConfig = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(`/api/admin/finance/fiscal-config?year=${year}`);
@@ -67,7 +61,13 @@ export function FiscalConfigModal({
     } finally {
       setLoading(false);
     }
-  };
+  }, [year]);
+
+  useEffect(() => {
+    if (open) {
+      fetchConfig();
+    }
+  }, [open, fetchConfig]);
 
   const handleSave = async () => {
     setLoading(true);

@@ -4,7 +4,7 @@ import { StudentClass, ClassStatus } from "@/types/classes/class";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useTranslations, useLocale, useFormatter } from "next-intl";
 import { useSession } from "next-auth/react";
 import {
@@ -98,25 +98,25 @@ export default function UserClassesTab({
   } | null>(null);
 
   // Fetch available teachers
-  useEffect(() => {
-    const fetchTeachers = async () => {
-      try {
-        const response = await fetch("/api/admin/teachers");
-        if (!response.ok) {
-          throw new Error("Failed to fetch teachers");
-        }
-        const teacherList = await response.json();
-        setTeachers(teacherList);
-      } catch (error) {
-        console.error("Erro ao buscar professores:", error);
-        toast.error(t("toasts.loadError"));
-      } finally {
-        setLoadingTeachers(false);
+  const fetchTeachers = useCallback(async () => {
+    try {
+      const response = await fetch("/api/admin/teachers");
+      if (!response.ok) {
+        throw new Error("Failed to fetch teachers");
       }
-    };
+      const teacherList = await response.json();
+      setTeachers(teacherList);
+    } catch (error) {
+      console.error("Erro ao buscar professores:", error);
+      toast.error(t("toasts.loadError"));
+    } finally {
+      setLoadingTeachers(false);
+    }
+  }, [t]);
 
+  useEffect(() => {
     fetchTeachers();
-  }, []);
+  }, [fetchTeachers]);
 
   // Estados para controlar os filtros selecionados
   const now = new Date();

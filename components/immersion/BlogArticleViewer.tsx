@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
+import Image from "next/image";
 import { SimpleEditor } from "@/components/immersion/SimpleEditor";
 import { format } from "date-fns";
 import { ArrowLeft, Calendar, Clock, ChevronDown } from "lucide-react";
@@ -37,11 +38,16 @@ export function BlogArticleViewer({ blog }: { blog: any }) {
       <div className="relative w-full h-[65vh] md:h-[75vh] overflow-hidden flex items-end">
         {/* Imagem de Fundo com Parallax */}
         <motion.div style={{ y: backgroundY }} className="absolute inset-0 z-0">
-          <img
+          <Image
             src={blog.coverImageUrl}
             alt={blog.title}
-            className="w-full h-[120%] object-cover object-center"
-            // h-[120%] garante que não falte imagem embaixo quando der o scroll parallax
+            fill
+            className="object-cover object-center"
+            // O h-[120%] no img original era para o parallax. No next/image fill, 
+            // podemos usar sizes ou apenas confiar no container pai.
+            // Para manter o efeito original de "sobrar" imagem, o container pai 
+            // motion.div precisaria ter esse overflow ou altura maior.
+            priority
           />
           {/* Overlay Escuro para Legibilidade */}
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-black/30" />

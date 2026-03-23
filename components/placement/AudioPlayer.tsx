@@ -5,17 +5,25 @@ import { motion } from "framer-motion";
 export const AudioPlayer = ({ url }: { url: string }) => {
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [prevUrl, setPrevUrl] = useState(url);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Reseta player se a URL mudar
   useEffect(() => {
-    setPlaying(false);
-    setProgress(0);
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
+    if (url !== prevUrl) {
+      // Usando setTimeout para evitar atualização síncrona dentro do efeito
+      const timer = setTimeout(() => {
+        setPrevUrl(url);
+        setPlaying(false);
+        setProgress(0);
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.currentTime = 0;
+        }
+      }, 0);
+      return () => clearTimeout(timer);
     }
-  }, [url]);
+  }, [url, prevUrl]);
 
   useEffect(() => {
     const audio = audioRef.current;

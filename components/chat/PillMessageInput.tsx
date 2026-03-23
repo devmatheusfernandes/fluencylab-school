@@ -1,4 +1,5 @@
 import React, { useCallback, useRef, useState } from "react";
+import Image from "next/image";
 import {
   useMessageInputContext,
   TextareaComposer,
@@ -104,11 +105,15 @@ export const PillMessageInput = () => {
             <div key={attachment.localMetadata?.id} className="relative group">
               <div className="w-20 h-20 rounded-lg overflow-hidden bg-secondary border border-border">
                 {attachment.type === "image" && attachment.image_url && (
-                  <img
-                    src={attachment.image_url}
-                    alt=""
-                    className="w-full h-full object-cover"
-                  />
+                  <div className="relative w-full h-full">
+                    <Image
+                      src={attachment.image_url}
+                      alt=""
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </div>
                 )}
                 {attachment.type === "file" && (
                   <div className="w-full h-full flex items-center justify-center">

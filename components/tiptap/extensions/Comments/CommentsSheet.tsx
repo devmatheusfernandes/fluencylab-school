@@ -393,7 +393,7 @@ export const CommentsSheet: React.FC<CommentsSheetProps> = ({ editor, docId }) =
                     <div className="relative bg-muted/40 rounded-lg p-3 border border-border/50">
                       <Quote className="absolute top-2 left-2 w-3 h-3 text-primary/40 rotate-180" />
                       <p className="text-xs text-muted-foreground italic pl-4 border-l-2 border-primary/30 line-clamp-4">
-                        "{displayedQuote}"
+                        &quot;{displayedQuote}&quot;
                       </p>
                     </div>
                   )}

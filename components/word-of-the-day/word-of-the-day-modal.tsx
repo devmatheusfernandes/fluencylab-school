@@ -106,7 +106,7 @@ export const WordOfTheDayModal = ({
     }
 
     checkAndFetchWord();
-  }, [language]);
+  }, [language, isControlled]);
 
   const handleClose = () => {
     handleOpenChange(false);

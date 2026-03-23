@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Podcast } from "@/types/learning/immersion";
 import { useImmersionMutations } from "@/hooks/learning/useImmersion";
 import { Loader2, Trash } from "lucide-react";
@@ -301,10 +302,11 @@ export function PodcastForm({ initialData }: PodcastFormProps) {
           </div>
           {coverUrl && (
             <div className="mt-2 relative aspect-square w-32 rounded-lg overflow-hidden border">
-              <img
+              <Image
                 src={coverUrl}
                 alt="Cover preview"
-                className="object-cover w-full h-full"
+                fill
+                className="object-cover"
               />
             </div>
           )}

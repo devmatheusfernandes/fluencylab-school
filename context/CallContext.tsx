@@ -104,7 +104,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         return false;
       }
     },
-    [callData?.callId],
+    [callData],
   );
 
   const joinCall = useCallback((id: string) => {

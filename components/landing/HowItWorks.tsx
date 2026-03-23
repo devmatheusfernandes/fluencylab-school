@@ -97,7 +97,7 @@ export default function HowItWorks() {
                     : "bg-transparent",
                 )}
                 style={{
-                  // @ts-ignore
+                  // @ts-expect-error - CSS variables are not recognized by TS
                   "--bg-active": "rgba(var(--primary-rgb), 0.03)",
                 }}
               >

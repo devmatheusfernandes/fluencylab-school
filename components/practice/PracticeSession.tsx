@@ -148,7 +148,7 @@ export function PracticeSession({
     if (planId) {
       initSession();
     }
-  }, [planId, router]);
+  }, [planId, router, dayOverride, isReplay, lessonId]);
 
   const currentItem = items[currentIndex];
   const progress = items.length > 0 ? (currentIndex / items.length) * 100 : 0;
@@ -296,7 +296,7 @@ export function PracticeSession({
               Daily Goal Met!
             </h1>
             <p className="text-slate-500 dark:text-slate-400 font-medium">
-              You've completed everything for today. Great job keeping your
+              You&apos;ve completed everything for today. Great job keeping your
               streak alive!
             </p>
           </div>

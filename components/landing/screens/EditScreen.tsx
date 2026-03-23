@@ -1,5 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Bold, Italic, List, MessageSquare, ChevronLeft } from "lucide-react";
 
@@ -29,9 +30,12 @@ export function EditorScreen() {
                 key={i}
                 className="w-7 h-7 rounded-full border-2 border-white dark:border-gray-950 bg-gray-200 overflow-hidden"
               >
-                <img
+                <Image
                   src={`https://i.pravatar.cc/100?u=${i}`}
                   alt="Collaborator"
+                  width={28}
+                  height={28}
+                  unoptimized
                 />
               </div>
             ))}

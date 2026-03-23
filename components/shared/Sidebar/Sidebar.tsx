@@ -178,11 +178,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ item, isCollapsed }) => {
           whileHover={{ rotate: isCollapsed ? 0 : 5 }}
           className="w-5 h-5 flex items-center justify-center relative"
         >
-          {React.isValidElement(item.icon)
-            ? React.cloneElement(item.icon as React.ReactElement<any>, {
-                ref: iconRef,
-              })
-            : item.icon}
+          {item.icon}
           {isCollapsed && item.badgeCount && item.badgeCount > 0 ? (
             <div className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-background">
               {item.badgeCount > 9 ? "9+" : item.badgeCount}

@@ -736,7 +736,7 @@ function ItemDetailModal({ item }: { item: LearningItem }) {
                         className="h-8 italic mb-1"
                       />
                     ) : (
-                      <p className="text-sm italic">"{meaning.example}"</p>
+                      <p className="text-sm italic">&quot;{meaning.example}&quot;</p>
                     )}
                     {isEditing ? (
                       <Input

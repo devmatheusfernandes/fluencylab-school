@@ -1,43 +1,29 @@
 // hooks/useTeacherOnboarding.ts
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSession } from "next-auth/react";
 
 export const useTeacherOnboarding = () => {
   const { data: session, status } = useSession();
-  const [shouldShowOnboarding, setShouldShowOnboarding] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [hasDismissedOnboarding, setHasDismissedOnboarding] = useState(false);
 
-  useEffect(() => {
-    if (status === "loading") {
-      return;
-    }
+  // Derivando estado ao invés de usar useEffect
+  const isTeacher = session?.user?.role === "teacher";
+  const hasCompletedOnboarding = session?.user?.tutorialCompleted;
+  const isLoading = status === "loading";
 
-    if (!session?.user) {
-      setIsLoading(false);
-      return;
-    }
-
-    // Check if user is a teacher and hasn't completed onboarding
-    const isTeacher = session.user.role === "teacher";
-    const hasCompletedOnboarding = session.user.tutorialCompleted;
-
-    if (isTeacher && !hasCompletedOnboarding) {
-      setShouldShowOnboarding(true);
-    }
-
-    setIsLoading(false);
-  }, [session, status]);
+  const shouldShowOnboarding =
+    !isLoading && isTeacher && !hasCompletedOnboarding && !hasDismissedOnboarding;
 
   const completeOnboarding = () => {
-    setShouldShowOnboarding(false);
+    setHasDismissedOnboarding(true);
   };
 
   return {
     shouldShowOnboarding,
     isLoading,
     completeOnboarding,
-    isTeacher: session?.user?.role === "teacher",
+    isTeacher,
   };
 };

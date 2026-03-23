@@ -42,14 +42,14 @@ export function useWordleGame() {
     return persisted.toLowerCase();
   });
   const [target, setTarget] = useState<LearnedWord | null>(
-    () => initialPersisted?.target ?? null
+    () => initialPersisted?.target ?? null,
   );
   const [guesses, setGuesses] = useState<string[]>(
-    () => initialPersisted?.guesses ?? []
+    () => initialPersisted?.guesses ?? [],
   );
   const [current, setCurrent] = useState(() => initialPersisted?.current ?? "");
   const [finished, setFinished] = useState<FinishedState>(
-    () => initialPersisted?.finished ?? null
+    () => initialPersisted?.finished ?? null,
   );
   const [availableWords, setAvailableWords] = useState<LearnedWord[]>([]);
   const [shaking, setShaking] = useState(false);
@@ -69,7 +69,7 @@ export function useWordleGame() {
 
   const langOptions = useMemo(
     () => (availableLangs.length ? availableLangs : [selectedLang]),
-    [availableLangs, selectedLang]
+    [availableLangs, selectedLang],
   );
 
   const evaluations = useMemo<CellState[][]>(() => {
@@ -132,7 +132,7 @@ export function useWordleGame() {
     const learned = await getAvailableWords();
     setAvailableWords(learned);
     const pool = learned.filter(
-      (w) => !w.lang || w.lang.toLowerCase() === lang
+      (w) => !w.lang || w.lang.toLowerCase() === lang,
     );
     const rawPick = pickTargetWord(pool.length ? pool : learned);
     const pick = rawPick && !rawPick.lang ? { ...rawPick, lang } : rawPick;
@@ -153,9 +153,16 @@ export function useWordleGame() {
       return;
     }
 
-    const langForDictionary = (target.lang || selectedLang || "en").toLowerCase();
+    const langForDictionary = (
+      target.lang ||
+      selectedLang ||
+      "en"
+    ).toLowerCase();
     const existsInLearnedPool = availableWordSet.has(normalized);
-    const existsInVocabulary = wordExistsInVocabulary(normalized, langForDictionary);
+    const existsInVocabulary = wordExistsInVocabulary(
+      normalized,
+      langForDictionary,
+    );
 
     if (!existsInLearnedPool && !existsInVocabulary) {
       triggerShake();
@@ -199,7 +206,7 @@ export function useWordleGame() {
 
   const onLetter = useCallback(
     (ch: string) => setCurrent((p) => (p.length >= length ? p : p + ch)),
-    [length]
+    [length],
   );
 
   const onBackspace = useCallback(() => setCurrent((p) => p.slice(0, -1)), []);
@@ -213,7 +220,7 @@ export function useWordleGame() {
       setAvailableWords(learned);
       if (initialPersisted) return;
       const pool = learned.filter(
-        (w) => !w.lang || w.lang.toLowerCase() === selectedLang
+        (w) => !w.lang || w.lang.toLowerCase() === selectedLang,
       );
       const rawPick = pickTargetWord(pool.length ? pool : learned);
       const pick =
@@ -226,7 +233,7 @@ export function useWordleGame() {
     return () => {
       mounted = false;
     };
-  }, [initialPersisted]);
+  }, [initialPersisted, selectedLang]);
 
   // idiomas disponíveis
   useEffect(() => {
@@ -242,7 +249,7 @@ export function useWordleGame() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [selectedLang]);
 
   // persistência
   useEffect(() => {

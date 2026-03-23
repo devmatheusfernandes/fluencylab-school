@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -55,34 +55,34 @@ export default function StudentCoursesPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    const fetchCourses = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch("/api/student/courses/list");
-        if (!res.ok) {
-          throw new Error(t("errorLoading"));
-        }
-        const data = await res.json();
-        setCourses(data);
-      } catch (error) {
-        console.error("Erro ao carregar cursos: ", error);
-        toast.error(t("errorLoading"));
-      } finally {
-        setLoading(false);
+  const fetchCourses = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/student/courses/list");
+      if (!res.ok) {
+        throw new Error(t("errorLoading"));
       }
-    };
+      const data = await res.json();
+      setCourses(data);
+    } catch (error) {
+      console.error("Erro ao carregar cursos: ", error);
+      toast.error(t("errorLoading"));
+    } finally {
+      setLoading(false);
+    }
+  }, [t]);
 
+  useEffect(() => {
     if (session) {
       fetchCourses();
     }
-  }, [session, router]);
+  }, [session, fetchCourses]);
 
   const filteredCourses = useMemo(() => {
     return courses.filter(
       (c) =>
         c.title.toLowerCase().includes(search.toLowerCase()) ||
-        c.language.toLowerCase().includes(search.toLowerCase())
+        c.language.toLowerCase().includes(search.toLowerCase()),
     );
   }, [courses, search]);
 

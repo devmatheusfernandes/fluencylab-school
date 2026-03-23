@@ -301,10 +301,17 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
   const progress = totalAll > 0 ? (totalProcessed / totalAll) * 100 : 0;
   const hasAnalyzed = totalAll > 0 || lesson.status !== "draft";
 
-  const getStatusLabel = (status: string) => {
-    // @ts-ignore
-    return tStatus(`status.${status}`) || status;
-  };
+type Status =
+  | "draft"
+  | "analyzing"
+  | "processing_items"
+  | "reviewing"
+  | "ready"
+  | "error";
+
+const getStatusLabel = (status: Status) => {
+  return tStatus(`status.${status}`);
+};
 
   return (
     <div className="flex flex-col gap-6 p-4 h-full overflow-y-auto">
@@ -370,7 +377,9 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
             variant="outline"
             size="sm"
             onClick={() =>
-              router.push(`/hub/material-manager/lessons/${lesson.id}/transcript`)
+              router.push(
+                `/hub/material-manager/lessons/${lesson.id}/transcript`,
+              )
             }
           >
             {t("navTranscript")}
@@ -526,7 +535,10 @@ export default function LessonOperations({ lesson }: LessonOperationsProps) {
               ) : (
                 <Mic2 className="mr-2 h-4 w-4" />
               )}
-              {t("generatePodcastButton")} <span className="ml-2 text-[10px] bg-indigo-100 dark:bg-indigo-900 px-1 rounded">BETA</span>
+              {t("generatePodcastButton")}{" "}
+              <span className="ml-2 text-[10px] bg-indigo-100 dark:bg-indigo-900 px-1 rounded">
+                BETA
+              </span>
             </Button>
           </div>
         ) : (

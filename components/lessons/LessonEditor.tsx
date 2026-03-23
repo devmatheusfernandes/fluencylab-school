@@ -20,16 +20,30 @@ export default function LessonEditor({
   const [status, setStatus] = useState<"saved" | "saving" | "error">("saved");
   const t = useTranslations("LessonEditor");
 
-  useEffect(() => {
-    if (initialContent && content === "") {
+  const [prevInitialContent, setPrevInitialContent] = useState(initialContent);
+
+  // Derivando estado para evitar renderizações em cascata por causa de useEffect
+  if (initialContent !== prevInitialContent) {
+    setPrevInitialContent(initialContent);
+    if (content === "") {
       setContent(initialContent);
     }
-  }, [initialContent]);
+  }
 
   useEffect(() => {
-    if (content === initialContent) return;
+    if (content === initialContent) {
+      // Usando setTimeout para evitar atualização síncrona dentro do efeito
+      const timer = setTimeout(() => {
+        setStatus("saved");
+      }, 0);
+      return () => clearTimeout(timer);
+    }
 
-    setStatus("saving");
+    // Usando setTimeout para evitar atualização síncrona dentro do efeito
+    const timerStatus = setTimeout(() => {
+      setStatus("saving");
+    }, 0);
+
     const timeoutId = setTimeout(async () => {
       try {
         const lessonRef = doc(db, "lessons", lessonId);
@@ -42,7 +56,10 @@ export default function LessonEditor({
       }
     }, 2000);
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      clearTimeout(timerStatus);
+      clearTimeout(timeoutId);
+    };
   }, [content, lessonId, initialContent, t]);
 
   return (

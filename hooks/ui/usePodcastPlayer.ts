@@ -68,7 +68,7 @@ export function usePodcastPlayer({
       audio.removeEventListener("ended", handleEnded);
       audioRef.current = null;
     };
-  }, [audioUrl, saveProgress]);
+  }, [audioUrl, saveProgress, initialProgress]);
 
   useEffect(() => {
     const interval = setInterval(() => {

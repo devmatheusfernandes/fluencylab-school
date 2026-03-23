@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import {
   doc,
@@ -90,7 +90,7 @@ export default function TestPage() {
         acc[q.id] = q;
         return acc;
       },
-      {} as Record<string, Question>
+      {} as Record<string, Question>,
     );
   }, [selectedLanguage]);
 
@@ -104,6 +104,56 @@ export default function TestPage() {
       startTimeRef.current = Date.now();
     }
   }, [adaptiveState.currentQuestionId, currentQuestion, finalResult]);
+
+  const startNewTest = useCallback(
+    async (lang: "en" | "pt") => {
+      const rawQuestions =
+        lang === "en"
+          ? (enQuestionsData as Question[])
+          : (ptQuestionsData as Question[]);
+      const pool: Record<Level, Question[]> = {
+        A1: [],
+        A2: [],
+        B1: [],
+        B2: [],
+        C1: [],
+        C2: [],
+      };
+      rawQuestions.forEach((q) => {
+        if (pool[q.level]) pool[q.level].push(q);
+      });
+
+      const startLevel: Level = "B1";
+      const firstQuestion = selectNextQuestion(startLevel, [], pool);
+
+      if (!firstQuestion) {
+        toast.error(t("errorInit"));
+        return;
+      }
+
+      const initialState: AdaptiveState = {
+        currentQuestionId: firstQuestion.id,
+        usedQuestionIds: [firstQuestion.id],
+        answers: {},
+        currentLevel: startLevel,
+        questionCount: 0,
+        history: [],
+      };
+
+      setAdaptiveState(initialState);
+
+      if (session?.user?.id) {
+        await setDoc(doc(db, "placement_progress", session.user.id), {
+          userId: session.user.id,
+          selectedLanguage: lang,
+          adaptiveState: initialState,
+          updatedAt: serverTimestamp(),
+          completed: false,
+        });
+      }
+    },
+    [session?.user?.id, t],
+  );
 
   useEffect(() => {
     const loadData = async () => {
@@ -159,54 +209,7 @@ export default function TestPage() {
       }
     };
     loadData();
-  }, [session?.user?.id, langParam, router]);
-
-  const startNewTest = async (lang: "en" | "pt") => {
-    const rawQuestions =
-      lang === "en"
-        ? (enQuestionsData as Question[])
-        : (ptQuestionsData as Question[]);
-    const pool: Record<Level, Question[]> = {
-      A1: [],
-      A2: [],
-      B1: [],
-      B2: [],
-      C1: [],
-      C2: [],
-    };
-    rawQuestions.forEach((q) => {
-      if (pool[q.level]) pool[q.level].push(q);
-    });
-
-    const startLevel: Level = "B1";
-    const firstQuestion = selectNextQuestion(startLevel, [], pool);
-
-    if (!firstQuestion) {
-      toast.error(t("errorInit"));
-      return;
-    }
-
-    const initialState: AdaptiveState = {
-      currentQuestionId: firstQuestion.id,
-      usedQuestionIds: [firstQuestion.id],
-      answers: {},
-      currentLevel: startLevel,
-      questionCount: 0,
-      history: [],
-    };
-
-    setAdaptiveState(initialState);
-
-    if (session?.user?.id) {
-      await setDoc(doc(db, "placement_progress", session.user.id), {
-        userId: session.user.id,
-        selectedLanguage: lang,
-        adaptiveState: initialState,
-        updatedAt: serverTimestamp(),
-        completed: false,
-      });
-    }
-  };
+  }, [session?.user?.id, langParam, router, startNewTest]);
 
   const saveProgress = async (newState: AdaptiveState) => {
     if (!session?.user?.id) return;
@@ -219,7 +222,7 @@ export default function TestPage() {
           adaptiveState: newState,
           updatedAt: serverTimestamp(),
         },
-        { merge: true }
+        { merge: true },
       );
     } catch (error) {
       console.error("Error saving progress:", error);
@@ -271,7 +274,7 @@ export default function TestPage() {
     const nextQuestion = selectNextQuestion(
       nextLevel,
       adaptiveState.usedQuestionIds,
-      questionPool
+      questionPool,
     );
 
     if (!nextQuestion) {
@@ -335,7 +338,7 @@ export default function TestPage() {
     const avgTime = totalTime / MAX_QUESTIONS;
     const totalScore = finalState.history.reduce(
       (acc, h) => acc + (h.isCorrect ? LEVEL_SCORES[h.level] : 0),
-      0
+      0,
     );
 
     const resultData = {
@@ -363,7 +366,7 @@ export default function TestPage() {
           {
             completed: true,
           },
-          { merge: true }
+          { merge: true },
         );
         toast.success(t("testCompleted"));
       } catch (error) {
@@ -397,7 +400,7 @@ export default function TestPage() {
   }
 
   return (
-    <div className="py-2 px-4">
+    <div className="h-full py-2 px-4">
       <TestView
         currentQuestion={currentQuestion}
         adaptiveState={adaptiveState}

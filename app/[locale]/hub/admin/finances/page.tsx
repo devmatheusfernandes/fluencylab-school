@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -142,7 +142,7 @@ export default function AdminFinancesPage() {
   ];
 
   // --- MANTENDO TODA A LÓGICA DE ESTADO E FUNÇÕES INTACTA ---
-  const now = new Date();
+  const now = useMemo(() => new Date(), []);
   const [month, setMonth] = useState<number>(now.getMonth());
   const [year, setYear] = useState<number>(now.getFullYear());
   const [search, setSearch] = useState<string>("");
@@ -299,7 +299,7 @@ export default function AdminFinancesPage() {
     return Array.from(set.values()).sort((a, b) => a.localeCompare(b));
   }, [transactions, recurring]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     const monthStr = `${year}-${String(month + 1).padStart(2, "0")}`;
     const url = `/api/admin/finance/transactions?month=${monthStr}${search ? `&search=${encodeURIComponent(search)}` : ""}`;
@@ -318,20 +318,20 @@ export default function AdminFinancesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [year, month, search]);
 
   useEffect(() => {
     fetchData();
-  }, [month, year]);
+  }, [fetchData]);
 
   useEffect(() => {
     const t = setTimeout(() => {
       fetchData();
     }, 300);
     return () => clearTimeout(t);
-  }, [search]);
+  }, [fetchData]);
 
-  const fetchForecasts = async () => {
+  const fetchForecasts = useCallback(async () => {
     const monthStr = `${year}-${String(month + 1).padStart(2, "0")}`;
     try {
       const [incRes, expRes] = await Promise.all([
@@ -346,9 +346,9 @@ export default function AdminFinancesPage() {
       setForecastIncome(0);
       setForecastExpenses(0);
     }
-  };
+  }, [year, month]);
 
-  const fetchRecurring = async () => {
+  const fetchRecurring = useCallback(async () => {
     try {
       const res = await fetch(`/api/admin/finance/recurring-expenses`);
       const data = await res.json();
@@ -356,14 +356,14 @@ export default function AdminFinancesPage() {
     } catch {
       setRecurring([]);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchForecasts();
     fetchRecurring();
-  }, [month, year]);
+  }, [fetchForecasts, fetchRecurring]);
 
-  const fetchForecastSummary = async () => {
+  const fetchForecastSummary = useCallback(async () => {
     const fromStr = `${year}-${String(month + 1).padStart(2, "0")}`;
     try {
       const res = await fetch(
@@ -374,11 +374,11 @@ export default function AdminFinancesPage() {
     } catch {
       setForecastSeries([]);
     }
-  };
+  }, [year, month, monthsHorizon]);
 
   useEffect(() => {
     fetchForecastSummary();
-  }, [month, year, monthsHorizon]);
+  }, [fetchForecastSummary]);
 
   const createRecurring = async () => {
     const amount = parseAmountToCents(newRecurring.amountBRL);

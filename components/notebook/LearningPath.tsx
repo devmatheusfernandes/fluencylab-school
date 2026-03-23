@@ -319,8 +319,22 @@ function NodeItem({
   isMobile: boolean;
   onClick: () => void;
 }) {
-  const Icon = getIconForType(day.type);
   const isCurrent = day.status === "current" || day.status === "atrasado";
+
+  const renderIcon = () => {
+    if (day.status === "completed") {
+      return (
+        <div className="relative">
+          <Star size={32} fill="currentColor" className="text-yellow-100" />
+        </div>
+      );
+    }
+    if (day.status === "locked") {
+      return <Lock size={28} />;
+    }
+    const Icon = getIconForType(day.type);
+    return <Icon size={32} strokeWidth={2.5} className="fill-transparent" />;
+  };
 
   return (
     <div className="flex flex-col items-center relative group z-10">
@@ -349,15 +363,7 @@ function NodeItem({
                   : "bg-slate-200 border-slate-300 text-slate-400 dark:bg-slate-700 dark:border-slate-900 dark:text-slate-900",
           )}
         >
-          {day.status === "completed" ? (
-            <div className="relative">
-              <Star size={32} fill="currentColor" className="text-yellow-100" />
-            </div>
-          ) : day.status === "locked" ? (
-            <Lock size={28} />
-          ) : (
-            <Icon size={32} strokeWidth={2.5} className="fill-transparent" />
-          )}
+          {renderIcon()}
 
           {/* Balão "START" */}
           {isCurrent && (

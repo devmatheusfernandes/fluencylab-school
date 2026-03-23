@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,11 +26,7 @@ export function PaymentStatusWidget({ className }: PaymentStatusWidgetProps) {
   const [loading, setLoading] = useState(true);
   const [generatingPix, setGeneratingPix] = useState(false);
 
-  useEffect(() => {
-    fetchPaymentStatus();
-  }, []);
-
-  const fetchPaymentStatus = async () => {
+  const fetchPaymentStatus = useCallback(async () => {
     try {
       const response = await fetch("/api/student/payment-status");
       if (response.ok) {
@@ -46,7 +42,11 @@ export function PaymentStatusWidget({ className }: PaymentStatusWidgetProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
+
+  useEffect(() => {
+    fetchPaymentStatus();
+  }, [fetchPaymentStatus]);
 
   const generatePixPayment = async () => {
     if (!paymentStatus || paymentStatus.paymentMethod !== "pix") return;

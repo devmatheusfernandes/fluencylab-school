@@ -29,7 +29,7 @@ export function LessonCreationSidebar({
   const effectiveMaxStep =
     maxCompletedStep !== undefined ? maxCompletedStep : currentStep;
 
-  const StepsList = () => (
+  const renderStepsList = () => (
     <div className="space-y-6">
       {STEPS.map((step) => {
         const isCompleted = step.id < currentStep;
@@ -135,7 +135,7 @@ export function LessonCreationSidebar({
                 className="absolute left-[39px] top-2 bottom-2 w-[2px] bg-muted -z-10"
                 aria-hidden="true"
               />
-              <StepsList />
+              {renderStepsList()}
             </div>
           </SheetContent>
         </Sheet>
@@ -157,7 +157,7 @@ export function LessonCreationSidebar({
             className="absolute left-[19px] top-4 bottom-4 w-[2px] bg-muted -z-10"
             aria-hidden="true"
           />
-          <StepsList />
+          {renderStepsList()}
         </div>
       </div>
     </>

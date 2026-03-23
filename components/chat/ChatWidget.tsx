@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import Image from "next/image";
 import {
   Chat,
   ChannelList,
@@ -172,11 +173,15 @@ const MediaGalleryPanel = () => {
                 onClick={() => setSelectedMedia(item)}
                 className="aspect-square rounded-lg overflow-hidden hover:opacity-80 transition-opacity"
               >
-                <img
-                  src={item.image_url || item.thumb_url}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
+                <div className="relative w-full h-full">
+                  <Image
+                    src={item.image_url || item.thumb_url || ""}
+                    alt=""
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
               </button>
             ))}
           </div>
@@ -226,11 +231,15 @@ const MediaGalleryPanel = () => {
           >
             <X size={32} />
           </button>
-          <img
-            src={selectedMedia.image_url}
-            alt=""
-            className="max-w-full max-h-full object-contain"
-          />
+          <div className="relative w-full h-full max-w-full max-h-full">
+            <Image
+              src={selectedMedia.image_url || ""}
+              alt=""
+              fill
+              className="object-contain"
+              unoptimized
+            />
+          </div>
         </div>
       )}
     </div>

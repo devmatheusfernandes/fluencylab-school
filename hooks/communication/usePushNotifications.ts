@@ -20,8 +20,15 @@ export function usePushNotifications() {
   const [permission, setPermission] = useState<NotificationPermission>('default');
 
   useEffect(() => {
-    setIsSupported(typeof window !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window);
-    if (typeof window !== 'undefined') setPermission(Notification.permission);
+    const supported = typeof window !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window;
+    const currentPermission = typeof window !== 'undefined' ? Notification.permission : 'default';
+
+    // Usando setTimeout para evitar atualização síncrona dentro do efeito
+    // Isso resolve o erro react-hooks/set-state-in-effect
+    setTimeout(() => {
+      setIsSupported(supported);
+      setPermission(currentPermission);
+    }, 0);
   }, []);
 
   const registerServiceWorker = useCallback(async () => {

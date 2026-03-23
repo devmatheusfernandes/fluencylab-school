@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import jsPDF from "jspdf";
 import { toast } from "sonner";
 import { useLocale, useTranslations } from "next-intl";
+import Image from "next/image";
 
 import { FullUserDetails } from "@/types/users/userDetails";
 import { ClassStatus, StudentClass } from "@/types/classes/class";
@@ -471,11 +472,15 @@ export default function UserCertificateTab({
               </div>
             </div>
 
-            <img
-              src="/brand/Group.png"
-              alt="Fluency Lab School"
-              className="absolute bottom-4 right-4 h-7 w-auto opacity-90"
-            />
+            <div className="absolute bottom-4 right-4 h-7 w-auto opacity-90">
+              <Image
+                src="/brand/Group.png"
+                alt="Fluency Lab School"
+                width={112}
+                height={28}
+                className="h-full w-auto"
+              />
+            </div>
           </div>
         </CardContent>
       </Card>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useGeminiLive } from "@/hooks/learning/useGeminiLive";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,21 +20,6 @@ export default function ConversationLeveling() {
   const { connect, startRecording, stop, state } = useGeminiLive();
   const hasStartedRef = useRef(false);
 
-  // Auto-start recording when connected
-  useEffect(() => {
-    if (state.isConnected && !state.isRecording && !hasStartedRef.current) {
-      hasStartedRef.current = true;
-      startRecording();
-    }
-  }, [state.isConnected, state.isRecording, startRecording]);
-
-  // Save result when available
-  useEffect(() => {
-    if (state.result) {
-      saveResult(state.result);
-    }
-  }, [state.result]);
-
   const saveResult = (result: any) => {
     try {
       const stored = localStorage.getItem("fluencylab-placement-history");
@@ -52,6 +37,21 @@ export default function ConversationLeveling() {
       console.error("Failed to save result", e);
     }
   };
+
+  // Auto-start recording when connected
+  useEffect(() => {
+    if (state.isConnected && !state.isRecording && !hasStartedRef.current) {
+      hasStartedRef.current = true;
+      startRecording();
+    }
+  }, [state.isConnected, state.isRecording, startRecording]);
+
+  // Save result when available
+  useEffect(() => {
+    if (state.result) {
+      saveResult(state.result);
+    }
+  }, [state.result]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -200,17 +200,7 @@ export default function ConversationLeveling() {
         {state.isConnected && (
           <div className="flex items-end justify-center gap-1 h-8 w-full px-12">
             {[1, 2, 3, 4, 5].map((i) => (
-              <motion.div
-                key={i}
-                className="w-2 bg-indigo-400 rounded-t-full"
-                animate={{
-                  height: Math.max(
-                    8,
-                    state.volume * 200 * (0.5 + Math.random() * 0.5),
-                  ),
-                }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              />
+              <VisualizerBar key={i} volume={state.volume} index={i} />
             ))}
           </div>
         )}
@@ -260,5 +250,20 @@ export default function ConversationLeveling() {
         )}
       </CardFooter>
     </Card>
+  );
+}
+
+function VisualizerBar({ volume, index }: { volume: number; index: number }) {
+  const [randomFactor] = useState(() => 0.5 + Math.random() * 0.5);
+
+  return (
+    <motion.div
+      key={index}
+      className="w-2 bg-indigo-400 rounded-t-full"
+      animate={{
+        height: Math.max(8, volume * 200 * randomFactor),
+      }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+    />
   );
 }

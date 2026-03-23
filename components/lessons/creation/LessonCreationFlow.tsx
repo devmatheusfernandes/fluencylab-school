@@ -65,7 +65,7 @@ export function LessonCreationFlow({
     ) {
       setCurrentStep(lesson.creationStep);
     }
-  }, [lesson.creationStep, isLessonReady]);
+  }, [lesson.creationStep, isLessonReady, currentStep]);
 
   const handleStepChange = async (step: number) => {
     setCurrentStep(step);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,19 +33,7 @@ export function PaymentManagementClient() {
   const [canceling, setCanceling] = useState(false);
   const [generatingPix, setGeneratingPix] = useState(false);
 
-  useEffect(() => {
-    fetchPaymentStatus();
-    fetchPaymentHistory();
-  }, []);
-
-  useEffect(() => {
-    // Redirect if user is deactivated
-    if (paymentStatus && paymentStatus.userIsActive === false) {
-      router.push(`/${locale}/goodbye`);
-    }
-  }, [paymentStatus, router, locale]);
-
-  const fetchPaymentStatus = async () => {
+  const fetchPaymentStatus = useCallback(async () => {
     try {
       const response = await fetch("/api/student/payment-status");
       if (response.ok) {
@@ -60,9 +48,9 @@ export function PaymentManagementClient() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
-  const fetchPaymentHistory = async () => {
+  const fetchPaymentHistory = useCallback(async () => {
     setLoadingHistory(true);
     try {
       const response = await fetch("/api/student/payment-history");
@@ -81,7 +69,19 @@ export function PaymentManagementClient() {
     } finally {
       setLoadingHistory(false);
     }
-  };
+  }, [t]);
+
+  useEffect(() => {
+    fetchPaymentStatus();
+    fetchPaymentHistory();
+  }, [fetchPaymentStatus, fetchPaymentHistory]);
+
+  useEffect(() => {
+    // Redirect if user is deactivated
+    if (paymentStatus && paymentStatus.userIsActive === false) {
+      router.push(`/${locale}/goodbye`);
+    }
+  }, [paymentStatus, router, locale]);
 
   const generatePixPayment = async () => {
     if (!paymentStatus) return;

@@ -35,6 +35,23 @@ export function PracticeAudioPlayer({
   const [duration, setDuration] = useState(0);
   const [playbackRate, setPlaybackRate] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+
+  // Derivando estado para evitar renderizações em cascata por causa de useEffect
+  useEffect(() => {
+    if (isOpen !== prevIsOpen) {
+      // Usando setTimeout para evitar atualização síncrona dentro do efeito
+      const timer = setTimeout(() => {
+        setPrevIsOpen(isOpen);
+        if (!isOpen) {
+          audioRef.current?.pause();
+          window.speechSynthesis?.cancel();
+          setIsPlaying(false);
+        }
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, prevIsOpen]);
 
   const handleSpeechStart = useCallback(() => {
     setIsPlaying(true);
@@ -72,14 +89,7 @@ export function PracticeAudioPlayer({
   );
 
   useEffect(() => {
-    if (!isOpen) {
-      audioRef.current?.pause();
-      window.speechSynthesis?.cancel();
-      setIsPlaying(false);
-      return;
-    }
-
-    if (textToSpeak && autoPlay) {
+    if (isOpen && textToSpeak && autoPlay) {
       speakText();
     }
   }, [isOpen, autoPlay, speakText, textToSpeak]);

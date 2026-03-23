@@ -84,7 +84,7 @@ export const useStreamVideo = () => {
       setClient(null);
       setCall(null);
     };
-  }, [session?.user?.id, callData?.callId]);
+  }, [session?.user?.id, session?.user?.image, session?.user?.name, callData?.callId]);
 
   return { client, call };
 };

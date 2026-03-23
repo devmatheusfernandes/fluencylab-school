@@ -18,8 +18,8 @@ import {
   limit,
   serverTimestamp,
 } from "firebase/firestore";
-import { Spinner } from "@/components/ui/spinner";
 import TiptapEditor from "@/components/tiptap/tiptap";
+import { SpinnerLoading } from "@/components/transitions/spinner-loading";
 
 interface NotebookViewerProps {
   studentId: string;
@@ -43,7 +43,6 @@ export default function NotebookViewer({
 }: NotebookViewerProps) {
   const { data: session } = useSession();
 
-  // 1. OTIMIZAÇÃO: Gerar cores apenas uma vez no carregamento, evitando recálculos
   const { userName, userColor } = useMemo(() => {
     const rawName = (session?.user?.name ||
       session?.user?.email ||
@@ -54,7 +53,7 @@ export default function NotebookViewer({
     const seedSource = (session?.user?.id || rawName) as string;
     const seed = Array.from(seedSource).reduce(
       (a, c) => a + c.charCodeAt(0),
-      0
+      0,
     );
     const seededRandom = (s: number) => {
       let x = s % 2147483647;
@@ -84,7 +83,7 @@ export default function NotebookViewer({
       return hslToHex(
         Math.floor(rand() * 360),
         60 + Math.floor(rand() * 30),
-        45 + Math.floor(rand() * 20)
+        45 + Math.floor(rand() * 20),
       );
     });
 
@@ -99,11 +98,9 @@ export default function NotebookViewer({
   const [error, setError] = useState<string | null>(null);
   const [provider, setProvider] = useState<FirestoreProvider | null>(null);
 
-  // Referência do documento Yjs e da última versão salva para o sistema de backup de 5 min
   const ydocRef = useRef<Y.Doc | null>(null);
   const lastSavedVersionRef = useRef<string>("");
 
-  // 2. INICIALIZAÇÃO DO YJS: Conecta o provider que sincronizará os binários silenciosamente
   useEffect(() => {
     if (!studentId || !notebookId) return;
 
@@ -121,7 +118,6 @@ export default function NotebookViewer({
     };
   }, [studentId, notebookId]);
 
-  // 3. BUSCA DE METADADOS: Pega apenas título e infos, o texto real o Yjs carrega sozinho
   useEffect(() => {
     const fetchNotebookMetadata = async () => {
       if (!studentId || !notebookId) return;
@@ -129,7 +125,7 @@ export default function NotebookViewer({
       try {
         setLoading(true);
         const notebookDoc = await getDoc(
-          doc(db, `users/${studentId}/Notebooks/${notebookId}`)
+          doc(db, `users/${studentId}/Notebooks/${notebookId}`),
         );
 
         if (notebookDoc.exists()) {
@@ -148,10 +144,10 @@ export default function NotebookViewer({
           // Puxa a última versão de backup apenas para ter uma base de comparação
           const versionRef = collection(
             db,
-            `users/${studentId}/Notebooks/${notebookId}/versions`
+            `users/${studentId}/Notebooks/${notebookId}/versions`,
           );
           const recentVersions = await getDocs(
-            query(versionRef, orderBy("timestamp", "desc"), limit(1))
+            query(versionRef, orderBy("timestamp", "desc"), limit(1)),
           );
           if (!recentVersions.empty) {
             lastSavedVersionRef.current =
@@ -189,7 +185,7 @@ export default function NotebookViewer({
       const threshold = oldContent.length * 0.05; // 5% de mudança
       return lengthDiff > threshold || newContent !== oldContent;
     },
-    []
+    [],
   );
 
   // 4. BACKUP DE 5 MINUTOS: Lê da memória (Y.Doc) e salva um backup legível
@@ -221,7 +217,7 @@ export default function NotebookViewer({
       try {
         const versionRef = collection(
           db,
-          `users/${studentId}/Notebooks/${notebookId}/versions`
+          `users/${studentId}/Notebooks/${notebookId}/versions`,
         );
         await addDoc(versionRef, {
           content: stringifiedContent,
@@ -253,7 +249,7 @@ export default function NotebookViewer({
             alunoId: studentId,
             notebookId,
             content: stringifiedContent,
-          })
+          }),
         );
       }
     };
@@ -267,11 +263,7 @@ export default function NotebookViewer({
   }, [studentId, notebookId, hasSignificantChanges]);
 
   if (loading) {
-    return (
-      <div className="min-w-screen min-h-[90vh] flex justify-center items-center overflow-y-hidden">
-        <Spinner className="w-16 h-16" />
-      </div>
-    );
+    return <SpinnerLoading />;
   }
 
   if (error || !notebook) {

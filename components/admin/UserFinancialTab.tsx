@@ -219,7 +219,7 @@ const UserFinancialTab: React.FC<UserFinancialTabProps> = ({ user }) => {
       console.error("Error fetching student financials:", error);
       setStudentFinancials(null);
     }
-  }, [user.id]);
+  }, [user.id, t]);
 
   const fetchFinancialData = useCallback(async () => {
     try {

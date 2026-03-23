@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import { Play, Pause, X, ZoomIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -39,12 +40,16 @@ const ImageModal = ({ src, onClose }: { src: string; onClose: () => void }) => {
       </button>
 
       {/* Imagem em Alta Resolução */}
-      <img
-        src={src}
-        alt="Preview"
-        className="max-h-[90vh] max-w-[90vw] object-contain rounded-md shadow-2xl animate-in zoom-in-95 duration-200"
-        onClick={(e) => e.stopPropagation()} // Clicar na imagem não fecha
-      />
+      <div className="relative h-[90vh] w-[90vw]">
+        <Image
+          src={src}
+          alt="Preview"
+          fill
+          className="object-contain rounded-md shadow-2xl animate-in zoom-in-95 duration-200"
+          onClick={(e) => e.stopPropagation()} // Clicar na imagem não fecha
+          unoptimized
+        />
+      </div>
     </div>,
     document.body,
   );
@@ -66,12 +71,16 @@ const CustomImageAttachment = ({ attachment }: { attachment: Attachment }) => {
         className="group relative overflow-hidden cursor-zoom-in max-w-[300px] border border-border shadow-sm"
         onClick={() => setIsOpen(true)}
       >
-        <img
-          src={imageUrl}
-          alt={attachment.fallback || "Image attachment"}
-          className="w-full h-auto object-cover hover:scale-105 transition-transform duration-300"
-          loading="lazy"
-        />
+        <div className="relative w-full aspect-video">
+          <Image
+            src={imageUrl}
+            alt={attachment.fallback || "Image attachment"}
+            fill
+            className="object-cover hover:scale-105 transition-transform duration-300"
+            loading="lazy"
+            unoptimized
+          />
+        </div>
 
         {/* Overlay de Hover com Ícone */}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
@@ -132,7 +141,11 @@ const ModernAudioPlayer = ({ src }: { src: string }) => {
 
   const togglePlay = () => {
     if (!audioRef.current) return;
-    isPlaying ? audioRef.current.pause() : audioRef.current.play();
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play();
+    }
     setIsPlaying(!isPlaying);
   };
 

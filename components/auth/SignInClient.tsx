@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import { NextIntlClientProvider, useLocale } from "next-intl";
@@ -224,7 +225,7 @@ export function SignInClient({ messages }: SignInClientProps) {
                     className="w-full"
                     size="lg"
                   >
-                    <img
+                    <Image
                       src="/icons/google.svg"
                       alt="Google Icon"
                       width={20}

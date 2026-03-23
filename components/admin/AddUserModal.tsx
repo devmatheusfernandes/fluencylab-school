@@ -72,6 +72,8 @@ export default function AddUserModal({
   const [languages, setLanguages] = useState<string[]>([]);
   const [isMinor, setIsMinor] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [prevBirthDate, setPrevBirthDate] = useState<Date | null>(null);
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
 
   // Guardian fields
   const [guardianName, setGuardianName] = useState("");
@@ -80,22 +82,23 @@ export default function AddUserModal({
   const [guardianRelationship, setGuardianRelationship] = useState("");
 
   // Function to calculate age and determine if user is minor
-  const calculateAge = (birthDate: Date): number => {
-    if (!birthDate) return 0;
+  const calculateAge = (date: Date): number => {
+    if (!date) return 0;
     const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
+    let age = today.getFullYear() - date.getFullYear();
+    const monthDiff = today.getMonth() - date.getMonth();
     if (
       monthDiff < 0 ||
-      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+      (monthDiff === 0 && today.getDate() < date.getDate())
     ) {
       age--;
     }
     return age;
   };
 
-  // Effect to check if user is minor and auto-set role
-  useEffect(() => {
+  // Sincronizando estado com as props durante a renderização para evitar useEffect
+  if (birthDate !== prevBirthDate) {
+    setPrevBirthDate(birthDate);
     if (birthDate) {
       const age = calculateAge(birthDate);
       const isUserMinor = age < 18;
@@ -104,12 +107,34 @@ export default function AddUserModal({
       // Auto-set role to guarded student for users under 18
       if (isUserMinor && role !== UserRoles.GUARDED_STUDENT) {
         setRole(UserRoles.GUARDED_STUDENT);
-        toast.info(t("minor.roleAdjustedTitle"), {
-          description: t("minor.roleAdjustedDesc"),
-        });
+        // Usando setTimeout para toast pois é um efeito colateral
+        setTimeout(() => {
+          toast.info(t("minor.roleAdjustedTitle"), {
+            description: t("minor.roleAdjustedDesc"),
+          });
+        }, 0);
       }
     }
-  }, [birthDate, role, toast, t]);
+  }
+
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
+    if (!isOpen) {
+      setName("");
+      setEmail("");
+      setRole(UserRoles.TEACHER);
+      setBirthDate(null);
+      setContractStartDate(null);
+      setLanguages([]);
+      setGuardianName("");
+      setGuardianEmail("");
+      setGuardianPhone("");
+      setGuardianRelationship("");
+      setValidationErrors([]);
+    }
+  }
+
+  // Guardian fields
 
   // Validation function
   const validateForm = (): boolean => {
@@ -225,21 +250,6 @@ export default function AddUserModal({
       });
     }
   };
-
-  // Reset form when modal closes
-  useEffect(() => {
-    if (!isOpen) {
-      setName("");
-      setEmail("");
-      setRole(UserRoles.TEACHER);
-      setBirthDate(null);
-      setGuardianName("");
-      setGuardianEmail("");
-      setGuardianPhone("");
-      setGuardianRelationship("");
-      setValidationErrors([]);
-    }
-  }, [isOpen]);
 
   return (
     <Modal open={isOpen} onOpenChange={onClose}>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import type { Editor } from "@tiptap/react";
 import {
   Dialog,
@@ -89,18 +89,7 @@ export const StudentPlanModal: React.FC<StudentPlanModalProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<string>(""); // Para controlar qual accordion abre
 
-  useEffect(() => {
-    if (isOpen && studentId) {
-      fetchAllStudentPlans();
-    } else {
-      setTimeout(() => {
-        setPlans([]);
-        setSearchQuery("");
-      }, 300);
-    }
-  }, [isOpen, studentId]);
-
-  const fetchAllStudentPlans = async () => {
+  const fetchAllStudentPlans = useCallback(async () => {
     setLoading(true);
     try {
       const plansRef = collection(db, "plans");
@@ -171,7 +160,18 @@ export const StudentPlanModal: React.FC<StudentPlanModalProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [studentId]);
+
+  useEffect(() => {
+    if (isOpen && studentId) {
+      fetchAllStudentPlans();
+    } else {
+      setTimeout(() => {
+        setPlans([]);
+        setSearchQuery("");
+      }, 300);
+    }
+  }, [isOpen, studentId, fetchAllStudentPlans]);
 
   const filteredPlans = useMemo(() => {
     if (!searchQuery) return plans;

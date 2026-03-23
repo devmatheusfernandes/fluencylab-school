@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -111,7 +111,7 @@ export default function SettingsForm({
     }
   };
 
-  const applyThemeColorClass = (color: typeof themeColor) => {
+  const applyThemeColorClass = useCallback((color: typeof themeColor) => {
     const root = document.documentElement;
     root.classList.remove(
       "theme-violet",
@@ -121,11 +121,11 @@ export default function SettingsForm({
       "theme-green"
     );
     root.classList.add(`theme-${color}`);
-  };
+  }, []);
 
   useEffect(() => {
     applyThemeColorClass(themeColor);
-  }, []);
+  }, [applyThemeColorClass, themeColor]);
 
   const handleConnectGoogleCalendar = () => {
     window.location.href = "/api/student/google-calendar/connect";

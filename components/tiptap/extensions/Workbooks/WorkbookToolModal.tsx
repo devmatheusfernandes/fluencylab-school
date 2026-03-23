@@ -58,43 +58,9 @@ export const WorkbookToolModal: React.FC<BaseModalProps> = ({
   const [searchingGlobal, setSearchingGlobal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // --- EFEITOS ---
+  // --- FETCHING & SEARCH ---
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchWorkbooks();
-    } else {
-      // Limpeza ao fechar
-      setTimeout(() => {
-        setSelectedWorkbook(null);
-        setLessons([]);
-        setGlobalSearchResults([]);
-        setSearchQuery("");
-      }, 300);
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (selectedWorkbook) {
-      fetchLessons(selectedWorkbook.id);
-      // Não limpamos o search query aqui caso o usuário queira filtrar dentro da apostila
-    } else {
-      setLessons([]);
-    }
-  }, [selectedWorkbook]);
-
-  // Efeito para busca global (Debounce)
-  useEffect(() => {
-    if (!selectedWorkbook && searchQuery.trim().length > 0) {
-      handleGlobalSearch(searchQuery);
-    } else if (!selectedWorkbook && searchQuery.trim().length === 0) {
-      setGlobalSearchResults([]);
-    }
-  }, [searchQuery, selectedWorkbook]);
-
-  // --- FETCHING ---
-
-  const fetchWorkbooks = async () => {
+  const fetchWorkbooks = useCallback(async () => {
     setLoadingWorkbooks(true);
     try {
       const colRef = collection(db, "Apostilas");
@@ -113,9 +79,9 @@ export const WorkbookToolModal: React.FC<BaseModalProps> = ({
     } finally {
       setLoadingWorkbooks(false);
     }
-  };
+  }, []);
 
-  const fetchLessons = async (workbookId: string) => {
+  const fetchLessons = useCallback(async (workbookId: string) => {
     setLoadingLessons(true);
     try {
       const colRef = collection(db, `Apostilas/${workbookId}/Lessons`);
@@ -140,38 +106,73 @@ export const WorkbookToolModal: React.FC<BaseModalProps> = ({
     } finally {
       setLoadingLessons(false);
     }
-  };
+  }, []);
 
   // Busca Global usando collectionGroup
   // Nota: Isso busca em TODAS as subcoleções chamadas "Lessons" no banco inteiro
-  const handleGlobalSearch = useCallback(
-    debounce(async (term: string) => {
-      if (!term) return;
-      setSearchingGlobal(true);
-      try {
-        // Buscamos tudo e filtramos no cliente para evitar custos de índices complexos no Firestore
-        // Se a base for GIGANTE, isso precisaria ser otimizado (ex: Algolia ou índices específicos)
-        const q = query(collectionGroup(db, "Lessons"));
-        const snap = await getDocs(q);
+  const handleGlobalSearch = useMemo(
+    () =>
+      debounce(async (term: string) => {
+        if (!term) return;
+        setSearchingGlobal(true);
+        try {
+          // Buscamos tudo e filtramos no cliente para evitar custos de índices complexos no Firestore
+          // Se a base for GIGANTE, isso precisaria ser otimizado (ex: Algolia ou índices específicos)
+          const q = query(collectionGroup(db, "Lessons"));
+          const snap = await getDocs(q);
 
-        const results: Notebook[] = [];
-        snap.forEach((doc) => {
-          const data = doc.data() as Notebook;
-          // Filtro simples case-insensitive
-          if (data.title.toLowerCase().includes(term.toLowerCase())) {
-            results.push({ ...data, id: doc.id, docID: doc.id });
-          }
-        });
+          const results: Notebook[] = [];
+          snap.forEach((doc) => {
+            const data = doc.data() as Notebook;
+            // Filtro simples case-insensitive
+            if (data.title.toLowerCase().includes(term.toLowerCase())) {
+              results.push({ ...data, id: doc.id, docID: doc.id });
+            }
+          });
 
-        setGlobalSearchResults(results);
-      } catch (error) {
-        console.error("Erro na busca global:", error);
-      } finally {
-        setSearchingGlobal(false);
-      }
-    }, 500),
+          setGlobalSearchResults(results);
+        } catch (error) {
+          console.error("Erro na busca global:", error);
+        } finally {
+          setSearchingGlobal(false);
+        }
+      }, 500),
     [],
   );
+
+  // --- EFEITOS ---
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchWorkbooks();
+    } else {
+      // Limpeza ao fechar
+      setTimeout(() => {
+        setSelectedWorkbook(null);
+        setLessons([]);
+        setGlobalSearchResults([]);
+        setSearchQuery("");
+      }, 300);
+    }
+  }, [isOpen, fetchWorkbooks]);
+
+  useEffect(() => {
+    if (selectedWorkbook) {
+      fetchLessons(selectedWorkbook.id);
+      // Não limpamos o search query aqui caso o usuário queira filtrar dentro da apostila
+    } else {
+      setLessons([]);
+    }
+  }, [selectedWorkbook, fetchLessons]);
+
+  // Efeito para busca global (Debounce)
+  useEffect(() => {
+    if (!selectedWorkbook && searchQuery.trim().length > 0) {
+      handleGlobalSearch(searchQuery);
+    } else if (!selectedWorkbook && searchQuery.trim().length === 0) {
+      setGlobalSearchResults([]);
+    }
+  }, [searchQuery, selectedWorkbook, handleGlobalSearch]);
 
   // --- ACTIONS ---
 

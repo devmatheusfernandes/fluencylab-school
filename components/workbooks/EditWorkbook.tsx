@@ -1,6 +1,7 @@
 "use client";
 import { Workbook } from "@/types/notebooks/notebooks";
 import { useEffect, useState, FormEvent } from "react";
+import Image from "next/image";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -166,11 +167,15 @@ export default function EditWorkbookModal({
                         <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
                           Capa atual:
                         </p>
-                        <img
-                          src={workbook.coverURL}
-                          alt="Capa atual"
-                          className="w-full max-w-[150px] h-auto rounded-lg border dark:border-gray-600 object-contain"
-                        />
+                        <div className="relative w-full max-w-[150px] aspect-[3/4]">
+                          <Image
+                            src={workbook.coverURL}
+                            alt="Capa atual"
+                            fill
+                            className="rounded-lg border dark:border-gray-600 object-contain"
+                            unoptimized
+                          />
+                        </div>
                       </div>
                     )}
                   </div>

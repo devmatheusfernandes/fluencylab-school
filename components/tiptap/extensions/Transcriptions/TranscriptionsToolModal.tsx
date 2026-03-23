@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Editor } from "@tiptap/react";
 import {
   Dialog,
@@ -44,13 +44,7 @@ export function TranscriptionsToolModal({
   const [loading, setLoading] = useState(false);
   const [processingId, setProcessingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (isOpen && studentID && notebookId) {
-      fetchTranscriptions(false);
-    }
-  }, [isOpen, studentID, notebookId]);
-
-  const fetchTranscriptions = async (silent = false) => {
+  const fetchTranscriptions = useCallback(async (silent = false) => {
     try {
       if (!silent) setLoading(true);
       
@@ -75,7 +69,13 @@ export function TranscriptionsToolModal({
     } finally {
       if (!silent) setLoading(false);
     }
-  };
+  }, [studentID, notebookId]);
+
+  useEffect(() => {
+    if (isOpen && studentID && notebookId) {
+      fetchTranscriptions(false);
+    }
+  }, [isOpen, studentID, notebookId, fetchTranscriptions]);
 
   const handleCheckTranscription = async (callId: string, transcriptionId?: string) => {
     if (!callId) return;

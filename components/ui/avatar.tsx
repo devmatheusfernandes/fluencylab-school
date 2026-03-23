@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import * as AvatarPrimitive from "@radix-ui/react-avatar";
 import { twMerge } from "tailwind-merge";
 import { getFallbackImages } from "@/actions/get-fallback-images";
@@ -57,7 +58,7 @@ const Avatar = React.forwardRef<
       className={twMerge(
         "relative flex shrink-0 overflow-hidden rounded-2xl transition-all duration-200",
         sizeClasses[size],
-        className
+        className,
       )}
       {...props}
     >
@@ -68,7 +69,7 @@ const Avatar = React.forwardRef<
             "absolute block rounded-full border-background ring-1 ring-background",
             statusSizeClasses[size],
             status === "online" && "bg-green-500",
-            status === "offline" && "bg-subtitle"
+            status === "offline" && "bg-subtitle",
           )}
           aria-label={status === "online" ? "Online" : "Offline"}
         />
@@ -105,7 +106,7 @@ const AvatarImage = React.forwardRef<
         className={twMerge(
           "aspect-square h-full w-full object-cover rounded-2xl",
           className,
-          isLoading && "opacity-0"
+          isLoading && "opacity-0",
         )}
         onLoad={handleLoad}
         onError={handleError}
@@ -114,7 +115,7 @@ const AvatarImage = React.forwardRef<
       {isLoading && (
         <div
           className={twMerge(
-            "absolute inset-0 flex items-center justify-center rounded-2xl bg-container/80 h-full w-full"
+            "absolute inset-0 flex items-center justify-center rounded-2xl bg-container/80 h-full w-full",
           )}
         >
           <div className="h-[40%] w-[40%] animate-spin rounded-full border-2 border-subtitle border-t-transparent" />
@@ -156,7 +157,7 @@ const AvatarFallback = React.forwardRef<
         setImages(finalImages);
       }
     });
-  }, []);
+  }, [images]);
 
   React.useEffect(() => {
     if (children || images.length === 0) return;
@@ -186,7 +187,7 @@ const AvatarFallback = React.forwardRef<
     try {
       localStorage.setItem(
         storageKey,
-        JSON.stringify({ date: today, src: newSrc })
+        JSON.stringify({ date: today, src: newSrc }),
       );
     } catch (e) {
       // Ignora erro de cota ou acesso
@@ -198,17 +199,19 @@ const AvatarFallback = React.forwardRef<
       ref={ref}
       className={twMerge(
         "flex h-full w-full items-center justify-center rounded-2xl bg-foreground/10 text-white border-2 border-foreground/10 font-semibold overflow-hidden",
-        className
+        className,
       )}
       {...props}
     >
       {children ? (
         children
       ) : assignedSrc ? (
-        <img
+        <Image
           src={assignedSrc}
           alt={name || "Avatar fallback"}
-          className="h-full w-full object-cover"
+          fill
+          className="object-cover"
+          unoptimized
         />
       ) : (
         <span className="text-muted-foreground">

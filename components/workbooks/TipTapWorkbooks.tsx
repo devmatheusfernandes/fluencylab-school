@@ -2,7 +2,6 @@
 import "@/components/tiptap/style.scss";
 
 //TipTap Imports
-import Link from "@tiptap/extension-link";
 import Highlight from "@tiptap/extension-highlight";
 import TextAlign from "@tiptap/extension-text-align";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -49,7 +48,6 @@ const Tiptap = ({ onChange, content, isEditable }: any) => {
       Image,
       History,
       MusicNode,
-      TextStyle,
       FontFamily,
       Typography,
       Table.configure({
@@ -63,9 +61,6 @@ const Tiptap = ({ onChange, content, isEditable }: any) => {
         nested: true,
       }),
       TabInsertExtension,
-      Link.configure({
-        openOnClick: true,
-      }),
       StarterKit.configure({
         document: false,
         undoRedo: false,

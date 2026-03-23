@@ -66,7 +66,7 @@ export function FloatingPodcastPlayer({
       togglePlay();
     }
      
-  }, [isReady]);
+  }, [isReady, isPlaying, togglePlay]);
 
   return (
     <AnimatePresence>

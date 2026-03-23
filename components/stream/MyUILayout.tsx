@@ -356,10 +356,13 @@ export const MyUILayout = () => {
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={0.2}
         onDragEnd={(_event, info) => {
-          if (info.offset.x > 100)
-            callingState === CallingState.JOINED
-              ? togglePiP()
-              : setCallData(null);
+          if (info.offset.x > 100) {
+            if (callingState === CallingState.JOINED) {
+              togglePiP();
+            } else {
+              setCallData(null);
+            }
+          }
         }}
         initial={{ x: "100%" }}
         animate={{ x: 0 }}

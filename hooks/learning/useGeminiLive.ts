@@ -115,6 +115,133 @@ export const useGeminiLive = () => {
   const startTimeRef = useRef<number>(0);
   const lastVolumeUpdateRef = useRef<number>(0);
 
+  // --- Helper Functions (Hoisted manually using function declarations) ---
+  const stopTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
+
+  const stopAudio = useCallback(() => {
+    if (audioContextRef.current) {
+      audioContextRef.current
+        .close()
+        .then(() => {
+          audioContextRef.current = null;
+        })
+        .catch(() => {});
+    }
+    audioQueueRef.current = [];
+    isPlayingRef.current = false;
+    nextPlayTimeRef.current = 0;
+  }, []);
+
+  const stop = useCallback(() => {
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+    stopAudio();
+    stopTimer();
+    setState((prev) => ({
+      ...prev,
+      isConnected: false,
+      isRecording: false,
+      isConnecting: false,
+    }));
+  }, [stopAudio, stopTimer]);
+
+  const startTimer = useCallback(() => {
+    startTimeRef.current = Date.now();
+    warningSentRef.current = false;
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      const elapsed = Date.now() - startTimeRef.current;
+      const remaining = Math.max(0, TIME_LIMIT_MS - elapsed);
+      setState((prev) => ({ ...prev, timeLeft: Math.ceil(remaining / 1000) }));
+
+      // Warning at 4.5 mins
+      if (elapsed >= WARNING_TIME_MS && !warningSentRef.current) {
+        warningSentRef.current = true;
+        // Optional: Send visual warning or inject audio prompt if possible
+      }
+
+      if (elapsed >= TIME_LIMIT_MS) {
+        stop();
+      }
+    }, 1000);
+  }, [stop]);
+
+  const processAudioQueue = useCallback(function loop() {
+    if (
+      isPlayingRef.current ||
+      audioQueueRef.current.length === 0 ||
+      !audioContextRef.current
+    )
+      return;
+
+    isPlayingRef.current = true;
+    const buffer = audioQueueRef.current.shift()!;
+    const source = audioContextRef.current.createBufferSource();
+    source.buffer = buffer;
+    source.connect(audioContextRef.current.destination);
+
+    const currentTime = audioContextRef.current.currentTime;
+    // Schedule just a bit ahead if queue was empty, or at nextPlayTime
+    const startTime = Math.max(currentTime, nextPlayTimeRef.current);
+
+    source.start(startTime);
+    nextPlayTimeRef.current = startTime + buffer.duration;
+
+    source.onended = () => {
+      if (audioQueueRef.current.length === 0) {
+        isPlayingRef.current = false;
+        // Reset nextPlayTime if queue is empty to avoid drift delay
+        if (audioContextRef.current) {
+          nextPlayTimeRef.current = audioContextRef.current.currentTime;
+        }
+      } else {
+        isPlayingRef.current = false; // Trigger next loop
+        loop();
+      }
+    };
+  }, []);
+
+  const playAudioChunk = useCallback(
+    async (base64: string) => {
+      try {
+        if (!audioContextRef.current) {
+          return;
+        }
+
+        const binaryString = atob(base64);
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        const int16 = new Int16Array(bytes.buffer);
+        const float32 = new Float32Array(int16.length);
+
+        for (let i = 0; i < int16.length; i++) {
+          float32[i] = int16[i] / 32768.0;
+        }
+
+        const buffer = audioContextRef.current.createBuffer(
+          1,
+          float32.length,
+          24000,
+        ); // Gemini output is 24kHz
+        buffer.getChannelData(0).set(float32);
+
+        audioQueueRef.current.push(buffer);
+        processAudioQueue();
+      } catch (e) {}
+    },
+    [processAudioQueue],
+  );
+
   // Initialize Audio Context & Worklet
   const initAudio = useCallback(async () => {
     try {
@@ -304,133 +431,7 @@ Fase 3: Conclusão
         error: "Falha ao conectar.",
       }));
     }
-  }, []);
-
-  // Timer Logic
-  const startTimer = () => {
-    startTimeRef.current = Date.now();
-    warningSentRef.current = false;
-    if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => {
-      const elapsed = Date.now() - startTimeRef.current;
-      const remaining = Math.max(0, TIME_LIMIT_MS - elapsed);
-      setState((prev) => ({ ...prev, timeLeft: Math.ceil(remaining / 1000) }));
-
-      // Warning at 4.5 mins
-      if (elapsed >= WARNING_TIME_MS && !warningSentRef.current) {
-        warningSentRef.current = true;
-        // Optional: Send visual warning or inject audio prompt if possible
-      }
-
-      if (elapsed >= TIME_LIMIT_MS) {
-        stop();
-      }
-    }, 1000);
-  };
-
-  const stopTimer = () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-  };
-
-  // Stop everything
-  const stop = useCallback(() => {
-    if (wsRef.current) {
-      wsRef.current.close();
-      wsRef.current = null;
-    }
-    stopAudio();
-    stopTimer();
-    setState((prev) => ({
-      ...prev,
-      isConnected: false,
-      isRecording: false,
-      isConnecting: false,
-    }));
-  }, []);
-
-  // Audio Playback
-  const playAudioChunk = async (base64: string) => {
-    try {
-      if (!audioContextRef.current) {
-        return;
-      }
-
-      const binaryString = atob(base64);
-      const len = binaryString.length;
-      const bytes = new Uint8Array(len);
-      for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      const int16 = new Int16Array(bytes.buffer);
-      const float32 = new Float32Array(int16.length);
-
-      for (let i = 0; i < int16.length; i++) {
-        float32[i] = int16[i] / 32768.0;
-      }
-
-      const buffer = audioContextRef.current.createBuffer(
-        1,
-        float32.length,
-        24000,
-      ); // Gemini output is 24kHz
-      buffer.getChannelData(0).set(float32);
-
-      audioQueueRef.current.push(buffer);
-      processAudioQueue();
-    } catch (e) {}
-  };
-
-  const processAudioQueue = () => {
-    if (
-      isPlayingRef.current ||
-      audioQueueRef.current.length === 0 ||
-      !audioContextRef.current
-    )
-      return;
-
-    isPlayingRef.current = true;
-    const buffer = audioQueueRef.current.shift()!;
-    const source = audioContextRef.current.createBufferSource();
-    source.buffer = buffer;
-    source.connect(audioContextRef.current.destination);
-
-    const currentTime = audioContextRef.current.currentTime;
-    // Schedule just a bit ahead if queue was empty, or at nextPlayTime
-    const startTime = Math.max(currentTime, nextPlayTimeRef.current);
-
-    source.start(startTime);
-    nextPlayTimeRef.current = startTime + buffer.duration;
-
-    source.onended = () => {
-      if (audioQueueRef.current.length === 0) {
-        isPlayingRef.current = false;
-        // Reset nextPlayTime if queue is empty to avoid drift delay
-        if (audioContextRef.current) {
-          nextPlayTimeRef.current = audioContextRef.current.currentTime;
-        }
-      } else {
-        isPlayingRef.current = false; // Trigger next loop
-        processAudioQueue();
-      }
-    };
-  };
-
-  const stopAudio = () => {
-    if (audioContextRef.current) {
-      audioContextRef.current
-        .close()
-        .then(() => {
-          audioContextRef.current = null;
-        })
-        .catch(() => {});
-    }
-    audioQueueRef.current = [];
-    isPlayingRef.current = false;
-    nextPlayTimeRef.current = 0;
-  };
+  }, [initAudio, stop, startTimer, playAudioChunk, stopAudio, stopTimer]);
 
   // Recording
   const startRecording = useCallback(async () => {

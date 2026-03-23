@@ -11,6 +11,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { useState, useMemo } from "react";
+import Image from "next/image";
 import { FloatingPodcastPlayer } from "./FloatingPodcastPlayer";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -180,10 +181,11 @@ export function PodcastListClient({
               >
                 {podcast.coverImageUrl && (
                   <div className="aspect-video w-full relative overflow-hidden bg-muted">
-                    <img
+                    <Image
                       src={podcast.coverImageUrl}
                       alt={podcast.title}
-                      className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+                      fill
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60" />
 

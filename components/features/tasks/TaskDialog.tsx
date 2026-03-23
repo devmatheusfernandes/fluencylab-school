@@ -85,7 +85,14 @@ export function TaskDialog({
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [comboboxOpen, setComboboxOpen] = useState(false);
 
-  useEffect(() => {
+  const [prevTask, setPrevTask] = useState<Task | undefined>(undefined);
+  const [prevOpen, setPrevOpen] = useState(false);
+
+  // Sincronizando estado com as props durante a renderização para evitar useEffect
+  if (task !== prevTask || open !== prevOpen) {
+    setPrevTask(task);
+    setPrevOpen(open);
+
     if (task) {
       setTitle(task.title);
       setDescription(task.description || "");
@@ -107,7 +114,7 @@ export function TaskDialog({
       setSubTasks([]);
       setIsSubscribed(true); // Auto-subscribe creator
     }
-  }, [task, open, currentUser]);
+  }
 
   const handleSave = async () => {
     if (!title.trim()) return;

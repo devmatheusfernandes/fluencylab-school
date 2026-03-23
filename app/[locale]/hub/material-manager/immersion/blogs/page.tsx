@@ -2,6 +2,7 @@ import { Header } from "@/components/ui/header";
 import { Button } from "@/components/ui/button";
 import { immersionService } from "@/services/learning/immersionService";
 import Link from "next/link";
+import Image from "next/image";
 import { Plus, Edit } from "lucide-react";
 import {
   Table,
@@ -52,11 +53,14 @@ export default async function BlogsPage() {
               blogs.map((blog) => (
                 <TableRow key={blog.id}>
                   <TableCell>
-                    <img
-                      src={blog.coverImageUrl}
-                      alt={blog.title}
-                      className="h-10 w-16 object-cover rounded"
-                    />
+                    <div className="relative h-10 w-16 overflow-hidden rounded">
+                      <Image
+                        src={blog.coverImageUrl}
+                        alt={blog.title}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
                   </TableCell>
                   <TableCell className="font-medium">{blog.title}</TableCell>
                   <TableCell>

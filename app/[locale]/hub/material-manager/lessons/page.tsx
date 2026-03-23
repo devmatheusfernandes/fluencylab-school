@@ -18,7 +18,6 @@ import {
   Loader2,
   Trash2,
   Calendar,
-  MoreVertical,
   Puzzle,
   Layers,
   HelpCircle,
@@ -53,7 +52,7 @@ import { Button } from "@/components/ui/button";
 import { Header } from "@/components/ui/header";
 import { NoResults } from "@/components/ui/no-results";
 import { Skeleton } from "@/components/ui/skeleton";
-import { WizardModal, WizardStep } from "@/components/ui/wizard"; // Certifique-se de importar o Wizard criado
+import { WizardModal, WizardStep } from "@/components/ui/wizard";
 import { createLesson } from "@/actions/lessonProcessing";
 import BreadcrumbActions from "@/components/shared/Breadcrum/BreadcrumbActions";
 import BreadcrumbActionIcon from "@/components/shared/Breadcrum/BreadcrumbActionIcon";
@@ -78,6 +77,16 @@ export default function LessonsPage() {
 
   // Wizard State
   const [isWizardOpen, setIsWizardOpen] = useState(false);
+  type Status =
+    | "ready"
+    | "processing_items"
+    | "analyzing"
+    | "reviewing"
+    | "error";
+
+  const getStatusLabel = (status: Status) => {
+    return t(`status.${status}`);
+  };
 
   // --- Data Fetching ---
   useEffect(() => {
@@ -332,7 +341,6 @@ export default function LessonsPage() {
                         getStatusColor(lesson.status),
                       )}
                     >
-                      {/* @ts-ignore */}
                       {t(`status.${lesson.status}`) || lesson.status}
                     </span>
 

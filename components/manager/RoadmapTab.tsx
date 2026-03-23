@@ -98,8 +98,8 @@ export default function RoadmapTab({ profile }: RoadmapTabProps) {
         <div className="max-w-md px-4">
           <h3 className="font-semibold text-lg">Roadmap Indisponível</h3>
           <p className="text-muted-foreground text-sm mt-1">
-            Gere o "Prompt de Plano" na aba anterior para desbloquear a criação
-            do roadmap.
+            Gere o &quot;Prompt de Plano&quot; na aba anterior para desbloquear
+            a criação do roadmap.
           </p>
         </div>
       </div>

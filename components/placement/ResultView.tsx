@@ -182,7 +182,7 @@ export const ResultView = ({
           {result.level}
         </h1>
         <p className="text-slate-500 font-medium max-w-xs mx-auto">
-          You've mastered about{" "}
+          You&apos;ve mastered about{" "}
           {Math.round((result.score / (MAX_QUESTIONS * 6)) * 100)}% of the
           curriculum!
         </p>

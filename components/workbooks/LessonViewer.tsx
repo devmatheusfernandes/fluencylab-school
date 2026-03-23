@@ -18,21 +18,21 @@ export default function LessonViewer({ lesson, workbook }: LessonViewerProps) {
   const [isEditable, setIsEditable] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Set role-based editability
   useEffect(() => {
     if (session) {
       const role = session.user.role;
-      setIsEditable(role === "teacher" || role === "manager"); // Editable only for admin and manager
+      setIsEditable(role === "admin" || role === "manager");
     }
   }, [session]);
 
-  // Fetch content
   useEffect(() => {
     const fetchNotebookContent = async () => {
       if (!lesson || !workbook) return;
 
       try {
-        const notebookDoc = await getDoc(doc(db, `Apostilas/${workbook}/Lessons/${lesson}`));
+        const notebookDoc = await getDoc(
+          doc(db, `Apostilas/${workbook}/Lessons/${lesson}`),
+        );
         if (notebookDoc.exists()) {
           setContent(notebookDoc.data().content || "");
         } else {
@@ -56,7 +56,7 @@ export default function LessonViewer({ lesson, workbook }: LessonViewerProps) {
         await setDoc(
           doc(db, `Apostilas/${workbook}/Lessons/${lesson}`),
           { content: newContent },
-          { merge: true }
+          { merge: true },
         );
       }
     } catch (error) {

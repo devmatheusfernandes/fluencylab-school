@@ -96,7 +96,11 @@ export default function CreditBookingModal({
   // Set default teacher if only one exists
   useEffect(() => {
     if (isOpen && teachers.length === 1) {
-      setSelectedTeacherId(teachers[0].id);
+      // Usando setTimeout para evitar atualização síncrona dentro do efeito
+      const timer = setTimeout(() => {
+        setSelectedTeacherId(teachers[0].id);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [isOpen, teachers]);
 

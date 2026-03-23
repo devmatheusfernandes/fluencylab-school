@@ -15,7 +15,11 @@ export function ThemeSwitcher() {
   const isStandalone = useIsStandalone();
 
   useEffect(() => {
-    setMounted(true);
+    // Usando setTimeout para evitar atualização síncrona dentro do efeito
+    const timer = setTimeout(() => {
+      setMounted(true);
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const themes = [

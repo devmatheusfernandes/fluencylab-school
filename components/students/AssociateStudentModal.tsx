@@ -53,11 +53,17 @@ export function AssociateStudentModal({
 
   useEffect(() => {
     if (isOpen) {
-      setLoading(true);
+      // Usando setTimeout para evitar atualização síncrona dentro do efeito
+      const timer = setTimeout(() => {
+        setLoading(true);
+      }, 0);
+
       searchStudents().then((res) => {
         setStudents(res);
         setLoading(false);
       });
+
+      return () => clearTimeout(timer);
     }
   }, [isOpen]);
 

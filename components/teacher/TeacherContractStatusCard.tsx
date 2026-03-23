@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -54,7 +54,7 @@ export const TeacherContractStatusCard = () => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const fetchStatus = async () => {
+  const fetchStatus = useCallback(async () => {
     try {
       setLoading(true);
       const res = await fetch("/api/teacher/contract");
@@ -75,11 +75,11 @@ export const TeacherContractStatusCard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
   useEffect(() => {
     fetchStatus();
-  }, []);
+  }, [fetchStatus]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import type { Editor } from "@tiptap/react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -73,7 +74,11 @@ function useQuestionsLibrary() {
   const [loading, setLoading] = useState(false);
   const [questions, setQuestions] = useState<QuestionRecord[]>([]);
   useEffect(() => {
-    setLoading(true);
+    // Usando setTimeout para evitar atualização síncrona dentro do efeito
+    const timer = setTimeout(() => {
+      setLoading(true);
+    }, 0);
+
     const col = collection(db, "tiptap", "extensions", "questions");
     const q = query(col);
     const unsub = onSnapshot(q, (snap) => {
@@ -96,7 +101,10 @@ function useQuestionsLibrary() {
       setQuestions(list);
       setLoading(false);
     });
-    return () => unsub();
+    return () => {
+      clearTimeout(timer);
+      unsub();
+    };
   }, []);
   return { loading, questions };
 }
@@ -420,7 +428,13 @@ export const QuestionsToolModal: React.FC<BaseModalProps> = ({ isOpen, onClose, 
           {/* Preview da imagem existente ao editar */}
           {editingId && originalImageUrl && !imageFile && (
              <div className="relative aspect-video w-full rounded-md overflow-hidden border bg-background group">
-                <img src={originalImageUrl} alt="Atual" className="object-cover w-full h-full opacity-80" />
+                <Image 
+                  src={originalImageUrl} 
+                  alt="Atual" 
+                  fill
+                  className="object-cover opacity-80" 
+                  unoptimized
+                />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/40 text-white text-xs font-medium">
                    Imagem Atual
                 </div>

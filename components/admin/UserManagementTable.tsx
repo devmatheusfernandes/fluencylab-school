@@ -52,6 +52,50 @@ import { NoResults } from "@/components/ui/no-results";
 import { Search } from "lucide-react";
 import { Header } from "../ui/header";
 
+const TableRowsSkeleton = () => (
+  <>
+    {[...Array(5)].map((_, index) => (
+      <TableRow key={index}>
+        <TableCell>
+          <div className="flex items-center">
+            <Skeleton className="h-10 w-10 rounded-full" />
+            <div className="ml-4 space-y-2">
+              <Skeleton className="h-4 w-[150px]" />
+              <Skeleton className="h-3 w-[100px]" />
+            </div>
+          </div>
+        </TableCell>
+        <TableCell className="hidden sm:table-cell">
+          <Skeleton className="h-5 w-20 rounded-full" />
+        </TableCell>
+        <TableCell className="text-right">
+          <Skeleton className="h-8 w-8 rounded-md ml-auto" />
+        </TableCell>
+      </TableRow>
+    ))}
+  </>
+);
+
+const SingleRowSkeleton = () => (
+  <TableRow>
+    <TableCell>
+      <div className="flex items-center">
+        <Skeleton className="h-10 w-10 rounded-full" />
+        <div className="ml-4 space-y-2">
+          <Skeleton className="h-4 w-[150px]" />
+          <Skeleton className="h-3 w-[100px]" />
+        </div>
+      </div>
+    </TableCell>
+    <TableCell className="hidden sm:table-cell">
+      <Skeleton className="h-5 w-20 rounded-full" />
+    </TableCell>
+    <TableCell className="text-right">
+      <Skeleton className="h-8 w-8 rounded-md ml-auto" />
+    </TableCell>
+  </TableRow>
+);
+
 export default function UserManagementTable() {
   const {
     users,
@@ -154,50 +198,6 @@ export default function UserManagementTable() {
     const encodedName = encodeURIComponent(sanitizedName);
     router.push(`/hub/admin/users/${encodedName}?id=${userId}`);
   };
-
-  const TableRowsSkeleton = () => (
-    <>
-      {[...Array(5)].map((_, index) => (
-        <TableRow key={index}>
-          <TableCell>
-            <div className="flex items-center">
-              <Skeleton className="h-10 w-10 rounded-full" />
-              <div className="ml-4 space-y-2">
-                <Skeleton className="h-4 w-[150px]" />
-                <Skeleton className="h-3 w-[100px]" />
-              </div>
-            </div>
-          </TableCell>
-          <TableCell className="hidden sm:table-cell">
-            <Skeleton className="h-5 w-20 rounded-full" />
-          </TableCell>
-          <TableCell className="text-right">
-            <Skeleton className="h-8 w-8 rounded-md ml-auto" />
-          </TableCell>
-        </TableRow>
-      ))}
-    </>
-  );
-
-  const SingleRowSkeleton = () => (
-    <TableRow>
-      <TableCell>
-        <div className="flex items-center">
-          <Skeleton className="h-10 w-10 rounded-full" />
-          <div className="ml-4 space-y-2">
-            <Skeleton className="h-4 w-[150px]" />
-            <Skeleton className="h-3 w-[100px]" />
-          </div>
-        </div>
-      </TableCell>
-      <TableCell className="hidden sm:table-cell">
-        <Skeleton className="h-5 w-20 rounded-full" />
-      </TableCell>
-      <TableCell className="text-right">
-        <Skeleton className="h-8 w-8 rounded-md ml-auto" />
-      </TableCell>
-    </TableRow>
-  );
 
   return (
     <div className="container-padding space-y-6">

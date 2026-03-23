@@ -162,7 +162,7 @@ export const useTeacherAvailabilityForBooking = (
     };
 
     loadAvailability();
-  }, [isOpen, teacherId]);
+  }, [isOpen, teacherId, onlyMakeup]);
 
   return {
     availableSlots,

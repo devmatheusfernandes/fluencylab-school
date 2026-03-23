@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { Header } from "@/components/ui/header";
@@ -44,35 +44,35 @@ export default function MeusAlunos() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  useEffect(() => {
-    const fetchStudents = async () => {
-      if (!session?.user?.id) return;
+  const fetchStudents = useCallback(async () => {
+    if (!session?.user?.id) return;
 
-      try {
-        setLoading(true);
-        const response = await fetch(`/api/teacher/my-students`);
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/teacher/my-students`);
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch students");
-        }
-
-        const data = await response.json();
-        setStudents(data);
-      } catch (error: any) {
-        console.error("Error fetching students:", error);
-        setError(t("errorLoading"));
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error("Failed to fetch students");
       }
-    };
 
+      const data = await response.json();
+      setStudents(data);
+    } catch (error: any) {
+      console.error("Error fetching students:", error);
+      setError(t("errorLoading"));
+    } finally {
+      setLoading(false);
+    }
+  }, [session?.user?.id, t]);
+
+  useEffect(() => {
     fetchStudents();
-  }, [session?.user?.id]);
+  }, [fetchStudents]);
 
   const filteredStudents = students.filter(
     (student) =>
       student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.email.toLowerCase().includes(searchQuery.toLowerCase())
+      student.email.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   if (error) {

@@ -28,30 +28,21 @@ export default async function ClassPage({
   const sp = await searchParams;
   const classId = sp?.aula || sp?.classId || sp?.id || pathClassId;
 
+  let classDetails;
+  let hasError = false;
+
   try {
     // Busca os dados da aula no servidor
-    const classDetails = await schedulingService.getClassDetails(
+    classDetails = await schedulingService.getClassDetails(
       classId,
       session.user.id,
     );
-
-    if (!classDetails) {
-      return (
-        <NoResults
-          customMessage={{ withoutSearch: t("notFound") }}
-          className="py-10"
-        />
-      );
-    }
-
-    return (
-      <ClassDetailsView
-        classDetails={classDetails}
-        backHref="/hub/manager/students"
-      />
-    );
   } catch (error) {
     console.error("Error fetching class details:", error);
+    hasError = true;
+  }
+
+  if (hasError) {
     return (
       <NoResults
         customMessage={{
@@ -61,4 +52,20 @@ export default async function ClassPage({
       />
     );
   }
+
+  if (!classDetails) {
+    return (
+      <NoResults
+        customMessage={{ withoutSearch: t("notFound") }}
+        className="py-10"
+      />
+    );
+  }
+
+  return (
+    <ClassDetailsView
+      classDetails={classDetails}
+      backHref="/hub/manager/students"
+    />
+  );
 }

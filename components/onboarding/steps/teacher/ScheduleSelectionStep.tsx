@@ -54,7 +54,7 @@ export const ScheduleSelectionStep: React.FC<TeacherOnboardingStepProps> = ({
     }
 
     const slotToAdd: ScheduleSlot = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: crypto.randomUUID(),
       dayOfWeek: newSlot.dayOfWeek!,
       startTime: newSlot.startTime!,
       endTime: calculateEndTime(newSlot.startTime!),

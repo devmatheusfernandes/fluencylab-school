@@ -31,7 +31,7 @@ export function ListeningChoiceExercise({
 }: ListeningChoiceExerciseProps) {
   const t = useTranslations("ListeningChoiceExercise");
   const [phase, setPhase] = useState<"full_listen" | "interactive">(
-    "full_listen"
+    "full_listen",
   );
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasListenedOnce, setHasListenedOnce] = useState(true);
@@ -46,7 +46,7 @@ export function ListeningChoiceExercise({
       const segment = transcriptSegments[currentSegmentIndex];
       const text = segment.text;
       const sortedItems = [...learningItems].sort(
-        (a, b) => b.mainText.length - a.mainText.length
+        (a, b) => b.mainText.length - a.mainText.length,
       );
 
       let match: LearningItem | null = null;
@@ -77,42 +77,65 @@ export function ListeningChoiceExercise({
         }
 
         const options = [correctWord, ...distractors].sort(
-          () => 0.5 - Math.random()
+          () => 0.5 - Math.random(),
         );
 
-        setGapState({
-          hasGap: true,
-          correctWord,
-          displayParts: [before, after],
-          options,
-          selectedOption: null,
-          isCorrect: null,
-        });
-        setTotalGaps((prev) => prev + 1);
+        // Usando setTimeout para evitar atualização síncrona dentro do efeito
+        const timer = setTimeout(() => {
+          setGapState({
+            hasGap: true,
+            correctWord,
+            displayParts: [before, after],
+            options,
+            selectedOption: null,
+            isCorrect: null,
+          });
+          setTotalGaps((prev) => prev + 1);
+        }, 0);
+
+        if (audioRef.current) {
+          const currentAudio = audioRef.current;
+          currentAudio.currentTime = segment.start;
+          currentAudio.play().catch(() => {});
+          // Usando setTimeout para evitar atualização síncrona dentro do efeito
+          const timerPlay = setTimeout(() => {
+            setIsPlaying(true);
+          }, 0);
+
+          const checkEnd = () => {
+            if (
+              currentAudio &&
+              currentAudio.currentTime >= segment.end
+            ) {
+              currentAudio.pause();
+              setIsPlaying(false);
+              currentAudio.removeEventListener("timeupdate", checkEnd);
+            }
+          };
+          currentAudio.addEventListener("timeupdate", checkEnd);
+
+          return () => {
+            clearTimeout(timer);
+            clearTimeout(timerPlay);
+            if (currentAudio) {
+              currentAudio.removeEventListener("timeupdate", checkEnd);
+            }
+          };
+        }
+
+        return () => clearTimeout(timer);
       } else {
-        setGapState({
-          hasGap: false,
-          correctWord: "",
-          displayParts: [text, ""],
-          options: [],
-          selectedOption: null,
-          isCorrect: null,
-        });
-      }
-
-      if (audioRef.current) {
-        audioRef.current.currentTime = segment.start;
-        audioRef.current.play().catch(() => {});
-        setIsPlaying(true);
-
-        const duration = (segment.end - segment.start) * 1000;
-        const timeout = setTimeout(() => {
-          if (audioRef.current) {
-            audioRef.current.pause();
-            setIsPlaying(false);
-          }
-        }, duration + 200);
-        return () => clearTimeout(timeout);
+        const timer = setTimeout(() => {
+          setGapState({
+            hasGap: false,
+            correctWord: "",
+            displayParts: ["", text],
+            options: [],
+            selectedOption: null,
+            isCorrect: null,
+          });
+        }, 0);
+        return () => clearTimeout(timer);
       }
     }
   }, [phase, currentSegmentIndex, transcriptSegments, learningItems]);
@@ -200,7 +223,7 @@ export function ListeningChoiceExercise({
               "rounded-full w-16 h-16 flex items-center justify-center",
               isPlaying
                 ? "bg-slate-200 text-slate-700 hover:bg-slate-300"
-                : "bg-indigo-600 text-white hover:bg-indigo-700"
+                : "bg-indigo-600 text-white hover:bg-indigo-700",
             )}
             onClick={togglePlay}
           >
@@ -254,7 +277,7 @@ export function ListeningChoiceExercise({
           size="sm"
           className={cn(
             "rounded-full px-6",
-            isPlaying && "border-indigo-500 text-indigo-600"
+            isPlaying && "border-indigo-500 text-indigo-600",
           )}
           onClick={togglePlay}
         >
@@ -285,7 +308,7 @@ export function ListeningChoiceExercise({
                     : "",
                   gapState.selectedOption && !gapState.isCorrect
                     ? "border-red-500 bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400"
-                    : ""
+                    : "",
                 )}
               >
                 {gapState.selectedOption || "____"}
@@ -319,7 +342,7 @@ export function ListeningChoiceExercise({
                     "bg-red-100 border-red-500 text-red-700 hover:bg-red-100 hover:text-red-700",
                   gapState.selectedOption &&
                     gapState.selectedOption !== option &&
-                    "opacity-50 cursor-not-allowed"
+                    "opacity-50 cursor-not-allowed",
                 )}
                 onClick={() => handleOptionSelect(option)}
                 disabled={!!gapState.selectedOption}

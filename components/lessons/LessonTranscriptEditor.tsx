@@ -87,12 +87,17 @@ const TimeInput = ({
   const [localValue, setLocalValue] = useState(formatTime(value));
   const [isEditing, setIsEditing] = useState(false);
 
-  // Sync with prop value when not editing
-  useEffect(() => {
+  const [prevValue, setPrevValue] = useState(value);
+  const [prevIsEditing, setPrevIsEditing] = useState(isEditing);
+
+  // Sync with prop value when not editing during render
+  if (value !== prevValue || isEditing !== prevIsEditing) {
+    setPrevValue(value);
+    setPrevIsEditing(isEditing);
     if (!isEditing) {
       setLocalValue(formatTime(value));
     }
-  }, [value, isEditing]);
+  }
 
   const handleBlur = () => {
     setIsEditing(false);
