@@ -7,22 +7,20 @@ import {
 interface ParticipantsGridProps {
   remoteParticipants: StreamVideoParticipant[];
   localParticipant?: StreamVideoParticipant;
+  variant?: "standard" | "pip";
 }
 
 // Componente que renderiza a view do participante compartilhando tela com um botão para fullscreen.
 const ScreenShareWithFullscreenButton: React.FC<{
   participant: StreamVideoParticipant;
-}> = ({ participant }) => {
+  isPip?: boolean;
+}> = ({ participant, isPip }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
-      if (document.fullscreenElement === containerRef.current) {
-        setIsFullscreen(true);
-      } else {
-        setIsFullscreen(false);
-      }
+      setIsFullscreen(document.fullscreenElement === containerRef.current);
     };
 
     document.addEventListener("fullscreenchange", handleFullscreenChange);
@@ -42,14 +40,16 @@ const ScreenShareWithFullscreenButton: React.FC<{
   };
 
   return (
-    <div ref={containerRef} className="relative w-full h-auto p-2">
+    <div
+      ref={containerRef}
+      className={`relative w-full ${isPip ? "h-full" : "h-auto p-2"}`}
+    >
       <ParticipantView participant={participant} trackType="screenShareTrack" />
       <button
         onClick={toggleFullscreen}
-        style={{ position: "absolute", top: 10, right: 10, zIndex: 10 }}
-        className="px-4 py-2 bg-blue-600 text-white rounded"
+        className={`absolute top-2 right-2 z-10 px-3 py-1.5 bg-indigo-600/90 hover:bg-indigo-700 text-white rounded-lg shadow-lg transition-colors backdrop-blur-sm ${isPip ? "text-[10px]" : "text-xs"}`}
       >
-        {isFullscreen ? "Sair do Fullscreen" : "Entrar em Fullscreen"}
+        {isFullscreen ? "Sair" : isPip ? "Expandir" : "Entrar em Fullscreen"}
       </button>
     </div>
   );
@@ -58,13 +58,18 @@ const ScreenShareWithFullscreenButton: React.FC<{
 export const ParticipantsGrid: React.FC<ParticipantsGridProps> = ({
   remoteParticipants,
   localParticipant,
+  variant = "standard",
 }) => {
-  // Combina o participante local com os remotos.
-  const mergedParticipants = localParticipant
-    ? [localParticipant, ...remoteParticipants]
-    : remoteParticipants;
+  const isPip = variant === "pip";
 
-  // Filtra participantes únicos, usando 'participant.userId' ou 'participant.sessionId'
+  // No PiP, ignoramos o localParticipant para focar no aluno.
+  const mergedParticipants = isPip
+    ? remoteParticipants
+    : localParticipant
+      ? [localParticipant, ...remoteParticipants]
+      : remoteParticipants;
+
+  // Filtra participantes únicos
   const uniqueParticipants = mergedParticipants.filter(
     (participant, index, self) => {
       const id = participant.userId || participant.sessionId;
@@ -72,33 +77,52 @@ export const ParticipantsGrid: React.FC<ParticipantsGridProps> = ({
     },
   );
 
+  if (isPip && uniqueParticipants.length === 0) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-slate-900 text-slate-500 text-xs font-medium">
+        Aguardando participante...
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full flex flex-col gap-2">
+    <div
+      className={`w-full h-full flex flex-col ${isPip ? "" : "gap-2 overflow-y-auto"}`}
+    >
       {uniqueParticipants.map((participant) => {
         const isScreenSharing =
           participant.publishedTracks?.includes(3) ?? false;
-        // Verifica se é o participante local
         const isLocal =
           localParticipant &&
           participant.sessionId === localParticipant.sessionId;
 
-        // Se for um participante remoto compartilhando tela, renderiza com botão para fullscreen.
         if (!isLocal && isScreenSharing) {
           return (
-            <ScreenShareWithFullscreenButton
+            <div
               key={participant.sessionId}
-              participant={participant}
-            />
+              className={isPip ? "flex-1 w-full" : ""}
+            >
+              <ScreenShareWithFullscreenButton
+                participant={participant}
+                isPip={isPip}
+              />
+            </div>
           );
         }
 
-        // Caso contrário, renderiza normalmente.
         return (
-          <div key={participant.sessionId} className="w-full h-auto p-2">
-            <ParticipantView
-              participant={participant}
-              trackType={isScreenSharing ? "screenShareTrack" : "videoTrack"}
-            />
+          <div
+            key={participant.sessionId}
+            className={`w-full ${isPip ? "flex-1" : "h-auto p-2"}`}
+          >
+            <div
+              className={`relative w-full h-full rounded-xl overflow-hidden shadow-sm ${isPip ? "" : "aspect-video"}`}
+            >
+              <ParticipantView
+                participant={participant}
+                trackType={isScreenSharing ? "screenShareTrack" : "videoTrack"}
+              />
+            </div>
           </div>
         );
       })}

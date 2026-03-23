@@ -27,8 +27,7 @@ import { MusicNode } from "@/components/tiptap/extensions/Music/MusicNode";
 import { twMerge } from "tailwind-merge";
 
 import "./style.scss";
-import FloatStudentCallButton from "../stream/FloatStudentCallButton";
-import FloatTeacherCallButton from "../stream/FloatTeacherCallButton";
+import FloatCallButton from "../stream/FloatCallButton";
 import { useSession } from "next-auth/react";
 import Bubble from "./bubble";
 import { SpinnerLoading } from "../transitions/spinner-loading";
@@ -159,7 +158,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         "!bg-white dark:!bg-black",
         className,
         isMobile && "!bg-slate-100 dark:!bg-slate-950",
-        isStandalone && "!bg-slate-200 dark:!bg-slate-900"
+        isStandalone && "!bg-slate-200 dark:!bg-slate-900",
       )}
     >
       <div
@@ -182,12 +181,10 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
 
         {isMobile && <div className="h-20" />}
 
-        {session?.user.role === "student" && (
-          <FloatStudentCallButton student={{ studentID }} />
-        )}
-
-        {session?.user.role === "teacher" && (
-          <FloatTeacherCallButton student={studentID} />
+        {session?.user.role === "student" ? (
+          <FloatCallButton student={{ studentID }} />
+        ) : (
+          <FloatCallButton student={studentID} />
         )}
 
         <CommentsSheet editor={editor} docId={docId || "test-comments"} />
