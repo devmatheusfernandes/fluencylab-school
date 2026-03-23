@@ -1176,8 +1176,12 @@
       "modal": {
         "confirmTitle": "Confirmar Alteração de Professor",
         "confirmDescription": "Tem certeza que deseja alterar o professor desta aula?",
+        "confirmStatusTitle": "Confirmar Alteração de Status",
+        "confirmStatusDescription": "Tem certeza que deseja alterar o status desta aula?",
         "currentTeacher": "Professor atual:",
         "newTeacher": "Novo professor:",
+        "currentStatus": "Status atual:",
+        "newStatus": "Novo status:",
         "cancel": "Cancelar",
         "confirm": "Confirmar"
       },

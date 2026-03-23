@@ -1191,8 +1191,12 @@
       "modal": {
         "confirmTitle": "Confirm Teacher Change",
         "confirmDescription": "Are you sure you want to change the teacher for this class?",
+        "confirmStatusTitle": "Confirm Status Change",
+        "confirmStatusDescription": "Are you sure you want to change the status of this class?",
         "currentTeacher": "Current teacher:",
         "newTeacher": "New teacher:",
+        "currentStatus": "Current status:",
+        "newStatus": "New status:",
         "cancel": "Cancel",
         "confirm": "Confirm"
       },

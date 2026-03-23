@@ -4,7 +4,6 @@ import { StudentClass, ClassStatus } from "@/types/classes/class";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { Text } from "@/components/ui/text";
 import { useState, useMemo, useEffect } from "react";
 import { useTranslations, useLocale, useFormatter } from "next-intl";
 import { useSession } from "next-auth/react";
@@ -24,6 +23,7 @@ import {
   ModalTitle,
   ModalDescription,
   ModalFooter,
+  ModalPrimaryButton,
 } from "@/components/ui/modal";
 import { Spinner } from "../ui/spinner";
 import {
@@ -33,7 +33,8 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { Calendar1Icon, CalendarDays, Video } from "lucide-react";
+import { Calendar1Icon, Video } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface UserClassesTabProps {
   classes: StudentClass[];
@@ -46,7 +47,6 @@ interface Teacher {
   role: string;
 }
 
-// Helper para gerar uma lista de anos para o filtro
 const generateYearOptions = () => {
   const currentYear = new Date().getFullYear();
   const years = [];
@@ -80,13 +80,21 @@ export default function UserClassesTab({
   const [loadingTeachers, setLoadingTeachers] = useState(true);
   const [classes, setClasses] = useState<StudentClass[]>(initialClasses || []);
 
-  // State for confirmation modal
+  // State for teacher confirmation modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pendingTeacherUpdate, setPendingTeacherUpdate] = useState<{
     classId: string;
     teacherId: string;
     teacherName: string;
     currentTeacherName: string;
+  } | null>(null);
+
+  // State for status confirmation modal
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [pendingStatusUpdate, setPendingStatusUpdate] = useState<{
+    classId: string;
+    status: ClassStatus;
+    currentStatus: ClassStatus;
   } | null>(null);
 
   // Fetch available teachers
@@ -143,6 +151,63 @@ export default function UserClassesTab({
       </Empty>
     );
   }
+
+  // Function to confirm and update class status
+  const confirmUpdateClassStatus = async () => {
+    if (!pendingStatusUpdate) return;
+
+    const { classId, status } = pendingStatusUpdate;
+
+    try {
+      const response = await fetch(`/api/classes/${classId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || t("toasts.updateFailed"));
+      }
+
+      toast.success(t("toasts.updateSuccess"));
+      setIsStatusModalOpen(false);
+      setPendingStatusUpdate(null);
+
+      // Update the classes state
+      setClasses((prevClasses) =>
+        prevClasses.map((cls) => {
+          if (cls.id === classId) {
+            return { ...cls, status };
+          }
+          return cls;
+        }),
+      );
+    } catch (error: any) {
+      toast.error(`${t("toasts.updateError")} ${error.message}`);
+      setIsStatusModalOpen(false);
+      setPendingStatusUpdate(null);
+    }
+  };
+
+  // Function to handle status change (opens confirmation modal)
+  const handleStatusChange = (
+    classId: string,
+    newStatus: ClassStatus,
+    currentStatus: ClassStatus,
+  ) => {
+    if (newStatus === currentStatus) return;
+
+    setPendingStatusUpdate({
+      classId,
+      status: newStatus,
+      currentStatus,
+    });
+    setIsStatusModalOpen(true);
+  };
 
   // Function to confirm and update class teacher
   const confirmUpdateClassTeacher = async () => {
@@ -249,11 +314,58 @@ export default function UserClassesTab({
 
   const getStatusBadge = (cls: StudentClass) => {
     const key = String(cls.status).toLowerCase().replace(/_/g, "-");
+
+    const availableStatuses = [
+      ClassStatus.SCHEDULED,
+      ClassStatus.COMPLETED,
+      ClassStatus.CANCELED_STUDENT,
+      ClassStatus.CANCELED_TEACHER,
+      ClassStatus.CANCELED_TEACHER_MAKEUP,
+      ClassStatus.CANCELED_ADMIN,
+      ClassStatus.CANCELED_CREDIT,
+      ClassStatus.NO_SHOW,
+      ClassStatus.RESCHEDULED,
+      ClassStatus.TEACHER_VACATION,
+      ClassStatus.OVERDUE,
+    ];
+
     return (
       <div className="flex flex-col items-end gap-2">
-        <Badge variant={getStatusVariant(cls.status)}>{tStatus(key)}</Badge>
+        <Select
+          value={cls.status}
+          onValueChange={(value) =>
+            handleStatusChange(cls.id, value as ClassStatus, cls.status)
+          }
+        >
+          <SelectTrigger
+            className={cn(
+              "w-[160px] h-8 text-xs font-semibold",
+              getStatusVariant(cls.status) === "success" &&
+                "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800",
+              getStatusVariant(cls.status) === "warning" &&
+                "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800",
+              getStatusVariant(cls.status) === "destructive" &&
+                "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800",
+              getStatusVariant(cls.status) === "default" &&
+                "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800",
+              getStatusVariant(cls.status) === "secondary" &&
+                "bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-900/30 dark:text-slate-400 dark:border-slate-800",
+            )}
+          >
+            <SelectValue>{tStatus(key)}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {availableStatuses.map((status) => (
+              <SelectItem key={status} value={status}>
+                {tStatus(status.toLowerCase().replace(/_/g, "-"))}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         {cls.rescheduledFrom && (
-          <Badge className="text-xs">{tStatus("rescheduledBadge")}</Badge>
+          <Badge className="text-[10px] h-5">
+            {tStatus("rescheduledBadge")}
+          </Badge>
         )}
       </div>
     );
@@ -261,7 +373,7 @@ export default function UserClassesTab({
 
   return (
     <div className="space-y-6">
-      {/* --- Confirmation Modal --- */}
+      {/* --- Teacher Confirmation Modal --- */}
       <Modal open={isModalOpen} onOpenChange={setIsModalOpen}>
         <ModalContent>
           <ModalHeader>
@@ -283,9 +395,48 @@ export default function UserClassesTab({
           )}
 
           <ModalFooter>
-            <Button onClick={confirmUpdateClassTeacher}>
+            <ModalPrimaryButton onClick={confirmUpdateClassTeacher}>
               {t("modal.confirm")}
-            </Button>
+            </ModalPrimaryButton>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* --- Status Confirmation Modal --- */}
+      <Modal open={isStatusModalOpen} onOpenChange={setIsStatusModalOpen}>
+        <ModalContent>
+          <ModalHeader>
+            <ModalTitle>{t("modal.confirmStatusTitle")}</ModalTitle>
+            <ModalDescription>
+              {t("modal.confirmStatusDescription")}
+            </ModalDescription>
+          </ModalHeader>
+
+          {pendingStatusUpdate && (
+            <div className="py-4 space-y-2">
+              <p className="capitalize">
+                <strong>{t("modal.currentStatus")}</strong>{" "}
+                {tStatus(
+                  String(pendingStatusUpdate.currentStatus)
+                    .toLowerCase()
+                    .replace(/_/g, "-"),
+                )}
+              </p>
+              <p className="capitalize">
+                <strong>{t("modal.newStatus")}</strong>{" "}
+                {tStatus(
+                  String(pendingStatusUpdate.status)
+                    .toLowerCase()
+                    .replace(/_/g, "-"),
+                )}
+              </p>
+            </div>
+          )}
+
+          <ModalFooter>
+            <ModalPrimaryButton onClick={confirmUpdateClassStatus}>
+              {t("modal.confirm")}
+            </ModalPrimaryButton>
           </ModalFooter>
         </ModalContent>
       </Modal>
