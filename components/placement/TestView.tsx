@@ -68,7 +68,7 @@ export const TestView = ({
   };
 
   return (
-    <div className="flex flex-col items-center w-full max-w-2xl mx-auto">
+    <div className="flex flex-col items-center w-full h-full mx-auto">
       <div className="w-full flex items-center gap-4 mb-4">
         <Button
           variant="ghost"
@@ -96,9 +96,9 @@ export const TestView = ({
           initial="initial"
           animate="animate"
           exit="exit"
-          className="w-full pb-20"
+          className="w-full max-w-5xl pb-20 h-full"
         >
-          <Card className="bg-slate-200/90! dark:bg-gray-900! rounded-2xl! border-3! border-b-6! border-slate-300! dark:border-black/50!">
+          <Card className="h-[calc(100vh-16rem)] sm:h-full bg-slate-200/90! dark:bg-gray-900! rounded-2xl! border-3! border-b-6! border-slate-300! dark:border-black/50! flex flex-col justify-center sm:justify-start w-full">
             <CardHeader className="px-6 pt-6">
               {currentQuestion.audioUrl && (
                 <AudioPlayer url={currentQuestion.audioUrl} />
@@ -169,7 +169,7 @@ export const TestView = ({
             </CardContent>
           </Card>
         </motion.div>
-        <CardFooter className="fixed bottom-0 md:bottom-12 left-0 w-full bg-white md:dark:bg-transparent dark:bg-black p-4 border-t border-slate-100 dark:border-black/50 z-50 md:relative md:bg-transparent md:border-none md:p-0 md:mt-8 flex flex-col md:flex-row gap-3">
+        <CardFooter className="fixed bottom-0 md:bottom-12 left-0 w-full max-w-5xl bg-white md:dark:bg-transparent dark:bg-black p-4 border-t border-slate-100 dark:border-black/50 z-50 md:relative md:bg-transparent md:border-none md:p-0 md:mt-8 flex flex-col md:flex-row gap-3">
           <Button
             variant="ghost"
             className="w-full md:w-auto font-bold text-foreground hover:text-primary uppercase tracking-widest hover:bg-transparent"
