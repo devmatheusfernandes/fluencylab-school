@@ -1,8 +1,10 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
+import nextPWA from "@ducanh2912/next-pwa";
+
 if (typeof process !== "undefined") {
   const originalEmit = process.emit;
-  // @ts-ignore
+  // @ts-expect-error - process.emit types are strict but we need to override it to silence url.parse warnings
   process.emit = (name, data, ...args) => {
     if (
       name === "warning" &&
@@ -21,14 +23,14 @@ if (typeof process !== "undefined") {
 }
 
 // 1. Configuração do PWA
-const withPWA = require("@ducanh2912/next-pwa").default({
+const withPWA = nextPWA({
   dest: "public",
   cacheOnFrontEndNav: true,
   aggressiveFrontEndNavCaching: true,
   reloadOnOnline: true,
-  swcMinify: true,
   disable: process.env.NODE_ENV === "development",
   workboxOptions: {
+    importScripts: ["/custom-sw.js"],
     disableDevLogs: true,
     additionalManifestEntries: [{ url: "/~offline", revision: "1" }],
     runtimeCaching: [
@@ -137,7 +139,6 @@ const withPWA = require("@ducanh2912/next-pwa").default({
       },
     ],
   },
-  importScripts: ["/custom-sw.js"],
 });
 
 const nextConfig: NextConfig = {

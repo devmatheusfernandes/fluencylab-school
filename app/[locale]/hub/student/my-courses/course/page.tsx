@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -61,7 +61,7 @@ export default function CourseDetailPageContent() {
   const [progressPercentage, setProgressPercentage] = useState(0);
 
   // --- USE EFFECT (Lógica mantida original) ---
-  const fetchCourseDetails = async () => {
+  const fetchCourseDetails = useCallback(async () => {
     if (!session?.user?.id || !courseId) return;
     setLoading(true);
     try {
@@ -118,7 +118,7 @@ export default function CourseDetailPageContent() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [session?.user?.id, courseId, router, t]);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -134,7 +134,7 @@ export default function CourseDetailPageContent() {
     if (status === "authenticated" && session?.user?.id) {
       fetchCourseDetails();
     }
-  }, [session, status, router, courseId]);
+  }, [session?.user?.id, status, router, courseId, fetchCourseDetails, t]);
 
   // --- HANDLERS (Lógica mantida original) ---
   const handleEnroll = async () => {

@@ -38,7 +38,7 @@ export const useTeacherCalendarData = (teacherId: string) => {
     } finally {
       setIsLoading(false);
     }
-  }, [teacherId]);
+  }, []);
 
   return {
     isLoading,

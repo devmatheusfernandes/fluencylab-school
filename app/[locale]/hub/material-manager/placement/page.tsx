@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import {
   Play,
   Pause,
@@ -99,22 +99,22 @@ export default function ContentCuratorPage() {
   const [playingId, setPlayingId] = useState<string | null>(null);
 
   // --- 1. Lógica de Carregamento ---
-  const fetchQuestions = async () => {
+  const fetchQuestions = useCallback(async () => {
     setIsLoading(true);
     try {
       const q = query(
         collection(db, "placement_questions"),
-        where("lang", "==", activeLang)
+        where("lang", "==", activeLang),
       );
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
         const firebaseData = querySnapshot.docs.map(
-          (doc) => doc.data() as Question
+          (doc) => doc.data() as Question,
         );
         // Ordena por ID para ficar bonito na lista
         firebaseData.sort((a, b) =>
-          a.id.localeCompare(b.id, undefined, { numeric: true })
+          a.id.localeCompare(b.id, undefined, { numeric: true }),
         );
         setQuestions(firebaseData);
         setDataSource("firebase");
@@ -132,17 +132,17 @@ export default function ContentCuratorPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [activeLang]);
 
   useEffect(() => {
     fetchQuestions();
-  }, [activeLang]);
+  }, [fetchQuestions]);
 
   // --- 2. Upload (JSON Local -> Firebase) ---
   const handleSyncToFirebase = async () => {
     if (
       !confirm(
-        "Isso irá sobrescrever o banco de dados com os arquivos JSON locais. Continuar?"
+        "Isso irá sobrescrever o banco de dados com os arquivos JSON locais. Continuar?",
       )
     )
       return;
@@ -183,7 +183,7 @@ export default function ContentCuratorPage() {
       // Baixa TODOS do idioma atual, não apenas os filtrados na tela
       const q = query(
         collection(db, "placement_questions"),
-        where("lang", "==", activeLang)
+        where("lang", "==", activeLang),
       );
       const querySnapshot = await getDocs(q);
       const rawData = querySnapshot.docs.map((doc) => doc.data() as Question);
@@ -224,7 +224,7 @@ export default function ContentCuratorPage() {
       await setDoc(doc(db, "placement_questions", firestoreId), payload);
 
       toast.success(
-        editingQuestion ? "Questão atualizada!" : "Questão criada!"
+        editingQuestion ? "Questão atualizada!" : "Questão criada!",
       );
       setIsDialogOpen(false);
       setEditingQuestion(null);
@@ -273,7 +273,7 @@ export default function ContentCuratorPage() {
         q.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
         q.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
         q.topics.some((t) =>
-          t.toLowerCase().includes(searchTerm.toLowerCase())
+          t.toLowerCase().includes(searchTerm.toLowerCase()),
         );
       const matchesLevel = activeLevel === "all" || q.level === activeLevel;
       return matchesSearch && matchesLevel;
@@ -488,7 +488,7 @@ function QuestionReviewCard({
             <div className="flex gap-2 items-center">
               <div
                 className={`h-2.5 w-2.5 rounded-full ${getLevelColor(
-                  question.level
+                  question.level,
                 )}`}
               />
               <Badge
@@ -499,7 +499,7 @@ function QuestionReviewCard({
               </Badge>
               <Badge
                 className={`${getLevelColor(
-                  question.level
+                  question.level,
                 )} text-white border-none hover:opacity-90`}
               >
                 {question.level}
@@ -643,12 +643,17 @@ function QuestionEditorDialog({
 }) {
   // Estado local do formulário
   const [formData, setFormData] = useState<Question>(EMPTY_QUESTION);
+  const [prevQuestionData, setPrevQuestionData] = useState<Question | null>(
+    null,
+  );
 
-  useEffect(() => {
+  // Sincronizando estado com as props durante a renderização para evitar useEffect
+  if (questionData !== prevQuestionData) {
+    setPrevQuestionData(questionData);
     if (questionData) {
       setFormData(questionData);
     }
-  }, [questionData]);
+  }
 
   const handleChange = (field: keyof Question, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));

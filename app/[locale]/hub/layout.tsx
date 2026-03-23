@@ -186,5 +186,9 @@ export default function HubLayout({ children }: { children: React.ReactNode }) {
     return null;
   }
 
-  return <HubLayoutContent session={session} children={children} />;
+  return (
+    <HubLayoutContent session={session}>
+      {children}
+    </HubLayoutContent>
+  );
 }

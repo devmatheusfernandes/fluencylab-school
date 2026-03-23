@@ -21,10 +21,10 @@ export async function getRandomWord(
     const langCode = langMap[language] || language.toLowerCase();
 
     // Importa o JSON dinamicamente
-    const module = await import(`@/vocabulary/${langCode}.json`);
+    const langModule = await import(`@/vocabulary/${langCode}.json`);
     
     // Pega o conteúdo (lidando com export default ou direto)
-    const data = module.default || module;
+    const data = langModule.default || langModule;
 
     // VERIFICAÇÃO 1: O array 'words' existe?
     if (!data.words || !Array.isArray(data.words) || data.words.length === 0) {
