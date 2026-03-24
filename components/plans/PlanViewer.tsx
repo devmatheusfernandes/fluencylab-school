@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { Plan } from "@/types/learning/plan";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import { CheckCircle2, Lock } from "lucide-react";
+import { CheckCircle2, Lock, BookOpen } from "lucide-react";
 
 interface PlanViewerProps {
   plan: Plan;
@@ -102,20 +102,33 @@ export function PlanViewer({ plan, totalScheduledClasses }: PlanViewerProps) {
                       )}
                     </div>
                     <div>
-                      <p
-                        className={cn(
-                          "font-medium",
-                          isLessonPast &&
-                            "text-muted-foreground line-through decoration-border",
-                        )}
-                      >
-                        {lesson.title}
-                        {isLessonPast && (
-                          <span className="ml-2 text-xs font-normal text-muted-foreground no-underline">
-                            ({t("pastLesson")})
+                      <div className="flex items-center gap-2">
+                        <p
+                          className={cn(
+                            "font-medium",
+                            isLessonPast &&
+                              "text-muted-foreground line-through decoration-border",
+                          )}
+                        >
+                          {lesson.title}
+                          {isLessonPast && (
+                            <span className="ml-2 text-xs font-normal text-muted-foreground no-underline">
+                              ({t("pastLesson")})
+                            </span>
+                          )}
+                        </p>
+                        {lesson.isDraft && (
+                          <span className="text-[10px] bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 px-1.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-800 flex items-center gap-1 font-bold">
+                            <BookOpen className="w-3 h-3" />
+                            {t("isDraft").toUpperCase()}
                           </span>
                         )}
-                      </p>
+                      </div>
+                      {lesson.isDraft && lesson.goal && (
+                        <p className="text-xs text-muted-foreground italic">
+                          {lesson.goal}
+                        </p>
+                      )}
                       {lesson.scheduledDate && (
                         <p className="text-xs text-muted-foreground">
                           {new Date(lesson.scheduledDate).toLocaleDateString(

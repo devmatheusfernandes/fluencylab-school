@@ -19,6 +19,9 @@ import {
   Search,
   Lock,
   AlertCircle,
+  BookOpen,
+  RefreshCw,
+  X as CloseIcon,
 } from "lucide-react";
 import { CEFRLevel } from "@/types/learning/lesson";
 import { Plan, PlanType } from "@/types/learning/plan";
@@ -67,6 +70,13 @@ export function PlanEditor({
   >([]);
   const [searching, setSearching] = useState(false);
 
+  // Draft state
+  const [draftTopic, setDraftTopic] = useState("");
+  const [draftGoal, setDraftGoal] = useState("");
+  const [replacingLessonIndex, setReplacingLessonIndex] = useState<
+    number | null
+  >(null);
+
   const isPast = (dateStr?: string | Date) => {
     if (!dateStr) return false;
     // Handle both Date objects and strings
@@ -101,21 +111,43 @@ export function PlanEditor({
     }
   };
 
+  const cancelReplacement = () => {
+    setReplacingLessonIndex(null);
+    setSearchQuery("");
+    setSearchResults([]);
+  };
+
   const addLesson = (lesson: {
     id: string;
     title: string;
     relatedLearningItemIds?: string[];
     relatedLearningStructureIds?: string[];
   }) => {
-    if (lessons.find((l) => l.id === lesson.id)) {
+    if (
+      replacingLessonIndex === null &&
+      lessons.find((l) => l.id === lesson.id)
+    ) {
       toast.warning(t("toasts.lessonAlreadyAdded"));
       return;
     }
+
     // Create a new PlanLesson object
-    const newLesson: Plan["lessons"][0] = {
+    const newLessonData: Plan["lessons"][0] = {
       id: lesson.id,
       title: lesson.title,
-      order: lessons.length,
+      order:
+        replacingLessonIndex !== null
+          ? lessons[replacingLessonIndex].order
+          : lessons.length,
+      // Carry over scheduling info if replacing
+      scheduledClassId:
+        replacingLessonIndex !== null
+          ? lessons[replacingLessonIndex].scheduledClassId
+          : undefined,
+      scheduledDate:
+        replacingLessonIndex !== null
+          ? lessons[replacingLessonIndex].scheduledDate
+          : undefined,
       learningItemsIds:
         lesson.relatedLearningItemIds?.map((id) => ({
           id,
@@ -127,9 +159,41 @@ export function PlanEditor({
           updatedAt: new Date(),
         })) || [],
     };
-    setLessons([...lessons, newLesson]);
+
+    if (replacingLessonIndex !== null) {
+      const newLessons = [...lessons];
+      newLessons[replacingLessonIndex] = newLessonData;
+      setLessons(newLessons);
+      setReplacingLessonIndex(null);
+      toast.success(t("toasts.lessonReplaced"));
+    } else {
+      setLessons([...lessons, newLessonData]);
+    }
+
     setSearchResults([]); // Clear search after adding
     setSearchQuery("");
+  };
+
+  const addDraftLesson = () => {
+    if (!draftTopic.trim()) {
+      toast.warning(t("toasts.topicRequired"));
+      return;
+    }
+
+    const newLesson: Plan["lessons"][0] = {
+      id: `draft-${Date.now()}`,
+      title: draftTopic,
+      order: lessons.length,
+      isDraft: true,
+      topic: draftTopic,
+      goal: draftGoal,
+      learningItemsIds: [],
+      learningStructureIds: [],
+    };
+
+    setLessons([...lessons, newLesson]);
+    setDraftTopic("");
+    setDraftGoal("");
   };
 
   const removeLesson = (index: number) => {
@@ -248,20 +312,42 @@ export function PlanEditor({
         <h3 className="text-lg font-semibold mb-4">{t("lessonsTitle")}</h3>
 
         {/* Search Bar */}
-        <div className="flex gap-2 mb-4">
-          <Input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={t("searchPlaceholder")}
-            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          />
-          <Button
-            variant="secondary"
-            onClick={handleSearch}
-            disabled={searching}
-          >
-            {searching ? t("searching") : <Search className="w-4 h-4" />}
-          </Button>
+        <div className="flex flex-col gap-2 mb-4">
+          {replacingLessonIndex !== null && (
+            <div className="flex items-center justify-between p-2 bg-primary/10 border border-primary/20 rounded-md text-sm text-primary mb-2">
+              <span className="flex items-center gap-2">
+                <RefreshCw className="w-4 h-4 animate-spin-slow" />
+                {t("replacingLesson", {
+                  title: lessons[replacingLessonIndex].title,
+                })}
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={cancelReplacement}
+                className="h-7 text-primary hover:bg-primary/20"
+              >
+                <CloseIcon className="w-4 h-4 mr-1" />
+                {t("cancel")}
+              </Button>
+            </div>
+          )}
+          <div className="flex gap-2">
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t("searchPlaceholder")}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              className={cn(replacingLessonIndex !== null && "border-primary")}
+            />
+            <Button
+              variant={replacingLessonIndex !== null ? "ghost" : "secondary"}
+              onClick={handleSearch}
+              disabled={searching}
+            >
+              {searching ? t("searching") : <Search className="w-4 h-4" />}
+            </Button>
+          </div>
         </div>
 
         {/* Search Results */}
@@ -283,6 +369,48 @@ export function PlanEditor({
           </div>
         )}
 
+        {/* Draft Lesson Creator */}
+        <div className="mb-6 p-4 border-2 border-dashed rounded-lg bg-accent/5 space-y-4">
+          <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+            <Plus className="w-4 h-4" />
+            {t("addDraftTitle")}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs">{t("topicLabel")}</Label>
+              <Input
+                size={1}
+                value={draftTopic}
+                onChange={(e) => setDraftTopic(e.target.value)}
+                placeholder={t("topicPlaceholder")}
+                className="h-9"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">{t("lessonGoalLabel")}</Label>
+              <Input
+                size={1}
+                value={draftGoal}
+                onChange={(e) => setDraftGoal(e.target.value)}
+                placeholder={t("lessonGoalPlaceholder")}
+                className="h-9"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={addDraftLesson}
+              disabled={!draftTopic.trim()}
+              className="gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              {t("addDraftButton")}
+            </Button>
+          </div>
+        </div>
+
         {/* Lesson List */}
         <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
           {lessons.length === 0 ? (
@@ -297,8 +425,10 @@ export function PlanEditor({
                 <Card
                   key={lesson.id}
                   className={cn(
-                    "p-3 flex items-center gap-3 transition-colors",
+                    "p-3 flex items-center gap-3 transition-all",
                     isLocked ? "bg-muted/50 border-muted" : "bg-card",
+                    replacingLessonIndex === index &&
+                      "ring-2 ring-primary border-primary bg-primary/5",
                   )}
                 >
                   <div className="flex flex-col gap-1 text-muted-foreground">
@@ -329,37 +459,71 @@ export function PlanEditor({
                       isLocked
                         ? "bg-muted-foreground/20 text-muted-foreground"
                         : "bg-muted",
+                      replacingLessonIndex === index && "bg-primary text-white",
                     )}
                   >
                     {isLocked ? <Lock className="w-4 h-4" /> : index + 1}
                   </div>
                   <div
                     className={cn(
-                      "flex-1 font-medium",
+                      "flex-1 font-medium flex flex-col gap-0.5",
                       isLocked &&
                         "text-muted-foreground line-through decoration-border",
                     )}
                   >
-                    {lesson.title}
-                    {isLocked && (
-                      <span className="ml-2 text-xs font-normal text-muted-foreground no-underline inline-flex items-center gap-1">
-                        ({t("pastLesson")})
+                    <div className="flex items-center gap-2">
+                      {lesson.title}
+                      {lesson.isDraft && (
+                        <span className="text-[10px] bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 px-1.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-800 flex items-center gap-1 font-bold">
+                          <BookOpen className="w-3 h-3" />
+                          {t("isDraft").toUpperCase()}
+                        </span>
+                      )}
+                      {isLocked && (
+                        <span className="ml-2 text-xs font-normal text-muted-foreground no-underline inline-flex items-center gap-1">
+                          ({t("pastLesson")})
+                        </span>
+                      )}
+                    </div>
+                    {lesson.isDraft && lesson.goal && (
+                      <span className="text-xs text-muted-foreground font-normal line-clamp-1 italic">
+                        {lesson.goal}
                       </span>
                     )}
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={cn(
-                      "text-destructive hover:bg-destructive/10",
-                      isLocked &&
-                        "opacity-50 cursor-not-allowed hover:bg-transparent text-muted-foreground",
+                  <div className="flex items-center gap-1">
+                    {lesson.isDraft && !isLocked && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={cn(
+                          "text-primary hover:bg-primary/10",
+                          replacingLessonIndex === index && "bg-primary/20",
+                        )}
+                        onClick={() =>
+                          setReplacingLessonIndex(
+                            replacingLessonIndex === index ? null : index,
+                          )
+                        }
+                        title={t("replaceLesson")}
+                      >
+                        <RefreshCw className="w-4 h-4" />
+                      </Button>
                     )}
-                    onClick={() => removeLesson(index)}
-                    disabled={isLocked}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={cn(
+                        "text-destructive hover:bg-destructive/10",
+                        isLocked &&
+                          "opacity-50 cursor-not-allowed hover:bg-transparent text-muted-foreground",
+                      )}
+                      onClick={() => removeLesson(index)}
+                      disabled={isLocked}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </Card>
               );
             })

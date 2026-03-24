@@ -232,7 +232,8 @@
     "lesson": "Lesson {order}: {title}",
     "scheduledFor": "Scheduled for {date}",
     "createPlan": "Create Plan",
-    "editPlan": "Edit Plan"
+    "editPlan": "Edit Plan",
+    "isDraft": "Draft"
   },
   "NotFound": {
     "title": "Page Not Found",
@@ -284,7 +285,8 @@
       "noActivePlan": "No active plan found.",
       "noCompletedLessons": "No completed lessons yet.",
       "noPastPlans": "No past plans available.",
-      "noDate": "No Date"
+      "noDate": "No date",
+      "draft": "Draft"
     },
     "labels": {
       "days": "Days",
@@ -2992,9 +2994,20 @@
       "saving": "Saving...",
       "lockedLesson": "Past lessons cannot be moved or removed.",
       "pastLesson": "Past Lesson",
+      "addDraftTitle": "Add Draft Lesson",
+      "topicLabel": "Lesson Topic",
+      "topicPlaceholder": "Ex: Introduction to Present Perfect",
+      "lessonGoalLabel": "Lesson Goal",
+      "lessonGoalPlaceholder": "Ex: Student will be able to talk about past experiences",
+      "addDraftButton": "Add Draft",
+      "isDraft": "Draft",
+      "replaceLesson": "Replace with existing lesson",
+      "replacingLesson": "Replacing draft: {title}",
       "toasts": {
         "searchError": "Error searching lessons",
+        "topicRequired": "Draft lesson topic is required",
         "lessonAlreadyAdded": "Lesson already added to plan",
+        "lessonReplaced": "Lesson replaced successfully!",
         "nameRequired": "Plan name is required",
         "minLessons": "Add at least one lesson",
         "saveSuccess": "Plan saved successfully!",
@@ -3006,9 +3019,10 @@
       "plannedClasses": "{planned} of {total} planned classes",
       "remainingClasses": "{count} classes remaining to be planned.",
       "allPlanned": "All scheduled classes have defined content.",
-      "scheduleTitle": "Class Schedule",
+      "scheduleTitle": "Lesson Schedule",
       "noLessons": "No lessons in this plan.",
       "pastLesson": "Past Lesson",
+      "isDraft": "Draft",
       "status": {
         "scheduled": "Scheduled",
         "completed": "Completed"

@@ -218,7 +218,8 @@
     "lesson": "Lição {order}: {title}",
     "scheduledFor": "Agendado para {date}",
     "createPlan": "Criar Plano",
-    "editPlan": "Editar Plano"
+    "editPlan": "Editar Plano",
+    "isDraft": "Rascunho"
   },
   "NotFound": {
     "title": "Página não encontrada",
@@ -270,7 +271,8 @@
       "noActivePlan": "Nenhum plano ativo encontrado.",
       "noCompletedLessons": "Nenhuma aula concluída ainda.",
       "noPastPlans": "Sem planos anteriores disponíveis.",
-      "noDate": "Sem data"
+      "noDate": "Sem data",
+      "draft": "Rascunho"
     },
     "labels": {
       "days": "Dias",
@@ -2977,9 +2979,20 @@
       "saving": "Salvando...",
       "lockedLesson": "Lições passadas não podem ser movidas ou removidas.",
       "pastLesson": "Aula Passada",
+      "addDraftTitle": "Adicionar Aula Rascunho",
+      "topicLabel": "Tópico da Aula",
+      "topicPlaceholder": "Ex: Introdução ao Present Perfect",
+      "lessonGoalLabel": "Objetivo da Aula",
+      "lessonGoalPlaceholder": "Ex: O aluno será capaz de falar sobre experiências passadas",
+      "addDraftButton": "Adicionar Rascunho",
+      "isDraft": "Rascunho",
+      "replaceLesson": "Substituir por lição existente",
+      "replacingLesson": "Substituindo rascunho: {title}",
       "toasts": {
         "searchError": "Erro ao buscar lições",
+        "topicRequired": "O tópico da aula rascunho é obrigatório",
         "lessonAlreadyAdded": "Lição já adicionada ao plano",
+        "lessonReplaced": "Lição substituída com sucesso!",
         "nameRequired": "Nome do plano é obrigatório",
         "minLessons": "Adicione pelo menos uma lição",
         "saveSuccess": "Plano salvo com sucesso!",
@@ -2994,6 +3007,7 @@
       "scheduleTitle": "Cronograma de Aulas",
       "noLessons": "Nenhuma aula neste plano.",
       "pastLesson": "Aula Passada",
+      "isDraft": "Rascunho",
       "status": {
         "scheduled": "Agendada",
         "completed": "Concluída"

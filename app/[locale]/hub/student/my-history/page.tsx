@@ -36,12 +36,12 @@ import {
   PlayCircle,
   Lock,
   CalendarDays,
-  Coins,
   Map,
   CheckCircle,
   Clock,
   Archive,
   ArrowLeft,
+  BookOpen,
 } from "lucide-react";
 import { format, isFuture, isToday } from "date-fns";
 import { useStudentPanel } from "@/hooks/student/useStudentPanel";
@@ -251,17 +251,34 @@ export default function HistoryPage() {
                       >
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                           <div>
-                            <h3
-                              className={cn(
-                                "font-semibold text-lg",
-                                status === "future" && "text-muted-foreground"
+                            <div className="flex items-center gap-2">
+                              <h3
+                                className={cn(
+                                  "font-semibold text-lg",
+                                  status === "future" && "text-muted-foreground"
+                                )}
+                              >
+                                {lesson.title}
+                              </h3>
+                              {lesson.isDraft && (
+                                <span className="text-[10px] bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 px-1.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-800 flex items-center gap-1 font-bold">
+                                  <BookOpen className="w-3 h-3" />
+                                  {/* {t("empty.draft").toUpperCase()} */}
+                                </span>
                               )}
-                            >
-                              {lesson.title}
-                            </h3>
+                            </div>
+                            {lesson.isDraft && lesson.goal && (
+                              <p className="text-xs text-muted-foreground italic mt-0.5 line-clamp-1">
+                                {lesson.goal}
+                              </p>
+                            )}
                             <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
                               <CalendarDays className="w-3 h-3" />
-                              <span>{format(scheduledDate, "PPP")}</span>
+                              <span>
+                                {lesson.scheduledDate
+                                  ? format(scheduledDate, "PPP")
+                                  : t("empty.noDate")}
+                              </span>
                               {status !== "future" && (
                                 <span
                                   className={cn(
@@ -281,9 +298,10 @@ export default function HistoryPage() {
                           <div className="flex items-center gap-2">
                             {status === "current" && (
                               <Button
-                                onClick={() => handleStartLesson(lesson)}
+                                onClick={() => !lesson.isDraft && handleStartLesson(lesson)}
                                 size="sm"
                                 className="w-full sm:w-auto"
+                                disabled={lesson.isDraft}
                               >
                                 {t("actions.continuePractice")}
                               </Button>

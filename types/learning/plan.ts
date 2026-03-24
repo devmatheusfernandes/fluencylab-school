@@ -50,6 +50,11 @@ export interface Plan {
     title: string; // Título da Lesson (Denormalizado para UI rápida)
     order: number; // Ordem na Sequência do Plano
 
+    // Campos para aula rascunho (draft)
+    isDraft?: boolean;
+    topic?: string;
+    goal?: string;
+
     // Conexão com a Agenda
     scheduledClassId?: string; // ID da aula agendada (StudentClass) vinculada a esta lição
     scheduledDate?: Date | string; // Data agendada (redundância útil para UI)

@@ -225,9 +225,27 @@ export default function PlanCalendarCard({
               className="p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors flex flex-col gap-1"
             >
               <div className="flex justify-between items-start">
-                <Text className="font-medium text-sm">
-                  {t("lesson", { order: lesson.order, title: lesson.title })}
-                </Text>
+                <div className="flex flex-col gap-0.5">
+                  <div className="flex items-center gap-2">
+                    <Text className="font-medium text-sm">
+                      {t("lesson", {
+                        order: lesson.order + 1,
+                        title: lesson.title,
+                      })}
+                    </Text>
+                    {lesson.isDraft && (
+                       <span className="text-[10px] bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 px-1.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-800 flex items-center gap-1 font-bold">
+                         <BookOpen className="w-3 h-3" />
+                         {t("isDraft").toUpperCase()}
+                       </span>
+                     )}
+                  </div>
+                  {lesson.isDraft && lesson.goal && (
+                    <Text className="text-xs text-muted-foreground italic line-clamp-1">
+                      {lesson.goal}
+                    </Text>
+                  )}
+                </div>
                 {lesson.scheduledDate && (
                   <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full whitespace-nowrap">
                     {format(new Date(lesson.scheduledDate), "dd 'de' MMM", {
