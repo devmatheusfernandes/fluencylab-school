@@ -67,6 +67,16 @@ const serverEnvSchema = z.object({
   GOOGLE_CLIENT_ID: z.string().min(1, "GOOGLE_CLIENT_ID é obrigatório"),
   GOOGLE_CLIENT_SECRET: z.string().min(1, "GOOGLE_CLIENT_SECRET é obrigatório"),
 
+  // Stream (Chat/Video)
+  NEXT_PUBLIC_STREAM_API_KEY: z.string().optional(),
+  STREAM_SECRET: z.string().optional(),
+
+  // Cron Jobs (optional)
+  CRON_SECRET: z.string().optional(),
+
+  // Third-party APIs (optional)
+  UNSPLASH_ACCESS_KEY: z.string().optional(),
+
   // Encryption
   ENCRYPTION_SECRET: z
     .string()
@@ -108,6 +118,8 @@ const clientEnvSchema = z.object({
     .string()
     .url("NEXT_PUBLIC_APP_URL deve ser uma URL válida")
     .default("http://localhost:3000"),
+
+  NEXT_PUBLIC_STREAM_API_KEY: z.string().optional(),
 
   // Web Push (optional)
   NEXT_PUBLIC_VAPID_PUBLIC_KEY: z.string().optional(),

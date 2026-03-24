@@ -6,13 +6,17 @@ import { UserService } from '@/services/core/userService';
 const userService = new UserService();
 
 export async function POST(request: Request) {
-  // Temporarily allow access without authentication for debugging
-  // const session = await getServerSession(authOptions);
-  
-  // Only allow admins to use this debug endpoint
-  // if (!session?.user || !session.user.role || session.user.role !== 'admin') {
-  //   return NextResponse.json({ error: 'Acesso não autorizado. Apenas admins podem usar este endpoint.' }, { status: 403 });
-  // }
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (session.user.role !== "admin") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   try {
     const { teacherId, studentId } = await request.json();
@@ -37,13 +41,17 @@ export async function POST(request: Request) {
 
 // GET endpoint to check current teacher-student relationships
 export async function GET(request: Request) {
-  // Temporarily allow access without authentication for debugging
-  // const session = await getServerSession(authOptions);
-  
-  // Only allow admins to use this debug endpoint
-  // if (!session?.user || !session.user.role || session.user.role !== 'admin') {
-  //   return NextResponse.json({ error: 'Acesso não autorizado. Apenas admins podem usar este endpoint.' }, { status: 403 });
-  // }
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (session.user.role !== "admin") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   const { searchParams } = new URL(request.url);
   const studentId = searchParams.get('studentId');

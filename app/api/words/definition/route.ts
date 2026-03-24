@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generalRateLimiter } from "@/lib/security/rateLimit";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 function uniqStrings(list: string[], max: number) {
   const seen = new Set<string>();
@@ -340,6 +342,11 @@ async function fetchPortugueseSynonymsFromOpenDicio(word: string) {
 }
 
 export async function GET(request: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const rate = generalRateLimiter(request);
   if (rate.limited) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429 });

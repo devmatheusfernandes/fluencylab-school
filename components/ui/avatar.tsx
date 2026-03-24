@@ -209,7 +209,8 @@ const AvatarFallback = React.forwardRef<
         <Image
           src={assignedSrc}
           alt={name || "Avatar fallback"}
-          fill
+          width={500}
+          height={500}
           className="object-cover"
           unoptimized
         />

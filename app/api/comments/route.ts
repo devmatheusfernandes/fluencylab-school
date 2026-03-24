@@ -1,8 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { commentsService } from '@/services/communication/commentsService';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { commentsService } from "@/services/communication/commentsService";
 
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const docId = request.nextUrl.searchParams.get('docId');
     if (!docId) {
       return NextResponse.json({ error: 'Missing docId' }, { status: 400 });
@@ -10,13 +17,18 @@ export async function GET(request: NextRequest) {
     const comments = await commentsService.list(docId);
     return NextResponse.json(comments);
   } catch (error) {
-    console.error('[COMMENTS][GET] Error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("[COMMENTS][GET] Error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     const { docId, id, text } = body as { docId?: string; id?: string; text?: string };
     if (!docId || !id || typeof text !== 'string') {
@@ -25,7 +37,7 @@ export async function POST(request: NextRequest) {
     const record = await commentsService.upsert(docId, id, text.trim());
     return NextResponse.json(record);
   } catch (error) {
-    console.error('[COMMENTS][POST] Error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("[COMMENTS][POST] Error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
