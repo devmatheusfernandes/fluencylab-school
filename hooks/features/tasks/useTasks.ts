@@ -15,9 +15,6 @@ export function useTasks() {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    setLoading(true);
-    setError(null);
-
     const q = query(collection(db, "tasks"), orderBy("createdAt", "desc"));
 
     const unsubscribe = onSnapshot(

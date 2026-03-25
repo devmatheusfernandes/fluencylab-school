@@ -1,81 +1,51 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import useSWR from "swr";
 import { UserPermission } from "@/types/users/userPermissions";
 import { FullUserDetails } from "@/types/users/userDetails";
-import { useState, useEffect } from "react";
-import { User } from "@/types/users/users";
 
-/**
- * Hook customizado para obter os dados COMPLETOS do utilizador logado,
- * combinando a sessão do NextAuth com o perfil do Firestore.
- */
+const fetcher = async (url: string): Promise<FullUserDetails> => {
+  const res = await fetch(url);
+  if (!res.ok)
+    throw new Error("Falha ao buscar o perfil completo do utilizador.");
+  return res.json();
+};
+
 export const useCurrentUser = () => {
   const { data: session, status } = useSession();
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [isLoadingUser, setIsLoadingUser] = useState(true);
+  const isAuthenticated = status === "authenticated";
 
-  useEffect(() => {
-    const storageKey = "fluencylab.currentUser.v1";
+  const {
+    data: fullUser,
+    isLoading: isFetchingUser,
+    error,
+  } = useSWR<FullUserDetails>(
+    isAuthenticated ? "/api/users/me" : null,
+    fetcher,
+    {
+      fallbackData: session?.user as FullUserDetails | undefined,
+      keepPreviousData: true,
+    },
+  );
 
-    const fetchFullUser = async () => {
-      if (status === "authenticated") {
-        setIsLoadingUser(true);
-        try {
-          const response = await fetch("/api/users/me");
-          if (!response.ok) {
-            throw new Error("Falha ao buscar o perfil completo do utilizador.");
-          }
-          const userProfile: FullUserDetails = await response.json();
-          setCurrentUser(userProfile);
-
-          try {
-            localStorage.setItem(storageKey, JSON.stringify(userProfile));
-          } catch {}
-        } catch (error) {
-          console.error(error);
-
-          try {
-            const cached = localStorage.getItem(storageKey);
-            if (cached) {
-              setCurrentUser(JSON.parse(cached) as FullUserDetails);
-              return;
-            }
-          } catch {}
-
-          setCurrentUser(session.user as FullUserDetails);
-        } finally {
-          setIsLoadingUser(false);
-        }
-      } else if (status !== "loading") {
-        setCurrentUser(null);
-        setIsLoadingUser(false);
-
-        try {
-          localStorage.removeItem(storageKey);
-        } catch {}
-      }
-    };
-
-    fetchFullUser();
-  }, [status, session]);
+  const user = isAuthenticated
+    ? fullUser || (session?.user as FullUserDetails)
+    : null;
 
   return {
-    user: currentUser,
-    isLoading: status === "loading" || isLoadingUser,
-    isAuthenticated: status === "authenticated",
+    user,
+    isLoading:
+      status === "loading" || (isAuthenticated && isFetchingUser && !fullUser),
+    isAuthenticated,
+    error,
   };
 };
 
-/**
- * Hook customizado para verificar se o utilizador logado possui uma permissão específica.
- */
 export const useCan = (permission: UserPermission): boolean => {
   const { user, isAuthenticated } = useCurrentUser();
 
-  if (!isAuthenticated || !user?.permissions) {
-    return false;
-  }
+  if (!isAuthenticated || !user?.permissions) return false;
 
   return user.permissions.includes(permission);
 };

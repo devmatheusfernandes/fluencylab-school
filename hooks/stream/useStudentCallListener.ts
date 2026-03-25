@@ -14,33 +14,34 @@ export const useStudentCallListener = () => {
   useEffect(() => {
     if (status === "loading") return;
 
+    let unsubscribe: (() => void) | undefined;
+
     const userId = session?.user?.id;
     const userRole = session?.user?.role;
 
-    if (userRole !== "student" || !userId) {
-      setCallData(null);
-      return;
+    if (userRole === "student" && userId) {
+      const studentRef = doc(db, "users", userId);
+      unsubscribe = onSnapshot(
+        studentRef,
+        (docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            setCallData(data.callId ? { callId: data.callId } : null);
+          } else {
+            console.error("Documento do aluno não encontrado.");
+            setCallData(null);
+          }
+        },
+        (error) => {
+          console.error("Erro ao buscar callId no Firestore:", error);
+        },
+      );
     }
 
-    const studentRef = doc(db, "users", userId);
-
-    const unsubscribe = onSnapshot(
-      studentRef,
-      (docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          setCallData(data.callId ? { callId: data.callId } : null);
-        } else {
-          console.error("Documento do aluno não encontrado.");
-          setCallData(null);
-        }
-      },
-      (error) => {
-        console.error("Erro ao buscar callId no Firestore:", error);
-      },
-    );
-
-    return () => unsubscribe();
+    return () => {
+      if (unsubscribe) unsubscribe();
+      setCallData(null);
+    };
   }, [session?.user?.id, session?.user?.role, status]);
 
   return { callData, setCallData };

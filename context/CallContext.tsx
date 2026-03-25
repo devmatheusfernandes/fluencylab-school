@@ -51,7 +51,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
           body: JSON.stringify({
             studentId,
             notebookId,
-            callId: callData?.callId, // Usa o optional chaining com segurança
+            callId: callData?.callId,
           }),
         });
 
@@ -65,7 +65,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         return false;
       }
     },
-    [callData?.callId, setCallData],
+    [callData, setCallData],
   );
 
   const joinCall = useCallback(

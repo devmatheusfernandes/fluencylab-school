@@ -9,9 +9,6 @@ export function useFiscalYear(year: number) {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    setLoading(true);
-    setError(null);
-
     const docRef = doc(db, "fiscal_years", year.toString());
 
     const unsub = onSnapshot(

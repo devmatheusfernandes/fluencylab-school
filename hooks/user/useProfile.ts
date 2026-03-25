@@ -10,7 +10,7 @@ export const useProfile = () => {
   const updateUserProfile = async (profileData: Partial<User>) => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/profile', {
+      const response = await fetch('/api/users/me', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(profileData),
