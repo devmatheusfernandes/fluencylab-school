@@ -1,18 +1,8 @@
+import { createContext, useContext, useMemo, useCallback } from "react";
 import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-} from "react";
-import { useSession } from "next-auth/react";
-import { doc, onSnapshot } from "firebase/firestore";
-import { db } from "@/lib/firebase/config";
-
-type CallData = {
-  callId: string;
-};
+  useStudentCallListener,
+  CallData,
+} from "@/hooks/stream/useStudentCallListener";
 
 type CallContextType = {
   callData: CallData | null;
@@ -25,52 +15,23 @@ type CallContextType = {
 const CallContext = createContext<CallContextType | undefined>(undefined);
 
 export const CallProvider = ({ children }: { children: React.ReactNode }) => {
-  const [callData, setCallData] = useState<CallData | null>(null);
-  const { data: session } = useSession();
-
-  useEffect(() => {
-    // Apenas alunos precisam do listener do Firestore para receber chamadas
-    if (session?.user.role !== "student" || !session?.user?.id) {
-      return;
-    }
-
-    const studentRef = doc(db, "users", session.user.id);
-    const unsubscribe = onSnapshot(
-      studentRef,
-      (docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          const callId = data.callId;
-          setCallData(callId ? { callId } : null);
-        } else {
-          console.error("Documento do aluno não encontrado.");
-          setCallData(null);
-        }
-      },
-      (error) => {
-        console.error("Erro ao buscar callId no Firestore:", error);
-      },
-    );
-
-    return () => unsubscribe();
-  }, [session?.user?.id, session?.user?.role]);
+  // O hook gerencia toda a complexidade do Firestore silenciosamente aqui
+  const { callData, setCallData } = useStudentCallListener();
 
   const startCall = useCallback(
     async (studentId: string): Promise<string | null> => {
       try {
-        const body = { studentId };
         const res = await fetch("/api/calls/start", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
+          body: JSON.stringify({ studentId }),
         });
 
-        if (!res.ok) {
-          return null;
-        }
+        if (!res.ok) return null;
 
         const data = await res.json();
         const id = data.callId as string;
+
         if (id) setCallData({ callId: id });
         return id ?? null;
       } catch (error) {
@@ -78,7 +39,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         return null;
       }
     },
-    [],
+    [setCallData],
   );
 
   const endCall = useCallback(
@@ -90,7 +51,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
           body: JSON.stringify({
             studentId,
             notebookId,
-            callId: callData?.callId,
+            callId: callData?.callId, // Usa o optional chaining com segurança
           }),
         });
 
@@ -104,13 +65,16 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
         return false;
       }
     },
-    [callData],
+    [callData?.callId, setCallData],
   );
 
-  const joinCall = useCallback((id: string) => {
-    if (!id) return;
-    setCallData({ callId: id });
-  }, []);
+  const joinCall = useCallback(
+    (id: string) => {
+      if (!id) return;
+      setCallData({ callId: id });
+    },
+    [setCallData],
+  );
 
   const value = useMemo(
     () => ({
@@ -120,7 +84,7 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
       endCall,
       joinCall,
     }),
-    [callData, startCall, endCall, joinCall],
+    [callData, setCallData, startCall, endCall, joinCall],
   );
 
   return <CallContext.Provider value={value}>{children}</CallContext.Provider>;
@@ -128,7 +92,8 @@ export const CallProvider = ({ children }: { children: React.ReactNode }) => {
 
 export const useCallContext = () => {
   const context = useContext(CallContext);
-  if (!context)
+  if (!context) {
     throw new Error("useCallContext must be used within a CallProvider");
+  }
   return context;
 };

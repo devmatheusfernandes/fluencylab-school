@@ -1,7 +1,7 @@
-'use client';
-import { Payment } from '@/types/financial/payments';
-import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
+"use client";
+import { Payment } from "@/types/financial/payments";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
 
 // 1. A lógica de busca de dados foi movida para um hook customizado
 export const useUserFinancials = (userId: string) => {
@@ -17,7 +17,7 @@ export const useUserFinancials = (userId: string) => {
         const response = await fetch(`/api/admin/users/${userId}/financials`);
         if (!response.ok) {
           const data = await response.json();
-          throw new Error(data.error || 'Falha ao buscar dados financeiros.');
+          throw new Error(data.error || "Falha ao buscar dados financeiros.");
         }
         const data = await response.json();
         setPayments(data);
