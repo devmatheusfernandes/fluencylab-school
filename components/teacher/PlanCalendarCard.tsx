@@ -42,10 +42,10 @@ export default function PlanCalendarCard({
   const dateLocale = locale === "pt" ? ptBR : enUS;
 
   const [selectedMonth, setSelectedMonth] = useState<number>(
-    new Date().getMonth()
+    new Date().getMonth(),
   );
   const [selectedYear, setSelectedYear] = useState<number>(
-    new Date().getFullYear()
+    new Date().getFullYear(),
   );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -108,7 +108,7 @@ export default function PlanCalendarCard({
   }
 
   const EditorDialog = () => (
-    <ModalContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+    <ModalContent className="max-w-7xl max-h-[90vh]">
       <PlanEditor
         mode={plan ? "edit" : "create"}
         type="student"
@@ -222,7 +222,7 @@ export default function PlanCalendarCard({
           filteredLessons.map((lesson) => (
             <div
               key={lesson.id}
-              className="p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors flex flex-col gap-1"
+              className="p-3 rounded-lg border item-base transition-colors flex flex-col gap-1"
             >
               <div className="flex justify-between items-start">
                 <div className="flex flex-col gap-0.5">
@@ -234,11 +234,11 @@ export default function PlanCalendarCard({
                       })}
                     </Text>
                     {lesson.isDraft && (
-                       <span className="text-[10px] bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 px-1.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-800 flex items-center gap-1 font-bold">
-                         <BookOpen className="w-3 h-3" />
-                         {t("isDraft").toUpperCase()}
-                       </span>
-                     )}
+                      <span className="text-[10px] bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 px-1.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-800 flex items-center gap-1 font-bold">
+                        <BookOpen className="w-3 h-3" />
+                        {t("isDraft").toUpperCase()}
+                      </span>
+                    )}
                   </div>
                   {lesson.isDraft && lesson.goal && (
                     <Text className="text-xs text-muted-foreground italic line-clamp-1">

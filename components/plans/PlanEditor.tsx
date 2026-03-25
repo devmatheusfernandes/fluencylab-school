@@ -425,7 +425,7 @@ export function PlanEditor({
                 <Card
                   key={lesson.id}
                   className={cn(
-                    "p-3 flex items-center gap-3 transition-all",
+                    "item-base p-3 flex items-center gap-3 transition-all",
                     isLocked ? "bg-muted/50 border-muted" : "bg-card",
                     replacingLessonIndex === index &&
                       "ring-2 ring-primary border-primary bg-primary/5",

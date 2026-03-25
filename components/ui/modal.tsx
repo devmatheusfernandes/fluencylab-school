@@ -1,12 +1,12 @@
 "use client";
 
 import * as React from "react";
-import * as Dialog from "@radix-ui/react-dialog";
+import { Drawer } from "vaul";
 import { twMerge } from "tailwind-merge";
 import { VisuallyHidden } from "./visually-hidden";
 
 import Image from "next/image";
-import { motion, AnimatePresence, HTMLMotionProps } from "framer-motion";
+import { motion, HTMLMotionProps } from "framer-motion";
 import { defaultIcons } from "./modal-icons";
 import { X } from "lucide-react";
 import { Input } from "./input";
@@ -17,7 +17,7 @@ interface ModalContextProps {
 }
 
 const ModalContext = React.createContext<ModalContextProps | undefined>(
-  undefined
+  undefined,
 );
 
 // Modal Root Component
@@ -27,9 +27,9 @@ const Modal = ({
   onOpenChange,
   defaultOpen,
   ...props
-}: React.ComponentProps<typeof Dialog.Root>) => {
+}: React.ComponentProps<typeof Drawer.Root>) => {
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(
-    defaultOpen ?? false
+    defaultOpen ?? false,
   );
 
   const isOpen = controlledOpen ?? uncontrolledOpen;
@@ -42,31 +42,31 @@ const Modal = ({
   };
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={handleOpenChange} {...props}>
+    <Drawer.Root open={isOpen} onOpenChange={handleOpenChange} {...props}>
       <ModalContext.Provider value={{ isOpen, setIsOpen: handleOpenChange }}>
         {children}
       </ModalContext.Provider>
-    </Dialog.Root>
+    </Drawer.Root>
   );
 };
 
 // Modal Trigger Component
-const ModalTrigger = Dialog.Trigger;
+const ModalTrigger = Drawer.Trigger;
 
 // Modal Portal Component
-const ModalPortal = Dialog.Portal;
+const ModalPortal = Drawer.Portal;
 
 // Modal Overlay Component
 const ModalOverlay = React.forwardRef<
-  React.ComponentRef<typeof Dialog.Overlay>,
-  React.ComponentPropsWithoutRef<typeof Dialog.Overlay>
+  React.ComponentRef<typeof Drawer.Overlay>,
+  React.ComponentPropsWithoutRef<typeof Drawer.Overlay>
 >(({ className, ...props }, ref) => {
   return (
-    <Dialog.Overlay
+    <Drawer.Overlay
       ref={ref}
       className={twMerge(
         "fixed inset-0 z-50 bg-black/50 backdrop-blur-sm",
-        className
+        className,
       )}
       {...props}
     />
@@ -74,141 +74,43 @@ const ModalOverlay = React.forwardRef<
 });
 ModalOverlay.displayName = "ModalOverlay";
 
-// Modal Content Component (Bottom Sheet Style)
+// Modal Content Component (Bottom Sheet Style powered by Vaul)
 const ModalContent = React.forwardRef<
-  React.ComponentRef<typeof motion.div>,
-  React.ComponentPropsWithoutRef<typeof Dialog.Content> & {
+  React.ComponentRef<typeof Drawer.Content>,
+  React.ComponentPropsWithoutRef<typeof Drawer.Content> & {
     showHandle?: boolean;
-  } & HTMLMotionProps<"div">
->(({ className, children, showHandle = true, ...props }, ref) => {
-  const context = React.useContext(ModalContext);
-
-  // Prevent body scroll when modal is open
-  React.useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, []);
-
-  if (!context) {
-    return (
-      <Dialog.Portal>
-        <AnimatePresence>
-          <Dialog.Overlay asChild>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end justify-center"
-            >
-              <Dialog.Content
-                className={twMerge(
-                  `relative w-full max-w-lg mx-4 mb-4 sm:mb-6 no-scrollbar
-                  bg-white dark:bg-gray-900/95 
-                  backdrop-blur-xl
-                  rounded-2xl shadow-2xl
-                  border border-gray-200/50 dark:border-gray-700/50
-                  overflow-hidden`,
-                  className
-                )}
-                asChild
-                {...props}
-              >
-                <motion.div
-                  ref={ref}
-                  initial={{ y: "100%", opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: "100%", opacity: 0 }}
-                  transition={{
-                    type: "spring",
-                    damping: 25,
-                    stiffness: 300,
-                    duration: 0.3,
-                  }}
-                >
-                  {/* Handle Bar */}
-                  {showHandle && (
-                    <div className="flex justify-center pt-2 pb-6">
-                      <div className="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full" />
-                    </div>
-                  )}
-
-                  {/* Hidden title for accessibility - required by Radix UI Dialog */}
-                  <VisuallyHidden>
-                    <Dialog.Title>Modal</Dialog.Title>
-                  </VisuallyHidden>
-
-                  <div className="px-6 pb-6">{children}</div>
-                </motion.div>
-              </Dialog.Content>
-            </motion.div>
-          </Dialog.Overlay>
-        </AnimatePresence>
-      </Dialog.Portal>
-    );
   }
-
+>(({ className, children, showHandle = true, ...props }, ref) => {
   return (
-    <AnimatePresence>
-      {context.isOpen && (
-        <Dialog.Portal forceMount>
-          <Dialog.Overlay asChild forceMount>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end justify-center"
-            >
-              <Dialog.Content
-                aria-describedby={undefined}
-                className={twMerge(
-                  `relative w-full max-w-lg mx-3 mb-4 sm:mb-6 no-scrollbar
-                  bg-white dark:bg-gray-900/95 
-                  backdrop-blur-xl
-                  rounded-2xl shadow-2xl
-                  border border-gray-200/50 dark:border-gray-700/50
-                  overflow-hidden`,
-                  className
-                )}
-                asChild
-                forceMount
-                {...props}
-              >
-                <motion.div
-                  ref={ref}
-                  initial={{ y: "100%", opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: "100%", opacity: 0 }}
-                  transition={{
-                    type: "spring",
-                    damping: 25,
-                    stiffness: 300,
-                    duration: 0.3,
-                  }}
-                >
-                  {/* Handle Bar */}
-                  {showHandle && (
-                    <div className="flex justify-center pt-4 pb-6">
-                      <div className="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full" />
-                    </div>
-                  )}
+    <Drawer.Portal>
+      {/* Overlay inserido automaticamente com o Content para facilitar o uso */}
+      <Drawer.Overlay className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" />
+      <Drawer.Content
+        ref={ref}
+        className={twMerge(
+          `fixed inset-x-0 bottom-0 z-50 mt-24 flex flex-col rounded-t-[20px] 
+          sm:rounded-2xl sm:max-w-lg sm:mx-auto sm:bottom-6 sm:mb-0 
+          bg-background backdrop-blur-xl shadow-2xl
+          border border-gray-200/50 dark:border-gray-700/50 outline-none sm:after:hidden`,
+          className,
+        )}
+        {...props}
+      >
+        {/* Handle Bar do Vaul */}
+        {showHandle && (
+          <div className="mx-auto mt-4 mb-2 h-1.5 w-12 shrink-0 rounded-full bg-primary/50" />
+        )}
 
-                  {/* Hidden title for accessibility - required by Radix UI Dialog */}
-                  <VisuallyHidden>
-                    <Dialog.Title>Modal</Dialog.Title>
-                  </VisuallyHidden>
+        {/* Título oculto para acessibilidade - obrigatório */}
+        <VisuallyHidden>
+          <Drawer.Title>Modal</Drawer.Title>
+        </VisuallyHidden>
 
-                  <div className="px-6 pb-6">{children}</div>
-                </motion.div>
-              </Dialog.Content>
-            </motion.div>
-          </Dialog.Overlay>
-        </Dialog.Portal>
-      )}
-    </AnimatePresence>
+        <div className="px-6 pb-6 pt-2 overflow-y-auto no-scrollbar">
+          {children}
+        </div>
+      </Drawer.Content>
+    </Drawer.Portal>
   );
 });
 ModalContent.displayName = "ModalContent";
@@ -229,7 +131,7 @@ const ModalHeader = React.forwardRef<
       className={twMerge(
         "flex items-center justify-between pb-1",
         !showCloseButton && "justify-center",
-        className
+        className,
       )}
       {...props}
     >
@@ -245,15 +147,15 @@ ModalHeader.displayName = "ModalHeader";
 
 // Modal Title Component
 const ModalTitle = React.forwardRef<
-  React.ComponentRef<typeof Dialog.Title>,
-  React.ComponentPropsWithoutRef<typeof Dialog.Title>
+  React.ComponentRef<typeof Drawer.Title>,
+  React.ComponentPropsWithoutRef<typeof Drawer.Title>
 >(({ className, ...props }, ref) => {
   return (
-    <Dialog.Title
+    <Drawer.Title
       ref={ref}
       className={twMerge(
         "text-xl font-bold text-center leading-tight tracking-tight text-gray-900 dark:text-gray-100",
-        className
+        className,
       )}
       {...props}
     />
@@ -264,7 +166,7 @@ ModalTitle.displayName = "ModalTitle";
 // Modal Description Component
 const ModalDescription = React.forwardRef<
   React.ComponentRef<typeof motion.div>,
-  React.ComponentPropsWithoutRef<typeof Dialog.Description> &
+  React.ComponentPropsWithoutRef<typeof Drawer.Description> &
     HTMLMotionProps<"div">
 >(({ className, children, ...props }, ref) => {
   return (
@@ -275,14 +177,14 @@ const ModalDescription = React.forwardRef<
       transition={{ delay: 0.15, duration: 0.2 }}
       {...props}
     >
-      <Dialog.Description
+      <Drawer.Description
         className={twMerge(
           "text-center text-sm text-gray-600 dark:text-gray-400 leading-relaxed",
-          className
+          className,
         )}
       >
         {children}
-      </Dialog.Description>
+      </Drawer.Description>
     </motion.div>
   );
 });
@@ -291,13 +193,13 @@ ModalDescription.displayName = "ModalDescription";
 // Modal Close Component
 const ModalClose = React.forwardRef<
   React.ComponentRef<typeof motion.div>,
-  React.ComponentPropsWithoutRef<typeof Dialog.Close> & HTMLMotionProps<"div">
+  React.ComponentPropsWithoutRef<typeof Drawer.Close> & HTMLMotionProps<"div">
 >(({ className, children, ...props }, ref) => {
   return (
-    <Dialog.Close
+    <Drawer.Close
       className={twMerge(
         "absolute top-3 right-3 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800",
-        className
+        className,
       )}
       {...props}
     >
@@ -313,10 +215,9 @@ const ModalClose = React.forwardRef<
           </motion.div>
         </>
       )}
-    </Dialog.Close>
+    </Drawer.Close>
   );
 });
-
 ModalClose.displayName = "ModalClose";
 
 // Modal Footer Component
@@ -331,7 +232,7 @@ const ModalFooter = ({
       transition={{ delay: 0.2, duration: 0.2 }}
       className={twMerge(
         "flex lg:flex-row md:flex-row flex-col justify-end gap-3 pt-4 border-t border-gray-200/50 dark:border-gray-700/50",
-        className
+        className,
       )}
       {...props}
     />
@@ -418,7 +319,7 @@ const ModalIcon = ({
               const target = e.target as HTMLImageElement;
               target.style.display = "none";
               const fallback = target.parentElement?.querySelector(
-                ".fallback-icon"
+                ".fallback-icon",
               ) as HTMLElement;
               if (fallback) {
                 fallback.style.display = "flex";
@@ -532,7 +433,7 @@ const ModalInput = React.forwardRef<
         ref={ref}
         className={twMerge(
           "h-10 px-4 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-xl",
-          className
+          className,
         )}
         {...props}
       />
@@ -568,7 +469,7 @@ const ModalPrimaryButton = React.forwardRef<
         transition-all duration-150 focus:outline-none 
         disabled:opacity-50 disabled:cursor-not-allowed
         ${variantStyles[variant]}`,
-        className
+        className,
       )}
       {...props}
     />
@@ -595,7 +496,7 @@ const ModalSecondaryButton = React.forwardRef<
         border border-gray-200/50 dark:border-gray-600/50 
         hover:border-gray-300/70 dark:hover:border-gray-500/70
         disabled:opacity-50 disabled:cursor-not-allowed`,
-        className
+        className,
       )}
       {...props}
     />
