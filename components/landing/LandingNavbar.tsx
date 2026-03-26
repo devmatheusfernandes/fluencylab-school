@@ -12,6 +12,7 @@ import { useTranslations } from "next-intl";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   Drawer,
+  DrawerTrigger,
   DrawerClose,
   DrawerContent,
   DrawerTitle,
@@ -27,7 +28,6 @@ export function LandingNavbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
-  const mobileMenuButtonRef = useRef<HTMLButtonElement | null>(null);
   const mobileMenuCloseButtonRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
@@ -59,19 +59,6 @@ export function LandingNavbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  useEffect(() => {
-    if (isMobileMenuOpen) {
-      requestAnimationFrame(() => {
-        mobileMenuCloseButtonRef.current?.focus();
-      });
-      return;
-    }
-
-    requestAnimationFrame(() => {
-      mobileMenuButtonRef.current?.focus();
-    });
-  }, [isMobileMenuOpen]);
 
   const handleLoginClick = async () => {
     if (session) {
@@ -346,18 +333,25 @@ export function LandingNavbar() {
         </button>
       </header>
 
-      <div className="md:hidden fixed bottom-6 right-6 z-50">
-        <button
-          ref={mobileMenuButtonRef}
-          onClick={() => setIsMobileMenuOpen(true)}
-          className="w-14 h-14 bg-black text-primary rounded-full shadow-xl flex items-center justify-center hover:scale-110 transition-transform"
-        >
-          <BottomSheetIcon size={24} />
-        </button>
-      </div>
-
       <Drawer open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-        <DrawerContent className="md:hidden rounded-t-[2rem]">
+        <div className="md:hidden fixed bottom-6 right-6 z-50">
+          <DrawerTrigger asChild>
+            <button
+              onPointerDown={(e) => e.currentTarget.blur()}
+              className="w-14 h-14 bg-black text-primary rounded-full shadow-xl flex items-center justify-center hover:scale-110 transition-transform"
+            >
+              <BottomSheetIcon size={24} />
+            </button>
+          </DrawerTrigger>
+        </div>
+
+        <DrawerContent
+          className="md:hidden rounded-t-[2rem]"
+          onOpenAutoFocus={(e) => {
+            e.preventDefault();
+            mobileMenuCloseButtonRef.current?.focus();
+          }}
+        >
           <div className="p-8 pb-10">
             <div className="flex justify-between items-center mb-8">
               <DrawerTitle className="text-xl font-bold text-gray-900 dark:text-white">

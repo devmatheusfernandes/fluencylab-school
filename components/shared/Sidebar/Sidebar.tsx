@@ -19,6 +19,15 @@ import { useMessages, useTranslations } from "next-intl";
 import { useIsMobile } from "@/hooks/ui/useMobile";
 import { useIsStandalone } from "@/hooks/ui/useIsStandalone";
 
+function isPathActive(pathname: string | null, href: string | undefined) {
+  if (!pathname || !href) return false;
+  const normalizedHref =
+    href !== "/" && href.endsWith("/") ? href.slice(0, -1) : href;
+  return (
+    pathname === normalizedHref || pathname.startsWith(`${normalizedHref}/`)
+  );
+}
+
 export interface SubItem {
   href: string;
   label: string;
@@ -30,6 +39,8 @@ export interface SidebarItemType {
   label: string;
   labelKey?: string;
   icon?: React.ReactNode;
+  Icon?: React.ElementType<any>;
+  iconProps?: Record<string, any>;
   subItems?: SubItem[];
   badgeCount?: number;
 }
@@ -46,9 +57,18 @@ const handleLogout = () => {
 const SidebarItem: React.FC<SidebarItemProps> = ({ item, isCollapsed }) => {
   const t = useTranslations("SidebarItems");
   const pathname = usePathname();
-  const isActive = pathname === item.href;
+  const isActive =
+    isPathActive(pathname, item.href) ||
+    (item.subItems?.some((subItem) => isPathActive(pathname, subItem.href)) ??
+      false);
 
   const iconRef = React.useRef<any>(null);
+  const Icon = item.Icon as any;
+  const iconNode = Icon ? (
+    <Icon ref={iconRef} {...(item.iconProps ?? {})} />
+  ) : (
+    item.icon
+  );
 
   const handleMouseEnter = () => {
     iconRef.current?.startAnimation?.();
@@ -65,17 +85,19 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ item, isCollapsed }) => {
           <motion.div
             whileHover={{ x: isCollapsed ? 0 : 4 }}
             whileTap={{ scale: 0.98 }}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
             className={twMerge(
               "flex items-center h-12 px-3 py-3 rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors duration-200",
               isActive && "bg-accent text-accent-foreground",
-              isCollapsed && "justify-center px-3"
+              isCollapsed && "justify-center px-3",
             )}
           >
             <motion.div
               whileHover={{ rotate: isCollapsed ? 0 : 5 }}
               className="w-5 h-5 flex items-center justify-center relative"
             >
-              {item.icon}
+              {iconNode}
               {isCollapsed && item.badgeCount && item.badgeCount > 0 ? (
                 <div className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-background">
                   {item.badgeCount > 9 ? "9+" : item.badgeCount}
@@ -119,7 +141,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ item, isCollapsed }) => {
             animate={{ opacity: 1 }}
             className={twMerge(
               "pl-6 flex flex-col gap-1 py-1",
-              isCollapsed && "pl-0"
+              isCollapsed && "pl-0",
             )}
           >
             {item.subItems.map((subItem, index) => (
@@ -133,8 +155,9 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ item, isCollapsed }) => {
                   href={subItem.href}
                   className={twMerge(
                     "flex items-center h-10 px-3 py-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors duration-200",
-                    pathname === subItem.href && "bg-muted text-foreground",
-                    isCollapsed && "justify-center px-3"
+                    isPathActive(pathname, subItem.href) &&
+                      "bg-muted text-foreground",
+                    isCollapsed && "justify-center px-3",
                   )}
                 >
                   <div className="w-4 h-4 flex items-center justify-center">
@@ -171,14 +194,14 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ item, isCollapsed }) => {
         className={twMerge(
           "flex items-center h-12 px-3 py-3 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/15 transition-all ease-in-out duration-300",
           isActive && "bg-primary/30 text-primary font-semibold",
-          isCollapsed && "justify-center px-3"
+          isCollapsed && "justify-center px-3",
         )}
       >
         <motion.div
           whileHover={{ rotate: isCollapsed ? 0 : 5 }}
           className="w-5 h-5 flex items-center justify-center relative"
         >
-          {item.icon}
+          {iconNode}
           {isCollapsed && item.badgeCount && item.badgeCount > 0 ? (
             <div className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-background">
               {item.badgeCount > 9 ? "9+" : item.badgeCount}
@@ -219,13 +242,15 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({
 }) => {
   const t = useTranslations("SidebarItems");
   const pathname = usePathname();
-  const isActive = pathname === item.href;
+  const isActive = isPathActive(pathname, item.href);
 
   if (item.subItems) {
     return null;
   }
 
   const badgeCount = notificationCount || item.badgeCount;
+  const Icon = item.Icon as any;
+  const iconNode = Icon ? <Icon {...(item.iconProps ?? {})} /> : item.icon;
 
   return (
     <Link href={item.href} className="flex-1">
@@ -235,7 +260,7 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({
           "relative flex items-center justify-center transition-colors duration-200 w-full h-full",
           isActive
             ? "bg-primary/15 rounded-full px-4 py-2 gap-2"
-            : "p-2 text-muted-foreground hover:text-primary"
+            : "p-2 text-muted-foreground hover:text-primary",
         )}
       >
         <motion.div
@@ -243,7 +268,7 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({
           transition={{ duration: 0.3 }}
           className="w-6 h-6 flex items-center justify-center text-primary"
         >
-          {item.icon}
+          {iconNode}
         </motion.div>
         {/* Only show label if active and ample space, otherwise icon only on mobile usually looks cleaner, 
             but adhering to original design to show label on active */}
@@ -296,13 +321,13 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
   const tSidebar = (useMessages()?.Sidebar ?? {}) as Record<string, string>;
   const [openSection, setOpenSection] = React.useState<string | null>(null);
   const [activeTab, setActiveTab] = React.useState<"menu" | "notifications">(
-    "menu"
+    "menu",
   );
 
   React.useEffect(() => {
     // Determine active section based on current path
     const activeSection = items.find((item) =>
-      item.subItems?.some((sub) => pathname === sub.href)
+      item.subItems?.some((sub) => isPathActive(pathname, sub.href)),
     );
     if (activeSection) {
       setOpenSection(activeSection.label);
@@ -378,7 +403,7 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
                 "flex-1 py-3 px-4 text-sm font-medium transition-colors relative",
                 activeTab === "menu"
                   ? "text-primary"
-                  : "text-muted-foreground hover:text-red-500"
+                  : "text-muted-foreground hover:text-red-500",
               )}
             >
               {tSidebar.menu ?? "Menu"}
@@ -396,7 +421,7 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
                 "flex-1 py-3 px-4 text-sm font-medium transition-colors relative flex items-center justify-center gap-2",
                 activeTab === "notifications"
                   ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               <span>{tSidebar.notifications ?? "Notificações"}</span>
@@ -427,111 +452,125 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
                   className="p-4 pb-8"
                 >
                   <ul className="space-y-2">
-                    {items.map((item, index) => (
-                      <motion.li
-                        key={item.label}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                      >
-                        {item.subItems ? (
-                          <div>
-                            <motion.button
-                              whileTap={{ scale: 0.98 }}
-                              onClick={() =>
-                                setOpenSection(
-                                  openSection === item.label ? null : item.label
-                                )
-                              }
-                              className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted transition-colors"
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className="w-5 h-5 flex items-center justify-center text-muted-foreground">
-                                  {item.icon}
-                                </div>
-                                <span className="font-medium text-foreground">
-                                  {item.labelKey
-                                    ? tItems(item.labelKey)
-                                    : item.label}
-                                </span>
-                              </div>
-                              <motion.div
-                                animate={{
-                                  rotate: openSection === item.label ? 180 : 0,
-                                }}
-                                transition={{ duration: 0.2 }}
-                              >
-                                <ArrowDown className="w-4 h-4 text-muted-foreground" />
-                              </motion.div>
-                            </motion.button>
+                    {items.map((item, index) => {
+                      const Icon = item.Icon as any;
+                      const iconNode = Icon ? (
+                        <Icon {...(item.iconProps ?? {})} />
+                      ) : (
+                        item.icon
+                      );
 
-                            {/* Sub-items */}
-                            <AnimatePresence>
-                              {openSection === item.label && (
+                      return (
+                        <motion.li
+                          key={item.label}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                        >
+                          {item.subItems ? (
+                            <div>
+                              <motion.button
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() =>
+                                  setOpenSection(
+                                    openSection === item.label
+                                      ? null
+                                      : item.label,
+                                  )
+                                }
+                                className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted transition-colors"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className="w-5 h-5 flex items-center justify-center text-muted-foreground">
+                                    {iconNode}
+                                  </div>
+                                  <span className="font-medium text-foreground">
+                                    {item.labelKey
+                                      ? tItems(item.labelKey)
+                                      : item.label}
+                                  </span>
+                                </div>
                                 <motion.div
-                                  initial={{ opacity: 0, height: 0 }}
-                                  animate={{ opacity: 1, height: "auto" }}
-                                  exit={{ opacity: 0, height: 0 }}
-                                  className="ml-6 mt-2 space-y-1 border-l-2 border-border pl-4 overflow-hidden"
+                                  animate={{
+                                    rotate:
+                                      openSection === item.label ? 180 : 0,
+                                  }}
+                                  transition={{ duration: 0.2 }}
                                 >
-                                  {item.subItems.map((subItem, subIndex) => {
-                                    const isActive = pathname === subItem.href;
-                                    return (
-                                      <motion.div
-                                        key={subItem.href}
-                                        initial={{ opacity: 0, x: -10 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{
-                                          delay: subIndex * 0.05,
-                                        }}
-                                      >
-                                        <Link
-                                          href={subItem.href}
-                                          onClick={onClose}
-                                          className={twMerge(
-                                            "flex items-center gap-3 p-2 rounded-lg transition-colors",
-                                            isActive
-                                              ? "bg-muted text-foreground font-medium"
-                                              : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                                          )}
-                                        >
-                                          <div className="w-4 h-4 flex items-center justify-center">
-                                            {subItem.icon}
-                                          </div>
-                                          <span className="text-sm">
-                                            {subItem.label}
-                                          </span>
-                                        </Link>
-                                      </motion.div>
-                                    );
-                                  })}
+                                  <ArrowDown className="w-4 h-4 text-muted-foreground" />
                                 </motion.div>
-                              )}
-                            </AnimatePresence>
-                          </div>
-                        ) : (
-                          <Link
-                            href={item.href}
-                            onClick={onClose}
-                            className={twMerge(
-                              "flex items-center gap-3 p-3 rounded-lg transition-colors",
-                              pathname === item.href
-                                ? "bg-muted text-foreground font-medium"
-                                : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                            )}
-                          >
-                            <div className="w-5 h-5 flex items-center justify-center">
-                              {item.icon}
+                              </motion.button>
+
+                              <AnimatePresence>
+                                {openSection === item.label && (
+                                  <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: "auto" }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    className="ml-6 mt-2 space-y-1 border-l-2 border-border pl-4 overflow-hidden"
+                                  >
+                                    {item.subItems.map((subItem, subIndex) => {
+                                      const isActive = isPathActive(
+                                        pathname,
+                                        subItem.href,
+                                      );
+                                      return (
+                                        <motion.div
+                                          key={subItem.href}
+                                          initial={{ opacity: 0, x: -10 }}
+                                          animate={{ opacity: 1, x: 0 }}
+                                          transition={{
+                                            delay: subIndex * 0.05,
+                                          }}
+                                        >
+                                          <Link
+                                            href={subItem.href}
+                                            onClick={onClose}
+                                            className={twMerge(
+                                              "flex items-center gap-3 p-2 rounded-lg transition-colors",
+                                              isActive
+                                                ? "bg-muted text-foreground font-medium"
+                                                : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                                            )}
+                                          >
+                                            <div className="w-4 h-4 flex items-center justify-center">
+                                              {subItem.icon}
+                                            </div>
+                                            <span className="text-sm">
+                                              {subItem.label}
+                                            </span>
+                                          </Link>
+                                        </motion.div>
+                                      );
+                                    })}
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
                             </div>
-                            <span className="font-medium">
-                              {item.labelKey
-                                ? tItems(item.labelKey)
-                                : item.label}
-                            </span>
-                          </Link>
-                        )}
-                      </motion.li>
-                    ))}
+                          ) : (
+                            <Link
+                              href={item.href}
+                              onClick={onClose}
+                              className={twMerge(
+                                "flex items-center gap-3 p-3 rounded-lg transition-colors",
+                                isPathActive(pathname, item.href)
+                                  ? "bg-muted text-foreground font-medium"
+                                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                              )}
+                            >
+                              <div className="w-5 h-5 flex items-center justify-center">
+                                {iconNode}
+                              </div>
+                              <span className="font-medium">
+                                {item.labelKey
+                                  ? tItems(item.labelKey)
+                                  : item.label}
+                              </span>
+                            </Link>
+                          )}
+                        </motion.li>
+                      );
+                    })}
                   </ul>
                 </motion.nav>
               ) : (
@@ -589,7 +628,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const mobileItems = React.useMemo(
     () => items.filter((item) => !item.subItems),
-    [items]
+    [items],
   );
 
   const mobileVisibleItems = React.useMemo(() => {
@@ -619,7 +658,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           layout
           className={twMerge(
             "flex flex-col w-full h-full",
-            !isCollapsed && "px-2 gap-3"
+            !isCollapsed && "px-2 gap-3",
           )}
         >
           {/* User Card at top */}
@@ -647,7 +686,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             className={twMerge(
               "flex flex-col gap-2 flex-1",
               isCollapsed && "w-fit",
-              !isCollapsed && "w-full"
+              !isCollapsed && "w-full",
             )}
           >
             {items.map((item, index) => (
@@ -667,7 +706,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             layout
             className={twMerge(
               "border-t border-primary/20 pt-3 w-full",
-              isCollapsed && "border-none pt-0 mb-1"
+              isCollapsed && "border-none pt-0 mb-1",
             )}
           >
             <NotificationCard
@@ -727,7 +766,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 "md:hidden fixed bottom-0 left-0 right-0 px-4 py-2 z-50 flex items-center justify-between",
                 isStandalone && "bg-slate-200! dark:bg-slate-900! border-none!",
                 isMobile &&
-                  "bg-slate-100 dark:bg-slate-950 border-t border-primary"
+                  "bg-slate-100 dark:bg-slate-950 border-t border-primary",
               )}
               transition={{ type: "spring", bounce: 0, duration: 0.5 }}
             >
