@@ -10,7 +10,6 @@ import { PwaWelcomeScreen } from "@/components/landing/PwaWelcomeScreen";
 
 export default function LandingPage() {
   const isStandalone = useIsStandalone();
-
   return (
     <>
       {!isStandalone ? (
