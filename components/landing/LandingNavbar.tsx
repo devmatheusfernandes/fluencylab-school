@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Logo from "../../public/brand/Group.png";
@@ -10,7 +10,13 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { GalleryVerticalEndIcon } from "@/public/animated/galery-vertical";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import { BottomSheetIcon } from "@/public/animated/bottom-sheet";
 
 export function LandingNavbar() {
   const t = useTranslations("LandingPage");
@@ -20,6 +26,9 @@ export function LandingNavbar() {
   const [activeTab, setActiveTab] = useState<string>("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+
+  const mobileMenuButtonRef = useRef<HTMLButtonElement | null>(null);
+  const mobileMenuCloseButtonRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,6 +59,19 @@ export function LandingNavbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      requestAnimationFrame(() => {
+        mobileMenuCloseButtonRef.current?.focus();
+      });
+      return;
+    }
+
+    requestAnimationFrame(() => {
+      mobileMenuButtonRef.current?.focus();
+    });
+  }, [isMobileMenuOpen]);
 
   const handleLoginClick = async () => {
     if (session) {
@@ -326,54 +348,43 @@ export function LandingNavbar() {
 
       <div className="md:hidden fixed bottom-6 right-6 z-50">
         <button
+          ref={mobileMenuButtonRef}
           onClick={() => setIsMobileMenuOpen(true)}
-          className="w-14 h-14 bg-gray-900 dark:bg-slate-900 text-white dark:text-white rounded-full shadow-xl flex items-center justify-center hover:scale-110 transition-transform"
+          className="w-14 h-14 bg-black text-primary rounded-full shadow-xl flex items-center justify-center hover:scale-110 transition-transform"
         >
-          <GalleryVerticalEndIcon size={24} />
+          <BottomSheetIcon size={24} />
         </button>
       </div>
 
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 bg-black/40 z-[60] backdrop-blur-[4px] md:hidden"
-            />
-
-            <motion.div
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 rounded-t-[2rem] p-8 pb-10 z-[70] md:hidden shadow-[0_-10px_40px_rgba(0,0,0,0.1)]"
-            >
-              <div className="flex justify-between items-center mb-8">
-                <span className="text-xl font-bold text-gray-900 dark:text-white">
-                  Menu
-                </span>
+      <Drawer open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+        <DrawerContent className="md:hidden rounded-t-[2rem]">
+          <div className="p-8 pb-10">
+            <div className="flex justify-between items-center mb-8">
+              <DrawerTitle className="text-xl font-bold text-gray-900 dark:text-white">
+                Menu
+              </DrawerTitle>
+              <DrawerClose asChild>
                 <button
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  ref={mobileMenuCloseButtonRef}
                   className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors duration-200"
                 >
                   <X className="w-6 h-6 text-red-500" />
                 </button>
-              </div>
+              </DrawerClose>
+            </div>
 
-              <nav className="flex flex-col gap-4">
-                {[...navLinksLeft, ...navLinksRight].map((link) => (
-                  <Link
-                    key={link.id}
-                    href={link.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-lg font-medium text-gray-700 dark:text-gray-200 py-3 border-b border-gray-100 dark:border-gray-800"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
+            <nav className="flex flex-col gap-4">
+              {[...navLinksLeft, ...navLinksRight].map((link) => (
+                <Link
+                  key={link.id}
+                  href={link.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-lg font-medium text-gray-700 dark:text-gray-200 py-3 border-b border-gray-100 dark:border-gray-800"
+                >
+                  {link.label}
+                </Link>
+              ))}
+              <DrawerClose asChild>
                 <button
                   onClick={handleLoginClick}
                   className="mt-4 w-full bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 py-4 rounded-xl font-bold flex items-center justify-center gap-2"
@@ -390,19 +401,21 @@ export function LandingNavbar() {
                     t("nav.login")
                   )}
                 </button>
-                {session && (
+              </DrawerClose>
+              {session && (
+                <DrawerClose asChild>
                   <button
                     onClick={handleSwitchAccount}
                     className="mt-1 w-full text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors py-2"
                   >
                     {t("nav.switchAccount")}
                   </button>
-                )}
-              </nav>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+                </DrawerClose>
+              )}
+            </nav>
+          </div>
+        </DrawerContent>
+      </Drawer>
     </>
   );
 }
