@@ -30,7 +30,7 @@ export function StudentPaymentStatusCard() {
   const t = useTranslations("StudentPaymentStatusCard");
   const locale = useLocale();
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | null>(
-    null
+    null,
   );
   const [loading, setLoading] = useState(true);
   const [generatingPix, setGeneratingPix] = useState(false);
@@ -76,7 +76,7 @@ export function StudentPaymentStatusCard() {
                 pixQrCode: data.pixQrCode,
                 pixExpiresAt: new Date(data.expiresAt),
               }
-            : null
+            : null,
         );
         toast.success(t("generateSuccess"));
       } else {
@@ -188,7 +188,7 @@ export function StudentPaymentStatusCard() {
         "card-base flex flex-col h-full rounded-xl border transition-all duration-300",
         isOverdue
           ? "border-red-200 dark:border-red-900/50 shadow-red-100 dark:shadow-none"
-          : "border-zinc-200 dark:border-zinc-800"
+          : "border-zinc-200 dark:border-zinc-800",
       )}
     >
       <div className="p-5 flex items-start justify-between border-b border-zinc-100 dark:border-zinc-800/50">
@@ -196,7 +196,7 @@ export function StudentPaymentStatusCard() {
           <div
             className={cn(
               "p-2.5 rounded-xl shadow-sm border",
-              "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-950/30 dark:border-emerald-900/50 dark:text-emerald-400"
+              "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-950/30 dark:border-emerald-900/50 dark:text-emerald-400",
             )}
           >
             <QrCode className="w-5 h-5" />
@@ -214,7 +214,7 @@ export function StudentPaymentStatusCard() {
             "flex items-center gap-1.5 pl-2.5 pr-3 py-1 rounded-full text-xs font-semibold border transition-colors",
             statusConfig.bg,
             statusConfig.text,
-            statusConfig.border
+            statusConfig.border,
           )}
         >
           <StatusIcon className="w-3.5 h-3.5" />
@@ -224,7 +224,7 @@ export function StudentPaymentStatusCard() {
 
       <div className="flex-1 p-5 flex flex-col justify-center">
         <div className="w-full">
-          {(daysUntilDue !== null && daysUntilDue <= 5) || isOverdue ? (
+          {(daysUntilDue !== null && daysUntilDue <= 2) || isOverdue ? (
             <div className="space-y-5 animate-in fade-in zoom-in-95 duration-300">
               {paymentStatus.pixCode ? (
                 <div className="flex flex-col lg:flex-row gap-5 items-center lg:items-start">
@@ -293,7 +293,7 @@ export function StudentPaymentStatusCard() {
                       "w-full sm:w-auto min-w-[200px] font-semibold shadow-lg shadow-emerald-500/10",
                       isOverdue
                         ? "bg-red-600 hover:bg-red-700 text-white"
-                        : "bg-emerald-600 hover:bg-emerald-700 text-white"
+                        : "bg-emerald-600 hover:bg-emerald-700 text-white",
                     )}
                   >
                     {generatingPix ? (
@@ -349,7 +349,7 @@ export function StudentPaymentStatusCard() {
                   <span className="text-sm font-medium">
                     {paymentStatus.nextPaymentDue
                       ? new Date(
-                          paymentStatus.nextPaymentDue
+                          paymentStatus.nextPaymentDue,
                         ).toLocaleDateString(locale, {
                           day: "2-digit",
                           month: "short",
@@ -369,7 +369,7 @@ export function StudentPaymentStatusCard() {
               {paymentStatus.lastPaymentDate
                 ? new Date(paymentStatus.lastPaymentDate).toLocaleDateString(
                     locale,
-                    { day: "2-digit", month: "short", year: "2-digit" }
+                    { day: "2-digit", month: "short", year: "2-digit" },
                   )
                 : "-"}
             </span>

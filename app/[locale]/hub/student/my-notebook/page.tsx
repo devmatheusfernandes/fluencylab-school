@@ -65,7 +65,7 @@ export default function Caderno() {
 
   const [statsLoading, setStatsLoading] = useState(true);
   const [activePlanIdState, setActivePlanIdState] = useState<string | null>(
-    null
+    null,
   );
   const [isWordModalOpen, setIsWordModalOpen] = useState(false);
   const [isNotebooksDrawerOpen, setIsNotebooksDrawerOpen] = useState(false);
@@ -241,7 +241,7 @@ export default function Caderno() {
           >
             <div className="flex flex-row justify-between items-center mt-3 px-4">
               <div />
-              <span className="text-lg font-bold text-primary">Missions</span>
+              <span className="text-lg font-bold text-primary">Plano</span>
               <Link
                 className="text-muted-foreground hover:text-primary"
                 href="/hub/student/my-history"

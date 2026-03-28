@@ -109,11 +109,6 @@ export class SubscriptionService {
       taxId,
     } = params;
 
-    console.log(
-      "Creating PIX subscription with webhook URL:",
-      ABACATEPAY_CONFIG.WEBHOOK_URL,
-    );
-
     // Calculate contract dates
     const contractStartDate = customStartDate
       ? new Date(customStartDate)
@@ -188,8 +183,6 @@ export class SubscriptionService {
           },
           "system-onboarding",
         );
-
-        console.log(`Granted ${lateCreditsAmount} credits to user ${userId}`);
       } catch (error) {
         console.error("Error granting late entry credits:", error);
       }

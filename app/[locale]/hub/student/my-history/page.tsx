@@ -67,7 +67,7 @@ export default function HistoryPage() {
   const [isPurchasing, setIsPurchasing] = useState(false);
 
   const { student, loading: studentLoading } = useStudentPanel(
-    studentId as string
+    studentId as string,
   );
   const userXP = student?.gamification?.currentXP || 0;
 
@@ -85,7 +85,7 @@ export default function HistoryPage() {
               const dateB = new Date(b.scheduledDate).getTime();
               return dateA - dateB;
             });
-            setActivePlan(planData);
+            setActivePlan({ ...planData, id: pid });
           }
         }
 
@@ -126,7 +126,10 @@ export default function HistoryPage() {
   };
 
   const handleConfirmReplay = async () => {
-    if (!activePlan?.id || !selectedLesson || selectedDay === null) return;
+    if (!activePlan?.id || !selectedLesson || selectedDay === null) {
+      toast.error("Unable to start replay. Please reload the page.");
+      return;
+    }
 
     if (userXP < replayCost) {
       toast.error("Insufficient XP points.");
@@ -139,14 +142,14 @@ export default function HistoryPage() {
         activePlan.id,
         selectedDay,
         0,
-        selectedLesson.id
+        selectedLesson.id,
       );
 
       toast.success("Session unlocked! Starting replay...");
       setReplayModalOpen(false);
 
       router.push(
-        `/hub/student/my-practice?day=${selectedDay}&replay=true&lessonId=${selectedLesson.id}`
+        `/hub/student/my-practice?day=${selectedDay}&replay=true&lessonId=${selectedLesson.id}`,
       );
     } catch (error) {
       console.error(error);
@@ -166,7 +169,7 @@ export default function HistoryPage() {
       .sort(
         (a: any, b: any) =>
           new Date(b.scheduledDate).getTime() -
-          new Date(a.scheduledDate).getTime()
+          new Date(a.scheduledDate).getTime(),
       ) || [];
 
   return (
@@ -225,7 +228,7 @@ export default function HistoryPage() {
                             ? "border-green-500 bg-green-500 text-white"
                             : status === "current"
                               ? "border-primary bg-primary text-white"
-                              : "border-muted-foreground/30 bg-muted"
+                              : "border-muted-foreground/30 bg-muted",
                         )}
                       >
                         {status === "completed" && (
@@ -246,7 +249,7 @@ export default function HistoryPage() {
                             ? "bg-card shadow-md border-primary/50 ring-1 ring-primary/20"
                             : status === "completed"
                               ? "bg-muted/20 opacity-80"
-                              : "bg-muted/10 opacity-60 grayscale"
+                              : "bg-muted/10 opacity-60 grayscale",
                         )}
                       >
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -255,7 +258,8 @@ export default function HistoryPage() {
                               <h3
                                 className={cn(
                                   "font-semibold text-lg",
-                                  status === "future" && "text-muted-foreground"
+                                  status === "future" &&
+                                    "text-muted-foreground",
                                 )}
                               >
                                 {lesson.title}
@@ -285,7 +289,7 @@ export default function HistoryPage() {
                                     "text-xs font-medium px-2 py-0.5 rounded-full ml-2",
                                     status === "completed"
                                       ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                                      : "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400"
+                                      : "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400",
                                   )}
                                 >
                                   {lesson.completedPracticeDays || 0}/6{" "}
@@ -298,7 +302,9 @@ export default function HistoryPage() {
                           <div className="flex items-center gap-2">
                             {status === "current" && (
                               <Button
-                                onClick={() => !lesson.isDraft && handleStartLesson(lesson)}
+                                onClick={() =>
+                                  !lesson.isDraft && handleStartLesson(lesson)
+                                }
                                 size="sm"
                                 className="w-full sm:w-auto"
                                 disabled={lesson.isDraft}
@@ -344,7 +350,7 @@ export default function HistoryPage() {
                   const completedDays = lesson.completedPracticeDays || 0;
                   const progressPercentage = Math.min(
                     (completedDays / 6) * 100,
-                    100
+                    100,
                   );
 
                   return (
@@ -396,7 +402,7 @@ export default function HistoryPage() {
                                     "h-20 sm:h-24 flex flex-col gap-2 rounded-xl border-2 transition-all relative overflow-hidden",
                                     canReplay
                                       ? "border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary hover:scale-[1.02] active:scale-95"
-                                      : "border-transparent bg-muted/40 opacity-60 cursor-not-allowed"
+                                      : "border-transparent bg-muted/40 opacity-60 cursor-not-allowed",
                                   )}
                                   disabled={!canReplay}
                                   onClick={() =>
@@ -408,7 +414,7 @@ export default function HistoryPage() {
                                       "text-[10px] font-bold uppercase tracking-wider",
                                       canReplay
                                         ? "text-primary"
-                                        : "text-muted-foreground"
+                                        : "text-muted-foreground",
                                     )}
                                   >
                                     {t("day", { day })}
@@ -420,7 +426,7 @@ export default function HistoryPage() {
                                   )}
                                 </Button>
                               );
-                            }
+                            },
                           )}
                         </div>
                         <div className="mt-4 text-center">
@@ -506,7 +512,7 @@ export default function HistoryPage() {
               <span
                 className={cn(
                   "font-bold text-lg flex items-center gap-1",
-                  userXP < replayCost ? "text-red-500" : "text-green-600"
+                  userXP < replayCost ? "text-red-500" : "text-green-600",
                 )}
               >
                 {userXP}{" "}
