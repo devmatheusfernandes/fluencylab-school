@@ -1,35 +1,31 @@
 "use client";
 import { Payment } from "@/types/financial/payments";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import useSWR from "swr";
 import { toast } from "sonner";
 
-// 1. A lógica de busca de dados foi movida para um hook customizado
 export const useUserFinancials = (userId: string) => {
-  const [payments, setPayments] = useState<Payment[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const fetcher = async (url: string): Promise<Payment[]> => {
+    const response = await fetch(url);
+    const data = await response.json().catch(() => null);
+    if (!response.ok) {
+      const message =
+        (data && (data.error || data.message)) ||
+        "Falha ao buscar dados financeiros.";
+      throw new Error(message);
+    }
+    return (data ?? []) as Payment[];
+  };
+
+  const { data, error, isLoading } = useSWR<Payment[]>(
+    userId ? `/api/admin/users/${encodeURIComponent(userId)}/financials` : null,
+    fetcher,
+    { keepPreviousData: true },
+  );
 
   useEffect(() => {
-    if (!userId) return;
+    if (error) toast.error(error.message);
+  }, [error]);
 
-    const fetchFinancials = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetch(`/api/admin/users/${userId}/financials`);
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.error || "Falha ao buscar dados financeiros.");
-        }
-        const data = await response.json();
-        setPayments(data);
-      } catch (error: any) {
-        toast.error(error.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchFinancials();
-  }, [userId]);
-
-  return { payments, isLoading };
+  return { payments: data ?? [], isLoading };
 };

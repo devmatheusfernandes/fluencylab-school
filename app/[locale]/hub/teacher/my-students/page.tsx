@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { Header } from "@/components/ui/header";
@@ -8,17 +8,12 @@ import { SearchBar } from "@/components/ui/search-bar";
 import StudentCard from "@/components/teacher/StudentCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
-
-interface StudentWithNextClass {
-  id: string;
-  name: string;
-  email: string;
-  avatarUrl?: string;
-  nextClass: {
-    scheduledAt: string | Date;
-    language: string;
-  } | null;
-}
+import BreadcrumbActions from "@/components/shared/Breadcrum/BreadcrumbActions";
+import BreadcrumbSearch from "@/components/shared/Breadcrum/BreadcrumbSearch";
+import {
+  useTeacherStudents,
+  type TeacherStudentWithNextClass,
+} from "@/hooks/teacher/useTeacherStudents";
 
 const StudentCardSkeleton = () => (
   <Card>
@@ -38,42 +33,27 @@ const StudentCardSkeleton = () => (
 
 export default function MeusAlunos() {
   const t = useTranslations("MyStudentsPage");
-  const { data: session } = useSession();
-  const [students, setStudents] = useState<StudentWithNextClass[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { status } = useSession();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const fetchStudents = useCallback(async () => {
-    if (!session?.user?.id) return;
+  const {
+    data: students,
+    isLoading,
+    error,
+  } = useTeacherStudents(status === "authenticated");
 
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/teacher/my-students`);
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch students");
-      }
-
-      const data = await response.json();
-      setStudents(data);
-    } catch (error: any) {
-      console.error("Error fetching students:", error);
-      setError(t("errorLoading"));
-    } finally {
-      setLoading(false);
-    }
-  }, [session?.user?.id, t]);
-
-  useEffect(() => {
-    fetchStudents();
-  }, [fetchStudents]);
-
-  const filteredStudents = students.filter(
-    (student) =>
-      student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.email.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  const filteredStudents = useMemo(() => {
+    const list: TeacherStudentWithNextClass[] = Array.isArray(students)
+      ? students
+      : [];
+    if (!searchQuery) return list;
+    const q = searchQuery.toLowerCase();
+    return list.filter(
+      (student) =>
+        student.name.toLowerCase().includes(q) ||
+        student.email.toLowerCase().includes(q),
+    );
+  }, [students, searchQuery]);
 
   if (error) {
     return <NoResults customMessage={{ withoutSearch: t("genericError") }} />;
@@ -82,8 +62,20 @@ export default function MeusAlunos() {
   return (
     <div className="container-padding">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <Header heading={t("title")} subheading={t("subheading")} />
-        <div className="w-full md:w-auto md:min-w-[300px]">
+        <Header
+          heading={t("title")}
+          subheading={t("subheading")}
+          icon={
+            <BreadcrumbActions placement="start">
+              <BreadcrumbSearch
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder={t("searchPlaceholder")}
+              />
+            </BreadcrumbActions>
+          }
+        />
+        <div className="hidden md:block w-full md:w-auto md:min-w-[300px]">
           <SearchBar
             placeholder={t("searchPlaceholder")}
             value={searchQuery}
@@ -94,7 +86,7 @@ export default function MeusAlunos() {
 
       <div className="flex-1 py-2">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {loading ? (
+          {isLoading ? (
             Array.from({ length: 6 }).map((_, index) => (
               <StudentCardSkeleton key={index} />
             ))

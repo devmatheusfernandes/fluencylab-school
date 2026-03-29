@@ -1,5 +1,6 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useMemo, useState, useCallback } from "react";
+import useSWR, { mutate as globalMutate } from "swr";
 import {
   AvailabilitySlot,
   AvailabilityException,
@@ -11,60 +12,117 @@ import {
 } from "@/types/classes/class";
 import { toast } from "sonner";
 
+type StudentAvailabilityState = {
+  slots: AvailabilitySlot[];
+  exceptions: AvailabilityException[];
+  bookedClasses: StudentClass[];
+};
+
+type StudentClassesResponse = {
+  success?: boolean;
+  data?: PopulatedStudentClass[];
+  total?: number;
+};
+
+type RescheduleInfo = {
+  allowed: boolean;
+  count: number;
+  limit: number;
+};
+
+async function jsonFetcher<T>(url: string): Promise<T> {
+  const res = await fetch(url);
+  const body = await res.json().catch(() => null);
+  if (!res.ok) {
+    const message =
+      (body && (body.error || body.message)) || `Request failed (${res.status})`;
+    throw new Error(message);
+  }
+  return (body ?? null) as T;
+}
+
 export const useStudent = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [availability, setAvailability] = useState<{
-    slots: AvailabilitySlot[];
-    exceptions: AvailabilityException[];
-    bookedClasses: StudentClass[];
-  }>({
-    slots: [],
-    exceptions: [],
-    bookedClasses: [],
+  const [isMutating, setIsMutating] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
+  const [availabilityTeacherId, setAvailabilityTeacherId] = useState<
+    string | null
+  >(null);
+
+  const availabilityKey = useMemo(() => {
+    if (!availabilityTeacherId) return null;
+    return `/api/student/availability?teacherId=${encodeURIComponent(
+      availabilityTeacherId,
+    )}`;
+  }, [availabilityTeacherId]);
+
+  const {
+    data: availabilityData,
+    error: availabilityError,
+    isLoading: isAvailabilityLoading,
+  } = useSWR<StudentAvailabilityState>(availabilityKey, jsonFetcher, {
+    keepPreviousData: true,
   });
-  const [myClasses, setMyClasses] = useState<PopulatedStudentClass[]>([]);
-  const [rescheduleInfo, setRescheduleInfo] = useState({
-    allowed: false,
-    count: 0,
-    limit: 2,
+
+  const {
+    data: myClassesResponse,
+    error: myClassesError,
+    isLoading: isMyClassesLoading,
+  } = useSWR<StudentClassesResponse>("/api/student/my-classes", jsonFetcher, {
+    keepPreviousData: true,
   });
+
+  const {
+    data: rescheduleInfoData,
+    error: rescheduleInfoError,
+    isLoading: isRescheduleInfoLoading,
+  } = useSWR<RescheduleInfo>("/api/student/can-reschedule", jsonFetcher, {
+    keepPreviousData: true,
+  });
+
+  const availability: StudentAvailabilityState = useMemo(
+    () =>
+      availabilityData ?? {
+        slots: [],
+        exceptions: [],
+        bookedClasses: [],
+      },
+    [availabilityData],
+  );
+
+  const myClasses = useMemo(
+    () => myClassesResponse?.data ?? [],
+    [myClassesResponse?.data],
+  );
+
+  const rescheduleInfo: RescheduleInfo = useMemo(
+    () => rescheduleInfoData ?? { allowed: false, count: 0, limit: 2 },
+    [rescheduleInfoData],
+  );
+
+  const error =
+    localError ??
+    (availabilityError ? availabilityError.message : null) ??
+    (myClassesError ? myClassesError.message : null) ??
+    (rescheduleInfoError ? rescheduleInfoError.message : null);
+
+  const isLoading =
+    isMutating ||
+    isAvailabilityLoading ||
+    isMyClassesLoading ||
+    isRescheduleInfoLoading;
 
   const fetchAvailability = useCallback(async (teacherId: string) => {
     if (!teacherId) return;
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(
-        `/api/student/availability?teacherId=${teacherId}`
-      );
-      if (!response.ok) throw new Error("Falha ao buscar horários.");
-      const data = await response.json();
-      setAvailability(data); // 'data' já contém as 3 listas, agora o tipo corresponde
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
-    }
+    setLocalError(null);
+    setAvailabilityTeacherId(teacherId);
+    return globalMutate(
+      `/api/student/availability?teacherId=${encodeURIComponent(teacherId)}`,
+    );
   }, []);
 
   const fetchMyClasses = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await fetch("/api/student/my-classes");
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Falha ao buscar as aulas.");
-      }
-      const data = await response.json();
-      setMyClasses(data.data || []);
-    } catch (err: any) {
-      setError(err.message);
-      setMyClasses([]);
-    } finally {
-      setIsLoading(false);
-    }
+    setLocalError(null);
+    return globalMutate("/api/student/my-classes");
   }, []);
 
   const bookClass = async (payload: {
@@ -74,9 +132,8 @@ export const useStudent = () => {
     startTime: string;
     classTopic: string;
   }): Promise<boolean> => {
-    // Adiciona o tipo de retorno para clareza
-    setIsLoading(true);
-    setError(null);
+    setIsMutating(true);
+    setLocalError(null);
     try {
       const response = await fetch("/api/student/classes", {
         method: "POST",
@@ -92,20 +149,19 @@ export const useStudent = () => {
         await fetchAvailability(payload.teacherId);
       }
 
-      return true; // 👈 Adicione este retorno em caso de sucesso
+      await fetchMyClasses();
+      return true;
     } catch (err: any) {
-      setError(err.message);
-      // Não mostre o alerta aqui, pois a UI fará isso
-      return false; // 👈 Adicione este retorno em caso de falha
+      setLocalError(err.message);
+      return false;
     } finally {
-      setIsLoading(false);
+      setIsMutating(false);
     }
   };
 
   const cancelClass = async (classId: string, scheduledAt?: Date) => {
-    // Adiciona o parâmetro scheduledAt
-    setIsLoading(true);
-    setError(null);
+    setIsMutating(true);
+    setLocalError(null);
     try {
       const requestBody: { classId: string; scheduledAt?: string } = {
         classId,
@@ -125,24 +181,19 @@ export const useStudent = () => {
 
       toast.success(data.message);
 
-      // A função agora chama 'fetchMyClasses' internamente após o sucesso
       await fetchMyClasses();
     } catch (err: any) {
-      setError(err.message);
+      setLocalError(err.message);
       toast.error(`Erro: ${err.message}`);
     } finally {
-      setIsLoading(false);
+      setIsMutating(false);
     }
   };
 
   const checkRescheduleStatus = useCallback(async () => {
     try {
-      const response = await fetch("/api/student/can-reschedule");
-      if (!response.ok) return;
-      const data = await response.json();
-      setRescheduleInfo(data);
+      await globalMutate("/api/student/can-reschedule");
     } catch (err) {
-      // Falha silenciosa, não precisa de incomodar o utilizador
     }
   }, []);
 
@@ -182,7 +233,8 @@ export const useStudent = () => {
     reason?: string,
     availabilitySlotId?: string
   ): Promise<boolean> => {
-    setIsLoading(true);
+    setIsMutating(true);
+    setLocalError(null);
     try {
       const response = await fetch(`/api/student/classes/reschedule`, {
         method: "POST",
@@ -198,15 +250,13 @@ export const useStudent = () => {
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
 
-      //("Aula reagendada com sucesso!");
-      // Recarrega os dados para refletir as alterações na UI
       await Promise.all([fetchMyClasses(), checkRescheduleStatus()]);
       return true;
     } catch (err: any) {
-      setError(`Falha ao reagendar: ${err.message}`);
+      setLocalError(`Falha ao reagendar: ${err.message}`);
       return false;
     } finally {
-      setIsLoading(false);
+      setIsMutating(false);
     }
   };
 
@@ -218,12 +268,11 @@ export const useStudent = () => {
   const fetchTeacherAvailability = async (
     teacherId: string
   ): Promise<TeacherAvailability> => {
-    // Esta função não altera o estado do hook, apenas retorna os dados para o componente que a chama.
     const response = await fetch(
-      `/api/student/teacher-availability/${teacherId}`
+      `/api/student/teacher-availability/${encodeURIComponent(teacherId)}`
     );
     if (!response.ok) {
-      setError("Não foi possível carregar os horários do professor.");
+      setLocalError("Não foi possível carregar os horários do professor.");
       return { slots: [], exceptions: [], bookedClasses: [], settings: {} };
     }
     return response.json();
@@ -236,8 +285,8 @@ export const useStudent = () => {
     creditType: string,
     classTopic?: string,
   ): Promise<boolean> => {
-    setIsLoading(true);
-    setError(null);
+    setIsMutating(true);
+    setLocalError(null);
     try {
       const response = await fetch("/api/student/classes/book-with-credit", {
         method: "POST",
@@ -258,10 +307,10 @@ export const useStudent = () => {
       await fetchMyClasses();
       return true;
     } catch (err: any) {
-      setError(err.message);
+      setLocalError(err.message);
       return false;
     } finally {
-      setIsLoading(false);
+      setIsMutating(false);
     }
   };
 

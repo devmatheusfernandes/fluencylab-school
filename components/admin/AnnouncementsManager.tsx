@@ -40,7 +40,13 @@ export function AnnouncementsManager() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { users, isLoading: usersLoading } = useUsers();
+  const { users, isLoading: usersLoading, fetchUsers } = useUsers();
+
+  useEffect(() => {
+    if (recipientType === "specific") {
+      fetchUsers({ isActive: true });
+    }
+  }, [fetchUsers, recipientType]);
 
   // Fetch existing announcements
   useEffect(() => {

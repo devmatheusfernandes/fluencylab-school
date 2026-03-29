@@ -13,7 +13,7 @@ import {
   Notification,
 } from "../NotificationCard/NotificationCard";
 import { signOut } from "next-auth/react";
-import { ArrowDown, ArrowDownFromLine, ArrowUp, LogOut } from "lucide-react";
+import { ArrowDown, ArrowUp, LogOut } from "lucide-react";
 import { useMessages, useTranslations } from "next-intl";
 import { useIsMobile } from "@/hooks/ui/useMobile";
 import { useIsStandalone } from "@/hooks/ui/useIsStandalone";

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useCallback } from "react";
+import { useCallback, useMemo, useState } from "react";
+import useSWR, { mutate as globalMutate } from "swr";
 import { User } from "@/types/users/users";
 
 interface UserFilters {
@@ -9,38 +10,58 @@ interface UserFilters {
   search?: string;
 }
 
+interface UsersResponse {
+  success?: boolean;
+  data?: User[];
+  total?: number;
+}
+
+function buildUsersUrl(filters: UserFilters = {}): string {
+  const params = new URLSearchParams();
+  if (filters.role) params.append("role", filters.role);
+  if (filters.isActive !== undefined) {
+    params.append("status", filters.isActive ? "active" : "inactive");
+  }
+  if (filters.search) params.append("search", filters.search);
+  const qs = params.toString();
+  return qs ? `/api/admin/users?${qs}` : "/api/admin/users";
+}
+
+async function usersFetcher(url: string): Promise<UsersResponse> {
+  const response = await fetch(url);
+  const data = await response.json().catch(() => null);
+  if (!response.ok) {
+    const message =
+      (data && (data.error || data.message)) || "Falha ao buscar usuários.";
+    throw new Error(message);
+  }
+  return (data ?? {}) as UsersResponse;
+}
+
 export const useUsers = () => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [currentKey, setCurrentKey] = useState<string | null>(null);
+  const [isMutating, setIsMutating] = useState(false);
+  const [mutationError, setMutationError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const fetchUsers = useCallback(async (filters: UserFilters = {}) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const params = new URLSearchParams();
-      if (filters.role) params.append('role', filters.role);
-      if (filters.isActive !== undefined) {
-        params.append('status', filters.isActive ? 'active' : 'inactive');
-      }
-      if (filters.search) params.append('search', filters.search);
+  const { data, error, isLoading } = useSWR<UsersResponse>(
+    currentKey,
+    usersFetcher,
+    { keepPreviousData: true },
+  );
 
-      const response = await fetch(`/api/admin/users?${params.toString()}`);
-      if (!response.ok) throw new Error("Falha ao buscar usuários.");
-      
-      const result = await response.json();
-      setUsers(result.data || []);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
-    }
+  const users = useMemo(() => data?.data ?? [], [data?.data]);
+
+  const fetchUsers = useCallback(async (filters: UserFilters = {}) => {
+    const nextKey = buildUsersUrl(filters);
+    setMutationError(null);
+    setCurrentKey(nextKey);
+    return globalMutate(nextKey);
   }, []);
 
   const updateUserStatus = async (userId: string, isActive: boolean) => {
-    setIsLoading(true);
-    setError(null);
+    setIsMutating(true);
+    setMutationError(null);
     setSuccessMessage(null);
     try {
       let response: Response;
@@ -71,13 +92,22 @@ export const useUsers = () => {
       } com sucesso.`;
       setSuccessMessage(successMsg);
 
-      await fetchUsers();
+      if (currentKey) {
+        await globalMutate(currentKey);
+      }
     } catch (err: any) {
-      setError(err.message || "Erro ao atualizar usuário.");
+      setMutationError(err.message || "Erro ao atualizar usuário.");
     } finally {
-      setIsLoading(false);
+      setIsMutating(false);
     }
   };
 
-  return { users, isLoading, error, successMessage, fetchUsers, updateUserStatus };
+  return {
+    users,
+    isLoading: isLoading || isMutating,
+    error: mutationError ?? (error ? error.message : null),
+    successMessage,
+    fetchUsers,
+    updateUserStatus,
+  };
 };
