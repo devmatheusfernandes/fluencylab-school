@@ -1,11 +1,10 @@
 "use client";
-
 import * as React from "react";
-import * as Collapsible from "@radix-ui/react-collapsible";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { twMerge } from "tailwind-merge";
-import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { Drawer as DrawerPrimitive } from "vaul";
 import { useSidebar } from "@/context/SidebarContext";
 import { UserCard, UserData } from "../UserCard/UserCard";
 import {
@@ -18,283 +17,19 @@ import { ArrowDown, ArrowDownFromLine, ArrowUp, LogOut } from "lucide-react";
 import { useMessages, useTranslations } from "next-intl";
 import { useIsMobile } from "@/hooks/ui/useMobile";
 import { useIsStandalone } from "@/hooks/ui/useIsStandalone";
-
-function isPathActive(pathname: string | null, href: string | undefined) {
-  if (!pathname || !href) return false;
-  const normalizedHref =
-    href !== "/" && href.endsWith("/") ? href.slice(0, -1) : href;
-  return (
-    pathname === normalizedHref || pathname.startsWith(`${normalizedHref}/`)
-  );
-}
-
-export interface SubItem {
-  href: string;
-  label: string;
-  icon?: React.ReactNode;
-}
-
-export interface SidebarItemType {
-  href: string;
-  label: string;
-  labelKey?: string;
-  icon?: React.ReactNode;
-  Icon?: React.ElementType<any>;
-  iconProps?: Record<string, any>;
-  subItems?: SubItem[];
-  badgeCount?: number;
-}
-
-interface SidebarItemProps {
-  item: SidebarItemType;
-  isCollapsed: boolean;
-}
+import { isPathActive } from "@/lib/utils";
+import { SidebarItemType } from "@/types/ui/sidebar";
+import MobileNavItem from "./MobileNavbarItem";
+import SidebarItem from "./SidebarItem";
 
 const handleLogout = () => {
   signOut({ callbackUrl: "/" });
 };
 
-const SidebarItem: React.FC<SidebarItemProps> = ({ item, isCollapsed }) => {
-  const t = useTranslations("SidebarItems");
-  const pathname = usePathname();
-  const isActive =
-    isPathActive(pathname, item.href) ||
-    (item.subItems?.some((subItem) => isPathActive(pathname, subItem.href)) ??
-      false);
-
-  const iconRef = React.useRef<any>(null);
-  const Icon = item.Icon as any;
-  const iconNode = Icon ? (
-    <Icon ref={iconRef} {...(item.iconProps ?? {})} />
-  ) : (
-    item.icon
-  );
-
-  const handleMouseEnter = () => {
-    iconRef.current?.startAnimation?.();
-  };
-
-  const handleMouseLeave = () => {
-    iconRef.current?.stopAnimation?.();
-  };
-
-  if (item.subItems) {
-    return (
-      <Collapsible.Root className="w-full">
-        <Collapsible.Trigger className="w-full">
-          <motion.div
-            whileHover={{ x: isCollapsed ? 0 : 4 }}
-            whileTap={{ scale: 0.98 }}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            className={twMerge(
-              "flex items-center h-12 px-3 py-3 rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors duration-200",
-              isActive && "bg-accent text-accent-foreground",
-              isCollapsed && "justify-center px-3",
-            )}
-          >
-            <motion.div
-              whileHover={{ rotate: isCollapsed ? 0 : 5 }}
-              className="w-5 h-5 flex items-center justify-center relative"
-            >
-              {iconNode}
-              {isCollapsed && item.badgeCount && item.badgeCount > 0 ? (
-                <div className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-background">
-                  {item.badgeCount > 9 ? "9+" : item.badgeCount}
-                </div>
-              ) : null}
-            </motion.div>
-            <AnimatePresence>
-              {!isCollapsed && (
-                <motion.span
-                  initial={{ opacity: 0, width: 0 }}
-                  animate={{ opacity: 1, width: "auto" }}
-                  exit={{ opacity: 0, width: 0 }}
-                  className="ml-3 flex-1 whitespace-nowrap text-left overflow-hidden flex items-center justify-between"
-                >
-                  {item.labelKey ? t(item.labelKey) : item.label}
-                  {item.badgeCount && item.badgeCount > 0 ? (
-                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
-                      {item.badgeCount > 99 ? "99+" : item.badgeCount}
-                    </span>
-                  ) : null}
-                </motion.span>
-              )}
-            </AnimatePresence>
-            <AnimatePresence>
-              {!isCollapsed && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0 }}
-                  className="w-5 h-5 flex items-center justify-center ml-auto"
-                >
-                  <ArrowDown className="w-5 h-5" />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-        </Collapsible.Trigger>
-        <Collapsible.Content className="overflow-hidden transition-all data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className={twMerge(
-              "pl-6 flex flex-col gap-1 py-1",
-              isCollapsed && "pl-0",
-            )}
-          >
-            {item.subItems.map((subItem, index) => (
-              <motion.div
-                key={subItem.href}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
-              >
-                <Link
-                  href={subItem.href}
-                  className={twMerge(
-                    "flex items-center h-10 px-3 py-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors duration-200",
-                    isPathActive(pathname, subItem.href) &&
-                      "bg-muted text-foreground",
-                    isCollapsed && "justify-center px-3",
-                  )}
-                >
-                  <div className="w-4 h-4 flex items-center justify-center">
-                    {subItem.icon}
-                  </div>
-                  <AnimatePresence>
-                    {!isCollapsed && (
-                      <motion.span
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="ml-3 whitespace-nowrap"
-                      >
-                        {subItem.label}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </Link>
-              </motion.div>
-            ))}
-          </motion.div>
-        </Collapsible.Content>
-      </Collapsible.Root>
-    );
-  }
-
-  return (
-    <Link href={item.href}>
-      <motion.div
-        whileHover={{ x: isCollapsed ? 0 : 4, scale: isCollapsed ? 1.05 : 1 }}
-        whileTap={{ scale: 0.98 }}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        className={twMerge(
-          "flex items-center h-12 px-3 py-3 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/15 transition-all ease-in-out duration-300",
-          isActive && "bg-primary/30 text-primary font-semibold",
-          isCollapsed && "justify-center px-3",
-        )}
-      >
-        <motion.div
-          whileHover={{ rotate: isCollapsed ? 0 : 5 }}
-          className="w-5 h-5 flex items-center justify-center relative"
-        >
-          {iconNode}
-          {isCollapsed && item.badgeCount && item.badgeCount > 0 ? (
-            <div className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-background">
-              {item.badgeCount > 9 ? "9+" : item.badgeCount}
-            </div>
-          ) : null}
-        </motion.div>
-        <AnimatePresence>
-          {!isCollapsed && (
-            <motion.span
-              initial={{ opacity: 0, width: 0 }}
-              animate={{ opacity: 1, width: "auto" }}
-              exit={{ opacity: 0, width: 0 }}
-              className="ml-3 flex-1 whitespace-nowrap overflow-hidden flex items-center justify-between"
-            >
-              {item.labelKey ? t(item.labelKey) : item.label}
-              {item.badgeCount && item.badgeCount > 0 ? (
-                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
-                  {item.badgeCount > 99 ? "99+" : item.badgeCount}
-                </span>
-              ) : null}
-            </motion.span>
-          )}
-        </AnimatePresence>
-      </motion.div>
-    </Link>
-  );
-};
-
-// --- Mobile Navbar Item Component ---
-interface MobileNavItemProps {
-  item: SidebarItemType;
-  notificationCount?: number;
-}
-
-const MobileNavItem: React.FC<MobileNavItemProps> = ({
-  item,
-  notificationCount,
-}) => {
-  const t = useTranslations("SidebarItems");
-  const pathname = usePathname();
-  const isActive = isPathActive(pathname, item.href);
-
-  if (item.subItems) {
-    return null;
-  }
-
-  const badgeCount = notificationCount || item.badgeCount;
-  const Icon = item.Icon as any;
-  const iconNode = Icon ? <Icon {...(item.iconProps ?? {})} /> : item.icon;
-
-  return (
-    <Link href={item.href} className="flex-1">
-      <motion.div
-        whileTap={{ scale: 0.9 }}
-        className={twMerge(
-          "relative flex items-center justify-center transition-colors duration-200 w-full h-full",
-          isActive
-            ? "bg-primary/15 rounded-full px-4 py-2 gap-2"
-            : "p-2 text-muted-foreground hover:text-primary",
-        )}
-      >
-        <motion.div
-          animate={isActive ? { scale: [1, 1.2, 1] } : {}}
-          transition={{ duration: 0.3 }}
-          className="w-6 h-6 flex items-center justify-center text-primary"
-        >
-          {iconNode}
-        </motion.div>
-        {/* Only show label if active and ample space, otherwise icon only on mobile usually looks cleaner, 
-            but adhering to original design to show label on active */}
-        <AnimatePresence>
-          {isActive && (
-            <motion.span
-              initial={{ opacity: 0, width: 0 }}
-              animate={{ opacity: 1, width: "auto" }}
-              exit={{ opacity: 0, width: 0 }}
-              className="text-sm font-medium text-foreground whitespace-nowrap overflow-hidden ml-2"
-            >
-              {item.labelKey ? t(item.labelKey) : item.label}
-            </motion.span>
-          )}
-        </AnimatePresence>
-        {badgeCount && badgeCount > 0 && (
-          <NotificationBadge count={badgeCount} />
-        )}
-      </motion.div>
-    </Link>
-  );
-};
-
-// --- Mobile Bottom Drawer Component ---
+// Mobile Bottom Drawer Component
 interface MobileBottomDrawerProps {
-  onClose: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   items: SidebarItemType[];
   user?: UserData;
   notifications: Notification[];
@@ -302,11 +37,11 @@ interface MobileBottomDrawerProps {
   onMarkAllAsRead: () => void;
   onDeleteNotification: (id: string) => void;
   onClearAllNotifications: () => void;
-  layoutId: string;
 }
 
 const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
-  onClose,
+  open,
+  onOpenChange,
   items,
   user,
   notifications,
@@ -314,7 +49,6 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
   onMarkAllAsRead,
   onDeleteNotification,
   onClearAllNotifications,
-  layoutId,
 }) => {
   const pathname = usePathname();
   const tItems = useTranslations("SidebarItems");
@@ -325,7 +59,6 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
   );
 
   React.useEffect(() => {
-    // Determine active section based on current path
     const activeSection = items.find((item) =>
       item.subItems?.some((sub) => isPathActive(pathname, sub.href)),
     );
@@ -337,54 +70,23 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <>
-      {/* Backdrop - Fades in separately */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-slate-500/20 backdrop-blur-sm z-40 md:hidden"
-        onClick={onClose}
-      />
+    <DrawerPrimitive.Root open={open} onOpenChange={onOpenChange}>
+      <DrawerPrimitive.Portal>
+        <DrawerPrimitive.Overlay className="fixed inset-0 bg-slate-500/20 backdrop-blur-sm z-40 md:hidden" />
 
-      {/* The Drawer itself - Morphs from the Navbar using layoutId */}
-      <motion.div
-        layoutId={layoutId}
-        className="fixed bottom-0 left-0 right-0 bg-background dark:bg-slate-950 rounded-t-xl z-50 md:hidden overflow-hidden flex flex-col shadow-2xl h-[85vh] max-h-[85vh]"
-        transition={{ type: "spring", bounce: 0, duration: 0.5 }}
-      >
-        {/* Content Wrapper - Fades in slightly after morph starts */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-          className="flex flex-col h-full"
-        >
+        <DrawerPrimitive.Content className="fixed bottom-0 left-0 right-0 bg-background dark:bg-slate-950 rounded-t-xl z-50 md:hidden flex flex-col outline-none shadow-2xl h-[85vh] max-h-[85vh]">
           {/* Handle */}
           <div className="flex justify-center pt-3 pb-2 shrink-0">
-            <motion.div className="w-12 h-1 bg-muted-foreground/30 rounded-full" />
+            <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
           </div>
 
-          {/* Header with User Card */}
+          <DrawerPrimitive.Description className="sr-only">
+            Menu de navegação e notificações mobile
+          </DrawerPrimitive.Description>
+          <DrawerPrimitive.Title />
           <div className="px-4 py-3 shrink-0">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-semibold text-foreground">
-                {activeTab === "menu"
-                  ? (tSidebar.menu ?? "Menu")
-                  : (tSidebar.notifications ?? "Notificações")}
-              </h2>
-              <motion.button
-                whileHover={{ scale: 1.1, rotate: 180 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={onClose}
-                className="p-2 rounded-lg hover:bg-muted transition-colors"
-              >
-                <ArrowDownFromLine className="w-5 h-5" />
-              </motion.button>
-            </div>
             <AnimatePresence mode="wait">
-              {user && activeTab === "menu" && (
+              {user && (
                 <UserCard
                   user={user}
                   variant="mobile"
@@ -394,7 +96,6 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
             </AnimatePresence>
           </div>
 
-          {/* Tabs */}
           <div className="flex border-b border-border shrink-0">
             <motion.button
               whileTap={{ scale: 0.98 }}
@@ -440,7 +141,6 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
             </motion.button>
           </div>
 
-          {/* Scrollable Content */}
           <div className="overflow-y-auto flex-1 p-0">
             <AnimatePresence mode="wait">
               {activeTab === "menu" ? (
@@ -525,7 +225,7 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
                                         >
                                           <Link
                                             href={subItem.href}
-                                            onClick={onClose}
+                                            onClick={() => onOpenChange(false)}
                                             className={twMerge(
                                               "flex items-center gap-3 p-2 rounded-lg transition-colors",
                                               isActive
@@ -550,7 +250,7 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
                           ) : (
                             <Link
                               href={item.href}
-                              onClick={onClose}
+                              onClick={() => onOpenChange(false)}
                               className={twMerge(
                                 "flex items-center gap-3 p-3 rounded-lg transition-colors",
                                 isPathActive(pathname, item.href)
@@ -593,9 +293,9 @@ const MobileBottomDrawer: React.FC<MobileBottomDrawerProps> = ({
               )}
             </AnimatePresence>
           </div>
-        </motion.div>
-      </motion.div>
-    </>
+        </DrawerPrimitive.Content>
+      </DrawerPrimitive.Portal>
+    </DrawerPrimitive.Root>
   );
 };
 
@@ -661,7 +361,6 @@ const Sidebar: React.FC<SidebarProps> = ({
             !isCollapsed && "px-2 gap-3",
           )}
         >
-          {/* User Card at top */}
           <AnimatePresence mode="wait">
             {user && (
               <motion.div
@@ -680,7 +379,6 @@ const Sidebar: React.FC<SidebarProps> = ({
             )}
           </AnimatePresence>
 
-          {/* Navigation */}
           <motion.nav
             layout
             className={twMerge(
@@ -701,7 +399,6 @@ const Sidebar: React.FC<SidebarProps> = ({
             ))}
           </motion.nav>
 
-          {/* Notifications at bottom */}
           <motion.div
             layout
             className={twMerge(
@@ -720,7 +417,6 @@ const Sidebar: React.FC<SidebarProps> = ({
             />
           </motion.div>
 
-          {/* Logout button when collapsed */}
           <AnimatePresence>
             {handleLogout && isCollapsed && (
               <motion.button
@@ -740,74 +436,52 @@ const Sidebar: React.FC<SidebarProps> = ({
         </motion.div>
       </motion.aside>
 
-      {/* --- Mobile Interaction Section --- */}
-      <LayoutGroup>
-        <AnimatePresence mode="popLayout">
-          {isMobileMenuOpen ? (
-            // State 2: The Expanded Drawer
-            <MobileBottomDrawer
-              key="mobile-drawer"
-              layoutId="mobile-sidebar"
-              onClose={() => setIsMobileMenuOpen(false)}
-              items={items}
-              user={user}
-              notifications={notifications}
-              onMarkAsRead={onMarkAsRead}
-              onMarkAllAsRead={onMarkAllAsRead}
-              onDeleteNotification={onDeleteNotification}
-              onClearAllNotifications={onClearAllNotifications}
-            />
-          ) : (
-            // State 1: The Compact Navbar
-            <motion.nav
-              key="mobile-navbar"
-              layoutId="mobile-sidebar"
-              className={twMerge(
-                "md:hidden fixed bottom-0 left-0 right-0 px-4 py-2 z-50 flex items-center justify-between",
-                isStandalone && "bg-slate-200! dark:bg-slate-900! border-none!",
-                isMobile &&
-                  "bg-slate-100 dark:bg-slate-950 border-t border-primary",
-              )}
-              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
-            >
-              {/* Content Container - Fades out on open */}
-              <motion.div
-                className="flex items-center justify-between w-full"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                {mobileVisibleItems.map((item) => (
-                  <MobileNavItem key={item.label} item={item} />
-                ))}
+      {/* State 1: The Compact Navbar (Always rendered beneath the Drawer) */}
+      <motion.nav
+        key="mobile-navbar"
+        className={twMerge(
+          "md:hidden fixed bottom-0 left-0 right-0 px-4 py-2 z-40 flex items-center justify-between",
+          isStandalone && "bg-slate-200! dark:bg-slate-900! border-none!",
+          isMobile && "bg-slate-100 dark:bg-slate-950 border-t border-primary",
+        )}
+      >
+        <motion.div className="flex items-center justify-between w-full">
+          {mobileVisibleItems.map((item) => (
+            <MobileNavItem key={item.label} item={item} />
+          ))}
 
-                {/* More/Open Button */}
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => setIsMobileMenuOpen(true)}
-                  className="relative flex items-center justify-center p-2 flex-1 text-muted-foreground hover:text-primary transition-colors duration-200"
-                >
-                  <motion.div
-                    animate={
-                      unreadCount > 0 ? { rotate: [0, -10, 10, -10, 0] } : {}
-                    }
-                    transition={{
-                      duration: 0.5,
-                      repeat: unreadCount > 0 ? Infinity : 0,
-                      repeatDelay: 3,
-                    }}
-                    className="w-6 h-6 flex items-center justify-center"
-                  >
-                    <ArrowUp className="text-primary w-6 h-6" />
-                  </motion.div>
-                  {unreadCount > 0 && <NotificationBadge count={unreadCount} />}
-                </motion.button>
-              </motion.div>
-            </motion.nav>
-          )}
-        </AnimatePresence>
-      </LayoutGroup>
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="relative flex items-center justify-center p-2 flex-1 text-muted-foreground hover:text-primary transition-colors duration-200"
+          >
+            <motion.div
+              animate={unreadCount > 0 ? { rotate: [0, -10, 10, -10, 0] } : {}}
+              transition={{
+                duration: 0.5,
+                repeat: unreadCount > 0 ? Infinity : 0,
+                repeatDelay: 3,
+              }}
+              className="w-6 h-6 flex items-center justify-center"
+            >
+              <ArrowUp className="text-primary w-6 h-6" />
+            </motion.div>
+            {unreadCount > 0 && <NotificationBadge count={unreadCount} />}
+          </motion.button>
+        </motion.div>
+      </motion.nav>
+
+      <MobileBottomDrawer
+        open={isMobileMenuOpen}
+        onOpenChange={setIsMobileMenuOpen}
+        items={items}
+        user={user}
+        notifications={notifications}
+        onMarkAsRead={onMarkAsRead}
+        onMarkAllAsRead={onMarkAllAsRead}
+        onDeleteNotification={onDeleteNotification}
+        onClearAllNotifications={onClearAllNotifications}
+      />
     </>
   );
 };

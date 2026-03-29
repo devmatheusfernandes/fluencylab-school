@@ -1,12 +1,10 @@
 // config/sidebarItems.tsx
-import { SidebarItemType } from "@/components/shared/Sidebar/Sidebar";
 import BrandLmStudioIcon from "@/public/animated/brand-lmstudio";
 import { CalendarDaysIcon } from "@/public/animated/calendar";
 import { CircleCheckIcon } from "@/public/animated/circle-check";
 import { DollarSignIcon } from "@/public/animated/finances";
 import LayersIcon from "@/public/animated/layers-icon";
 import LayoutDashboardIcon from "@/public/animated/layout-dashboard-icon";
-import { BookTextIcon } from "@/public/animated/lesson";
 import { MessageSquareIcon } from "@/public/animated/message-square";
 import { LayoutPanelTopIcon } from "@/public/animated/notebook";
 import { BellIcon } from "@/public/animated/notification";
@@ -15,6 +13,7 @@ import { UserIcon } from "@/public/animated/person";
 import { SettingsIcon } from "@/public/animated/settings";
 import { ClapIcon } from "@/public/animated/video";
 import { WavesLadderIcon } from "@/public/animated/waves-ladder";
+import { SidebarItemType } from "@/types/ui/sidebar";
 import { UserRoles } from "@/types/users/userRoles";
 
 // Define os links para cada papel

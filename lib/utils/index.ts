@@ -41,7 +41,7 @@ export function serializeForClientComponent(obj: any): any {
     ) {
       // Convert Firestore Timestamp to Date object
       const timestamp = new Date(
-        obj._seconds * 1000 + obj._nanoseconds / 1000000
+        obj._seconds * 1000 + obj._nanoseconds / 1000000,
       );
       return timestamp;
     }
@@ -196,4 +196,16 @@ export function convertStringToDate(obj: any): any {
   }
 
   return obj;
+}
+
+export function isPathActive(
+  pathname: string | null,
+  href: string | undefined,
+) {
+  if (!pathname || !href) return false;
+  const normalizedHref =
+    href !== "/" && href.endsWith("/") ? href.slice(0, -1) : href;
+  return (
+    pathname === normalizedHref || pathname.startsWith(`${normalizedHref}/`)
+  );
 }
