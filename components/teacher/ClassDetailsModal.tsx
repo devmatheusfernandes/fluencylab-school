@@ -2,7 +2,6 @@ import { PopulatedStudentClass, ClassStatus } from "@/types/classes/class";
 import {
   Modal,
   ModalBody,
-  ModalClose,
   ModalContent,
   ModalHeader,
   ModalTitle,
@@ -96,7 +95,6 @@ export default function ClassDetailsModal({
       <ModalContent>
         <ModalHeader>
           <ModalTitle>{t("title")}</ModalTitle>
-          <ModalClose />
         </ModalHeader>
         <ModalBody>
           <div className="space-y-4">

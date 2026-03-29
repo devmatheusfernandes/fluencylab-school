@@ -8,7 +8,6 @@ import {
   ModalTitle,
   ModalDescription,
   ModalFooter,
-  ModalClose,
 } from "../ui/modal";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -207,9 +206,7 @@ const SignatureModal: React.FC<SignatureModalProps> = ({
       <ModalContent className="max-w-2xl">
         <ModalHeader>
           <ModalTitle>{t("title")}</ModalTitle>
-          <ModalDescription>
-            {t("description")}
-          </ModalDescription>
+          <ModalDescription>{t("description")}</ModalDescription>
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -408,8 +405,6 @@ const SignatureModal: React.FC<SignatureModalProps> = ({
             </Button>
           </ModalFooter>
         </form>
-
-        <ModalClose />
       </ModalContent>
     </Modal>
   );

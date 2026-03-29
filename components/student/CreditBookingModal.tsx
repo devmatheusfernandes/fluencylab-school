@@ -8,7 +8,6 @@ import { db } from "@/lib/firebase/config";
 import {
   Modal,
   ModalBody,
-  ModalClose,
   ModalContent,
   ModalFooter,
   ModalHeader,
@@ -161,7 +160,6 @@ export default function CreditBookingModal({
                   ? "Agendar Aula Bônus"
                   : "Agendar Aula (Aluno Tardio)"}
               </ModalTitle>
-              <ModalClose />
             </ModalHeader>
 
             <ModalBody>

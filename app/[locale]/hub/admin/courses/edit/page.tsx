@@ -48,7 +48,6 @@ import {
   ModalContent,
   ModalHeader,
   ModalTitle,
-  ModalClose,
   ModalDescription,
   ModalFooter,
   ModalIcon,
@@ -56,8 +55,6 @@ import {
   ModalSecondaryButton,
 } from "@/components/ui/modal";
 import { Header } from "@/components/ui/header";
-
-// Custom Components & Types
 import SectionForm from "../../../../../../components/course/SectionForm";
 import {
   Course,
@@ -65,9 +62,6 @@ import {
   Lesson,
   QuizQuestion,
 } from "../../../../../../types/quiz/types";
-import Link from "next/link";
-
-const generateUniqueId = () => `_${Math.random().toString(36).substr(2, 9)}`;
 
 export default function EditCourseForm() {
   const t = useTranslations("AdminCourses.edit");
@@ -729,7 +723,6 @@ export default function EditCourseForm() {
                 ? t("modals.editSection")
                 : t("modals.newSection")}
             </ModalTitle>
-            <ModalClose />
           </ModalHeader>
           <div className="py-4">
             <SectionForm

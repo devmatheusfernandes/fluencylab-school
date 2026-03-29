@@ -20,7 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import CourseEditor from "./CourseEditor"; // Assumindo que existe
+import CourseEditor from "./CourseEditor";
 import {
   Modal,
   ModalContent,
@@ -28,7 +28,6 @@ import {
   ModalTitle,
   ModalPrimaryButton,
   ModalSecondaryButton,
-  ModalClose,
 } from "@/components/ui/modal";
 
 const generateUniqueId = () => `_${Math.random().toString(36).substr(2, 9)}`;
@@ -438,7 +437,6 @@ export default function LessonForm({
         <ModalContent>
           <ModalHeader>
             <ModalTitle>{confirmModal.title}</ModalTitle>
-            <ModalClose />
           </ModalHeader>
           <div className="py-4">
             <p className="text-gray-600 dark:text-gray-300">

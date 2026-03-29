@@ -3,7 +3,10 @@
 
 import { useState, useEffect } from "react";
 import { UserRoles } from "@/types/users/userRoles";
-import { Announcement, AnnouncementType } from "@/types/communication/announcements";
+import {
+  Announcement,
+  AnnouncementType,
+} from "@/types/communication/announcements";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,7 +19,6 @@ import {
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { useUsers } from "@/hooks/admin/useUsers";
-import { twMerge } from "tailwind-merge";
 import { toast } from "sonner";
 import { FileWarning, Info, InfoIcon, Lightbulb } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -28,7 +30,7 @@ export function AnnouncementsManager() {
   const [message, setMessage] = useState("");
   const [type, setType] = useState<AnnouncementType>("info");
   const [recipientType, setRecipientType] = useState<"role" | "specific">(
-    "role"
+    "role",
   );
   const [selectedRoles, setSelectedRoles] = useState<UserRoles[]>([
     UserRoles.STUDENT,
@@ -53,7 +55,7 @@ export function AnnouncementsManager() {
           const errorData = await response.json();
           throw new Error(
             errorData.error ||
-              `Failed to fetch announcements: ${response.status} ${response.statusText}`
+              `Failed to fetch announcements: ${response.status} ${response.statusText}`,
           );
         }
 
@@ -63,7 +65,8 @@ export function AnnouncementsManager() {
         console.error("Error fetching announcements:", error);
         setError(error.message || "Failed to fetch announcements");
         toast.error(
-          "Failed to fetch announcements: " + (error.message || "Unknown error")
+          "Failed to fetch announcements: " +
+            (error.message || "Unknown error"),
         );
       } finally {
         setLoading(false);
@@ -102,7 +105,7 @@ export function AnnouncementsManager() {
         const errorData = await response.json();
         throw new Error(
           errorData.error ||
-            `Failed to create announcement: ${response.status} ${response.statusText}`
+            `Failed to create announcement: ${response.status} ${response.statusText}`,
         );
       }
 
@@ -119,7 +122,7 @@ export function AnnouncementsManager() {
       console.error("Error creating announcement:", error);
       setError(error.message || "Failed to create announcement");
       toast.error(
-        "Failed to create announcement: " + (error.message || "Unknown error")
+        "Failed to create announcement: " + (error.message || "Unknown error"),
       );
     } finally {
       setIsCreating(false);
@@ -136,7 +139,7 @@ export function AnnouncementsManager() {
         const errorData = await response.json();
         throw new Error(
           errorData.error ||
-            `Failed to delete announcement: ${response.status} ${response.statusText}`
+            `Failed to delete announcement: ${response.status} ${response.statusText}`,
         );
       }
 
@@ -146,7 +149,7 @@ export function AnnouncementsManager() {
       console.error("Error deleting announcement:", error);
       setError(error.message || "Failed to delete announcement");
       toast.error(
-        "Failed to delete announcement: " + (error.message || "Unknown error")
+        "Failed to delete announcement: " + (error.message || "Unknown error"),
       );
     }
   };
@@ -251,9 +254,7 @@ export function AnnouncementsManager() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="role">Por Função</SelectItem>
-                  <SelectItem value="specific">
-                    Usuários Específicos
-                  </SelectItem>
+                  <SelectItem value="specific">Usuários Específicos</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -273,7 +274,7 @@ export function AnnouncementsManager() {
                           setSelectedRoles((prev) => [...prev, role]);
                         } else {
                           setSelectedRoles((prev) =>
-                            prev.filter((r) => r !== role)
+                            prev.filter((r) => r !== role),
                           );
                         }
                       }}
@@ -304,7 +305,7 @@ export function AnnouncementsManager() {
                             setSelectedUserIds((prev) => [...prev, user.id]);
                           } else {
                             setSelectedUserIds((prev) =>
-                              prev.filter((id) => id !== user.id)
+                              prev.filter((id) => id !== user.id),
                             );
                           }
                         }}

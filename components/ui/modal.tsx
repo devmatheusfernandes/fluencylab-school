@@ -89,7 +89,7 @@ const ModalContent = React.forwardRef<
         ref={ref}
         className={twMerge(
           `fixed inset-x-0 bottom-0 z-50 mt-24 flex flex-col rounded-t-[20px] 
-          sm:rounded-2xl sm:max-w-lg sm:mx-auto sm:bottom-6 sm:mb-0 
+          sm:rounded-2xl sm:max-w-lg sm:mx-auto sm:bottom-6 sm:mb-0 mx-auto
           bg-background backdrop-blur-xl shadow-2xl
           border border-gray-200/50 dark:border-gray-700/50 outline-none sm:after:hidden`,
           className,

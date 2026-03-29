@@ -3,7 +3,6 @@ import {
   ModalContent,
   ModalHeader,
   ModalTitle,
-  ModalClose,
 } from "@/components/ui/modal";
 
 const LessonModal = ({
@@ -22,7 +21,6 @@ const LessonModal = ({
       <ModalContent className="w-full max-w-2xl">
         <ModalHeader>
           <ModalTitle>{title}</ModalTitle>
-          <ModalClose />
         </ModalHeader>
         <div className="overflow-y-auto p-6">{children}</div>
       </ModalContent>

@@ -7,7 +7,6 @@ import {
   ModalContent,
   ModalHeader,
   ModalTitle,
-  ModalClose,
   ModalFooter,
   ModalSecondaryButton,
   ModalPrimaryButton,
@@ -86,7 +85,7 @@ export default function NotebooksCard({
   const filteredNotebooks = notebooks.filter(
     (notebook) =>
       notebook.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      notebook.description.toLowerCase().includes(searchQuery.toLowerCase())
+      notebook.description.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const handleCreateNotebook = async () => {
@@ -166,7 +165,7 @@ export default function NotebooksCard({
             .sort(
               (a, b) =>
                 new Date(b.createdAt).getTime() -
-                new Date(a.createdAt).getTime()
+                new Date(a.createdAt).getTime(),
             )
             .map((notebook, index) => (
               <motion.div
@@ -239,7 +238,6 @@ export default function NotebooksCard({
             <ModalIcon type="confirm" />
             <ModalHeader>
               <ModalTitle>{t("createTitle")}</ModalTitle>
-              <ModalClose />
             </ModalHeader>
             <div className="space-y-4">
               <div>

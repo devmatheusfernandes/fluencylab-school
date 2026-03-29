@@ -4,10 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { CreditService } from "@/services/financial/creditService";
-import {
-  GrantCreditRequest,
-  RegularCreditType,
-} from "@/types/credits/regularClassCredits";
+import { RegularCreditType } from "@/types/credits/regularClassCredits";
 import { withValidation } from "@/lib/validation";
 import { z } from "zod";
 
@@ -18,14 +15,14 @@ const grantCreditSchema = z.object({
   studentId: z.string().min(1, "ID do estudante é obrigatório"),
   type: z.enum(
     RegularCreditType,
-    "Tipo deve ser: bonus, late-students ou teacher-cancellation"
+    "Tipo deve ser: bonus, late-students ou teacher-cancellation",
   ),
   amount: z.number().int().min(1, "Quantidade deve ser maior que zero"),
   expiresAt: z
     .string()
     .refine(
       (date) => new Date(date) > new Date(),
-      "Data de expiração deve ser no futuro"
+      "Data de expiração deve ser no futuro",
     )
     .transform((date) => new Date(date)),
   reason: z.string().min(1).max(500).optional(),
@@ -34,7 +31,7 @@ const grantCreditSchema = z.object({
 export const POST = withValidation(
   async (
     request: NextRequest,
-    validatedData: { body: z.infer<typeof grantCreditSchema> }
+    validatedData: { body: z.infer<typeof grantCreditSchema> },
   ) => {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
@@ -46,7 +43,7 @@ export const POST = withValidation(
     if (!userPermissions.includes("credits.grant")) {
       return NextResponse.json(
         { error: "Permissão insuficiente para conceder créditos" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -55,7 +52,7 @@ export const POST = withValidation(
 
       const credit = await creditService.grantCredits(
         { studentId, type, amount, expiresAt, reason },
-        session.user.id
+        session.user.id,
       );
 
       return NextResponse.json({
@@ -72,5 +69,5 @@ export const POST = withValidation(
     bodySchema: grantCreditSchema,
     logAttacks: true,
     blockAttacks: true,
-  }
+  },
 );

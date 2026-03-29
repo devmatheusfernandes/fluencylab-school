@@ -14,7 +14,6 @@ import {
   ModalIcon,
   ModalPrimaryButton,
   ModalSecondaryButton,
-  ModalClose,
 } from "@/components/ui/modal";
 import { Card } from "@/components/ui/card";
 import {
@@ -44,7 +43,7 @@ export const ClassCancellationModal: React.FC<ClassCancellationModalProps> = ({
     "confirm" | "reschedule" | "options" | "success"
   >("reschedule");
   const [selectedSlot, setSelectedSlot] = useState<RescheduleOption | null>(
-    null
+    null,
   );
   const {
     loading,
@@ -62,11 +61,14 @@ export const ClassCancellationModal: React.FC<ClassCancellationModalProps> = ({
   }, [isOpen, step, classData.id, checkRescheduleOptions]);
 
   const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString(locale === "pt" ? "pt-BR" : "en-US", {
-      weekday: "short",
-      day: "numeric",
-      month: "short",
-    });
+    return new Date(date).toLocaleDateString(
+      locale === "pt" ? "pt-BR" : "en-US",
+      {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+      },
+    );
   };
 
   const handleCancel = async () => {
@@ -90,7 +92,7 @@ export const ClassCancellationModal: React.FC<ClassCancellationModalProps> = ({
         classData.id,
         newScheduledAt,
         selectedSlot.slotId,
-        "Reagendamento solicitado pelo aluno"
+        "Reagendamento solicitado pelo aluno",
       );
 
       if (result.success) {
@@ -171,10 +173,11 @@ export const ClassCancellationModal: React.FC<ClassCancellationModalProps> = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              <ModalClose />
               <ModalHeader>
                 <ModalIcon type="delete" />
-                <ModalTitle className="text-center">{t("cancellationTitle")}</ModalTitle>
+                <ModalTitle className="text-center">
+                  {t("cancellationTitle")}
+                </ModalTitle>
               </ModalHeader>
 
               <ModalBody>
@@ -223,9 +226,7 @@ export const ClassCancellationModal: React.FC<ClassCancellationModalProps> = ({
               <ModalHeader>
                 <ModalIcon type="calendar" />
                 <ModalTitle>{t("chooseNewTime")}</ModalTitle>
-                <ModalDescription>
-                  {t("selectSlot")}
-                </ModalDescription>
+                <ModalDescription>{t("selectSlot")}</ModalDescription>
               </ModalHeader>
 
               <ModalBody>
@@ -303,9 +304,7 @@ export const ClassCancellationModal: React.FC<ClassCancellationModalProps> = ({
               <ModalHeader>
                 <ModalIcon type="success" />
                 <ModalTitle>{t("successTitle")}</ModalTitle>
-                <ModalDescription>
-                  {t("successDescription")}
-                </ModalDescription>
+                <ModalDescription>{t("successDescription")}</ModalDescription>
               </ModalHeader>
 
               <ModalBody>

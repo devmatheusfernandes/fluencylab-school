@@ -7,7 +7,6 @@ import {
   ModalHeader,
   ModalTitle,
   ModalBody,
-  ModalClose,
 } from "@/components/ui/modal";
 import {
   Accordion,
@@ -44,7 +43,7 @@ export function WordleHistoryModal({
       return bt - at;
     })
     .forEach(([dayLabel, dayEntries]) =>
-      groups.push({ dayLabel, entries: dayEntries })
+      groups.push({ dayLabel, entries: dayEntries }),
     );
 
   const defaultOpenDay = groups.length > 0 ? [groups[0].dayLabel] : [];
@@ -56,7 +55,6 @@ export function WordleHistoryModal({
           <ModalTitle className="text-xl tracking-wide">
             Histórico de Jogadas
           </ModalTitle>
-          <ModalClose />
         </ModalHeader>
 
         <ModalBody className="overflow-y-auto max-h-[70vh] pr-2 custom-scrollbar">

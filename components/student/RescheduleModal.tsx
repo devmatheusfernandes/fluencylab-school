@@ -8,7 +8,6 @@ import { useStudent } from "@/hooks/student/useStudent";
 import {
   Modal,
   ModalBody,
-  ModalClose,
   ModalContent,
   ModalFooter,
   ModalHeader,

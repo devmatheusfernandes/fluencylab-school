@@ -9,7 +9,6 @@ import {
   ModalTitle,
   ModalDescription,
   ModalFooter,
-  ModalClose,
   ModalPrimaryButton,
   ModalSecondaryButton,
 } from "@/components/ui/modal";
@@ -106,10 +105,7 @@ export default function TeacherVacationList({
         <ModalContent>
           <ModalHeader>
             <ModalTitle>{t("deleteModal.title")}</ModalTitle>
-            <ModalDescription>
-              {t("deleteModal.description")}
-            </ModalDescription>
-            <ModalClose />
+            <ModalDescription>{t("deleteModal.description")}</ModalDescription>
           </ModalHeader>
           <ModalFooter>
             <ModalSecondaryButton onClick={closeDeleteModal}>

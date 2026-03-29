@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { UserRoles } from "@/types/users/userRoles";
 import { useTranslations } from "next-intl";
 import {
   Modal,
   ModalBody,
-  ModalClose,
   ModalContent,
   ModalField,
   ModalFooter,

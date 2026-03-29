@@ -13,7 +13,6 @@ import {
   ModalTitle,
   ModalPrimaryButton,
   ModalSecondaryButton,
-  ModalClose,
 } from "@/components/ui/modal";
 import { Label } from "../ui/label";
 
@@ -309,7 +308,6 @@ export default function QuizForm({
         <ModalContent>
           <ModalHeader>
             <ModalTitle>Excluir Questão</ModalTitle>
-            <ModalClose />
           </ModalHeader>
           <div className="py-4 text-gray-600">
             Tem certeza que deseja remover esta questão? Esta ação não pode ser
