@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Check } from "lucide-react";
-import { cn } from "@/lib/utils"; // Certifique-se de ter essa lib ou use twMerge
+import { cn } from "@/lib/utils"; 
 import {
   Modal,
   ModalContent,
@@ -15,15 +15,13 @@ import {
   ModalDescription,
 } from "@/components/ui/modal"; // Ajuste o caminho para onde está seu arquivo base
 
-// --- Interfaces ---
 
 export interface WizardStep {
   id: string;
   title: string;
   description?: string;
   icon?: React.ElementType; // Ícone Lucide
-  content: React.ReactNode; // O conteúdo principal do passo
-  // Estilização do Header
+  content: React.ReactNode;
   headerBg?: string; // ex: "bg-blue-100"
   iconColor?: string; // ex: "text-blue-600"
 }
@@ -35,8 +33,6 @@ interface WizardModalProps {
   onComplete?: () => void;
   submitLabel?: string;
 }
-
-// --- Variantes de Animação ---
 
 const contentVariants = {
   enter: (direction: number) => ({
@@ -58,8 +54,6 @@ const contentVariants = {
     position: "absolute",
   }),
 };
-
-// --- Componente Principal ---
 
 export function WizardModal({
   open,
@@ -104,9 +98,7 @@ export function WizardModal({
 
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
-      {/* Removemos padding padrão para o header full-width */}
-      <ModalContent className="p-0 overflow-hidden sm:max-w-[500px]">
-        {/* --- Header Visual Animado --- */}
+      <ModalContent className="p-0 overflow-hidden sm:max-w-[700px]">
         <div
           className={cn(
             "h-32 w-full flex items-center justify-center relative transition-colors duration-500 ease-in-out rounded-md",
@@ -134,8 +126,7 @@ export function WizardModal({
           </AnimatePresence>
         </div>
 
-        {/* --- Corpo do Conteúdo --- */}
-        <ModalBody className="px-6 pt-6 pb-2 relative min-h-[280px]">
+        <ModalBody className="px-6 pt-6 pb-2 mb-4 relative min-h-[280px]">
           <AnimatePresence mode="popLayout" initial={false} custom={direction}>
             <motion.div
               key={currentStep}
@@ -150,7 +141,6 @@ export function WizardModal({
               }}
               className="space-y-4 w-full"
             >
-              {/* Títulos e Descrições */}
               <div className="text-center space-y-2 mb-6">
                 <ModalTitle>{stepData.title}</ModalTitle>
                 {stepData.description && (
@@ -160,16 +150,13 @@ export function WizardModal({
                 )}
               </div>
 
-              {/* Conteúdo Injetado via Props */}
               <div className="w-full">{stepData.content}</div>
             </motion.div>
           </AnimatePresence>
         </ModalBody>
 
-        {/* --- Footer e Navegação --- */}
-        <ModalFooter className="px-6 pb-6 pt-4 border-t-0 bg-white dark:bg-gray-900 z-10 relative flex-col gap-4">
-          {/* Barra de Progresso */}
-          <div className="flex w-full gap-1.5 justify-center mb-2">
+        <ModalFooter className="px-6 pb-6 pt-4 border-t-1 border-background z-10 relative flex flex-col items-center gap-4">
+          <div className="flex w-full gap-1.5 justify-center">
             {steps.map((_, idx) => (
               <motion.div
                 key={idx}
@@ -188,24 +175,23 @@ export function WizardModal({
             ))}
           </div>
 
-          <div className="flex w-full items-center justify-between gap-3">
+          <div className="flex items-center justify-center gap-3">
             <ModalSecondaryButton
               onClick={handlePrev}
               disabled={currentStep === 0}
-              className="flex-1"
+              className="rounded-full"
             >
-              <ChevronLeft className="w-4 h-4 mr-2" />
-              Voltar
+              <ChevronLeft className="w-4 h-4" />
             </ModalSecondaryButton>
 
-            <ModalPrimaryButton onClick={handleNext} className="flex-1">
+            <ModalPrimaryButton onClick={handleNext} className="rounded-full">
               {currentStep === steps.length - 1 ? (
                 <>
-                  {submitLabel} <Check className="w-4 h-4 ml-2" />
+                  <Check className="w-4 h-4" />
                 </>
               ) : (
                 <>
-                  Próximo <ChevronRight className="w-4 h-4 ml-2" />
+                  <ChevronRight className="w-4 h-4" />
                 </>
               )}
             </ModalPrimaryButton>

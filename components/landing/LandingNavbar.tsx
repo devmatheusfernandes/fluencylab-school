@@ -176,7 +176,6 @@ export function LandingNavbar() {
                   src={Logo}
                   alt="Logo"
                   width={140}
-                  height={140}
                   className="object-contain"
                 />
               </div>
