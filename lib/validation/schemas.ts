@@ -4,15 +4,6 @@ import { z } from "zod";
 import { validateAndSanitize } from "./sanitization";
 
 /**
- * Schema personalizado para sanitização automática
- */
-function createSanitizedString(
-  type: "text" | "html" | "email" | "url" | "phone" | "name" | "id"
-) {
-  return z.string().transform((val) => validateAndSanitize(val, type));
-}
-
-/**
  * Schemas básicos com sanitização
  */
 export const sanitizedSchemas = {
@@ -31,7 +22,7 @@ export const sanitizedSchemas = {
  */
 function sanitizeAfterValidation<T extends z.ZodString>(
   schema: T,
-  type: "text" | "html" | "email" | "url" | "phone" | "name" | "id"
+  type: "text" | "html" | "email" | "url" | "phone" | "name" | "id",
 ) {
   return schema.transform((val) => validateAndSanitize(val, type));
 }
@@ -44,19 +35,19 @@ export const userValidationSchema = z.object({
     sanitizedSchemas.name
       .min(2, "Nome deve ter pelo menos 2 caracteres")
       .max(100, "Nome muito longo"),
-    "name"
+    "name",
   ),
   email: sanitizeAfterValidation(
     sanitizedSchemas.email
       .email("Email inválido")
       .max(255, "Email muito longo"),
-    "email"
+    "email",
   ),
   phone: sanitizeAfterValidation(sanitizedSchemas.phone, "phone").optional(),
   role: z.enum(["student", "teacher", "admin", "manager"]),
   profilePicture: sanitizeAfterValidation(
     sanitizedSchemas.url,
-    "url"
+    "url",
   ).optional(),
 });
 
@@ -68,19 +59,19 @@ export const classValidationSchema = z.object({
     sanitizedSchemas.text
       .min(3, "Título deve ter pelo menos 3 caracteres")
       .max(200, "Título muito longo"),
-    "text"
+    "text",
   ),
   description: sanitizeAfterValidation(
     sanitizedSchemas.html.max(2000, "Descrição muito longa"),
-    "html"
+    "html",
   ).optional(),
   teacherId: sanitizeAfterValidation(
     sanitizedSchemas.id.min(1, "ID do professor é obrigatório"),
-    "id"
+    "id",
   ),
   studentId: sanitizeAfterValidation(
     sanitizedSchemas.id.min(1, "ID do estudante é obrigatório"),
-    "id"
+    "id",
   ),
   startTime: z.date(),
   endTime: z.date(),
@@ -94,7 +85,7 @@ export const classValidationSchema = z.object({
   meetingUrl: sanitizeAfterValidation(sanitizedSchemas.url, "url").optional(),
   notes: sanitizeAfterValidation(
     sanitizedSchemas.html.max(5000, "Notas muito longas"),
-    "html"
+    "html",
   ).optional(),
 });
 
@@ -106,13 +97,13 @@ export const announcementValidationSchema = z.object({
     sanitizedSchemas.text
       .min(5, "Título deve ter pelo menos 5 caracteres")
       .max(200, "Título muito longo"),
-    "text"
+    "text",
   ),
   content: sanitizeAfterValidation(
     sanitizedSchemas.html
       .min(10, "Conteúdo deve ter pelo menos 10 caracteres")
       .max(10000, "Conteúdo muito longo"),
-    "html"
+    "html",
   ),
   type: z.enum(["info", "warning", "success", "error"]),
   targetRoles: z
@@ -129,7 +120,7 @@ export const settingsValidationSchema = z.object({
   language: z.enum(["pt", "en", "es"]).default("pt"),
   timezone: sanitizeAfterValidation(
     sanitizedSchemas.text.max(50, "Timezone inválido"),
-    "text"
+    "text",
   ),
   theme: z.enum(["light", "dark", "system"]).default("system"),
   notifications: z
@@ -166,7 +157,7 @@ export const paymentValidationSchema = z.object({
   method: z.enum(["credit_card", "debit_card", "pix", "bank_transfer"]),
   description: sanitizeAfterValidation(
     sanitizedSchemas.text.max(500, "Descrição muito longa"),
-    "text"
+    "text",
   ).optional(),
   metadata: z.record(z.string(), z.string()).optional(),
 });
@@ -177,7 +168,7 @@ export const paymentValidationSchema = z.object({
 export const feedbackValidationSchema = z.object({
   classId: sanitizeAfterValidation(
     sanitizedSchemas.id.min(1, "ID da aula é obrigatório"),
-    "id"
+    "id",
   ),
   rating: z
     .number()
@@ -185,7 +176,7 @@ export const feedbackValidationSchema = z.object({
     .max(5, "Avaliação máxima é 5"),
   comment: sanitizeAfterValidation(
     sanitizedSchemas.html.max(2000, "Comentário muito longo"),
-    "html"
+    "html",
   ).optional(),
   isAnonymous: z.boolean().default(false),
 });
@@ -196,7 +187,7 @@ export const feedbackValidationSchema = z.object({
 export const availabilityValidationSchema = z.object({
   teacherId: sanitizeAfterValidation(
     sanitizedSchemas.id.min(1, "ID do professor é obrigatório"),
-    "id"
+    "id",
   ),
   dayOfWeek: z
     .number()
@@ -221,7 +212,7 @@ export const fileUploadValidationSchema = z.object({
     sanitizedSchemas.text
       .min(1, "Nome do arquivo é obrigatório")
       .max(255, "Nome do arquivo muito longo"),
-    "text"
+    "text",
   ),
   fileSize: z
     .number()
@@ -231,7 +222,7 @@ export const fileUploadValidationSchema = z.object({
     .string()
     .regex(
       /^[a-zA-Z0-9][a-zA-Z0-9!#$&\-\^_]*\/[a-zA-Z0-9][a-zA-Z0-9!#$&\-\^_.]*$/,
-      "Tipo MIME inválido"
+      "Tipo MIME inválido",
     ),
   purpose: z.enum(["avatar", "document", "image", "video", "audio"]),
 });
@@ -242,7 +233,7 @@ export const fileUploadValidationSchema = z.object({
 export const searchValidationSchema = z.object({
   query: sanitizeAfterValidation(
     sanitizedSchemas.text.max(200, "Consulta muito longa"),
-    "text"
+    "text",
   ).optional(),
   page: z.number().min(1, "Página deve ser pelo menos 1").default(1),
   limit: z
@@ -252,13 +243,13 @@ export const searchValidationSchema = z.object({
     .default(20),
   sortBy: sanitizeAfterValidation(
     sanitizedSchemas.text.max(50, "Campo de ordenação inválido"),
-    "text"
+    "text",
   ).optional(),
   sortOrder: z.enum(["asc", "desc"]).default("desc"),
   filters: z
     .record(
       z.string(),
-      z.union([z.string(), z.number(), z.boolean(), z.array(z.string())])
+      z.union([z.string(), z.number(), z.boolean(), z.array(z.string())]),
     )
     .optional(),
 });
@@ -269,7 +260,7 @@ export const searchValidationSchema = z.object({
 export const authValidationSchema = z.object({
   email: sanitizeAfterValidation(
     sanitizedSchemas.email.email("Email inválido"),
-    "email"
+    "email",
   ),
   password: z
     .string()
@@ -289,7 +280,7 @@ export const passwordResetValidationSchema = z
   .object({
     token: sanitizeAfterValidation(
       sanitizedSchemas.text.min(1, "Token é obrigatório"),
-      "text"
+      "text",
     ),
     newPassword: z
       .string()
@@ -353,7 +344,13 @@ export const quizQuestionSchema = z.object({
 });
 
 export const quizSectionSchema = z.object({
-  type: z.enum(['vocabulary', 'grammar', 'timestamps', 'context', 'comprehension']),
+  type: z.enum([
+    "vocabulary",
+    "grammar",
+    "timestamps",
+    "context",
+    "comprehension",
+  ]),
   questions: z.array(quizQuestionSchema),
 });
 

@@ -2,9 +2,6 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 
-// Extend the session type
-// Removed local declaration in favor of global types/next-auth.d.ts
-
 export const useTwoFactor = () => {
   const { data: session, update } = useSession();
   const [isLoading, setIsLoading] = useState(false);
