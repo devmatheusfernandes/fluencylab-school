@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #12263a;
+  --ink-2: #1b3550;
+  --cream: #f7f4ec;
+  --card: #fffdf8;
+  --line: #e3ddcd;
+  --muted: #5b6b78;
+  --amber: #f2a541;
+  --teal: #187066;
+  --teal-bright: #2ea89a;
+  /* Cor da marca do professor (muda ao vivo na demo) */
+  --brand: #187066;
+  --brand-ink: #ffffff;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-cream: var(--cream);
+  --color-card: var(--card);
+  --color-line: var(--line);
+  --color-muted: var(--muted);
+  --color-amber: var(--amber);
+  --color-teal: var(--teal);
+  --color-teal-bright: var(--teal-bright);
+  --color-brand: var(--brand);
+  --color-brand-ink: var(--brand-ink);
+  --font-display: var(--font-rubik), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+}
+
+.bg-brand-soft {
+  background: color-mix(in srgb, var(--brand) 12%, white);
+}
+
+.border-brand-soft {
+  border-color: color-mix(in srgb, var(--brand) 30%, white);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
