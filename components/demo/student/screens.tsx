@@ -2,141 +2,15 @@
 
 import { useState } from "react";
 import clsx from "clsx";
-import { Award, CheckCircle2, Copy, Flame, Lock, PlayCircle, RotateCcw, Sparkles } from "lucide-react";
-import { FLASHCARDS, PAST_LESSONS } from "@/lib/demo-data";
+import { Award, CheckCircle2, Copy, Lock, RotateCcw } from "lucide-react";
+import { FLASHCARDS } from "@/lib/demo-data";
 import { Badge, Button, Modal } from "@/components/demo/ui";
 
 export type StudentTab = "inicio" | "aulas" | "estudar" | "revisar" | "pagar";
 
-type Notify = (message: string) => void;
+export type Notify = (message: string) => void;
 
-const box = "rounded-2xl border border-line bg-card p-4";
-
-/* ───────── Início ───────── */
-
-export function HomeScreen({ go, notify }: { go: (tab: StudentTab) => void; notify: Notify }) {
-  return (
-    <div className="space-y-4">
-      <div>
-        <p className="text-sm text-muted">Bom dia,</p>
-        <h2 className="text-2xl font-semibold">Beatriz</h2>
-      </div>
-
-      <div className="rounded-2xl bg-brand p-4 text-brand-ink">
-        <p className="text-xs font-bold uppercase tracking-wider opacity-80">Próxima aula</p>
-        <p className="mt-1 font-display text-xl font-semibold">Travel vocabulary</p>
-        <p className="text-sm opacity-90">Segunda, 09:00 · com Prof. Ana</p>
-        <button
-          type="button"
-          onClick={() => notify("Aqui você entraria na sala de vídeo.")}
-          className="mt-3 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-ink"
-        >
-          <PlayCircle className="size-4" aria-hidden /> Entrar na aula
-        </button>
-      </div>
-
-      <div className={box}>
-        <div className="flex items-center justify-between">
-          <p className="font-bold">Nível B1</p>
-          <span className="inline-flex items-center gap-1 text-sm font-bold text-amber-700">
-            <Flame className="size-4" aria-hidden /> 6 dias seguidos
-          </span>
-        </div>
-        <div className="mt-3 h-2.5 rounded-full bg-stone-200" role="progressbar" aria-label="Progresso no nível B1" aria-valuenow={62} aria-valuemax={100}>
-          <div className="h-2.5 rounded-full bg-brand" style={{ width: "62%" }} />
-        </div>
-        <p className="mt-2 text-xs text-muted">62% do caminho até o B2</p>
-      </div>
-
-      <button type="button" onClick={() => go("revisar")} className={clsx(box, "flex w-full items-center gap-3 text-left transition hover:border-ink")}>
-        <span className="grid size-11 place-items-center rounded-xl bg-brand-soft">
-          <Sparkles className="size-5" aria-hidden />
-        </span>
-        <span>
-          <span className="block font-bold">Revisão de hoje</span>
-          <span className="text-sm text-muted">5 cartões esperando por você</span>
-        </span>
-      </button>
-    </div>
-  );
-}
-
-/* ───────── Aulas ───────── */
-
-const UPCOMING = [
-  { id: "u1", title: "Travel vocabulary", when: "Seg, 09:00" },
-  { id: "u2", title: "Past simple practice", when: "Qui, 09:00" },
-];
-const SLOTS = ["Qua, 10:00", "Qui, 18:30", "Sex, 09:00"];
-
-export function LessonsScreen({ notify }: { notify: Notify }) {
-  const [choosing, setChoosing] = useState<string | null>(null);
-  const [moved, setMoved] = useState<Record<string, string>>({});
-  const [open, setOpen] = useState(false);
-  const past = PAST_LESSONS[0];
-
-  return (
-    <div className="space-y-4">
-      <h2 className="text-2xl font-semibold">Minhas aulas</h2>
-      {UPCOMING.map((l) => (
-        <div key={l.id} className={box}>
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <p className="font-bold">{l.title}</p>
-              <p className="text-sm text-muted">{moved[l.id] ?? l.when}</p>
-            </div>
-            {moved[l.id] ? <Badge tone="warn">Reagendada</Badge> : <Badge tone="ok">Confirmada</Badge>}
-          </div>
-          {choosing === l.id ? (
-            <div className="mt-3 space-y-2">
-              <p className="text-xs font-bold text-muted">Escolha um novo horário:</p>
-              <div className="flex flex-wrap gap-2">
-                {SLOTS.map((slot) => (
-                  <button
-                    key={slot}
-                    type="button"
-                    onClick={() => {
-                      setMoved((m) => ({ ...m, [l.id]: slot }));
-                      setChoosing(null);
-                      notify(`Aula reagendada para ${slot}. O professor foi avisado.`);
-                    }}
-                    className="rounded-full border border-line px-3 py-1.5 text-sm font-bold hover:border-ink"
-                  >
-                    {slot}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="mt-3">
-              <Button variant="ghost" onClick={() => setChoosing(l.id)}>
-                Reagendar
-              </Button>
-            </div>
-          )}
-        </div>
-      ))}
-
-      <div className={box}>
-        <p className="text-xs font-bold uppercase tracking-wider text-muted">Aula anterior</p>
-        <p className="mt-1 font-bold">{past.topic}</p>
-        <p className="text-sm text-muted">{past.when}</p>
-        <button type="button" onClick={() => setOpen(!open)} aria-expanded={open} className="mt-3 text-sm font-bold underline">
-          {open ? "Ocultar resumo" : "Ver o que foi dito na aula"}
-        </button>
-        {open && (
-          <ul className="mt-3 space-y-1.5 rounded-xl bg-cream p-3 text-sm">
-            {past.excerpt.map((line, i) => (
-              <li key={i}>
-                <b>{line.who}:</b> {line.text}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </div>
-  );
-}
+export const box = "rounded-2xl border border-line bg-card p-4";
 
 /* ───────── Estudar (cursos + caderno) ───────── */
 
@@ -315,7 +189,7 @@ export function ReviewScreen() {
   return (
     <div className="space-y-4">
       <div className="flex items-baseline justify-between">
-        <h2 className="text-2xl font-semibold">Revisar</h2>
+        <h3 className="text-xl font-semibold">Revisão espaçada</h3>
         <span className="text-sm font-bold text-muted">
           {index + 1} / {FLASHCARDS.length}
         </span>

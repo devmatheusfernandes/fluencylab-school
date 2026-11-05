@@ -10,4 +10,8 @@ export type TeacherCtx = {
   brand: Brand;
   setBrand: (brand: Brand) => void;
   notify: (message: string) => void;
+  /** Abre a página de detalhes do aluno. */
+  openStudent: (studentId: string) => void;
+  /** Abre a sala de aula (caderno colaborativo + vídeo). */
+  openClassroom: (studentName: string, notebookTitle?: string) => void;
 };

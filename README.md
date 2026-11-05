@@ -4,13 +4,18 @@ Site para **testar a ideia** de abrir a plataforma a professores independentes: 
 duas demos navegáveis (visão do professor e visão do aluno), com dados fictícios e explicações em cada recurso.
 
 - `/` landing + formulário da lista de espera
-- `/demo/professor` painel do professor (visão geral, alunos, cobranças, contratos, aulas, biblioteca, marca, plano)
-- `/demo/aluno` app do aluno em moldura de celular (início, aulas, estudar, revisar, pagar) + simulação de atraso
+- `/demo/professor` painel do professor: visão geral, alunos (clique num aluno para abrir a página dele: perfil, plano,
+  prática diária, cadernos e aulas do mês com status), **primeira aula** (nivelamento adaptativo, perfil e plano gerados),
+  cobranças, contratos, **aulas e agenda** (sala de aula com caderno colaborativo + vídeo e aulas gravadas),
+  **biblioteca** (lições, cadernos/apostilas prontos e materiais próprios com revisão de qualidade por IA), marca e plano
+- `/demo/aluno` app do aluno em **computador e celular** (alternar no topo): início, aulas (com aulas gravadas),
+  estudar, praticar (revisão espaçada e jogos de imersão: Wordle, Word Ladder, Lyrics Training), pagar, e a sala de aula;
+  com simulação de mensalidade atrasada
 - `/painel?key=SUA_CHAVE` resultados da lista de espera (privado)
 - `/api/waitlist/export?key=SUA_CHAVE` baixa a lista em CSV (privado)
 
 Links diretos para uma seção da demo: `/demo/professor?tab=cobrancas`, `?tab=alunos`, `?tab=contratos`,
-`?tab=aulas`, `?tab=biblioteca`, `?tab=marca`, `?tab=plano`; `/demo/aluno?tab=revisar|estudar|aulas|pagar`.
+`?tab=primeira`, `?tab=aulas`, `?tab=biblioteca`, `?tab=marca`, `?tab=plano`; `/demo/aluno?tab=revisar|estudar|aulas|pagar`.
 Para o Instagram, use links com `?utm_source=instagram` na landing: a origem fica registrada em cada cadastro.
 
 ## Rodar no computador

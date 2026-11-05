@@ -6,11 +6,14 @@ import {
   Check,
   CreditCard,
   FileText,
+  Gamepad2,
   Library,
   Lock,
   Palette,
+  PlayCircle,
   RefreshCw,
-  Video,
+  Target,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 import { Footer } from "@/components/site/Footer";
@@ -48,15 +51,21 @@ const features: Feature[] = [
     href: "/demo/professor?tab=contratos",
   },
   {
-    icon: Video,
-    title: "Videoaula com transcrição",
-    text: "A aula acontece dentro da plataforma, com opção de gravação e transcrição para revisar o que foi dito.",
+    icon: Users,
+    title: "Sala de aula colaborativa",
+    text: "Caderno compartilhado e vídeo na mesma tela. Professor e aluno escrevem juntos e inserem quiz, lacunas e outras dinâmicas no documento.",
     href: "/demo/professor?tab=aulas",
   },
   {
+    icon: Target,
+    title: "Nivelamento e plano automático",
+    text: "Na primeira aula o aluno faz um teste adaptativo. A plataforma monta o perfil dele e um plano de estudos com lições no nível certo.",
+    href: "/demo/professor?tab=primeira",
+  },
+  {
     icon: Library,
-    title: "Biblioteca pronta",
-    text: "Aulas, cursos e materiais prontos para usar com os seus alunos, e espaço para criar os seus próprios cursos.",
+    title: "Biblioteca e seus materiais",
+    text: "Lições, cadernos e apostilas prontos, e a possibilidade de criar os seus, com revisão de qualidade por IA antes de chegar ao aluno.",
     href: "/demo/professor?tab=biblioteca",
   },
   {
@@ -67,9 +76,21 @@ const features: Feature[] = [
   },
   {
     icon: RefreshCw,
-    title: "Revisão espaçada e nível",
-    text: "Teste de nível antes da primeira aula e revisão de vocabulário no momento certo, para o aluno não esquecer.",
+    title: "Revisão espaçada",
+    text: "O aluno revisa o vocabulário no momento certo para não esquecer, e você acompanha a prática diária dele na página do aluno.",
+    href: "/demo/professor?tab=alunos",
+  },
+  {
+    icon: Gamepad2,
+    title: "Jogos de imersão",
+    text: "Wordle, Word Ladder e Lyrics Training para o aluno praticar o idioma de forma leve, todos os dias.",
     href: "/demo/aluno?tab=revisar",
+  },
+  {
+    icon: PlayCircle,
+    title: "Aulas gravadas",
+    text: "Cada aula pode ficar gravada, com transcrição. O aluno revê o que foi dito e salva frases no caderno.",
+    href: "/demo/aluno?tab=aulas",
   },
   {
     icon: Award,

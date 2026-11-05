@@ -41,12 +41,12 @@ export function isBlocked(student: Student, autoBlock: boolean): boolean {
 }
 
 export const WEEK_LESSONS = [
-  { id: "l1", day: "Segunda", time: "09:00", student: "Beatriz Lima", topic: "Travel vocabulary" },
-  { id: "l2", day: "Segunda", time: "14:00", student: "Daniela Souza", topic: "Job interview practice" },
-  { id: "l3", day: "Terça", time: "10:00", student: "Carlos Mendes", topic: "Simple past" },
-  { id: "l4", day: "Quarta", time: "09:00", student: "Fernanda Rocha", topic: "Podcast discussion" },
-  { id: "l5", day: "Quinta", time: "18:30", student: "Helena Prado", topic: "Formal emails" },
-  { id: "l6", day: "Sexta", time: "08:00", student: "Lucas Barros", topic: "Tech conversation" },
+  { id: "l1", studentId: "s1", day: "Segunda", time: "09:00", student: "Beatriz Lima", topic: "Travel vocabulary" },
+  { id: "l2", studentId: "s3", day: "Segunda", time: "14:00", student: "Daniela Souza", topic: "Job interview practice" },
+  { id: "l3", studentId: "s2", day: "Terça", time: "10:00", student: "Carlos Mendes", topic: "Simple past" },
+  { id: "l4", studentId: "s5", day: "Quarta", time: "09:00", student: "Fernanda Rocha", topic: "Podcast discussion" },
+  { id: "l5", studentId: "s7", day: "Quinta", time: "18:30", student: "Helena Prado", topic: "Formal emails" },
+  { id: "l6", studentId: "s10", day: "Sexta", time: "08:00", student: "Lucas Barros", topic: "Tech conversation" },
 ];
 
 export const PAST_LESSONS = [

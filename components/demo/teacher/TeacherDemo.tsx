@@ -2,16 +2,19 @@
 
 import { useState, type CSSProperties } from "react";
 import clsx from "clsx";
-import { CreditCard, FileText, Gauge, LayoutDashboard, Library, Palette, Users, Video, type LucideIcon } from "lucide-react";
+import { CreditCard, FileText, Gauge, LayoutDashboard, Library, Palette, UserPlus, Users, Video, type LucideIcon } from "lucide-react";
 import { STUDENTS, type Student } from "@/lib/demo-data";
 import { inkFor } from "@/lib/format";
 import { ExplainProvider, Switch, useToast } from "@/components/demo/ui";
+import { Classroom } from "@/components/demo/classroom/Classroom";
 import { Billing } from "@/components/demo/teacher/Billing";
 import { BrandStudio } from "@/components/demo/teacher/BrandStudio";
 import { Classes } from "@/components/demo/teacher/Classes";
 import { Contracts } from "@/components/demo/teacher/Contracts";
+import { FirstClass } from "@/components/demo/teacher/FirstClass";
 import { LibrarySection } from "@/components/demo/teacher/LibrarySection";
 import { Overview } from "@/components/demo/teacher/Overview";
+import { StudentDetail } from "@/components/demo/teacher/StudentDetail";
 import { Students } from "@/components/demo/teacher/Students";
 import { Usage } from "@/components/demo/teacher/Usage";
 import type { Brand, TeacherCtx } from "@/components/demo/teacher/types";
@@ -19,6 +22,7 @@ import type { Brand, TeacherCtx } from "@/components/demo/teacher/types";
 const TABS = [
   { id: "visao", label: "Visão geral", icon: LayoutDashboard },
   { id: "alunos", label: "Alunos", icon: Users },
+  { id: "primeira", label: "Primeira aula", icon: UserPlus },
   { id: "cobrancas", label: "Cobranças", icon: CreditCard },
   { id: "contratos", label: "Contratos", icon: FileText },
   { id: "aulas", label: "Aulas e agenda", icon: Video },
@@ -39,6 +43,8 @@ export function TeacherDemo({ initialTab }: { initialTab?: string }) {
   const [autoBlock, setAutoBlock] = useState(true);
   const [brand, setBrand] = useState<Brand>({ name: "Inglês com a Ana", color: "#187066", slug: "ana" });
   const [explain, setExplain] = useState(true);
+  const [studentId, setStudentId] = useState<string | null>(null);
+  const [classroom, setClassroom] = useState<{ studentName: string; notebookTitle?: string } | null>(null);
   const { notify, toast } = useToast();
 
   const ctx: TeacherCtx = {
@@ -49,9 +55,16 @@ export function TeacherDemo({ initialTab }: { initialTab?: string }) {
     brand,
     setBrand,
     notify,
+    openStudent: (id) => setStudentId(id),
+    openClassroom: (studentName, notebookTitle) => setClassroom({ studentName, notebookTitle }),
   };
 
   const style = { "--brand": brand.color, "--brand-ink": inkFor(brand.color) } as CSSProperties;
+
+  function goTab(id: TabId) {
+    setStudentId(null);
+    setTab(id);
+  }
 
   return (
     <ExplainProvider value={explain}>
@@ -82,11 +95,11 @@ export function TeacherDemo({ initialTab }: { initialTab?: string }) {
                 <li key={id} className="shrink-0">
                   <button
                     type="button"
-                    onClick={() => setTab(id)}
-                    aria-current={tab === id ? "page" : undefined}
+                    onClick={() => goTab(id)}
+                    aria-current={tab === id && !studentId ? "page" : undefined}
                     className={clsx(
                       "flex w-full items-center gap-3 whitespace-nowrap rounded-xl px-4 py-3 text-sm font-bold transition",
-                      tab === id ? "bg-brand text-brand-ink" : "bg-card text-ink hover:bg-brand-soft lg:bg-transparent",
+                      tab === id && !studentId ? "bg-brand text-brand-ink" : "bg-card text-ink hover:bg-brand-soft lg:bg-transparent",
                     )}
                   >
                     <Icon className="size-5" aria-hidden />
@@ -98,17 +111,25 @@ export function TeacherDemo({ initialTab }: { initialTab?: string }) {
           </nav>
 
           <main className="min-w-0 flex-1 space-y-5">
-            {tab === "visao" && <Overview ctx={ctx} onGo={(id) => setTab(id)} />}
-            {tab === "alunos" && <Students ctx={ctx} />}
-            {tab === "cobrancas" && <Billing ctx={ctx} />}
-            {tab === "contratos" && <Contracts ctx={ctx} />}
-            {tab === "aulas" && <Classes ctx={ctx} />}
-            {tab === "biblioteca" && <LibrarySection ctx={ctx} />}
-            {tab === "marca" && <BrandStudio ctx={ctx} />}
-            {tab === "plano" && <Usage ctx={ctx} />}
+            {studentId ? (
+              <StudentDetail ctx={ctx} studentId={studentId} onBack={() => setStudentId(null)} />
+            ) : (
+              <>
+                {tab === "visao" && <Overview ctx={ctx} onGo={(id) => goTab(id)} />}
+                {tab === "alunos" && <Students ctx={ctx} />}
+                {tab === "primeira" && <FirstClass ctx={ctx} />}
+                {tab === "cobrancas" && <Billing ctx={ctx} />}
+                {tab === "contratos" && <Contracts ctx={ctx} />}
+                {tab === "aulas" && <Classes ctx={ctx} />}
+                {tab === "biblioteca" && <LibrarySection ctx={ctx} />}
+                {tab === "marca" && <BrandStudio ctx={ctx} />}
+                {tab === "plano" && <Usage ctx={ctx} />}
+              </>
+            )}
           </main>
         </div>
       </div>
+      {classroom && <Classroom role="professor" studentName={classroom.studentName} notebookTitle={classroom.notebookTitle} onClose={() => setClassroom(null)} />}
       {toast}
     </ExplainProvider>
   );
